@@ -38,7 +38,7 @@ async function deploy() {
         constructorCalldata: dataStoreConstructor,
     })
     console.log("DataStore Deployed: " + deployDataStoreResponse.deploy.contract_address)
-    
+
     const roleStoreContract = new Contract(compiledRoleStoreSierra.abi, deployRoleStoreResponse.deploy.contract_address, provider)
     roleStoreContract.connect(account0);
     const roleCall = roleStoreContract.populate("grant_role", [account0.address, shortString.encodeShortString("CONTROLLER")])
@@ -259,7 +259,7 @@ async function deploy() {
     console.log("WithdrawalHandler Deployed: " + deployWithdrawalHandlerResponse.deploy.contract_address)
 
     const compiledMarketTokenCasm = json.parse(fs.readFileSync( "./target/dev/satoru_MarketToken.compiled_contract_class.json").toString( "ascii"))
-    const compiledMarketTokenSierra = json.parse(fs.readFileSync( "./target/dev/satoru_MarketToken.contract_class.json").toString( "ascii"))    
+    const compiledMarketTokenSierra = json.parse(fs.readFileSync( "./target/dev/satoru_MarketToken.contract_class.json").toString( "ascii"))
     try {
         await account0.declare({
             contract: compiledMarketTokenSierra,

@@ -37,7 +37,7 @@ async function create_market() {
     const setAddressTx3 = await dataStoreContract.set_u256(dataCall3.calldata)
     await provider.waitForTransaction(setAddressTx2.transaction_hash)
 
-    
+
     console.log("Deploying USDC...")
     const compiledERC20Casm = json.parse(fs.readFileSync( "./target/dev/satoru_ERC20.compiled_contract_class.json").toString( "ascii"))
     const compiledERC20Sierra = json.parse(fs.readFileSync( "./target/dev/satoru_ERC20.contract_class.json").toString( "ascii"))
@@ -120,7 +120,7 @@ async function create_market() {
     await provider.waitForTransaction(setPrimaryPriceTx2.transaction_hash)
     console.log("Primary prices set.")
     // const orderHandlerContract = new Contract(compiledOrderHandlerSierra.abi, orderHandlerAddress, provider);
-    
+
     // orderHandlerContract.connect(account0)
     // const createOrderParams = {
     //     receiver: account0.address,

@@ -36,7 +36,7 @@ async function create_market() {
         [ec.starkCurve.poseidonHashMany([BigInt(shortString.encodeShortString("MAX_ORACLE_PRICE_AGE"))]), 1000000000000n])
     const setAddressTx3 = await dataStoreContract.set_u256(dataCall3.calldata)
     await provider.waitForTransaction(setAddressTx3.transaction_hash)
-    
+
     const compiledERC20Casm = json.parse(fs.readFileSync( "./target/dev/satoru_ERC20.compiled_contract_class.json").toString( "ascii"))
     const compiledERC20Sierra = json.parse(fs.readFileSync( "./target/dev/satoru_ERC20.contract_class.json").toString( "ascii"))
     const erc20CallData: CallData = new CallData(compiledERC20Sierra.abi)
@@ -341,7 +341,7 @@ async function create_market() {
     // const compiledDepositHandlerSierra = json.parse(fs.readFileSync( "./target/dev/satoru_DepositHandler.contract_class.json").toString( "ascii"))
 
     // const depositHandlerContract = new Contract(compiledDepositHandlerSierra.abi, process.env.DEPOSIT_HANDLER as string, provider);
-    
+
     // depositHandlerContract.connect(account0)
     // const createDepositParams = {
     //     receiver: account0.address,

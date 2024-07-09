@@ -22,7 +22,7 @@ async function create_market() {
     const compiledOrderHandlerSierra = json.parse(fs.readFileSync( "./target/dev/satoru_OrderHandler.contract_class.json").toString( "ascii"))
 
     const orderHandlerContract = new Contract(compiledOrderHandlerSierra.abi, process.env.ORDER_HANDLER as string, provider);
-    
+
 
     const compiledRoleStoreSierra = json.parse(fs.readFileSync( "./target/dev/satoru_RoleStore.contract_class.json").toString( "ascii"))
     const roleStoreContract = new Contract(compiledRoleStoreSierra.abi, process.env.ROLE_STORE as string, provider)
@@ -55,7 +55,7 @@ async function create_market() {
     await provider.waitForTransaction(setAddressTx8.transaction_hash)
 
 
-    
+
     orderHandlerContract.connect(account0)
     const setPricesParams = {
         signer_info: 1,

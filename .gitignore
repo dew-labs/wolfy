@@ -15,6 +15,9 @@ Cargo.lock
 
 **/.DS_Store
 .env
+.env.*
+!.env.example
 node_modules
+tsconfig.tsbuildinfo
 
 .prev_tests_failed

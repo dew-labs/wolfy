@@ -23,7 +23,7 @@ async function create_market() {
 
     const orderHandlerContract = new Contract(compiledOrderHandlerSierra.abi, process.env.ORDER_HANDLER as string, provider);
     const compiledERC20Sierra = json.parse(fs.readFileSync( "./target/dev/satoru_ERC20.contract_class.json").toString( "ascii"))
-    
+
     const ethContract = new Contract(compiledERC20Sierra.abi, eth as string, provider)
     ethContract.connect(account0)
     const transferCall = ethContract.populate("transfer", [process.env.ORDER_VAULT as string, uint256.bnToUint256(1000000000000000000n)])
