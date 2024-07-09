@@ -78,15 +78,15 @@ trait IDecreaseOrderUtils<TContractState> {
         min_output_amount: u256
     );
 
-    fn handle_swap_error(
-        ref self: TContractState,
-        oracle: IOracleDispatcher,
-        order: Order,
-        result: DecreasePositionResult,
-        reason: felt252,
-        reason_bytes: Span<felt252>,
-        event_emitter: IEventEmitterDispatcher
-    );
+    // fn handle_swap_error(
+    //     ref self: TContractState,
+    //     oracle: IOracleDispatcher,
+    //     order: Order,
+    //     result: DecreasePositionResult,
+    //     reason: felt252,
+    //     reason_bytes: Span<felt252>,
+    //     event_emitter: IEventEmitterDispatcher
+    // );
 }
 
 #[starknet::contract]
@@ -323,27 +323,27 @@ mod DecreaseOrderUtils {
             }
         }
 
-        fn handle_swap_error(
-            ref self: ContractState,
-            oracle: IOracleDispatcher,
-            order: Order,
-            result: DecreasePositionResult,
-            reason: felt252,
-            reason_bytes: Span<felt252>,
-            event_emitter: IEventEmitterDispatcher
-        ) {
-            event_emitter.emit_swap_reverted(reason, reason_bytes);
+        // fn handle_swap_error(
+        //     ref self: ContractState,
+        //     oracle: IOracleDispatcher,
+        //     order: Order,
+        //     result: DecreasePositionResult,
+        //     reason: felt252,
+        //     reason_bytes: Span<felt252>,
+        //     event_emitter: IEventEmitterDispatcher
+        // ) {
+        //     event_emitter.emit_swap_reverted(reason, reason_bytes);
 
-            self
-                .validate_output_amount(
-                    oracle, result.output_token, result.output_amount, order.min_output_amount
-                );
+        //     self
+        //         .validate_output_amount(
+        //             oracle, result.output_token, result.output_amount, order.min_output_amount
+        //         );
 
-            IMarketTokenDispatcher { contract_address: order.market }
-                .transfer_out(
-                    order.market, result.output_token, order.receiver, result.output_amount
-                );
-        }
+        //     IMarketTokenDispatcher { contract_address: order.market }
+        //         .transfer_out(
+        //             order.market, result.output_token, order.receiver, result.output_amount
+        //         );
+        // }
     // This function should return an EventLogData cause the callback_utils
     // needs it. We need to find a solution for that case.
     // fn get_output_event_data(

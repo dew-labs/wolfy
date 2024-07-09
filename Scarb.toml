@@ -1,6 +1,7 @@
 [package]
 name = "satoru"
 version = "0.1.0"
+cairo-version = "2.6.0"
 authors = ["Abdelhamid Bakhta <@abdelhamidbakhta>"]
 license = "MIT"
 keywords = ["starknet", "defi", "syntethics"]
@@ -8,6 +9,7 @@ description = "Synthetics platform for Starknet, inspired by GMX v2 design."
 documentation = "https://keep-starknet-strange.github.io/satoru/"
 homepage = "https://keep-starknet-strange.github.io/satoru/"
 repository = "https://github.com/keep-starknet-strange/satoru"
+readme = "README.md"
 
 [[target.starknet-contract]]
 sierra = true
@@ -15,7 +17,7 @@ casm = true
 allowed-libfuncs-list.name = "experimental"
 
 [cairo]
-sierra-replace-ids = true
+sierra-replace-ids = false
 
 [dependencies]
 starknet = ">=2.6.0"
