@@ -68,7 +68,6 @@ async function deploy() {
     let eventEmitterAddress = process.env.EVENT_EMITTER
 
     if (!eventEmitterAddress) {
-        console.log("Deploying EventEmitter...")
         const compiledEventEmitterCasm = json.parse(fs.readFileSync( "./target/dev/satoru_EventEmitter.compiled_contract_class.json").toString( "ascii"))
         const compiledEventEmitterSierra = json.parse(fs.readFileSync( "./target/dev/satoru_EventEmitter.contract_class.json").toString( "ascii"))
         const eventEmitterCallData: CallData = new CallData(compiledEventEmitterSierra.abi)
