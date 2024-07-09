@@ -20,6 +20,7 @@ pnpm install
 
 ```sh
 snforge test
+snforge test --ignored
 ```
 
 This will execute the tests in `tests` directory and print the results.

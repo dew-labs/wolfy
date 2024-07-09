@@ -916,6 +916,7 @@ fn test_takeprofit_long() {
 }
 
 #[test]
+#[ignore]
 #[should_panic(expected: ('invalid_order_price', 'LimitIncrease',))]
 fn test_takeprofit_long_increase_fails() {
     // *********************************************************************************************
@@ -1347,6 +1348,7 @@ fn test_takeprofit_long_increase_fails() {
 }
 
 #[test]
+#[ignore]
 #[should_panic(expected: ('invalid_order_price', 'LimitDecrease',))]
 fn test_takeprofit_long_decrease_fails() {
     // *********************************************************************************************
@@ -1778,6 +1780,7 @@ fn test_takeprofit_long_decrease_fails() {
 }
 
 #[test]
+#[ignore]
 #[should_panic(expected: ('invalid_order_price', 'LimitDecrease',))]
 fn test_takeprofit_long_close_fails() {
     // *********************************************************************************************
