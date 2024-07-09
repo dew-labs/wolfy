@@ -869,14 +869,14 @@ mod Oracle {
         /// * `price` - The price value to set to.
         fn set_primary_price_(ref self: ContractState, token: ContractAddress, price: Price) {
             match self.get_token_with_price_index(token) {
-                Option::Some(i) => (),
+                Option::Some(_) => (),
                 Option::None(_) => {
                     self.primary_prices.write(token, price);
 
                     let mut tokens_with_prices = self.tokens_with_prices.read();
                     let index_of_zero = self.get_token_with_price_index(Zeroable::zero());
                     // If an entry with zero address is found the entry is set to the new token,
-                    // otherwise the new token is appended to the list. This is to avoid the list 
+                    // otherwise the new token is appended to the list. This is to avoid the list
                     // to grow indefinitely.
                     match index_of_zero {
                         Option::Some(i) => { tokens_with_prices.set(i, token); },

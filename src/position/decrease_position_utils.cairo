@@ -82,7 +82,7 @@ fn decrease_position(mut params: UpdatePositionParams) -> DecreasePositionResult
     // if the position will be partially decreased then do a check on the
     // remaining collateral amount and update the order attributes if needed
     if (params.order.size_delta_usd < params.position.size_in_usd) {
-        let (estimated_position_pnl_usd, uncapped_base_pnl_usd, size_delta_in_tokens) =
+        let (estimated_position_pnl_usd, _uncapped_base_pnl_usd, _size_delta_in_tokens) =
             position_utils::get_position_pnl_usd(
             params.contracts.data_store,
             params.market,
@@ -203,7 +203,7 @@ fn decrease_position(mut params: UpdatePositionParams) -> DecreasePositionResult
 
     position_utils::update_funding_and_borrowing_state(params, cache.prices);
     if (base_order_utils::is_liquidation_order(params.order.order_type)) {
-        let (is_liquidatable, liquidation_amount_usd) = position_utils::is_position_liquiditable(
+        let (is_liquidatable, _liquidation_amount_usd) = position_utils::is_position_liquiditable(
             params.contracts.data_store,
             params.contracts.referral_storage,
             params.position,

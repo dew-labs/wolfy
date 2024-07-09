@@ -13,7 +13,7 @@ use alexandria_data_structures::array_ext::ArrayTraitExt;
 /// Item
 ///
 /// Enumeration used to store a value in a SerializableDict.
-/// It allows to store either a simple value (Single) or a 
+/// It allows to store either a simple value (Single) or a
 /// Span & comes with utilities functions.
 ///
 #[derive(Drop, Copy)]
@@ -26,8 +26,8 @@ enum Item<T> {
 impl ItemImpl<T> of ItemTrait<T> {
     fn is_single(self: @Item<T>) -> bool {
         match self {
-            Item::Single(v) => true,
-            Item::Span(arr) => false
+            Item::Single(_) => true,
+            Item::Span(_) => false
         }
     }
 
@@ -37,7 +37,7 @@ impl ItemImpl<T> of ItemTrait<T> {
 
     fn len(self: @Item<T>) -> usize {
         match self {
-            Item::Single(v) => 1,
+            Item::Single(_) => 1,
             Item::Span(s) => (*s).len()
         }
     }
@@ -45,13 +45,13 @@ impl ItemImpl<T> of ItemTrait<T> {
     fn unwrap_single<impl TCopy: Copy<T>>(self: @Item<T>) -> T {
         match self {
             Item::Single(v) => (*v),
-            Item::Span(arr) => panic_with_felt252('should be single')
+            Item::Span(_) => panic_with_felt252('should be single')
         }
     }
 
     fn unwrap_span(self: @Item<T>) -> Span<T> {
         match self {
-            Item::Single(v) => panic_with_felt252('should be a span'),
+            Item::Single(_) => panic_with_felt252('should be a span'),
             Item::Span(arr) => *arr
         }
     }

@@ -312,7 +312,7 @@ mod OrderHandler {
             let starting_gas: u256 = 100000; // TODO: Get starting gas from Cairo.
 
             // Check only self.
-            let role_module_state = RoleModule::unsafe_new_contract_state();
+            let _role_module_state = RoleModule::unsafe_new_contract_state();
             //role_module_state.only_self();
 
             let mut base_order_handler_state = BaseOrderHandler::unsafe_new_contract_state();

@@ -129,7 +129,7 @@ mod MarketFactory {
                 self.data_store.read().contract_address.into()
             ];
             // Deploy the contract with the `deploy_syscall`.
-            let (market_token_deployed_address, return_data) = deploy_syscall(
+            let (market_token_deployed_address, _return_data) = deploy_syscall(
                 self.market_token_class_hash.read(), salt, constructor_calldata.span(), false
             )
                 .expect('failed to deploy market');

@@ -83,7 +83,7 @@ fn pay_execution_fee(
 
     event_emitter.emit_keeper_execution_fee(keeper, execution_fee_for_keeper);
 
-    let refund_fee_amount = execution_fee - execution_fee_for_keeper;
+    let _refund_fee_amount = execution_fee - execution_fee_for_keeper;
 
     let refund_fee_amount = execution_fee - execution_fee_for_keeper;
     if (refund_fee_amount == 0) {
@@ -123,7 +123,7 @@ fn pay_execution_fee_deposit(
 
     event_emitter.emit_keeper_execution_fee(keeper, execution_fee_for_keeper);
 
-    let refund_fee_amount = execution_fee - execution_fee_for_keeper;
+    let _refund_fee_amount = execution_fee - execution_fee_for_keeper;
 
     let refund_fee_amount = execution_fee - execution_fee_for_keeper;
     if (refund_fee_amount == 0) {
@@ -162,7 +162,7 @@ fn pay_execution_fee_order(
 
     event_emitter.emit_keeper_execution_fee(keeper, execution_fee_for_keeper);
 
-    let refund_fee_amount = execution_fee - execution_fee_for_keeper;
+    let _refund_fee_amount = execution_fee - execution_fee_for_keeper;
 
     let refund_fee_amount = execution_fee - execution_fee_for_keeper;
     if (refund_fee_amount == 0) {
@@ -201,7 +201,7 @@ fn pay_execution_fee_withdrawal(
 
     event_emitter.emit_keeper_execution_fee(keeper, execution_fee_for_keeper);
 
-    let refund_fee_amount = execution_fee - execution_fee_for_keeper;
+    let _refund_fee_amount = execution_fee - execution_fee_for_keeper;
 
     let refund_fee_amount = execution_fee - execution_fee_for_keeper;
     if (refund_fee_amount == 0) {

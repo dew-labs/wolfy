@@ -257,7 +257,7 @@ fn get_swap_price_impact(
     token_in_price: Price,
     token_out_price: Price
 ) -> (i256, i256) {
-    let mut cache: SwapCache = Default::default();
+    let mut _cache: SwapCache = Default::default();
 
     let param: GetPriceImpactUsdParams = GetPriceImpactUsdParams {
         data_store: data_store,

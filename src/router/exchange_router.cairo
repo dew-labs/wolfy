@@ -284,7 +284,7 @@ mod ExchangeRouter {
         }
 
         fn create_deposit(ref self: ContractState, params: CreateDepositParams) -> felt252 {
-            let data_store = self.data_store.read();
+            let _data_store = self.data_store.read();
             // global_reentrancy_guard::non_reentrant_before(data_store); //TODO uncomment
 
             let account = get_caller_address();
@@ -344,7 +344,7 @@ mod ExchangeRouter {
         }
 
         fn create_order(ref self: ContractState, params: CreateOrderParams) -> felt252 {
-            let data_store = self.data_store.read();
+            let _data_store = self.data_store.read();
             // global_reentrancy_guard::non_reentrant_before(data_store); //TODO uncomment
 
             let account = get_caller_address();

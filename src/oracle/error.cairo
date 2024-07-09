@@ -39,7 +39,7 @@ mod OracleError {
 
     fn ARRAY_OUT_OF_BOUNDS_FELT252(mut data_1: Span<Span<felt252>>, data_2: usize, msg: felt252) {
         let mut data: Array<felt252> = array!['array out of bounds felt252'];
-        let mut length = data_1.len();
+        let mut _length = data_1.len();
         // TODO add data_1 data to error
         data.append(data_2.into());
         data.append(msg);

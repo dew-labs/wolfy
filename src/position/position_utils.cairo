@@ -425,7 +425,7 @@ fn validate_position(
         let min_position_size_usd = data_store.get_u256(keys::min_position_size_usd());
         assert(position.size_in_usd >= min_position_size_usd, PositionError::MIN_POSITION_SIZE);
     }
-    let (is_liquiditable, reason) = is_position_liquiditable(
+    let (is_liquiditable, _reason) = is_position_liquiditable(
         data_store, referral_storage, position, market, prices, should_validate_min_collateral_usd
     );
     assert(!is_liquiditable, PositionError::LIQUIDATABLE_POSITION);

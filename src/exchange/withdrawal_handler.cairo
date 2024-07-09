@@ -238,7 +238,7 @@ mod WithdrawalHandler {
             // );
 
             let starting_gas = starknet_utils::sn_gasleft(array![100]);
-            let execution_gas = gas_utils::get_execution_gas(data_store, starting_gas);
+            let _execution_gas = gas_utils::get_execution_gas(data_store, starting_gas);
 
             self.execute_withdrawal_keeper(key, oracle_params_copy, get_caller_address());
 

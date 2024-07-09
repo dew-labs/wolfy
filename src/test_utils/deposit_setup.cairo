@@ -339,7 +339,7 @@ fn deposit_setup(
 
     assert(balance_market_token != 0, 'should receive market token');
 
-    let balance_deposit_vault_after = IERC20Dispatcher { contract_address: market.short_token }
+    let _balance_deposit_vault_after = IERC20Dispatcher { contract_address: market.short_token }
         .balance_of(deposit_vault.contract_address);
 
     (

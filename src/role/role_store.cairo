@@ -303,12 +303,12 @@ mod RoleStore {
         }
 
         fn _revoke_role(ref self: ContractState, account: ContractAddress, role_key: felt252) {
-            let current_roles_count = self.roles_count.read();
+            let _current_roles_count = self.roles_count.read();
             // Only revoke the role if the account has it.
             if self._has_role(account, role_key) {
                 self.has_role.write((role_key, account), false);
                 self.emit(RoleRevoked { role_key, account, sender: get_caller_address() });
-                let current_role_members_count = self.role_members_count.read(role_key);
+                let _current_role_members_count = self.role_members_count.read(role_key);
                 let mut i = 1;
                 loop {
                     let stored_role_member = self.role_members.read((role_key, i));

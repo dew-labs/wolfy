@@ -85,7 +85,7 @@ mod SwapOrderUtils {
             //     params.order.order_type,
             //     params.order.updated_at_block
             // );
-            let (output_token, output_amount) = swap_utils::swap(
+            let (_output_token, _output_amount) = swap_utils::swap(
                 @swap_utils::SwapParams {
                     data_store: params.contracts.data_store,
                     event_emitter: params.contracts.event_emitter,

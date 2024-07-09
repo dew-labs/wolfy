@@ -74,7 +74,7 @@ fn swap_profit_to_collateral_token(
             .order
             .decrease_position_swap_type == DecreasePositionSwapType::SwapPnlTokenToCollateralToken) {
         swap_path_markets.append(params.market);
-        let (token_out, swap_output_amount) = params
+        let (_token_out, swap_output_amount) = params
             .contracts
             .swap_handler
             .swap(

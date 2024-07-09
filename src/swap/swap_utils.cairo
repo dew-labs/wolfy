@@ -208,7 +208,7 @@ fn _swap(params: @SwapParams, _params: @_SwapParams) -> (ContractAddress, u256) 
     cache.token_in_price = (*params.oracle).get_primary_price(*_params.token_in);
     cache.token_out_price = (*params.oracle).get_primary_price(cache.token_out);
 
-    let usd_delta_for_token_felt252: felt252 = (*_params.amount_in
+    let _usd_delta_for_token_felt252: felt252 = (*_params.amount_in
         * cache.token_out_price.mid_price())
         .try_into()
         .expect('u256 into felt failed');
@@ -347,7 +347,7 @@ fn _swap(params: @SwapParams, _params: @_SwapParams) -> (ContractAddress, u256) 
     market_utils::validate_reserve(
         *params.data_store, _params.market, @prices, cache.token_out == *_params.market.long_token
     );
-    let (pnl_factor_type_for_longs, pnl_factor_type_for_shorts) = if (cache
+    let (_pnl_factor_type_for_longs, _pnl_factor_type_for_shorts) = if (cache
         .token_out == *_params
         .market
         .long_token) {

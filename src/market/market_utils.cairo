@@ -1296,7 +1296,7 @@ fn get_swap_impact_amount_with_cap(
     // negative impact: maximize impactAmount, use tokenPrice.min
     if price_impact_usd > Zeroable::zero() {
         // round positive impactAmount down, this will be deducted from the swap impact pool for the user
-        let price = to_signed(token_price.max, true);
+        let _price = to_signed(token_price.max, true);
 
         let max_impact_amount = to_signed(
             get_swap_impact_pool_amount(data_store, market, token), true
@@ -1903,13 +1903,13 @@ fn apply_delta_to_funding_fee_amount_per_size(
         );
 }
 
-// Get the max position impact factor 
+// Get the max position impact factor
 // # Arguments
 // `data_store` - the data store to use
 // `market` - the market to check
 // `is_positive` - whether to check the positive or negative side
 // # Returns
-// The max position impact factor 
+// The max position impact factor
 fn get_max_position_impact_factor(
     data_store: IDataStoreDispatcher, market: ContractAddress, is_positive: bool,
 ) -> u256 {
@@ -1956,7 +1956,7 @@ fn get_max_position_impact_factor_for_liquidations(
 // `data_store` - the data store to use
 // `market` - the market to check
 // # Returns
-// The min collateral factor 
+// The min collateral factor
 fn get_min_collateral_factor(data_store: IDataStoreDispatcher, market: ContractAddress) -> u256 {
     data_store.get_u256(keys::min_collateral_factor_key(market))
 }
@@ -2197,7 +2197,7 @@ fn apply_delta_to_claimable_funding_amount_per_size(
 fn get_seconds_since_funding_updated(
     data_store: IDataStoreDispatcher, market: ContractAddress
 ) -> u256 {
-    //Error on this one but its normal the function is not create yet 
+    //Error on this one but its normal the function is not create yet
     let updated_at: u256 = data_store.get_u256(keys::funding_updated_at_key(market));
     if (updated_at == 0) {
         return 0;
@@ -2306,7 +2306,7 @@ fn increment_cumulative_borrowing_factor(
 // `data_store` - the data store to use
 // `market` - the market to check
 // `is_long` - whether to check the long or short side
-// #Return 
+// #Return
 // the timestamp of when the cumulative borrowing factor was last updated
 fn get_cumulative_borrowing_factor_updated_at(
     data_store: IDataStoreDispatcher, market: ContractAddress, is_long: bool
@@ -2318,7 +2318,7 @@ fn get_cumulative_borrowing_factor_updated_at(
 // `data_store` - the data store to use
 // `market` - the market to check
 // `is_long` - whether to check the long or short side
-// #Return 
+// #Return
 // the number of seconds since the cumulative borrowing factor was last updated
 fn get_seconds_since_cumulative_borrowing_factor_updated(
     data_store: IDataStoreDispatcher, market: ContractAddress, is_long: bool
@@ -2410,7 +2410,7 @@ fn get_next_cumulative_borrowing_factor(
     (next_cumulative_borrowing_factor, delta)
 }
 
-// Get the borrowing factor per second 
+// Get the borrowing factor per second
 // `data_store` - the data store to use
 // `market` - the market to get the borrowing factor per second for
 // `prices` - prices the prices of the market tokens
@@ -2679,7 +2679,7 @@ fn validate_max_pnl(
     pnl_factor_type_for_longs: felt252,
     pnl_factor_type_for_shorts: felt252
 ) {
-    let (is_pnl_factor_exceeded_for_longs, pnl_to_pool_factor_for_longs, max_pnl_factor_for_longs) =
+    let (is_pnl_factor_exceeded_for_longs, _pnl_to_pool_factor_for_longs, _max_pnl_factor_for_longs) =
         is_pnl_factor_exceeded_check(
         data_store, market, prices, true, pnl_factor_type_for_longs,
     );
@@ -2689,7 +2689,7 @@ fn validate_max_pnl(
     }
 
     let (
-        is_pnl_factor_exceeded_for_shorts, pnl_to_pool_factor_for_shorts, max_pnl_factor_for_shorts
+        is_pnl_factor_exceeded_for_shorts, _pnl_to_pool_factor_for_shorts, _max_pnl_factor_for_shorts
     ) =
         is_pnl_factor_exceeded_check(
         data_store, market, prices, false, pnl_factor_type_for_shorts,

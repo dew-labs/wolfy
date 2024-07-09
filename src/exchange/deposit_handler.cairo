@@ -221,7 +221,7 @@ mod DepositHandler {
             );
 
             // let starting_gas = gas_left();
-            let execution_gas = gas_utils::get_execution_gas(data_store, 0);
+            let _execution_gas = gas_utils::get_execution_gas(data_store, 0);
 
             self.execute_deposit_keeper(key, oracle_params, get_caller_address());
 

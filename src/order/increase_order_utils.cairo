@@ -138,7 +138,7 @@ mod IncreaseOrderUtils {
                 },
                 collateral_increment_amount
             );
-            let position_updated = params.contracts.data_store.get_position(position_key);
+            let _position_updated = params.contracts.data_store.get_position(position_key);
         }
 
         /// Validate the oracle block numbers used for the prices in the oracle.

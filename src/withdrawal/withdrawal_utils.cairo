@@ -203,7 +203,7 @@ fn execute_withdrawal(
         );
     }
 
-    let result = execute_withdrawal_(@params, withdrawal);
+    let _result = execute_withdrawal_(@params, withdrawal);
 
     params.event_emitter.emit_withdrawal_executed(params.key);
 // TODO fix pay execution fees
@@ -504,7 +504,7 @@ fn swap(
     cache.swap_params.ui_fee_receiver = ui_fee_receiver;
 
     let cache_swap_params = @cache.swap_params;
-    let (output_token, output_amount) = swap_utils::swap(cache_swap_params);
+    let (_output_token, _output_amount) = swap_utils::swap(cache_swap_params);
 
     // validate that internal state changes are correct before calling external callbacks
     market_utils::validate_market_token_balance_span(
