@@ -12,8 +12,7 @@ use satoru::withdrawal::withdrawal::Withdrawal;
 use satoru::market::market_pool_value_info::MarketPoolValueInfo;
 use satoru::pricing::swap_pricing_utils::SwapFees;
 use satoru::position::{
-    position::Position, position_event_utils::PositionIncreaseParams,
-    position_utils::DecreasePositionCollateralValues
+    position::Position, position_event_utils::PositionIncreaseParams, position_utils::DecreasePositionCollateralValues
 };
 use satoru::price::price::Price;
 use satoru::pricing::position_pricing_utils::PositionFees;
@@ -55,11 +54,7 @@ trait IEventEmitter<TContractState> {
 
     /// Emits the `SwapImpactPoolAmountUpdated` event.
     fn emit_swap_impact_pool_amount_updated(
-        ref self: TContractState,
-        market: ContractAddress,
-        token: ContractAddress,
-        delta: i256,
-        next_value: u256,
+        ref self: TContractState, market: ContractAddress, token: ContractAddress, delta: i256, next_value: u256,
     );
 
     /// Emits the `MarketCreated` event.
@@ -75,10 +70,7 @@ trait IEventEmitter<TContractState> {
 
     /// Emits the `MarketTokenClassHashUpdated` event.
     fn emit_market_token_class_hash_updated(
-        ref self: TContractState,
-        updated_by: ContractAddress,
-        previous_value: ClassHash,
-        new_value: ClassHash,
+        ref self: TContractState, updated_by: ContractAddress, previous_value: ClassHash, new_value: ClassHash,
     );
 
     /// Emits the `ClaimableFeeAmountUpdated` event.
@@ -105,10 +97,7 @@ trait IEventEmitter<TContractState> {
 
     /// Emits the `FeesClaimed` event.
     fn emit_fees_claimed(
-        ref self: TContractState,
-        market: ContractAddress,
-        receiver: ContractAddress,
-        fee_amount: u256
+        ref self: TContractState, market: ContractAddress, receiver: ContractAddress, fee_amount: u256
     );
 
     /// Emits the `UiFeesClaimed` event.
@@ -134,9 +123,7 @@ trait IEventEmitter<TContractState> {
     );
 
     /// Emits the `DepositCancelled` event.
-    fn emit_deposit_cancelled(
-        ref self: TContractState, key: felt252, reason: felt252, reason_bytes: Span<felt252>
-    );
+    fn emit_deposit_cancelled(ref self: TContractState, key: felt252, reason: felt252, reason_bytes: Span<felt252>);
 
     /// Emits the `WithdrawalCreated` event.
     fn emit_withdrawal_created(ref self: TContractState, key: felt252, withdrawal: Withdrawal);
@@ -145,9 +132,7 @@ trait IEventEmitter<TContractState> {
     fn emit_withdrawal_executed(ref self: TContractState, key: felt252);
 
     /// Emits the `WithdrawalCancelled` event.
-    fn emit_withdrawal_cancelled(
-        ref self: TContractState, key: felt252, reason: felt252, reason_bytes: Span<felt252>
-    );
+    fn emit_withdrawal_cancelled(ref self: TContractState, key: felt252, reason: felt252, reason_bytes: Span<felt252>);
 
     /// Emits the `PositionIncrease` event.
     fn emit_position_increase(ref self: TContractState, params: PositionIncreaseParams);
@@ -213,9 +198,7 @@ trait IEventEmitter<TContractState> {
     fn emit_order_created(ref self: TContractState, key: felt252, order: Order);
 
     /// Emits the `OrderExecuted` event.
-    fn emit_order_executed(
-        ref self: TContractState, key: felt252, secondary_order_type: SecondaryOrderType
-    );
+    fn emit_order_executed(ref self: TContractState, key: felt252, secondary_order_type: SecondaryOrderType);
 
     /// Emits the `OrderUpdated` event.
     fn emit_order_updated(
@@ -234,21 +217,14 @@ trait IEventEmitter<TContractState> {
 
     /// Emits the `OrderCollateralDeltaAmountAutoUpdated` event.
     fn emit_order_collateral_delta_amount_auto_updated(
-        ref self: TContractState,
-        key: felt252,
-        collateral_delta_amount: u256,
-        next_collateral_delta_amount: u256
+        ref self: TContractState, key: felt252, collateral_delta_amount: u256, next_collateral_delta_amount: u256
     );
 
     /// Emits the `OrderCancelled` event.
-    fn emit_order_cancelled(
-        ref self: TContractState, key: felt252, reason: felt252, reason_bytes: Span<felt252>
-    );
+    fn emit_order_cancelled(ref self: TContractState, key: felt252, reason: felt252, reason_bytes: Span<felt252>);
 
     /// Emits the `OrderFrozen` event.
-    fn emit_order_frozen(
-        ref self: TContractState, key: felt252, reason: felt252, reason_bytes: Span<felt252>
-    );
+    fn emit_order_frozen(ref self: TContractState, key: felt252, reason: felt252, reason_bytes: Span<felt252>);
 
     /// Emits the `AffiliateRewardUpdated` event.
     fn emit_affiliate_reward_updated(
@@ -276,19 +252,13 @@ trait IEventEmitter<TContractState> {
     fn emit_after_deposit_execution_error(ref self: TContractState, key: felt252, deposit: Deposit);
 
     /// Emits the `AfterDepositCancellationError` event.
-    fn emit_after_deposit_cancellation_error(
-        ref self: TContractState, key: felt252, deposit: Deposit
-    );
+    fn emit_after_deposit_cancellation_error(ref self: TContractState, key: felt252, deposit: Deposit);
 
     /// Emits the `AfterWithdrawalExecutionError` event.
-    fn emit_after_withdrawal_execution_error(
-        ref self: TContractState, key: felt252, withdrawal: Withdrawal
-    );
+    fn emit_after_withdrawal_execution_error(ref self: TContractState, key: felt252, withdrawal: Withdrawal);
 
     /// Emits the `AfterWithdrawalCancellationError` event.
-    fn emit_after_withdrawal_cancellation_error(
-        ref self: TContractState, key: felt252, withdrawal: Withdrawal
-    );
+    fn emit_after_withdrawal_cancellation_error(ref self: TContractState, key: felt252, withdrawal: Withdrawal);
 
     /// Emits the `AfterOrderExecutionError` event.
     fn emit_after_order_execution_error(ref self: TContractState, key: felt252, order: Order);
@@ -310,59 +280,37 @@ trait IEventEmitter<TContractState> {
     );
 
     /// Emits the `SetBool` event.
-    fn emit_set_bool(
-        ref self: TContractState, key: felt252, data_bytes: Span<felt252>, value: bool
-    );
+    fn emit_set_bool(ref self: TContractState, key: felt252, data_bytes: Span<felt252>, value: bool);
 
     /// Emits the `SetAddress` event.
-    fn emit_set_address(
-        ref self: TContractState, key: felt252, data_bytes: Span<felt252>, value: ContractAddress
-    );
+    fn emit_set_address(ref self: TContractState, key: felt252, data_bytes: Span<felt252>, value: ContractAddress);
 
     /// Emits the `SetFelt252` event.
-    fn emit_set_felt252(
-        ref self: TContractState, key: felt252, data_bytes: Span<felt252>, value: felt252
-    );
+    fn emit_set_felt252(ref self: TContractState, key: felt252, data_bytes: Span<felt252>, value: felt252);
 
     /// Emits the `SetUint` event.
-    fn emit_set_uint(
-        ref self: TContractState, key: felt252, data_bytes: Span<felt252>, value: u256
-    );
+    fn emit_set_uint(ref self: TContractState, key: felt252, data_bytes: Span<felt252>, value: u256);
 
     /// Emits the `SetInt` event.
-    fn emit_set_int(
-        ref self: TContractState, key: felt252, data_bytes: Span<felt252>, value: felt252
-    );
+    fn emit_set_int(ref self: TContractState, key: felt252, data_bytes: Span<felt252>, value: felt252);
 
     /// Emits the `SignalAddOracleSigner` event.
-    fn emit_signal_add_oracle_signer(
-        ref self: TContractState, action_key: felt252, account: ContractAddress
-    );
+    fn emit_signal_add_oracle_signer(ref self: TContractState, action_key: felt252, account: ContractAddress);
 
     /// Emits the `SignalAddOracleSigner` event.
-    fn emit_add_oracle_signer(
-        ref self: TContractState, action_key: felt252, account: ContractAddress
-    );
+    fn emit_add_oracle_signer(ref self: TContractState, action_key: felt252, account: ContractAddress);
 
     /// Emits the `SignalRemoveOracleSigner` event.
-    fn emit_signal_remove_oracle_signer(
-        ref self: TContractState, action_key: felt252, account: ContractAddress
-    );
+    fn emit_signal_remove_oracle_signer(ref self: TContractState, action_key: felt252, account: ContractAddress);
 
     /// Emits the `RemoveOracleSigner` event.
-    fn emit_remove_oracle_signer(
-        ref self: TContractState, action_key: felt252, account: ContractAddress
-    );
+    fn emit_remove_oracle_signer(ref self: TContractState, action_key: felt252, account: ContractAddress);
 
     /// Emits the `SignalSetFeeReceiver` event.
-    fn emit_signal_set_fee_receiver(
-        ref self: TContractState, action_key: felt252, account: ContractAddress
-    );
+    fn emit_signal_set_fee_receiver(ref self: TContractState, action_key: felt252, account: ContractAddress);
 
     /// Emits the `SetFeeReceiver` event.
-    fn emit_set_fee_receiver(
-        ref self: TContractState, action_key: felt252, account: ContractAddress
-    );
+    fn emit_set_fee_receiver(ref self: TContractState, action_key: felt252, account: ContractAddress);
 
     /// Emits the `SignalGrantRole` event.
     fn emit_signal_grant_role(
@@ -370,9 +318,7 @@ trait IEventEmitter<TContractState> {
     );
 
     /// Emits the `GrantRole` event.
-    fn emit_grant_role(
-        ref self: TContractState, action_key: felt252, account: ContractAddress, role_key: felt252
-    );
+    fn emit_grant_role(ref self: TContractState, action_key: felt252, account: ContractAddress, role_key: felt252);
 
     /// Emits the `SignalRevokeRole` event.
     fn emit_signal_revoke_role(
@@ -380,9 +326,7 @@ trait IEventEmitter<TContractState> {
     );
 
     /// Emits the `RevokeRole` event.
-    fn emit_revoke_role(
-        ref self: TContractState, action_key: felt252, account: ContractAddress, role_key: felt252
-    );
+    fn emit_revoke_role(ref self: TContractState, action_key: felt252, account: ContractAddress, role_key: felt252);
 
     /// Emits the `SignalSetPriceFeed` event.
     fn emit_signal_set_price_feed(
@@ -407,24 +351,16 @@ trait IEventEmitter<TContractState> {
     );
 
     /// Emits the `SignalPendingAction` event.
-    fn emit_signal_pending_action(
-        ref self: TContractState, action_key: felt252, action_label: felt252
-    );
+    fn emit_signal_pending_action(ref self: TContractState, action_key: felt252, action_label: felt252);
 
     /// Emits the `ClearPendingAction` event.
-    fn emit_clear_pending_action(
-        ref self: TContractState, action_key: felt252, action_label: felt252
-    );
+    fn emit_clear_pending_action(ref self: TContractState, action_key: felt252, action_label: felt252);
 
     /// Emits the `KeeperExecutionFee` event.
-    fn emit_keeper_execution_fee(
-        ref self: TContractState, keeper: ContractAddress, execution_fee_amount: u256
-    );
+    fn emit_keeper_execution_fee(ref self: TContractState, keeper: ContractAddress, execution_fee_amount: u256);
 
     /// Emits the `ExecutionFeeRefund` event.
-    fn emit_execution_fee_refund(
-        ref self: TContractState, receiver: ContractAddress, refund_fee_amount: u256
-    );
+    fn emit_execution_fee_refund(ref self: TContractState, receiver: ContractAddress, refund_fee_amount: u256);
 
     /// Emits the `MarketPoolValueInfo` event.
     fn emit_market_pool_value_info(
@@ -436,11 +372,7 @@ trait IEventEmitter<TContractState> {
 
     /// Emits the `PoolAmountUpdated` event.
     fn emit_pool_amount_updated(
-        ref self: TContractState,
-        market: ContractAddress,
-        token: ContractAddress,
-        delta: i256,
-        next_value: u256
+        ref self: TContractState, market: ContractAddress, token: ContractAddress, delta: i256, next_value: u256
     );
 
     /// Emits the `OpenInterestInTokensUpdated` event.
@@ -475,11 +407,7 @@ trait IEventEmitter<TContractState> {
 
     /// Emits the `VirtualPositionInventoryUpdated` event.
     fn emit_virtual_position_inventory_updated(
-        ref self: TContractState,
-        token: ContractAddress,
-        virtual_token_id: felt252,
-        delta: i256,
-        next_value: i256
+        ref self: TContractState, token: ContractAddress, virtual_token_id: felt252, delta: i256, next_value: i256
     );
 
     /// Emits the `CollateralSumUpdated` event.
@@ -494,11 +422,7 @@ trait IEventEmitter<TContractState> {
 
     /// Emits the `CumulativeBorrowingFactorUpdated` event.
     fn emit_cumulative_borrowing_factor_updated(
-        ref self: TContractState,
-        market: ContractAddress,
-        is_long: bool,
-        delta: u256,
-        next_value: u256
+        ref self: TContractState, market: ContractAddress, is_long: bool, delta: u256, next_value: u256
     );
 
     /// Emits the `FundingFeeAmountPerSizeUpdated` event.
@@ -544,17 +468,11 @@ trait IEventEmitter<TContractState> {
         next_pool_value: u256
     );
 
-    fn emit_ui_fee_factor_updated(
-        ref self: TContractState, account: ContractAddress, ui_fee_factor: u256
-    );
+    fn emit_ui_fee_factor_updated(ref self: TContractState, account: ContractAddress, ui_fee_factor: u256);
 
     /// Emits the `OraclePriceUpdate` event.
     fn emit_oracle_price_update(
-        ref self: TContractState,
-        token: ContractAddress,
-        min_price: u256,
-        max_price: u256,
-        is_price_feed: bool
+        ref self: TContractState, token: ContractAddress, min_price: u256, max_price: u256, is_price_feed: bool
     );
 
     /// Emits the `SignerAdded` event.
@@ -594,41 +512,26 @@ trait IEventEmitter<TContractState> {
     );
 
     fn emit_oracle_price_updated(
-        ref self: TContractState,
-        token: ContractAddress,
-        min_price: u256,
-        max_price: u256,
-        is_price_feed: bool
+        ref self: TContractState, token: ContractAddress, min_price: u256, max_price: u256, is_price_feed: bool
     );
 
     fn emit_set_handler(ref self: TContractState, handler: ContractAddress, is_active: bool);
 
-    fn emit_set_trader_referral_code(
-        ref self: TContractState, account: ContractAddress, code: felt252
-    );
+    fn emit_set_trader_referral_code(ref self: TContractState, account: ContractAddress, code: felt252);
 
-    fn emit_set_tier(
-        ref self: TContractState, tier_id: u256, total_rebate: u256, discount_share: u256
-    );
+    fn emit_set_tier(ref self: TContractState, tier_id: u256, total_rebate: u256, discount_share: u256);
 
     fn emit_set_referrer_tier(ref self: TContractState, referrer: ContractAddress, tier_id: u256);
 
-    fn emit_set_referrer_discount_share(
-        ref self: TContractState, referrer: ContractAddress, discount_share: u256
-    );
+    fn emit_set_referrer_discount_share(ref self: TContractState, referrer: ContractAddress, discount_share: u256);
 
     fn emit_register_code(ref self: TContractState, account: ContractAddress, code: felt252);
 
     fn emit_set_code_owner(
-        ref self: TContractState,
-        account: ContractAddress,
-        new_account: ContractAddress,
-        code: felt252
+        ref self: TContractState, account: ContractAddress, new_account: ContractAddress, code: felt252
     );
 
-    fn emit_gov_set_code_owner(
-        ref self: TContractState, code: felt252, new_account: ContractAddress
-    );
+    fn emit_gov_set_code_owner(ref self: TContractState, code: felt252, new_account: ContractAddress);
 
     fn emit_set_gov(ref self: TContractState, prev_gov: ContractAddress, next_gov: ContractAddress);
 }
@@ -1566,9 +1469,7 @@ mod EventEmitter {
         ) {
             self
                 .emit(
-                    ClaimableCollateralUpdated {
-                        market, token, account, time_key, delta, next_value, next_pool_value,
-                    }
+                    ClaimableCollateralUpdated { market, token, account, time_key, delta, next_value, next_pool_value, }
                 );
         }
 
@@ -1582,12 +1483,7 @@ mod EventEmitter {
             next_value: u256,
             next_pool_value: u256,
         ) {
-            self
-                .emit(
-                    ClaimableFundingUpdated {
-                        market, token, account, delta, next_value, next_pool_value,
-                    }
-                );
+            self.emit(ClaimableFundingUpdated { market, token, account, delta, next_value, next_pool_value, });
         }
 
         /// Emits the `PositionImpactPoolAmountUpdated` event.
@@ -1599,11 +1495,7 @@ mod EventEmitter {
 
         /// Emits the `SwapImpactPoolAmountUpdated` event.
         fn emit_swap_impact_pool_amount_updated(
-            ref self: ContractState,
-            market: ContractAddress,
-            token: ContractAddress,
-            delta: i256,
-            next_value: u256,
+            ref self: ContractState, market: ContractAddress, token: ContractAddress, delta: i256, next_value: u256,
         ) {
             self.emit(SwapImpactPoolAmountUpdated { market, token, delta, next_value, });
         }
@@ -1618,20 +1510,12 @@ mod EventEmitter {
             short_token: ContractAddress,
             market_type: felt252,
         ) {
-            self
-                .emit(
-                    MarketCreated {
-                        creator, market_token, index_token, long_token, short_token, market_type,
-                    }
-                );
+            self.emit(MarketCreated { creator, market_token, index_token, long_token, short_token, market_type, });
         }
 
         /// Emits the `MarketTokenClassHashUpdated` event.
         fn emit_market_token_class_hash_updated(
-            ref self: ContractState,
-            updated_by: ContractAddress,
-            previous_value: ClassHash,
-            new_value: ClassHash,
+            ref self: ContractState, updated_by: ContractAddress, previous_value: ClassHash, new_value: ClassHash,
         ) {
             self.emit(MarketTokenClassHashUpdated { updated_by, previous_value, new_value, });
         }
@@ -1669,10 +1553,7 @@ mod EventEmitter {
 
         /// Emits the `FeesClaimed` event.
         fn emit_fees_claimed(
-            ref self: ContractState,
-            market: ContractAddress,
-            receiver: ContractAddress,
-            fee_amount: u256
+            ref self: ContractState, market: ContractAddress, receiver: ContractAddress, fee_amount: u256
         ) {
             self.emit(FeesClaimed { market, receiver, fee_amount });
         }
@@ -1686,10 +1567,7 @@ mod EventEmitter {
             fee_amount: u256,
             next_pool_value: u256
         ) {
-            self
-                .emit(
-                    UiFeesClaimed { ui_fee_receiver, market, receiver, fee_amount, next_pool_value }
-                );
+            self.emit(UiFeesClaimed { ui_fee_receiver, market, receiver, fee_amount, next_pool_value });
         }
 
         /// Emits the `DepositCreated` event.
@@ -1724,18 +1602,11 @@ mod EventEmitter {
             short_token_amount: u256,
             received_market_tokens: u256
         ) {
-            self
-                .emit(
-                    DepositExecuted {
-                        key, long_token_amount, short_token_amount, received_market_tokens
-                    }
-                );
+            self.emit(DepositExecuted { key, long_token_amount, short_token_amount, received_market_tokens });
         }
 
         /// Emits the `DepositCancelled` event.
-        fn emit_deposit_cancelled(
-            ref self: ContractState, key: felt252, reason: felt252, reason_bytes: Span<felt252>
-        ) {
+        fn emit_deposit_cancelled(ref self: ContractState, key: felt252, reason: felt252, reason_bytes: Span<felt252>) {
             self.emit(DepositCancelled { key, reason, reason_bytes });
         }
 
@@ -1876,9 +1747,7 @@ mod EventEmitter {
         }
 
         /// Emits the `OrderExecuted` event.
-        fn emit_order_executed(
-            ref self: ContractState, key: felt252, secondary_order_type: SecondaryOrderType
-        ) {
+        fn emit_order_executed(ref self: ContractState, key: felt252, secondary_order_type: SecondaryOrderType) {
             self.emit(OrderExecuted { key, secondary_order_type });
         }
 
@@ -1891,12 +1760,7 @@ mod EventEmitter {
             trigger_price: u256,
             min_output_amount: u256
         ) {
-            self
-                .emit(
-                    OrderUpdated {
-                        key, size_delta_usd, acceptable_price, trigger_price, min_output_amount
-                    }
-                );
+            self.emit(OrderUpdated { key, size_delta_usd, acceptable_price, trigger_price, min_output_amount });
         }
 
         /// Emits the `OrderSizeDeltaAutoUpdated` event.
@@ -1908,16 +1772,11 @@ mod EventEmitter {
 
         /// Emits the `OrderCollateralDeltaAmountAutoUpdated` event.
         fn emit_order_collateral_delta_amount_auto_updated(
-            ref self: ContractState,
-            key: felt252,
-            collateral_delta_amount: u256,
-            next_collateral_delta_amount: u256
+            ref self: ContractState, key: felt252, collateral_delta_amount: u256, next_collateral_delta_amount: u256
         ) {
             self
                 .emit(
-                    OrderCollateralDeltaAmountAutoUpdated {
-                        key, collateral_delta_amount, next_collateral_delta_amount
-                    }
+                    OrderCollateralDeltaAmountAutoUpdated { key, collateral_delta_amount, next_collateral_delta_amount }
                 );
         }
 
@@ -1934,12 +1793,7 @@ mod EventEmitter {
             base_pnl_usd: i256,
             remaining_cost_usd: u256
         ) {
-            self
-                .emit(
-                    InsolventClose {
-                        order_key, position_collateral_amount, base_pnl_usd, remaining_cost_usd
-                    }
-                );
+            self.emit(InsolventClose { order_key, position_collateral_amount, base_pnl_usd, remaining_cost_usd });
         }
 
         /// Emits the `InsufficientFundingFeePayment` event.
@@ -2010,9 +1864,7 @@ mod EventEmitter {
                         funding_fee_amount: fees.funding.funding_fee_amount,
                         claimable_long_token_amount: fees.funding.claimable_long_token_amount,
                         claimable_short_token_amount: fees.funding.claimable_short_token_amount,
-                        latest_funding_fee_amount_per_size: fees
-                            .funding
-                            .latest_funding_fee_amount_per_size,
+                        latest_funding_fee_amount_per_size: fees.funding.latest_funding_fee_amount_per_size,
                         latest_long_token_claimable_funding_amount_per_size: fees
                             .funding
                             .latest_long_token_claimable_funding_amount_per_size,
@@ -2022,9 +1874,7 @@ mod EventEmitter {
                         borrowing_fee_usd: fees.borrowing.borrowing_fee_usd,
                         borrowing_fee_amount: fees.borrowing.borrowing_fee_amount,
                         borrowing_fee_receiver_factor: fees.borrowing.borrowing_fee_receiver_factor,
-                        borrowing_fee_amount_for_fee_receiver: fees
-                            .borrowing
-                            .borrowing_fee_amount_for_fee_receiver,
+                        borrowing_fee_amount_for_fee_receiver: fees.borrowing.borrowing_fee_amount_for_fee_receiver,
                         position_fee_factor: fees.position_fee_factor,
                         protocol_fee_amount: fees.protocol_fee_amount,
                         position_fee_receiver_factor: fees.position_fee_receiver_factor,
@@ -2081,9 +1931,7 @@ mod EventEmitter {
                         funding_fee_amount: fees.funding.funding_fee_amount,
                         claimable_long_token_amount: fees.funding.claimable_long_token_amount,
                         claimable_short_token_amount: fees.funding.claimable_short_token_amount,
-                        latest_funding_fee_amount_per_size: fees
-                            .funding
-                            .latest_funding_fee_amount_per_size,
+                        latest_funding_fee_amount_per_size: fees.funding.latest_funding_fee_amount_per_size,
                         latest_long_token_claimable_funding_amount_per_size: fees
                             .funding
                             .latest_long_token_claimable_funding_amount_per_size,
@@ -2093,9 +1941,7 @@ mod EventEmitter {
                         borrowing_fee_usd: fees.borrowing.borrowing_fee_usd,
                         borrowing_fee_amount: fees.borrowing.borrowing_fee_amount,
                         borrowing_fee_receiver_factor: fees.borrowing.borrowing_fee_receiver_factor,
-                        borrowing_fee_amount_for_fee_receiver: fees
-                            .borrowing
-                            .borrowing_fee_amount_for_fee_receiver,
+                        borrowing_fee_amount_for_fee_receiver: fees.borrowing.borrowing_fee_amount_for_fee_receiver,
                         position_fee_factor: fees.position_fee_factor,
                         protocol_fee_amount: fees.protocol_fee_amount,
                         position_fee_receiver_factor: fees.position_fee_receiver_factor,
@@ -2112,16 +1958,12 @@ mod EventEmitter {
         }
 
         /// Emits the `OrderCancelled` event.
-        fn emit_order_cancelled(
-            ref self: ContractState, key: felt252, reason: felt252, reason_bytes: Span<felt252>
-        ) {
+        fn emit_order_cancelled(ref self: ContractState, key: felt252, reason: felt252, reason_bytes: Span<felt252>) {
             self.emit(OrderCancelled { key, reason, reason_bytes });
         }
 
         /// Emits the `OrderFrozen` event.
-        fn emit_order_frozen(
-            ref self: ContractState, key: felt252, reason: felt252, reason_bytes: Span<felt252>
-        ) {
+        fn emit_order_frozen(ref self: ContractState, key: felt252, reason: felt252, reason_bytes: Span<felt252>) {
             self.emit(OrderFrozen { key, reason, reason_bytes });
         }
 
@@ -2135,12 +1977,7 @@ mod EventEmitter {
             next_value: u256,
             next_pool_value: u256
         ) {
-            self
-                .emit(
-                    AffiliateRewardUpdated {
-                        market, token, affiliate, delta, next_value, next_pool_value
-                    }
-                );
+            self.emit(AffiliateRewardUpdated { market, token, affiliate, delta, next_value, next_pool_value });
         }
 
         /// Emits the `AffiliateRewardClaimed` event.
@@ -2153,39 +1990,26 @@ mod EventEmitter {
             amount: u256,
             next_pool_value: u256
         ) {
-            self
-                .emit(
-                    AffiliateRewardClaimed {
-                        market, token, affiliate, receiver, amount, next_pool_value
-                    }
-                );
+            self.emit(AffiliateRewardClaimed { market, token, affiliate, receiver, amount, next_pool_value });
         }
 
         /// Emits the `AfterDepositExecutionError` event.
-        fn emit_after_deposit_execution_error(
-            ref self: ContractState, key: felt252, deposit: Deposit
-        ) {
+        fn emit_after_deposit_execution_error(ref self: ContractState, key: felt252, deposit: Deposit) {
             self.emit(AfterDepositExecutionError { key, deposit });
         }
 
         /// Emits the `AfterDepositCancellationError` event.
-        fn emit_after_deposit_cancellation_error(
-            ref self: ContractState, key: felt252, deposit: Deposit
-        ) {
+        fn emit_after_deposit_cancellation_error(ref self: ContractState, key: felt252, deposit: Deposit) {
             self.emit(AfterDepositCancellationError { key, deposit });
         }
 
         /// Emits the `AfterWithdrawalExecutionError` event.
-        fn emit_after_withdrawal_execution_error(
-            ref self: ContractState, key: felt252, withdrawal: Withdrawal
-        ) {
+        fn emit_after_withdrawal_execution_error(ref self: ContractState, key: felt252, withdrawal: Withdrawal) {
             self.emit(AfterWithdrawalExecutionError { key, withdrawal });
         }
 
         /// Emits the `AfterWithdrawalCancellationError` event.
-        fn emit_after_withdrawal_cancellation_error(
-            ref self: ContractState, key: felt252, withdrawal: Withdrawal
-        ) {
+        fn emit_after_withdrawal_cancellation_error(ref self: ContractState, key: felt252, withdrawal: Withdrawal) {
             self.emit(AfterWithdrawalCancellationError { key, withdrawal });
         }
 
@@ -2195,9 +2019,7 @@ mod EventEmitter {
         }
 
         /// Emits the `AfterOrderCancellationError` event.
-        fn emit_after_order_cancellation_error(
-            ref self: ContractState, key: felt252, order: Order
-        ) {
+        fn emit_after_order_cancellation_error(ref self: ContractState, key: felt252, order: Order) {
             self.emit(AfterOrderCancellationError { key, order });
         }
 
@@ -2220,127 +2042,84 @@ mod EventEmitter {
             max_pnl_factor: u256,
             should_enable_adl: bool,
         ) {
-            self
-                .emit(
-                    AdlStateUpdated {
-                        market, is_long, pnl_to_pool_factor, max_pnl_factor, should_enable_adl
-                    }
-                );
+            self.emit(AdlStateUpdated { market, is_long, pnl_to_pool_factor, max_pnl_factor, should_enable_adl });
         }
 
         /// Emits the `SetBool` event.
-        fn emit_set_bool(
-            ref self: ContractState, key: felt252, data_bytes: Span<felt252>, value: bool
-        ) {
+        fn emit_set_bool(ref self: ContractState, key: felt252, data_bytes: Span<felt252>, value: bool) {
             self.emit(SetBool { key, data_bytes, value });
         }
 
         /// Emits the `SetAddress` event.
-        fn emit_set_address(
-            ref self: ContractState, key: felt252, data_bytes: Span<felt252>, value: ContractAddress
-        ) {
+        fn emit_set_address(ref self: ContractState, key: felt252, data_bytes: Span<felt252>, value: ContractAddress) {
             self.emit(SetAddress { key, data_bytes, value });
         }
 
-        fn emit_set_felt252(
-            ref self: ContractState, key: felt252, data_bytes: Span<felt252>, value: felt252
-        ) {
+        fn emit_set_felt252(ref self: ContractState, key: felt252, data_bytes: Span<felt252>, value: felt252) {
             self.emit(SetFelt252 { key, data_bytes, value });
         }
 
         /// Emits the `SetFelt252` event.
-        fn emit_set_uint(
-            ref self: ContractState, key: felt252, data_bytes: Span<felt252>, value: u256
-        ) {
+        fn emit_set_uint(ref self: ContractState, key: felt252, data_bytes: Span<felt252>, value: u256) {
             self.emit(SetUint { key, data_bytes, value });
         }
 
         /// Emits the `SetInt` event.
-        fn emit_set_int(
-            ref self: ContractState, key: felt252, data_bytes: Span<felt252>, value: felt252
-        ) {
+        fn emit_set_int(ref self: ContractState, key: felt252, data_bytes: Span<felt252>, value: felt252) {
             self.emit(SetInt { key, data_bytes, value });
         }
 
         /// Emits the `SignalAddOracleSigner` event.
-        fn emit_signal_add_oracle_signer(
-            ref self: ContractState, action_key: felt252, account: ContractAddress
-        ) {
+        fn emit_signal_add_oracle_signer(ref self: ContractState, action_key: felt252, account: ContractAddress) {
             self.emit(SignalAddOracleSigner { action_key, account });
         }
 
         /// Emits the `AddOracleSigner` event.
-        fn emit_add_oracle_signer(
-            ref self: ContractState, action_key: felt252, account: ContractAddress
-        ) {
+        fn emit_add_oracle_signer(ref self: ContractState, action_key: felt252, account: ContractAddress) {
             self.emit(AddOracleSigner { action_key, account });
         }
 
         /// Emits the `SignalRemoveOracleSigner` event.
-        fn emit_signal_remove_oracle_signer(
-            ref self: ContractState, action_key: felt252, account: ContractAddress
-        ) {
+        fn emit_signal_remove_oracle_signer(ref self: ContractState, action_key: felt252, account: ContractAddress) {
             self.emit(SignalRemoveOracleSigner { action_key, account });
         }
 
         /// Emits the `RemoveOracleSigner` event.
-        fn emit_remove_oracle_signer(
-            ref self: ContractState, action_key: felt252, account: ContractAddress
-        ) {
+        fn emit_remove_oracle_signer(ref self: ContractState, action_key: felt252, account: ContractAddress) {
             self.emit(RemoveOracleSigner { action_key, account });
         }
 
         /// Emits the `SignalSetFeeReceiver` event.
-        fn emit_signal_set_fee_receiver(
-            ref self: ContractState, action_key: felt252, account: ContractAddress
-        ) {
+        fn emit_signal_set_fee_receiver(ref self: ContractState, action_key: felt252, account: ContractAddress) {
             self.emit(SignalSetFeeReceiver { action_key, account });
         }
 
         /// Emits the `SetFeeReceiver` event.
-        fn emit_set_fee_receiver(
-            ref self: ContractState, action_key: felt252, account: ContractAddress
-        ) {
+        fn emit_set_fee_receiver(ref self: ContractState, action_key: felt252, account: ContractAddress) {
             self.emit(SetFeeReceiver { action_key, account });
         }
 
         /// Emits the `SignalGrantRole` event.
         fn emit_signal_grant_role(
-            ref self: ContractState,
-            action_key: felt252,
-            account: ContractAddress,
-            role_key: felt252
+            ref self: ContractState, action_key: felt252, account: ContractAddress, role_key: felt252
         ) {
             self.emit(SignalGrantRole { action_key, account, role_key });
         }
 
         /// Emits the `GrantRole` event.
-        fn emit_grant_role(
-            ref self: ContractState,
-            action_key: felt252,
-            account: ContractAddress,
-            role_key: felt252
-        ) {
+        fn emit_grant_role(ref self: ContractState, action_key: felt252, account: ContractAddress, role_key: felt252) {
             self.emit(GrantRole { action_key, account, role_key });
         }
 
         /// Emits the `SignalRevokeRole` event.
         fn emit_signal_revoke_role(
-            ref self: ContractState,
-            action_key: felt252,
-            account: ContractAddress,
-            role_key: felt252
+            ref self: ContractState, action_key: felt252, account: ContractAddress, role_key: felt252
         ) {
             self.emit(SignalRevokeRole { action_key, account, role_key });
         }
 
         /// Emits the `RevokeRole` event.
-        fn emit_revoke_role(
-            ref self: ContractState,
-            action_key: felt252,
-            account: ContractAddress,
-            role_key: felt252
-        ) {
+        fn emit_revoke_role(ref self: ContractState, action_key: felt252, account: ContractAddress, role_key: felt252) {
             self.emit(RevokeRole { action_key, account, role_key });
         }
 
@@ -2391,30 +2170,22 @@ mod EventEmitter {
         }
 
         /// Emits the `SignalPendingAction` event.
-        fn emit_signal_pending_action(
-            ref self: ContractState, action_key: felt252, action_label: felt252,
-        ) {
+        fn emit_signal_pending_action(ref self: ContractState, action_key: felt252, action_label: felt252,) {
             self.emit(SignalPendingAction { action_key, action_label });
         }
 
         /// Emits the `ClearPendingAction` event.
-        fn emit_clear_pending_action(
-            ref self: ContractState, action_key: felt252, action_label: felt252,
-        ) {
+        fn emit_clear_pending_action(ref self: ContractState, action_key: felt252, action_label: felt252,) {
             self.emit(ClearPendingAction { action_key, action_label });
         }
 
         /// Emits the `KeeperExecutionFee` event.
-        fn emit_keeper_execution_fee(
-            ref self: ContractState, keeper: ContractAddress, execution_fee_amount: u256
-        ) {
+        fn emit_keeper_execution_fee(ref self: ContractState, keeper: ContractAddress, execution_fee_amount: u256) {
             self.emit(KeeperExecutionFee { keeper, execution_fee_amount });
         }
 
         /// Emits the `ExecutionFeeRefund` event.
-        fn emit_execution_fee_refund(
-            ref self: ContractState, receiver: ContractAddress, refund_fee_amount: u256
-        ) {
+        fn emit_execution_fee_refund(ref self: ContractState, receiver: ContractAddress, refund_fee_amount: u256) {
             self.emit(ExecutionFeeRefund { receiver, refund_fee_amount });
         }
 
@@ -2425,21 +2196,12 @@ mod EventEmitter {
             market_pool_value_info: MarketPoolValueInfo,
             market_tokens_supply: u256
         ) {
-            self
-                .emit(
-                    MarketPoolValueInfoEvent {
-                        market, market_pool_value_info, market_tokens_supply
-                    }
-                );
+            self.emit(MarketPoolValueInfoEvent { market, market_pool_value_info, market_tokens_supply });
         }
 
         /// Emits the `PoolAmountUpdated` event.
         fn emit_pool_amount_updated(
-            ref self: ContractState,
-            market: ContractAddress,
-            token: ContractAddress,
-            delta: i256,
-            next_value: u256
+            ref self: ContractState, market: ContractAddress, token: ContractAddress, delta: i256, next_value: u256
         ) {
             self.emit(PoolAmountUpdated { market, token, delta, next_value });
         }
@@ -2453,12 +2215,7 @@ mod EventEmitter {
             delta: i256,
             next_value: u256
         ) {
-            self
-                .emit(
-                    OpenInterestInTokensUpdated {
-                        market, collateral_token, is_long, delta, next_value
-                    }
-                );
+            self.emit(OpenInterestInTokensUpdated { market, collateral_token, is_long, delta, next_value });
         }
 
         /// Emits the `OpenInterestUpdated` event.
@@ -2482,26 +2239,14 @@ mod EventEmitter {
             delta: i256,
             next_value: u256
         ) {
-            self
-                .emit(
-                    VirtualSwapInventoryUpdated {
-                        market, is_long_token, virtual_market_id, delta, next_value
-                    }
-                );
+            self.emit(VirtualSwapInventoryUpdated { market, is_long_token, virtual_market_id, delta, next_value });
         }
 
         /// Emits the `VirtualPositionInventoryUpdated` event.
         fn emit_virtual_position_inventory_updated(
-            ref self: ContractState,
-            token: ContractAddress,
-            virtual_token_id: felt252,
-            delta: i256,
-            next_value: i256
+            ref self: ContractState, token: ContractAddress, virtual_token_id: felt252, delta: i256, next_value: i256
         ) {
-            self
-                .emit(
-                    VirtualPositionInventoryUpdated { token, virtual_token_id, delta, next_value }
-                );
+            self.emit(VirtualPositionInventoryUpdated { token, virtual_token_id, delta, next_value });
         }
 
         /// Emits the `CollateralSumUpdated` event.
@@ -2513,19 +2258,12 @@ mod EventEmitter {
             delta: i256,
             next_value: u256
         ) {
-            self
-                .emit(
-                    CollateralSumUpdated { market, collateral_token, is_long, delta, next_value }
-                );
+            self.emit(CollateralSumUpdated { market, collateral_token, is_long, delta, next_value });
         }
 
         /// Emits the `CumulativeBorrowingFactorUpdated` event.
         fn emit_cumulative_borrowing_factor_updated(
-            ref self: ContractState,
-            market: ContractAddress,
-            is_long: bool,
-            delta: u256,
-            next_value: u256
+            ref self: ContractState, market: ContractAddress, is_long: bool, delta: u256, next_value: u256
         ) {
             self.emit(CumulativeBorrowingFactorUpdated { market, is_long, delta, next_value });
         }
@@ -2539,12 +2277,7 @@ mod EventEmitter {
             delta: u256,
             next_value: u256
         ) {
-            self
-                .emit(
-                    FundingFeeAmountPerSizeUpdated {
-                        market, collateral_token, is_long, delta, next_value
-                    }
-                );
+            self.emit(FundingFeeAmountPerSizeUpdated { market, collateral_token, is_long, delta, next_value });
         }
 
         /// Emits the `ClaimableFundingAmountPerSizeUpdated` event.
@@ -2556,12 +2289,7 @@ mod EventEmitter {
             delta: u256,
             next_value: u256
         ) {
-            self
-                .emit(
-                    ClaimableFundingAmountPerSizeUpdated {
-                        market, collateral_token, is_long, delta, next_value
-                    }
-                );
+            self.emit(ClaimableFundingAmountPerSizeUpdated { market, collateral_token, is_long, delta, next_value });
         }
 
         /// Emits the `FundingFeesClaimed` event.
@@ -2574,10 +2302,7 @@ mod EventEmitter {
             amount: u256,
             next_pool_value: u256
         ) {
-            self
-                .emit(
-                    FundingFeesClaimed { market, token, account, receiver, amount, next_pool_value }
-                );
+            self.emit(FundingFeesClaimed { market, token, account, receiver, amount, next_pool_value });
         }
 
         /// Emits the `CollateralClaimed` event.
@@ -2591,28 +2316,17 @@ mod EventEmitter {
             amount: u256,
             next_pool_value: u256
         ) {
-            self
-                .emit(
-                    CollateralClaimed {
-                        market, token, account, receiver, time_key, amount, next_pool_value
-                    }
-                );
+            self.emit(CollateralClaimed { market, token, account, receiver, time_key, amount, next_pool_value });
         }
 
         /// Emits the `UiFeeFactorUpdated` event.
-        fn emit_ui_fee_factor_updated(
-            ref self: ContractState, account: ContractAddress, ui_fee_factor: u256
-        ) {
+        fn emit_ui_fee_factor_updated(ref self: ContractState, account: ContractAddress, ui_fee_factor: u256) {
             self.emit(UiFeeFactorUpdated { account, ui_fee_factor });
         }
 
         /// Emits the `OraclePriceUpdate` event.
         fn emit_oracle_price_update(
-            ref self: ContractState,
-            token: ContractAddress,
-            min_price: u256,
-            max_price: u256,
-            is_price_feed: bool
+            ref self: ContractState, token: ContractAddress, min_price: u256, max_price: u256, is_price_feed: bool
         ) {
             self.emit(OraclePriceUpdate { token, min_price, max_price, is_price_feed });
         }
@@ -2628,9 +2342,7 @@ mod EventEmitter {
         }
 
         /// Emits the `SwapReverted` event.
-        fn emit_swap_reverted(
-            ref self: ContractState, reason: felt252, reason_bytes: Span<felt252>
-        ) {
+        fn emit_swap_reverted(ref self: ContractState, reason: felt252, reason_bytes: Span<felt252>) {
             self.emit(SwapReverted { reason, reason_bytes });
         }
 
@@ -2683,11 +2395,7 @@ mod EventEmitter {
         }
 
         fn emit_oracle_price_updated(
-            ref self: ContractState,
-            token: ContractAddress,
-            min_price: u256,
-            max_price: u256,
-            is_price_feed: bool
+            ref self: ContractState, token: ContractAddress, min_price: u256, max_price: u256, is_price_feed: bool
         ) {
             self.emit(OraclePriceUpdate { token, min_price, max_price, is_price_feed });
         }
@@ -2696,27 +2404,19 @@ mod EventEmitter {
             self.emit(SetHandler { handler, is_active });
         }
 
-        fn emit_set_tier(
-            ref self: ContractState, tier_id: u256, total_rebate: u256, discount_share: u256
-        ) {
+        fn emit_set_tier(ref self: ContractState, tier_id: u256, total_rebate: u256, discount_share: u256) {
             self.emit(SetTier { tier_id, total_rebate, discount_share });
         }
 
-        fn emit_set_referrer_tier(
-            ref self: ContractState, referrer: ContractAddress, tier_id: u256
-        ) {
+        fn emit_set_referrer_tier(ref self: ContractState, referrer: ContractAddress, tier_id: u256) {
             self.emit(SetReferrerTier { referrer, tier_id });
         }
 
-        fn emit_set_referrer_discount_share(
-            ref self: ContractState, referrer: ContractAddress, discount_share: u256
-        ) {
+        fn emit_set_referrer_discount_share(ref self: ContractState, referrer: ContractAddress, discount_share: u256) {
             self.emit(SetReferrerDiscountShare { referrer, discount_share });
         }
 
-        fn emit_set_trader_referral_code(
-            ref self: ContractState, account: ContractAddress, code: felt252
-        ) {
+        fn emit_set_trader_referral_code(ref self: ContractState, account: ContractAddress, code: felt252) {
             self.emit(SetTraderReferralCode { account, code });
         }
 
@@ -2726,23 +2426,16 @@ mod EventEmitter {
         }
 
         fn emit_set_code_owner(
-            ref self: ContractState,
-            account: ContractAddress,
-            new_account: ContractAddress,
-            code: felt252
+            ref self: ContractState, account: ContractAddress, new_account: ContractAddress, code: felt252
         ) {
             self.emit(SetCodeOwner { account, new_account, code });
         }
 
-        fn emit_gov_set_code_owner(
-            ref self: ContractState, code: felt252, new_account: ContractAddress
-        ) {
+        fn emit_gov_set_code_owner(ref self: ContractState, code: felt252, new_account: ContractAddress) {
             self.emit(GovSetCodeOwner { code, new_account });
         }
 
-        fn emit_set_gov(
-            ref self: ContractState, prev_gov: ContractAddress, next_gov: ContractAddress
-        ) {
+        fn emit_set_gov(ref self: ContractState, prev_gov: ContractAddress, next_gov: ContractAddress) {
             self.emit(SetGov { prev_gov, next_gov });
         }
     }

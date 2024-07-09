@@ -7,11 +7,11 @@
 use result::ResultTrait;
 use debug::PrintTrait;
 use traits::{TryInto, Into};
-use starknet::{
-    ContractAddress, get_caller_address, Felt252TryIntoContractAddress, contract_address_const,
-    ClassHash,
+use starknet::{ContractAddress, get_caller_address, Felt252TryIntoContractAddress, contract_address_const, ClassHash,};
+use snforge_std::{
+    declare, start_cheat_caller_address, stop_cheat_caller_address, start_cheat_block_number, ContractClassTrait,
+    ContractClass
 };
-use snforge_std::{declare, start_cheat_caller_address, stop_cheat_caller_address, start_cheat_block_number, ContractClassTrait, ContractClass};
 
 
 // Local imports.
@@ -24,9 +24,7 @@ use satoru::deposit::deposit_vault::{IDepositVaultDispatcher, IDepositVaultDispa
 use satoru::deposit::deposit::Deposit;
 use satoru::withdrawal::withdrawal::Withdrawal;
 
-use satoru::exchange::withdrawal_handler::{
-    IWithdrawalHandlerDispatcher, IWithdrawalHandlerDispatcherTrait
-};
+use satoru::exchange::withdrawal_handler::{IWithdrawalHandlerDispatcher, IWithdrawalHandlerDispatcherTrait};
 use satoru::exchange::deposit_handler::{IDepositHandlerDispatcher, IDepositHandlerDispatcherTrait};
 use satoru::router::exchange_router::{IExchangeRouterDispatcher, IExchangeRouterDispatcherTrait};
 use satoru::mock::referral_storage::{IReferralStorageDispatcher, IReferralStorageDispatcherTrait};
@@ -43,9 +41,7 @@ use satoru::bank::bank::{IBankDispatcherTrait, IBankDispatcher};
 use satoru::bank::strict_bank::{IStrictBankDispatcher, IStrictBankDispatcherTrait};
 use satoru::token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
 use satoru::oracle::oracle::{IOracleDispatcher, IOracleDispatcherTrait};
-use satoru::withdrawal::withdrawal_vault::{
-    IWithdrawalVaultDispatcher, IWithdrawalVaultDispatcherTrait
-};
+use satoru::withdrawal::withdrawal_vault::{IWithdrawalVaultDispatcher, IWithdrawalVaultDispatcherTrait};
 use satoru::data::keys;
 use satoru::market::market_utils;
 use satoru::price::price::{Price, PriceTrait};
@@ -58,9 +54,7 @@ use satoru::order::base_order_utils::{CreateOrderParams};
 use satoru::oracle::oracle_store::{IOracleStoreDispatcher, IOracleStoreDispatcherTrait};
 use satoru::swap::swap_handler::{ISwapHandlerDispatcher, ISwapHandlerDispatcherTrait};
 use satoru::market::{market::{UniqueIdMarketImpl},};
-use satoru::exchange::order_handler::{
-    OrderHandler, IOrderHandlerDispatcher, IOrderHandlerDispatcherTrait
-};
+use satoru::exchange::order_handler::{OrderHandler, IOrderHandlerDispatcher, IOrderHandlerDispatcherTrait};
 const INITIAL_TOKENS_MINTED: felt252 = 1000;
 
 
@@ -498,22 +492,15 @@ fn test_deposit_market_integration() {
     data_store.set_u256(keys::max_swap_path_length(), 5);
 
     // Set max pool amount.
-    data_store
-        .set_u256(
-            keys::max_pool_amount_key(market.market_token, market.long_token), 500000000000000000
-        );
-    data_store
-        .set_u256(
-            keys::max_pool_amount_key(market.market_token, market.short_token), 500000000000000000
-        );
+    data_store.set_u256(keys::max_pool_amount_key(market.market_token, market.long_token), 500000000000000000);
+    data_store.set_u256(keys::max_pool_amount_key(market.market_token, market.short_token), 500000000000000000);
 
     oracle.set_primary_prices(market.long_token, 5000);
     oracle.set_primary_prices(market.short_token, 1);
 
     // Fill the pool.
     IERC20Dispatcher { contract_address: market.long_token }.mint(market.market_token, 50000000000);
-    IERC20Dispatcher { contract_address: market.short_token }
-        .mint(market.market_token, 50000000000);
+    IERC20Dispatcher { contract_address: market.short_token }.mint(market.market_token, 50000000000);
     // TODO Check why we don't need to set pool_amount_key
     // // Set pool amount in data_store.
     // let mut key = keys::pool_amount_key(market.market_token, contract_address_const::<'ETH'>());
@@ -522,10 +509,8 @@ fn test_deposit_market_integration() {
     // data_store.set_u256(key, 50000000000);
 
     // Send token to deposit in the deposit vault (this should be in a multi call with create_deposit)
-    IERC20Dispatcher { contract_address: market.long_token }
-        .mint(deposit_vault.contract_address, 50000000000);
-    IERC20Dispatcher { contract_address: market.short_token }
-        .mint(deposit_vault.contract_address, 50000000000);
+    IERC20Dispatcher { contract_address: market.long_token }.mint(deposit_vault.contract_address, 50000000000);
+    IERC20Dispatcher { contract_address: market.short_token }.mint(deposit_vault.contract_address, 50000000000);
 
     let balance_deposit_vault_before = IERC20Dispatcher { contract_address: market.short_token }
         .balance_of(deposit_vault.contract_address);
@@ -557,12 +542,8 @@ fn test_deposit_market_integration() {
     assert(first_deposit.account == caller_address, 'Wrong account depositer');
     assert(first_deposit.receiver == user1, 'Wrong account receiver');
     assert(first_deposit.initial_long_token == market.long_token, 'Wrong initial long token');
-    assert(
-        first_deposit.initial_long_token_amount == 50000000000, 'Wrong initial long token amount'
-    );
-    assert(
-        first_deposit.initial_short_token_amount == 50000000000, 'Wrong init short token amount'
-    );
+    assert(first_deposit.initial_long_token_amount == 50000000000, 'Wrong initial long token amount');
+    assert(first_deposit.initial_short_token_amount == 50000000000, 'Wrong init short token amount');
 
     let price_params = SetPricesParams { // TODO
         signer_info: 1,
@@ -575,9 +556,7 @@ fn test_deposit_market_integration() {
         compacted_min_prices_indexes: array![0],
         compacted_max_prices: array![4294967346000000], // 50000000, 1000000 compacted
         compacted_max_prices_indexes: array![0],
-        signatures: array![
-            array!['signatures1', 'signatures2'].span(), array!['signatures1', 'signatures2'].span()
-        ],
+        signatures: array![array!['signatures1', 'signatures2'].span(), array!['signatures1', 'signatures2'].span()],
         price_feed_tokens: array![]
     };
 
@@ -677,22 +656,15 @@ fn test_deposit_withdraw_integration() {
     data_store.set_u256(keys::max_swap_path_length(), 5);
 
     // Set max pool amount.
-    data_store
-        .set_u256(
-            keys::max_pool_amount_key(market.market_token, market.long_token), 500000000000000000
-        );
-    data_store
-        .set_u256(
-            keys::max_pool_amount_key(market.market_token, market.short_token), 500000000000000000
-        );
+    data_store.set_u256(keys::max_pool_amount_key(market.market_token, market.long_token), 500000000000000000);
+    data_store.set_u256(keys::max_pool_amount_key(market.market_token, market.short_token), 500000000000000000);
 
     oracle.set_primary_prices(market.long_token, 5000);
     oracle.set_primary_prices(market.short_token, 1);
 
     // Fill the pool.
     IERC20Dispatcher { contract_address: market.long_token }.mint(market.market_token, 50000000000);
-    IERC20Dispatcher { contract_address: market.short_token }
-        .mint(market.market_token, 50000000000);
+    IERC20Dispatcher { contract_address: market.short_token }.mint(market.market_token, 50000000000);
     // TODO Check why we don't need to set pool_amount_key
     // // Set pool amount in data_store.
     // let mut key = keys::pool_amount_key(market.market_token, contract_address_const::<'ETH'>());
@@ -701,10 +673,8 @@ fn test_deposit_withdraw_integration() {
     // data_store.set_u256(key, 50000000000);
 
     // Send token to deposit in the deposit vault (this should be in a multi call with create_deposit)
-    IERC20Dispatcher { contract_address: market.long_token }
-        .mint(deposit_vault.contract_address, 50000000000);
-    IERC20Dispatcher { contract_address: market.short_token }
-        .mint(deposit_vault.contract_address, 50000000000);
+    IERC20Dispatcher { contract_address: market.long_token }.mint(deposit_vault.contract_address, 50000000000);
+    IERC20Dispatcher { contract_address: market.short_token }.mint(deposit_vault.contract_address, 50000000000);
 
     let balance_deposit_vault_before = IERC20Dispatcher { contract_address: market.short_token }
         .balance_of(deposit_vault.contract_address);
@@ -736,12 +706,8 @@ fn test_deposit_withdraw_integration() {
     assert(first_deposit.account == caller_address, 'Wrong account depositer');
     assert(first_deposit.receiver == caller_address, 'Wrong account receiver');
     assert(first_deposit.initial_long_token == market.long_token, 'Wrong initial long token');
-    assert(
-        first_deposit.initial_long_token_amount == 50000000000, 'Wrong initial long token amount'
-    );
-    assert(
-        first_deposit.initial_short_token_amount == 50000000000, 'Wrong init short token amount'
-    );
+    assert(first_deposit.initial_long_token_amount == 50000000000, 'Wrong initial long token amount');
+    assert(first_deposit.initial_short_token_amount == 50000000000, 'Wrong init short token amount');
 
     let price_params = SetPricesParams { // TODO
         signer_info: 1,
@@ -754,9 +720,7 @@ fn test_deposit_withdraw_integration() {
         compacted_min_prices_indexes: array![0],
         compacted_max_prices: array![4294967346000000], // 50000000, 1000000 compacted
         compacted_max_prices_indexes: array![0],
-        signatures: array![
-            array!['signatures1', 'signatures2'].span(), array!['signatures1', 'signatures2'].span()
-        ],
+        signatures: array![array!['signatures1', 'signatures2'].span(), array!['signatures1', 'signatures2'].span()],
         price_feed_tokens: array![]
     };
 
@@ -813,13 +777,11 @@ fn test_deposit_withdraw_integration() {
     /////////////////////////////////// WITHDRAW //////////////////////////////////
 
     'balanceof mkt before withdrawal'.print();
-    let balance_market_token = IERC20Dispatcher { contract_address: market.market_token }
-        .balance_of(caller_address);
+    let balance_market_token = IERC20Dispatcher { contract_address: market.market_token }.balance_of(caller_address);
     balance_market_token.print();
 
     start_cheat_caller_address(market.market_token, caller_address);
-    IERC20Dispatcher { contract_address: market.market_token }
-        .transfer(withdrawal_vault.contract_address, 125);
+    IERC20Dispatcher { contract_address: market.market_token }.transfer(withdrawal_vault.contract_address, 125);
 
     let withdrawal_params = withdrawal_utils::CreateWithdrawalParams {
         /// The address that will receive the withdrawal tokens.
@@ -875,9 +837,7 @@ fn test_deposit_withdraw_integration() {
         compacted_min_prices_indexes: array![0],
         compacted_max_prices: array![4294967346000000], // 50000000, 1000000 compacted
         compacted_max_prices_indexes: array![0],
-        signatures: array![
-            array!['signatures1', 'signatures2'].span(), array!['signatures1', 'signatures2'].span()
-        ],
+        signatures: array![array!['signatures1', 'signatures2'].span(), array!['signatures1', 'signatures2'].span()],
         price_feed_tokens: array![]
     };
 
@@ -1132,9 +1092,7 @@ fn setup_contracts() -> (
     let market_factory = IMarketFactoryDispatcher { contract_address: market_factory_address };
 
     let oracle_store_address = deploy_oracle_store(role_store_address, event_emitter_address);
-    let oracle_address = deploy_oracle(
-        role_store_address, oracle_store_address, contract_address_const::<'pragma'>()
-    );
+    let oracle_address = deploy_oracle(role_store_address, oracle_store_address, contract_address_const::<'pragma'>());
 
     let oracle = IOracleDispatcher { contract_address: oracle_address };
 
@@ -1142,26 +1100,16 @@ fn setup_contracts() -> (
 
     let deposit_vault = IDepositVaultDispatcher { contract_address: deposit_vault_address };
     let deposit_handler_address = deploy_deposit_handler(
-        data_store_address,
-        role_store_address,
-        event_emitter_address,
-        deposit_vault_address,
-        oracle_address
+        data_store_address, role_store_address, event_emitter_address, deposit_vault_address, oracle_address
     );
     let deposit_handler = IDepositHandlerDispatcher { contract_address: deposit_handler_address };
 
     let withdrawal_vault_address = deploy_withdrawal_vault(data_store_address, role_store_address);
     let withdrawal_handler_address = deploy_withdrawal_handler(
-        data_store_address,
-        role_store_address,
-        event_emitter_address,
-        withdrawal_vault_address,
-        oracle_address
+        data_store_address, role_store_address, event_emitter_address, withdrawal_vault_address, oracle_address
     );
 
-    let order_vault_address = deploy_order_vault(
-        data_store.contract_address, role_store.contract_address
-    );
+    let order_vault_address = deploy_order_vault(data_store.contract_address, role_store.contract_address);
     let order_vault = IOrderVaultDispatcher { contract_address: order_vault_address };
 
     let swap_handler_address = deploy_swap_handler_address(role_store_address, data_store_address);
@@ -1214,12 +1162,8 @@ fn setup_contracts() -> (
 
     let referal_storage = IReferralStorageDispatcher { contract_address: referral_storage_address };
 
-    let withdrawal_handler = IWithdrawalHandlerDispatcher {
-        contract_address: withdrawal_handler_address
-    };
-    let withdrawal_vault = IWithdrawalVaultDispatcher {
-        contract_address: withdrawal_vault_address
-    };
+    let withdrawal_handler = IWithdrawalHandlerDispatcher { contract_address: withdrawal_handler_address };
+    let withdrawal_vault = IWithdrawalVaultDispatcher { contract_address: withdrawal_vault_address };
     (
         contract_address_const::<'caller'>(),
         market_factory_address,
@@ -1335,17 +1279,12 @@ fn deploy_oracle_store(
     let deployed_contract_address = contract_address_const::<'oracle_store'>();
     start_cheat_caller_address(deployed_contract_address, caller_address);
     contract
-        .deploy_at(
-            @array![role_store_address.into(), event_emitter_address.into()],
-            deployed_contract_address
-        )
+        .deploy_at(@array![role_store_address.into(), event_emitter_address.into()], deployed_contract_address)
         .unwrap()
 }
 
 fn deploy_oracle(
-    role_store_address: ContractAddress,
-    oracle_store_address: ContractAddress,
-    pragma_address: ContractAddress
+    role_store_address: ContractAddress, oracle_store_address: ContractAddress, pragma_address: ContractAddress
 ) -> ContractAddress {
     let contract = declare("Oracle").unwrap();
     let caller_address: ContractAddress = contract_address_const::<'caller'>();
@@ -1359,17 +1298,13 @@ fn deploy_oracle(
         .unwrap()
 }
 
-fn deploy_deposit_vault(
-    role_store_address: ContractAddress, data_store_address: ContractAddress
-) -> ContractAddress {
+fn deploy_deposit_vault(role_store_address: ContractAddress, data_store_address: ContractAddress) -> ContractAddress {
     let contract = declare("DepositVault").unwrap();
     let caller_address: ContractAddress = contract_address_const::<'caller'>();
     let deployed_contract_address = contract_address_const::<'deposit_vault'>();
     start_cheat_caller_address(deployed_contract_address, caller_address);
     contract
-        .deploy_at(
-            @array![data_store_address.into(), role_store_address.into()], deployed_contract_address
-        )
+        .deploy_at(@array![data_store_address.into(), role_store_address.into()], deployed_contract_address)
         .unwrap()
 }
 
@@ -1498,9 +1433,7 @@ fn deploy_exchange_router(
     contract.deploy_at(@constructor_calldata, deployed_contract_address).unwrap()
 }
 
-fn deploy_order_vault(
-    data_store_address: ContractAddress, role_store_address: ContractAddress,
-) -> ContractAddress {
+fn deploy_order_vault(data_store_address: ContractAddress, role_store_address: ContractAddress,) -> ContractAddress {
     let contract = declare("OrderVault").unwrap();
     let mut constructor_calldata = array![];
     constructor_calldata.append(data_store_address.into());
@@ -1508,9 +1441,7 @@ fn deploy_order_vault(
     tests_lib::deploy_mock_contract(contract, @constructor_calldata)
 }
 
-fn deploy_bank(
-    data_store_address: ContractAddress, role_store_address: ContractAddress,
-) -> ContractAddress {
+fn deploy_bank(data_store_address: ContractAddress, role_store_address: ContractAddress,) -> ContractAddress {
     let caller_address: ContractAddress = contract_address_const::<'caller'>();
     let bank_address: ContractAddress = contract_address_const::<'bank'>();
     let contract = declare("Bank").unwrap();
@@ -1521,9 +1452,7 @@ fn deploy_bank(
     contract.deploy_at(@constructor_calldata, bank_address).unwrap()
 }
 
-fn deploy_strict_bank(
-    data_store_address: ContractAddress, role_store_address: ContractAddress,
-) -> ContractAddress {
+fn deploy_strict_bank(data_store_address: ContractAddress, role_store_address: ContractAddress,) -> ContractAddress {
     let caller_address: ContractAddress = contract_address_const::<'caller'>();
     let strict_bank_address: ContractAddress = contract_address_const::<'strict_bank'>();
     let contract = declare("StrictBank").unwrap();
@@ -1545,8 +1474,6 @@ fn deploy_reader() -> ContractAddress {
 
 fn deploy_erc20_token(deposit_vault_address: ContractAddress) -> ContractAddress {
     let erc20_contract = declare("ERC20").unwrap();
-    let constructor_calldata3 = array![
-        'satoru', 'STU', INITIAL_TOKENS_MINTED, 0, deposit_vault_address.into()
-    ];
+    let constructor_calldata3 = array!['satoru', 'STU', INITIAL_TOKENS_MINTED, 0, deposit_vault_address.into()];
     erc20_contract.deploy(@constructor_calldata3).unwrap()
 }

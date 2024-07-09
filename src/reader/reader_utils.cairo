@@ -17,8 +17,8 @@ use satoru::reader::reader_pricing_utils::ExecutionPriceResult;
 use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
 use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
 use satoru::market::{
-    market_utils, market::Market, market_utils::PositionType, market_utils::MarketPrices,
-    market_utils::CollateralType, market_utils::GetNextFundingAmountPerSizeResult
+    market_utils, market::Market, market_utils::PositionType, market_utils::MarketPrices, market_utils::CollateralType,
+    market_utils::GetNextFundingAmountPerSizeResult
 };
 use satoru::position::position_utils;
 use satoru::reader::reader_pricing_utils;
@@ -78,9 +78,7 @@ fn get_next_borrowing_fees(
 fn get_borrowing_fees(
     data_store: IDataStoreDispatcher, collateral_token_price: Price, borrowing_fee_usd: u256
 ) -> PositionBorrowingFees {
-    position_pricing_utils::get_borrowing_fees(
-        data_store, collateral_token_price, borrowing_fee_usd
-    )
+    position_pricing_utils::get_borrowing_fees(data_store, collateral_token_price, borrowing_fee_usd)
 }
 
 
@@ -200,9 +198,7 @@ fn get_position_info(
     cache.market = data_store.get_market(position_info.position.market);
     cache
         .collateral_token_price =
-            market_utils::get_cached_token_price(
-                position_info.position.collateral_token, cache.market, prices
-            );
+            market_utils::get_cached_token_price(position_info.position.collateral_token, cache.market, prices);
 
     if (use_position_size_as_size_delta_usd) {
         size_delta_usd = position_info.position.size_in_usd;
@@ -227,9 +223,7 @@ fn get_position_info(
         referral_storage,
         position: position_info.position,
         collateral_token_price: cache.collateral_token_price,
-        for_positive_impact: position_info
-            .execution_price_result
-            .price_impact_usd > Zeroable::zero(),
+        for_positive_impact: position_info.execution_price_result.price_impact_usd > Zeroable::zero(),
         long_token: cache.market.long_token,
         short_token: cache.market.short_token,
         size_delta_usd,
@@ -240,20 +234,13 @@ fn get_position_info(
 
     // borrowing and funding fees need to be overwritten with pending values otherwise they
     // would be using storage values that have not yet been updated
-    cache
-        .pending_borrowing_fee_usd =
-            get_next_borrowing_fees(data_store, position_info.position, cache.market, prices);
+    cache.pending_borrowing_fee_usd = get_next_borrowing_fees(data_store, position_info.position, cache.market, prices);
 
     position_info
         .fees
-        .borrowing =
-            get_borrowing_fees(
-                data_store, cache.collateral_token_price, cache.pending_borrowing_fee_usd
-            );
+        .borrowing = get_borrowing_fees(data_store, cache.collateral_token_price, cache.pending_borrowing_fee_usd);
 
-    let next_funding_amount_result = market_utils::get_next_funding_amount_per_size(
-        data_store, cache.market, prices
-    );
+    let next_funding_amount_result = market_utils::get_next_funding_amount_per_size(data_store, cache.market, prices);
 
     position_info
         .fees
@@ -271,10 +258,7 @@ fn get_position_info(
         .funding
         .latest_long_token_claimable_funding_amount_per_size =
             market_utils::get_claimable_funding_amount_per_size(
-                data_store,
-                position_info.position.market,
-                cache.market.long_token,
-                position_info.position.is_long
+                data_store, position_info.position.market, cache.market.long_token, position_info.position.is_long
             );
 
     position_info
@@ -282,10 +266,7 @@ fn get_position_info(
         .funding
         .latest_short_token_claimable_funding_amount_per_size =
             market_utils::get_claimable_funding_amount_per_size(
-                data_store,
-                position_info.position.market,
-                cache.market.short_token,
-                position_info.position.is_long
+                data_store, position_info.position.market, cache.market.short_token, position_info.position.is_long
             );
 
     if (position_info.position.is_long) {
@@ -358,10 +339,7 @@ fn get_position_info(
 
     position_info
         .fees
-        .funding =
-            position_pricing_utils::get_funding_fees(
-                position_info.fees.funding, position_info.position
-            );
+        .funding = position_pricing_utils::get_funding_fees(position_info.fees.funding, position_info.position);
 
     let (base_pnl_usd, uncapped_base_pnl_usd, _) = position_utils::get_position_pnl_usd(
         data_store, cache.market, prices, position_info.position, size_delta_usd

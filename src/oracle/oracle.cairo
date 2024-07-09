@@ -16,8 +16,8 @@ use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
 use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
 use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
 use satoru::oracle::{
-    oracle_store::{IOracleStoreDispatcher, IOracleStoreDispatcherTrait},
-    oracle_utils::{SetPricesParams, ReportInfo}, error::OracleError,
+    oracle_store::{IOracleStoreDispatcher, IOracleStoreDispatcherTrait}, oracle_utils::{SetPricesParams, ReportInfo},
+    error::OracleError,
 };
 use satoru::price::price::Price;
 use pragma_lib::types::{AggregationMode, DataType, PragmaPricesResponse};
@@ -87,9 +87,7 @@ trait IOracle<TContractState> {
     /// * `end` -  The end index, the value for this index will be excluded.
     /// # Returns
     /// The tokens of tokens_with_prices for the specified indexes.
-    fn get_tokens_with_prices(
-        self: @TContractState, start: u32, end: u32
-    ) -> Array<ContractAddress>;
+    fn get_tokens_with_prices(self: @TContractState, start: u32, end: u32) -> Array<ContractAddress>;
 
     /// Get the primary price of a token.
     /// # Arguments
@@ -103,9 +101,7 @@ trait IOracle<TContractState> {
     /// * `token` - The token to get the price for.
     /// # Returns
     /// The stable price of a token.
-    fn get_stable_price(
-        self: @TContractState, data_store: IDataStoreDispatcher, token: ContractAddress
-    ) -> u256;
+    fn get_stable_price(self: @TContractState, data_store: IDataStoreDispatcher, token: ContractAddress) -> u256;
 
     /// Get the multiplier value to convert the external price feed price to the price of 1 unit of the token
     /// represented with 30 decimals.
@@ -287,13 +283,9 @@ mod Oracle {
             pragma_address: ContractAddress,
         ) {
             // Make sure the contract is not already initialized.
-            assert(
-                self.role_store.read().contract_address.is_zero(), OracleError::ALREADY_INITIALIZED
-            );
+            assert(self.role_store.read().contract_address.is_zero(), OracleError::ALREADY_INITIALIZED);
             self.role_store.write(IRoleStoreDispatcher { contract_address: role_store_address });
-            self
-                .oracle_store
-                .write(IOracleStoreDispatcher { contract_address: oracle_store_address });
+            self.oracle_store.write(IOracleStoreDispatcher { contract_address: oracle_store_address });
             self.price_feed.write(IPragmaABIDispatcher { contract_address: pragma_address });
         }
 
@@ -324,9 +316,7 @@ mod Oracle {
                     break;
                 }
                 let token = *params.tokens.at(i);
-                let price = Price {
-                    min: *params.compacted_max_prices.at(i), max: *params.compacted_max_prices.at(i)
-                };
+                let price = Price { min: *params.compacted_max_prices.at(i), max: *params.compacted_max_prices.at(i) };
                 self.set_primary_price_(token, price);
                 i += 1;
             };
@@ -382,9 +372,7 @@ mod Oracle {
             count
         }
 
-        fn get_tokens_with_prices(
-            self: @ContractState, start: u32, mut end: u32
-        ) -> Array<ContractAddress> {
+        fn get_tokens_with_prices(self: @ContractState, start: u32, mut end: u32) -> Array<ContractAddress> {
             let mut arr: Array<ContractAddress> = array![];
             let tokens_with_prices = self.tokens_with_prices.read();
             let tokens_with_prices_len = tokens_with_prices.len();
@@ -418,9 +406,7 @@ mod Oracle {
         }
 
 
-        fn get_stable_price(
-            self: @ContractState, data_store: IDataStoreDispatcher, token: ContractAddress
-        ) -> u256 {
+        fn get_stable_price(self: @ContractState, data_store: IDataStoreDispatcher, token: ContractAddress) -> u256 {
             data_store.get_u256(keys::stable_price_key(token))
         }
 
@@ -917,18 +903,12 @@ mod Oracle {
                 OracleError::INVALID_PRICE_FEED(token, response.price.into());
             }
 
-            let heart_beat_duration = data_store
-                .get_u256(keys::price_feed_heartbeat_duration_key(token));
+            let heart_beat_duration = data_store.get_u256(keys::price_feed_heartbeat_duration_key(token));
 
             let current_timestamp = get_block_timestamp();
             if current_timestamp > response.last_updated_timestamp && current_timestamp
-                - response
-                    .last_updated_timestamp > heart_beat_duration
-                    .try_into()
-                    .expect('u256 into u32 failed') {
-                OracleError::PRICE_FEED_NOT_UPDATED(
-                    token, response.last_updated_timestamp, heart_beat_duration
-                );
+                - response.last_updated_timestamp > heart_beat_duration.try_into().expect('u256 into u32 failed') {
+                OracleError::PRICE_FEED_NOT_UPDATED(token, response.last_updated_timestamp, heart_beat_duration);
             }
 
             let precision_ = self.get_price_feed_multiplier(data_store, token);
@@ -996,10 +976,7 @@ mod Oracle {
 
                 self.set_primary_price_(token, price_props);
 
-                self
-                    .emit_oracle_price_updated(
-                        event_emitter, token, price_props.min, price_props.max, true
-                    );
+                self.emit_oracle_price_updated(event_emitter, token, price_props.min, price_props.max, true);
                 len += 1;
             };
         }
@@ -1028,9 +1005,7 @@ mod Oracle {
         /// # Returns
         /// * `Option<usize>` - Returns `Some(index)` if the token is found.
         ///   Returns `None` if the token is not found.
-        fn get_token_with_price_index(
-            self: @ContractState, token: ContractAddress
-        ) -> Option<usize> {
+        fn get_token_with_price_index(self: @ContractState, token: ContractAddress) -> Option<usize> {
             let mut tokens_with_prices = self.tokens_with_prices.read();
             let mut index = Option::None;
             let mut len = 0;
@@ -1040,11 +1015,9 @@ mod Oracle {
                 }
                 let token_with_price = tokens_with_prices.get(len).unwrap();
                 match token_with_price {
-                    Option::Some(_) => {
-                        if token_with_price.unwrap() == token {
-                            index = Option::Some(len);
-                        }
-                    },
+                    Option::Some(_) => { if token_with_price.unwrap() == token {
+                        index = Option::Some(len);
+                    } },
                     Option::None => (),
                 }
                 len += 1;

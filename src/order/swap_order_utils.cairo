@@ -12,8 +12,7 @@ use satoru::oracle::oracle_utils;
 use satoru::utils::arrays::are_gte_u64;
 use satoru::swap::swap_utils;
 use satoru::event::event_utils::{
-    Felt252IntoContractAddress, ContractAddressDictValue, I256252DictValue, U256252DictValue,
-    U256IntoFelt252
+    Felt252IntoContractAddress, ContractAddressDictValue, I256252DictValue, U256252DictValue, U256IntoFelt252
 };
 use satoru::utils::serializable_dict::{SerializableFelt252Dict, SerializableFelt252DictTrait};
 use satoru::order::error::OrderError;
@@ -57,8 +56,7 @@ mod SwapOrderUtils {
     use satoru::utils::arrays::are_gte_u64;
     use satoru::swap::swap_utils;
     use satoru::event::event_utils::{
-        Felt252IntoContractAddress, ContractAddressDictValue, I256252DictValue, U256252DictValue,
-        U256IntoFelt252
+        Felt252IntoContractAddress, ContractAddressDictValue, I256252DictValue, U256252DictValue, U256IntoFelt252
     };
     use satoru::utils::serializable_dict::{SerializableFelt252Dict, SerializableFelt252DictTrait};
     use satoru::order::error::OrderError;
@@ -90,9 +88,7 @@ mod SwapOrderUtils {
                     data_store: params.contracts.data_store,
                     event_emitter: params.contracts.event_emitter,
                     oracle: params.contracts.oracle,
-                    bank: IBankDispatcher {
-                        contract_address: params.contracts.order_vault.contract_address
-                    },
+                    bank: IBankDispatcher { contract_address: params.contracts.order_vault.contract_address },
                     key: params.key,
                     token_in: params.order.initial_collateral_token,
                     amount_in: params.order.initial_collateral_delta_amount,

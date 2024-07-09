@@ -13,9 +13,7 @@ use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
 /// * `data_store` - The contract that provides access to data stored on-chain.
 /// * `created_at_block` - The block the request was created at.
 /// * `request_type` - The type of the created request.
-fn validate_request_cancellation(
-    data_store: IDataStoreDispatcher, created_at_block: u64, request_type: felt252
-) {
+fn validate_request_cancellation(data_store: IDataStoreDispatcher, created_at_block: u64, request_type: felt252) {
     let request_expiration_age = data_store.get_u256(keys::request_expiration_block_age());
     let request_age = get_block_number() - created_at_block;
 

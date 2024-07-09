@@ -7,11 +7,11 @@
 use result::ResultTrait;
 use debug::PrintTrait;
 use traits::{TryInto, Into};
-use starknet::{
-    ContractAddress, get_caller_address, Felt252TryIntoContractAddress, contract_address_const,
-    ClassHash,
+use starknet::{ContractAddress, get_caller_address, Felt252TryIntoContractAddress, contract_address_const, ClassHash,};
+use snforge_std::{
+    declare, start_cheat_caller_address, stop_cheat_caller_address, start_cheat_block_number, ContractClassTrait,
+    ContractClass
 };
-use snforge_std::{declare, start_cheat_caller_address, stop_cheat_caller_address, start_cheat_block_number, ContractClassTrait, ContractClass};
 
 
 // Local imports.
@@ -24,9 +24,7 @@ use satoru::deposit::deposit_vault::{IDepositVaultDispatcher, IDepositVaultDispa
 use satoru::deposit::deposit::Deposit;
 use satoru::withdrawal::withdrawal::Withdrawal;
 
-use satoru::exchange::withdrawal_handler::{
-    IWithdrawalHandlerDispatcher, IWithdrawalHandlerDispatcherTrait
-};
+use satoru::exchange::withdrawal_handler::{IWithdrawalHandlerDispatcher, IWithdrawalHandlerDispatcherTrait};
 use satoru::exchange::deposit_handler::{IDepositHandlerDispatcher, IDepositHandlerDispatcherTrait};
 use satoru::router::exchange_router::{IExchangeRouterDispatcher, IExchangeRouterDispatcherTrait};
 use satoru::mock::referral_storage::{IReferralStorageDispatcher, IReferralStorageDispatcherTrait};
@@ -43,30 +41,22 @@ use satoru::bank::bank::{IBankDispatcherTrait, IBankDispatcher};
 use satoru::bank::strict_bank::{IStrictBankDispatcher, IStrictBankDispatcherTrait};
 use satoru::token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
 use satoru::oracle::oracle::{IOracleDispatcher, IOracleDispatcherTrait};
-use satoru::withdrawal::withdrawal_vault::{
-    IWithdrawalVaultDispatcher, IWithdrawalVaultDispatcherTrait
-};
+use satoru::withdrawal::withdrawal_vault::{IWithdrawalVaultDispatcher, IWithdrawalVaultDispatcherTrait};
 use satoru::data::keys;
 use satoru::market::market_utils;
 use satoru::price::price::{Price, PriceTrait};
 use satoru::position::position_utils;
 use satoru::withdrawal::withdrawal_utils;
 
-use satoru::exchange::liquidation_handler::{
-    ILiquidationHandlerDispatcher, ILiquidationHandlerDispatcherTrait
-};
+use satoru::exchange::liquidation_handler::{ILiquidationHandlerDispatcher, ILiquidationHandlerDispatcherTrait};
 use satoru::order::order::{Order, OrderType, SecondaryOrderType, DecreasePositionSwapType};
 use satoru::order::order_vault::{IOrderVaultDispatcher, IOrderVaultDispatcherTrait};
 use satoru::order::base_order_utils::{CreateOrderParams};
 use satoru::oracle::oracle_store::{IOracleStoreDispatcher, IOracleStoreDispatcherTrait};
 use satoru::swap::swap_handler::{ISwapHandlerDispatcher, ISwapHandlerDispatcherTrait};
 use satoru::market::{market::{UniqueIdMarketImpl},};
-use satoru::exchange::order_handler::{
-    OrderHandler, IOrderHandlerDispatcher, IOrderHandlerDispatcherTrait
-};
-use satoru::test_utils::{
-    tests_lib::{setup, create_market, teardown}, deposit_setup::{deposit_setup}
-};
+use satoru::exchange::order_handler::{OrderHandler, IOrderHandlerDispatcher, IOrderHandlerDispatcherTrait};
+use satoru::test_utils::{tests_lib::{setup, create_market, teardown}, deposit_setup::{deposit_setup}};
 
 #[test]
 fn test_long_increase_decrease_close() {
@@ -100,10 +90,8 @@ fn test_long_increase_decrease_close() {
         50000000000000000000000000000, 50000000000000000000000000000
     );
 
-    let balance_caller_ETH = IERC20Dispatcher { contract_address: market.long_token }
-        .balance_of(caller_address);
-    let balance_caller_USDC = IERC20Dispatcher { contract_address: market.short_token }
-        .balance_of(caller_address);
+    let balance_caller_ETH = IERC20Dispatcher { contract_address: market.long_token }.balance_of(caller_address);
+    let balance_caller_USDC = IERC20Dispatcher { contract_address: market.short_token }.balance_of(caller_address);
 
     assert(balance_caller_ETH == 10000000000000000000, 'balanc ETH should be 10 ETH');
     assert(balance_caller_USDC == 50000000000000000000000, 'USDC be 50 000 USDC');
@@ -126,15 +114,10 @@ fn test_long_increase_decrease_close() {
 
     'Begining of LONG TEST'.print();
 
-    let key_open_interest = keys::open_interest_key(
-        market.market_token, contract_address_const::<'ETH'>(), true
-    );
+    let key_open_interest = keys::open_interest_key(market.market_token, contract_address_const::<'ETH'>(), true);
     data_store.set_u256(key_open_interest, 1);
     let max_key_open_interest = keys::max_open_interest_key(market.market_token, true);
-    data_store
-        .set_u256(
-            max_key_open_interest, 1000000000000000000000000000000000000000000000000000
-        ); // 1 000 000
+    data_store.set_u256(max_key_open_interest, 1000000000000000000000000000000000000000000000000000); // 1 000 000
 
     // Send token to order_vault in multicall with create_order
     start_cheat_caller_address(contract_address_const::<'ETH'>(), caller_address);
@@ -188,9 +171,7 @@ fn test_long_increase_decrease_close() {
         compacted_min_prices_indexes: array![0],
         compacted_max_prices: array![3500, 1], // 500000, 10000 compacted
         compacted_max_prices_indexes: array![0],
-        signatures: array![
-            array!['signatures1', 'signatures2'].span(), array!['signatures1', 'signatures2'].span()
-        ],
+        signatures: array![array!['signatures1', 'signatures2'].span(), array!['signatures1', 'signatures2'].span()],
         price_feed_tokens: array![]
     };
 
@@ -220,9 +201,7 @@ fn test_long_increase_decrease_close() {
     };
 
     let position_info = reader
-        .get_position_info(
-            data_store, referal_storage, position_key_1, market_prices, 0, contract_address, true
-        );
+        .get_position_info(data_store, referal_storage, position_key_1, market_prices, 0, contract_address, true);
     assert(position_info.base_pnl_usd.mag == 350000000000000000000, 'PnL should be 350$');
 
     //////////////////////////////// INCREASE POSITION //////////////////////////////////
@@ -274,9 +253,7 @@ fn test_long_increase_decrease_close() {
         compacted_min_prices_indexes: array![0],
         compacted_max_prices: array![3850, 1], // 500000, 10000 compacted
         compacted_max_prices_indexes: array![0],
-        signatures: array![
-            array!['signatures1', 'signatures2'].span(), array!['signatures1', 'signatures2'].span()
-        ],
+        signatures: array![array!['signatures1', 'signatures2'].span(), array!['signatures1', 'signatures2'].span()],
         price_feed_tokens: array![]
     };
 
@@ -306,23 +283,17 @@ fn test_long_increase_decrease_close() {
     };
 
     let position_info = reader
-        .get_position_info(
-            data_store, referal_storage, position_key_1, market_prices, 0, contract_address, true
-        );
+        .get_position_info(data_store, referal_storage, position_key_1, market_prices, 0, contract_address, true);
     'pnl'.print();
     assert(position_info.base_pnl_usd.mag == 350000000000000000000, 'PnL should be 350$');
 
     //////////////////////////////////// DECREASE POSITION //////////////////////////////////////
     'DECREASE POSITION'.print();
 
-    let balance_USDC_before = IERC20Dispatcher {
-        contract_address: contract_address_const::<'USDC'>()
-    }
+    let balance_USDC_before = IERC20Dispatcher { contract_address: contract_address_const::<'USDC'>() }
         .balance_of(caller_address);
 
-    let balance_ETH_before = IERC20Dispatcher {
-        contract_address: contract_address_const::<'ETH'>()
-    }
+    let balance_ETH_before = IERC20Dispatcher { contract_address: contract_address_const::<'ETH'>() }
         .balance_of(caller_address);
 
     // Decrease 25% of the position
@@ -371,9 +342,7 @@ fn test_long_increase_decrease_close() {
         compacted_min_prices_indexes: array![0],
         compacted_max_prices: array![3850, 1], // 500000, 10000 compacted
         compacted_max_prices_indexes: array![0],
-        signatures: array![
-            array!['signatures1', 'signatures2'].span(), array!['signatures1', 'signatures2'].span()
-        ],
+        signatures: array![array!['signatures1', 'signatures2'].span(), array!['signatures1', 'signatures2'].span()],
         price_feed_tokens: array![]
     };
 
@@ -390,14 +359,10 @@ fn test_long_increase_decrease_close() {
 
     let first_position_dec = data_store.get_position(position_key_1);
 
-    assert(
-        first_position_dec.size_in_tokens == 2250000000000000000, 'Size token should be 2.25 ETH'
-    );
+    assert(first_position_dec.size_in_tokens == 2250000000000000000, 'Size token should be 2.25 ETH');
     assert(first_position_dec.size_in_usd == 8400000000000000000000, 'Size should be 8400');
     assert(first_position_dec.borrowing_factor == 0, 'Borrow should be 0');
-    assert(
-        first_position_dec.collateral_amount == 2250000000000000000, 'Collat should be 2.25 ETH'
-    );
+    assert(first_position_dec.collateral_amount == 2250000000000000000, 'Collat should be 2.25 ETH');
 
     let market_prices = market_utils::MarketPrices {
         index_token_price: Price { min: 3850, max: 3850, },
@@ -406,14 +371,10 @@ fn test_long_increase_decrease_close() {
     };
 
     let position_info = reader
-        .get_position_info(
-            data_store, referal_storage, position_key_1, market_prices, 0, contract_address, true
-        );
+        .get_position_info(data_store, referal_storage, position_key_1, market_prices, 0, contract_address, true);
     assert(position_info.base_pnl_usd.mag == 262500000000000000000, 'PnL should be 262,5');
 
-    let balance_USDC_after = IERC20Dispatcher {
-        contract_address: contract_address_const::<'USDC'>()
-    }
+    let balance_USDC_after = IERC20Dispatcher { contract_address: contract_address_const::<'USDC'>() }
         .balance_of(caller_address);
 
     let balance_ETH_after = IERC20Dispatcher { contract_address: contract_address_const::<'ETH'>() }
@@ -428,14 +389,10 @@ fn test_long_increase_decrease_close() {
     //////////////////////////////////// CLOSE POSITION //////////////////////////////////////
     'CLOSE POSITION'.print();
 
-    let balance_USDC_bef_close = IERC20Dispatcher {
-        contract_address: contract_address_const::<'USDC'>()
-    }
+    let balance_USDC_bef_close = IERC20Dispatcher { contract_address: contract_address_const::<'USDC'>() }
         .balance_of(caller_address);
 
-    let balance_ETH_bef_close = IERC20Dispatcher {
-        contract_address: contract_address_const::<'ETH'>()
-    }
+    let balance_ETH_bef_close = IERC20Dispatcher { contract_address: contract_address_const::<'ETH'>() }
         .balance_of(caller_address);
 
     let market_prices = market_utils::MarketPrices {
@@ -445,9 +402,7 @@ fn test_long_increase_decrease_close() {
     };
 
     let position_info = reader
-        .get_position_info(
-            data_store, referal_storage, position_key_1, market_prices, 0, contract_address, true
-        );
+        .get_position_info(data_store, referal_storage, position_key_1, market_prices, 0, contract_address, true);
     assert(position_info.base_pnl_usd.mag == 600000000000000000000, 'PnL should be 600$');
 
     start_cheat_caller_address(market.market_token, caller_address);
@@ -495,9 +450,7 @@ fn test_long_increase_decrease_close() {
         compacted_min_prices_indexes: array![0],
         compacted_max_prices: array![4000, 1], // 500000, 10000 compacted
         compacted_max_prices_indexes: array![0],
-        signatures: array![
-            array!['signatures1', 'signatures2'].span(), array!['signatures1', 'signatures2'].span()
-        ],
+        signatures: array![array!['signatures1', 'signatures2'].span(), array!['signatures1', 'signatures2'].span()],
         price_feed_tokens: array![]
     };
 
@@ -515,14 +468,10 @@ fn test_long_increase_decrease_close() {
     assert(first_position_close.borrowing_factor == 0, 'Borrow should be 0');
     assert(first_position_close.collateral_amount == 0, 'Collat should be 0');
 
-    let balance_USDC_af_close = IERC20Dispatcher {
-        contract_address: contract_address_const::<'USDC'>()
-    }
+    let balance_USDC_af_close = IERC20Dispatcher { contract_address: contract_address_const::<'USDC'>() }
         .balance_of(caller_address);
 
-    let balance_ETH_af_close = IERC20Dispatcher {
-        contract_address: contract_address_const::<'ETH'>()
-    }
+    let balance_ETH_af_close = IERC20Dispatcher { contract_address: contract_address_const::<'ETH'>() }
         .balance_of(caller_address);
 
     assert(balance_USDC_bef_close == 52974999999999999998950, 'balance USDC shld be 52974.99$');
@@ -568,10 +517,8 @@ fn test_takeprofit_long() {
         50000000000000000000000000000, 50000000000000000000000000000
     );
 
-    let balance_caller_ETH = IERC20Dispatcher { contract_address: market.long_token }
-        .balance_of(caller_address);
-    let balance_caller_USDC = IERC20Dispatcher { contract_address: market.short_token }
-        .balance_of(caller_address);
+    let balance_caller_ETH = IERC20Dispatcher { contract_address: market.long_token }.balance_of(caller_address);
+    let balance_caller_USDC = IERC20Dispatcher { contract_address: market.short_token }.balance_of(caller_address);
 
     assert(balance_caller_ETH == 10000000000000000000, 'balanc ETH should be 10 ETH');
     assert(balance_caller_USDC == 50000000000000000000000, 'USDC be 50 000 USDC');
@@ -594,15 +541,10 @@ fn test_takeprofit_long() {
 
     'Begining of LONG TEST'.print();
 
-    let key_open_interest = keys::open_interest_key(
-        market.market_token, contract_address_const::<'ETH'>(), true
-    );
+    let key_open_interest = keys::open_interest_key(market.market_token, contract_address_const::<'ETH'>(), true);
     data_store.set_u256(key_open_interest, 1);
     let max_key_open_interest = keys::max_open_interest_key(market.market_token, true);
-    data_store
-        .set_u256(
-            max_key_open_interest, 1000000000000000000000000000000000000000000000000000
-        ); // 1 000 000
+    data_store.set_u256(max_key_open_interest, 1000000000000000000000000000000000000000000000000000); // 1 000 000
 
     // Send token to order_vault in multicall with create_order
     start_cheat_caller_address(contract_address_const::<'ETH'>(), caller_address);
@@ -656,9 +598,7 @@ fn test_takeprofit_long() {
         compacted_min_prices_indexes: array![0],
         compacted_max_prices: array![3500, 1], // 500000, 10000 compacted
         compacted_max_prices_indexes: array![0],
-        signatures: array![
-            array!['signatures1', 'signatures2'].span(), array!['signatures1', 'signatures2'].span()
-        ],
+        signatures: array![array!['signatures1', 'signatures2'].span(), array!['signatures1', 'signatures2'].span()],
         price_feed_tokens: array![]
     };
 
@@ -688,9 +628,7 @@ fn test_takeprofit_long() {
     };
 
     let position_info = reader
-        .get_position_info(
-            data_store, referal_storage, position_key_1, market_prices, 0, contract_address, true
-        );
+        .get_position_info(data_store, referal_storage, position_key_1, market_prices, 0, contract_address, true);
     assert(position_info.base_pnl_usd.mag == 350000000000000000000, 'PnL should be 350$');
 
     //////////////////////////////// TRIGGER INCREASE POSITION //////////////////////////////////
@@ -743,9 +681,7 @@ fn test_takeprofit_long() {
         compacted_min_prices_indexes: array![0],
         compacted_max_prices: array![3850, 1], // 500000, 10000 compacted
         compacted_max_prices_indexes: array![0],
-        signatures: array![
-            array!['signatures1', 'signatures2'].span(), array!['signatures1', 'signatures2'].span()
-        ],
+        signatures: array![array!['signatures1', 'signatures2'].span(), array!['signatures1', 'signatures2'].span()],
         price_feed_tokens: array![]
     };
 
@@ -777,23 +713,17 @@ fn test_takeprofit_long() {
     };
 
     let position_info = reader
-        .get_position_info(
-            data_store, referal_storage, position_key_1, market_prices, 0, contract_address, true
-        );
+        .get_position_info(data_store, referal_storage, position_key_1, market_prices, 0, contract_address, true);
     'pnl'.print();
     assert(position_info.base_pnl_usd.mag == 350000000000000000000, 'PnL should be 350$');
 
     //////////////////////////////////// TRIGGER DECREASE POSITION //////////////////////////////////////
     'DECREASE POSITION'.print();
 
-    let balance_USDC_before = IERC20Dispatcher {
-        contract_address: contract_address_const::<'USDC'>()
-    }
+    let balance_USDC_before = IERC20Dispatcher { contract_address: contract_address_const::<'USDC'>() }
         .balance_of(caller_address);
 
-    let balance_ETH_before = IERC20Dispatcher {
-        contract_address: contract_address_const::<'ETH'>()
-    }
+    let balance_ETH_before = IERC20Dispatcher { contract_address: contract_address_const::<'ETH'>() }
         .balance_of(caller_address);
 
     // Decrease 25% of the position
@@ -842,9 +772,7 @@ fn test_takeprofit_long() {
         compacted_min_prices_indexes: array![0],
         compacted_max_prices: array![3950, 1], // 500000, 10000 compacted
         compacted_max_prices_indexes: array![0],
-        signatures: array![
-            array!['signatures1', 'signatures2'].span(), array!['signatures1', 'signatures2'].span()
-        ],
+        signatures: array![array!['signatures1', 'signatures2'].span(), array!['signatures1', 'signatures2'].span()],
         price_feed_tokens: array![]
     };
 
@@ -861,14 +789,10 @@ fn test_takeprofit_long() {
 
     let first_position_dec = data_store.get_position(position_key_1);
 
-    assert(
-        first_position_dec.size_in_tokens == 2250000000000000000, 'Size token should be 2.25 ETH'
-    );
+    assert(first_position_dec.size_in_tokens == 2250000000000000000, 'Size token should be 2.25 ETH');
     assert(first_position_dec.size_in_usd == 8400000000000000000000, 'Size should be 8400');
     assert(first_position_dec.borrowing_factor == 0, 'Borrow should be 0');
-    assert(
-        first_position_dec.collateral_amount == 2250000000000000000, 'Collat should be 2.25 ETH'
-    );
+    assert(first_position_dec.collateral_amount == 2250000000000000000, 'Collat should be 2.25 ETH');
 
     let market_prices = market_utils::MarketPrices {
         index_token_price: Price { min: 3950, max: 3950, },
@@ -877,14 +801,10 @@ fn test_takeprofit_long() {
     };
 
     let position_info = reader
-        .get_position_info(
-            data_store, referal_storage, position_key_1, market_prices, 0, contract_address, true
-        );
+        .get_position_info(data_store, referal_storage, position_key_1, market_prices, 0, contract_address, true);
     assert(position_info.base_pnl_usd.mag == 487500000000000000000, 'PnL should be 487,5');
 
-    let balance_USDC_after = IERC20Dispatcher {
-        contract_address: contract_address_const::<'USDC'>()
-    }
+    let balance_USDC_after = IERC20Dispatcher { contract_address: contract_address_const::<'USDC'>() }
         .balance_of(caller_address);
 
     let balance_ETH_after = IERC20Dispatcher { contract_address: contract_address_const::<'ETH'>() }
@@ -899,14 +819,10 @@ fn test_takeprofit_long() {
     //////////////////////////////////// TRIGGER CLOSE POSITION //////////////////////////////////////
     'CLOSE POSITION'.print();
 
-    let balance_USDC_bef_close = IERC20Dispatcher {
-        contract_address: contract_address_const::<'USDC'>()
-    }
+    let balance_USDC_bef_close = IERC20Dispatcher { contract_address: contract_address_const::<'USDC'>() }
         .balance_of(caller_address);
 
-    let balance_ETH_bef_close = IERC20Dispatcher {
-        contract_address: contract_address_const::<'ETH'>()
-    }
+    let balance_ETH_bef_close = IERC20Dispatcher { contract_address: contract_address_const::<'ETH'>() }
         .balance_of(caller_address);
 
     let market_prices = market_utils::MarketPrices {
@@ -916,9 +832,7 @@ fn test_takeprofit_long() {
     };
 
     let position_info = reader
-        .get_position_info(
-            data_store, referal_storage, position_key_1, market_prices, 0, contract_address, true
-        );
+        .get_position_info(data_store, referal_storage, position_key_1, market_prices, 0, contract_address, true);
     assert(position_info.base_pnl_usd.mag == 600000000000000000000, 'PnL should be 600$');
 
     start_cheat_caller_address(market.market_token, caller_address);
@@ -966,9 +880,7 @@ fn test_takeprofit_long() {
         compacted_min_prices_indexes: array![0],
         compacted_max_prices: array![4000, 1], // 500000, 10000 compacted
         compacted_max_prices_indexes: array![0],
-        signatures: array![
-            array!['signatures1', 'signatures2'].span(), array!['signatures1', 'signatures2'].span()
-        ],
+        signatures: array![array!['signatures1', 'signatures2'].span(), array!['signatures1', 'signatures2'].span()],
         price_feed_tokens: array![]
     };
 
@@ -986,14 +898,10 @@ fn test_takeprofit_long() {
     assert(first_position_close.borrowing_factor == 0, 'Borrow should be 0');
     assert(first_position_close.collateral_amount == 0, 'Collat should be 0');
 
-    let balance_USDC_af_close = IERC20Dispatcher {
-        contract_address: contract_address_const::<'USDC'>()
-    }
+    let balance_USDC_af_close = IERC20Dispatcher { contract_address: contract_address_const::<'USDC'>() }
         .balance_of(caller_address);
 
-    let balance_ETH_af_close = IERC20Dispatcher {
-        contract_address: contract_address_const::<'ETH'>()
-    }
+    let balance_ETH_af_close = IERC20Dispatcher { contract_address: contract_address_const::<'ETH'>() }
         .balance_of(caller_address);
 
     assert(balance_USDC_bef_close == 53124999999999999996350, 'balance USDC shld be 52974.99$');
@@ -1040,10 +948,8 @@ fn test_takeprofit_long_increase_fails() {
         50000000000000000000000000000, 50000000000000000000000000000
     );
 
-    let balance_caller_ETH = IERC20Dispatcher { contract_address: market.long_token }
-        .balance_of(caller_address);
-    let balance_caller_USDC = IERC20Dispatcher { contract_address: market.short_token }
-        .balance_of(caller_address);
+    let balance_caller_ETH = IERC20Dispatcher { contract_address: market.long_token }.balance_of(caller_address);
+    let balance_caller_USDC = IERC20Dispatcher { contract_address: market.short_token }.balance_of(caller_address);
 
     assert(balance_caller_ETH == 10000000000000000000, 'balanc ETH should be 10 ETH');
     assert(balance_caller_USDC == 50000000000000000000000, 'USDC be 50 000 USDC');
@@ -1066,15 +972,10 @@ fn test_takeprofit_long_increase_fails() {
 
     'Begining of LONG TEST'.print();
 
-    let key_open_interest = keys::open_interest_key(
-        market.market_token, contract_address_const::<'ETH'>(), true
-    );
+    let key_open_interest = keys::open_interest_key(market.market_token, contract_address_const::<'ETH'>(), true);
     data_store.set_u256(key_open_interest, 1);
     let max_key_open_interest = keys::max_open_interest_key(market.market_token, true);
-    data_store
-        .set_u256(
-            max_key_open_interest, 1000000000000000000000000000000000000000000000000000
-        ); // 1 000 000
+    data_store.set_u256(max_key_open_interest, 1000000000000000000000000000000000000000000000000000); // 1 000 000
 
     // Send token to order_vault in multicall with create_order
     start_cheat_caller_address(contract_address_const::<'ETH'>(), caller_address);
@@ -1128,9 +1029,7 @@ fn test_takeprofit_long_increase_fails() {
         compacted_min_prices_indexes: array![0],
         compacted_max_prices: array![3500, 1], // 500000, 10000 compacted
         compacted_max_prices_indexes: array![0],
-        signatures: array![
-            array!['signatures1', 'signatures2'].span(), array!['signatures1', 'signatures2'].span()
-        ],
+        signatures: array![array!['signatures1', 'signatures2'].span(), array!['signatures1', 'signatures2'].span()],
         price_feed_tokens: array![]
     };
 
@@ -1160,9 +1059,7 @@ fn test_takeprofit_long_increase_fails() {
     };
 
     let position_info = reader
-        .get_position_info(
-            data_store, referal_storage, position_key_1, market_prices, 0, contract_address, true
-        );
+        .get_position_info(data_store, referal_storage, position_key_1, market_prices, 0, contract_address, true);
     assert(position_info.base_pnl_usd.mag == 350000000000000000000, 'PnL should be 350$');
 
     //////////////////////////////// TRIGGER INCREASE POSITION //////////////////////////////////
@@ -1215,9 +1112,7 @@ fn test_takeprofit_long_increase_fails() {
         compacted_min_prices_indexes: array![0],
         compacted_max_prices: array![3860, 1], // 500000, 10000 compacted
         compacted_max_prices_indexes: array![0],
-        signatures: array![
-            array!['signatures1', 'signatures2'].span(), array!['signatures1', 'signatures2'].span()
-        ],
+        signatures: array![array!['signatures1', 'signatures2'].span(), array!['signatures1', 'signatures2'].span()],
         price_feed_tokens: array![]
     };
 
@@ -1249,23 +1144,17 @@ fn test_takeprofit_long_increase_fails() {
     };
 
     let position_info = reader
-        .get_position_info(
-            data_store, referal_storage, position_key_1, market_prices, 0, contract_address, true
-        );
+        .get_position_info(data_store, referal_storage, position_key_1, market_prices, 0, contract_address, true);
     'pnl'.print();
     assert(position_info.base_pnl_usd.mag == 350000000000000000000, 'PnL should be 350$');
 
     //////////////////////////////////// TRIGGER DECREASE POSITION //////////////////////////////////////
     'DECREASE POSITION'.print();
 
-    let balance_USDC_before = IERC20Dispatcher {
-        contract_address: contract_address_const::<'USDC'>()
-    }
+    let balance_USDC_before = IERC20Dispatcher { contract_address: contract_address_const::<'USDC'>() }
         .balance_of(caller_address);
 
-    let balance_ETH_before = IERC20Dispatcher {
-        contract_address: contract_address_const::<'ETH'>()
-    }
+    let balance_ETH_before = IERC20Dispatcher { contract_address: contract_address_const::<'ETH'>() }
         .balance_of(caller_address);
 
     // Decrease 25% of the position
@@ -1314,9 +1203,7 @@ fn test_takeprofit_long_increase_fails() {
         compacted_min_prices_indexes: array![0],
         compacted_max_prices: array![3950, 1], // 500000, 10000 compacted
         compacted_max_prices_indexes: array![0],
-        signatures: array![
-            array!['signatures1', 'signatures2'].span(), array!['signatures1', 'signatures2'].span()
-        ],
+        signatures: array![array!['signatures1', 'signatures2'].span(), array!['signatures1', 'signatures2'].span()],
         price_feed_tokens: array![]
     };
 
@@ -1333,14 +1220,10 @@ fn test_takeprofit_long_increase_fails() {
 
     let first_position_dec = data_store.get_position(position_key_1);
 
-    assert(
-        first_position_dec.size_in_tokens == 2250000000000000000, 'Size token should be 2.25 ETH'
-    );
+    assert(first_position_dec.size_in_tokens == 2250000000000000000, 'Size token should be 2.25 ETH');
     assert(first_position_dec.size_in_usd == 8400000000000000000000, 'Size should be 8400');
     assert(first_position_dec.borrowing_factor == 0, 'Borrow should be 0');
-    assert(
-        first_position_dec.collateral_amount == 2250000000000000000, 'Collat should be 2.25 ETH'
-    );
+    assert(first_position_dec.collateral_amount == 2250000000000000000, 'Collat should be 2.25 ETH');
 
     let market_prices = market_utils::MarketPrices {
         index_token_price: Price { min: 3950, max: 3950, },
@@ -1349,14 +1232,10 @@ fn test_takeprofit_long_increase_fails() {
     };
 
     let position_info = reader
-        .get_position_info(
-            data_store, referal_storage, position_key_1, market_prices, 0, contract_address, true
-        );
+        .get_position_info(data_store, referal_storage, position_key_1, market_prices, 0, contract_address, true);
     assert(position_info.base_pnl_usd.mag == 487500000000000000000, 'PnL should be 487,5');
 
-    let balance_USDC_after = IERC20Dispatcher {
-        contract_address: contract_address_const::<'USDC'>()
-    }
+    let balance_USDC_after = IERC20Dispatcher { contract_address: contract_address_const::<'USDC'>() }
         .balance_of(caller_address);
 
     let balance_ETH_after = IERC20Dispatcher { contract_address: contract_address_const::<'ETH'>() }
@@ -1371,14 +1250,10 @@ fn test_takeprofit_long_increase_fails() {
     //////////////////////////////////// TRIGGER CLOSE POSITION //////////////////////////////////////
     'CLOSE POSITION'.print();
 
-    let balance_USDC_bef_close = IERC20Dispatcher {
-        contract_address: contract_address_const::<'USDC'>()
-    }
+    let balance_USDC_bef_close = IERC20Dispatcher { contract_address: contract_address_const::<'USDC'>() }
         .balance_of(caller_address);
 
-    let balance_ETH_bef_close = IERC20Dispatcher {
-        contract_address: contract_address_const::<'ETH'>()
-    }
+    let balance_ETH_bef_close = IERC20Dispatcher { contract_address: contract_address_const::<'ETH'>() }
         .balance_of(caller_address);
 
     let market_prices = market_utils::MarketPrices {
@@ -1388,9 +1263,7 @@ fn test_takeprofit_long_increase_fails() {
     };
 
     let position_info = reader
-        .get_position_info(
-            data_store, referal_storage, position_key_1, market_prices, 0, contract_address, true
-        );
+        .get_position_info(data_store, referal_storage, position_key_1, market_prices, 0, contract_address, true);
     assert(position_info.base_pnl_usd.mag == 600000000000000000000, 'PnL should be 600$');
 
     start_cheat_caller_address(market.market_token, caller_address);
@@ -1438,9 +1311,7 @@ fn test_takeprofit_long_increase_fails() {
         compacted_min_prices_indexes: array![0],
         compacted_max_prices: array![4000, 1], // 500000, 10000 compacted
         compacted_max_prices_indexes: array![0],
-        signatures: array![
-            array!['signatures1', 'signatures2'].span(), array!['signatures1', 'signatures2'].span()
-        ],
+        signatures: array![array!['signatures1', 'signatures2'].span(), array!['signatures1', 'signatures2'].span()],
         price_feed_tokens: array![]
     };
 
@@ -1458,14 +1329,10 @@ fn test_takeprofit_long_increase_fails() {
     assert(first_position_close.borrowing_factor == 0, 'Borrow should be 0');
     assert(first_position_close.collateral_amount == 0, 'Collat should be 0');
 
-    let balance_USDC_af_close = IERC20Dispatcher {
-        contract_address: contract_address_const::<'USDC'>()
-    }
+    let balance_USDC_af_close = IERC20Dispatcher { contract_address: contract_address_const::<'USDC'>() }
         .balance_of(caller_address);
 
-    let balance_ETH_af_close = IERC20Dispatcher {
-        contract_address: contract_address_const::<'ETH'>()
-    }
+    let balance_ETH_af_close = IERC20Dispatcher { contract_address: contract_address_const::<'ETH'>() }
         .balance_of(caller_address);
 
     assert(balance_USDC_bef_close == 53124999999999999996350, 'balance USDC shld be 52974.99$');
@@ -1512,10 +1379,8 @@ fn test_takeprofit_long_decrease_fails() {
         50000000000000000000000000000, 50000000000000000000000000000
     );
 
-    let balance_caller_ETH = IERC20Dispatcher { contract_address: market.long_token }
-        .balance_of(caller_address);
-    let balance_caller_USDC = IERC20Dispatcher { contract_address: market.short_token }
-        .balance_of(caller_address);
+    let balance_caller_ETH = IERC20Dispatcher { contract_address: market.long_token }.balance_of(caller_address);
+    let balance_caller_USDC = IERC20Dispatcher { contract_address: market.short_token }.balance_of(caller_address);
 
     assert(balance_caller_ETH == 10000000000000000000, 'balanc ETH should be 10 ETH');
     assert(balance_caller_USDC == 50000000000000000000000, 'USDC be 50 000 USDC');
@@ -1538,15 +1403,10 @@ fn test_takeprofit_long_decrease_fails() {
 
     'Begining of LONG TEST'.print();
 
-    let key_open_interest = keys::open_interest_key(
-        market.market_token, contract_address_const::<'ETH'>(), true
-    );
+    let key_open_interest = keys::open_interest_key(market.market_token, contract_address_const::<'ETH'>(), true);
     data_store.set_u256(key_open_interest, 1);
     let max_key_open_interest = keys::max_open_interest_key(market.market_token, true);
-    data_store
-        .set_u256(
-            max_key_open_interest, 1000000000000000000000000000000000000000000000000000
-        ); // 1 000 000
+    data_store.set_u256(max_key_open_interest, 1000000000000000000000000000000000000000000000000000); // 1 000 000
 
     // Send token to order_vault in multicall with create_order
     start_cheat_caller_address(contract_address_const::<'ETH'>(), caller_address);
@@ -1600,9 +1460,7 @@ fn test_takeprofit_long_decrease_fails() {
         compacted_min_prices_indexes: array![0],
         compacted_max_prices: array![3500, 1], // 500000, 10000 compacted
         compacted_max_prices_indexes: array![0],
-        signatures: array![
-            array!['signatures1', 'signatures2'].span(), array!['signatures1', 'signatures2'].span()
-        ],
+        signatures: array![array!['signatures1', 'signatures2'].span(), array!['signatures1', 'signatures2'].span()],
         price_feed_tokens: array![]
     };
 
@@ -1632,9 +1490,7 @@ fn test_takeprofit_long_decrease_fails() {
     };
 
     let position_info = reader
-        .get_position_info(
-            data_store, referal_storage, position_key_1, market_prices, 0, contract_address, true
-        );
+        .get_position_info(data_store, referal_storage, position_key_1, market_prices, 0, contract_address, true);
     assert(position_info.base_pnl_usd.mag == 350000000000000000000, 'PnL should be 350$');
 
     //////////////////////////////// TRIGGER INCREASE POSITION //////////////////////////////////
@@ -1687,9 +1543,7 @@ fn test_takeprofit_long_decrease_fails() {
         compacted_min_prices_indexes: array![0],
         compacted_max_prices: array![3850, 1], // 500000, 10000 compacted
         compacted_max_prices_indexes: array![0],
-        signatures: array![
-            array!['signatures1', 'signatures2'].span(), array!['signatures1', 'signatures2'].span()
-        ],
+        signatures: array![array!['signatures1', 'signatures2'].span(), array!['signatures1', 'signatures2'].span()],
         price_feed_tokens: array![]
     };
 
@@ -1721,23 +1575,17 @@ fn test_takeprofit_long_decrease_fails() {
     };
 
     let position_info = reader
-        .get_position_info(
-            data_store, referal_storage, position_key_1, market_prices, 0, contract_address, true
-        );
+        .get_position_info(data_store, referal_storage, position_key_1, market_prices, 0, contract_address, true);
     'pnl'.print();
     assert(position_info.base_pnl_usd.mag == 350000000000000000000, 'PnL should be 350$');
 
     //////////////////////////////////// TRIGGER DECREASE POSITION //////////////////////////////////////
     'DECREASE POSITION'.print();
 
-    let balance_USDC_before = IERC20Dispatcher {
-        contract_address: contract_address_const::<'USDC'>()
-    }
+    let balance_USDC_before = IERC20Dispatcher { contract_address: contract_address_const::<'USDC'>() }
         .balance_of(caller_address);
 
-    let balance_ETH_before = IERC20Dispatcher {
-        contract_address: contract_address_const::<'ETH'>()
-    }
+    let balance_ETH_before = IERC20Dispatcher { contract_address: contract_address_const::<'ETH'>() }
         .balance_of(caller_address);
 
     // Decrease 25% of the position
@@ -1786,9 +1634,7 @@ fn test_takeprofit_long_decrease_fails() {
         compacted_min_prices_indexes: array![0],
         compacted_max_prices: array![3940, 1], // 500000, 10000 compacted
         compacted_max_prices_indexes: array![0],
-        signatures: array![
-            array!['signatures1', 'signatures2'].span(), array!['signatures1', 'signatures2'].span()
-        ],
+        signatures: array![array!['signatures1', 'signatures2'].span(), array!['signatures1', 'signatures2'].span()],
         price_feed_tokens: array![]
     };
 
@@ -1805,14 +1651,10 @@ fn test_takeprofit_long_decrease_fails() {
 
     let first_position_dec = data_store.get_position(position_key_1);
 
-    assert(
-        first_position_dec.size_in_tokens == 2250000000000000000, 'Size token should be 2.25 ETH'
-    );
+    assert(first_position_dec.size_in_tokens == 2250000000000000000, 'Size token should be 2.25 ETH');
     assert(first_position_dec.size_in_usd == 8400000000000000000000, 'Size should be 8400');
     assert(first_position_dec.borrowing_factor == 0, 'Borrow should be 0');
-    assert(
-        first_position_dec.collateral_amount == 2250000000000000000, 'Collat should be 2.25 ETH'
-    );
+    assert(first_position_dec.collateral_amount == 2250000000000000000, 'Collat should be 2.25 ETH');
 
     let market_prices = market_utils::MarketPrices {
         index_token_price: Price { min: 3950, max: 3950, },
@@ -1821,14 +1663,10 @@ fn test_takeprofit_long_decrease_fails() {
     };
 
     let position_info = reader
-        .get_position_info(
-            data_store, referal_storage, position_key_1, market_prices, 0, contract_address, true
-        );
+        .get_position_info(data_store, referal_storage, position_key_1, market_prices, 0, contract_address, true);
     assert(position_info.base_pnl_usd.mag == 487500000000000000000, 'PnL should be 487,5');
 
-    let balance_USDC_after = IERC20Dispatcher {
-        contract_address: contract_address_const::<'USDC'>()
-    }
+    let balance_USDC_after = IERC20Dispatcher { contract_address: contract_address_const::<'USDC'>() }
         .balance_of(caller_address);
 
     let balance_ETH_after = IERC20Dispatcher { contract_address: contract_address_const::<'ETH'>() }
@@ -1843,14 +1681,10 @@ fn test_takeprofit_long_decrease_fails() {
     //////////////////////////////////// TRIGGER CLOSE POSITION //////////////////////////////////////
     'CLOSE POSITION'.print();
 
-    let balance_USDC_bef_close = IERC20Dispatcher {
-        contract_address: contract_address_const::<'USDC'>()
-    }
+    let balance_USDC_bef_close = IERC20Dispatcher { contract_address: contract_address_const::<'USDC'>() }
         .balance_of(caller_address);
 
-    let balance_ETH_bef_close = IERC20Dispatcher {
-        contract_address: contract_address_const::<'ETH'>()
-    }
+    let balance_ETH_bef_close = IERC20Dispatcher { contract_address: contract_address_const::<'ETH'>() }
         .balance_of(caller_address);
 
     let market_prices = market_utils::MarketPrices {
@@ -1860,9 +1694,7 @@ fn test_takeprofit_long_decrease_fails() {
     };
 
     let position_info = reader
-        .get_position_info(
-            data_store, referal_storage, position_key_1, market_prices, 0, contract_address, true
-        );
+        .get_position_info(data_store, referal_storage, position_key_1, market_prices, 0, contract_address, true);
     assert(position_info.base_pnl_usd.mag == 600000000000000000000, 'PnL should be 600$');
 
     start_cheat_caller_address(market.market_token, caller_address);
@@ -1910,9 +1742,7 @@ fn test_takeprofit_long_decrease_fails() {
         compacted_min_prices_indexes: array![0],
         compacted_max_prices: array![4000, 1], // 500000, 10000 compacted
         compacted_max_prices_indexes: array![0],
-        signatures: array![
-            array!['signatures1', 'signatures2'].span(), array!['signatures1', 'signatures2'].span()
-        ],
+        signatures: array![array!['signatures1', 'signatures2'].span(), array!['signatures1', 'signatures2'].span()],
         price_feed_tokens: array![]
     };
 
@@ -1930,14 +1760,10 @@ fn test_takeprofit_long_decrease_fails() {
     assert(first_position_close.borrowing_factor == 0, 'Borrow should be 0');
     assert(first_position_close.collateral_amount == 0, 'Collat should be 0');
 
-    let balance_USDC_af_close = IERC20Dispatcher {
-        contract_address: contract_address_const::<'USDC'>()
-    }
+    let balance_USDC_af_close = IERC20Dispatcher { contract_address: contract_address_const::<'USDC'>() }
         .balance_of(caller_address);
 
-    let balance_ETH_af_close = IERC20Dispatcher {
-        contract_address: contract_address_const::<'ETH'>()
-    }
+    let balance_ETH_af_close = IERC20Dispatcher { contract_address: contract_address_const::<'ETH'>() }
         .balance_of(caller_address);
 
     assert(balance_USDC_bef_close == 53124999999999999996350, 'balance USDC bef clse 53124.99$');
@@ -1984,10 +1810,8 @@ fn test_takeprofit_long_close_fails() {
         50000000000000000000000000000, 50000000000000000000000000000
     );
 
-    let balance_caller_ETH = IERC20Dispatcher { contract_address: market.long_token }
-        .balance_of(caller_address);
-    let balance_caller_USDC = IERC20Dispatcher { contract_address: market.short_token }
-        .balance_of(caller_address);
+    let balance_caller_ETH = IERC20Dispatcher { contract_address: market.long_token }.balance_of(caller_address);
+    let balance_caller_USDC = IERC20Dispatcher { contract_address: market.short_token }.balance_of(caller_address);
 
     assert(balance_caller_ETH == 10000000000000000000, 'balanc ETH should be 10 ETH');
     assert(balance_caller_USDC == 50000000000000000000000, 'USDC be 50 000 USDC');
@@ -2010,15 +1834,10 @@ fn test_takeprofit_long_close_fails() {
 
     'Begining of LONG TEST'.print();
 
-    let key_open_interest = keys::open_interest_key(
-        market.market_token, contract_address_const::<'ETH'>(), true
-    );
+    let key_open_interest = keys::open_interest_key(market.market_token, contract_address_const::<'ETH'>(), true);
     data_store.set_u256(key_open_interest, 1);
     let max_key_open_interest = keys::max_open_interest_key(market.market_token, true);
-    data_store
-        .set_u256(
-            max_key_open_interest, 1000000000000000000000000000000000000000000000000000
-        ); // 1 000 000
+    data_store.set_u256(max_key_open_interest, 1000000000000000000000000000000000000000000000000000); // 1 000 000
 
     // Send token to order_vault in multicall with create_order
     start_cheat_caller_address(contract_address_const::<'ETH'>(), caller_address);
@@ -2072,9 +1891,7 @@ fn test_takeprofit_long_close_fails() {
         compacted_min_prices_indexes: array![0],
         compacted_max_prices: array![3500, 1], // 500000, 10000 compacted
         compacted_max_prices_indexes: array![0],
-        signatures: array![
-            array!['signatures1', 'signatures2'].span(), array!['signatures1', 'signatures2'].span()
-        ],
+        signatures: array![array!['signatures1', 'signatures2'].span(), array!['signatures1', 'signatures2'].span()],
         price_feed_tokens: array![]
     };
 
@@ -2104,9 +1921,7 @@ fn test_takeprofit_long_close_fails() {
     };
 
     let position_info = reader
-        .get_position_info(
-            data_store, referal_storage, position_key_1, market_prices, 0, contract_address, true
-        );
+        .get_position_info(data_store, referal_storage, position_key_1, market_prices, 0, contract_address, true);
     assert(position_info.base_pnl_usd.mag == 350000000000000000000, 'PnL should be 350$');
 
     //////////////////////////////// TRIGGER INCREASE POSITION //////////////////////////////////
@@ -2159,9 +1974,7 @@ fn test_takeprofit_long_close_fails() {
         compacted_min_prices_indexes: array![0],
         compacted_max_prices: array![3850, 1], // 500000, 10000 compacted
         compacted_max_prices_indexes: array![0],
-        signatures: array![
-            array!['signatures1', 'signatures2'].span(), array!['signatures1', 'signatures2'].span()
-        ],
+        signatures: array![array!['signatures1', 'signatures2'].span(), array!['signatures1', 'signatures2'].span()],
         price_feed_tokens: array![]
     };
 
@@ -2193,23 +2006,17 @@ fn test_takeprofit_long_close_fails() {
     };
 
     let position_info = reader
-        .get_position_info(
-            data_store, referal_storage, position_key_1, market_prices, 0, contract_address, true
-        );
+        .get_position_info(data_store, referal_storage, position_key_1, market_prices, 0, contract_address, true);
     'pnl'.print();
     assert(position_info.base_pnl_usd.mag == 350000000000000000000, 'PnL should be 350$');
 
     //////////////////////////////////// TRIGGER DECREASE POSITION //////////////////////////////////////
     'DECREASE POSITION'.print();
 
-    let balance_USDC_before = IERC20Dispatcher {
-        contract_address: contract_address_const::<'USDC'>()
-    }
+    let balance_USDC_before = IERC20Dispatcher { contract_address: contract_address_const::<'USDC'>() }
         .balance_of(caller_address);
 
-    let balance_ETH_before = IERC20Dispatcher {
-        contract_address: contract_address_const::<'ETH'>()
-    }
+    let balance_ETH_before = IERC20Dispatcher { contract_address: contract_address_const::<'ETH'>() }
         .balance_of(caller_address);
 
     // Decrease 25% of the position
@@ -2258,9 +2065,7 @@ fn test_takeprofit_long_close_fails() {
         compacted_min_prices_indexes: array![0],
         compacted_max_prices: array![3950, 1], // 500000, 10000 compacted
         compacted_max_prices_indexes: array![0],
-        signatures: array![
-            array!['signatures1', 'signatures2'].span(), array!['signatures1', 'signatures2'].span()
-        ],
+        signatures: array![array!['signatures1', 'signatures2'].span(), array!['signatures1', 'signatures2'].span()],
         price_feed_tokens: array![]
     };
 
@@ -2277,14 +2082,10 @@ fn test_takeprofit_long_close_fails() {
 
     let first_position_dec = data_store.get_position(position_key_1);
 
-    assert(
-        first_position_dec.size_in_tokens == 2250000000000000000, 'Size token should be 2.25 ETH'
-    );
+    assert(first_position_dec.size_in_tokens == 2250000000000000000, 'Size token should be 2.25 ETH');
     assert(first_position_dec.size_in_usd == 8400000000000000000000, 'Size should be 8400');
     assert(first_position_dec.borrowing_factor == 0, 'Borrow should be 0');
-    assert(
-        first_position_dec.collateral_amount == 2250000000000000000, 'Collat should be 2.25 ETH'
-    );
+    assert(first_position_dec.collateral_amount == 2250000000000000000, 'Collat should be 2.25 ETH');
 
     let market_prices = market_utils::MarketPrices {
         index_token_price: Price { min: 3950, max: 3950, },
@@ -2293,14 +2094,10 @@ fn test_takeprofit_long_close_fails() {
     };
 
     let position_info = reader
-        .get_position_info(
-            data_store, referal_storage, position_key_1, market_prices, 0, contract_address, true
-        );
+        .get_position_info(data_store, referal_storage, position_key_1, market_prices, 0, contract_address, true);
     assert(position_info.base_pnl_usd.mag == 487500000000000000000, 'PnL should be 487,5');
 
-    let balance_USDC_after = IERC20Dispatcher {
-        contract_address: contract_address_const::<'USDC'>()
-    }
+    let balance_USDC_after = IERC20Dispatcher { contract_address: contract_address_const::<'USDC'>() }
         .balance_of(caller_address);
 
     let balance_ETH_after = IERC20Dispatcher { contract_address: contract_address_const::<'ETH'>() }
@@ -2315,14 +2112,10 @@ fn test_takeprofit_long_close_fails() {
     //////////////////////////////////// TRIGGER CLOSE POSITION //////////////////////////////////////
     'CLOSE POSITION'.print();
 
-    let balance_USDC_bef_close = IERC20Dispatcher {
-        contract_address: contract_address_const::<'USDC'>()
-    }
+    let balance_USDC_bef_close = IERC20Dispatcher { contract_address: contract_address_const::<'USDC'>() }
         .balance_of(caller_address);
 
-    let balance_ETH_bef_close = IERC20Dispatcher {
-        contract_address: contract_address_const::<'ETH'>()
-    }
+    let balance_ETH_bef_close = IERC20Dispatcher { contract_address: contract_address_const::<'ETH'>() }
         .balance_of(caller_address);
 
     let market_prices = market_utils::MarketPrices {
@@ -2332,9 +2125,7 @@ fn test_takeprofit_long_close_fails() {
     };
 
     let position_info = reader
-        .get_position_info(
-            data_store, referal_storage, position_key_1, market_prices, 0, contract_address, true
-        );
+        .get_position_info(data_store, referal_storage, position_key_1, market_prices, 0, contract_address, true);
     assert(position_info.base_pnl_usd.mag == 600000000000000000000, 'PnL should be 600$');
 
     start_cheat_caller_address(market.market_token, caller_address);
@@ -2382,9 +2173,7 @@ fn test_takeprofit_long_close_fails() {
         compacted_min_prices_indexes: array![0],
         compacted_max_prices: array![3990, 1], // 500000, 10000 compacted
         compacted_max_prices_indexes: array![0],
-        signatures: array![
-            array!['signatures1', 'signatures2'].span(), array!['signatures1', 'signatures2'].span()
-        ],
+        signatures: array![array!['signatures1', 'signatures2'].span(), array!['signatures1', 'signatures2'].span()],
         price_feed_tokens: array![]
     };
 
@@ -2402,14 +2191,10 @@ fn test_takeprofit_long_close_fails() {
     assert(first_position_close.borrowing_factor == 0, 'Borrow should be 0');
     assert(first_position_close.collateral_amount == 0, 'Collat should be 0');
 
-    let balance_USDC_af_close = IERC20Dispatcher {
-        contract_address: contract_address_const::<'USDC'>()
-    }
+    let balance_USDC_af_close = IERC20Dispatcher { contract_address: contract_address_const::<'USDC'>() }
         .balance_of(caller_address);
 
-    let balance_ETH_af_close = IERC20Dispatcher {
-        contract_address: contract_address_const::<'ETH'>()
-    }
+    let balance_ETH_af_close = IERC20Dispatcher { contract_address: contract_address_const::<'ETH'>() }
         .balance_of(caller_address);
 
     assert(balance_USDC_bef_close == 53124999999999999996350, 'balance USDC shld be 53124.99$');
@@ -2455,10 +2240,8 @@ fn test_long_liquidation() {
         50000000000000000000000000000, 50000000000000000000000000000
     );
 
-    let balance_caller_ETH = IERC20Dispatcher { contract_address: market.long_token }
-        .balance_of(caller_address);
-    let balance_caller_USDC = IERC20Dispatcher { contract_address: market.short_token }
-        .balance_of(caller_address);
+    let balance_caller_ETH = IERC20Dispatcher { contract_address: market.long_token }.balance_of(caller_address);
+    let balance_caller_USDC = IERC20Dispatcher { contract_address: market.short_token }.balance_of(caller_address);
 
     assert(balance_caller_ETH == 10000000000000000000, 'balanc ETH should be 10 ETH');
     assert(balance_caller_USDC == 50000000000000000000000, 'USDC be 50 000 USDC');
@@ -2473,31 +2256,18 @@ fn test_long_liquidation() {
         true,
     );
 
-    assert(
-        pool_value_info.pool_value.mag == 175050000000000000000000000000000, 'wrong pool value 1'
-    );
-    assert(
-        pool_value_info.long_token_amount == 50000000000000000000000000000,
-        'wrong long token amount 1'
-    );
-    assert(
-        pool_value_info.short_token_amount == 50000000000000000000000000000,
-        'wrong short token amount 1'
-    );
+    assert(pool_value_info.pool_value.mag == 175050000000000000000000000000000, 'wrong pool value 1');
+    assert(pool_value_info.long_token_amount == 50000000000000000000000000000, 'wrong long token amount 1');
+    assert(pool_value_info.short_token_amount == 50000000000000000000000000000, 'wrong short token amount 1');
 
     // ************************************* TEST LONG *********************************************
 
     'Begining of LONG TEST'.print();
 
-    let key_open_interest = keys::open_interest_key(
-        market.market_token, contract_address_const::<'ETH'>(), true
-    );
+    let key_open_interest = keys::open_interest_key(market.market_token, contract_address_const::<'ETH'>(), true);
     data_store.set_u256(key_open_interest, 1);
     let max_key_open_interest = keys::max_open_interest_key(market.market_token, true);
-    data_store
-        .set_u256(
-            max_key_open_interest, 1000000000000000000000000000000000000000000000000000
-        ); // 1 000 000
+    data_store.set_u256(max_key_open_interest, 1000000000000000000000000000000000000000000000000000); // 1 000 000
 
     // Send token to order_vault in multicall with create_order
     start_cheat_caller_address(contract_address_const::<'ETH'>(), caller_address);
@@ -2551,9 +2321,7 @@ fn test_long_liquidation() {
         compacted_min_prices_indexes: array![0],
         compacted_max_prices: array![3500, 1], // 500000, 10000 compacted
         compacted_max_prices_indexes: array![0],
-        signatures: array![
-            array!['signatures1', 'signatures2'].span(), array!['signatures1', 'signatures2'].span()
-        ],
+        signatures: array![array!['signatures1', 'signatures2'].span(), array!['signatures1', 'signatures2'].span()],
         price_feed_tokens: array![]
     };
 
@@ -2583,9 +2351,7 @@ fn test_long_liquidation() {
     };
 
     let position_info = reader
-        .get_position_info(
-            data_store, referal_storage, position_key_1, market_prices, 0, contract_address, true
-        );
+        .get_position_info(data_store, referal_storage, position_key_1, market_prices, 0, contract_address, true);
     assert(position_info.base_pnl_usd.mag == 350000000000000000000, 'PnL should be 350$');
 
     let balance_USDC = IERC20Dispatcher { contract_address: contract_address_const::<'USDC'>() }
@@ -2607,17 +2373,9 @@ fn test_long_liquidation() {
         true,
     );
 
-    assert(
-        pool_value_info.pool_value.mag == 175050000000000000000000000000001, 'wrong pool value 2'
-    );
-    assert(
-        pool_value_info.long_token_amount == 50000000000000000000000000000,
-        'wrong long token amount 2'
-    );
-    assert(
-        pool_value_info.short_token_amount == 50000000000000000000000000000,
-        'wrong short token amount 2'
-    );
+    assert(pool_value_info.pool_value.mag == 175050000000000000000000000000001, 'wrong pool value 2');
+    assert(pool_value_info.long_token_amount == 50000000000000000000000000000, 'wrong long token amount 2');
+    assert(pool_value_info.short_token_amount == 50000000000000000000000000000, 'wrong short token amount 2');
 
     /////////////////////////////////////// LIQUIDATION LONG ///////////////////////////////////////
 
@@ -2630,9 +2388,7 @@ fn test_long_liquidation() {
     };
 
     let (is_liquiditable, reason) = reader
-        .is_position_liquidable(
-            data_store, referal_storage, first_position, market, market_prices, true
-        );
+        .is_position_liquidable(data_store, referal_storage, first_position, market, market_prices, true);
 
     assert(is_liquiditable == true, 'Position is liquidable');
 
@@ -2645,9 +2401,7 @@ fn test_long_liquidation() {
     };
 
     let (is_liquiditable, reason) = reader
-        .is_position_liquidable(
-            data_store, referal_storage, first_position, market, market_prices, true
-        );
+        .is_position_liquidable(data_store, referal_storage, first_position, market, market_prices, true);
 
     assert(is_liquiditable == false, 'Position is not liquidable');
 
@@ -2663,9 +2417,7 @@ fn test_long_liquidation() {
         compacted_min_prices_indexes: array![0],
         compacted_max_prices: array![1000, 1], // 500000, 10000 compacted
         compacted_max_prices_indexes: array![0],
-        signatures: array![
-            array!['signatures1', 'signatures2'].span(), array!['signatures1', 'signatures2'].span()
-        ],
+        signatures: array![array!['signatures1', 'signatures2'].span(), array!['signatures1', 'signatures2'].span()],
         price_feed_tokens: array![]
     };
 
@@ -2686,14 +2438,10 @@ fn test_long_liquidation() {
     assert(first_position_liq.borrowing_factor == 0, 'Borrow should be 0');
     assert(first_position_liq.collateral_amount == 0, 'Collat should be 0');
 
-    let balance_USDC_af_liq = IERC20Dispatcher {
-        contract_address: contract_address_const::<'USDC'>()
-    }
+    let balance_USDC_af_liq = IERC20Dispatcher { contract_address: contract_address_const::<'USDC'>() }
         .balance_of(caller_address);
 
-    let balance_ETH_af_liq = IERC20Dispatcher {
-        contract_address: contract_address_const::<'ETH'>()
-    }
+    let balance_ETH_af_liq = IERC20Dispatcher { contract_address: contract_address_const::<'ETH'>() }
         .balance_of(caller_address);
 
     assert(balance_USDC_af_liq == 50000000000000000000000, 'balance USDC 50 000$');
@@ -2709,17 +2457,9 @@ fn test_long_liquidation() {
         true,
     );
 
-    assert(
-        pool_value_info.pool_value.mag == 175050000003500000000000000000000, 'wrong pool value 3'
-    );
-    assert(
-        pool_value_info.long_token_amount == 50000000001000000000000000000,
-        'wrong long token amount 3'
-    );
-    assert(
-        pool_value_info.short_token_amount == 50000000000000000000000000000,
-        'wrong short token amount 3'
-    );
+    assert(pool_value_info.pool_value.mag == 175050000003500000000000000000000, 'wrong pool value 3');
+    assert(pool_value_info.long_token_amount == 50000000001000000000000000000, 'wrong long token amount 3');
+    assert(pool_value_info.short_token_amount == 50000000000000000000000000000, 'wrong short token amount 3');
 
     // *********************************************************************************************
     // *                              TEARDOWN                                                     *
@@ -2759,10 +2499,8 @@ fn test_long_leverage_positif_close() {
         50000000000000000000000000000, 50000000000000000000000000000
     );
 
-    let balance_caller_ETH = IERC20Dispatcher { contract_address: market.long_token }
-        .balance_of(caller_address);
-    let balance_caller_USDC = IERC20Dispatcher { contract_address: market.short_token }
-        .balance_of(caller_address);
+    let balance_caller_ETH = IERC20Dispatcher { contract_address: market.long_token }.balance_of(caller_address);
+    let balance_caller_USDC = IERC20Dispatcher { contract_address: market.short_token }.balance_of(caller_address);
 
     assert(balance_caller_ETH == 10000000000000000000, 'balanc ETH should be 10 ETH');
     assert(balance_caller_USDC == 50000000000000000000000, 'USDC be 50 000 USDC');
@@ -2785,15 +2523,10 @@ fn test_long_leverage_positif_close() {
 
     'LONG TEST x10 leverage'.print();
 
-    let key_open_interest = keys::open_interest_key(
-        market.market_token, contract_address_const::<'ETH'>(), true
-    );
+    let key_open_interest = keys::open_interest_key(market.market_token, contract_address_const::<'ETH'>(), true);
     data_store.set_u256(key_open_interest, 1);
     let max_key_open_interest = keys::max_open_interest_key(market.market_token, true);
-    data_store
-        .set_u256(
-            max_key_open_interest, 1000000000000000000000000000000000000000000000000000
-        ); // 1 000 000
+    data_store.set_u256(max_key_open_interest, 1000000000000000000000000000000000000000000000000000); // 1 000 000
 
     // Send token to order_vault in multicall with create_order
     start_cheat_caller_address(contract_address_const::<'ETH'>(), caller_address);
@@ -2847,9 +2580,7 @@ fn test_long_leverage_positif_close() {
         compacted_min_prices_indexes: array![0],
         compacted_max_prices: array![3500, 1], // 500000, 10000 compacted
         compacted_max_prices_indexes: array![0],
-        signatures: array![
-            array!['signatures1', 'signatures2'].span(), array!['signatures1', 'signatures2'].span()
-        ],
+        signatures: array![array!['signatures1', 'signatures2'].span(), array!['signatures1', 'signatures2'].span()],
         price_feed_tokens: array![]
     };
 
@@ -2879,22 +2610,16 @@ fn test_long_leverage_positif_close() {
     };
 
     let position_info = reader
-        .get_position_info(
-            data_store, referal_storage, position_key_1, market_prices, 0, contract_address, true
-        );
+        .get_position_info(data_store, referal_storage, position_key_1, market_prices, 0, contract_address, true);
     assert(position_info.base_pnl_usd.mag == 3500000000000000000000, 'PnL should be 3500$');
 
     //////////////////////////////////// CLOSE POSITION //////////////////////////////////////
     'CLOSE POSITION'.print();
 
-    let balance_USDC_bef_close = IERC20Dispatcher {
-        contract_address: contract_address_const::<'USDC'>()
-    }
+    let balance_USDC_bef_close = IERC20Dispatcher { contract_address: contract_address_const::<'USDC'>() }
         .balance_of(caller_address);
 
-    let balance_ETH_bef_close = IERC20Dispatcher {
-        contract_address: contract_address_const::<'ETH'>()
-    }
+    let balance_ETH_bef_close = IERC20Dispatcher { contract_address: contract_address_const::<'ETH'>() }
         .balance_of(caller_address);
 
     let market_prices = market_utils::MarketPrices {
@@ -2904,9 +2629,7 @@ fn test_long_leverage_positif_close() {
     };
 
     let position_info = reader
-        .get_position_info(
-            data_store, referal_storage, position_key_1, market_prices, 0, contract_address, true
-        );
+        .get_position_info(data_store, referal_storage, position_key_1, market_prices, 0, contract_address, true);
     assert(position_info.base_pnl_usd.mag == 5000000000000000000000, 'PnL should be 5000$');
 
     start_cheat_caller_address(market.market_token, caller_address);
@@ -2954,9 +2677,7 @@ fn test_long_leverage_positif_close() {
         compacted_min_prices_indexes: array![0],
         compacted_max_prices: array![3850, 1], // 500000, 10000 compacted
         compacted_max_prices_indexes: array![0],
-        signatures: array![
-            array!['signatures1', 'signatures2'].span(), array!['signatures1', 'signatures2'].span()
-        ],
+        signatures: array![array!['signatures1', 'signatures2'].span(), array!['signatures1', 'signatures2'].span()],
         price_feed_tokens: array![]
     };
 
@@ -2974,14 +2695,10 @@ fn test_long_leverage_positif_close() {
     assert(first_position_close.borrowing_factor == 0, 'Borrow should be 0');
     assert(first_position_close.collateral_amount == 0, 'Collat should be 0');
 
-    let balance_USDC_af_close = IERC20Dispatcher {
-        contract_address: contract_address_const::<'USDC'>()
-    }
+    let balance_USDC_af_close = IERC20Dispatcher { contract_address: contract_address_const::<'USDC'>() }
         .balance_of(caller_address);
 
-    let balance_ETH_af_close = IERC20Dispatcher {
-        contract_address: contract_address_const::<'ETH'>()
-    }
+    let balance_ETH_af_close = IERC20Dispatcher { contract_address: contract_address_const::<'ETH'>() }
         .balance_of(caller_address);
 
     assert(balance_USDC_bef_close == 50000000000000000000000, 'balance USDC shld be 50000$');
@@ -3027,10 +2744,8 @@ fn test_long_leverage_liquidation() {
         50000000000000000000000000000, 50000000000000000000000000000
     );
 
-    let balance_caller_ETH = IERC20Dispatcher { contract_address: market.long_token }
-        .balance_of(caller_address);
-    let balance_caller_USDC = IERC20Dispatcher { contract_address: market.short_token }
-        .balance_of(caller_address);
+    let balance_caller_ETH = IERC20Dispatcher { contract_address: market.long_token }.balance_of(caller_address);
+    let balance_caller_USDC = IERC20Dispatcher { contract_address: market.short_token }.balance_of(caller_address);
 
     assert(balance_caller_ETH == 10000000000000000000, 'balanc ETH should be 10 ETH');
     assert(balance_caller_USDC == 50000000000000000000000, 'USDC be 50 000 USDC');
@@ -3045,31 +2760,18 @@ fn test_long_leverage_liquidation() {
         true,
     );
 
-    assert(
-        pool_value_info.pool_value.mag == 175050000000000000000000000000000, 'wrong pool value 1'
-    );
-    assert(
-        pool_value_info.long_token_amount == 50000000000000000000000000000,
-        'wrong long token amount 1'
-    );
-    assert(
-        pool_value_info.short_token_amount == 50000000000000000000000000000,
-        'wrong short token amount 1'
-    );
+    assert(pool_value_info.pool_value.mag == 175050000000000000000000000000000, 'wrong pool value 1');
+    assert(pool_value_info.long_token_amount == 50000000000000000000000000000, 'wrong long token amount 1');
+    assert(pool_value_info.short_token_amount == 50000000000000000000000000000, 'wrong short token amount 1');
 
     // ************************************* TEST LONG *********************************************
 
     'Begining of LONG TEST'.print();
 
-    let key_open_interest = keys::open_interest_key(
-        market.market_token, contract_address_const::<'ETH'>(), true
-    );
+    let key_open_interest = keys::open_interest_key(market.market_token, contract_address_const::<'ETH'>(), true);
     data_store.set_u256(key_open_interest, 1);
     let max_key_open_interest = keys::max_open_interest_key(market.market_token, true);
-    data_store
-        .set_u256(
-            max_key_open_interest, 1000000000000000000000000000000000000000000000000000
-        ); // 1 000 000
+    data_store.set_u256(max_key_open_interest, 1000000000000000000000000000000000000000000000000000); // 1 000 000
 
     // Send token to order_vault in multicall with create_order
     start_cheat_caller_address(contract_address_const::<'ETH'>(), caller_address);
@@ -3123,9 +2825,7 @@ fn test_long_leverage_liquidation() {
         compacted_min_prices_indexes: array![0],
         compacted_max_prices: array![3500, 1], // 500000, 10000 compacted
         compacted_max_prices_indexes: array![0],
-        signatures: array![
-            array!['signatures1', 'signatures2'].span(), array!['signatures1', 'signatures2'].span()
-        ],
+        signatures: array![array!['signatures1', 'signatures2'].span(), array!['signatures1', 'signatures2'].span()],
         price_feed_tokens: array![]
     };
 
@@ -3155,9 +2855,7 @@ fn test_long_leverage_liquidation() {
     };
 
     let position_info = reader
-        .get_position_info(
-            data_store, referal_storage, position_key_1, market_prices, 0, contract_address, true
-        );
+        .get_position_info(data_store, referal_storage, position_key_1, market_prices, 0, contract_address, true);
     assert(position_info.base_pnl_usd.mag == 3500000000000000000000, 'PnL should be 3500$');
 
     let balance_USDC = IERC20Dispatcher { contract_address: contract_address_const::<'USDC'>() }
@@ -3179,17 +2877,9 @@ fn test_long_leverage_liquidation() {
         true,
     );
 
-    assert(
-        pool_value_info.pool_value.mag == 175050000000000000000000000000001, 'wrong pool value 2'
-    );
-    assert(
-        pool_value_info.long_token_amount == 50000000000000000000000000000,
-        'wrong long token amount 2'
-    );
-    assert(
-        pool_value_info.short_token_amount == 50000000000000000000000000000,
-        'wrong short token amount 2'
-    );
+    assert(pool_value_info.pool_value.mag == 175050000000000000000000000000001, 'wrong pool value 2');
+    assert(pool_value_info.long_token_amount == 50000000000000000000000000000, 'wrong long token amount 2');
+    assert(pool_value_info.short_token_amount == 50000000000000000000000000000, 'wrong short token amount 2');
 
     /////////////////////////////////////// LIQUIDATION LONG ///////////////////////////////////////
 
@@ -3202,9 +2892,7 @@ fn test_long_leverage_liquidation() {
     };
 
     let (is_liquiditable, reason) = reader
-        .is_position_liquidable(
-            data_store, referal_storage, first_position, market, market_prices, true
-        );
+        .is_position_liquidable(data_store, referal_storage, first_position, market, market_prices, true);
     // position x10 leverage is liquidable at 3000$, position x1 leverage is not liquidable at 3000$
     assert(is_liquiditable == true, 'Position is liquidable');
 
@@ -3220,9 +2908,7 @@ fn test_long_leverage_liquidation() {
         compacted_min_prices_indexes: array![0],
         compacted_max_prices: array![1000, 1], // 500000, 10000 compacted
         compacted_max_prices_indexes: array![0],
-        signatures: array![
-            array!['signatures1', 'signatures2'].span(), array!['signatures1', 'signatures2'].span()
-        ],
+        signatures: array![array!['signatures1', 'signatures2'].span(), array!['signatures1', 'signatures2'].span()],
         price_feed_tokens: array![]
     };
 
@@ -3243,14 +2929,10 @@ fn test_long_leverage_liquidation() {
     assert(first_position_liq.borrowing_factor == 0, 'Borrow should be 0');
     assert(first_position_liq.collateral_amount == 0, 'Collat should be 0');
 
-    let balance_USDC_af_liq = IERC20Dispatcher {
-        contract_address: contract_address_const::<'USDC'>()
-    }
+    let balance_USDC_af_liq = IERC20Dispatcher { contract_address: contract_address_const::<'USDC'>() }
         .balance_of(caller_address);
 
-    let balance_ETH_af_liq = IERC20Dispatcher {
-        contract_address: contract_address_const::<'ETH'>()
-    }
+    let balance_ETH_af_liq = IERC20Dispatcher { contract_address: contract_address_const::<'ETH'>() }
         .balance_of(caller_address);
 
     assert(balance_USDC_af_liq == 50000000000000000000000, 'balance USDC 50 000$');
@@ -3266,17 +2948,9 @@ fn test_long_leverage_liquidation() {
         true,
     );
 
-    assert(
-        pool_value_info.pool_value.mag == 175050000003500000000000000000000, 'wrong pool value 3'
-    );
-    assert(
-        pool_value_info.long_token_amount == 50000000001000000000000000000,
-        'wrong long token amount 3'
-    );
-    assert(
-        pool_value_info.short_token_amount == 50000000000000000000000000000,
-        'wrong short token amount 3'
-    );
+    assert(pool_value_info.pool_value.mag == 175050000003500000000000000000000, 'wrong pool value 3');
+    assert(pool_value_info.long_token_amount == 50000000001000000000000000000, 'wrong long token amount 3');
+    assert(pool_value_info.short_token_amount == 50000000000000000000000000000, 'wrong short token amount 3');
 
     // *********************************************************************************************
     // *                              TEARDOWN                                                     *

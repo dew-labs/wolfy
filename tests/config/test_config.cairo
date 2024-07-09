@@ -191,11 +191,7 @@ fn teardown(data_store: IDataStoreDispatcher, config: IConfigDispatcher) {
 
 /// Utility function to setup the test environment.
 fn setup() -> (
-    ContractAddress,
-    IConfigDispatcher,
-    IRoleStoreDispatcher,
-    IDataStoreDispatcher,
-    IEventEmitterDispatcher
+    ContractAddress, IConfigDispatcher, IRoleStoreDispatcher, IDataStoreDispatcher, IEventEmitterDispatcher
 ) {
     // Setup contracts.
     let (caller_address, config, role_store, data_store, event_emitter) = setup_contracts();
@@ -209,14 +205,10 @@ fn setup() -> (
 /// Setup required contracts.
 fn setup_contracts() -> (
     // This caller address will be used with `start_cheat_caller_address` cheatcode to mock the caller address.,
-    ContractAddress,
-    // Interface to interact with the `Config` contract.
-    IConfigDispatcher,
-    // Interface to interact with the `RoleStore` contract.
-    IRoleStoreDispatcher,
-    // Interface to interact with the `DataStore` contract.
-    IDataStoreDispatcher,
-    // Interface to interact with the `EventEmitter` contract.
+    ContractAddress, // Interface to interact with the `Config` contract.
+    IConfigDispatcher, // Interface to interact with the `RoleStore` contract.
+    IRoleStoreDispatcher, // Interface to interact with the `DataStore` contract.
+    IDataStoreDispatcher, // Interface to interact with the `EventEmitter` contract.
     IEventEmitterDispatcher,
 ) {
     // Deploy the role store contract.
@@ -236,9 +228,7 @@ fn setup_contracts() -> (
     let event_emitter = IEventEmitterDispatcher { contract_address: event_emitter_address };
 
     // Deploy the `Config` contract.
-    let config_address = deploy_config(
-        data_store_address, role_store_address, event_emitter_address
-    );
+    let config_address = deploy_config(data_store_address, role_store_address, event_emitter_address);
 
     // Create a safe dispatcher to interact with the contract.
     let config = IConfigDispatcher { contract_address: config_address };
@@ -248,9 +238,7 @@ fn setup_contracts() -> (
 
 /// Utility function to deploy a market factory contract and return its address.
 fn deploy_config(
-    data_store_address: ContractAddress,
-    role_store_address: ContractAddress,
-    event_emitter_address: ContractAddress,
+    data_store_address: ContractAddress, role_store_address: ContractAddress, event_emitter_address: ContractAddress,
 ) -> ContractAddress {
     let contract = declare("Config").unwrap();
     let caller_address = contract_address_const::<'caller'>();

@@ -6,10 +6,7 @@
 // Core lib imports.
 use integer::{u256_from_felt252};
 use result::ResultTrait;
-use starknet::{
-    ContractAddress, get_caller_address, Felt252TryIntoContractAddress, contract_address_const,
-    ClassHash,
-};
+use starknet::{ContractAddress, get_caller_address, Felt252TryIntoContractAddress, contract_address_const, ClassHash,};
 use snforge_std::{declare, start_cheat_caller_address, stop_cheat_caller_address, start_mock_call, ContractClassTrait};
 use traits::{TryInto, Into};
 
@@ -183,9 +180,7 @@ fn setup() -> (
     let receiver_address: ContractAddress = 0x202.try_into().unwrap();
 
     // deploy deposit vault
-    let deposit_vault_address = deploy_deposit_vault(
-        data_store.contract_address, role_store.contract_address
-    );
+    let deposit_vault_address = deploy_deposit_vault(data_store.contract_address, role_store.contract_address);
     let deposit_vault = IDepositVaultDispatcher { contract_address: deposit_vault_address };
 
     // deploy erc20 token
@@ -208,9 +203,7 @@ fn setup() -> (
 /// # Returns
 ///
 /// * `ContractAddress` - The address of the deposit vault.
-fn deploy_deposit_vault(
-    data_store_address: ContractAddress, role_store_address: ContractAddress
-) -> ContractAddress {
+fn deploy_deposit_vault(data_store_address: ContractAddress, role_store_address: ContractAddress) -> ContractAddress {
     let deposit_vault_contract = declare("DepositVault").unwrap();
     let constructor_calldata2 = array![data_store_address.into(), role_store_address.into()];
     deposit_vault_contract.deploy(@constructor_calldata2).unwrap()
@@ -228,9 +221,7 @@ fn deploy_deposit_vault(
 /// * `ContractAddress` - The address of the ERC20 token.
 fn deploy_erc20_token(deposit_vault_address: ContractAddress) -> ContractAddress {
     let erc20_contract = declare("ERC20").unwrap();
-    let constructor_calldata3 = array![
-        'satoru', 'STU', INITIAL_TOKENS_MINTED, 0, deposit_vault_address.into()
-    ];
+    let constructor_calldata3 = array!['satoru', 'STU', INITIAL_TOKENS_MINTED, 0, deposit_vault_address.into()];
     erc20_contract.deploy(@constructor_calldata3).unwrap()
 }
 

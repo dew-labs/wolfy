@@ -350,9 +350,7 @@ fn setup() -> (
     let event_emitter = IEventEmitterDispatcher { contract_address: event_emitter_address };
 
     let referral_storage_address = deploy_referral_storage(event_emitter_address);
-    let referral_storage = IReferralStorageDispatcher {
-        contract_address: referral_storage_address
-    };
+    let referral_storage = IReferralStorageDispatcher { contract_address: referral_storage_address };
 
     let governable_address = deploy_governable(event_emitter_address);
     let governable = IGovernableDispatcher { contract_address: governable_address };

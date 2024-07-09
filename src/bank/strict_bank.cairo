@@ -18,11 +18,7 @@ trait IStrictBank<TContractState> {
     /// # Arguments
     /// * `data_store_address` - The address of the data store contract.
     /// * `role_store_address` - The address of the role store contract.
-    fn initialize(
-        ref self: TContractState,
-        data_store_address: ContractAddress,
-        role_store_address: ContractAddress,
-    );
+    fn initialize(ref self: TContractState, data_store_address: ContractAddress, role_store_address: ContractAddress,);
 
     /// Transfer tokens from this contract to a receiver.
     /// # Arguments
@@ -63,9 +59,7 @@ mod StrictBank {
 
     // Core lib imports.
     use core::traits::TryInto;
-    use starknet::{
-        get_caller_address, get_contract_address, ContractAddress, contract_address_const
-    };
+    use starknet::{get_caller_address, get_contract_address, ContractAddress, contract_address_const};
 
     // Local imports.
     use satoru::bank::bank::{Bank, IBank};
@@ -90,11 +84,7 @@ mod StrictBank {
     /// * `data_store_address` - The address of the data store contract.
     /// * `role_store_address` - The address of the role store contract.
     #[constructor]
-    fn constructor(
-        ref self: ContractState,
-        data_store_address: ContractAddress,
-        role_store_address: ContractAddress,
-    ) {
+    fn constructor(ref self: ContractState, data_store_address: ContractAddress, role_store_address: ContractAddress,) {
         self.initialize(data_store_address, role_store_address);
     }
 
@@ -104,9 +94,7 @@ mod StrictBank {
     #[abi(embed_v0)]
     impl StrictBank of super::IStrictBank<ContractState> {
         fn initialize(
-            ref self: ContractState,
-            data_store_address: ContractAddress,
-            role_store_address: ContractAddress,
+            ref self: ContractState, data_store_address: ContractAddress, role_store_address: ContractAddress,
         ) {
             let mut state: Bank::ContractState = Bank::unsafe_new_contract_state();
             IBank::initialize(ref state, data_store_address, role_store_address);
@@ -126,8 +114,7 @@ mod StrictBank {
 
         fn sync_token_balance(ref self: ContractState, token: ContractAddress) -> u256 {
             // assert that caller is a controller
-            let mut role_module: RoleModule::ContractState =
-                RoleModule::unsafe_new_contract_state();
+            let mut role_module: RoleModule::ContractState = RoleModule::unsafe_new_contract_state();
             role_module.only_controller();
 
             let this_contract = get_contract_address();
@@ -141,8 +128,7 @@ mod StrictBank {
 
         fn record_transfer_in(ref self: ContractState, token: ContractAddress) -> u256 {
             // assert that caller is a controller
-            let mut role_module: RoleModule::ContractState =
-                RoleModule::unsafe_new_contract_state();
+            let mut role_module: RoleModule::ContractState = RoleModule::unsafe_new_contract_state();
             role_module.only_controller();
 
             self.record_transfer_in_internal(token)
@@ -168,9 +154,7 @@ mod StrictBank {
         /// * `token` - The token to record the transfer for
         /// # Return
         /// The amount of tokens transferred in
-        fn record_transfer_in_internal(
-            ref self: ContractState, token: starknet::ContractAddress
-        ) -> u256 {
+        fn record_transfer_in_internal(ref self: ContractState, token: starknet::ContractAddress) -> u256 {
             let prev_balance: u256 = self.token_balances.read(token);
             let this_contract = get_contract_address();
             let next_balance: u256 = IERC20Dispatcher { contract_address: token }

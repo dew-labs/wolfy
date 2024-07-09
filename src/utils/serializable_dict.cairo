@@ -93,9 +93,7 @@ struct SerializableFelt252Dict<T> {
     values: Felt252Dict<Nullable<Item<T>>>
 }
 
-impl SerializableFelt252DictDestruct<
-    T, +Drop<T>, +Felt252DictValue<T>
-> of Destruct<SerializableFelt252Dict<T>> {
+impl SerializableFelt252DictDestruct<T, +Drop<T>, +Felt252DictValue<T>> of Destruct<SerializableFelt252Dict<T>> {
     fn destruct(self: SerializableFelt252Dict<T>) nopanic {
         self.values.squash();
         self.keys.destruct();
@@ -245,9 +243,7 @@ impl SerializableFelt252DictTraitImpl<
     // [ KEY | NB_ELEMENTS | X | Y | ... | KEY | NB_ELEMENTS | X | ...]
     //
     fn deserialize(ref serialized: Span<felt252>) -> Option<SerializableFelt252Dict<T>> {
-        let mut d: SerializableFelt252Dict<T> = SerializableFelt252Dict {
-            keys: array![], values: Default::default()
-        };
+        let mut d: SerializableFelt252Dict<T> = SerializableFelt252Dict { keys: array![], values: Default::default() };
         loop {
             // Try to retrive the next key
             match serialized.pop_front() {

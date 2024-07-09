@@ -15,9 +15,7 @@ struct Span32<T> {
     snapshot: Span<T>
 }
 
-fn serialize_array_helper<T, +Serde<T>, +Drop<T>>(
-    mut input: Span32<T>, ref output: Array<felt252>
-) {
+fn serialize_array_helper<T, +Serde<T>, +Drop<T>>(mut input: Span32<T>, ref output: Array<felt252>) {
     match input.pop_front() {
         Option::Some(value) => {
             value.serialize(ref output);
@@ -99,15 +97,11 @@ impl Array32<T> of Array32Trait<T> {
 }
 
 impl StoreContractAddressSpan32 of Store<Span32<ContractAddress>> {
-    fn read(
-        address_domain: u32, base: StorageBaseAddress
-    ) -> SyscallResult<Span32<ContractAddress>> {
+    fn read(address_domain: u32, base: StorageBaseAddress) -> SyscallResult<Span32<ContractAddress>> {
         StoreContractAddressSpan32::read_at_offset(address_domain, base, 0)
     }
 
-    fn write(
-        address_domain: u32, base: StorageBaseAddress, value: Span32<ContractAddress>
-    ) -> SyscallResult<()> {
+    fn write(address_domain: u32, base: StorageBaseAddress, value: Span32<ContractAddress>) -> SyscallResult<()> {
         StoreContractAddressSpan32::write_at_offset(address_domain, base, 0, value)
     }
 
@@ -117,8 +111,7 @@ impl StoreContractAddressSpan32 of Store<Span32<ContractAddress>> {
         let mut arr: Array<ContractAddress> = ArrayTrait::new();
 
         // Read the stored array's length. If the length is superior to 255, the read will fail.
-        let len: u8 = Store::<u8>::read_at_offset(address_domain, base, offset)
-            .expect('Storage Span too large');
+        let len: u8 = Store::<u8>::read_at_offset(address_domain, base, offset).expect('Storage Span too large');
         offset += 1;
 
         // Sequentially read all stored elements and append them to the array.
@@ -139,10 +132,7 @@ impl StoreContractAddressSpan32 of Store<Span32<ContractAddress>> {
     }
 
     fn write_at_offset(
-        address_domain: u32,
-        base: StorageBaseAddress,
-        mut offset: u8,
-        mut value: Span32<ContractAddress>
+        address_domain: u32, base: StorageBaseAddress, mut offset: u8, mut value: Span32<ContractAddress>
     ) -> SyscallResult<()> {
         // // Store the length of the array in the first storage slot.
         let len: u8 = value.len().try_into().expect('Storage - Span too large');
@@ -153,9 +143,7 @@ impl StoreContractAddressSpan32 of Store<Span32<ContractAddress>> {
         loop {
             match value.pop_front() {
                 Option::Some(element) => {
-                    Store::<
-                        ContractAddress
-                    >::write_at_offset(address_domain, base, offset, *element);
+                    Store::<ContractAddress>::write_at_offset(address_domain, base, offset, *element);
                     offset += Store::<felt252>::size();
                 },
                 Option::None(_) => { break Result::Ok(()); }

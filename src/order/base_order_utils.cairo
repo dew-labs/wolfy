@@ -222,15 +222,9 @@ fn is_liquidation_order(order_type: OrderType) -> bool {
 /// * `trigger_price` - the order's trigger_price.
 /// * `is_long` - Whether the order is for a long or short.
 fn validate_order_trigger_price(
-    oracle: IOracleDispatcher,
-    index_token: ContractAddress,
-    order_type: OrderType,
-    trigger_price: u256,
-    is_long: bool
+    oracle: IOracleDispatcher, index_token: ContractAddress, order_type: OrderType, trigger_price: u256, is_long: bool
 ) {
-    if is_swap_order(order_type)
-        || is_market_order(order_type)
-        || is_liquidation_order(order_type) {
+    if is_swap_order(order_type) || is_market_order(order_type) || is_liquidation_order(order_type) {
         return;
     }
 
@@ -309,8 +303,7 @@ fn get_execution_price_for_increase(
     // increase order:
     //     - long: executionPrice should be smaller than acceptablePrice
     //     - short: executionPrice should be larger than acceptablePrice
-    if (is_long && execution_price <= acceptable_price)
-        || (!is_long && execution_price >= acceptable_price) {
+    if (is_long && execution_price <= acceptable_price) || (!is_long && execution_price >= acceptable_price) {
         return execution_price;
     }
 
@@ -409,9 +402,7 @@ fn get_execution_price_for_decrease(
 
         if adjusted_price_impact_usd < Zeroable::zero()
             && calc::to_unsigned(i256_neg(adjusted_price_impact_usd)) > size_delta_usd {
-            OrderError::PRICE_IMPACT_LARGER_THAN_ORDER_SIZE(
-                adjusted_price_impact_usd, size_delta_usd
-            );
+            OrderError::PRICE_IMPACT_LARGER_THAN_ORDER_SIZE(adjusted_price_impact_usd, size_delta_usd);
         }
 
         let numerator = precision::mul_div_inum(
@@ -423,11 +414,7 @@ fn get_execution_price_for_decrease(
 
         if _execution_price < Zeroable::zero() {
             OrderError::NEGATIVE_EXECUTION_PRICE(
-                _execution_price,
-                price,
-                position_size_in_usd,
-                adjusted_price_impact_usd,
-                size_delta_usd
+                _execution_price, price, position_size_in_usd, adjusted_price_impact_usd, size_delta_usd
             );
         }
 
@@ -437,8 +424,7 @@ fn get_execution_price_for_decrease(
     // decrease order:
     //     - long: executionPrice should be larger than acceptablePrice
     //     - short: executionPrice should be smaller than acceptablePrice
-    if (is_long && execution_price >= acceptable_price)
-        || (!is_long && execution_price <= acceptable_price) {
+    if (is_long && execution_price >= acceptable_price) || (!is_long && execution_price <= acceptable_price) {
         return execution_price;
     }
 
@@ -474,8 +460,5 @@ fn get_execution_price_for_decrease(
 /// * `order` - The order to check.
 fn validate_non_empty_order(order: @Order) {
     assert((*order.account).is_non_zero(), OrderError::EMPTY_ORDER);
-    assert(
-        *order.size_delta_usd != 0 || *order.initial_collateral_delta_amount != 0,
-        OrderError::EMPTY_ORDER
-    );
+    assert(*order.size_delta_usd != 0 || *order.initial_collateral_delta_amount != 0, OrderError::EMPTY_ORDER);
 }

@@ -1,9 +1,10 @@
 use starknet::{
-    ContractAddress, get_caller_address, get_contract_address, Felt252TryIntoContractAddress,
-    contract_address_const
+    ContractAddress, get_caller_address, get_contract_address, Felt252TryIntoContractAddress, contract_address_const
 };
 use starknet::info::get_block_number;
-use snforge_std::{declare, start_cheat_caller_address, stop_cheat_caller_address, start_cheat_block_number, ContractClassTrait};
+use snforge_std::{
+    declare, start_cheat_caller_address, stop_cheat_caller_address, start_cheat_block_number, ContractClassTrait
+};
 
 use satoru::data::keys;
 use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};

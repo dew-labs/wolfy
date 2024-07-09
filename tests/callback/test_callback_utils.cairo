@@ -6,8 +6,7 @@ use satoru::data::keys;
 use satoru::deposit::deposit::Deposit;
 use satoru::event::event_utils::{LogData, LogDataTrait};
 use satoru::callback::callback_utils::{
-    validate_callback_gas_limit, set_saved_callback_contract, get_saved_callback_contract,
-    after_deposit_execution
+    validate_callback_gas_limit, set_saved_callback_contract, get_saved_callback_contract, after_deposit_execution
 };
 use satoru::callback::mocks::{ICallbackMockDispatcherTrait, deploy_callback_mock};
 use satoru::tests_lib::{setup, teardown, setup_event_emitter};

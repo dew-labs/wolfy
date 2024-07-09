@@ -1,17 +1,11 @@
-use starknet::{
-    ContractAddress, get_caller_address, Felt252TryIntoContractAddress, contract_address_const
-};
+use starknet::{ContractAddress, get_caller_address, Felt252TryIntoContractAddress, contract_address_const};
 use snforge_std::{
     declare, start_cheat_caller_address, stop_cheat_caller_address, start_mock_call, stop_mock_call, ContractClassTrait
 };
 use satoru::utils::span32::{Span32, Span32Trait};
 use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
-use satoru::exchange::withdrawal_handler::{
-    IWithdrawalHandlerDispatcher, IWithdrawalHandlerDispatcherTrait
-};
-use satoru::withdrawal::withdrawal_vault::{
-    IWithdrawalVaultDispatcher, IWithdrawalVaultDispatcherTrait
-};
+use satoru::exchange::withdrawal_handler::{IWithdrawalHandlerDispatcher, IWithdrawalHandlerDispatcherTrait};
+use satoru::withdrawal::withdrawal_vault::{IWithdrawalVaultDispatcher, IWithdrawalVaultDispatcherTrait};
 use satoru::token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
 use satoru::fee::fee_handler::{IFeeHandlerDispatcher, IFeeHandlerDispatcherTrait};
 use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
@@ -29,8 +23,7 @@ use traits::Default;
 // The test expects the call to succeed without error
 #[test]
 fn given_normal_conditions_when_create_withdrawal_then_works() {
-    let (caller_address, data_store, event_emitter, withdrawal_handler, withdrawal_vault_address) =
-        setup();
+    let (caller_address, data_store, event_emitter, withdrawal_handler, withdrawal_vault_address) = setup();
     start_cheat_caller_address(withdrawal_handler.contract_address, caller_address);
 
     let account = contract_address_const::<'account'>();
@@ -40,10 +33,7 @@ fn given_normal_conditions_when_create_withdrawal_then_works() {
     let address_zero = contract_address_const::<0>();
 
     let mut market = Market {
-        market_token: market_token,
-        index_token: address_zero,
-        long_token: address_zero,
-        short_token: address_zero,
+        market_token: market_token, index_token: address_zero, long_token: address_zero, short_token: address_zero,
     };
 
     data_store.set_market(market_token, 0, market);
@@ -62,8 +52,7 @@ fn given_normal_conditions_when_create_withdrawal_then_works() {
 #[test]
 #[should_panic(expected: ('empty withdrawal amount',))]
 fn given_market_token_amount_equal_zero_when_create_withdrawal_then_fails() {
-    let (caller_address, data_store, event_emitter, withdrawal_handler, withdrawal_vault_address) =
-        setup();
+    let (caller_address, data_store, event_emitter, withdrawal_handler, withdrawal_vault_address) = setup();
     start_cheat_caller_address(withdrawal_handler.contract_address, caller_address);
 
     let account = contract_address_const::<'account'>();
@@ -113,8 +102,7 @@ fn given_caller_not_controller_when_create_withdrawal_then_fails() {
 // The test expects the call to succeed without error
 #[test]
 fn given_normal_conditions_when_cancel_withdrawal_then_works() {
-    let (caller_address, data_store, event_emitter, withdrawal_handler, withdrawal_vault_address) =
-        setup();
+    let (caller_address, data_store, event_emitter, withdrawal_handler, withdrawal_vault_address) = setup();
     start_cheat_caller_address(withdrawal_handler.contract_address, caller_address);
 
     let account = contract_address_const::<'account'>();
@@ -199,8 +187,7 @@ fn given_account_address_zero_when_cancel_withdrawal_then_fails() {
         callback_gas_limit: 0,
     };
 
-    let (caller_address, data_store, event_emitter, withdrawal_handler, withdrawal_vault_address) =
-        setup();
+    let (caller_address, data_store, event_emitter, withdrawal_handler, withdrawal_vault_address) = setup();
     start_cheat_caller_address(withdrawal_handler.contract_address, caller_address);
 
     let account = contract_address_const::<'account'>();
@@ -250,8 +237,7 @@ fn given_market_token_equals_zero_when_cancel_withdrawal_then_fails() {
         callback_gas_limit: 0,
     };
 
-    let (caller_address, data_store, event_emitter, withdrawal_handler, withdrawal_vault_address) =
-        setup();
+    let (caller_address, data_store, event_emitter, withdrawal_handler, withdrawal_vault_address) = setup();
     start_cheat_caller_address(withdrawal_handler.contract_address, caller_address);
 
     let account = contract_address_const::<'account'>();
@@ -423,9 +409,7 @@ fn deploy_withdrawal_handler(
 }
 
 fn deploy_oracle(
-    role_store_address: ContractAddress,
-    oracle_store_address: ContractAddress,
-    pragma_address: ContractAddress
+    role_store_address: ContractAddress, oracle_store_address: ContractAddress, pragma_address: ContractAddress
 ) -> ContractAddress {
     let contract = declare("Oracle").unwrap();
     let caller_address: ContractAddress = contract_address_const::<'caller'>();
@@ -447,10 +431,7 @@ fn deploy_oracle_store(
     let deployed_contract_address = contract_address_const::<'oracle_store'>();
     start_cheat_caller_address(deployed_contract_address, caller_address);
     contract
-        .deploy_at(
-            @array![role_store_address.into(), event_emitter_address.into()],
-            deployed_contract_address
-        )
+        .deploy_at(@array![role_store_address.into(), event_emitter_address.into()], deployed_contract_address)
         .unwrap()
 }
 
@@ -491,11 +472,7 @@ fn deploy_event_emitter() -> ContractAddress {
 }
 
 fn setup() -> (
-    ContractAddress,
-    IDataStoreDispatcher,
-    IEventEmitterDispatcher,
-    IWithdrawalHandlerDispatcher,
-    ContractAddress
+    ContractAddress, IDataStoreDispatcher, IEventEmitterDispatcher, IWithdrawalHandlerDispatcher, ContractAddress
 ) {
     let caller_address: ContractAddress = contract_address_const::<'caller'>();
     let order_keeper: ContractAddress = 0x2233.try_into().unwrap();
@@ -508,20 +485,12 @@ fn setup() -> (
     let event_emitter = IEventEmitterDispatcher { contract_address: event_emitter_address };
     let withdrawal_vault_address = deploy_withdrawal_vault(data_store_address, role_store_address);
     let oracle_store_address = deploy_oracle_store(role_store_address, event_emitter_address);
-    let oracle_address = deploy_oracle(
-        oracle_store_address, role_store_address, contract_address_const::<'pragma'>()
-    );
+    let oracle_address = deploy_oracle(oracle_store_address, role_store_address, contract_address_const::<'pragma'>());
     let withdrawal_handler_address = deploy_withdrawal_handler(
-        data_store_address,
-        role_store_address,
-        event_emitter_address,
-        withdrawal_vault_address,
-        oracle_address
+        data_store_address, role_store_address, event_emitter_address, withdrawal_vault_address, oracle_address
     );
 
-    let withdrawal_handler = IWithdrawalHandlerDispatcher {
-        contract_address: withdrawal_handler_address
-    };
+    let withdrawal_handler = IWithdrawalHandlerDispatcher { contract_address: withdrawal_handler_address };
     start_cheat_caller_address(role_store_address, caller_address);
     role_store.grant_role(caller_address, role::CONTROLLER);
     role_store.grant_role(order_keeper, role::ORDER_KEEPER);

@@ -9,9 +9,7 @@ use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
 use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
 use satoru::role::role;
 use satoru::market::market::Market;
-use satoru::pricing::position_pricing_utils::{
-    GetPositionFeesParams, PositionFundingFees, GetPriceImpactUsdParams
-};
+use satoru::pricing::position_pricing_utils::{GetPositionFeesParams, PositionFundingFees, GetPriceImpactUsdParams};
 use snforge_std::{declare, start_cheat_caller_address, stop_cheat_caller_address, ContractClassTrait};
 use satoru::utils::precision::{FLOAT_PRECISION, FLOAT_PRECISION_SQRT};
 use satoru::utils::i256::{i256, i256_new};
@@ -39,9 +37,7 @@ fn given_normal_conditions_when_get_next_open_interest_for_virtual_inventory_the
     let (caller_address, data_store, referral_storage) = setup();
 
     let get_price_impact_params = create_get_price_impact_usd_params(data_store);
-    position_pricing_utils::get_next_open_interest_for_virtual_inventory(
-        get_price_impact_params, i256_new(50, false)
-    );
+    position_pricing_utils::get_next_open_interest_for_virtual_inventory(get_price_impact_params, i256_new(50, false));
 }
 
 #[test]
@@ -203,9 +199,7 @@ fn setup() -> (ContractAddress, IDataStoreDispatcher, IReferralStorageDispatcher
     let event_emitter = IEventEmitterDispatcher { contract_address: event_emitter_address };
 
     let referral_storage_address = deploy_referral_storage(event_emitter_address);
-    let referral_storage = IReferralStorageDispatcher {
-        contract_address: referral_storage_address
-    };
+    let referral_storage = IReferralStorageDispatcher { contract_address: referral_storage_address };
     let governable_address = deploy_governable(event_emitter_address);
     let governable = IGovernableDispatcher { contract_address: governable_address };
 

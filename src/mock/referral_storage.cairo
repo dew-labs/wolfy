@@ -77,9 +77,7 @@ trait IReferralStorage<TContractState> {
     /// * `account` - The address of the trader.
     /// # Returns
     /// (referral code, affiliate).
-    fn get_trader_referral_info(
-        self: @TContractState, account: ContractAddress
-    ) -> (felt252, ContractAddress);
+    fn get_trader_referral_info(self: @TContractState, account: ContractAddress) -> (felt252, ContractAddress);
 
     /// Set the referral code for a trader.
     /// # Arguments
@@ -193,9 +191,7 @@ mod ReferralStorage {
             self.event_emitter.read().emit_set_handler(handler, is_active);
         }
 
-        fn set_tier(
-            ref self: ContractState, tier_id: u256, total_rebate: u256, discount_share: u256
-        ) {
+        fn set_tier(ref self: ContractState, tier_id: u256, total_rebate: u256, discount_share: u256) {
             let gov_state = Governable::unsafe_new_contract_state();
             gov_state.only_gov();
             assert(total_rebate <= BASIS_POINTS, MockError::INVALID_TOTAL_REBATE);
@@ -219,15 +215,10 @@ mod ReferralStorage {
             assert(discount_share <= BASIS_POINTS, MockError::INVALID_DISCOUNT_SHARE);
 
             self.referrer_discount_shares.write(get_caller_address(), discount_share);
-            self
-                .event_emitter
-                .read()
-                .emit_set_referrer_discount_share(get_caller_address(), discount_share);
+            self.event_emitter.read().emit_set_referrer_discount_share(get_caller_address(), discount_share);
         }
 
-        fn set_trader_referral_code(
-            ref self: ContractState, account: ContractAddress, code: felt252
-        ) {
+        fn set_trader_referral_code(ref self: ContractState, account: ContractAddress, code: felt252) {
             self.only_handler();
             self._set_trader_referral_code(account, code);
         }
@@ -238,10 +229,7 @@ mod ReferralStorage {
 
         fn register_code(ref self: ContractState, code: felt252) {
             assert(code != 0, MockError::INVALID_CODE);
-            assert(
-                self.code_owners.read(code) == contract_address_const::<0>(),
-                MockError::CODE_ALREADY_EXISTS
-            );
+            assert(self.code_owners.read(code) == contract_address_const::<0>(), MockError::CODE_ALREADY_EXISTS);
 
             self.code_owners.write(code, get_caller_address());
             self.event_emitter.read().emit_register_code(get_caller_address(), code);
@@ -256,9 +244,7 @@ mod ReferralStorage {
             self.event_emitter.read().emit_set_code_owner(get_caller_address(), new_account, code)
         }
 
-        fn gov_set_code_owner(
-            ref self: ContractState, code: felt252, new_account: ContractAddress
-        ) {
+        fn gov_set_code_owner(ref self: ContractState, code: felt252, new_account: ContractAddress) {
             let gov_state = Governable::unsafe_new_contract_state();
             gov_state.only_gov();
             assert(code != 0, MockError::INVALID_CODE);
@@ -267,9 +253,7 @@ mod ReferralStorage {
             self.event_emitter.read().emit_gov_set_code_owner(code, new_account);
         }
 
-        fn get_trader_referral_info(
-            self: @ContractState, account: ContractAddress
-        ) -> (felt252, ContractAddress) {
+        fn get_trader_referral_info(self: @ContractState, account: ContractAddress) -> (felt252, ContractAddress) {
             let mut code: felt252 = self.trader_referral_codes(account);
             let mut referrer = contract_address_const::<0>();
 
@@ -282,9 +266,7 @@ mod ReferralStorage {
 
     #[generate_trait]
     impl InternalFunctions of InternalFunctionsTrait {
-        fn _set_trader_referral_code(
-            ref self: ContractState, account: ContractAddress, code: felt252
-        ) {
+        fn _set_trader_referral_code(ref self: ContractState, account: ContractAddress, code: felt252) {
             self.trader_referral_codes.write(account, code);
             self.event_emitter.read().emit_set_trader_referral_code(account, code);
         }

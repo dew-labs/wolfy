@@ -125,9 +125,7 @@ fn COMPACTED_PRICE_INDEX_BITMASK() -> u256 {
 fn validate_block_number_within_range(
     min_oracle_block_numbers: Span<u64>, max_oracle_block_numbers: Span<u64>, block_number: u64
 ) {
-    if !is_block_number_within_range(
-        min_oracle_block_numbers, max_oracle_block_numbers, block_number
-    ) {
+    if !is_block_number_within_range(min_oracle_block_numbers, max_oracle_block_numbers, block_number) {
         OracleError::ORACLE_BLOCK_NUMBERS_NOT_WITHIN_RANGE(
             min_oracle_block_numbers, max_oracle_block_numbers, block_number
         );
@@ -162,11 +160,7 @@ fn is_block_number_within_range(
 /// The price at the specified index.
 fn get_uncompacted_price(compacted_prices: Span<u256>, index: usize) -> u256 {
     let price = get_uncompacted_value(
-        compacted_prices,
-        index,
-        COMPACTED_PRICE_BIT_LENGTH,
-        COMPACTED_PRICE_BITMASK(),
-        'get_uncompacted_price'
+        compacted_prices, index, COMPACTED_PRICE_BIT_LENGTH, COMPACTED_PRICE_BITMASK(), 'get_uncompacted_price'
     );
 
     if (price == 0) {
@@ -218,9 +212,7 @@ fn get_uncompacted_price_index(compacted_price_indexes: Span<u256>, index: usize
 /// * `length` - The length of the uncompacted oracle block numbers.
 /// # Returns
 /// The uncompacted oracle block numbers.
-fn get_uncompacted_oracle_block_numbers(
-    compacted_oracle_block_numbers: Span<u64>, length: usize
-) -> Array<u64> {
+fn get_uncompacted_oracle_block_numbers(compacted_oracle_block_numbers: Span<u64>, length: usize) -> Array<u64> {
     let mut block_numbers = ArrayTrait::new();
 
     let mut i = 0;
@@ -229,8 +221,7 @@ fn get_uncompacted_oracle_block_numbers(
             break;
         }
 
-        block_numbers
-            .append(get_uncompacted_oracle_block_number(compacted_oracle_block_numbers, i));
+        block_numbers.append(get_uncompacted_oracle_block_number(compacted_oracle_block_numbers, i));
 
         i += 1;
     };
@@ -244,9 +235,7 @@ fn get_uncompacted_oracle_block_numbers(
 /// * `index` - The index to get the uncompacted oracle block number at.
 /// # Returns
 /// The uncompacted oracle block number.
-fn get_uncompacted_oracle_block_number(
-    compacted_oracle_block_numbers: Span<u64>, index: usize
-) -> u64 {
+fn get_uncompacted_oracle_block_number(compacted_oracle_block_numbers: Span<u64>, index: usize) -> u64 {
     let block_number = get_uncompacted_value_u64(
         compacted_oracle_block_numbers,
         index,
@@ -295,9 +284,7 @@ fn get_uncompacted_oracle_timestamp(compacted_oracle_timestamps: Span<u64>, inde
 /// * `max_price` - The max price used for the signed message hash.
 /// * `signature` - The signer's signature.
 /// * `expected_signer` - The address of the expected signer.
-fn validate_signer(
-    salt: felt252, info: ReportInfo, signature: Span<felt252>, expected_signer: @ContractAddress
-) {
+fn validate_signer(salt: felt252, info: ReportInfo, signature: Span<felt252>, expected_signer: @ContractAddress) {
     let signature_r = *signature[0];
     let signature_s = *signature[1];
     let mut digest = LegacyHash::<u64>::hash(salt, info.min_oracle_block_number);
@@ -330,9 +317,7 @@ fn validate_signer(
 fn revert_oracle_block_number_not_within_range(
     min_oracle_block_numbers: Span<u64>, max_oracle_block_numbers: Span<u64>, block_number: u64
 ) {
-    OracleError::BLOCK_NUMBER_NOT_WITHIN_RANGE(
-        min_oracle_block_numbers, max_oracle_block_numbers, block_number
-    )
+    OracleError::BLOCK_NUMBER_NOT_WITHIN_RANGE(min_oracle_block_numbers, max_oracle_block_numbers, block_number)
 }
 
 /// Check wether `error` is an OracleError.
@@ -359,8 +344,7 @@ fn is_empty_price_error(error_selector: felt252) -> bool {
 /// * `error` - The error to check.
 /// # Returns
 /// Wether it's the right error.
-const BLOCK_NUMBERS_ARE_SMALLER_THAN_REQUIRED_SELECTOR: felt252 =
-    selector!("BLOCK_NUMBERS_ARE_SMALLER_THAN_REQUIRED");
+const BLOCK_NUMBERS_ARE_SMALLER_THAN_REQUIRED_SELECTOR: felt252 = selector!("BLOCK_NUMBERS_ARE_SMALLER_THAN_REQUIRED");
 const BLOCK_NUMBER_NOT_WITHIN_RANGE_SELECTOR: felt252 = selector!("BLOCK_NUMBER_NOT_WITHIN_RANGE");
 fn is_oracle_block_number_error(error_selector: felt252) -> bool {
     error_selector == BLOCK_NUMBERS_ARE_SMALLER_THAN_REQUIRED_SELECTOR

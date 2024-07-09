@@ -58,9 +58,7 @@ mod BaseOrderHandler {
     // Local imports.
     use super::IBaseOrderHandler;
     use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
-    use satoru::role::role_module::{
-        IRoleModuleDispatcher, IRoleModuleDispatcherTrait, RoleModule, IRoleModule
-    };
+    use satoru::role::role_module::{IRoleModuleDispatcher, IRoleModuleDispatcherTrait, RoleModule, IRoleModule};
 
     use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
     use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
@@ -72,18 +70,14 @@ mod BaseOrderHandler {
     use satoru::order::{
         error::OrderError, order::{SecondaryOrderType, OrderType, Order, DecreasePositionSwapType},
         order_vault::{IOrderVaultDispatcher, IOrderVaultDispatcherTrait},
-        base_order_utils::{ExecuteOrderParams, ExecuteOrderParamsContracts},
-        order_utils::IOrderUtilsLibraryDispatcher,
+        base_order_utils::{ExecuteOrderParams, ExecuteOrderParamsContracts}, order_utils::IOrderUtilsLibraryDispatcher,
         increase_order_utils::IIncreaseOrderUtilsLibraryDispatcher,
-        decrease_order_utils::IDecreaseOrderUtilsLibraryDispatcher,
-        swap_order_utils::ISwapOrderUtilsLibraryDispatcher
+        decrease_order_utils::IDecreaseOrderUtilsLibraryDispatcher, swap_order_utils::ISwapOrderUtilsLibraryDispatcher
     };
     use satoru::swap::swap_handler::{ISwapHandlerDispatcher, ISwapHandlerDispatcherTrait};
     use satoru::exchange::error::ExchangeError;
     use satoru::market::{market::Market, market_utils};
-    use satoru::mock::referral_storage::{
-        IReferralStorageDispatcher, IReferralStorageDispatcherTrait
-    };
+    use satoru::mock::referral_storage::{IReferralStorageDispatcher, IReferralStorageDispatcherTrait};
     use satoru::utils::span32::Array32Trait;
 
     // *************************************************************************
@@ -180,46 +174,25 @@ mod BaseOrderHandler {
             swap_order_utils_class_hash: ClassHash,
         ) {
             // Make sure the contract is not already initialized.
-            assert(
-                self.data_store.read().contract_address.is_zero(),
-                ExchangeError::ALREADY_INITIALIZED
-            );
+            assert(self.data_store.read().contract_address.is_zero(), ExchangeError::ALREADY_INITIALIZED);
             self.data_store.write(IDataStoreDispatcher { contract_address: data_store_address });
             self.role_store.write(IRoleStoreDispatcher { contract_address: role_store_address });
 
-            self
-                .event_emitter
-                .write(IEventEmitterDispatcher { contract_address: event_emitter_address });
+            self.event_emitter.write(IEventEmitterDispatcher { contract_address: event_emitter_address });
             self.order_vault.write(IOrderVaultDispatcher { contract_address: order_vault_address });
             self.oracle.write(IOracleDispatcher { contract_address: oracle_address });
-            self
-                .swap_handler
-                .write(ISwapHandlerDispatcher { contract_address: swap_handler_address });
-            self
-                .referral_storage
-                .write(IReferralStorageDispatcher { contract_address: referral_storage_address });
-            self
-                .order_utils_lib
-                .write(IOrderUtilsLibraryDispatcher { class_hash: order_utils_class_hash });
+            self.swap_handler.write(ISwapHandlerDispatcher { contract_address: swap_handler_address });
+            self.referral_storage.write(IReferralStorageDispatcher { contract_address: referral_storage_address });
+            self.order_utils_lib.write(IOrderUtilsLibraryDispatcher { class_hash: order_utils_class_hash });
             self
                 .increase_order_utils_lib
-                .write(
-                    IIncreaseOrderUtilsLibraryDispatcher {
-                        class_hash: increase_order_utils_class_hash
-                    }
-                );
+                .write(IIncreaseOrderUtilsLibraryDispatcher { class_hash: increase_order_utils_class_hash });
             self
                 .decrease_order_utils_lib
-                .write(
-                    IDecreaseOrderUtilsLibraryDispatcher {
-                        class_hash: decrease_order_utils_class_hash
-                    }
-                );
+                .write(IDecreaseOrderUtilsLibraryDispatcher { class_hash: decrease_order_utils_class_hash });
             self
                 .swap_order_utils_lib
-                .write(
-                    ISwapOrderUtilsLibraryDispatcher { class_hash: swap_order_utils_class_hash }
-                );
+                .write(ISwapOrderUtilsLibraryDispatcher { class_hash: swap_order_utils_class_hash });
         }
     }
 
@@ -246,9 +219,7 @@ mod BaseOrderHandler {
 
             let order = data_store.get_order(key);
 
-            let swap_path_markets = market_utils::get_swap_path_markets(
-                data_store, order.swap_path
-            );
+            let swap_path_markets = market_utils::get_swap_path_markets(data_store, order.swap_path);
 
             let execute_order_params_contract = ExecuteOrderParamsContracts {
                 data_store: data_store,

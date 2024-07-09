@@ -10,8 +10,8 @@ use satoru::market::market_token::{IMarketTokenDispatcher, IMarketTokenDispatche
 use satoru::tests_lib::{deploy_data_store, deploy_role_store, setup_oracle_and_store};
 
 use satoru::reader::{
-    reader_utils::PositionInfo, reader_utils::BaseFundingValues,
-    reader_pricing_utils::ExecutionPriceResult, reader::VirtualInventory
+    reader_utils::PositionInfo, reader_utils::BaseFundingValues, reader_pricing_utils::ExecutionPriceResult,
+    reader::VirtualInventory
 };
 use satoru::role::role;
 use satoru::order::order::{Order, OrderType, OrderTrait, DecreasePositionSwapType};
@@ -236,9 +236,7 @@ fn given_normal_conditions_when_get_position_pnl_usd_then_works() {
     let price2 = Price { min: 1, max: 300 };
     let price3 = Price { min: 1, max: 400 };
     //create random prices
-    let prices = MarketPrices {
-        index_token_price: price1, long_token_price: price2, short_token_price: price3
-    };
+    let prices = MarketPrices { index_token_price: price1, long_token_price: price2, short_token_price: price3 };
     // Create random position
     let key_1 = 1234311;
     let mut position: Position = Default::default();
@@ -258,8 +256,7 @@ fn given_normal_conditions_when_get_position_pnl_usd_then_works() {
     data_store.set_market(key, 1, market);
     data_store.set_position(key_1, position);
 
-    let (data1, data2, data3) = reader
-        .get_position_pnl_usd(data_store, market, prices, key_1, 1000000);
+    let (data1, data2, data3) = reader.get_position_pnl_usd(data_store, market, prices, key_1, 1000000);
     let data3_felt: felt252 = data3.try_into().expect('u256 into felt failed');
 
     assert(data3_felt == 10000, 'Invalid');
@@ -596,9 +593,7 @@ fn given_normal_conditions_when_get_market_info_then_works() {
     let price2 = Price { min: 1, max: 300 };
     let price3 = Price { min: 1, max: 400 };
     //create random prices
-    let prices = MarketPrices {
-        index_token_price: price1, long_token_price: price2, short_token_price: price3
-    };
+    let prices = MarketPrices { index_token_price: price1, long_token_price: price2, short_token_price: price3 };
 
     start_cheat_caller_address(role_store.contract_address, caller_address);
     role_store.grant_role(caller_address, role::MARKET_KEEPER);
@@ -643,16 +638,10 @@ fn given_normal_conditions_when_get_market_info_list_then_works() {
     let price2 = Price { min: 1, max: 300 };
     let price3 = Price { min: 1, max: 400 };
     //create random prices
-    let prices_1 = MarketPrices {
-        index_token_price: price1, long_token_price: price2, short_token_price: price3
-    };
-    let prices_2 = MarketPrices {
-        index_token_price: price3, long_token_price: price2, short_token_price: price1
-    };
+    let prices_1 = MarketPrices { index_token_price: price1, long_token_price: price2, short_token_price: price3 };
+    let prices_2 = MarketPrices { index_token_price: price3, long_token_price: price2, short_token_price: price1 };
 
-    let prices_3 = MarketPrices {
-        index_token_price: price2, long_token_price: price1, short_token_price: price3
-    };
+    let prices_3 = MarketPrices { index_token_price: price2, long_token_price: price1, short_token_price: price3 };
 
     start_cheat_caller_address(role_store.contract_address, caller_address);
     role_store.grant_role(caller_address, role::MARKET_KEEPER);
@@ -710,13 +699,7 @@ fn given_normal_conditions_when_get_market_token_price_then_works() {
 
     let (market_token_price_, pool_val_info) = reader
         .get_market_token_price(
-            data_store,
-            market,
-            index_prices_one,
-            index_prices_two,
-            index_prices_three,
-            pnl_factor,
-            true
+            data_store, market, index_prices_one, index_prices_two, index_prices_three, pnl_factor, true
         );
     let market_token_price_felt: felt252 = market_token_price_.into();
     let expected_price = 100000000000000000000;
@@ -745,14 +728,10 @@ fn given_normal_conditions_when_get_net_pnl_then_works() {
     let is_long = true;
     let maximize = true;
     // Set open interest for long token.
-    let open_interest_key_for_long = keys::open_interest_key(
-        market_token_address, market.long_token, is_long
-    );
+    let open_interest_key_for_long = keys::open_interest_key(market_token_address, market.long_token, is_long);
     data_store.set_u256(open_interest_key_for_long, 100);
     // Set open interest for short token.
-    let open_interest_key_for_short = keys::open_interest_key(
-        market_token_address, market.short_token, is_long
-    );
+    let open_interest_key_for_short = keys::open_interest_key(market_token_address, market.short_token, is_long);
     data_store.set_u256(open_interest_key_for_short, 150);
 
     // Set open interest in tokens for long token.
@@ -799,14 +778,10 @@ fn given_normal_conditions_when_get_pnl_then_works() {
     // Test logic
 
     // Set open interest for long token.
-    let open_interest_key_for_long = keys::open_interest_key(
-        market_token_address, market.long_token, is_long
-    );
+    let open_interest_key_for_long = keys::open_interest_key(market_token_address, market.long_token, is_long);
     data_store.set_u256(open_interest_key_for_long, 100);
     // Set open interest for short token.
-    let open_interest_key_for_short = keys::open_interest_key(
-        market_token_address, market.short_token, is_long
-    );
+    let open_interest_key_for_short = keys::open_interest_key(market_token_address, market.short_token, is_long);
     data_store.set_u256(open_interest_key_for_short, 150);
 
     // Set open interest in tokens for long token.
@@ -849,14 +824,10 @@ fn given_normal_conditions_when_get_open_interest_with_pnl_then_works() {
     // Test logic
 
     // Set open interest for long token.
-    let open_interest_key_for_long = keys::open_interest_key(
-        market_token_address, market.long_token, is_long
-    );
+    let open_interest_key_for_long = keys::open_interest_key(market_token_address, market.long_token, is_long);
     data_store.set_u256(open_interest_key_for_long, 100);
     // Set open interest for short token.
-    let open_interest_key_for_short = keys::open_interest_key(
-        market_token_address, market.short_token, is_long
-    );
+    let open_interest_key_for_short = keys::open_interest_key(market_token_address, market.short_token, is_long);
     data_store.set_u256(open_interest_key_for_short, 150);
 
     // Set open interest in tokens for long token.
@@ -1030,13 +1001,7 @@ fn given_normal_conditions_when_get_execution_price_then_works() {
 
     let res: ExecutionPriceResult = reader
         .get_execution_price(
-            data_store,
-            market_key_1,
-            price1,
-            position2.size_in_usd,
-            position2.size_in_tokens,
-            size,
-            is_long
+            data_store, market_key_1, price1, position2.size_in_usd, position2.size_in_tokens, size, is_long
         );
     assert(res.execution_price == 200, 'incorrect execution_price');
     teardown(data_store.contract_address);
@@ -1148,15 +1113,11 @@ fn deploy_event_emitter() -> ContractAddress {
     contract.deploy_at(@array![], deployed_contract_address).unwrap()
 }
 
-fn deploy_market_token(
-    role_store: ContractAddress, data_store: ContractAddress
-) -> ContractAddress {
+fn deploy_market_token(role_store: ContractAddress, data_store: ContractAddress) -> ContractAddress {
     let contract = declare("MarketToken").unwrap();
     let caller_address: ContractAddress = contract_address_const::<'caller'>();
     let deployed_contract_address = contract_address_const::<'market_token'>();
     start_cheat_caller_address(deployed_contract_address, caller_address);
-    contract
-        .deploy_at(@array![role_store.into(), data_store.into()], deployed_contract_address)
-        .unwrap()
+    contract.deploy_at(@array![role_store.into(), data_store.into()], deployed_contract_address).unwrap()
 }
 

@@ -11,9 +11,7 @@ fn multicall(mut data: Array<Call>) -> Array<Span<felt252>> {
         match data.pop_front() {
             Option::Some(call) => {
                 let mut res = call_contract_syscall(
-                    address: call.to,
-                    entry_point_selector: call.selector,
-                    calldata: call.calldata
+                    address: call.to, entry_point_selector: call.selector, calldata: call.calldata
                 )
                     .unwrap_syscall();
                 result.append(res);

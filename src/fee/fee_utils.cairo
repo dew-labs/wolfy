@@ -62,12 +62,9 @@ fn increment_claimable_ui_fee_amount(
     }
 
     let next_value = data_store
-        .increment_u256(
-            keys::claimable_ui_fee_amount_for_account_key(market, token, ui_fee_receiver), delta
-        );
+        .increment_u256(keys::claimable_ui_fee_amount_for_account_key(market, token, ui_fee_receiver), delta);
 
-    let next_pool_value = data_store
-        .increment_u256(keys::claimable_ui_fee_amount_key(market, token), delta);
+    let next_pool_value = data_store.increment_u256(keys::claimable_ui_fee_amount_key(market, token), delta);
     event_emitter
         .emit_claimable_ui_fee_amount_updated(
             ui_fee_receiver, market, token, delta, next_value, next_pool_value, fee_type
@@ -124,15 +121,13 @@ fn claim_ui_fees(
     let fee_amount = data_store.get_u256(key);
     data_store.set_u256(key, 0);
 
-    let next_pool_value = data_store
-        .decrement_u256(keys::claimable_ui_fee_amount_key(market, token), fee_amount);
+    let next_pool_value = data_store.decrement_u256(keys::claimable_ui_fee_amount_key(market, token), fee_amount);
 
     IBankDispatcher { contract_address: market }.transfer_out(market, token, receiver, fee_amount);
 
     validate_market_token_balance_with_address(data_store, market);
 
-    event_emitter
-        .emit_ui_fees_claimed(ui_fee_receiver, market, receiver, fee_amount, next_pool_value);
+    event_emitter.emit_ui_fees_claimed(ui_fee_receiver, market, receiver, fee_amount, next_pool_value);
 
     fee_amount
 }

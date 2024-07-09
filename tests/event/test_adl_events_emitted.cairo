@@ -1,13 +1,10 @@
 use starknet::{ContractAddress, contract_address_const};
 use snforge_std::{
-    declare, ContractClassTrait, spy_events, SpyOn, EventSpy, EventFetcher, event_name_hash, Event,
-    EventAssertions
+    declare, ContractClassTrait, spy_events, SpyOn, EventSpy, EventFetcher, event_name_hash, Event, EventAssertions
 };
 use option::OptionTrait;
 
-use satoru::event::event_emitter::{
-    EventEmitter, IEventEmitterDispatcher, IEventEmitterDispatcherTrait
-};
+use satoru::event::event_emitter::{EventEmitter, IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
 
 use satoru::tests_lib::setup_event_emitter;
 
@@ -31,10 +28,7 @@ fn given_normal_conditions_when_emit_adl_state_updated_then_works() {
     let should_enable_adl: bool = false;
 
     // Emit the event.
-    event_emitter
-        .emit_adl_state_updated(
-            market, is_long, pnl_to_pool_factor, max_pnl_factor, should_enable_adl
-        );
+    event_emitter.emit_adl_state_updated(market, is_long, pnl_to_pool_factor, max_pnl_factor, should_enable_adl);
     // Assert the event was emitted.
     spy
         .assert_emitted(

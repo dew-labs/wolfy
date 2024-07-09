@@ -12,12 +12,11 @@ use satoru::mock::referral_storage::IReferralStorageDispatcher;
 use satoru::oracle::oracle::IOracleDispatcher;
 use satoru::order::{
     order::{DecreasePositionSwapType, Order, OrderType, SecondaryOrderType},
-    base_order_utils::{ExecuteOrderParams, ExecuteOrderParamsContracts},
-    order_vault::IOrderVaultDispatcher
+    base_order_utils::{ExecuteOrderParams, ExecuteOrderParamsContracts}, order_vault::IOrderVaultDispatcher
 };
 use satoru::position::{
-    position_utils::{UpdatePositionParams, DecreasePositionCache, DecreasePositionCollateralValues},
-    position::Position, decrease_position_collateral_utils
+    position_utils::{UpdatePositionParams, DecreasePositionCache, DecreasePositionCollateralValues}, position::Position,
+    decrease_position_collateral_utils
 };
 use satoru::price::price::Price;
 use satoru::swap::swap_handler::ISwapHandlerDispatcher;
@@ -56,10 +55,7 @@ fn given_good_params_when_process_collateral_then_succeed() {
     // setting open_interest to 10_000 to allow decreasing position.
     data_store
         .set_u256(
-            keys::open_interest_key(
-                contract_address_const::<'market_token'>(), long_token_address, true
-            ),
-            10_000
+            keys::open_interest_key(contract_address_const::<'market_token'>(), long_token_address, true), 10_000
         );
     let swap_handler_address = deploy_swap_handler_address(role_store.contract_address);
     let swap_handler = ISwapHandlerDispatcher { contract_address: swap_handler_address };
@@ -79,17 +75,11 @@ fn given_good_params_when_process_collateral_then_succeed() {
     //
     // Execution
     //
-    let result = decrease_position_collateral_utils::process_collateral(
-        event_emitter, params, values
-    );
+    let result = decrease_position_collateral_utils::process_collateral(event_emitter, params, values);
 
     // Checks
     let open_interest = data_store
-        .get_u256(
-            keys::open_interest_key(
-                contract_address_const::<'market_token'>(), long_token_address, true
-            ),
-        );
+        .get_u256(keys::open_interest_key(contract_address_const::<'market_token'>(), long_token_address, true),);
 }
 
 #[test]
@@ -104,10 +94,7 @@ fn given_good_params_get_execution_price_then_succeed() {
     // setting open_interest to 10_000 to allow decreasing position.
     data_store
         .set_u256(
-            keys::open_interest_key(
-                contract_address_const::<'market_token'>(), long_token_address, true
-            ),
-            10_000
+            keys::open_interest_key(contract_address_const::<'market_token'>(), long_token_address, true), 10_000
         );
     let swap_handler_address = deploy_swap_handler_address(role_store.contract_address);
     let swap_handler = ISwapHandlerDispatcher { contract_address: swap_handler_address };
@@ -172,9 +159,7 @@ fn create_new_update_position_params(
         ui_fee_receiver: contract_address_const::<'ui_fee_receiver'>(),
         market: contract_address_const::<'market'>(),
         initial_collateral_token: contract_address_const::<'token1'>(),
-        swap_path: array![
-            contract_address_const::<'swap_path_0'>(), contract_address_const::<'swap_path_1'>()
-        ]
+        swap_path: array![contract_address_const::<'swap_path_0'>(), contract_address_const::<'swap_path_1'>()]
             .span32(),
         size_delta_usd: 1000,
         initial_collateral_delta_amount: 1000,
@@ -219,14 +204,10 @@ fn create_new_update_position_params(
 }
 
 /// Utility function to create new DecreasePositionCache struct
-fn create_new_decrease_position_cache(
-    long_token_address: ContractAddress
-) -> DecreasePositionCache {
+fn create_new_decrease_position_cache(long_token_address: ContractAddress) -> DecreasePositionCache {
     let price = Price { min: 1, max: 1 };
     DecreasePositionCache {
-        prices: MarketPrices {
-            index_token_price: price, long_token_price: price, short_token_price: price,
-        },
+        prices: MarketPrices { index_token_price: price, long_token_price: price, short_token_price: price, },
         estimated_position_pnl_usd: 100,
         estimated_realized_pnl_usd: 0,
         estimated_remaining_pnl_usd: 100,

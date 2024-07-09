@@ -6,9 +6,7 @@
 use starknet::ContractAddress;
 
 // Local imports.
-use satoru::order::{
-    base_order_utils::ExecuteOrderParams, order::{Order, OrderType}, error::OrderError
-};
+use satoru::order::{base_order_utils::ExecuteOrderParams, order::{Order, OrderType}, error::OrderError};
 use satoru::data::{data_store::IDataStoreDispatcherTrait, error::DataError};
 use satoru::oracle::{oracle_utils, error::OracleError};
 use satoru::market::market_utils;
@@ -54,9 +52,7 @@ mod IncreaseOrderUtils {
     use starknet::ContractAddress;
 
     // Local imports.
-    use satoru::order::{
-        base_order_utils::ExecuteOrderParams, order::{Order, OrderType}, error::OrderError
-    };
+    use satoru::order::{base_order_utils::ExecuteOrderParams, order::{Order, OrderType}, error::OrderError};
     use satoru::data::{data_store::IDataStoreDispatcherTrait, error::DataError};
     use satoru::oracle::{oracle_utils, error::OracleError};
     use satoru::market::market_utils;
@@ -83,18 +79,14 @@ mod IncreaseOrderUtils {
         /// This function should return an EventLogData cause the callback_utils
         /// needs it. We need to find a solution for that case.
         fn process_order(ref self: ContractState, params: ExecuteOrderParams) {
-            market_utils::validate_position_market(
-                params.contracts.data_store, params.market.market_token
-            );
+            market_utils::validate_position_market(params.contracts.data_store, params.market.market_token);
 
             let (collateral_token, collateral_increment_amount) = swap_utils::swap(
                 @swap_utils::SwapParams {
                     data_store: params.contracts.data_store,
                     event_emitter: params.contracts.event_emitter,
                     oracle: params.contracts.oracle,
-                    bank: IBankDispatcher {
-                        contract_address: params.contracts.order_vault.contract_address
-                    },
+                    bank: IBankDispatcher { contract_address: params.contracts.order_vault.contract_address },
                     key: params.key,
                     token_in: params.order.initial_collateral_token,
                     amount_in: params.order.initial_collateral_delta_amount,

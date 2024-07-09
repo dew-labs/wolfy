@@ -35,9 +35,7 @@ trait IExchangeRouter<TContractState> {
     /// * `token` - The token address to transfer.
     /// * `receiver` - The address of the receiver.
     /// * `amount` - The amount of tokens to transfer.
-    fn send_tokens(
-        ref self: TContractState, token: ContractAddress, receiver: ContractAddress, amount: u256
-    );
+    fn send_tokens(ref self: TContractState, token: ContractAddress, receiver: ContractAddress, amount: u256);
 
     /// Creates a new deposit with the given params. The deposit is created by transferring the specified amounts of
     /// * long and short tokens from the caller's account to the deposit store.
@@ -81,9 +79,7 @@ trait IExchangeRouter<TContractState> {
     /// # Arguments
     /// * `key` - Unique identifier for the deposit operation.
     /// * `simulated_oracle_params` - A struct containing parameters needed for simulating the deposit.
-    fn simulate_execute_deposit(
-        ref self: TContractState, key: felt252, simulated_oracle_params: SimulatePricesParams
-    );
+    fn simulate_execute_deposit(ref self: TContractState, key: felt252, simulated_oracle_params: SimulatePricesParams);
 
     /// Simulate the execution of a withdrawal operation.
     /// # Arguments
@@ -97,9 +93,7 @@ trait IExchangeRouter<TContractState> {
     /// # Arguments
     /// * `key` - Unique identifier for the deposit operation.
     /// * `simulated_oracle_params` - A struct containing parameters needed for simulating the order.
-    fn simulate_execute_order(
-        ref self: TContractState, key: felt252, simulated_oracle_params: SimulatePricesParams
-    );
+    fn simulate_execute_order(ref self: TContractState, key: felt252, simulated_oracle_params: SimulatePricesParams);
 
     /// Updates the given order with the specified size delta, acceptable price, and trigger price.
     /// # Arguments
@@ -174,9 +168,7 @@ mod ExchangeRouter {
     // *************************************************************************
 
     // Core lib imports.
-    use starknet::{
-        get_caller_address, ContractAddress, contract_address_const, get_contract_address
-    };
+    use starknet::{get_caller_address, ContractAddress, contract_address_const, get_contract_address};
     use core::zeroable::Zeroable;
 
 
@@ -256,18 +248,10 @@ mod ExchangeRouter {
         self.router.write(IRouterDispatcher { contract_address: router_address });
         self.data_store.write(IDataStoreDispatcher { contract_address: data_store_address });
         self.role_store.write(IRoleStoreDispatcher { contract_address: role_store_address });
-        self
-            .event_emitter
-            .write(IEventEmitterDispatcher { contract_address: event_emitter_address });
-        self
-            .deposit_handler
-            .write(IDepositHandlerDispatcher { contract_address: deposit_handler_address });
-        self
-            .withdrawal_handler
-            .write(IWithdrawalHandlerDispatcher { contract_address: withdrawal_handler_address });
-        self
-            .order_handler
-            .write(IOrderHandlerDispatcher { contract_address: order_handler_address });
+        self.event_emitter.write(IEventEmitterDispatcher { contract_address: event_emitter_address });
+        self.deposit_handler.write(IDepositHandlerDispatcher { contract_address: deposit_handler_address });
+        self.withdrawal_handler.write(IWithdrawalHandlerDispatcher { contract_address: withdrawal_handler_address });
+        self.order_handler.write(IOrderHandlerDispatcher { contract_address: order_handler_address });
     }
 
     // *************************************************************************
@@ -275,9 +259,7 @@ mod ExchangeRouter {
     // *************************************************************************
     #[abi(embed_v0)]
     impl ExchangeRouterImpl of super::IExchangeRouter<ContractState> {
-        fn send_tokens(
-            ref self: ContractState, token: ContractAddress, receiver: ContractAddress, amount: u256
-        ) {
+        fn send_tokens(ref self: ContractState, token: ContractAddress, receiver: ContractAddress, amount: u256) {
             account_utils::validate_receiver(receiver);
             let account = get_caller_address();
             self.router.read().plugin_transfer(token, account, receiver, amount);
@@ -362,9 +344,7 @@ mod ExchangeRouter {
             let data_store = self.data_store.read();
             global_reentrancy_guard::non_reentrant_before(data_store);
 
-            callback_utils::set_saved_callback_contract(
-                data_store, get_caller_address(), market, callback_contract
-            );
+            callback_utils::set_saved_callback_contract(data_store, get_caller_address(), market, callback_contract);
 
             global_reentrancy_guard::non_reentrant_after(data_store);
         }
@@ -386,10 +366,7 @@ mod ExchangeRouter {
             let data_store = self.data_store.read();
             global_reentrancy_guard::non_reentrant_before(data_store);
 
-            self
-                .withdrawal_handler
-                .read()
-                .simulate_execute_withdrawal(key, simulated_oracle_params);
+            self.withdrawal_handler.read().simulate_execute_withdrawal(key, simulated_oracle_params);
 
             global_reentrancy_guard::non_reentrant_after(data_store);
         }
@@ -476,12 +453,7 @@ mod ExchangeRouter {
                 claimed_amounts
                     .append(
                         market_utils::claim_funding_fees(
-                            data_store,
-                            self.event_emitter.read(),
-                            *markets[i],
-                            *tokens[i],
-                            account,
-                            receiver
+                            data_store, self.event_emitter.read(), *markets[i], *tokens[i], account, receiver
                         )
                     );
                 i += 1;
@@ -503,9 +475,7 @@ mod ExchangeRouter {
             global_reentrancy_guard::non_reentrant_before(data_store);
 
             if (markets.len() != tokens.len() || tokens.len() != time_keys.len()) {
-                RouterError::INVALID_CLAIM_COLLATERAL_INPUT(
-                    markets.len(), tokens.len(), time_keys.len()
-                )
+                RouterError::INVALID_CLAIM_COLLATERAL_INPUT(markets.len(), tokens.len(), time_keys.len())
             }
 
             feature_utils::validate_feature(
@@ -557,8 +527,7 @@ mod ExchangeRouter {
             }
 
             feature_utils::validate_feature(
-                data_store,
-                keys::claim_affiliate_rewards_feature_disabled_key(get_contract_address())
+                data_store, keys::claim_affiliate_rewards_feature_disabled_key(get_contract_address())
             );
 
             let account = get_caller_address();
@@ -573,12 +542,7 @@ mod ExchangeRouter {
                 claimed_amounts
                     .append(
                         referral_utils::claim_affiliate_reward(
-                            data_store,
-                            self.event_emitter.read(),
-                            *markets[i],
-                            *tokens[i],
-                            account,
-                            receiver
+                            data_store, self.event_emitter.read(), *markets[i], *tokens[i], account, receiver
                         )
                     );
                 i = i + 1;
@@ -594,9 +558,7 @@ mod ExchangeRouter {
             global_reentrancy_guard::non_reentrant_before(data_store);
 
             let account = get_caller_address();
-            market_utils::set_ui_fee_factor(
-                data_store, self.event_emitter.read(), account, ui_fee_factor
-            );
+            market_utils::set_ui_fee_factor(data_store, self.event_emitter.read(), account, ui_fee_factor);
 
             global_reentrancy_guard::non_reentrant_after(data_store);
         }
@@ -630,12 +592,7 @@ mod ExchangeRouter {
                 claimed_amounts
                     .append(
                         fee_utils::claim_ui_fees(
-                            data_store,
-                            self.event_emitter.read(),
-                            ui_fee_receiver,
-                            *markets[i],
-                            *tokens[i],
-                            receiver
+                            data_store, self.event_emitter.read(), ui_fee_receiver, *markets[i], *tokens[i], receiver
                         )
                     );
                 i += 1;

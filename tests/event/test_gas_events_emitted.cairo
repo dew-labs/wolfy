@@ -1,14 +1,11 @@
 use starknet::{ContractAddress, contract_address_const};
 use snforge_std::{
-    declare, ContractClassTrait, spy_events, SpyOn, EventSpy, EventFetcher, event_name_hash, Event,
-    EventAssertions
+    declare, ContractClassTrait, spy_events, SpyOn, EventSpy, EventFetcher, event_name_hash, Event, EventAssertions
 };
 
 use satoru::tests_lib::setup_event_emitter;
 
-use satoru::event::event_emitter::{
-    EventEmitter, IEventEmitterDispatcher, IEventEmitterDispatcherTrait
-};
+use satoru::event::event_emitter::{EventEmitter, IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
 
 use satoru::event::event_emitter::EventEmitter::{ExecutionFeeRefund, KeeperExecutionFee};
 
@@ -37,9 +34,7 @@ fn given_normal_conditions_when_emit_execution_fee_refund_then_works() {
                 (
                     contract_address,
                     EventEmitter::Event::ExecutionFeeRefund(
-                        ExecutionFeeRefund {
-                            receiver: receiver, refund_fee_amount: refund_fee_amount
-                        }
+                        ExecutionFeeRefund { receiver: receiver, refund_fee_amount: refund_fee_amount }
                     )
                 )
             ]
@@ -73,9 +68,7 @@ fn given_normal_conditions_when_emit_keeper_execution_fee_then_works() {
                 (
                     contract_address,
                     EventEmitter::Event::KeeperExecutionFee(
-                        KeeperExecutionFee {
-                            keeper: keeper, execution_fee_amount: execution_fee_amount
-                        }
+                        KeeperExecutionFee { keeper: keeper, execution_fee_amount: execution_fee_amount }
                     )
                 )
             ]

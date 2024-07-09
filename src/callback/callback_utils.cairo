@@ -97,9 +97,7 @@ fn after_deposit_execution(key: felt252, deposit: Deposit, mut log_data: LogData
     if !is_valid_callback_contract(deposit.callback_contract) {
         return;
     }
-    let dispatcher = IDepositCallbackReceiverDispatcher {
-        contract_address: deposit.callback_contract
-    };
+    let dispatcher = IDepositCallbackReceiverDispatcher { contract_address: deposit.callback_contract };
     dispatcher.after_deposit_execution(key, deposit, log_data.serialize_into())
 }
 
@@ -112,9 +110,7 @@ fn after_deposit_cancellation(key: felt252, deposit: Deposit, mut log_data: LogD
     if !is_valid_callback_contract(deposit.callback_contract) {
         return;
     }
-    let dispatcher = IDepositCallbackReceiverDispatcher {
-        contract_address: deposit.callback_contract
-    };
+    let dispatcher = IDepositCallbackReceiverDispatcher { contract_address: deposit.callback_contract };
     dispatcher.after_deposit_cancellation(key, deposit, log_data.serialize_into())
 }
 
@@ -127,9 +123,7 @@ fn after_withdrawal_execution(key: felt252, withdrawal: Withdrawal, mut log_data
     if !is_valid_callback_contract(withdrawal.callback_contract) {
         return;
     }
-    let dispatcher = IWithdrawalCallbackReceiverDispatcher {
-        contract_address: withdrawal.callback_contract
-    };
+    let dispatcher = IWithdrawalCallbackReceiverDispatcher { contract_address: withdrawal.callback_contract };
     dispatcher.after_withdrawal_execution(key, withdrawal, log_data.serialize_into())
 }
 
@@ -142,9 +136,7 @@ fn after_withdrawal_cancellation(key: felt252, withdrawal: Withdrawal, mut log_d
     if !is_valid_callback_contract(withdrawal.callback_contract) {
         return;
     }
-    let dispatcher = IWithdrawalCallbackReceiverDispatcher {
-        contract_address: withdrawal.callback_contract
-    };
+    let dispatcher = IWithdrawalCallbackReceiverDispatcher { contract_address: withdrawal.callback_contract };
     dispatcher.after_withdrawal_cancellation(key, withdrawal, log_data.serialize_into())
 }
 

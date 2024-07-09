@@ -1,6 +1,4 @@
-use starknet::{
-    ContractAddress, get_caller_address, Felt252TryIntoContractAddress, contract_address_const
-};
+use starknet::{ContractAddress, get_caller_address, Felt252TryIntoContractAddress, contract_address_const};
 use snforge_std::{declare, start_cheat_caller_address, stop_cheat_caller_address, ContractClassTrait};
 use poseidon::poseidon_hash_span;
 
@@ -69,10 +67,7 @@ fn given_normal_conditions_when_set_market_new_and_override_then_works() {
 
     let key = contract_address_const::<123456789>();
     let mut market = Market {
-        market_token: key,
-        index_token: address_zero,
-        long_token: address_zero,
-        short_token: address_zero,
+        market_token: key, index_token: address_zero, long_token: address_zero, short_token: address_zero,
     };
 
     // Test logic
@@ -102,10 +97,7 @@ fn given_normal_conditions_when_set_market_and_get_by_salt_then_works() {
 
     let key = contract_address_const::<123456789>();
     let mut market = Market {
-        market_token: key,
-        index_token: address_zero,
-        long_token: address_zero,
-        short_token: address_zero,
+        market_token: key, index_token: address_zero, long_token: address_zero, short_token: address_zero,
     };
 
     let salt = poseidon_hash_span(array!['SATORU_MARKET', 0, 0, 0, 0].span());
@@ -131,10 +123,7 @@ fn given_not_market_keeper_when_set_market_then_fails() {
 
     let key = contract_address_const::<123456789>();
     let mut market = Market {
-        market_token: key,
-        index_token: address_zero,
-        long_token: address_zero,
-        short_token: address_zero,
+        market_token: key, index_token: address_zero, long_token: address_zero, short_token: address_zero,
     };
 
     // Test logic
@@ -153,18 +142,12 @@ fn given_normal_conditions_when_get_market_keys_then_works() {
 
     let key = contract_address_const::<123456789>();
     let mut market = Market {
-        market_token: key,
-        index_token: address_zero,
-        long_token: address_zero,
-        short_token: address_zero,
+        market_token: key, index_token: address_zero, long_token: address_zero, short_token: address_zero,
     };
 
     let key_2: ContractAddress = 987654321.try_into().unwrap();
     let mut market_2 = Market {
-        market_token: key_2,
-        index_token: address_zero,
-        long_token: address_zero,
-        short_token: address_zero,
+        market_token: key_2, index_token: address_zero, long_token: address_zero, short_token: address_zero,
     };
 
     data_store.set_market(key, 0, market);
@@ -186,10 +169,7 @@ fn given_normal_conditions_when_remove_only_one_market_then_works() {
 
     let key = contract_address_const::<123456789>();
     let mut market = Market {
-        market_token: key,
-        index_token: address_zero,
-        long_token: address_zero,
-        short_token: address_zero,
+        market_token: key, index_token: address_zero, long_token: address_zero, short_token: address_zero,
     };
 
     data_store.set_market(key, 0, market);
@@ -213,18 +193,12 @@ fn given_normal_conditions_when_remove_1_of_n_market_then_works() {
 
     let key = contract_address_const::<123456789>();
     let mut market = Market {
-        market_token: key,
-        index_token: address_zero,
-        long_token: address_zero,
-        short_token: address_zero,
+        market_token: key, index_token: address_zero, long_token: address_zero, short_token: address_zero,
     };
 
     let key_2: ContractAddress = 987654321.try_into().unwrap();
     let mut market_2 = Market {
-        market_token: key_2,
-        index_token: address_one,
-        long_token: address_one,
-        short_token: address_one,
+        market_token: key_2, index_token: address_one, long_token: address_one, short_token: address_one,
     };
 
     data_store.set_market(key, 0, market);
@@ -254,10 +228,7 @@ fn given_caller_not_market_keeper_when_remove_market_then_fails() {
 
     let key = contract_address_const::<123456789>();
     let mut market = Market {
-        market_token: key,
-        index_token: address_zero,
-        long_token: address_zero,
-        short_token: address_zero,
+        market_token: key, index_token: address_zero, long_token: address_zero, short_token: address_zero,
     };
 
     data_store.set_market(key, 0, market);

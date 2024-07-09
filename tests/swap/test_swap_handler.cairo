@@ -43,9 +43,7 @@ fn deploy_event_emitter() -> ContractAddress {
 }
 
 /// Utility function to deploy a `Bank` contract and return its dispatcher.
-fn deploy_bank_address(
-    data_store_address: ContractAddress, role_store_address: ContractAddress
-) -> ContractAddress {
+fn deploy_bank_address(data_store_address: ContractAddress, role_store_address: ContractAddress) -> ContractAddress {
     let contract = declare("Bank").unwrap();
     let caller_address: ContractAddress = contract_address_const::<'caller'>();
     let deployed_contract_address = contract_address_const::<'bank'>();
@@ -151,9 +149,7 @@ fn setup() -> (
 
     let oracle_store_address = deploy_oracle_store(role_store_address, event_emitter_address);
 
-    let oracle_address = deploy_oracle(
-        role_store_address, oracle_store_address, contract_address_const::<'pragma'>()
-    );
+    let oracle_address = deploy_oracle(role_store_address, oracle_store_address, contract_address_const::<'pragma'>());
     let oracle = IOracleDispatcher { contract_address: oracle_address };
 
     let bank_address = deploy_bank_address(data_store_address, role_store_address);
@@ -421,8 +417,7 @@ fn given_swap_path_market_then_works() {
     let short_token = short_token_handler.contract_address;
     let market_type = 'market_type';
 
-    let market_token_deployed_address = market_factory
-        .create_market(index_token, long_token, short_token, market_type);
+    let market_token_deployed_address = market_factory.create_market(index_token, long_token, short_token, market_type);
 
     let mut market = Market {
         market_token: market_token_deployed_address,

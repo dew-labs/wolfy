@@ -9,10 +9,7 @@ use array::ArrayTrait;
 // Local imports.
 use satoru::position::{
     error::PositionError,
-    position_utils::{
-        DecreasePositionCollateralValues, UpdatePositionParams,
-        DecreasePositionCollateralValuesOutput
-    }
+    position_utils::{DecreasePositionCollateralValues, UpdatePositionParams, DecreasePositionCollateralValuesOutput}
 };
 use satoru::order::order::DecreasePositionSwapType;
 use satoru::swap::swap_handler::{ISwapHandlerDispatcher, ISwapHandlerDispatcherTrait};
@@ -26,9 +23,7 @@ fn swap_withdrawn_collateral_to_pnl_token(
 ) -> DecreasePositionCollateralValues {
     let mut swap_path_markets = ArrayTrait::<Market>::new();
     if (values.output.output_amount > 0
-        && params
-            .order
-            .decrease_position_swap_type == DecreasePositionSwapType::SwapCollateralTokenToPnlToken) {
+        && params.order.decrease_position_swap_type == DecreasePositionSwapType::SwapCollateralTokenToPnlToken) {
         swap_path_markets.append(params.market);
         let (token_out, swap_output_amount) = params
             .contracts
@@ -70,9 +65,7 @@ fn swap_profit_to_collateral_token(
 ) -> (bool, u256) {
     let mut swap_path_markets = ArrayTrait::<Market>::new();
     if (profit_amount > 0
-        && params
-            .order
-            .decrease_position_swap_type == DecreasePositionSwapType::SwapPnlTokenToCollateralToken) {
+        && params.order.decrease_position_swap_type == DecreasePositionSwapType::SwapPnlTokenToCollateralToken) {
         swap_path_markets.append(params.market);
         let (_token_out, swap_output_amount) = params
             .contracts

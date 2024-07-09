@@ -10,10 +10,7 @@ use core::traits::Into;
 use satoru::market::market::Market;
 use satoru::position::{
     position::Position, decrease_position_swap_utils,
-    position_utils::{
-        UpdatePositionParams, DecreasePositionCollateralValues,
-        DecreasePositionCollateralValuesOutput
-    }
+    position_utils::{UpdatePositionParams, DecreasePositionCollateralValues, DecreasePositionCollateralValuesOutput}
 };
 use satoru::order::{
     order::{SecondaryOrderType, OrderType, Order, DecreasePositionSwapType},
@@ -174,9 +171,7 @@ fn create_new_update_position_params(
         ui_fee_receiver: contract_address_const::<'ui_fee_receiver'>(),
         market: contract_address_const::<'market'>(),
         initial_collateral_token: contract_address_const::<'token1'>(),
-        swap_path: array![
-            contract_address_const::<'swap_path_0'>(), contract_address_const::<'swap_path_1'>()
-        ]
+        swap_path: array![contract_address_const::<'swap_path_0'>(), contract_address_const::<'swap_path_1'>()]
             .span32(),
         size_delta_usd: 1000,
         initial_collateral_delta_amount: 1000,

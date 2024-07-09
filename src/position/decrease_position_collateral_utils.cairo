@@ -76,12 +76,7 @@ fn process_collateral(
     // for ADLs it may be possible that a position needs to be closed by a larger
     // size to fully pay for fees, but closing by that larger size could cause a PnlOvercorrected
     // error to be thrown in AdlHandler, this case should be rare
-    collateral_cache
-        .is_insolvent_close_allowed = params
-        .order
-        .size_delta_usd == params
-        .position
-        .size_in_usd
+    collateral_cache.is_insolvent_close_allowed = params.order.size_delta_usd == params.position.size_in_usd
         && (base_order_utils::is_liquidation_order(params.order.order_type)
             || params.secondary_order_type == order::SecondaryOrderType::Adl(()));
     // in case price impact is too high it is capped and the difference is made to be claimable
@@ -104,13 +99,8 @@ fn process_collateral(
     // the sizeDeltaInTokens is calculated as position.size_in_tokens() * size_delta_usd / position.size_in_usd()
     // the basePnlUsd is the pnl to be realized, and is calculated as:
     // total_position_pnl * size_delta_in_tokens / position.size_in_tokens()
-    let (base_pnl_usd_, uncapped_base_pnl_usd_, size_delta_in_tokens_) =
-        position_utils::get_position_pnl_usd(
-        params.contracts.data_store,
-        params.market,
-        cache.prices,
-        params.position,
-        params.order.size_delta_usd
+    let (base_pnl_usd_, uncapped_base_pnl_usd_, size_delta_in_tokens_) = position_utils::get_position_pnl_usd(
+        params.contracts.data_store, params.market, cache.prices, params.position, params.order.size_delta_usd
     );
     values.base_pnl_usd = base_pnl_usd_;
     values.uncapped_base_pnl_usd = uncapped_base_pnl_usd_;
@@ -135,8 +125,7 @@ fn process_collateral(
     // if the pnl is positive, deduct the pnl amount from the pool
     if values.base_pnl_usd > Zeroable::zero() {
         // use pnl_token_price.max to minimize the tokens paid out
-        let deduction_amount_for_pool: u256 = calc::to_unsigned(values.base_pnl_usd)
-            / cache.pnl_token_price.max;
+        let deduction_amount_for_pool: u256 = calc::to_unsigned(values.base_pnl_usd) / cache.pnl_token_price.max;
 
         market_utils::apply_delta_to_pool_amount(
             params.contracts.data_store,
@@ -174,8 +163,7 @@ fn process_collateral(
         // the deduction value
         // the pool value is calculated by subtracting the worth of the tokens in the position impact pool
         // so this transfer of value would increase the price of the market token
-        let deduction_amount_for_pool: u256 = calc::to_unsigned(values.price_impact_usd)
-            / cache.pnl_token_price.max;
+        let deduction_amount_for_pool: u256 = calc::to_unsigned(values.price_impact_usd) / cache.pnl_token_price.max;
 
         market_utils::apply_delta_to_pool_amount(
             params.contracts.data_store,
@@ -196,8 +184,7 @@ fn process_collateral(
     // if the decreasePositionSwapType was set to NoSwap or if the swap fails due
     // to insufficient liquidity or other reasons then it is possible that
     // the profit remains in a different token from the collateral token
-    let (was_swapped_, swap_output_amount_) =
-        decrease_position_swap_utils::swap_profit_to_collateral_token(
+    let (was_swapped_, swap_output_amount_) = decrease_position_swap_utils::swap_profit_to_collateral_token(
         params, cache.pnl_token, values.output.secondary_output_amount
     );
     collateral_cache.was_swapped = was_swapped_;
@@ -225,10 +212,7 @@ fn process_collateral(
     values = values_;
     collateral_cache.result = result_;
     if collateral_cache.result.amount_paid_in_secondary_output_token > 0 {
-        let holding_address: ContractAddress = params
-            .contracts
-            .data_store
-            .get_address(keys::holding_address());
+        let holding_address: ContractAddress = params.contracts.data_store.get_address(keys::holding_address());
 
         if holding_address.is_zero() {
             panic_with_felt252(error::PositionError::EMPTY_HOLDING_ADDRESS);
@@ -271,11 +255,7 @@ fn process_collateral(
     // pay for negative pnl
     if values.base_pnl_usd < Zeroable::zero() {
         let (values_, result_) = pay_for_cost(
-            params,
-            values,
-            cache.prices,
-            cache.collateral_token_price,
-            calc::to_unsigned(i256_neg(values.base_pnl_usd))
+            params, values, cache.prices, cache.collateral_token_price, calc::to_unsigned(i256_neg(values.base_pnl_usd))
         );
         values = values_;
         collateral_cache.result = result_;
@@ -492,11 +472,9 @@ fn process_collateral(
     if params.order.initial_collateral_delta_amount > 0 && values.price_impact_diff_usd > 0 {
         let initial_collateral_delta_amount: u256 = params.order.initial_collateral_delta_amount;
 
-        let price_impact_diff_amount: u256 = values.price_impact_diff_usd
-            / cache.collateral_token_price.min;
+        let price_impact_diff_amount: u256 = values.price_impact_diff_usd / cache.collateral_token_price.min;
         if initial_collateral_delta_amount > price_impact_diff_amount {
-            params.order.initial_collateral_delta_amount = initial_collateral_delta_amount
-                - price_impact_diff_amount;
+            params.order.initial_collateral_delta_amount = initial_collateral_delta_amount - price_impact_diff_amount;
         } else {
             params.order.initial_collateral_delta_amount = 0;
         }
@@ -538,9 +516,7 @@ fn process_collateral(
 /// * `params` - The parameters of the position update.
 /// * `index_token_price` - The price of the index token.
 /// (price_impact_usd, price_impact_diff_usd, execution_price)
-fn get_execution_price(
-    params: position_utils::UpdatePositionParams, index_token_price: Price
-) -> (i256, u256, u256) {
+fn get_execution_price(params: position_utils::UpdatePositionParams, index_token_price: Price) -> (i256, u256, u256) {
     let size_delta_usd: u256 = params.order.size_delta_usd;
 
     // note that the executionPrice is not validated against the order.acceptable_price value
@@ -594,9 +570,7 @@ fn get_execution_price(
         // then set price_impact_diff_usd to -200 - -500 = 300
         // set priceImpactUsd to -200
         if cache.price_impact_usd < min_price_impact_usd {
-            cache
-                .price_impact_diff_usd =
-                    calc::to_unsigned(min_price_impact_usd - cache.price_impact_usd);
+            cache.price_impact_diff_usd = calc::to_unsigned(min_price_impact_usd - cache.price_impact_usd);
             cache.price_impact_usd = min_price_impact_usd;
         }
     }
@@ -642,9 +616,7 @@ fn pay_for_cost(
         return (values, result);
     }
 
-    let mut remaining_cost_in_output_token: u256 = calc::roundup_division(
-        cost_usd, collateral_token_price.min
-    );
+    let mut remaining_cost_in_output_token: u256 = calc::roundup_division(cost_usd, collateral_token_price.min);
 
     if values.output.output_amount > 0 {
         if values.output.output_amount > remaining_cost_in_output_token {
@@ -688,8 +660,7 @@ fn pay_for_cost(
 
     if (values.output.secondary_output_amount > 0) {
         if (values.output.secondary_output_amount > remaining_cost_in_secondary_output_token) {
-            result
-                .amount_paid_in_secondary_output_token += remaining_cost_in_secondary_output_token;
+            result.amount_paid_in_secondary_output_token += remaining_cost_in_secondary_output_token;
             values.output.secondary_output_amount -= remaining_cost_in_secondary_output_token;
             remaining_cost_in_secondary_output_token = 0;
         } else {
@@ -699,8 +670,7 @@ fn pay_for_cost(
         }
     }
 
-    result.remaining_cost_usd = remaining_cost_in_secondary_output_token
-        * secondary_output_token_price.min;
+    result.remaining_cost_usd = remaining_cost_in_secondary_output_token * secondary_output_token_price.min;
 
     (values, result)
 }
@@ -721,9 +691,7 @@ fn handle_early_return(
     step: felt252
 ) -> (position_utils::DecreasePositionCollateralValues, position_pricing_utils::PositionFees) {
     if (!collateral_cache.is_insolvent_close_allowed) {
-        error::PositionError::INSUFFICIENT_FUNDS_TO_PAY_FOR_COSTS(
-            collateral_cache.result.remaining_cost_usd, step
-        );
+        error::PositionError::INSUFFICIENT_FUNDS_TO_PAY_FOR_COSTS(collateral_cache.result.remaining_cost_usd, step);
     }
 
     params
@@ -758,9 +726,7 @@ fn handle_early_return(
 /// * `fees` - The position_pricing_utils::PositionFees struct used to get the new empty struct.
 /// # Returns
 /// An empty position_pricing_utils::PositionFees struct.
-fn get_empty_fees(
-    fees: @position_pricing_utils::PositionFees
-) -> position_pricing_utils::PositionFees {
+fn get_empty_fees(fees: @position_pricing_utils::PositionFees) -> position_pricing_utils::PositionFees {
     let referral: position_pricing_utils::PositionReferralFees = Default::default();
 
     // allow the accumulated funding fees to still be claimable

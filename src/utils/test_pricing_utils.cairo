@@ -1,6 +1,5 @@
 use satoru::pricing::pricing_utils::{
-    apply_impact_factor, get_price_impact_usd_for_same_side_rebalance,
-    get_price_impact_usd_for_crossover_rebalance
+    apply_impact_factor, get_price_impact_usd_for_same_side_rebalance, get_price_impact_usd_for_crossover_rebalance
 };
 // *************************************************************************
 //                  Tests for apply_impact_factor function

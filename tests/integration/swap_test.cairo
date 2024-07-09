@@ -7,11 +7,11 @@
 use result::ResultTrait;
 use debug::PrintTrait;
 use traits::{TryInto, Into};
-use starknet::{
-    ContractAddress, get_caller_address, Felt252TryIntoContractAddress, contract_address_const,
-    ClassHash,
+use starknet::{ContractAddress, get_caller_address, Felt252TryIntoContractAddress, contract_address_const, ClassHash,};
+use snforge_std::{
+    declare, start_cheat_caller_address, stop_cheat_caller_address, start_cheat_block_number, ContractClassTrait,
+    ContractClass
 };
-use snforge_std::{declare, start_cheat_caller_address, stop_cheat_caller_address, start_cheat_block_number, ContractClassTrait, ContractClass};
 
 
 // Local imports.
@@ -24,9 +24,7 @@ use satoru::deposit::deposit_vault::{IDepositVaultDispatcher, IDepositVaultDispa
 use satoru::deposit::deposit::Deposit;
 use satoru::withdrawal::withdrawal::Withdrawal;
 
-use satoru::exchange::withdrawal_handler::{
-    IWithdrawalHandlerDispatcher, IWithdrawalHandlerDispatcherTrait
-};
+use satoru::exchange::withdrawal_handler::{IWithdrawalHandlerDispatcher, IWithdrawalHandlerDispatcherTrait};
 use satoru::exchange::deposit_handler::{IDepositHandlerDispatcher, IDepositHandlerDispatcherTrait};
 use satoru::router::exchange_router::{IExchangeRouterDispatcher, IExchangeRouterDispatcherTrait};
 use satoru::mock::referral_storage::{IReferralStorageDispatcher, IReferralStorageDispatcherTrait};
@@ -43,27 +41,21 @@ use satoru::bank::bank::{IBankDispatcherTrait, IBankDispatcher};
 use satoru::bank::strict_bank::{IStrictBankDispatcher, IStrictBankDispatcherTrait};
 use satoru::token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
 use satoru::oracle::oracle::{IOracleDispatcher, IOracleDispatcherTrait};
-use satoru::withdrawal::withdrawal_vault::{
-    IWithdrawalVaultDispatcher, IWithdrawalVaultDispatcherTrait
-};
+use satoru::withdrawal::withdrawal_vault::{IWithdrawalVaultDispatcher, IWithdrawalVaultDispatcherTrait};
 use satoru::data::keys;
 use satoru::market::market_utils;
 use satoru::price::price::{Price, PriceTrait};
 use satoru::position::position_utils;
 use satoru::withdrawal::withdrawal_utils;
 
-use satoru::exchange::liquidation_handler::{
-    ILiquidationHandlerDispatcher, ILiquidationHandlerDispatcherTrait
-};
+use satoru::exchange::liquidation_handler::{ILiquidationHandlerDispatcher, ILiquidationHandlerDispatcherTrait};
 use satoru::order::order::{Order, OrderType, SecondaryOrderType, DecreasePositionSwapType};
 use satoru::order::order_vault::{IOrderVaultDispatcher, IOrderVaultDispatcherTrait};
 use satoru::order::base_order_utils::{CreateOrderParams};
 use satoru::oracle::oracle_store::{IOracleStoreDispatcher, IOracleStoreDispatcherTrait};
 use satoru::swap::swap_handler::{ISwapHandlerDispatcher, ISwapHandlerDispatcherTrait};
 use satoru::market::{market::{UniqueIdMarketImpl},};
-use satoru::exchange::order_handler::{
-    OrderHandler, IOrderHandlerDispatcher, IOrderHandlerDispatcherTrait
-};
+use satoru::exchange::order_handler::{OrderHandler, IOrderHandlerDispatcher, IOrderHandlerDispatcherTrait};
 use satoru::test_utils::{tests_lib::{setup, create_market, teardown}, deposit_setup::deposit_setup};
 const INITIAL_TOKENS_MINTED: felt252 = 1000;
 
@@ -96,10 +88,8 @@ fn test_swap_market() {
         20000000000000000000, 100000000000000000000000
     );
 
-    let balance_caller_ETH = IERC20Dispatcher { contract_address: market.long_token }
-        .balance_of(caller_address);
-    let balance_caller_USDC = IERC20Dispatcher { contract_address: market.short_token }
-        .balance_of(caller_address);
+    let balance_caller_ETH = IERC20Dispatcher { contract_address: market.long_token }.balance_of(caller_address);
+    let balance_caller_USDC = IERC20Dispatcher { contract_address: market.short_token }.balance_of(caller_address);
 
     assert(balance_caller_ETH == 10000000000000000000, 'balanc ETH should be 10 ETH');
     assert(balance_caller_USDC == 50000000000000000000000, 'USDC be 50 000 USDC');
@@ -119,20 +109,14 @@ fn test_swap_market() {
     // 20 ETH
     assert(pool_value_info.long_token_amount == 20000000000000000000, 'wrong long_token balance');
     // 100 000 USDC
-    assert(
-        pool_value_info.short_token_amount == 100000000000000000000000, 'wrong short_token balance'
-    );
+    assert(pool_value_info.short_token_amount == 100000000000000000000000, 'wrong short_token balance');
 
     // // --------------------------------------------------SWAP TEST ETH->USDC --------------------------------------------------
     'Swap ETH to USDC'.print();
-    let balance_ETH_before_swap = IERC20Dispatcher {
-        contract_address: contract_address_const::<'ETH'>()
-    }
+    let balance_ETH_before_swap = IERC20Dispatcher { contract_address: contract_address_const::<'ETH'>() }
         .balance_of(caller_address);
 
-    let balance_USDC_before_swap = IERC20Dispatcher {
-        contract_address: contract_address_const::<'USDC'>()
-    }
+    let balance_USDC_before_swap = IERC20Dispatcher { contract_address: contract_address_const::<'USDC'>() }
         .balance_of(caller_address);
 
     // 10 ETH
@@ -145,14 +129,10 @@ fn test_swap_market() {
     IERC20Dispatcher { contract_address: contract_address_const::<'ETH'>() } //change to switch swap
         .transfer(order_vault.contract_address, 1000000000000000000);
 
-    let balance_ETH_before = IERC20Dispatcher {
-        contract_address: contract_address_const::<'ETH'>()
-    }
+    let balance_ETH_before = IERC20Dispatcher { contract_address: contract_address_const::<'ETH'>() }
         .balance_of(caller_address);
 
-    let balance_USDC_before = IERC20Dispatcher {
-        contract_address: contract_address_const::<'USDC'>()
-    }
+    let balance_USDC_before = IERC20Dispatcher { contract_address: contract_address_const::<'USDC'>() }
         .balance_of(caller_address);
 
     // Balance caller address after sending 1 ETH to the vault
@@ -205,19 +185,13 @@ fn test_swap_market() {
         compacted_min_prices_indexes: array![0],
         compacted_max_prices: array![5000, 1], // 500000, 10000 compacted
         compacted_max_prices_indexes: array![0],
-        signatures: array![
-            array!['signatures1', 'signatures2'].span(), array!['signatures1', 'signatures2'].span()
-        ],
+        signatures: array![array!['signatures1', 'signatures2'].span(), array!['signatures1', 'signatures2'].span()],
         price_feed_tokens: array![]
     };
 
-    let balance_ETH_before_execute = IERC20Dispatcher {
-        contract_address: contract_address_const::<'ETH'>()
-    }
+    let balance_ETH_before_execute = IERC20Dispatcher { contract_address: contract_address_const::<'ETH'>() }
         .balance_of(caller_address);
-    let balance_USDC_before_execute = IERC20Dispatcher {
-        contract_address: contract_address_const::<'USDC'>()
-    }
+    let balance_USDC_before_execute = IERC20Dispatcher { contract_address: contract_address_const::<'USDC'>() }
         .balance_of(caller_address);
 
     // 9 ETH
@@ -236,9 +210,7 @@ fn test_swap_market() {
     let balance_ETH_after = IERC20Dispatcher { contract_address: contract_address_const::<'ETH'>() }
         .balance_of(caller_address);
 
-    let balance_USDC_after = IERC20Dispatcher {
-        contract_address: contract_address_const::<'USDC'>()
-    }
+    let balance_USDC_after = IERC20Dispatcher { contract_address: contract_address_const::<'USDC'>() }
         .balance_of(caller_address);
 
     // 9 ETH
@@ -257,20 +229,11 @@ fn test_swap_market() {
     );
 
     // 200 000 USD
-    assert(
-        first_swap_pool_value_info.pool_value.mag == 200000000000000000000000,
-        'wrong pool_value balance'
-    );
+    assert(first_swap_pool_value_info.pool_value.mag == 200000000000000000000000, 'wrong pool_value balance');
     // 21 ETH
-    assert(
-        first_swap_pool_value_info.long_token_amount == 21000000000000000000,
-        'wrong long_token balance'
-    );
+    assert(first_swap_pool_value_info.long_token_amount == 21000000000000000000, 'wrong long_token balance');
     // 95 000 USDC
-    assert(
-        first_swap_pool_value_info.short_token_amount == 95000000000000000000000,
-        'wrong short_token balance'
-    );
+    assert(first_swap_pool_value_info.short_token_amount == 95000000000000000000000, 'wrong short_token balance');
 
     // *********************************************************************************************
     // *                              TEARDOWN                                                     *

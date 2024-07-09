@@ -1,13 +1,10 @@
 use starknet::{ContractAddress, contract_address_const};
 use snforge_std::{
-    declare, ContractClassTrait, spy_events, SpyOn, EventSpy, EventFetcher, event_name_hash, Event,
-    EventAssertions
+    declare, ContractClassTrait, spy_events, SpyOn, EventSpy, EventFetcher, event_name_hash, Event, EventAssertions
 };
 use satoru::tests_lib::setup_event_emitter;
 
-use satoru::event::event_emitter::{
-    EventEmitter, IEventEmitterDispatcher, IEventEmitterDispatcherTrait
-};
+use satoru::event::event_emitter::{EventEmitter, IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
 
 use satoru::event::event_emitter::EventEmitter::{SwapInfo, SwapFeesCollected};
 
@@ -124,11 +121,7 @@ fn given_normal_conditions_when_emit_swap_fees_collected_then_works() {
                     contract_address,
                     EventEmitter::Event::SwapFeesCollected(
                         SwapFeesCollected {
-                            market: market,
-                            token: token,
-                            token_price: token_price,
-                            action: action,
-                            fees: fees,
+                            market: market, token: token, token_price: token_price, action: action, fees: fees,
                         }
                     )
                 )

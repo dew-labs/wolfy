@@ -1,6 +1,4 @@
-use starknet::{
-    ContractAddress, get_caller_address, Felt252TryIntoContractAddress, contract_address_const
-};
+use starknet::{ContractAddress, get_caller_address, Felt252TryIntoContractAddress, contract_address_const};
 use snforge_std::{declare, start_cheat_caller_address, stop_cheat_caller_address, ContractClassTrait};
 
 use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
@@ -19,9 +17,7 @@ fn given_normal_conditions_when_increment_claimable_fee_amount_then_works() {
     let market: ContractAddress = 0x555.try_into().unwrap();
     let token: ContractAddress = 0x666.try_into().unwrap();
 
-    let key = claimable_fee_amount_key(
-        market, token
-    ); // Calculate slot key to get initial value of slot.
+    let key = claimable_fee_amount_key(market, token); // Calculate slot key to get initial value of slot.
 
     let initial_value = data_store.get_u256(key);
     assert(initial_value == 0_u256, 'initial value wrong');
@@ -58,9 +54,7 @@ fn given_normal_conditions_when_increment_claimable_ui_fee_amount_then_works() {
     let delta = 75_u256;
     let fee_type = 'UI_FEE_TYPE';
 
-    increment_claimable_ui_fee_amount(
-        data_store, event_emitter, ui_fee_receiver, market, token, delta, fee_type
-    );
+    increment_claimable_ui_fee_amount(data_store, event_emitter, ui_fee_receiver, market, token, delta, fee_type);
 
     let final_value = data_store.get_u256(key);
     let final_pool_value = data_store.get_u256(pool_key);

@@ -81,8 +81,7 @@ fn create_deposit(
     // if the initialLongToken and initialShortToken are the same, only the initialLongTokenAmount would
     // be non-zero, the initialShortTokenAmount would be zero
     let mut initial_long_token_amount = deposit_vault.record_transfer_in(params.initial_long_token);
-    let mut initial_short_token_amount = deposit_vault
-        .record_transfer_in(params.initial_short_token);
+    let mut initial_short_token_amount = deposit_vault.record_transfer_in(params.initial_short_token);
 
     let fee_token: ContractAddress = token_utils::fee_token(data_store);
 
@@ -97,10 +96,7 @@ fn create_deposit(
         params.execution_fee = fee_token_amount;
     }
 
-    assert(
-        initial_long_token_amount > 0 || initial_short_token_amount > 0,
-        DepositError::EMPTY_DEPOSIT_AMOUNTS
-    );
+    assert(initial_long_token_amount > 0 || initial_short_token_amount > 0, DepositError::EMPTY_DEPOSIT_AMOUNTS);
 
     validate_receiver(params.receiver);
     let key = nonce_utils::get_next_key(data_store);
@@ -194,13 +190,7 @@ fn cancel_deposit(
     after_deposit_cancellation(key, deposit, log_data);
 
     gas_utils::pay_execution_fee_deposit(
-        data_store,
-        event_emitter,
-        deposit_vault,
-        deposit.execution_fee,
-        starting_gas,
-        keeper,
-        deposit.account
+        data_store, event_emitter, deposit_vault, deposit.execution_fee, starting_gas, keeper, deposit.account
     );
 }
 

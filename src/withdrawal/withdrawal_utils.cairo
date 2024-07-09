@@ -12,8 +12,8 @@ use satoru::event::{event_emitter::{IEventEmitterDispatcher, IEventEmitterDispat
 use satoru::fee::fee_utils;
 use satoru::gas::gas_utils;
 use satoru::market::{
-    market::Market, market_token::{IMarketTokenDispatcher, IMarketTokenDispatcherTrait},
-    market_utils, market_utils::MarketPrices
+    market::Market, market_token::{IMarketTokenDispatcher, IMarketTokenDispatcherTrait}, market_utils,
+    market_utils::MarketPrices
 };
 use satoru::nonce::nonce_utils;
 use satoru::oracle::{oracle::{IOracleDispatcher, IOracleDispatcherTrait}, oracle_utils};
@@ -158,9 +158,7 @@ fn create_withdrawal(
     };
 
     callback_utils::validate_callback_gas_limit(data_store, withdrawal.callback_gas_limit);
-    let estimated_gas_limit = gas_utils::estimate_execute_withdrawal_gas_limit(
-        data_store, withdrawal
-    );
+    let estimated_gas_limit = gas_utils::estimate_execute_withdrawal_gas_limit(data_store, withdrawal);
     gas_utils::validate_execution_fee(data_store, estimated_gas_limit, params.execution_fee);
 
     // store withdrawal
@@ -198,9 +196,7 @@ fn execute_withdrawal(
         .balance_of(params.withdrawal_vault.contract_address);
 
     if market_token_balance < withdrawal.market_token_amount {
-        WithdrawalError::INSUFFICIENT_MARKET_TOKENS(
-            market_token_balance, withdrawal.market_token_amount
-        );
+        WithdrawalError::INSUFFICIENT_MARKET_TOKENS(market_token_balance, withdrawal.market_token_amount);
     }
 
     let _result = execute_withdrawal_(@params, withdrawal);
@@ -250,22 +246,13 @@ fn cancel_withdrawal(
 
     withdrawal_vault
         .transfer_out(
-            withdrawal_vault.contract_address,
-            withdrawal.market,
-            withdrawal.account,
-            withdrawal.market_token_amount
+            withdrawal_vault.contract_address, withdrawal.market, withdrawal.account, withdrawal.market_token_amount
         );
 
     event_emitter.emit_withdrawal_cancelled(key, reason, reason_bytes.span());
 
     gas_utils::pay_execution_fee_withdrawal(
-        data_store,
-        event_emitter,
-        withdrawal_vault,
-        withdrawal.execution_fee,
-        starting_gas,
-        keeper,
-        withdrawal.account
+        data_store, event_emitter, withdrawal_vault, withdrawal.execution_fee, starting_gas, keeper, withdrawal.account
     )
 }
 
@@ -275,9 +262,7 @@ fn cancel_withdrawal(
 /// * `withdrawal` - The withdrawal to execute.
 /// # Returns
 /// The unique identifier of the created withdrawal.
-fn execute_withdrawal_(
-    params: @ExecuteWithdrawalParams, withdrawal: Withdrawal
-) -> ExecuteWithdrawalResult {
+fn execute_withdrawal_(params: @ExecuteWithdrawalParams, withdrawal: Withdrawal) -> ExecuteWithdrawalResult {
     let market = market_utils::get_enabled_market(*params.data_store, withdrawal.market);
 
     let prices = market_utils::get_market_prices(*params.oracle, market);
@@ -348,13 +333,11 @@ fn execute_withdrawal_(
         keys::withdrawal_fee_type()
     );
 
-    cache.long_token_pool_amount_delta = cache.long_token_output_amount
-        - cache.long_token_fees.fee_amount_for_pool;
+    cache.long_token_pool_amount_delta = cache.long_token_output_amount - cache.long_token_fees.fee_amount_for_pool;
 
     cache.long_token_output_amount = cache.long_token_fees.amount_after_fees;
 
-    cache.short_token_pool_amount_delta = cache.short_token_output_amount
-        - cache.short_token_fees.fee_amount_for_pool;
+    cache.short_token_pool_amount_delta = cache.short_token_output_amount - cache.short_token_fees.fee_amount_for_pool;
 
     cache.short_token_output_amount = cache.short_token_fees.amount_after_fees;
 
@@ -428,20 +411,12 @@ fn execute_withdrawal_(
 
     (*params.event_emitter)
         .emit_swap_fees_collected(
-            market.market_token,
-            market.long_token,
-            prices.long_token_price.min,
-            'withdrawal',
-            cache.long_token_fees
+            market.market_token, market.long_token, prices.long_token_price.min, 'withdrawal', cache.long_token_fees
         );
 
     (*params.event_emitter)
         .emit_swap_fees_collected(
-            market.market_token,
-            market.short_token,
-            prices.short_token_price.min,
-            'withdrawal',
-            cache.short_token_fees
+            market.market_token, market.short_token, prices.short_token_price.min, 'withdrawal', cache.short_token_fees
         );
 
     // if the native token was transferred to the receiver in a swap
@@ -507,18 +482,13 @@ fn swap(
     let (_output_token, _output_amount) = swap_utils::swap(cache_swap_params);
 
     // validate that internal state changes are correct before calling external callbacks
-    market_utils::validate_market_token_balance_span(
-        *params.data_store, cache.swap_params.swap_path_markets
-    );
+    market_utils::validate_market_token_balance_span(*params.data_store, cache.swap_params.swap_path_markets);
 
     (cache.output_token, cache.output_amount)
 }
 
 fn get_output_amounts(
-    params: @ExecuteWithdrawalParams,
-    market: Market,
-    prices: @MarketPrices,
-    market_token_amount: u256
+    params: @ExecuteWithdrawalParams, market: Market, prices: @MarketPrices, market_token_amount: u256
 ) -> (u256, u256) {
     // the max pnl factor for withdrawals should be the lower of the max pnl factor values
     // which means that pnl would be capped to a smaller amount and the pool
@@ -545,16 +515,11 @@ fn get_output_amounts(
         IMarketTokenDispatcher { contract_address: market.market_token }
     );
 
-    (*params.event_emitter)
-        .emit_market_pool_value_info(market.market_token, pool_value_info, market_tokens_supply);
+    (*params.event_emitter).emit_market_pool_value_info(market.market_token, pool_value_info, market_tokens_supply);
 
-    let long_token_pool_amount = market_utils::get_pool_amount(
-        *params.data_store, @market, market.long_token
-    );
+    let long_token_pool_amount = market_utils::get_pool_amount(*params.data_store, @market, market.long_token);
 
-    let short_token_pool_amount = market_utils::get_pool_amount(
-        *params.data_store, @market, market.short_token
-    );
+    let short_token_pool_amount = market_utils::get_pool_amount(*params.data_store, @market, market.short_token);
 
     let long_token_pool_usd = long_token_pool_amount * *prices.long_token_price.max;
 
@@ -566,19 +531,12 @@ fn get_output_amounts(
         market_token_amount, pool_value, market_tokens_supply
     );
 
-    let long_token_output_usd = precision::mul_div(
-        market_token_usd, long_token_pool_usd, total_pool_usd
-    );
+    let long_token_output_usd = precision::mul_div(market_token_usd, long_token_pool_usd, total_pool_usd);
 
-    let short_token_output_usd = precision::mul_div(
-        market_token_usd, short_token_pool_usd, total_pool_usd
-    );
+    let short_token_output_usd = precision::mul_div(market_token_usd, short_token_pool_usd, total_pool_usd);
 
     error_utils::check_division_by_zero(*prices.long_token_price.max, 'long_token_price.max');
     error_utils::check_division_by_zero(*prices.short_token_price.max, 'short_token_price.max');
 
-    (
-        long_token_output_usd / *prices.long_token_price.max,
-        short_token_output_usd / *prices.short_token_price.max
-    )
+    (long_token_output_usd / *prices.long_token_price.max, short_token_output_usd / *prices.short_token_price.max)
 }

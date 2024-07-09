@@ -499,8 +499,7 @@ mod TestInteger256 {
             let input = IntegerTrait::<i256>::new(BoundedInt::max() / 2, true);
             let actual = two_complement_if_nec(input);
             let expected = i256 {
-                mag: 57896044618658097711785492504343953926634992332820282019728792003956564819969,
-                sign: true
+                mag: 57896044618658097711785492504343953926634992332820282019728792003956564819969, sign: true
             };
 
             assert(actual == expected, 'negative max wrong val');
@@ -520,8 +519,7 @@ mod TestInteger256 {
             let input = IntegerTrait::<i256>::new(54321, true);
             let actual = two_complement_if_nec(input);
             let expected = i256 {
-                mag: 115792089237316195423570985008687907853269984665640564039457584007913129585615,
-                sign: true
+                mag: 115792089237316195423570985008687907853269984665640564039457584007913129585615, sign: true
             };
 
             assert(actual == expected, 'negative non zero wrong value');

@@ -6,10 +6,7 @@
 
 use result::ResultTrait;
 use traits::{TryInto, Into};
-use starknet::{
-    ContractAddress, get_caller_address, Felt252TryIntoContractAddress, contract_address_const,
-    ClassHash,
-};
+use starknet::{ContractAddress, get_caller_address, Felt252TryIntoContractAddress, contract_address_const, ClassHash,};
 use snforge_std::{declare, start_cheat_caller_address, stop_cheat_caller_address, ContractClassTrait, ContractClass};
 
 
@@ -50,8 +47,7 @@ fn given_normal_conditions_when_create_market_then_market_is_created() {
     let short_token = contract_address_const::<'short_token'>();
     let market_type = 'market_type';
 
-    let market_token_deployed_address = market_factory
-        .create_market(index_token, long_token, short_token, market_type);
+    let market_token_deployed_address = market_factory.create_market(index_token, long_token, short_token, market_type);
 
     // Get the market from the data store.
     // This must not panic, because the market was created in the previous step.

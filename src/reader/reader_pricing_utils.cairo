@@ -8,8 +8,7 @@ use core::traits::TryInto;
 // Local imports.
 use satoru::market::market::Market;
 use satoru::market::market_utils::{
-    MarketPrices, get_opposite_token, get_cached_token_price, get_swap_impact_amount_with_cap,
-    validate_swap_market
+    MarketPrices, get_opposite_token, get_cached_token_price, get_swap_impact_amount_with_cap, validate_swap_market
 };
 
 use satoru::order::{
@@ -29,9 +28,7 @@ use satoru::pricing::{
 use satoru::reader::error::ReaderError;
 use satoru::utils::calc;
 use satoru::utils::span32::{Span32, Array32Trait};
-use satoru::swap::{
-    swap_utils::SwapCache, swap_handler::{ISwapHandlerDispatcher, ISwapHandlerDispatcherTrait}
-};
+use satoru::swap::{swap_utils::SwapCache, swap_handler::{ISwapHandlerDispatcher, ISwapHandlerDispatcherTrait}};
 
 use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
 use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
@@ -109,11 +106,7 @@ fn get_swap_amount_out(
     let price_impact_usd: i256 = get_price_impact_usd(param);
 
     let fees: SwapFees = get_swap_fees(
-        data_store,
-        market.market_token,
-        amount_in,
-        price_impact_usd > Zeroable::zero(),
-        ui_fee_receiver
+        data_store, market.market_token, amount_in, price_impact_usd > Zeroable::zero(), ui_fee_receiver
     );
 
     let mut impact_amount: i256 = Zeroable::zero();
@@ -133,11 +126,7 @@ fn get_swap_amount_out(
 
         impact_amount =
             get_swap_impact_amount_with_cap(
-                data_store,
-                market.market_token,
-                cache.token_out,
-                cache.token_out_price,
-                price_impact_usd
+                data_store, market.market_token, cache.token_out, cache.token_out_price, price_impact_usd
             );
 
         cache.amount_out += calc::to_unsigned(impact_amount);
@@ -202,12 +191,11 @@ fn get_execution_price(
     };
     params
         .order
-        .acceptable_price =
-            if should_execution_price_be_smaller {
-                340282366920938463463374607431768211455
-            } else {
-                0
-            };
+        .acceptable_price = if should_execution_price_be_smaller {
+            340282366920938463463374607431768211455
+        } else {
+            0
+        };
 
     params.position.size_in_usd = position_size_in_usd;
     params.position.size_in_tokens = position_size_in_tokens;
@@ -217,8 +205,7 @@ fn get_execution_price(
         price_impact_usd: Zeroable::zero(), price_impact_diff_usd: 0, execution_price: 0,
     };
     if size_delta_usd > Zeroable::zero() {
-        let (price_impact_usd, _, _, execution_price) =
-            increase_position_utils::get_execution_price(
+        let (price_impact_usd, _, _, execution_price) = increase_position_utils::get_execution_price(
             params, index_token_price
         );
 
@@ -276,20 +263,12 @@ fn get_swap_price_impact(
     if price_impact_usd_before_cap > Zeroable::zero() {
         price_impact_amount =
             get_swap_impact_amount_with_cap(
-                data_store,
-                market.market_token,
-                token_out,
-                token_out_price,
-                price_impact_usd_before_cap,
+                data_store, market.market_token, token_out, token_out_price, price_impact_usd_before_cap,
             );
     } else {
         price_impact_amount =
             get_swap_impact_amount_with_cap(
-                data_store,
-                market.market_token,
-                token_in,
-                token_in_price,
-                price_impact_usd_before_cap,
+                data_store, market.market_token, token_in, token_in_price, price_impact_usd_before_cap,
             );
     }
     (price_impact_usd_before_cap, price_impact_amount)

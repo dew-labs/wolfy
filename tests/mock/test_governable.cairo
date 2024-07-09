@@ -77,9 +77,7 @@ fn setup() -> (
     let data_store = IDataStoreDispatcher { contract_address: data_store_address };
 
     let referral_storage_address = deploy_referral_storage(event_emitter_address);
-    let referral_storage = IReferralStorageDispatcher {
-        contract_address: referral_storage_address
-    };
+    let referral_storage = IReferralStorageDispatcher { contract_address: referral_storage_address };
 
     let governable_address = deploy_governable(event_emitter_address);
     let governable = IGovernableDispatcher { contract_address: governable_address };
@@ -113,9 +111,7 @@ fn setup_with_other_address() -> (
     let data_store = IDataStoreDispatcher { contract_address: data_store_address };
 
     let referral_storage_address = deploy_referral_storage(event_emitter_address);
-    let referral_storage = IReferralStorageDispatcher {
-        contract_address: referral_storage_address
-    };
+    let referral_storage = IReferralStorageDispatcher { contract_address: referral_storage_address };
 
     let governable_address = deploy_governable(event_emitter_address);
     let governable = IGovernableDispatcher { contract_address: governable_address };
@@ -136,8 +132,7 @@ fn setup_with_other_address() -> (
 // The test expects the call to succeed without any errors.
 #[test]
 fn given_normal_conditions_when_only_gov_then_works() {
-    let (caller_address, role_store, data_store, event_emitter, referral_storage, governable) =
-        setup();
+    let (caller_address, role_store, data_store, event_emitter, referral_storage, governable) = setup();
     governable.only_gov();
     teardown(data_store.contract_address);
 }
@@ -160,8 +155,7 @@ fn given_forbidden_when_only_gov_then_fails() {
 // The test expects the call to succeed and the ownership to be transferred without any errors.
 #[test]
 fn given_normal_conditions_when_transfer_ownership_then_works() {
-    let (caller_address, role_store, data_store, event_emitter, referral_storage, governable) =
-        setup();
+    let (caller_address, role_store, data_store, event_emitter, referral_storage, governable) = setup();
     let new_caller_address: ContractAddress = 0x102.try_into().unwrap();
     governable.transfer_ownership(new_caller_address);
     teardown(data_store.contract_address);
@@ -189,8 +183,7 @@ fn given_unauthorized_caller_when_transfer_ownership_then_fails() {
 /// The test expects the call to succeed and the ownership to be accepted without any errors.
 #[test]
 fn given_normal_conditions_when_accept_ownership_then_works() {
-    let (caller_address, role_store, data_store, event_emitter, referral_storage, governable) =
-        setup();
+    let (caller_address, role_store, data_store, event_emitter, referral_storage, governable) = setup();
     let new_caller_address: ContractAddress = 0x102.try_into().unwrap();
 
     // Transfer the ownership to the new address.
@@ -211,8 +204,7 @@ fn given_normal_conditions_when_accept_ownership_then_works() {
 #[test]
 #[should_panic(expected: ('Unauthorized pending_gov caller',))]
 fn given_abnormal_conditions_when_accept_ownership_then_fails() {
-    let (caller_address, role_store, data_store, event_emitter, referral_storage, governable) =
-        setup();
+    let (caller_address, role_store, data_store, event_emitter, referral_storage, governable) = setup();
     let new_caller_address: ContractAddress = 0x102.try_into().unwrap();
     let unauthorized_address: ContractAddress = 0x103.try_into().unwrap();
 
@@ -231,8 +223,7 @@ fn given_abnormal_conditions_when_accept_ownership_then_fails() {
 #[should_panic(expected: ('already_initialized',))]
 fn given_already_initialized_when_initialize_then_fails() {
     // Setup the environment.
-    let (caller_address, role_store, data_store, event_emitter, referral_storage, governable) =
-        setup();
+    let (caller_address, role_store, data_store, event_emitter, referral_storage, governable) = setup();
 
     // Assume that the contract has been initialized during setup.
     // Try to initialize it again with the same event emitter address.

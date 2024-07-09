@@ -34,12 +34,8 @@ fn get_price_impact_usd_for_crossover_rebalance(
     negative_impact_factor: u256,
     impact_exponent_factor: u256,
 ) -> i256 {
-    let positive_impact_usd = apply_impact_factor(
-        initial_diff_usd, positive_impact_factor, impact_exponent_factor
-    );
-    let negative_impact_usd = apply_impact_factor(
-        next_diff_usd, negative_impact_factor, impact_exponent_factor
-    );
+    let positive_impact_usd = apply_impact_factor(initial_diff_usd, positive_impact_factor, impact_exponent_factor);
+    let negative_impact_usd = apply_impact_factor(next_diff_usd, negative_impact_factor, impact_exponent_factor);
     let delta_diff_usd = calc::diff(positive_impact_usd, negative_impact_usd);
 
     calc::to_signed(delta_diff_usd, positive_impact_usd > negative_impact_usd)

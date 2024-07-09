@@ -12,9 +12,7 @@ mod MockAccount {
     use result::ResultTrait;
 
     // Local imports.
-    use satoru::oracle::{
-        interfaces::account::{IAccount, IAccountDispatcher, IAccountDispatcherTrait}
-    };
+    use satoru::oracle::{interfaces::account::{IAccount, IAccountDispatcher, IAccountDispatcherTrait}};
 
 
     // *************************************************************************
@@ -34,18 +32,12 @@ mod MockAccount {
             1
         }
         fn __validate_deploy__(
-            self: @ContractState,
-            class_hash: felt252,
-            contract_address_salt: felt252,
-            owner: felt252,
-            guardian: felt252
+            self: @ContractState, class_hash: felt252, contract_address_salt: felt252, owner: felt252, guardian: felt252
         ) -> felt252 {
             1
         }
 
-        fn change_owner(
-            ref self: ContractState, new_owner: felt252, signature_r: felt252, signature_s: felt252
-        ) {
+        fn change_owner(ref self: ContractState, new_owner: felt252, signature_r: felt252, signature_s: felt252) {
             self.owner.write(new_owner);
         }
         fn change_guardian(ref self: ContractState, new_guardian: felt252) {}

@@ -17,9 +17,7 @@ trait IOracleStore<TContractState> {
     /// * `role_store_address` - The address of the role store contract.
     /// * `event_emitter_address` - The address of the event emitter contract.
     fn initialize(
-        ref self: TContractState,
-        role_store_address: ContractAddress,
-        event_emitter_address: ContractAddress,
+        ref self: TContractState, role_store_address: ContractAddress, event_emitter_address: ContractAddress,
     );
 
     /// Adds a signer.
@@ -61,7 +59,7 @@ mod OracleStore {
 
     // Core lib imports.
     use core::option::OptionTrait;
-use core::zeroable::Zeroable;
+    use core::zeroable::Zeroable;
     use starknet::{ContractAddress, contract_address_const};
 
     use alexandria_storage::list::{ListTrait, List};
@@ -98,9 +96,7 @@ use core::zeroable::Zeroable;
     /// * `event_emitter_address` - The address of the event emitter contract.
     #[constructor]
     fn constructor(
-        ref self: ContractState,
-        role_store_address: ContractAddress,
-        event_emitter_address: ContractAddress,
+        ref self: ContractState, role_store_address: ContractAddress, event_emitter_address: ContractAddress,
     ) {
         self.initialize(role_store_address, event_emitter_address);
     }
@@ -112,18 +108,11 @@ use core::zeroable::Zeroable;
     #[abi(embed_v0)]
     impl OracleStoreImpl of super::IOracleStore<ContractState> {
         fn initialize(
-            ref self: ContractState,
-            role_store_address: ContractAddress,
-            event_emitter_address: ContractAddress,
+            ref self: ContractState, role_store_address: ContractAddress, event_emitter_address: ContractAddress,
         ) {
             // Make sure the contract is not already initialized.
-            assert(
-                self.event_emitter.read().contract_address.is_zero(),
-                OracleError::ALREADY_INITIALIZED
-            );
-            self
-                .event_emitter
-                .write(IEventEmitterDispatcher { contract_address: event_emitter_address });
+            assert(self.event_emitter.read().contract_address.is_zero(), OracleError::ALREADY_INITIALIZED);
+            self.event_emitter.write(IEventEmitterDispatcher { contract_address: event_emitter_address });
             self.role_store.write(IRoleStoreDispatcher { contract_address: role_store_address });
         }
 

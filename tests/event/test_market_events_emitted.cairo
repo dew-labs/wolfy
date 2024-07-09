@@ -1,22 +1,18 @@
 use starknet::{ContractAddress, contract_address_const};
 use snforge_std::{
-    declare, ContractClassTrait, spy_events, SpyOn, EventSpy, EventFetcher, event_name_hash, Event,
-    EventAssertions
+    declare, ContractClassTrait, spy_events, SpyOn, EventSpy, EventFetcher, event_name_hash, Event, EventAssertions
 };
 
 use satoru::tests_lib::setup_event_emitter;
 
-use satoru::event::event_emitter::{
-    EventEmitter, IEventEmitterDispatcher, IEventEmitterDispatcherTrait
-};
+use satoru::event::event_emitter::{EventEmitter, IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
 
 use satoru::event::event_emitter::EventEmitter::{
-    MarketPoolValueInfoEvent, PoolAmountUpdated, SwapImpactPoolAmountUpdated,
-    PositionImpactPoolAmountUpdated, OpenInterestInTokensUpdated, OpenInterestUpdated,
-    VirtualSwapInventoryUpdated, VirtualPositionInventoryUpdated, CollateralSumUpdated,
-    CumulativeBorrowingFactorUpdated, FundingFeeAmountPerSizeUpdated,
-    ClaimableFundingAmountPerSizeUpdated, ClaimableFundingUpdated, FundingFeesClaimed,
-    ClaimableCollateralUpdated, CollateralClaimed, UiFeeFactorUpdated, MarketCreated
+    MarketPoolValueInfoEvent, PoolAmountUpdated, SwapImpactPoolAmountUpdated, PositionImpactPoolAmountUpdated,
+    OpenInterestInTokensUpdated, OpenInterestUpdated, VirtualSwapInventoryUpdated, VirtualPositionInventoryUpdated,
+    CollateralSumUpdated, CumulativeBorrowingFactorUpdated, FundingFeeAmountPerSizeUpdated,
+    ClaimableFundingAmountPerSizeUpdated, ClaimableFundingUpdated, FundingFeesClaimed, ClaimableCollateralUpdated,
+    CollateralClaimed, UiFeeFactorUpdated, MarketCreated
 };
 
 use satoru::market::market_pool_value_info::MarketPoolValueInfo;
@@ -88,9 +84,7 @@ fn given_normal_conditions_when_emit_pool_amount_updated_then_works() {
                 (
                     contract_address,
                     EventEmitter::Event::PoolAmountUpdated(
-                        PoolAmountUpdated {
-                            market: market, token: token, delta: delta, next_value: next_value
-                        }
+                        PoolAmountUpdated { market: market, token: token, delta: delta, next_value: next_value }
                     )
                 )
             ]
@@ -163,9 +157,7 @@ fn given_normal_conditions_when_emit_position_impact_pool_amount_updated_then_wo
                 (
                     contract_address,
                     EventEmitter::Event::PositionImpactPoolAmountUpdated(
-                        PositionImpactPoolAmountUpdated {
-                            market: market, delta: delta, next_value: next_value
-                        }
+                        PositionImpactPoolAmountUpdated { market: market, delta: delta, next_value: next_value }
                     )
                 )
             ]
@@ -194,8 +186,7 @@ fn given_normal_conditions_when_emit_open_interest_in_tokens_updated_then_works(
     let next_value: u256 = 2;
 
     // Emit the event.
-    event_emitter
-        .emit_open_interest_in_tokens_updated(market, collateral_token, is_long, delta, next_value);
+    event_emitter.emit_open_interest_in_tokens_updated(market, collateral_token, is_long, delta, next_value);
     // Assert the event was emitted.
     spy
         .assert_emitted(
@@ -281,10 +272,7 @@ fn given_normal_conditions_when_emit_virtual_swap_inventory_updated_then_works()
     let next_value: u256 = 2;
 
     // Emit the event.
-    event_emitter
-        .emit_virtual_swap_inventory_updated(
-            market, is_long_token, virtual_market_id, delta, next_value
-        );
+    event_emitter.emit_virtual_swap_inventory_updated(market, is_long_token, virtual_market_id, delta, next_value);
     // Assert the event was emitted.
     spy
         .assert_emitted(
@@ -326,8 +314,7 @@ fn given_normal_conditions_when_emit_virtual_position_inventory_updated_then_wor
     let next_value: i256 = i256_new(2, false);
 
     // Emit the event.
-    event_emitter
-        .emit_virtual_position_inventory_updated(token, virtual_token_id, delta, next_value);
+    event_emitter.emit_virtual_position_inventory_updated(token, virtual_token_id, delta, next_value);
     // Assert the event was emitted.
     spy
         .assert_emitted(
@@ -336,10 +323,7 @@ fn given_normal_conditions_when_emit_virtual_position_inventory_updated_then_wor
                     contract_address,
                     EventEmitter::Event::VirtualPositionInventoryUpdated(
                         VirtualPositionInventoryUpdated {
-                            token: token,
-                            virtual_token_id: virtual_token_id,
-                            delta: delta,
-                            next_value: next_value,
+                            token: token, virtual_token_id: virtual_token_id, delta: delta, next_value: next_value,
                         }
                     )
                 )
@@ -452,10 +436,7 @@ fn given_normal_conditions_when_emit_funding_fee_amount_per_size_updated_then_wo
     let next_value: u256 = 2;
 
     // Emit the event.
-    event_emitter
-        .emit_funding_fee_amount_per_size_updated(
-            market, collateral_token, is_long, delta, next_value
-        );
+    event_emitter.emit_funding_fee_amount_per_size_updated(market, collateral_token, is_long, delta, next_value);
     // Assert the event was emitted.
     spy
         .assert_emitted(
@@ -498,10 +479,7 @@ fn given_normal_conditions_when_emit_claimable_funding_amount_per_size_updated_t
     let next_value: u256 = 2;
 
     // Emit the event.
-    event_emitter
-        .emit_claimable_funding_amount_per_size_updated(
-            market, collateral_token, is_long, delta, next_value
-        );
+    event_emitter.emit_claimable_funding_amount_per_size_updated(market, collateral_token, is_long, delta, next_value);
     // Assert the event was emitted.
     spy
         .assert_emitted(
@@ -545,8 +523,7 @@ fn given_normal_conditions_when_emit_claimable_funding_updated_then_works() {
     let next_pool_value: u256 = 2;
 
     // Emit the event.
-    event_emitter
-        .emit_claimable_funding_updated(market, token, account, delta, next_value, next_pool_value);
+    event_emitter.emit_claimable_funding_updated(market, token, account, delta, next_value, next_pool_value);
     // Assert the event was emitted.
     spy
         .assert_emitted(
@@ -591,8 +568,7 @@ fn given_normal_conditions_when_emit_funding_fees_claimed_then_works() {
     let next_pool_value: u256 = 2;
 
     // Emit the event.
-    event_emitter
-        .emit_funding_fees_claimed(market, token, account, receiver, amount, next_pool_value);
+    event_emitter.emit_funding_fees_claimed(market, token, account, receiver, amount, next_pool_value);
     // Assert the event was emitted.
     spy
         .assert_emitted(
@@ -640,9 +616,7 @@ fn given_normal_conditions_when_emit_claimable_collateral_updated_then_works() {
 
     // Emit the event.
     event_emitter
-        .emit_claimable_collateral_updated(
-            market, token, account, time_key, delta, next_value, next_pool_value
-        );
+        .emit_claimable_collateral_updated(market, token, account, time_key, delta, next_value, next_pool_value);
     // Assert the event was emitted.
     spy
         .assert_emitted(
@@ -690,10 +664,7 @@ fn given_normal_conditions_when_emit_collateral_claimed_then_works() {
     let next_pool_value: u256 = 3;
 
     // Emit the event.
-    event_emitter
-        .emit_collateral_claimed(
-            market, token, account, receiver, time_key, amount, next_pool_value
-        );
+    event_emitter.emit_collateral_claimed(market, token, account, receiver, time_key, amount, next_pool_value);
     // Assert the event was emitted.
     spy
         .assert_emitted(
@@ -773,10 +744,7 @@ fn given_normal_conditions_when_emit_market_created_then_works() {
     let market_type = 'type';
 
     // Emit the event.
-    event_emitter
-        .emit_market_created(
-            creator, market_token, index_token, long_token, short_token, market_type
-        );
+    event_emitter.emit_market_created(creator, market_token, index_token, long_token, short_token, market_type);
     // Assert the event was emitted.
     spy
         .assert_emitted(

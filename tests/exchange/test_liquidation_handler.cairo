@@ -1,14 +1,13 @@
 use snforge_std::{
-    declare, start_cheat_caller_address, stop_cheat_caller_address, start_cheat_block_number, ContractClassTrait, ContractClass, PrintTrait
+    declare, start_cheat_caller_address, stop_cheat_caller_address, start_cheat_block_number, ContractClassTrait,
+    ContractClass, PrintTrait
 };
 
 use satoru::exchange::liquidation_handler::{
-    LiquidationHandler, ILiquidationHandlerDispatcher, ILiquidationHandler,
-    ILiquidationHandlerDispatcherTrait
+    LiquidationHandler, ILiquidationHandlerDispatcher, ILiquidationHandler, ILiquidationHandlerDispatcherTrait
 };
 use starknet::{
-    ContractAddress, contract_address_const, contract_address_to_felt252, ClassHash,
-    Felt252TryIntoContractAddress
+    ContractAddress, contract_address_const, contract_address_to_felt252, ClassHash, Felt252TryIntoContractAddress
 };
 use satoru::mock::referral_storage;
 use traits::Default;
@@ -23,10 +22,7 @@ use satoru::utils::span32::{Span32, Array32Trait};
 use satoru::position::{position::Position, position_utils::get_position_key};
 use satoru::liquidation::liquidation_utils::create_liquidation_order;
 use satoru::exchange::base_order_handler::{
-    IBaseOrderHandler,
-    BaseOrderHandler::{
-        event_emitterContractMemberStateTrait, data_storeContractMemberStateImpl
-    }
+    IBaseOrderHandler, BaseOrderHandler::{event_emitterContractMemberStateTrait, data_storeContractMemberStateImpl}
 };
 
 use satoru::event::event_emitter::{IEventEmitterDispatcher};
@@ -34,8 +30,7 @@ use satoru::data::{data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait}
 use satoru::oracle::{
     oracle::{Oracle, IOracleDispatcher, IOracleDispatcherTrait},
     oracle_store::{IOracleStoreDispatcher, IOracleStoreDispatcherTrait},
-    interfaces::account::{IAccount, IAccountDispatcher, IAccountDispatcherTrait},
-    oracle_utils::SetPricesParams
+    interfaces::account::{IAccount, IAccountDispatcher, IAccountDispatcherTrait}, oracle_utils::SetPricesParams
 };
 
 use satoru::utils::precision;
@@ -152,14 +147,8 @@ fn given_disabled_feature_when_create_execute_liquidation_then_fails() {
     let token2 = contract_address_const::<'BTC'>();
 
     // Use mock account to match keys
-    signer1
-        .change_owner(
-            1221698997303567203808303576674742997327105320284925779268978961645745386877, 0, 0
-        );
-    signer2
-        .change_owner(
-            1221698997303567203808303576674742997327105320284925779268978961645745386877, 0, 0
-        );
+    signer1.change_owner(1221698997303567203808303576674742997327105320284925779268978961645745386877, 0, 0);
+    signer2.change_owner(1221698997303567203808303576674742997327105320284925779268978961645745386877, 0, 0);
 
     data_store.set_token_id(token1, 1);
     data_store.set_token_id(token2, 2);
@@ -168,8 +157,7 @@ fn given_disabled_feature_when_create_execute_liquidation_then_fails() {
     // Set price feed multiplier
     data_store.set_u256(keys::price_feed_multiplier_key(token1), precision::FLOAT_PRECISION);
     data_store.set_u256(keys::price_feed_multiplier_key(token2), precision::FLOAT_PRECISION);
-    data_store
-        .set_u256(keys::price_feed_multiplier_key(collateral_token), precision::FLOAT_PRECISION);
+    data_store.set_u256(keys::price_feed_multiplier_key(collateral_token), precision::FLOAT_PRECISION);
     data_store.set_u256(keys::max_oracle_ref_price_deviation_factor(), max_u256);
 
     let usdc_price = Price { min: 1000000, max: 1000000 };
@@ -193,9 +181,7 @@ fn given_disabled_feature_when_create_execute_liquidation_then_fails() {
     data_store.set_position(pos_key, position);
 
     // Disable feature
-    let key = keys::execute_order_feature_disabled_key(
-        liquidation_handler_address, OrderType::Liquidation
-    );
+    let key = keys::execute_order_feature_disabled_key(liquidation_handler_address, OrderType::Liquidation);
     data_store.set_bool(key, true);
 
     let oracle_params = mock_set_prices_params(token1, collateral_token);
@@ -242,14 +228,8 @@ fn given_negative_open_interest_when_create_execute_liquidation_then_fails() {
     let token2 = contract_address_const::<'BTC'>();
 
     // Use mock account to match keys
-    signer1
-        .change_owner(
-            1221698997303567203808303576674742997327105320284925779268978961645745386877, 0, 0
-        );
-    signer2
-        .change_owner(
-            1221698997303567203808303576674742997327105320284925779268978961645745386877, 0, 0
-        );
+    signer1.change_owner(1221698997303567203808303576674742997327105320284925779268978961645745386877, 0, 0);
+    signer2.change_owner(1221698997303567203808303576674742997327105320284925779268978961645745386877, 0, 0);
 
     data_store.set_token_id(token1, 1);
     data_store.set_token_id(token2, 2);
@@ -258,8 +238,7 @@ fn given_negative_open_interest_when_create_execute_liquidation_then_fails() {
     // Set price feed multiplier
     data_store.set_u256(keys::price_feed_multiplier_key(token1), precision::FLOAT_PRECISION);
     data_store.set_u256(keys::price_feed_multiplier_key(token2), precision::FLOAT_PRECISION);
-    data_store
-        .set_u256(keys::price_feed_multiplier_key(collateral_token), precision::FLOAT_PRECISION);
+    data_store.set_u256(keys::price_feed_multiplier_key(collateral_token), precision::FLOAT_PRECISION);
     data_store.set_u256(keys::max_oracle_ref_price_deviation_factor(), max_u256);
 
     let usdc_price = Price { min: 1000000, max: 1000000 };
@@ -327,14 +306,8 @@ fn given_normal_conditions_when_create_execute_liquidation_then_works() {
     let token2 = contract_address_const::<'BTC'>();
 
     // Use mock account to match keys
-    signer1
-        .change_owner(
-            1221698997303567203808303576674742997327105320284925779268978961645745386877, 0, 0
-        );
-    signer2
-        .change_owner(
-            1221698997303567203808303576674742997327105320284925779268978961645745386877, 0, 0
-        );
+    signer1.change_owner(1221698997303567203808303576674742997327105320284925779268978961645745386877, 0, 0);
+    signer2.change_owner(1221698997303567203808303576674742997327105320284925779268978961645745386877, 0, 0);
 
     data_store.set_token_id(token1, 1);
     data_store.set_token_id(token2, 2);
@@ -345,8 +318,7 @@ fn given_normal_conditions_when_create_execute_liquidation_then_works() {
     // Set price feed multiplier
     data_store.set_u256(keys::price_feed_multiplier_key(token1), precision::FLOAT_PRECISION);
     data_store.set_u256(keys::price_feed_multiplier_key(token2), precision::FLOAT_PRECISION);
-    data_store
-        .set_u256(keys::price_feed_multiplier_key(collateral_token), precision::FLOAT_PRECISION);
+    data_store.set_u256(keys::price_feed_multiplier_key(collateral_token), precision::FLOAT_PRECISION);
     data_store.set_u256(keys::max_oracle_ref_price_deviation_factor(), max_u256);
 
     let usdc_price = Price { min: 1000000, max: 1000000 };
@@ -375,9 +347,7 @@ fn given_normal_conditions_when_create_execute_liquidation_then_works() {
 
     let interest_key2 = keys::open_interest_key(market.market_token, collateral_token, true);
     data_store.set_u256(interest_key2, 10000000000);
-    let interest_key3 = keys::open_interest_in_tokens_key(
-        market.market_token, collateral_token, true
-    );
+    let interest_key3 = keys::open_interest_in_tokens_key(market.market_token, collateral_token, true);
     data_store.set_u256(interest_key3, 10000000000);
 
     let current_nonce = nonce_utils::get_current_nonce(data_store);
@@ -454,17 +424,13 @@ fn deploy_event_emitter() -> ContractAddress {
     contract.deploy_at(@array![], deployed_contract_address).unwrap()
 }
 
-fn deploy_order_vault(
-    data_store_address: ContractAddress, role_store_address: ContractAddress
-) -> ContractAddress {
+fn deploy_order_vault(data_store_address: ContractAddress, role_store_address: ContractAddress) -> ContractAddress {
     let contract = declare("OrderVault").unwrap();
 
     let deployed_contract_address = contract_address_const::<'order_vault'>();
     start_cheat_caller_address(deployed_contract_address, admin());
     contract
-        .deploy_at(
-            @array![data_store_address.into(), role_store_address.into()], deployed_contract_address
-        )
+        .deploy_at(@array![data_store_address.into(), role_store_address.into()], deployed_contract_address)
         .unwrap()
 }
 
@@ -498,9 +464,7 @@ fn deploy_liquidation_handler(
 }
 
 fn deploy_oracle(
-    role_store_address: ContractAddress,
-    oracle_store_address: ContractAddress,
-    pragma_address: ContractAddress
+    role_store_address: ContractAddress, oracle_store_address: ContractAddress, pragma_address: ContractAddress
 ) -> ContractAddress {
     let contract = declare("Oracle").unwrap();
 
@@ -514,9 +478,7 @@ fn deploy_oracle(
         .unwrap()
 }
 
-fn deploy_swap_handler(
-    role_store_address: ContractAddress, data_store_address: ContractAddress
-) -> ContractAddress {
+fn deploy_swap_handler(role_store_address: ContractAddress, data_store_address: ContractAddress) -> ContractAddress {
     let contract = declare("SwapHandler").unwrap();
 
     let deployed_contract_address = contract_address_const::<'swap_handler'>();
@@ -539,10 +501,7 @@ fn deploy_oracle_store(
     let deployed_contract_address = contract_address_const::<'oracle_store'>();
     start_cheat_caller_address(deployed_contract_address, admin());
     contract
-        .deploy_at(
-            @array![role_store_address.into(), event_emitter_address.into()],
-            deployed_contract_address
-        )
+        .deploy_at(@array![role_store_address.into(), event_emitter_address.into()], deployed_contract_address)
         .unwrap()
 }
 
@@ -561,43 +520,26 @@ fn deploy_price_feed() -> ContractAddress {
     contract.deploy_at(@array![], deployed_contract_address).unwrap()
 }
 
-fn deploy_signers(
-    signer1: ContractAddress, signer2: ContractAddress
-) -> (ContractAddress, ContractAddress) {
+fn deploy_signers(signer1: ContractAddress, signer2: ContractAddress) -> (ContractAddress, ContractAddress) {
     let contract = declare("MockAccount").unwrap();
-    (
-        contract.deploy_at(@array![], signer1).unwrap(),
-        contract.deploy_at(@array![], signer2).unwrap()
-    )
+    (contract.deploy_at(@array![], signer1).unwrap(), contract.deploy_at(@array![], signer2).unwrap())
 }
 
 
 fn setup_tokens() -> (ContractAddress, ContractAddress, ContractAddress) {
     let contract = declare("ERC20").unwrap();
     let deployed_contract_address: ContractAddress = contract_address_const::<'USDC'>();
-    let mut constructor_calldata = array![
-        'USDC', 'USDC', 10000000000000000000000000000, 0, admin().into()
-    ];
+    let mut constructor_calldata = array!['USDC', 'USDC', 10000000000000000000000000000, 0, admin().into()];
 
-    let usdc_address = contract
-        .deploy_at(@constructor_calldata, deployed_contract_address)
-        .unwrap();
+    let usdc_address = contract.deploy_at(@constructor_calldata, deployed_contract_address).unwrap();
 
     let deployed_contract_address2: ContractAddress = contract_address_const::<'ETH'>();
-    let constructor_calldata2 = array![
-        'ETH', 'ETH', 100000000000000000000000000000, 0, admin().into()
-    ];
-    let eth_address = contract
-        .deploy_at(@constructor_calldata2, deployed_contract_address2)
-        .unwrap();
+    let constructor_calldata2 = array!['ETH', 'ETH', 100000000000000000000000000000, 0, admin().into()];
+    let eth_address = contract.deploy_at(@constructor_calldata2, deployed_contract_address2).unwrap();
 
     let deployed_contract_address3: ContractAddress = contract_address_const::<'FEE'>();
-    let constructor_calldata3 = array![
-        'FEE', 'FEE', 100000000000000000000000000000, 0, admin().into()
-    ];
-    let fee_address = contract
-        .deploy_at(@constructor_calldata3, deployed_contract_address3)
-        .unwrap();
+    let constructor_calldata3 = array!['FEE', 'FEE', 100000000000000000000000000000, 0, admin().into()];
+    let fee_address = contract.deploy_at(@constructor_calldata3, deployed_contract_address3).unwrap();
 
     (usdc_address, eth_address, fee_address)
 }

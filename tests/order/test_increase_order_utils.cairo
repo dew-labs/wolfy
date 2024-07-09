@@ -5,9 +5,7 @@ use satoru::data::data_store::IDataStoreDispatcherTrait;
 use satoru::nonce::nonce_utils::{get_current_nonce, increment_nonce, compute_key};
 use satoru::tests_lib::{setup, teardown};
 use satoru::oracle::oracle::{IOracleSafeDispatcher, IOracleDispatcher, IOracleDispatcherTrait};
-use satoru::order::{
-    error::OrderError, order::{Order, SecondaryOrderType, OrderType, DecreasePositionSwapType},
-};
+use satoru::order::{error::OrderError, order::{Order, SecondaryOrderType, OrderType, DecreasePositionSwapType},};
 use satoru::order::increase_order_utils::{validate_oracle_block_numbers};
 
 // TODO - Add tests for process_order

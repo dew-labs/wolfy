@@ -25,9 +25,7 @@ fn given_normal_conditions_when_set_primary_price_then_works() {
     oracle.set_primary_price(token, price);
 
     let price_from_view = oracle.get_primary_price(token);
-    assert(
-        price_from_view.min == price.min && price_from_view.max == price.max, 'wrong primary price'
-    );
+    assert(price_from_view.min == price.min && price_from_view.max == price.max, 'wrong primary price');
     // teardown
     tests_lib::teardown(data_store.contract_address);
 }
@@ -201,21 +199,10 @@ fn setup() -> (ContractAddress, IDataStoreDispatcher, IEventEmitterDispatcher, I
     role_store.grant_role(order_keeper, role::ORDER_KEEPER);
     oracle_store.add_signer(contract_address_const::<'signer'>());
     start_cheat_caller_address(data_store_address, caller_address);
+    data_store.set_u256(keys::price_feed_multiplier_key(contract_address_const::<'ETH'>()), precision::FLOAT_PRECISION);
     data_store
-        .set_u256(
-            keys::price_feed_multiplier_key(contract_address_const::<'ETH'>()),
-            precision::FLOAT_PRECISION
-        );
-    data_store
-        .set_u256(
-            keys::price_feed_multiplier_key(contract_address_const::<'USDC'>()),
-            precision::FLOAT_PRECISION
-        );
-    data_store
-        .set_u256(
-            keys::price_feed_multiplier_key(contract_address_const::<'DAI'>()),
-            precision::FLOAT_PRECISION
-        );
+        .set_u256(keys::price_feed_multiplier_key(contract_address_const::<'USDC'>()), precision::FLOAT_PRECISION);
+    data_store.set_u256(keys::price_feed_multiplier_key(contract_address_const::<'DAI'>()), precision::FLOAT_PRECISION);
     data_store.set_u256(keys::max_oracle_ref_price_deviation_factor(), precision::FLOAT_PRECISION);
     (caller_address, data_store, event_emitter, oracle)
 }
@@ -229,23 +216,17 @@ fn deploy_price_feed() -> ContractAddress {
 }
 
 fn deploy_oracle(
-    oracle_store_address: ContractAddress,
-    role_store_address: ContractAddress,
-    pragma_address: ContractAddress
+    oracle_store_address: ContractAddress, role_store_address: ContractAddress, pragma_address: ContractAddress
 ) -> ContractAddress {
     let contract = declare("Oracle").unwrap();
     let caller_address: ContractAddress = contract_address_const::<'caller'>();
     let deployed_contract_address = contract_address_const::<'oracle'>();
     start_cheat_caller_address(deployed_contract_address, caller_address);
-    let constructor_calldata = array![
-        role_store_address.into(), oracle_store_address.into(), pragma_address.into()
-    ];
+    let constructor_calldata = array![role_store_address.into(), oracle_store_address.into(), pragma_address.into()];
     contract.deploy_at(@constructor_calldata, deployed_contract_address).unwrap()
 }
 
-fn deploy_oracle_store(
-    role_store_address: ContractAddress, event_emitter_address: ContractAddress
-) -> ContractAddress {
+fn deploy_oracle_store(role_store_address: ContractAddress, event_emitter_address: ContractAddress) -> ContractAddress {
     let contract = declare("OracleStore").unwrap();
     let caller_address: ContractAddress = contract_address_const::<'caller'>();
     let deployed_contract_address = contract_address_const::<'oracle_store'>();

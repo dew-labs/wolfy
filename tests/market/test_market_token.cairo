@@ -1,8 +1,6 @@
 use result::ResultTrait;
 use traits::{TryInto, Into};
-use starknet::{
-    ContractAddress, get_caller_address, Felt252TryIntoContractAddress, contract_address_const
-};
+use starknet::{ContractAddress, get_caller_address, Felt252TryIntoContractAddress, contract_address_const};
 use snforge_std::{declare, start_cheat_caller_address, stop_cheat_caller_address, ContractClassTrait};
 
 
@@ -83,9 +81,7 @@ fn teardown(market_token_address: ContractAddress) {
 }
 
 /// Utility function to deploy a market token and return its address.
-fn deploy_market_token(
-    role_store_address: ContractAddress, data_store_address: ContractAddress
-) -> ContractAddress {
+fn deploy_market_token(role_store_address: ContractAddress, data_store_address: ContractAddress) -> ContractAddress {
     let contract = declare("MarketToken").unwrap();
     let mut constructor_calldata = array![role_store_address.into(), data_store_address.into()];
 

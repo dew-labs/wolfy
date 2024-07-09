@@ -7,11 +7,11 @@
 use result::ResultTrait;
 use debug::PrintTrait;
 use traits::{TryInto, Into};
-use starknet::{
-    ContractAddress, get_caller_address, Felt252TryIntoContractAddress, contract_address_const,
-    ClassHash,
+use starknet::{ContractAddress, get_caller_address, Felt252TryIntoContractAddress, contract_address_const, ClassHash,};
+use snforge_std::{
+    declare, start_cheat_caller_address, stop_cheat_caller_address, start_cheat_block_number, ContractClassTrait,
+    ContractClass
 };
-use snforge_std::{declare, start_cheat_caller_address, stop_cheat_caller_address, start_cheat_block_number, ContractClassTrait, ContractClass};
 
 
 // Local imports.
@@ -24,9 +24,7 @@ use satoru::deposit::deposit_vault::{IDepositVaultDispatcher, IDepositVaultDispa
 use satoru::deposit::deposit::Deposit;
 use satoru::withdrawal::withdrawal::Withdrawal;
 
-use satoru::exchange::withdrawal_handler::{
-    IWithdrawalHandlerDispatcher, IWithdrawalHandlerDispatcherTrait
-};
+use satoru::exchange::withdrawal_handler::{IWithdrawalHandlerDispatcher, IWithdrawalHandlerDispatcherTrait};
 use satoru::exchange::deposit_handler::{IDepositHandlerDispatcher, IDepositHandlerDispatcherTrait};
 use satoru::router::exchange_router::{IExchangeRouterDispatcher, IExchangeRouterDispatcherTrait};
 use satoru::mock::referral_storage::{IReferralStorageDispatcher, IReferralStorageDispatcherTrait};
@@ -43,27 +41,21 @@ use satoru::bank::bank::{IBankDispatcherTrait, IBankDispatcher};
 use satoru::bank::strict_bank::{IStrictBankDispatcher, IStrictBankDispatcherTrait};
 use satoru::token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
 use satoru::oracle::oracle::{IOracleDispatcher, IOracleDispatcherTrait};
-use satoru::withdrawal::withdrawal_vault::{
-    IWithdrawalVaultDispatcher, IWithdrawalVaultDispatcherTrait
-};
+use satoru::withdrawal::withdrawal_vault::{IWithdrawalVaultDispatcher, IWithdrawalVaultDispatcherTrait};
 use satoru::data::keys;
 use satoru::market::market_utils;
 use satoru::price::price::{Price, PriceTrait};
 use satoru::position::position_utils;
 use satoru::withdrawal::withdrawal_utils;
 
-use satoru::exchange::liquidation_handler::{
-    ILiquidationHandlerDispatcher, ILiquidationHandlerDispatcherTrait
-};
+use satoru::exchange::liquidation_handler::{ILiquidationHandlerDispatcher, ILiquidationHandlerDispatcherTrait};
 use satoru::order::order::{Order, OrderType, SecondaryOrderType, DecreasePositionSwapType};
 use satoru::order::order_vault::{IOrderVaultDispatcher, IOrderVaultDispatcherTrait};
 use satoru::order::base_order_utils::{CreateOrderParams};
 use satoru::oracle::oracle_store::{IOracleStoreDispatcher, IOracleStoreDispatcherTrait};
 use satoru::swap::swap_handler::{ISwapHandlerDispatcher, ISwapHandlerDispatcherTrait};
 use satoru::market::{market::{UniqueIdMarketImpl},};
-use satoru::exchange::order_handler::{
-    OrderHandler, IOrderHandlerDispatcher, IOrderHandlerDispatcherTrait
-};
+use satoru::exchange::order_handler::{OrderHandler, IOrderHandlerDispatcher, IOrderHandlerDispatcherTrait};
 use satoru::test_utils::{tests_lib::{setup, create_market, teardown}, deposit_setup::deposit_setup};
 const INITIAL_TOKENS_MINTED: felt252 = 1000;
 
@@ -99,10 +91,8 @@ fn test_short_increase_decrease_close() {
         50000000000000000000000000000, 50000000000000000000000000000
     );
 
-    let balance_caller_ETH = IERC20Dispatcher { contract_address: market.long_token }
-        .balance_of(caller_address);
-    let balance_caller_USDC = IERC20Dispatcher { contract_address: market.short_token }
-        .balance_of(caller_address);
+    let balance_caller_ETH = IERC20Dispatcher { contract_address: market.long_token }.balance_of(caller_address);
+    let balance_caller_USDC = IERC20Dispatcher { contract_address: market.short_token }.balance_of(caller_address);
 
     assert(balance_caller_ETH == 10000000000000000000, 'balanc ETH should be 10 ETH');
     assert(balance_caller_USDC == 50000000000000000000000, 'USDC be 50 000 USDC');
@@ -117,36 +107,21 @@ fn test_short_increase_decrease_close() {
         true,
     );
 
-    assert(
-        pool_value_info.pool_value.mag == 175050000000000000000000000000000, 'wrong pool value 1'
-    );
-    assert(
-        pool_value_info.long_token_amount == 50000000000000000000000000000,
-        'wrong long token amount 1'
-    );
-    assert(
-        pool_value_info.short_token_amount == 50000000000000000000000000000,
-        'wrong short token amount 1'
-    );
+    assert(pool_value_info.pool_value.mag == 175050000000000000000000000000000, 'wrong pool value 1');
+    assert(pool_value_info.long_token_amount == 50000000000000000000000000000, 'wrong long token amount 1');
+    assert(pool_value_info.short_token_amount == 50000000000000000000000000000, 'wrong short token amount 1');
 
     // ************************************* TEST SHORT *********************************************
 
     'Begining of SHORT TEST'.print();
 
-    let key_open_interest = keys::open_interest_key(
-        market.market_token, contract_address_const::<'USDC'>(), false
-    );
+    let key_open_interest = keys::open_interest_key(market.market_token, contract_address_const::<'USDC'>(), false);
     data_store.set_u256(key_open_interest, 1);
     let max_key_open_interest = keys::max_open_interest_key(market.market_token, false);
-    data_store
-        .set_u256(
-            max_key_open_interest, 1000000000000000000000000000000000000000000000000000
-        ); // 1 000 000
+    data_store.set_u256(max_key_open_interest, 1000000000000000000000000000000000000000000000000000); // 1 000 000
 
-    let balance_caller_ETH = IERC20Dispatcher { contract_address: market.long_token }
-        .balance_of(caller_address);
-    let balance_caller_USDC = IERC20Dispatcher { contract_address: market.short_token }
-        .balance_of(caller_address);
+    let balance_caller_ETH = IERC20Dispatcher { contract_address: market.long_token }.balance_of(caller_address);
+    let balance_caller_USDC = IERC20Dispatcher { contract_address: market.short_token }.balance_of(caller_address);
 
     assert(balance_caller_ETH == 10000000000000000000, 'balanc ETH should be 10 ETH');
     assert(balance_caller_USDC == 50000000000000000000000, 'USDC be 50 000 USDC');
@@ -188,10 +163,8 @@ fn test_short_increase_decrease_close() {
     let key_short = exchange_router.create_order(order_params_short);
     'short created'.print();
 
-    let balance_caller_ETH = IERC20Dispatcher { contract_address: market.long_token }
-        .balance_of(caller_address);
-    let balance_caller_USDC = IERC20Dispatcher { contract_address: market.short_token }
-        .balance_of(caller_address);
+    let balance_caller_ETH = IERC20Dispatcher { contract_address: market.long_token }.balance_of(caller_address);
+    let balance_caller_USDC = IERC20Dispatcher { contract_address: market.short_token }.balance_of(caller_address);
 
     assert(balance_caller_ETH == 10000000000000000000, 'balanc ETH caller 10 ETH');
     assert(balance_caller_USDC == 43000000000000000000000, 'USDC be 43 000 USDC');
@@ -210,9 +183,7 @@ fn test_short_increase_decrease_close() {
         compacted_min_prices_indexes: array![0],
         compacted_max_prices: array![3500, 1], // 500000, 10000 compacted
         compacted_max_prices_indexes: array![0],
-        signatures: array![
-            array!['signatures1', 'signatures2'].span(), array!['signatures1', 'signatures2'].span()
-        ],
+        signatures: array![array!['signatures1', 'signatures2'].span(), array!['signatures1', 'signatures2'].span()],
         price_feed_tokens: array![]
     };
 
@@ -233,9 +204,7 @@ fn test_short_increase_decrease_close() {
     assert(first_position.size_in_tokens == 2000000000000000000, 'Size token should be 2 ETH');
     assert(first_position.size_in_usd == 7000000000000000000000, 'Size should be 7000$');
     assert(first_position.borrowing_factor == 0, 'Borrow should be 0');
-    assert(
-        first_position.collateral_amount == 7000000000000000000000, 'Collat should be 7000 USDC'
-    );
+    assert(first_position.collateral_amount == 7000000000000000000000, 'Collat should be 7000 USDC');
     assert(first_position.collateral_token == market.short_token, 'should be USDC');
 
     // Test the PnL if the price goes up
@@ -246,18 +215,14 @@ fn test_short_increase_decrease_close() {
     };
 
     let position_info = reader
-        .get_position_info(
-            data_store, referal_storage, position_key_1, market_prices, 0, contract_address, true
-        );
+        .get_position_info(data_store, referal_storage, position_key_1, market_prices, 0, contract_address, true);
 
     // The sign field is true for negative integers, and false for non-negative integers.
     assert(position_info.base_pnl_usd.sign == true, 'should be negative');
     assert(position_info.base_pnl_usd.mag == 700000000000000000000, 'PnL should be -700$');
 
-    let balance_caller_ETH = IERC20Dispatcher { contract_address: market.long_token }
-        .balance_of(caller_address);
-    let balance_caller_USDC = IERC20Dispatcher { contract_address: market.short_token }
-        .balance_of(caller_address);
+    let balance_caller_ETH = IERC20Dispatcher { contract_address: market.long_token }.balance_of(caller_address);
+    let balance_caller_USDC = IERC20Dispatcher { contract_address: market.short_token }.balance_of(caller_address);
 
     assert(balance_caller_ETH == 10000000000000000000, 'balanc ETH caller 10 ETH');
     assert(balance_caller_USDC == 43000000000000000000000, 'USDC caller 43000 USDC');
@@ -265,14 +230,10 @@ fn test_short_increase_decrease_close() {
     // //////////////////////////////////// CLOSE POSITION //////////////////////////////////////
     'CLOSE POSITION'.print();
 
-    let balance_USDC_bef_close = IERC20Dispatcher {
-        contract_address: contract_address_const::<'USDC'>()
-    }
+    let balance_USDC_bef_close = IERC20Dispatcher { contract_address: contract_address_const::<'USDC'>() }
         .balance_of(caller_address);
 
-    let balance_ETH_bef_close = IERC20Dispatcher {
-        contract_address: contract_address_const::<'ETH'>()
-    }
+    let balance_ETH_bef_close = IERC20Dispatcher { contract_address: contract_address_const::<'ETH'>() }
         .balance_of(caller_address);
 
     let market_prices = market_utils::MarketPrices {
@@ -282,9 +243,7 @@ fn test_short_increase_decrease_close() {
     };
 
     let position_info = reader
-        .get_position_info(
-            data_store, referal_storage, position_key_1, market_prices, 0, contract_address, true
-        );
+        .get_position_info(data_store, referal_storage, position_key_1, market_prices, 0, contract_address, true);
     assert(position_info.base_pnl_usd.mag == 1000000000000000000000, 'PnL should be 1000$');
     assert(position_info.base_pnl_usd.sign == false, 'should be positive');
 
@@ -332,9 +291,7 @@ fn test_short_increase_decrease_close() {
         compacted_min_prices_indexes: array![0],
         compacted_max_prices: array![3000, 1], // 500000, 10000 compacted
         compacted_max_prices_indexes: array![0],
-        signatures: array![
-            array!['signatures1', 'signatures2'].span(), array!['signatures1', 'signatures2'].span()
-        ],
+        signatures: array![array!['signatures1', 'signatures2'].span(), array!['signatures1', 'signatures2'].span()],
         price_feed_tokens: array![]
     };
 
@@ -352,14 +309,10 @@ fn test_short_increase_decrease_close() {
     assert(first_position_close.borrowing_factor == 0, 'Borrow should be 0');
     assert(first_position_close.collateral_amount == 0, 'Collat should be 0');
 
-    let balance_USDC_af_close = IERC20Dispatcher {
-        contract_address: contract_address_const::<'USDC'>()
-    }
+    let balance_USDC_af_close = IERC20Dispatcher { contract_address: contract_address_const::<'USDC'>() }
         .balance_of(caller_address);
 
-    let balance_ETH_af_close = IERC20Dispatcher {
-        contract_address: contract_address_const::<'ETH'>()
-    }
+    let balance_ETH_af_close = IERC20Dispatcher { contract_address: contract_address_const::<'ETH'>() }
         .balance_of(caller_address);
 
     assert(balance_USDC_bef_close == 43000000000000000000000, 'balance USDC bef close 43000$');

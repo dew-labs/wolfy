@@ -1,8 +1,7 @@
 use satoru::data::data_store::IDataStoreDispatcherTrait;
 use satoru::data::keys;
 use satoru::pricing::swap_pricing_utils::{
-    GetPriceImpactUsdParams, get_price_impact_usd_, get_price_impact_usd, get_next_pool_amount_usd,
-    get_swap_fees
+    GetPriceImpactUsdParams, get_price_impact_usd_, get_price_impact_usd, get_next_pool_amount_usd, get_swap_fees
 };
 use satoru::market::market::Market;
 use satoru::utils::calc;
@@ -115,9 +114,7 @@ fn given_normal_conditions_when_get_swap_fees_then_works() {
     // *********************************************************************************************
 
     let amount = 1000;
-    let fees = get_swap_fees(
-        data_store, market_token, amount, for_positive_impact, ui_fee_receiver
-    );
+    let fees = get_swap_fees(data_store, market_token, amount, for_positive_impact, ui_fee_receiver);
 
     assert(fees.fee_receiver_amount == 0, 'invalid');
     assert(fees.fee_amount_for_pool == 0, 'invalid');

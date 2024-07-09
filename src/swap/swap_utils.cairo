@@ -117,12 +117,7 @@ fn swap(params: @SwapParams) -> (ContractAddress, u256) {
         }
         if (params.bank.contract_address != params.receiver) {
             (*params.bank)
-                .transfer_out(
-                    *params.bank.contract_address,
-                    *params.token_in,
-                    *params.receiver,
-                    *params.amount_in
-                );
+                .transfer_out(*params.bank.contract_address, *params.token_in, *params.receiver, *params.amount_in);
         }
         return (*params.token_in, *params.amount_in);
     }
@@ -131,12 +126,7 @@ fn swap(params: @SwapParams) -> (ContractAddress, u256) {
     let first_path: Market = *params.swap_path_markets[0];
     if (params.bank.contract_address != @first_path.market_token) {
         (*params.bank)
-            .transfer_out(
-                *params.bank.contract_address,
-                *params.token_in,
-                first_path.market_token,
-                *params.amount_in
-            );
+            .transfer_out(*params.bank.contract_address, *params.token_in, first_path.market_token, *params.amount_in);
     }
 
     let mut token_out = *params.token_in;
@@ -148,8 +138,7 @@ fn swap(params: @SwapParams) -> (ContractAddress, u256) {
             break;
         }
         let market: Market = *params.swap_path_markets[i];
-        let flag_exists = (*params.data_store)
-            .get_bool(keys::swap_path_market_flag_key(market.market_token));
+        let flag_exists = (*params.data_store).get_bool(keys::swap_path_market_flag_key(market.market_token));
         if (flag_exists) {
             SwapError::DUPLICATED_MARKET_IN_SWAP_PATH(market.market_token);
         }
@@ -197,8 +186,7 @@ fn swap(params: @SwapParams) -> (ContractAddress, u256) {
 /// # Returns
 /// The token and amount that was swapped.
 fn _swap(params: @SwapParams, _params: @_SwapParams) -> (ContractAddress, u256) {
-    if (_params.token_in != _params.market.long_token
-        && _params.token_in != _params.market.short_token) {
+    if (_params.token_in != _params.market.long_token && _params.token_in != _params.market.short_token) {
         SwapError::INVALID_TOKEN_IN(*_params.token_in, *_params.market.long_token);
     }
     let mut cache: SwapCache = Default::default();
@@ -208,8 +196,7 @@ fn _swap(params: @SwapParams, _params: @_SwapParams) -> (ContractAddress, u256) 
     cache.token_in_price = (*params.oracle).get_primary_price(*_params.token_in);
     cache.token_out_price = (*params.oracle).get_primary_price(cache.token_out);
 
-    let _usd_delta_for_token_felt252: felt252 = (*_params.amount_in
-        * cache.token_out_price.mid_price())
+    let _usd_delta_for_token_felt252: felt252 = (*_params.amount_in * cache.token_out_price.mid_price())
         .try_into()
         .expect('u256 into felt failed');
 
@@ -294,9 +281,7 @@ fn _swap(params: @SwapParams, _params: @_SwapParams) -> (ContractAddress, u256) 
             );
 
         if fees.amount_after_fees <= calc::to_unsigned(i256_neg(price_impact_amount)) {
-            SwapError::SWAP_PRICE_IMPACT_EXCEEDS_AMOUNT_IN(
-                fees.amount_after_fees, price_impact_amount
-            );
+            SwapError::SWAP_PRICE_IMPACT_EXCEEDS_AMOUNT_IN(fees.amount_after_fees, price_impact_amount);
         }
 
         cache.amount_in = fees.amount_after_fees - calc::to_unsigned(i256_neg(price_impact_amount));
@@ -307,9 +292,7 @@ fn _swap(params: @SwapParams, _params: @_SwapParams) -> (ContractAddress, u256) 
     // the amountOut value includes the positive price impact amount
     if (_params.receiver != _params.market.market_token) {
         IBankDispatcher { contract_address: *_params.market.market_token }
-            .transfer_out(
-                *_params.market.market_token, cache.token_out, *_params.receiver, cache.amount_out
-            );
+            .transfer_out(*_params.market.market_token, cache.token_out, *_params.receiver, cache.amount_out);
     }
 
     market_utils::apply_delta_to_pool_amount(
@@ -347,10 +330,7 @@ fn _swap(params: @SwapParams, _params: @_SwapParams) -> (ContractAddress, u256) 
     market_utils::validate_reserve(
         *params.data_store, _params.market, @prices, cache.token_out == *_params.market.long_token
     );
-    let (_pnl_factor_type_for_longs, _pnl_factor_type_for_shorts) = if (cache
-        .token_out == *_params
-        .market
-        .long_token) {
+    let (_pnl_factor_type_for_longs, _pnl_factor_type_for_shorts) = if (cache.token_out == *_params.market.long_token) {
         (keys::max_pnl_factor_for_deposits(), keys::max_pnl_factor_for_withdrawals())
     } else {
         (keys::max_pnl_factor_for_withdrawals(), keys::max_pnl_factor_for_deposits())

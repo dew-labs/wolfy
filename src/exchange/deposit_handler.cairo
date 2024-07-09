@@ -23,9 +23,7 @@ trait IDepositHandler<TContractState> {
     /// * `params` - The parameters used to create the deposit.
     /// # Returns
     /// The key of where the deposit is stored.
-    fn create_deposit(
-        ref self: TContractState, account: ContractAddress, params: CreateDepositParams
-    ) -> felt252;
+    fn create_deposit(ref self: TContractState, account: ContractAddress, params: CreateDepositParams) -> felt252;
 
     /// Cancels a deposit.
     /// # Arguments
@@ -42,9 +40,7 @@ trait IDepositHandler<TContractState> {
     /// # Arguments
     /// * `key` - The key of the deposit to execute.
     /// * `oracle_params` - The oracle params to set prices before simulation.
-    fn simulate_execute_deposit(
-        ref self: TContractState, key: felt252, params: SimulatePricesParams
-    );
+    fn simulate_execute_deposit(ref self: TContractState, key: felt252, params: SimulatePricesParams);
 
     /// Executes a deposit with keeper.
     /// # Arguments
@@ -52,10 +48,7 @@ trait IDepositHandler<TContractState> {
     /// * `oracle_params` - The oracle params to set prices before execution.
     /// * `keeper` - The keeper executing the deposit.
     fn execute_deposit_keeper(
-        ref self: TContractState,
-        key: felt252,
-        oracle_params: SetPricesParams,
-        keeper: ContractAddress
+        ref self: TContractState, key: felt252, oracle_params: SetPricesParams, keeper: ContractAddress
     );
 }
 
@@ -83,8 +76,7 @@ mod DepositHandler {
     use satoru::swap::swap_handler::{ISwapHandlerDispatcher, ISwapHandlerDispatcherTrait};
     use satoru::market::market::Market;
     use satoru::deposit::{
-        deposit_utils::CreateDepositParams,
-        deposit_vault::{IDepositVaultDispatcher, IDepositVaultDispatcherTrait}
+        deposit_utils::CreateDepositParams, deposit_vault::{IDepositVaultDispatcher, IDepositVaultDispatcherTrait}
     };
     use satoru::deposit::deposit_utils;
     use satoru::feature::feature_utils;
@@ -134,12 +126,8 @@ mod DepositHandler {
     ) {
         self.data_store.write(IDataStoreDispatcher { contract_address: data_store_address });
         self.role_store.write(IRoleStoreDispatcher { contract_address: role_store_address });
-        self
-            .event_emitter
-            .write(IEventEmitterDispatcher { contract_address: event_emitter_address });
-        self
-            .deposit_vault
-            .write(IDepositVaultDispatcher { contract_address: deposit_vault_address });
+        self.event_emitter.write(IEventEmitterDispatcher { contract_address: event_emitter_address });
+        self.deposit_vault.write(IDepositVaultDispatcher { contract_address: deposit_vault_address });
         self.oracle.write(IOracleDispatcher { contract_address: oracle_address });
     }
 
@@ -149,9 +137,7 @@ mod DepositHandler {
     // *************************************************************************
     #[abi(embed_v0)]
     impl DepositHandlerImpl of super::IDepositHandler<ContractState> {
-        fn create_deposit(
-            ref self: ContractState, account: ContractAddress, params: CreateDepositParams
-        ) -> felt252 {
+        fn create_deposit(ref self: ContractState, account: ContractAddress, params: CreateDepositParams) -> felt252 {
             let state: RoleModule::ContractState = RoleModule::unsafe_new_contract_state();
             IRoleModule::only_controller(@state);
 
@@ -159,16 +145,11 @@ mod DepositHandler {
             global_reentrancy_guard::non_reentrant_before(data_store);
 
             feature_utils::validate_feature(
-                self.data_store.read(),
-                keys::create_deposit_feature_disabled_key(get_contract_address())
+                self.data_store.read(), keys::create_deposit_feature_disabled_key(get_contract_address())
             );
 
             let key = deposit_utils::create_deposit(
-                self.data_store.read(),
-                self.event_emitter.read(),
-                self.deposit_vault.read(),
-                account,
-                params
+                self.data_store.read(), self.event_emitter.read(), self.deposit_vault.read(), account, params
             );
 
             global_reentrancy_guard::non_reentrant_after(data_store);
@@ -190,9 +171,7 @@ mod DepositHandler {
             feature_utils::validate_feature(
                 data_store, keys::cancel_deposit_feature_disabled_key(get_contract_address())
             );
-            exchange_utils::validate_request_cancellation(
-                data_store, deposit.updated_at_block, 'Deposit'
-            );
+            exchange_utils::validate_request_cancellation(data_store, deposit.updated_at_block, 'Deposit');
 
             deposit_utils::cancel_deposit(
                 data_store,
@@ -216,9 +195,7 @@ mod DepositHandler {
             let oracle = self.oracle.read();
             let event_emitter = self.event_emitter.read();
             // global_reentrancy_guard::non_reentrant_before(data_store);
-            oracle_modules::with_oracle_prices_before(
-                oracle, data_store, event_emitter, @oracle_params
-            );
+            oracle_modules::with_oracle_prices_before(oracle, data_store, event_emitter, @oracle_params);
 
             // let starting_gas = gas_left();
             let _execution_gas = gas_utils::get_execution_gas(data_store, 0);
@@ -229,9 +206,7 @@ mod DepositHandler {
         // global_reentrancy_guard::non_reentrant_after(data_store);
         }
 
-        fn simulate_execute_deposit(
-            ref self: ContractState, key: felt252, params: SimulatePricesParams
-        ) {
+        fn simulate_execute_deposit(ref self: ContractState, key: felt252, params: SimulatePricesParams) {
             let state: RoleModule::ContractState = RoleModule::unsafe_new_contract_state();
             IRoleModule::only_controller(@state);
 
@@ -249,10 +224,7 @@ mod DepositHandler {
         }
 
         fn execute_deposit_keeper(
-            ref self: ContractState,
-            key: felt252,
-            oracle_params: SetPricesParams,
-            keeper: ContractAddress
+            ref self: ContractState, key: felt252, oracle_params: SetPricesParams, keeper: ContractAddress
         ) {
             // let starting_gas = gas_left();
             let data_store = self.data_store.read();

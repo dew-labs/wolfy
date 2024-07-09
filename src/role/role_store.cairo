@@ -64,9 +64,7 @@ trait IRoleStore<TContractState> {
     /// `end` - The end index, the value for this index will not be included.
     /// # Return
     /// The members of the role.
-    fn get_role_members(
-        self: @TContractState, role_key: felt252, start: u32, end: u32
-    ) -> Array<ContractAddress>;
+    fn get_role_members(self: @TContractState, role_key: felt252, start: u32, end: u32) -> Array<ContractAddress>;
 }
 
 #[starknet::contract]

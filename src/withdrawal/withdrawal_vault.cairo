@@ -16,11 +16,7 @@ trait IWithdrawalVault<TContractState> {
     /// # Arguments
     /// * `data_store_address` - The address of the data store contract.
     /// * `role_store_address` - The address of the role store contract.
-    fn initialize(
-        ref self: TContractState,
-        data_store_address: ContractAddress,
-        role_store_address: ContractAddress,
-    );
+    fn initialize(ref self: TContractState, data_store_address: ContractAddress, role_store_address: ContractAddress,);
 
     /// Transfer tokens from this contract to a receiver.
     /// # Arguments
@@ -89,11 +85,7 @@ mod WithdrawalVault {
     /// * `role_store_address` - The address of the role store contract.
     /// * `data_store_address` - The address of the data store contract.
     #[constructor]
-    fn constructor(
-        ref self: ContractState,
-        data_store_address: ContractAddress,
-        role_store_address: ContractAddress,
-    ) {
+    fn constructor(ref self: ContractState, data_store_address: ContractAddress, role_store_address: ContractAddress,) {
         self.data_store.write(IDataStoreDispatcher { contract_address: data_store_address });
         self.role_store.write(IRoleStoreDispatcher { contract_address: role_store_address });
     }
@@ -104,9 +96,7 @@ mod WithdrawalVault {
     #[abi(embed_v0)]
     impl BankImpl of super::IWithdrawalVault<ContractState> {
         fn initialize(
-            ref self: ContractState,
-            data_store_address: ContractAddress,
-            role_store_address: ContractAddress,
+            ref self: ContractState, data_store_address: ContractAddress, role_store_address: ContractAddress,
         ) {
             let mut state: StrictBank::ContractState = StrictBank::unsafe_new_contract_state();
             IStrictBank::initialize(ref state, data_store_address, role_store_address);

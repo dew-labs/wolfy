@@ -57,9 +57,7 @@ fn decrease_position(mut params: UpdatePositionParams) -> DecreasePositionResult
     cache.prices = market_utils::get_market_prices(params.contracts.oracle, params.market);
     cache
         .collateral_token_price =
-            market_utils::get_cached_token_price(
-                params.order.initial_collateral_token, params.market, cache.prices
-            );
+            market_utils::get_cached_token_price(params.order.initial_collateral_token, params.market, cache.prices);
 
     // cap the order size to the position size
     if (params.order.size_delta_usd > params.position.size_in_usd) {
@@ -73,9 +71,7 @@ fn decrease_position(mut params: UpdatePositionParams) -> DecreasePositionResult
                 );
             params.order.size_delta_usd = params.position.size_in_usd;
         } else {
-            PositionError::INVALID_DECREASE_ORDER_SIZE(
-                params.order.size_delta_usd, params.position.size_in_usd
-            );
+            PositionError::INVALID_DECREASE_ORDER_SIZE(params.order.size_delta_usd, params.position.size_in_usd);
         }
     }
 
@@ -84,22 +80,15 @@ fn decrease_position(mut params: UpdatePositionParams) -> DecreasePositionResult
     if (params.order.size_delta_usd < params.position.size_in_usd) {
         let (estimated_position_pnl_usd, _uncapped_base_pnl_usd, _size_delta_in_tokens) =
             position_utils::get_position_pnl_usd(
-            params.contracts.data_store,
-            params.market,
-            cache.prices,
-            params.position,
-            params.position.size_in_usd
+            params.contracts.data_store, params.market, cache.prices, params.position, params.position.size_in_usd
         );
         cache.estimated_position_pnl_usd = estimated_position_pnl_usd;
         cache
             .estimated_realized_pnl_usd =
                 precision::mul_div_ival(
-                    cache.estimated_position_pnl_usd,
-                    params.order.size_delta_usd,
-                    params.position.size_in_usd
+                    cache.estimated_position_pnl_usd, params.order.size_delta_usd, params.position.size_in_usd
                 );
-        cache.estimated_remaining_pnl_usd = cache.estimated_position_pnl_usd
-            - cache.estimated_realized_pnl_usd;
+        cache.estimated_remaining_pnl_usd = cache.estimated_position_pnl_usd - cache.estimated_realized_pnl_usd;
         let position_values = position_utils::WillPositionCollateralBeSufficientValues {
             position_size_in_usd: params.position.size_in_usd - params.order.size_delta_usd,
             position_collateral_amount: params.position.collateral_amount
@@ -138,10 +127,7 @@ fn decrease_position(mut params: UpdatePositionParams) -> DecreasePositionResult
             // should be added back to the estimated_remaining_collateral_usd
 
             estimated_remaining_collateral_usd +=
-                to_signed(
-                    params.order.initial_collateral_delta_amount * cache.collateral_token_price.min,
-                    true
-                );
+                to_signed(params.order.initial_collateral_delta_amount * cache.collateral_token_price.min, true);
 
             params.order.initial_collateral_delta_amount = 0;
         }
@@ -245,11 +231,7 @@ fn decrease_position(mut params: UpdatePositionParams) -> DecreasePositionResult
         params.contracts.data_store.remove_position(params.position_key, params.order.account);
     } else {
         params.position.borrowing_factor = cache.next_position_borrowing_factor;
-        params
-            .position
-            .funding_fee_amount_per_size = fees
-            .funding
-            .latest_funding_fee_amount_per_size;
+        params.position.funding_fee_amount_per_size = fees.funding.latest_funding_fee_amount_per_size;
         params
             .position
             .long_token_claimable_funding_amount_per_size = fees
@@ -273,9 +255,7 @@ fn decrease_position(mut params: UpdatePositionParams) -> DecreasePositionResult
     );
 
     position_utils::update_open_interest(
-        params,
-        to_signed(params.order.size_delta_usd, false),
-        to_signed(values.size_delta_in_tokens, false)
+        params, to_signed(params.order.size_delta_usd, false), to_signed(values.size_delta_in_tokens, false)
     );
 
     // affiliate rewards are still distributed even if the order is a liquidation order

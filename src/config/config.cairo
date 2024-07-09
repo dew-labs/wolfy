@@ -23,18 +23,14 @@ trait IConfig<TContractState> {
     /// * `base_key` - The base key of the value to set.
     /// * `data` - The additional data to be combined with the base key.
     /// * `value` - The value to set.
-    fn set_address(
-        ref self: TContractState, base_key: felt252, data: Array<felt252>, value: ContractAddress,
-    );
+    fn set_address(ref self: TContractState, base_key: felt252, data: Array<felt252>, value: ContractAddress,);
 
     /// Set a felt252 value.
     /// # Arguments
     /// * `base_key` - The base key of the value to set.
     /// * `data` - The additional data to be combined with the base key.
     /// * `value` - The value to set.
-    fn set_felt252(
-        ref self: TContractState, base_key: felt252, data: Array<felt252>, value: felt252,
-    );
+    fn set_felt252(ref self: TContractState, base_key: felt252, data: Array<felt252>, value: felt252,);
 }
 
 #[starknet::contract]
@@ -87,9 +83,7 @@ mod Config {
     ) {
         self.role_store.write(IRoleStoreDispatcher { contract_address: role_store_address });
         self.data_store.write(IDataStoreDispatcher { contract_address: data_store_address });
-        self
-            .event_emitter
-            .write(IEventEmitterDispatcher { contract_address: event_emitter_address });
+        self.event_emitter.write(IEventEmitterDispatcher { contract_address: event_emitter_address });
         // Initialize the allowed base keys.
         self.init_allowed_base_keys();
     }
@@ -99,9 +93,7 @@ mod Config {
     // *************************************************************************
     #[abi(embed_v0)]
     impl ConfigImpl of super::IConfig<ContractState> {
-        fn set_bool(
-            ref self: ContractState, base_key: felt252, data: Array<felt252>, value: bool,
-        ) {
+        fn set_bool(ref self: ContractState, base_key: felt252, data: Array<felt252>, value: bool,) {
             // Check that the caller has the `CONFIG_KEEPER` role.
             self.role_store.read().assert_only_role(get_caller_address(), role::CONFIG_KEEPER);
             // Validate the base key.
@@ -112,12 +104,7 @@ mod Config {
             self.data_store.read().set_bool(full_key, value);
         }
 
-        fn set_address(
-            ref self: ContractState,
-            base_key: felt252,
-            data: Array<felt252>,
-            value: ContractAddress,
-        ) {
+        fn set_address(ref self: ContractState, base_key: felt252, data: Array<felt252>, value: ContractAddress,) {
             // Check that the caller has the `CONFIG_KEEPER` role.
             self.role_store.read().assert_only_role(get_caller_address(), role::CONFIG_KEEPER);
             // Validate the base key.
@@ -128,9 +115,7 @@ mod Config {
             self.data_store.read().set_address(full_key, value);
         }
 
-        fn set_felt252(
-            ref self: ContractState, base_key: felt252, data: Array<felt252>, value: felt252,
-        ) {
+        fn set_felt252(ref self: ContractState, base_key: felt252, data: Array<felt252>, value: felt252,) {
             // Check that the caller has the `CONFIG_KEEPER` role.
             self.role_store.read().assert_only_role(get_caller_address(), role::CONFIG_KEEPER);
             // Validate the base key.
@@ -156,9 +141,7 @@ mod Config {
             self.allowed_based_keys.write(keys::max_callback_gas_limit(), true);
 
             self.allowed_based_keys.write(keys::min_position_size_usd(), true);
-            self
-                .allowed_based_keys
-                .write(keys::max_position_impact_factor_for_liquidations(), true);
+            self.allowed_based_keys.write(keys::max_position_impact_factor_for_liquidations(), true);
 
             self.allowed_based_keys.write(keys::max_pool_amount(), true);
             self.allowed_based_keys.write(keys::max_open_interest(), true);
@@ -206,9 +189,7 @@ mod Config {
 
             self.allowed_based_keys.write(keys::request_expiration_block_age(), true);
             self.allowed_based_keys.write(keys::min_collateral_factor(), true);
-            self
-                .allowed_based_keys
-                .write(keys::min_collateral_factor_for_open_interest_multiplier(), true);
+            self.allowed_based_keys.write(keys::min_collateral_factor_for_open_interest_multiplier(), true);
             self.allowed_based_keys.write(keys::min_collateral_usd(), true);
 
             self.allowed_based_keys.write(keys::virtual_token_id(), true);

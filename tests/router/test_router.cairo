@@ -31,16 +31,10 @@ fn given_normal_conditions_when_transfer_then_expected_results() {
 
     // Transfer tokens from the sender address to the receiver address.
     start_cheat_caller_address(router.contract_address, caller_address);
-    router
-        .plugin_transfer(
-            test_token.contract_address, sender_address, receiver_address, transfer_amount
-        );
+    router.plugin_transfer(test_token.contract_address, sender_address, receiver_address, transfer_amount);
 
     // Assert that the tokens have been transfered.
-    assert(
-        test_token.balance_of(receiver_address) == transfer_amount.into(),
-        'unexp. receiver final balance'
-    );
+    assert(test_token.balance_of(receiver_address) == transfer_amount.into(), 'unexp. receiver final balance');
     assert(
         sender_initial_balance - transfer_amount.into() == test_token.balance_of(sender_address),
         'unexp. sender final balance'
@@ -76,10 +70,7 @@ fn given_bad_caller_when_transfer_then_fail() {
     start_cheat_caller_address(router.contract_address, receiver_address);
     // Try to ransfer tokens from the sender address to the receiver address.
     // We expect this call to panic with `unauthorized_access`.
-    router
-        .plugin_transfer(
-            test_token.contract_address, sender_address, receiver_address, transfer_amount
-        );
+    router.plugin_transfer(test_token.contract_address, sender_address, receiver_address, transfer_amount);
 
     // *********************************************************************************************
     // *                              TEARDOWN                                                     *

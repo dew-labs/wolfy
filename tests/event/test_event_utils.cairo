@@ -8,14 +8,12 @@ use starknet::{
     contract_address_const
 };
 use satoru::event::event_utils::{
-    Felt252IntoBool, Felt252IntoContractAddress, I256252DictValue, ContractAddressDictValue,
-    LogData, LogDataTrait, U256252DictValue, U256IntoFelt252
+    Felt252IntoBool, Felt252IntoContractAddress, I256252DictValue, ContractAddressDictValue, LogData, LogDataTrait,
+    U256252DictValue, U256IntoFelt252
 };
 use satoru::utils::traits::{ContractAddressDefault};
 use traits::Default;
-use satoru::utils::serializable_dict::{
-    Item, ItemTrait, SerializableFelt252Dict, SerializableFelt252DictTrait,
-};
+use satoru::utils::serializable_dict::{Item, ItemTrait, SerializableFelt252Dict, SerializableFelt252DictTrait,};
 
 // *********************************************************************************************
 // *                                      TEST LOGIC                                           *
@@ -69,9 +67,7 @@ fn test_log_data_multiple_types() {
     let mut log_data: LogData = Default::default();
 
     let arr_to_add: Array<ContractAddress> = array![
-        contract_address_const::<'cairo'>(),
-        contract_address_const::<'starknet'>(),
-        contract_address_const::<'rust'>()
+        contract_address_const::<'cairo'>(), contract_address_const::<'starknet'>(), contract_address_const::<'rust'>()
     ];
 
     // try to add unique
@@ -83,10 +79,7 @@ fn test_log_data_multiple_types() {
     let addr_value = addr_item.unwrap_single();
     assert(addr_value == contract_address_const::<0>(), 'addr value wrong');
 
-    let addr_span_item: Item = log_data
-        .address_dict
-        .get('test_arr')
-        .expect('key should be in dict');
+    let addr_span_item: Item = log_data.address_dict.get('test_arr').expect('key should be in dict');
     let out_span: Span<ContractAddress> = addr_span_item.unwrap_span();
     assert(out_span.at(0) == arr_to_add.at(0), 'wrong at idx 0');
     assert(out_span.at(1) == arr_to_add.at(1), 'wrong at idx 1');
@@ -102,16 +95,13 @@ fn test_log_data_serialization() {
     log_data.felt252_dict.insert_single('felt_test', 1);
     log_data.felt252_dict.insert_single('felt_test_two', 2);
     log_data.string_dict.insert_single('string_test', 'hello world');
-    log_data
-        .string_dict
-        .insert_span('string_arr_test', array!['hello', 'world', 'from', 'starknet'].span());
+    log_data.string_dict.insert_span('string_arr_test', array!['hello', 'world', 'from', 'starknet'].span());
 
     // serialize the data
     let mut serialized_data = log_data.serialize_into().span();
 
     // deserialize
-    let mut d_log_data: LogData = LogDataTrait::deserialize(ref serialized_data)
-        .expect('err while deserializing');
+    let mut d_log_data: LogData = LogDataTrait::deserialize(ref serialized_data).expect('err while deserializing');
 
     // Check the values inserted before
     // addr dict
@@ -149,13 +139,7 @@ fn test_log_data_serialization() {
 use debug::PrintTrait;
 
 fn assert_same_single_value_for_dicts<
-    T,
-    +Felt252DictValue<T>,
-    +Drop<T>,
-    +Copy<T>,
-    +Into<felt252, T>,
-    +Into<T, felt252>,
-    +PartialEq<T>,
+    T, +Felt252DictValue<T>, +Drop<T>, +Copy<T>, +Into<felt252, T>, +Into<T, felt252>, +PartialEq<T>,
 >(
     ref lhs: SerializableFelt252Dict<T>, ref rhs: SerializableFelt252Dict<T>, key: felt252
 ) {

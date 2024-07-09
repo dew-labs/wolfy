@@ -4,9 +4,7 @@
 //                                  IMPORTS
 // *************************************************************************
 // Core lib imports.
-use starknet::{
-    ContractAddress, get_caller_address, Felt252TryIntoContractAddress, contract_address_const
-};
+use starknet::{ContractAddress, get_caller_address, Felt252TryIntoContractAddress, contract_address_const};
 use snforge_std::{
     declare, start_cheat_caller_address, stop_cheat_caller_address, start_mock_call, test_address, ContractClassTrait
 };
@@ -32,9 +30,7 @@ use satoru::utils::span32::{Span32, Array32};
 use satoru::market::market::{Market, UniqueIdMarketImpl};
 
 use satoru::exchange::base_order_handler::BaseOrderHandler;
-use satoru::exchange::base_order_handler::{
-    IBaseOrderHandlerDispatcher, IBaseOrderHandlerDispatcherTrait
-};
+use satoru::exchange::base_order_handler::{IBaseOrderHandlerDispatcher, IBaseOrderHandlerDispatcherTrait};
 
 // *********************************************************************************************
 // *                                      TEST LOGIC                                           *
@@ -92,12 +88,7 @@ fn given_normal_conditions_when_get_execute_order_params_then_works() {
 
     // test call
     let execute_order_params = BaseOrderHandler::InternalImpl::get_execute_order_params(
-        ref base_order_handler_state,
-        key,
-        set_prices_params,
-        caller_address,
-        starting_gas,
-        secondary_order_type
+        ref base_order_handler_state, key, set_prices_params, caller_address, starting_gas, secondary_order_type
     );
 
     // assertions
@@ -112,21 +103,12 @@ fn given_normal_conditions_when_get_execute_order_params_then_works() {
     );
     assert(execute_order_params.key == key, 'wrong key');
     assert(execute_order_params.order == Default::default(), 'wrong order');
-    assert(
-        *execute_order_params.min_oracle_block_numbers.at(0) == 6301,
-        'wrong_min_oracle_block_numbers'
-    );
-    assert(
-        *execute_order_params.max_oracle_block_numbers.at(0) == 6400,
-        'wrong max_oracle_block_numbers'
-    );
+    assert(*execute_order_params.min_oracle_block_numbers.at(0) == 6301, 'wrong_min_oracle_block_numbers');
+    assert(*execute_order_params.max_oracle_block_numbers.at(0) == 6400, 'wrong max_oracle_block_numbers');
     assert(execute_order_params.market == Default::default(), 'wrong execute_order_params');
     assert(execute_order_params.keeper == caller_address, 'wrong keeper');
     assert(execute_order_params.starting_gas == starting_gas, 'wrong starting_gas');
-    assert(
-        execute_order_params.secondary_order_type == secondary_order_type,
-        'wrong secondary_order_type'
-    );
+    assert(execute_order_params.secondary_order_type == secondary_order_type, 'wrong secondary_order_type');
 
     // teardown
     tests_lib::teardown(data_store.contract_address);
@@ -153,12 +135,7 @@ fn given_non_found_order_when_get_execute_order_params_then_returns_empty_order(
     let secondary_order_type = SecondaryOrderType::Adl(());
 
     let execute_order_params = BaseOrderHandler::InternalImpl::get_execute_order_params(
-        ref base_order_handler_state,
-        key,
-        set_prices_params,
-        caller_address,
-        starting_gas,
-        secondary_order_type
+        ref base_order_handler_state, key, set_prices_params, caller_address, starting_gas, secondary_order_type
     );
 
     assert(execute_order_params.order.account.is_zero(), 'order shouldnt exists');
@@ -182,16 +159,11 @@ fn _assert_contracts_are_equals(
     referral_storage_address: ContractAddress
 ) {
     assert(contracts.data_store.contract_address == data_store_address, 'wrong data_store');
-    assert(
-        contracts.event_emitter.contract_address == event_emitter_address, 'wrong event_emitter'
-    );
+    assert(contracts.event_emitter.contract_address == event_emitter_address, 'wrong event_emitter');
     assert(contracts.order_vault.contract_address == order_vault_address, 'wrong order_vault');
     assert(contracts.oracle.contract_address == oracle_address, 'wrong oracle');
     assert(contracts.swap_handler.contract_address == swap_handler_address, 'wrong swap_handler');
-    assert(
-        contracts.referral_storage.contract_address == referral_storage_address,
-        'wrong referral_storage'
-    );
+    assert(contracts.referral_storage.contract_address == referral_storage_address, 'wrong referral_storage');
 }
 
 // *********************************************************************************************
@@ -201,12 +173,7 @@ fn mock_market() -> Market {
     let address_zero = contract_address_const::<0>();
     let key = contract_address_const::<123456789>();
 
-    Market {
-        market_token: key,
-        index_token: address_zero,
-        long_token: address_zero,
-        short_token: address_zero,
-    }
+    Market { market_token: key, index_token: address_zero, long_token: address_zero, short_token: address_zero, }
 }
 
 fn mock_key() -> felt252 {
@@ -217,9 +184,7 @@ fn mock_set_prices_params() -> SetPricesParams {
     SetPricesParams {
         signer_info: 1,
         tokens: array![
-            contract_address_const::<'ETH'>(),
-            contract_address_const::<'USDC'>(),
-            contract_address_const::<'DAI'>()
+            contract_address_const::<'ETH'>(), contract_address_const::<'USDC'>(), contract_address_const::<'DAI'>()
         ],
         compacted_min_oracle_block_numbers: array![6301, 6301, 6301],
         compacted_max_oracle_block_numbers: array![6400, 6400, 6400],
@@ -231,9 +196,7 @@ fn mock_set_prices_params() -> SetPricesParams {
         compacted_max_prices_indexes: array![1, 2, 3],
         signatures: array![array!['signatures'].span()],
         price_feed_tokens: array![
-            contract_address_const::<'ETH'>(),
-            contract_address_const::<'USDC'>(),
-            contract_address_const::<'DAI'>()
+            contract_address_const::<'ETH'>(), contract_address_const::<'USDC'>(), contract_address_const::<'DAI'>()
         ]
     }
 }
@@ -242,9 +205,7 @@ fn mock_swap_path() -> Span32<ContractAddress> {
     array![contract_address_const::<'ETH'>(), contract_address_const::<'DAI'>()].span32()
 }
 
-fn mock_order(
-    key: felt252, market_address: ContractAddress, swap_path: Span32<ContractAddress>
-) -> Order {
+fn mock_order(key: felt252, market_address: ContractAddress, swap_path: Span32<ContractAddress>) -> Order {
     Order {
         key,
         order_type: OrderType::StopLossDecrease,
@@ -294,21 +255,16 @@ fn setup_contracts() -> (
     IReferralStorageDispatcher,
     BaseOrderHandler::ContractState
 ) {
-    let (caller_address, role_store, data_store, event_emitter, oracle) =
-        tests_lib::setup_oracle_and_store();
+    let (caller_address, role_store, data_store, event_emitter, oracle) = tests_lib::setup_oracle_and_store();
 
-    let order_vault_address = deploy_order_vault(
-        data_store.contract_address, role_store.contract_address
-    );
+    let order_vault_address = deploy_order_vault(data_store.contract_address, role_store.contract_address);
     let order_vault = IOrderVaultDispatcher { contract_address: order_vault_address };
 
     let swap_handler_address = deploy_swap_handler(role_store.contract_address);
     let swap_handler = ISwapHandlerDispatcher { contract_address: swap_handler_address };
 
     let referral_storage_address = deploy_referral_storage(event_emitter.contract_address);
-    let referral_storage = IReferralStorageDispatcher {
-        contract_address: referral_storage_address
-    };
+    let referral_storage = IReferralStorageDispatcher { contract_address: referral_storage_address };
 
     let base_order_handler_state = setup_base_order_handler_state(
         data_store.contract_address,
@@ -361,9 +317,7 @@ fn setup_base_order_handler_state(
 }
 
 /// Utility function to deploy an `OrderVault` contract and return its address.
-fn deploy_order_vault(
-    data_store_address: ContractAddress, role_store_address: ContractAddress,
-) -> ContractAddress {
+fn deploy_order_vault(data_store_address: ContractAddress, role_store_address: ContractAddress,) -> ContractAddress {
     let contract = declare("OrderVault").unwrap();
     let mut constructor_calldata = array![];
     constructor_calldata.append(data_store_address.into());

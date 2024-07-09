@@ -11,18 +11,12 @@ trait IMarketToken<TState> {
     fn balance_of(self: @TState, account: ContractAddress) -> u256;
     fn allowance(self: @TState, owner: ContractAddress, spender: ContractAddress) -> u256;
     fn transfer(ref self: TState, recipient: ContractAddress, amount: u256) -> bool;
-    fn transfer_from(
-        ref self: TState, sender: ContractAddress, recipient: ContractAddress, amount: u256
-    ) -> bool;
+    fn transfer_from(ref self: TState, sender: ContractAddress, recipient: ContractAddress, amount: u256) -> bool;
     fn approve(ref self: TState, spender: ContractAddress, amount: u256) -> bool;
     fn mint(ref self: TState, recipient: ContractAddress, amount: u256);
     fn burn(ref self: TState, recipient: ContractAddress, amount: u256);
     fn transfer_out(
-        ref self: TState,
-        sender: ContractAddress,
-        token: ContractAddress,
-        receiver: ContractAddress,
-        amount: u256,
+        ref self: TState, sender: ContractAddress, token: ContractAddress, receiver: ContractAddress, amount: u256,
     );
 }
 
@@ -74,11 +68,7 @@ mod MarketToken {
     }
 
     #[constructor]
-    fn constructor(
-        ref self: ContractState,
-        role_store_address: ContractAddress,
-        data_store_address: ContractAddress
-    ) {
+    fn constructor(ref self: ContractState, role_store_address: ContractAddress, data_store_address: ContractAddress) {
         self.initializer(NAME, SYMBOL);
 
         let mut bank: Bank::ContractState = Bank::unsafe_new_contract_state();
@@ -110,9 +100,7 @@ mod MarketToken {
             self.balances.read(account)
         }
 
-        fn allowance(
-            self: @ContractState, owner: ContractAddress, spender: ContractAddress
-        ) -> u256 {
+        fn allowance(self: @ContractState, owner: ContractAddress, spender: ContractAddress) -> u256 {
             self.allowances.read((owner, spender))
         }
 
@@ -123,10 +111,7 @@ mod MarketToken {
         }
 
         fn transfer_from(
-            ref self: ContractState,
-            sender: ContractAddress,
-            recipient: ContractAddress,
-            amount: u256
+            ref self: ContractState, sender: ContractAddress, recipient: ContractAddress, amount: u256
         ) -> bool {
             let caller = get_caller_address();
             self._spend_allowance(sender, caller, amount);
@@ -150,8 +135,7 @@ mod MarketToken {
 
         fn burn(ref self: ContractState, recipient: ContractAddress, amount: u256) {
             // Check that the caller has permission to set the value.
-            let mut role_module: RoleModule::ContractState =
-                RoleModule::unsafe_new_contract_state();
+            let mut role_module: RoleModule::ContractState = RoleModule::unsafe_new_contract_state();
             role_module.only_controller();
             self._burn(recipient, amount);
         }
@@ -168,30 +152,22 @@ mod MarketToken {
     }
 
     #[external(v0)]
-    fn increase_allowance(
-        ref self: ContractState, spender: ContractAddress, added_value: u256
-    ) -> bool {
+    fn increase_allowance(ref self: ContractState, spender: ContractAddress, added_value: u256) -> bool {
         self._increase_allowance(spender, added_value)
     }
 
     #[external(v0)]
-    fn increaseAllowance(
-        ref self: ContractState, spender: ContractAddress, addedValue: u256
-    ) -> bool {
+    fn increaseAllowance(ref self: ContractState, spender: ContractAddress, addedValue: u256) -> bool {
         increase_allowance(ref self, spender, addedValue)
     }
 
     #[external(v0)]
-    fn decrease_allowance(
-        ref self: ContractState, spender: ContractAddress, subtracted_value: u256
-    ) -> bool {
+    fn decrease_allowance(ref self: ContractState, spender: ContractAddress, subtracted_value: u256) -> bool {
         self._decrease_allowance(spender, subtracted_value)
     }
 
     #[external(v0)]
-    fn decreaseAllowance(
-        ref self: ContractState, spender: ContractAddress, subtractedValue: u256
-    ) -> bool {
+    fn decreaseAllowance(ref self: ContractState, spender: ContractAddress, subtractedValue: u256) -> bool {
         decrease_allowance(ref self, spender, subtractedValue)
     }
 
@@ -206,22 +182,15 @@ mod MarketToken {
             self.symbol.write(symbol_);
         }
 
-        fn _increase_allowance(
-            ref self: ContractState, spender: ContractAddress, added_value: u256
-        ) -> bool {
+        fn _increase_allowance(ref self: ContractState, spender: ContractAddress, added_value: u256) -> bool {
             let caller = get_caller_address();
             self._approve(caller, spender, self.allowances.read((caller, spender)) + added_value);
             true
         }
 
-        fn _decrease_allowance(
-            ref self: ContractState, spender: ContractAddress, subtracted_value: u256
-        ) -> bool {
+        fn _decrease_allowance(ref self: ContractState, spender: ContractAddress, subtracted_value: u256) -> bool {
             let caller = get_caller_address();
-            self
-                ._approve(
-                    caller, spender, self.allowances.read((caller, spender)) - subtracted_value
-                );
+            self._approve(caller, spender, self.allowances.read((caller, spender)) - subtracted_value);
             true
         }
 
@@ -239,21 +208,14 @@ mod MarketToken {
             self.emit(Transfer { from: account, to: Zeroable::zero(), value: amount });
         }
 
-        fn _approve(
-            ref self: ContractState, owner: ContractAddress, spender: ContractAddress, amount: u256
-        ) {
+        fn _approve(ref self: ContractState, owner: ContractAddress, spender: ContractAddress, amount: u256) {
             assert(!owner.is_zero(), 'ERC20: approve from 0');
             assert(!spender.is_zero(), 'ERC20: approve to 0');
             self.allowances.write((owner, spender), amount);
             self.emit(Approval { owner, spender, value: amount });
         }
 
-        fn _transfer(
-            ref self: ContractState,
-            sender: ContractAddress,
-            recipient: ContractAddress,
-            amount: u256
-        ) {
+        fn _transfer(ref self: ContractState, sender: ContractAddress, recipient: ContractAddress, amount: u256) {
             assert(!sender.is_zero(), 'ERC20: transfer from 0');
             assert(!recipient.is_zero(), 'ERC20: transfer to 0');
             self.balances.write(sender, self.balances.read(sender) - amount);
@@ -261,9 +223,7 @@ mod MarketToken {
             self.emit(Transfer { from: sender, to: recipient, value: amount });
         }
 
-        fn _spend_allowance(
-            ref self: ContractState, owner: ContractAddress, spender: ContractAddress, amount: u256
-        ) {
+        fn _spend_allowance(ref self: ContractState, owner: ContractAddress, spender: ContractAddress, amount: u256) {
             let current_allowance = self.allowances.read((owner, spender));
             if current_allowance != BoundedInt::max() {
                 self._approve(owner, spender, current_allowance - amount);

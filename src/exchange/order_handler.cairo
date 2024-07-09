@@ -21,9 +21,7 @@ trait IOrderHandler<TContractState> {
     /// * `params` - The parameters used to create the order.
     /// # Returns
     /// The key of where the order is stored.
-    fn create_order(
-        ref self: TContractState, account: ContractAddress, params: CreateOrderParams
-    ) -> felt252;
+    fn create_order(ref self: TContractState, account: ContractAddress, params: CreateOrderParams) -> felt252;
 
     /// Updates the given order with the specified size delta, acceptable price, and trigger price.
     /// The `updateOrder()` feature must be enabled for the given order type. The caller must be the owner
@@ -80,10 +78,7 @@ trait IOrderHandler<TContractState> {
     /// * `oracle_params` - The oracle params to set prices before execution.
     /// * `keeper` - The keeper executing the order.
     fn execute_order_keeper(
-        ref self: TContractState,
-        key: felt252,
-        oracle_params: SetPricesParams,
-        keeper: ContractAddress
+        ref self: TContractState, key: felt252, oracle_params: SetPricesParams, keeper: ContractAddress
     );
 
     /// Simulates execution of an order to check for any error.
@@ -126,12 +121,8 @@ mod OrderHandler {
     // use satoru::exchange::exchange_utils;
     use satoru::exchange::base_order_handler::{IBaseOrderHandler, BaseOrderHandler};
     use satoru::exchange::base_order_handler::BaseOrderHandler::{
-        role_storeContractMemberStateTrait,
-        data_storeContractMemberStateTrait,
-        event_emitterContractMemberStateTrait,
-        order_vaultContractMemberStateTrait,
-        referral_storageContractMemberStateTrait,
-        oracleContractMemberStateTrait,
+        role_storeContractMemberStateTrait, data_storeContractMemberStateTrait, event_emitterContractMemberStateTrait,
+        order_vaultContractMemberStateTrait, referral_storageContractMemberStateTrait, oracleContractMemberStateTrait,
         InternalTrait as BaseOrderHandleInternalTrait,
     };
     use satoru::feature::feature_utils::{validate_feature};
@@ -181,8 +172,7 @@ mod OrderHandler {
         decrease_order_utils_class_hash: ClassHash,
         swap_order_utils_class_hash: ClassHash,
     ) {
-        let mut state: BaseOrderHandler::ContractState =
-            BaseOrderHandler::unsafe_new_contract_state();
+        let mut state: BaseOrderHandler::ContractState = BaseOrderHandler::unsafe_new_contract_state();
         IBaseOrderHandler::initialize(
             ref state,
             data_store_address,
@@ -205,9 +195,7 @@ mod OrderHandler {
     // *************************************************************************
     #[abi(embed_v0)]
     impl OrderHandlerImpl of super::IOrderHandler<ContractState> {
-        fn create_order(
-            ref self: ContractState, account: ContractAddress, params: CreateOrderParams
-        ) -> felt252 {
+        fn create_order(ref self: ContractState, account: ContractAddress, params: CreateOrderParams) -> felt252 {
             // Check only controller.
             // let role_module_state = RoleModule::unsafe_new_contract_state(); // TODO uncomment role
             // role_module_state.only_controller();
@@ -218,10 +206,7 @@ mod OrderHandler {
             non_reentrant_before(data_store);
 
             // Validate feature and create order.
-            validate_feature(
-                data_store,
-                create_order_feature_disabled_key(get_contract_address(), params.order_type)
-            );
+            validate_feature(data_store, create_order_feature_disabled_key(get_contract_address(), params.order_type));
             let key = base_order_handler_state
                 .order_utils_lib
                 .read()
@@ -261,17 +246,12 @@ mod OrderHandler {
         }
 
         fn execute_order_keeper(
-            ref self: ContractState,
-            key: felt252,
-            oracle_params: SetPricesParams,
-            keeper: ContractAddress
+            ref self: ContractState, key: felt252, oracle_params: SetPricesParams, keeper: ContractAddress
         ) {
             self._execute_order(key, oracle_params, keeper);
         }
 
-        fn simulate_execute_order(
-            ref self: ContractState, key: felt252, params: SimulatePricesParams
-        ) {
+        fn simulate_execute_order(ref self: ContractState, key: felt252, params: SimulatePricesParams) {
             // Check only order keeper.
             let role_module_state = RoleModule::unsafe_new_contract_state();
             role_module_state.only_order_keeper();
@@ -303,12 +283,7 @@ mod OrderHandler {
         /// * `key` - The key of the order to execute.
         /// * `oracle_params` - The oracle params to set prices before execution.
         /// * `keeper` - The keeper executing the order.
-        fn _execute_order(
-            self: @ContractState,
-            key: felt252,
-            oracle_params: SetPricesParams,
-            keeper: ContractAddress
-        ) {
+        fn _execute_order(self: @ContractState, key: felt252, oracle_params: SetPricesParams, keeper: ContractAddress) {
             let starting_gas: u256 = 100000; // TODO: Get starting gas from Cairo.
 
             // Check only self.
@@ -317,9 +292,7 @@ mod OrderHandler {
 
             let mut base_order_handler_state = BaseOrderHandler::unsafe_new_contract_state();
             let params = base_order_handler_state
-                .get_execute_order_params(
-                    key, oracle_params, keeper, starting_gas, SecondaryOrderType::None(()),
-                );
+                .get_execute_order_params(key, oracle_params, keeper, starting_gas, SecondaryOrderType::None(()),);
 
             if params.order.is_frozen || params.order.order_type == OrderType::LimitSwap(()) {
                 self._validate_state_frozen_order_keeper(keeper);
@@ -342,10 +315,7 @@ mod OrderHandler {
             let mut base_order_handler_state = BaseOrderHandler::unsafe_new_contract_state();
             let role_store = base_order_handler_state.role_store.read();
 
-            assert(
-                role_store.has_role(keeper, FROZEN_ORDER_KEEPER),
-                OrderError::INVALID_FROZEN_ORDER_KEEPER
-            );
+            assert(role_store.has_role(keeper, FROZEN_ORDER_KEEPER), OrderError::INVALID_FROZEN_ORDER_KEEPER);
         }
     }
 }

@@ -9,9 +9,8 @@ use satoru::role::{
     role_module::{IRoleModuleDispatcher, IRoleModuleDispatcherTrait},
     role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait},
     role::{
-        ROLE_ADMIN, TIMELOCK_ADMIN, TIMELOCK_MULTISIG, CONFIG_KEEPER, CONTROLLER, ROUTER_PLUGIN,
-        MARKET_KEEPER, FEE_KEEPER, ORDER_KEEPER, FROZEN_ORDER_KEEPER, PRICING_KEEPER,
-        LIQUIDATION_KEEPER, ADL_KEEPER
+        ROLE_ADMIN, TIMELOCK_ADMIN, TIMELOCK_MULTISIG, CONFIG_KEEPER, CONTROLLER, ROUTER_PLUGIN, MARKET_KEEPER,
+        FEE_KEEPER, ORDER_KEEPER, FROZEN_ORDER_KEEPER, PRICING_KEEPER, LIQUIDATION_KEEPER, ADL_KEEPER
     }
 };
 
@@ -588,15 +587,11 @@ fn given_not_adl_keeper_when_only_adl_keeper_then_works() {
     teardown();
 }
 
-fn setup() -> (
-    // This caller address will be used with `start_cheat_caller_address` cheatcode to mock the caller address.,
-    IRoleStoreDispatcher, // Interface to interact with the `MarketToken` contract.
-    IRoleModuleDispatcher,
-) {
+fn setup() -> (// This caller address will be used with `start_cheat_caller_address` cheatcode to mock the caller address.,
+IRoleStoreDispatcher, // Interface to interact with the `MarketToken` contract.
+ IRoleModuleDispatcher,) {
     let role_store = IRoleStoreDispatcher { contract_address: deploy_role_store() };
-    let role_module = IRoleModuleDispatcher {
-        contract_address: deploy_role_module(role_store.contract_address)
-    };
+    let role_module = IRoleModuleDispatcher { contract_address: deploy_role_module(role_store.contract_address) };
 
     (role_store, role_module)
 }

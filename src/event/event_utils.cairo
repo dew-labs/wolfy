@@ -128,9 +128,7 @@ impl LogDataImpl of LogDataTrait {
 
         // Deserialize all dicts one by one
         let mut serialized_dict = get_next_dict_serialized(ref serialized);
-        let address_dict = SerializableFelt252DictTrait::<
-            ContractAddress
-        >::deserialize(ref serialized_dict)
+        let address_dict = SerializableFelt252DictTrait::<ContractAddress>::deserialize(ref serialized_dict)
             .expect('deserialize err address');
 
         let mut serialized_dict = get_next_dict_serialized(ref serialized);
@@ -154,9 +152,7 @@ impl LogDataImpl of LogDataTrait {
             .expect('deserialize err string');
 
         // Create the LogData struct with every dicts
-        let log_data: LogData = LogData {
-            address_dict, uint_dict, int_dict, bool_dict, felt252_dict, string_dict
-        };
+        let log_data: LogData = LogData { address_dict, uint_dict, int_dict, bool_dict, felt252_dict, string_dict };
 
         Option::Some(log_data)
     }

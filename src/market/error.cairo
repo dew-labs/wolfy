@@ -4,11 +4,9 @@ mod MarketError {
     const MARKET_NOT_FOUND: felt252 = 'market_not_found';
     const DIVISOR_CANNOT_BE_ZERO: felt252 = 'zero_divisor';
     const INVALID_MARKET_PARAMS: felt252 = 'invalid_market_params';
-    const OPEN_INTEREST_CANNOT_BE_UPDATED_FOR_SWAP_ONLY_MARKET: felt252 =
-        'oi_not_updated_swap_only_market';
+    const OPEN_INTEREST_CANNOT_BE_UPDATED_FOR_SWAP_ONLY_MARKET: felt252 = 'oi_not_updated_swap_only_market';
     const INVALID_SWAP_MARKET: felt252 = 'invalid_swap_market';
-    const EMPTY_ADDRESS_IN_MARKET_TOKEN_BALANCE_VALIDATION: felt252 =
-        'empty_addr_market_balance_val';
+    const EMPTY_ADDRESS_IN_MARKET_TOKEN_BALANCE_VALIDATION: felt252 = 'empty_addr_market_balance_val';
     const EMPTY_ADDRESS_TOKEN_BALANCE_VAL: felt252 = 'empty_addr_token_balance_val';
     const INVALID_MARKET_TOKEN_BALANCE: felt252 = 'invalid_market_token_balance';
     const INVALID_POSITION_MARKET: felt252 = 'invalid_position_market';
@@ -22,9 +20,7 @@ mod MarketError {
     }
 
     fn EMPTY_MARKET_TOKEN_SUPPLY(supply: u256) {
-        panic(
-            array!['empty_market_token_supply', supply.try_into().expect('u256 into felt failed')]
-        )
+        panic(array!['empty_market_token_supply', supply.try_into().expect('u256 into felt failed')])
     }
 
     fn INVALID_MARKET_COLLATERAL_TOKEN(market: ContractAddress, token: ContractAddress) {
@@ -32,12 +28,7 @@ mod MarketError {
     }
 
     fn UNABLE_TO_GET_FUNDING_FACTOR_EMPTY_OPEN_INTEREST(total_open_interest: u256) {
-        panic(
-            array![
-                'unable_to_get_funding_factor',
-                total_open_interest.try_into().expect('u256 into felt failed')
-            ]
-        )
+        panic(array!['unable_to_get_funding_factor', total_open_interest.try_into().expect('u256 into felt failed')])
     }
 
     fn MAX_SWAP_PATH_LENGTH_EXCEEDED(token_swap_path_length: u32, max_swap_path_length: u256) {
@@ -78,9 +69,7 @@ mod MarketError {
         )
     }
 
-    fn INVALID_MARKET_TOKEN_BALANCE_FOR_CLAIMABLE_FUNDING(
-        balance: u256, claimable_funding_fee_amount: u256
-    ) {
+    fn INVALID_MARKET_TOKEN_BALANCE_FOR_CLAIMABLE_FUNDING(balance: u256, claimable_funding_fee_amount: u256) {
         panic(
             array![
                 'invalid_mrkt_tkn_balance_clm',
@@ -91,12 +80,7 @@ mod MarketError {
     }
 
     fn UNABLE_TO_GET_BORROWING_FACTOR_EMPTY_POOL_USD(pool_usd: u256) {
-        panic(
-            array![
-                'unable_to_get_borrowing_factor',
-                pool_usd.try_into().expect('u256 into felt failed')
-            ]
-        )
+        panic(array!['unable_to_get_borrowing_factor', pool_usd.try_into().expect('u256 into felt failed')])
     }
 
     fn MAX_OPEN_INTEREST_EXCEDEED(open_interest: u256, max_open_interest: u256) {

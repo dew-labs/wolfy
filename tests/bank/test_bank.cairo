@@ -16,12 +16,7 @@ use satoru::role::role;
 // *                              SETUP                                                        *
 // *********************************************************************************************
 fn setup() -> (
-    ContractAddress,
-    ContractAddress,
-    IRoleStoreDispatcher,
-    IDataStoreDispatcher,
-    IBankDispatcher,
-    IERC20Dispatcher
+    ContractAddress, ContractAddress, IRoleStoreDispatcher, IDataStoreDispatcher, IBankDispatcher, IERC20Dispatcher
 ) {
     // deploy role store
     let caller_address: ContractAddress = contract_address_const::<'caller'>();
@@ -31,28 +26,20 @@ fn setup() -> (
     let role_store_contract_address = role_store_contract
         .deploy_at(@array![caller_address.into()], role_store_address)
         .unwrap();
-    let role_store_dispatcher = IRoleStoreDispatcher {
-        contract_address: role_store_contract_address
-    };
+    let role_store_dispatcher = IRoleStoreDispatcher { contract_address: role_store_contract_address };
 
     // deploy data_store
     let data_store_contract = declare("DataStore").unwrap();
     let constructor_calldata1 = array![role_store_contract_address.into()];
     let data_store_contract_address = data_store_contract.deploy(@constructor_calldata1).unwrap();
-    let data_store_dispatcher = IDataStoreDispatcher {
-        contract_address: data_store_contract_address
-    };
+    let data_store_dispatcher = IDataStoreDispatcher { contract_address: data_store_contract_address };
 
     // deploy bank
     let bank_contract = declare("Bank").unwrap();
-    let constructor_calldata2 = array![
-        data_store_contract_address.into(), role_store_contract_address.into()
-    ];
+    let constructor_calldata2 = array![data_store_contract_address.into(), role_store_contract_address.into()];
     let bank_address = contract_address_const::<'bank'>();
     start_cheat_caller_address(bank_address, caller_address);
-    let bank_contract_address = bank_contract
-        .deploy_at(@constructor_calldata2, bank_address)
-        .unwrap();
+    let bank_contract_address = bank_contract.deploy_at(@constructor_calldata2, bank_address).unwrap();
     let bank_dispatcher = IBankDispatcher { contract_address: bank_contract_address };
 
     // deploy erc20 token

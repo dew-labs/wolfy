@@ -1,12 +1,9 @@
 use starknet::{ContractAddress, contract_address_const};
 use snforge_std::{
-    declare, ContractClassTrait, spy_events, SpyOn, EventSpy, EventFetcher, event_name_hash, Event,
-    EventAssertions
+    declare, ContractClassTrait, spy_events, SpyOn, EventSpy, EventFetcher, event_name_hash, Event, EventAssertions
 };
 
-use satoru::event::event_emitter::{
-    EventEmitter, IEventEmitterDispatcher, IEventEmitterDispatcherTrait
-};
+use satoru::event::event_emitter::{EventEmitter, IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
 
 use satoru::event::event_emitter::EventEmitter::{AffiliateRewardUpdated, AffiliateRewardClaimed};
 
@@ -34,10 +31,7 @@ fn given_normal_conditions_when_emit_affiliate_reward_updated_then_works() {
     let next_pool_value: u256 = 300;
 
     // Emit the event.
-    event_emitter
-        .emit_affiliate_reward_updated(
-            market, token, affiliate, delta, next_value, next_pool_value
-        );
+    event_emitter.emit_affiliate_reward_updated(market, token, affiliate, delta, next_value, next_pool_value);
 
     // Assert the event was emitted.
     spy
@@ -83,8 +77,7 @@ fn given_normal_conditions_when_emit_affiliate_reward_claimed_then_works() {
     let next_pool_value: u256 = 200;
 
     // Emit the event.
-    event_emitter
-        .emit_affiliate_reward_claimed(market, token, affiliate, receiver, amount, next_pool_value);
+    event_emitter.emit_affiliate_reward_claimed(market, token, affiliate, receiver, amount, next_pool_value);
 
     // Assert the event was emitted.
     spy

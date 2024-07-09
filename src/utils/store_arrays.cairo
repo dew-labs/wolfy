@@ -13,15 +13,11 @@ use satoru::market::market::{Market};
 use satoru::price::price::{Price};
 
 impl StoreContractAddressArray of Store<Array<ContractAddress>> {
-    fn read(
-        address_domain: u32, base: StorageBaseAddress
-    ) -> SyscallResult<Array<ContractAddress>> {
+    fn read(address_domain: u32, base: StorageBaseAddress) -> SyscallResult<Array<ContractAddress>> {
         StoreContractAddressArray::read_at_offset(address_domain, base, 0)
     }
 
-    fn write(
-        address_domain: u32, base: StorageBaseAddress, value: Array<ContractAddress>
-    ) -> SyscallResult<()> {
+    fn write(address_domain: u32, base: StorageBaseAddress, value: Array<ContractAddress>) -> SyscallResult<()> {
         StoreContractAddressArray::write_at_offset(address_domain, base, 0, value)
     }
 
@@ -31,8 +27,7 @@ impl StoreContractAddressArray of Store<Array<ContractAddress>> {
         let mut arr: Array<ContractAddress> = array![];
 
         // Read the stored array's length. If the length is superior to 255, the read will fail.
-        let len: u8 = Store::<u8>::read_at_offset(address_domain, base, offset)
-            .expect('read_at_offset failed');
+        let len: u8 = Store::<u8>::read_at_offset(address_domain, base, offset).expect('read_at_offset failed');
         offset += 1;
 
         // Sequentially read all stored elements and append them to the array.
@@ -53,10 +48,7 @@ impl StoreContractAddressArray of Store<Array<ContractAddress>> {
     }
 
     fn write_at_offset(
-        address_domain: u32,
-        base: StorageBaseAddress,
-        mut offset: u8,
-        mut value: Array<ContractAddress>
+        address_domain: u32, base: StorageBaseAddress, mut offset: u8, mut value: Array<ContractAddress>
     ) -> SyscallResult<()> {
         // // Store the length of the array in the first storage slot.
         let len: u8 = value.len().try_into().expect('Storage - Span too large');
@@ -86,20 +78,15 @@ impl StoreMarketArray of Store<Array<Market>> {
         StoreMarketArray::read_at_offset(address_domain, base, 0)
     }
 
-    fn write(
-        address_domain: u32, base: StorageBaseAddress, value: Array<Market>
-    ) -> SyscallResult<()> {
+    fn write(address_domain: u32, base: StorageBaseAddress, value: Array<Market>) -> SyscallResult<()> {
         StoreMarketArray::write_at_offset(address_domain, base, 0, value)
     }
 
-    fn read_at_offset(
-        address_domain: u32, base: StorageBaseAddress, mut offset: u8
-    ) -> SyscallResult<Array<Market>> {
+    fn read_at_offset(address_domain: u32, base: StorageBaseAddress, mut offset: u8) -> SyscallResult<Array<Market>> {
         let mut arr: Array<Market> = array![];
 
         // Read the stored array's length. If the length is superior to 255, the read will fail.
-        let len: u8 = Store::<u8>::read_at_offset(address_domain, base, offset)
-            .expect('read_at_offset failed');
+        let len: u8 = Store::<u8>::read_at_offset(address_domain, base, offset).expect('read_at_offset failed');
         offset += 1;
 
         // Sequentially read all stored elements and append them to the array.
@@ -109,8 +96,7 @@ impl StoreMarketArray of Store<Array<Market>> {
                 break;
             }
 
-            let value = Store::<Market>::read_at_offset(address_domain, base, offset)
-                .expect('read_at_offset failed');
+            let value = Store::<Market>::read_at_offset(address_domain, base, offset).expect('read_at_offset failed');
             arr.append(value);
             offset += Store::<Market>::size();
         };
@@ -150,20 +136,15 @@ impl StoreMarketSpan of Store<Span<Market>> {
         StoreMarketSpan::read_at_offset(address_domain, base, 0)
     }
 
-    fn write(
-        address_domain: u32, base: StorageBaseAddress, value: Span<Market>
-    ) -> SyscallResult<()> {
+    fn write(address_domain: u32, base: StorageBaseAddress, value: Span<Market>) -> SyscallResult<()> {
         StoreMarketSpan::write_at_offset(address_domain, base, 0, value)
     }
 
-    fn read_at_offset(
-        address_domain: u32, base: StorageBaseAddress, mut offset: u8
-    ) -> SyscallResult<Span<Market>> {
+    fn read_at_offset(address_domain: u32, base: StorageBaseAddress, mut offset: u8) -> SyscallResult<Span<Market>> {
         let mut arr: Array<Market> = array![];
 
         // Read the stored array's length. If the length is superior to 255, the read will fail.
-        let len: u8 = Store::<u8>::read_at_offset(address_domain, base, offset)
-            .expect('read_at_offset failed');
+        let len: u8 = Store::<u8>::read_at_offset(address_domain, base, offset).expect('read_at_offset failed');
         offset += 1;
 
         // Sequentially read all stored elements and append them to the array.
@@ -173,8 +154,7 @@ impl StoreMarketSpan of Store<Span<Market>> {
                 break;
             }
 
-            let value = Store::<Market>::read_at_offset(address_domain, base, offset)
-                .expect('read_at_offset failed');
+            let value = Store::<Market>::read_at_offset(address_domain, base, offset).expect('read_at_offset failed');
             arr.append(value);
             offset += Store::<Market>::size();
         };
@@ -214,20 +194,15 @@ impl StorePriceArray of Store<Array<Price>> {
         StorePriceArray::read_at_offset(address_domain, base, 0)
     }
 
-    fn write(
-        address_domain: u32, base: StorageBaseAddress, value: Array<Price>
-    ) -> SyscallResult<()> {
+    fn write(address_domain: u32, base: StorageBaseAddress, value: Array<Price>) -> SyscallResult<()> {
         StorePriceArray::write_at_offset(address_domain, base, 0, value)
     }
 
-    fn read_at_offset(
-        address_domain: u32, base: StorageBaseAddress, mut offset: u8
-    ) -> SyscallResult<Array<Price>> {
+    fn read_at_offset(address_domain: u32, base: StorageBaseAddress, mut offset: u8) -> SyscallResult<Array<Price>> {
         let mut arr: Array<Price> = array![];
 
         // Read the stored array's length. If the length is superior to 255, the read will fail.
-        let len: u8 = Store::<u8>::read_at_offset(address_domain, base, offset)
-            .expect('read_at_offset failed');
+        let len: u8 = Store::<u8>::read_at_offset(address_domain, base, offset).expect('read_at_offset failed');
         offset += 1;
 
         // Sequentially read all stored elements and append them to the array.
@@ -237,8 +212,7 @@ impl StorePriceArray of Store<Array<Price>> {
                 break;
             }
 
-            let value = Store::<Price>::read_at_offset(address_domain, base, offset)
-                .expect('read_at_offset failed');
+            let value = Store::<Price>::read_at_offset(address_domain, base, offset).expect('read_at_offset failed');
             arr.append(value);
             offset += Store::<Price>::size();
         };
@@ -278,20 +252,15 @@ impl StoreU256Array of Store<Array<u256>> {
         StoreU256Array::read_at_offset(address_domain, base, 0)
     }
 
-    fn write(
-        address_domain: u32, base: StorageBaseAddress, value: Array<u256>
-    ) -> SyscallResult<()> {
+    fn write(address_domain: u32, base: StorageBaseAddress, value: Array<u256>) -> SyscallResult<()> {
         StoreU256Array::write_at_offset(address_domain, base, 0, value)
     }
 
-    fn read_at_offset(
-        address_domain: u32, base: StorageBaseAddress, mut offset: u8
-    ) -> SyscallResult<Array<u256>> {
+    fn read_at_offset(address_domain: u32, base: StorageBaseAddress, mut offset: u8) -> SyscallResult<Array<u256>> {
         let mut arr: Array<u256> = array![];
 
         // Read the stored array's length. If the length is superior to 255, the read will fail.
-        let len: u8 = Store::<u8>::read_at_offset(address_domain, base, offset)
-            .expect('read_at_offset failed');
+        let len: u8 = Store::<u8>::read_at_offset(address_domain, base, offset).expect('read_at_offset failed');
         offset += 1;
 
         // Sequentially read all stored elements and append them to the array.
@@ -301,8 +270,7 @@ impl StoreU256Array of Store<Array<u256>> {
                 break;
             }
 
-            let value = Store::<u256>::read_at_offset(address_domain, base, offset)
-                .expect('read_at_offset failed');
+            let value = Store::<u256>::read_at_offset(address_domain, base, offset).expect('read_at_offset failed');
             arr.append(value);
             offset += Store::<u256>::size();
         };
@@ -342,20 +310,15 @@ impl StoreU64Array of Store<Array<u64>> {
         StoreU64Array::read_at_offset(address_domain, base, 0)
     }
 
-    fn write(
-        address_domain: u32, base: StorageBaseAddress, value: Array<u64>
-    ) -> SyscallResult<()> {
+    fn write(address_domain: u32, base: StorageBaseAddress, value: Array<u64>) -> SyscallResult<()> {
         StoreU64Array::write_at_offset(address_domain, base, 0, value)
     }
 
-    fn read_at_offset(
-        address_domain: u32, base: StorageBaseAddress, mut offset: u8
-    ) -> SyscallResult<Array<u64>> {
+    fn read_at_offset(address_domain: u32, base: StorageBaseAddress, mut offset: u8) -> SyscallResult<Array<u64>> {
         let mut arr: Array<u64> = array![];
 
         // Read the stored array's length. If the length is superior to 255, the read will fail.
-        let len: u8 = Store::<u8>::read_at_offset(address_domain, base, offset)
-            .expect('read_at_offset failed');
+        let len: u8 = Store::<u8>::read_at_offset(address_domain, base, offset).expect('read_at_offset failed');
         offset += 1;
 
         // Sequentially read all stored elements and append them to the array.
@@ -365,8 +328,7 @@ impl StoreU64Array of Store<Array<u64>> {
                 break;
             }
 
-            let value = Store::<u64>::read_at_offset(address_domain, base, offset)
-                .expect('read_at_offset failed');
+            let value = Store::<u64>::read_at_offset(address_domain, base, offset).expect('read_at_offset failed');
             arr.append(value);
             offset += Store::<u64>::size();
         };
@@ -406,20 +368,15 @@ impl StoreFelt252Array of Store<Array<felt252>> {
         StoreFelt252Array::read_at_offset(address_domain, base, 0)
     }
 
-    fn write(
-        address_domain: u32, base: StorageBaseAddress, value: Array<felt252>
-    ) -> SyscallResult<()> {
+    fn write(address_domain: u32, base: StorageBaseAddress, value: Array<felt252>) -> SyscallResult<()> {
         StoreFelt252Array::write_at_offset(address_domain, base, 0, value)
     }
 
-    fn read_at_offset(
-        address_domain: u32, base: StorageBaseAddress, mut offset: u8
-    ) -> SyscallResult<Array<felt252>> {
+    fn read_at_offset(address_domain: u32, base: StorageBaseAddress, mut offset: u8) -> SyscallResult<Array<felt252>> {
         let mut arr: Array<felt252> = array![];
 
         // Read the stored array's length. If the length is superior to 255, the read will fail.
-        let len: u8 = Store::<u8>::read_at_offset(address_domain, base, offset)
-            .expect('read_at_offset failed');
+        let len: u8 = Store::<u8>::read_at_offset(address_domain, base, offset).expect('read_at_offset failed');
         offset += 1;
 
         // Sequentially read all stored elements and append them to the array.
@@ -429,8 +386,7 @@ impl StoreFelt252Array of Store<Array<felt252>> {
                 break;
             }
 
-            let value = Store::<felt252>::read_at_offset(address_domain, base, offset)
-                .expect('read_at_offset failed');
+            let value = Store::<felt252>::read_at_offset(address_domain, base, offset).expect('read_at_offset failed');
             arr.append(value);
             offset += Store::<felt252>::size();
         };

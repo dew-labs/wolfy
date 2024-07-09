@@ -17,32 +17,19 @@ use satoru::utils::i256::i256;
 // *************************************************************************
 #[starknet::interface]
 trait IDataStore<TContractState> {
-    fn get_max_pool_amount_key(
-        self: @TContractState, market_token: ContractAddress, token: ContractAddress
-    ) -> felt252;
+    fn get_max_pool_amount_key(self: @TContractState, market_token: ContractAddress, token: ContractAddress) -> felt252;
     fn get_open_interest_key(
-        self: @TContractState,
-        market: ContractAddress,
-        collateral_token: ContractAddress,
-        is_long: bool
+        self: @TContractState, market: ContractAddress, collateral_token: ContractAddress, is_long: bool
     ) -> felt252;
-    fn get_max_open_interest_key(
-        self: @TContractState, market: ContractAddress, is_long: bool
-    ) -> felt252;
-    fn get_pool_amount_key(
-        self: @TContractState, market: ContractAddress, token: ContractAddress
-    ) -> felt252;
+    fn get_max_open_interest_key(self: @TContractState, market: ContractAddress, is_long: bool) -> felt252;
+    fn get_pool_amount_key(self: @TContractState, market: ContractAddress, token: ContractAddress) -> felt252;
     fn get_max_pnl_factor_key(
         self: @TContractState, pnl_factor_type: felt252, market: ContractAddress, is_long: bool
     ) -> felt252;
     fn get_max_pnl_factor_for_deposit_key(self: @TContractState) -> felt252;
     fn get_max_pnl_factor_for_withdrawals_key(self: @TContractState) -> felt252;
-    fn get_reserve_factor_key(
-        self: @TContractState, market: ContractAddress, is_long: bool
-    ) -> felt252;
-    fn get_open_interest_reserve_factor_key(
-        self: @TContractState, market: ContractAddress, is_long: bool
-    ) -> felt252;
+    fn get_reserve_factor_key(self: @TContractState, market: ContractAddress, is_long: bool) -> felt252;
+    fn get_open_interest_reserve_factor_key(self: @TContractState, market: ContractAddress, is_long: bool) -> felt252;
 
     // *************************************************************************
     //                      Felt252 related functions.
@@ -115,9 +102,7 @@ trait IDataStore<TContractState> {
     /// * `key` - The key to add the value to.
     /// * `value` - The value to add.
     /// * `error` - The error to throw if result is negative.
-    fn apply_delta_to_u256(
-        ref self: TContractState, key: felt252, value: i256, error: felt252
-    ) -> u256;
+    fn apply_delta_to_u256(ref self: TContractState, key: felt252, value: i256, error: felt252) -> u256;
 
     /// Add the input int value to the existing uint value, prevent the uint
     /// value from becoming negative
@@ -549,23 +534,16 @@ mod DataStore {
         }
 
         fn get_open_interest_key(
-            self: @ContractState,
-            market: ContractAddress,
-            collateral_token: ContractAddress,
-            is_long: bool
+            self: @ContractState, market: ContractAddress, collateral_token: ContractAddress, is_long: bool
         ) -> felt252 {
             keys::open_interest_key(market, collateral_token, is_long)
         }
 
-        fn get_max_open_interest_key(
-            self: @ContractState, market: ContractAddress, is_long: bool
-        ) -> felt252 {
+        fn get_max_open_interest_key(self: @ContractState, market: ContractAddress, is_long: bool) -> felt252 {
             keys::max_open_interest_key(market, is_long)
         }
 
-        fn get_pool_amount_key(
-            self: @ContractState, market: ContractAddress, token: ContractAddress
-        ) -> felt252 {
+        fn get_pool_amount_key(self: @ContractState, market: ContractAddress, token: ContractAddress) -> felt252 {
             keys::pool_amount_key(market, token)
         }
 
@@ -583,9 +561,7 @@ mod DataStore {
             keys::max_pnl_factor_for_withdrawals()
         }
 
-        fn get_reserve_factor_key(
-            self: @ContractState, market: ContractAddress, is_long: bool
-        ) -> felt252 {
+        fn get_reserve_factor_key(self: @ContractState, market: ContractAddress, is_long: bool) -> felt252 {
             keys::reserve_factor_key(market, is_long)
         }
 
@@ -690,9 +666,7 @@ mod DataStore {
             new_value
         }
 
-        fn apply_delta_to_u256(
-            ref self: ContractState, key: felt252, value: i256, error: felt252
-        ) -> u256 {
+        fn apply_delta_to_u256(ref self: ContractState, key: felt252, value: i256, error: felt252) -> u256 {
             // Check that the caller has permission to set the value.
             self.role_store.read().assert_only_role(get_caller_address(), role::CONTROLLER);
 
@@ -829,9 +803,7 @@ mod DataStore {
             }
         }
 
-        fn set_market(
-            ref self: ContractState, key: ContractAddress, salt: felt252, market: Market
-        ) {
+        fn set_market(ref self: ContractState, key: ContractAddress, salt: felt252, market: Market) {
             // Check that the caller has permission to set the value.
             self.role_store.read().assert_only_role(get_caller_address(), role::MARKET_KEEPER);
 
@@ -860,10 +832,7 @@ mod DataStore {
             self.role_store.read().assert_only_role(get_caller_address(), role::MARKET_KEEPER);
             let offsetted_index: usize = self.market_indexes.read(key);
             let mut markets = self.markets.read();
-            assert(
-                offsetted_index != 0 && offsetted_index <= markets.len(),
-                MarketError::MARKET_NOT_FOUND
-            );
+            assert(offsetted_index != 0 && offsetted_index <= markets.len(), MarketError::MARKET_NOT_FOUND);
 
             let index = offsetted_index - 1;
             // Replace the value at `index` by the last market in the list.
@@ -890,9 +859,7 @@ mod DataStore {
             }
         }
 
-        fn get_market_keys(
-            self: @ContractState, start: usize, mut end: usize
-        ) -> Array<ContractAddress> {
+        fn get_market_keys(self: @ContractState, start: usize, mut end: usize) -> Array<ContractAddress> {
             let markets = self.markets.read();
             let mut keys: Array<ContractAddress> = Default::default();
             assert(start <= end, 'start must be <= end');
@@ -988,9 +955,7 @@ mod DataStore {
             self.role_store.read().assert_only_role(get_caller_address(), role::CONTROLLER);
             let offsetted_index: usize = self.order_indexes.read(key);
             let mut orders = self.orders.read();
-            assert(
-                offsetted_index != 0 && offsetted_index <= orders.len(), OrderError::ORDER_NOT_FOUND
-            );
+            assert(offsetted_index != 0 && offsetted_index <= orders.len(), OrderError::ORDER_NOT_FOUND);
 
             let index = offsetted_index - 1;
             // Replace the value at `index` by the last order in the list.
@@ -1125,10 +1090,7 @@ mod DataStore {
             self.role_store.read().assert_only_role(get_caller_address(), role::CONTROLLER);
             let offsetted_index: usize = self.position_indexes.read(key);
             let mut positions = self.positions.read();
-            assert(
-                offsetted_index != 0 && offsetted_index <= positions.len(),
-                PositionError::POSITION_NOT_FOUND
-            );
+            assert(offsetted_index != 0 && offsetted_index <= positions.len(), PositionError::POSITION_NOT_FOUND);
 
             let index = offsetted_index - 1;
             // Replace the value at `index` by the last position in the list.
@@ -1235,9 +1197,7 @@ mod DataStore {
         fn set_withdrawal(ref self: ContractState, key: felt252, withdrawal: Withdrawal) {
             // Check that the caller has permission to set the value.
             self.role_store.read().assert_only_role(get_caller_address(), role::CONTROLLER);
-            assert(
-                withdrawal.account != contract_address_const::<0>(), WithdrawalError::CANT_BE_ZERO
-            );
+            assert(withdrawal.account != contract_address_const::<0>(), WithdrawalError::CANT_BE_ZERO);
 
             let mut withdrawals = self.withdrawals.read();
             let mut account_withdrawals = self.account_withdrawals.read(withdrawal.account);
@@ -1265,10 +1225,7 @@ mod DataStore {
             self.role_store.read().assert_only_role(get_caller_address(), role::CONTROLLER);
             let offsetted_index: usize = self.withdrawal_indexes.read(key);
             let mut withdrawals = self.withdrawals.read();
-            assert(
-                offsetted_index != 0 && offsetted_index <= withdrawals.len(),
-                WithdrawalError::NOT_FOUND
-            );
+            assert(offsetted_index != 0 && offsetted_index <= withdrawals.len(), WithdrawalError::NOT_FOUND);
 
             let index = offsetted_index - 1;
             // Replace the value at `index` by the last withdrawal in the list.
@@ -1296,9 +1253,7 @@ mod DataStore {
                 }
             }
         }
-        fn get_withdrawal_keys(
-            self: @ContractState, start: usize, mut end: usize
-        ) -> Array<felt252> {
+        fn get_withdrawal_keys(self: @ContractState, start: usize, mut end: usize) -> Array<felt252> {
             let withdrawals = self.withdrawals.read();
             let mut keys: Array<felt252> = Default::default();
             assert(start <= end, 'start must be <= end');
@@ -1398,10 +1353,7 @@ mod DataStore {
             self.role_store.read().assert_only_role(get_caller_address(), role::CONTROLLER);
             let offsetted_index: usize = self.deposit_indexes.read(key);
             let mut deposits = self.deposits.read();
-            assert(
-                offsetted_index != 0 && offsetted_index <= deposits.len(),
-                DepositError::DEPOSIT_NOT_FOUND
-            );
+            assert(offsetted_index != 0 && offsetted_index <= deposits.len(), DepositError::DEPOSIT_NOT_FOUND);
 
             let index = offsetted_index - 1;
             // Replace the value at `index` by the last deposit in the list.
@@ -1491,9 +1443,7 @@ mod DataStore {
 
     #[generate_trait]
     impl InternalFunctions of InternalFunctionsTrait {
-        fn _remove_account_withdrawal(
-            ref self: ContractState, key: felt252, account: ContractAddress
-        ) {
+        fn _remove_account_withdrawal(ref self: ContractState, key: felt252, account: ContractAddress) {
             let mut account_withdrawals = self.account_withdrawals.read(account);
             let mut i = 0;
             loop {
@@ -1557,9 +1507,7 @@ mod DataStore {
             }
         }
 
-        fn _remove_account_deposit(
-            ref self: ContractState, key: felt252, account: ContractAddress
-        ) {
+        fn _remove_account_deposit(ref self: ContractState, key: felt252, account: ContractAddress) {
             let mut account_deposits = self.account_deposits.read(account);
             let mut i = 0;
             loop {
@@ -1591,9 +1539,7 @@ mod DataStore {
             }
         }
 
-        fn _remove_account_position(
-            ref self: ContractState, key: felt252, account: ContractAddress
-        ) {
+        fn _remove_account_position(ref self: ContractState, key: felt252, account: ContractAddress) {
             let mut account_positions = self.account_positions.read(account);
             let mut i = 0;
             loop {

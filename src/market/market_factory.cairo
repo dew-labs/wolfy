@@ -31,9 +31,7 @@ trait IMarketFactory<TContractState> {
     /// # Arguments
     /// * `market_token_class_hash` - The class hash of the `MarketToken` contract to
     /// deploy when creating a new market.
-    fn update_market_token_class_hash(
-        ref self: TContractState, market_token_class_hash: ClassHash,
-    );
+    fn update_market_token_class_hash(ref self: TContractState, market_token_class_hash: ClassHash,);
 }
 
 #[starknet::contract]
@@ -92,9 +90,7 @@ mod MarketFactory {
     ) {
         self.data_store.write(IDataStoreDispatcher { contract_address: data_store_address });
         self.role_store.write(IRoleStoreDispatcher { contract_address: role_store_address });
-        self
-            .event_emitter
-            .write(IEventEmitterDispatcher { contract_address: event_emitter_address });
+        self.event_emitter.write(IEventEmitterDispatcher { contract_address: event_emitter_address });
         self.market_token_class_hash.write(market_token_class_hash);
     }
 
@@ -117,16 +113,12 @@ mod MarketFactory {
             self.role_store.read().assert_only_role(caller_address, role::MARKET_KEEPER);
 
             // Compute the salt to use when deploying the `MarketToken` contract.
-            let salt = self
-                .compute_salt_for_deploy_market_token(
-                    index_token, long_token, short_token, market_type,
-                );
+            let salt = self.compute_salt_for_deploy_market_token(index_token, long_token, short_token, market_type,);
 
             // Deploy the `MarketToken` contract.
             // Contructor arguments: [role_store_address, data_store_address].
             let mut constructor_calldata = array![
-                self.role_store.read().contract_address.into(),
-                self.data_store.read().contract_address.into()
+                self.role_store.read().contract_address.into(), self.data_store.read().contract_address.into()
             ];
             // Deploy the contract with the `deploy_syscall`.
             let (market_token_deployed_address, _return_data) = deploy_syscall(
@@ -135,9 +127,7 @@ mod MarketFactory {
                 .expect('failed to deploy market');
 
             // Create the market.
-            let market = Market {
-                market_token: market_token_deployed_address, index_token, long_token, short_token,
-            };
+            let market = Market { market_token: market_token_deployed_address, index_token, long_token, short_token, };
             // Add the market to the data store.
             self.data_store.read().set_market(market_token_deployed_address, salt, market);
 
@@ -146,21 +136,14 @@ mod MarketFactory {
                 .event_emitter
                 .read()
                 .emit_market_created(
-                    caller_address,
-                    market_token_deployed_address,
-                    index_token,
-                    long_token,
-                    short_token,
-                    market_type,
+                    caller_address, market_token_deployed_address, index_token, long_token, short_token, market_type,
                 );
 
             // Return the market token address and the market key.
             market_token_deployed_address
         }
 
-        fn update_market_token_class_hash(
-            ref self: ContractState, market_token_class_hash: ClassHash,
-        ) {
+        fn update_market_token_class_hash(ref self: ContractState, market_token_class_hash: ClassHash,) {
             // Get the caller address.
             let caller_address = get_caller_address();
             // Check that the caller has the `MARKET_KEEPER` role.

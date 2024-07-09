@@ -14,8 +14,8 @@ use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatc
 use satoru::data::keys;
 use satoru::event::event_emitter;
 use satoru::market::{
-    market::Market, error::MarketError, market_pool_value_info::MarketPoolValueInfo,
-    market_store_utils, market_token::{IMarketTokenDispatcher, IMarketTokenDispatcherTrait}
+    market::Market, error::MarketError, market_pool_value_info::MarketPoolValueInfo, market_store_utils,
+    market_token::{IMarketTokenDispatcher, IMarketTokenDispatcherTrait}
 };
 use satoru::utils::span32::{Span32, Span32Trait};
 use satoru::oracle::oracle::{IOracleDispatcher, IOracleDispatcherTrait};
@@ -93,18 +93,10 @@ fn get_market_token_price(
     pnl_factor_type: felt252,
     maximize: bool
 ) -> (i256, MarketPoolValueInfo) {
-    let supply = get_market_token_supply(
-        IMarketTokenDispatcher { contract_address: market.market_token }
-    );
+    let supply = get_market_token_supply(IMarketTokenDispatcher { contract_address: market.market_token });
 
     let pool_value_info = get_pool_value_info(
-        data_store,
-        market,
-        index_token_price,
-        long_token_price,
-        short_token_price,
-        pnl_factor_type,
-        maximize
+        data_store, market, index_token_price, long_token_price, short_token_price, pnl_factor_type, maximize
     );
 
     // if the supply is zero then treat the market token price as 1 USD
@@ -116,9 +108,7 @@ fn get_market_token_price(
         return (Zeroable::zero(), pool_value_info);
     }
 
-    let market_token_price = precision::mul_div_inum(
-        precision::WEI_PRECISION, pool_value_info.pool_value, supply
-    );
+    let market_token_price = precision::mul_div_inum(precision::WEI_PRECISION, pool_value_info.pool_value, supply);
     (market_token_price, pool_value_info)
 }
 
@@ -144,19 +134,11 @@ fn get_opposite_token(input_token: ContractAddress, market: @Market) -> Contract
     } else if input_token == *market.short_token {
         *market.long_token
     } else {
-        panic(
-            array![
-                MarketError::UNABLE_TO_GET_OPPOSITE_TOKEN,
-                input_token.into(),
-                (*market.market_token).into()
-            ]
-        )
+        panic(array![MarketError::UNABLE_TO_GET_OPPOSITE_TOKEN, input_token.into(), (*market.market_token).into()])
     }
 }
 
-fn validate_swap_market_with_address(
-    data_store: IDataStoreDispatcher, market_address: ContractAddress
-) {
+fn validate_swap_market_with_address(data_store: IDataStoreDispatcher, market_address: ContractAddress) {
     let market = data_store.get_market(market_address);
     validate_swap_market(data_store, market);
 }
@@ -214,11 +196,7 @@ fn get_market_prices(oracle: IOracleDispatcher, market: Market) -> MarketPrices 
 /// # Returns
 /// The usd value of either the long or short tokens in the pool.
 fn get_pool_usd_without_pnl(
-    data_store: IDataStoreDispatcher,
-    market: @Market,
-    prices: @MarketPrices,
-    is_long: bool,
-    maximize: bool
+    data_store: IDataStoreDispatcher, market: @Market, prices: @MarketPrices, is_long: bool, maximize: bool
 ) -> u256 {
     let token = if is_long {
         *market.long_token
@@ -278,19 +256,14 @@ fn get_pool_value_info(
 
     let prices = MarketPrices { index_token_price, long_token_price, short_token_price };
 
-    result
-        .total_borrowing_fees = get_total_pending_borrowing_fees(data_store, market, prices, true);
+    result.total_borrowing_fees = get_total_pending_borrowing_fees(data_store, market, prices, true);
 
-    result
-        .total_borrowing_fees +=
-            get_total_pending_borrowing_fees(data_store, market, prices, false);
+    result.total_borrowing_fees += get_total_pending_borrowing_fees(data_store, market, prices, false);
 
     result.borrowing_fee_pool_factor = precision::FLOAT_PRECISION
         - data_store.get_u256(keys::borrowing_fee_receiver_factor());
 
-    let value = precision::apply_factor_u256(
-        result.total_borrowing_fees, result.borrowing_fee_pool_factor
-    );
+    let value = precision::apply_factor_u256(result.total_borrowing_fees, result.borrowing_fee_pool_factor);
     result.pool_value += calc::to_signed(value, true);
 
     // !maximize should be used for net pnl as a larger pnl leads to a smaller pool value
@@ -308,12 +281,7 @@ fn get_pool_value_info(
     result
         .long_pnl =
             get_capped_pnl(
-                data_store,
-                market.market_token,
-                true,
-                result.long_pnl,
-                result.long_token_usd,
-                pnl_factor_type,
+                data_store, market.market_token, true, result.long_pnl, result.long_token_usd, pnl_factor_type,
             );
 
     result.short_pnl = get_pnl(data_store, @market, @index_token_price, false, !maximize);
@@ -321,12 +289,7 @@ fn get_pool_value_info(
     result
         .short_pnl =
             get_capped_pnl(
-                data_store,
-                market.market_token,
-                false,
-                result.short_pnl,
-                result.short_token_usd,
-                pnl_factor_type,
+                data_store, market.market_token, false, result.short_pnl, result.short_token_usd, pnl_factor_type,
             );
 
     result.net_pnl = result.long_pnl + result.short_pnl;
@@ -349,9 +312,7 @@ fn get_pool_value_info(
 /// * `maximize` - Whether to maximize or minimize the net PNL.
 /// # Returns
 /// The net pending pnl for a market
-fn get_net_pnl(
-    data_store: IDataStoreDispatcher, market: @Market, index_token_price: @Price, maximize: bool
-) -> i256 {
+fn get_net_pnl(data_store: IDataStoreDispatcher, market: @Market, index_token_price: @Price, maximize: bool) -> i256 {
     let long_pnl = get_pnl(data_store, market, index_token_price, true, maximize);
     let short_pnl = get_pnl(data_store, market, index_token_price, false, maximize);
     long_pnl + short_pnl
@@ -388,11 +349,7 @@ fn get_capped_pnl(
 }
 
 fn get_pnl_with_u256_price(
-    data_store: IDataStoreDispatcher,
-    market: @Market,
-    index_token_price: u256,
-    is_long: bool,
-    maximize: bool
+    data_store: IDataStoreDispatcher, market: @Market, index_token_price: u256, is_long: bool, maximize: bool
 ) -> i256 {
     let index_token_price_ = Price { min: index_token_price, max: index_token_price };
     get_pnl(data_store, market, @index_token_price_, is_long, maximize)
@@ -408,20 +365,12 @@ fn get_pnl_with_u256_price(
 /// # Returns
 /// The pending PNL for a market for either longs or shorts.
 fn get_pnl(
-    data_store: IDataStoreDispatcher,
-    market: @Market,
-    index_token_price: @Price,
-    is_long: bool,
-    maximize: bool
+    data_store: IDataStoreDispatcher, market: @Market, index_token_price: @Price, is_long: bool, maximize: bool
 ) -> i256 {
     // Get the open interest.
-    let open_interest = calc::to_signed(
-        get_open_interest_for_market_is_long(data_store, market, is_long), true
-    );
+    let open_interest = calc::to_signed(get_open_interest_for_market_is_long(data_store, market, is_long), true);
     // Get the open interest in tokens.
-    let open_interest_in_tokens = get_open_interest_in_tokens_for_market(
-        data_store, market, is_long
-    );
+    let open_interest_in_tokens = get_open_interest_in_tokens_for_market(data_store, market, is_long);
     // If either the open interest or the open interest in tokens is zero, return zero.
     if open_interest == Zeroable::zero() || open_interest_in_tokens == 0 {
         return Zeroable::zero();
@@ -450,9 +399,7 @@ fn get_pnl(
 /// * `token_address` - The token to check.
 /// # Returns
 /// The amount of tokens in the pool.
-fn get_pool_amount(
-    data_store: IDataStoreDispatcher, market: @Market, token_address: ContractAddress
-) -> u256 {
+fn get_pool_amount(data_store: IDataStoreDispatcher, market: @Market, token_address: ContractAddress) -> u256 {
     let divisor = get_pool_divisor(*market.long_token, *market.short_token);
     error_utils::check_division_by_zero(divisor, 'get_pool_amount');
     data_store.get_u256(keys::pool_amount_key(*market.market_token, token_address)) / divisor
@@ -466,9 +413,7 @@ fn get_pool_amount(
 /// # Returns
 /// The maximum amount of tokens allowed to be in the pool.
 fn get_max_pool_amount(
-    data_store: IDataStoreDispatcher,
-    market_address: ContractAddress,
-    token_address: ContractAddress
+    data_store: IDataStoreDispatcher, market_address: ContractAddress, token_address: ContractAddress
 ) -> u256 {
     data_store.get_u256(keys::max_pool_amount_key(market_address, token_address))
 }
@@ -480,9 +425,7 @@ fn get_max_pool_amount(
 /// * `is_long` - Whether this is for the long or short side.
 /// # Returns
 /// The maximum open interest allowed for a market.
-fn get_max_open_interest(
-    data_store: IDataStoreDispatcher, market_address: ContractAddress, is_long: bool
-) -> u256 {
+fn get_max_open_interest(data_store: IDataStoreDispatcher, market_address: ContractAddress, is_long: bool) -> u256 {
     data_store.get_u256(keys::max_open_interest_key(market_address, is_long))
 }
 
@@ -510,9 +453,7 @@ fn increment_claimable_collateral_amount(
     let time_key = current_timestamp / divisor;
 
     // Increment the collateral amount for the account.
-    let key = keys::claimable_collateral_amount_for_account_key(
-        market_address, token, time_key, account
-    );
+    let key = keys::claimable_collateral_amount_for_account_key(market_address, token, time_key, account);
     let next_value = data_store.increment_u256(key, delta);
 
     // Increment the total collateral amount for the market.
@@ -544,19 +485,13 @@ fn increment_claimable_funding_amount(
 ) {
     // Increment the funding amount for the account.
     let next_value = data_store
-        .increment_u256(
-            keys::claimable_funding_amount_by_account_key(market_address, token, account), delta
-        );
+        .increment_u256(keys::claimable_funding_amount_by_account_key(market_address, token, account), delta);
 
     // Increment the total funding amount for the market.
-    let next_pool_value = data_store
-        .increment_u256(keys::claimable_funding_amount_key(market_address, token), delta);
+    let next_pool_value = data_store.increment_u256(keys::claimable_funding_amount_key(market_address, token), delta);
 
     // Emit event.
-    event_emitter
-        .emit_claimable_funding_updated(
-            market_address, token, account, delta, next_value, next_pool_value
-        );
+    event_emitter.emit_claimable_funding_updated(market_address, token, account, delta, next_value, next_pool_value);
 }
 
 /// Claim funding fees
@@ -580,9 +515,7 @@ fn claim_funding_fees(
     data_store.set_u256(key, 0);
 
     let next_pool_value = data_store
-        .decrement_u256(
-            keys::claimable_funding_amount_key(market_address, token), claimable_amount
-        );
+        .decrement_u256(keys::claimable_funding_amount_key(market_address, token), claimable_amount);
 
     // Transfer the amount to the receiver.
     IBankDispatcher { contract_address: market_address }
@@ -592,9 +525,7 @@ fn claim_funding_fees(
     validate_market_token_balance_with_address(data_store, market_address);
 
     event_emitter
-        .emit_funding_fees_claimed(
-            market_address, token, account, receiver, claimable_amount, next_pool_value
-        );
+        .emit_funding_fees_claimed(market_address, token, account, receiver, claimable_amount, next_pool_value);
 
     claimable_amount
 }
@@ -617,18 +548,14 @@ fn claim_collateral(
     account: ContractAddress,
     receiver: ContractAddress
 ) -> u256 {
-    let key = keys::claimable_collateral_amount_for_account_key(
-        market_address, token, time_key, account
-    );
+    let key = keys::claimable_collateral_amount_for_account_key(market_address, token, time_key, account);
     let claimable_amount = data_store.get_u256(key);
     data_store.set_u256(key, 0);
 
     let key = keys::claimable_collateral_factor_key(market_address, token, time_key);
     let claimable_factor_for_time = data_store.get_u256(key);
 
-    let key = keys::claimable_collateral_factor_for_account_key(
-        market_address, token, time_key, account
-    );
+    let key = keys::claimable_collateral_factor_for_account_key(market_address, token, time_key, account);
     let claimable_factor_for_account = data_store.get_u256(key);
 
     let claimable_factor = if claimable_factor_for_time > claimable_factor_for_account {
@@ -640,9 +567,7 @@ fn claim_collateral(
     let key = keys::claimed_collateral_amount_key(market_address, token, time_key, account);
     let claimed_amount = data_store.get_u256(key);
 
-    let adjusted_claimable_amount = precision::apply_factor_u256(
-        claimable_amount, claimable_factor
-    );
+    let adjusted_claimable_amount = precision::apply_factor_u256(claimable_amount, claimable_factor);
     if adjusted_claimable_amount <= claimed_amount {
         panic(
             array![
@@ -668,13 +593,7 @@ fn claim_collateral(
 
     event_emitter
         .emit_collateral_claimed(
-            market_address,
-            token,
-            account,
-            receiver,
-            time_key,
-            amount_to_be_claimed,
-            next_pool_value
+            market_address, token, account, receiver, time_key, amount_to_be_claimed, next_pool_value
         );
 
     amount_to_be_claimed
@@ -710,9 +629,7 @@ fn apply_delta_to_pool_amount(
 fn get_adjusted_swap_impact_factor(
     data_store: IDataStoreDispatcher, market: ContractAddress, is_positive: bool
 ) -> u256 {
-    let (positive_impact_factor, negative_impact_factor) = get_adjusted_swap_impact_factors(
-        data_store, market
-    );
+    let (positive_impact_factor, negative_impact_factor) = get_adjusted_swap_impact_factors(data_store, market);
     if is_positive {
         positive_impact_factor
     } else {
@@ -720,11 +637,8 @@ fn get_adjusted_swap_impact_factor(
     }
 }
 
-fn get_adjusted_swap_impact_factors(
-    data_store: IDataStoreDispatcher, market: ContractAddress
-) -> (u256, u256) {
-    let mut positive_impact_factor = data_store
-        .get_u256(keys::swap_impact_factor_key(market, true));
+fn get_adjusted_swap_impact_factors(data_store: IDataStoreDispatcher, market: ContractAddress) -> (u256, u256) {
+    let mut positive_impact_factor = data_store.get_u256(keys::swap_impact_factor_key(market, true));
     let negative_impact_factor = data_store.get_u256(keys::swap_impact_factor_key(market, false));
     // if the positive impact factor is more than the negative impact factor, positions could be opened
     // and closed immediately for a profit if the difference is sufficient to cover the position fees
@@ -737,9 +651,7 @@ fn get_adjusted_swap_impact_factors(
 fn get_adjusted_position_impact_factor(
     data_store: IDataStoreDispatcher, market: ContractAddress, is_positive: bool
 ) -> u256 {
-    let (positive_impact_factor, negative_impact_factor) = get_adjusted_position_impact_factors(
-        data_store, market
-    );
+    let (positive_impact_factor, negative_impact_factor) = get_adjusted_position_impact_factors(data_store, market);
     if is_positive {
         positive_impact_factor
     } else {
@@ -747,13 +659,9 @@ fn get_adjusted_position_impact_factor(
     }
 }
 
-fn get_adjusted_position_impact_factors(
-    data_store: IDataStoreDispatcher, market: ContractAddress
-) -> (u256, u256) {
-    let mut positive_impact_factor = data_store
-        .get_u256(keys::position_impact_factor_key(market, true));
-    let negative_impact_factor = data_store
-        .get_u256(keys::position_impact_factor_key(market, false));
+fn get_adjusted_position_impact_factors(data_store: IDataStoreDispatcher, market: ContractAddress) -> (u256, u256) {
+    let mut positive_impact_factor = data_store.get_u256(keys::position_impact_factor_key(market, true));
+    let negative_impact_factor = data_store.get_u256(keys::position_impact_factor_key(market, false));
     // if the positive impact factor is more than the negative impact factor, positions could be opened
     // and closed immediately for a profit if the difference is sufficient to cover the position fees
     if positive_impact_factor > negative_impact_factor {
@@ -783,9 +691,7 @@ fn get_capped_position_impact_usd(
     }
 
     let impact_pool_amount = get_position_impact_pool_amount(data_store, market);
-    let max_price_impact_usd_based_on_impact_pool = calc::to_signed(
-        impact_pool_amount * token_price.min, true
-    );
+    let max_price_impact_usd_based_on_impact_pool = calc::to_signed(impact_pool_amount * token_price.min, true);
 
     if price_impact_usd > max_price_impact_usd_based_on_impact_pool {
         price_impact_usd = max_price_impact_usd_based_on_impact_pool;
@@ -809,9 +715,7 @@ fn get_capped_position_impact_usd(
 /// * `market_address` - The market to get the position impact pool amount for.
 /// # Returns
 /// The position impact pool amount.
-fn get_position_impact_pool_amount(
-    data_store: IDataStoreDispatcher, market_address: ContractAddress
-) -> u256 {
+fn get_position_impact_pool_amount(data_store: IDataStoreDispatcher, market_address: ContractAddress) -> u256 {
     data_store.get_u256(keys::position_impact_pool_amount_key(market_address))
 }
 
@@ -846,9 +750,7 @@ fn apply_delta_to_swap_impact_pool(
 ) -> u256 {
     // Increment the swap impact pool amount.
     let next_value = data_store
-        .apply_bounded_delta_to_u256(
-            keys::swap_impact_pool_amount_key(market_address, token), delta
-        );
+        .apply_bounded_delta_to_u256(keys::swap_impact_pool_amount_key(market_address, token), delta);
 
     // Emit event.
     event_emitter.emit_swap_impact_pool_amount_updated(market_address, token, delta, next_value);
@@ -901,10 +803,7 @@ fn apply_delta_to_open_interest(
     delta: i256
 ) -> u256 {
     // Check that the market is not a swap only market.
-    assert(
-        (*market.index_token).is_non_zero(),
-        MarketError::OPEN_INTEREST_CANNOT_BE_UPDATED_FOR_SWAP_ONLY_MARKET
-    );
+    assert((*market.index_token).is_non_zero(), MarketError::OPEN_INTEREST_CANNOT_BE_UPDATED_FOR_SWAP_ONLY_MARKET);
     // Increment the open interest by the delta.
     let key = keys::open_interest_key(*market.market_token, collateral_token, is_long);
     let next_value = data_store.apply_delta_to_u256(key, delta, 'negative open interest');
@@ -919,22 +818,15 @@ fn apply_delta_to_open_interest(
     // so the virtual inventory should be decreased.
 
     if is_long {
-        apply_delta_to_virtual_inventory_for_positions(
-            data_store, event_emitter, *market.index_token, i256_neg(delta)
-        );
+        apply_delta_to_virtual_inventory_for_positions(data_store, event_emitter, *market.index_token, i256_neg(delta));
     } else {
-        apply_delta_to_virtual_inventory_for_positions(
-            data_store, event_emitter, *market.index_token, delta
-        );
+        apply_delta_to_virtual_inventory_for_positions(data_store, event_emitter, *market.index_token, delta);
     }
 
     if (delta > Zeroable::zero()) {
         validate_open_interest(data_store, market, is_long);
     }
-    event_emitter
-        .emit_open_interest_updated(
-            *market.market_token, collateral_token, is_long, delta, next_value
-        );
+    event_emitter.emit_open_interest_updated(*market.market_token, collateral_token, is_long, delta, next_value);
 
     next_value
 }
@@ -961,9 +853,7 @@ fn apply_delta_to_open_interest_in_tokens(
     let next_value = data_store.apply_delta_to_u256(key, delta, 'negative open interest tokens');
 
     event_emitter
-        .emit_open_interest_in_tokens_updated(
-            market.market_token, collateral_token, is_long, delta, next_value
-        );
+        .emit_open_interest_in_tokens_updated(market.market_token, collateral_token, is_long, delta, next_value);
 
     next_value
 }
@@ -1001,10 +891,7 @@ fn apply_delta_to_collateral_sum(
 /// * `market` - The market.
 /// * `prices` - The market prices.
 fn update_funding_state(
-    data_store: IDataStoreDispatcher,
-    event_emitter: IEventEmitterDispatcher,
-    market: Market,
-    prices: MarketPrices
+    data_store: IDataStoreDispatcher, event_emitter: IEventEmitterDispatcher, market: Market, prices: MarketPrices
 ) {
     let result = get_next_funding_amount_per_size(data_store, market, prices);
 
@@ -1101,20 +988,12 @@ fn get_next_funding_amount_per_size(
 
     let open_interest = PositionType {
         long: CollateralType {
-            long_token: get_open_interest_div(
-                data_store, market.market_token, market.long_token, true, divisor
-            ),
-            short_token: get_open_interest_div(
-                data_store, market.market_token, market.short_token, true, divisor
-            ),
+            long_token: get_open_interest_div(data_store, market.market_token, market.long_token, true, divisor),
+            short_token: get_open_interest_div(data_store, market.market_token, market.short_token, true, divisor),
         },
         short: CollateralType {
-            long_token: get_open_interest_div(
-                data_store, market.market_token, market.long_token, false, divisor
-            ),
-            short_token: get_open_interest_div(
-                data_store, market.market_token, market.short_token, false, divisor
-            ),
+            long_token: get_open_interest_div(data_store, market.market_token, market.long_token, false, divisor),
+            short_token: get_open_interest_div(data_store, market.market_token, market.short_token, false, divisor),
         },
     };
 
@@ -1143,9 +1022,7 @@ fn get_next_funding_amount_per_size(
 
     result
         .funding_factor_per_second =
-            get_funding_factor_per_second(
-                data_store, market.market_token, diff_usd, total_open_interest
-            );
+            get_funding_factor_per_second(data_store, market.market_token, diff_usd, total_open_interest);
 
     // for single token markets, if there is $200,000 long open interest
     // and $100,000 short open interest and if the fundingUsd is $8:
@@ -1227,10 +1104,7 @@ fn get_next_funding_amount_per_size(
         // positions receive funding in both the longToken and shortToken
         // so the fundingUsdForLongCollateral and fundingUsdForShortCollateral is divided by the total short open interest
         let amount = get_funding_amount_per_size_delta(
-            funding_usd_for_long_collateral,
-            short_open_interest,
-            prices.long_token_price.max,
-            false // roundUpMagnitude
+            funding_usd_for_long_collateral, short_open_interest, prices.long_token_price.max, false // roundUpMagnitude
         );
         result.claimable_funding_amount_per_size_delta.short.long_token = amount;
 
@@ -1265,10 +1139,7 @@ fn get_next_funding_amount_per_size(
         // positions receive funding in both the longToken and shortToken
         // so the fundingUsdForLongCollateral and fundingUsdForShortCollateral is divided by the total long open interest
         let amount = get_funding_amount_per_size_delta(
-            funding_usd_for_long_collateral,
-            long_open_interest,
-            prices.long_token_price.max,
-            false // roundUpMagnitude
+            funding_usd_for_long_collateral, long_open_interest, prices.long_token_price.max, false // roundUpMagnitude
         );
         result.claimable_funding_amount_per_size_delta.long.long_token = amount;
 
@@ -1298,9 +1169,7 @@ fn get_swap_impact_amount_with_cap(
         // round positive impactAmount down, this will be deducted from the swap impact pool for the user
         let _price = to_signed(token_price.max, true);
 
-        let max_impact_amount = to_signed(
-            get_swap_impact_pool_amount(data_store, market, token), true
-        );
+        let max_impact_amount = to_signed(get_swap_impact_pool_amount(data_store, market, token), true);
 
         if (impact_amount > max_impact_amount) {
             impact_amount = max_impact_amount;
@@ -1346,9 +1215,7 @@ fn get_open_interest_for_market(data_store: IDataStoreDispatcher, market: @Marke
 /// * `is_long` - Whether to get the long or short open interest.
 /// # Returns
 /// The long and short open interest for a market.
-fn get_open_interest_for_market_is_long(
-    data_store: IDataStoreDispatcher, market: @Market, is_long: bool
-) -> u256 {
+fn get_open_interest_for_market_is_long(data_store: IDataStoreDispatcher, market: @Market, is_long: bool) -> u256 {
     // Get the pool divisor.
     let divisor = get_pool_divisor(*market.long_token, *market.short_token);
     // Get the open interest for the long token as collateral.
@@ -1371,9 +1238,7 @@ fn get_open_interest_for_market_is_long(
 /// * `is_long` - Whether to get the long or short open interest.
 /// # Returns
 /// The long and short open interest in tokens for a market based on the collateral token used.
-fn get_open_interest_in_tokens_for_market(
-    data_store: IDataStoreDispatcher, market: @Market, is_long: bool,
-) -> u256 {
+fn get_open_interest_in_tokens_for_market(data_store: IDataStoreDispatcher, market: @Market, is_long: bool,) -> u256 {
     // Get the pool divisor.
     let divisor = get_pool_divisor(*market.long_token, *market.short_token);
 
@@ -1406,8 +1271,7 @@ fn get_open_interest_in_tokens(
     divisor: u256
 ) -> u256 {
     error_utils::check_division_by_zero(divisor, 'get_open_interest_in_tokens');
-    data_store.get_u256(keys::open_interest_in_tokens_key(market, collateral_token, is_long))
-        / divisor
+    data_store.get_u256(keys::open_interest_in_tokens_key(market, collateral_token, is_long)) / divisor
 }
 
 /// Get the pool divisor.
@@ -1446,15 +1310,11 @@ fn apply_swap_impact_with_cap(
     token_price: Price,
     price_impact_usd: i256
 ) -> i256 {
-    let impact_amount: i256 = get_swap_impact_amount_with_cap(
-        data_store, market, token, token_price, price_impact_usd
-    );
+    let impact_amount: i256 = get_swap_impact_amount_with_cap(data_store, market, token, token_price, price_impact_usd);
 
     // if there is a positive impact, the impact pool amount should be reduced
     // if there is a negative impact, the impact pool amount should be increased
-    apply_delta_to_swap_impact_pool(
-        data_store, event_emitter, market, token, i256_neg(impact_amount)
-    );
+    apply_delta_to_swap_impact_pool(data_store, event_emitter, market, token, i256_neg(impact_amount));
 
     return impact_amount;
 }
@@ -1464,9 +1324,7 @@ fn apply_swap_impact_with_cap(
 /// *`data_store` DataStore
 /// *`market` the market to check
 /// *`token` the token to check
-fn validate_pool_amount(
-    data_store: @IDataStoreDispatcher, market: @Market, token: ContractAddress
-) {
+fn validate_pool_amount(data_store: @IDataStoreDispatcher, market: @Market, token: ContractAddress) {
     let pool_amount: u256 = get_pool_amount(*data_store, market, token);
     let max_pool_amount: u256 = get_max_pool_amount(*data_store, *market.market_token, token);
     if (pool_amount > max_pool_amount) {
@@ -1482,9 +1340,7 @@ use debug::PrintTrait;
 /// * `market`: Market values to consider.
 /// * `prices`: Prices of the market tokens.
 /// * `is_long`: A boolean flag to indicate whether to check the long or short side.
-fn validate_reserve(
-    data_store: IDataStoreDispatcher, market: @Market, prices: @MarketPrices, is_long: bool
-) {
+fn validate_reserve(data_store: IDataStoreDispatcher, market: @Market, prices: @MarketPrices, is_long: bool) {
     // poolUsd is used instead of pool amount as the indexToken may not match the longToken
     // additionally, the shortToken may not be a stablecoin
     let pool_usd = get_pool_usd_without_pnl(data_store, market, prices, is_long, false);
@@ -1526,11 +1382,7 @@ fn validate_open_interest(data_store: IDataStoreDispatcher, market: @Market, is_
 // # Returns
 // (pnl of positions) / (long or short pool value)
 fn get_pnl_to_pool_factor(
-    data_store: IDataStoreDispatcher,
-    oracle: IOracleDispatcher,
-    market: ContractAddress,
-    is_long: bool,
-    maximize: bool
+    data_store: IDataStoreDispatcher, oracle: IOracleDispatcher, market: ContractAddress, is_long: bool, maximize: bool
 ) -> i256 {
     let market: Market = get_enabled_market(data_store, market);
     let prices: MarketPrices = MarketPrices {
@@ -1552,11 +1404,7 @@ fn get_pnl_to_pool_factor(
 /// # Returns
 /// Returns the ratio of PNL of positions to long or short pool value.
 fn get_pnl_to_pool_factor_from_prices(
-    data_store: IDataStoreDispatcher,
-    market: @Market,
-    prices: @MarketPrices,
-    is_long: bool,
-    maximize: bool
+    data_store: IDataStoreDispatcher, market: @Market, prices: @MarketPrices, is_long: bool, maximize: bool
 ) -> i256 {
     let pool_usd: u256 = get_pool_usd_without_pnl(data_store, market, prices, is_long, !maximize);
     if pool_usd == 0 {
@@ -1570,9 +1418,7 @@ fn get_pnl_to_pool_factor_from_prices(
 /// # Arguments
 /// * `data_store` - The data_store dispatcher
 /// * `market` - Address of the market to check.
-fn validate_market_token_balance_with_address(
-    data_store: IDataStoreDispatcher, market: ContractAddress
-) {
+fn validate_market_token_balance_with_address(data_store: IDataStoreDispatcher, market: ContractAddress) {
     let enabled_market: Market = get_enabled_market(data_store, market);
     validate_market_token_balance_check(data_store, enabled_market);
 }
@@ -1592,16 +1438,11 @@ fn update_cumulative_borrowing_factor(
     is_long: bool
 ) {
     let (_, delta) = get_next_cumulative_borrowing_factor(data_store, market, prices, is_long);
-    increment_cumulative_borrowing_factor(
-        data_store, event_emitter, market.market_token, is_long, delta
-    );
+    increment_cumulative_borrowing_factor(data_store, event_emitter, market.market_token, is_long, delta);
     let block_timestamp: u256 = starknet::info::get_block_timestamp().into();
 
     data_store
-        .set_u256(
-            keys::cumulative_borrowing_factor_updated_at_key(market.market_token, is_long),
-            block_timestamp
-        );
+        .set_u256(keys::cumulative_borrowing_factor_updated_at_key(market.market_token, is_long), block_timestamp);
 }
 
 /// Get the virtual inventory for positions.
@@ -1612,9 +1453,7 @@ fn update_cumulative_borrowing_factor(
 ///
 /// # Returns
 /// Returns a tuple (has_virtual_inventory, virtual_token_inventory).
-fn get_virtual_inventory_for_positions(
-    data_store: IDataStoreDispatcher, token: ContractAddress
-) -> (bool, i256) {
+fn get_virtual_inventory_for_positions(data_store: IDataStoreDispatcher, token: ContractAddress) -> (bool, i256) {
     let virtual_token_id: felt252 = data_store.get_felt252(keys::virtual_token_id_key(token));
     if virtual_token_id == 0.into() {
         return (false, Zeroable::zero());
@@ -1651,9 +1490,7 @@ fn validate_open_interest_reserve(
     // poolUsd is used instead of pool amount as the indexToken may not match the longToken
     // additionally, the shortToken may not be a stablecoin
     let pool_usd: u256 = get_pool_usd_without_pnl(data_store, market, prices, is_long, false);
-    let reserve_factor: u256 = get_open_interest_reserve_factor(
-        data_store, *market.market_token, is_long
-    );
+    let reserve_factor: u256 = get_open_interest_reserve_factor(data_store, *market.market_token, is_long);
     let max_reserved_usd: u256 = apply_factor_u256(pool_usd, reserve_factor);
 
     let reserved_usd: u256 = get_reserved_usd(data_store, market, prices, is_long);
@@ -1678,9 +1515,7 @@ fn get_next_borrowing_fees(
         data_store, *market, *prices, *position.is_long
     );
     if (next_cumulative_borrowing_factor < *position.borrowing_factor) {
-        MarketError::UNEXCEPTED_BORROWING_FACTOR(
-            *position.borrowing_factor, next_cumulative_borrowing_factor
-        );
+        MarketError::UNEXCEPTED_BORROWING_FACTOR(*position.borrowing_factor, next_cumulative_borrowing_factor);
     }
     let diff_factor = next_cumulative_borrowing_factor - *position.borrowing_factor;
     return apply_factor_u256(*position.size_in_usd, diff_factor);
@@ -1693,9 +1528,7 @@ fn get_next_borrowing_fees(
 // @param is_long Whether to get the value for the long or short side.
 //
 // @return The total reserved USD required for positions.
-fn get_reserved_usd(
-    data_store: IDataStoreDispatcher, market: @Market, prices: @MarketPrices, is_long: bool
-) -> u256 {
+fn get_reserved_usd(data_store: IDataStoreDispatcher, market: @Market, prices: @MarketPrices, is_long: bool) -> u256 {
     let mut reserved_usd: u256 = 0;
     if (is_long) {
         // for longs calculate the reserved USD based on the open interest and current indexTokenPrice
@@ -1704,9 +1537,7 @@ fn get_reserved_usd(
         // this also works for e.g. a SOL / USD market with long collateral token as WETH
         // if the price of SOL increases more than the price of ETH, additional amounts would be
         // automatically reserved
-        let open_interest_in_tokens = get_open_interest_in_tokens_for_market(
-            data_store, market, is_long
-        );
+        let open_interest_in_tokens = get_open_interest_in_tokens_for_market(data_store, market, is_long);
         reserved_usd = open_interest_in_tokens * *prices.index_token_price.max;
     } else {
         // for shorts use the open interest as the reserved USD value
@@ -1741,22 +1572,17 @@ fn apply_delta_to_virtual_inventory_for_swaps(
     token: ContractAddress,
     delta: i256
 ) -> (bool, u256) {
-    let virtual_market_id: felt252 = data_store
-        .get_felt252(keys::virtual_market_id_key(market.market_token));
+    let virtual_market_id: felt252 = data_store.get_felt252(keys::virtual_market_id_key(market.market_token));
     if (virtual_market_id == 0) {
         return (false, 0);
     }
     let is_long_token: bool = get_is_long_token(market, token);
 
     let next_value: u256 = data_store
-        .apply_bounded_delta_to_u256(
-            keys::virtual_inventory_for_swaps_key(virtual_market_id, is_long_token), delta
-        );
+        .apply_bounded_delta_to_u256(keys::virtual_inventory_for_swaps_key(virtual_market_id, is_long_token), delta);
 
     event_emitter
-        .emit_virtual_swap_inventory_updated(
-            market.market_token, is_long_token, virtual_market_id, delta, next_value
-        );
+        .emit_virtual_swap_inventory_updated(market.market_token, is_long_token, virtual_market_id, delta, next_value);
 
     return (true, next_value);
 }
@@ -1769,10 +1595,7 @@ fn apply_delta_to_virtual_inventory_for_swaps(
 /// * `token`: The token to update.
 /// * `delta`: The update amount.
 fn apply_delta_to_virtual_inventory_for_positions(
-    data_store: IDataStoreDispatcher,
-    event_emitter: IEventEmitterDispatcher,
-    token: ContractAddress,
-    delta: i256
+    data_store: IDataStoreDispatcher, event_emitter: IEventEmitterDispatcher, token: ContractAddress, delta: i256
 ) -> (bool, i256) {
     let virtual_token_id: felt252 = data_store.get_felt252(keys::virtual_token_id_key(token));
     if (virtual_token_id == 0) {
@@ -1781,8 +1604,7 @@ fn apply_delta_to_virtual_inventory_for_positions(
 
     let next_value: i256 = data_store
         .apply_delta_to_i256(keys::virtual_inventory_for_positions_key(virtual_token_id), delta);
-    event_emitter
-        .emit_virtual_position_inventory_updated(token, virtual_token_id, delta, next_value);
+    event_emitter.emit_virtual_position_inventory_updated(token, virtual_token_id, delta, next_value);
 
     return (true, next_value);
 }
@@ -1801,9 +1623,7 @@ fn get_borrowing_fees(data_store: IDataStoreDispatcher, position: @Position) -> 
     );
 
     if (cumulative_borrowing_factor < *position.borrowing_factor) {
-        MarketError::UNEXCEPTED_BORROWING_FACTOR(
-            *position.borrowing_factor, cumulative_borrowing_factor
-        );
+        MarketError::UNEXCEPTED_BORROWING_FACTOR(*position.borrowing_factor, cumulative_borrowing_factor);
     }
     let diff_factor: u256 = cumulative_borrowing_factor - *position.borrowing_factor;
     return apply_factor_u256(*position.size_in_usd, diff_factor);
@@ -1823,13 +1643,9 @@ fn get_funding_amount(
     position_size_in_usd: u256,
     roundup_magnitude: bool
 ) -> u256 {
-    let funding_diff_factor: u256 = latest_funding_amount_per_size
-        - position_funding_amount_per_size;
+    let funding_diff_factor: u256 = latest_funding_amount_per_size - position_funding_amount_per_size;
     return mul_div_roundup(
-        position_size_in_usd,
-        funding_diff_factor,
-        FLOAT_PRECISION * FLOAT_PRECISION_SQRT,
-        roundup_magnitude
+        position_size_in_usd, funding_diff_factor, FLOAT_PRECISION * FLOAT_PRECISION_SQRT, roundup_magnitude
     );
 }
 
@@ -1845,11 +1661,7 @@ fn get_funding_amount(
 /// # Returns
 /// The net pending pnl for a market
 fn get_open_interest_with_pnl(
-    data_store: IDataStoreDispatcher,
-    market: @Market,
-    index_token_price: @Price,
-    is_long: bool,
-    maximize: bool
+    data_store: IDataStoreDispatcher, market: @Market, index_token_price: @Price, is_long: bool, maximize: bool
 ) -> i256 {
     let open_interest: u256 = get_open_interest_for_market_is_long(data_store, market, is_long);
     let pnl: i256 = get_pnl(data_store, market, index_token_price, is_long, maximize);
@@ -1863,9 +1675,7 @@ fn get_open_interest_with_pnl(
 /// * `market` - The market.
 /// # Returns
 /// The tuple (has virtual inventory, virtual long token inventory, virtual short token inventory)
-fn get_virtual_inventory_for_swaps(
-    data_store: IDataStoreDispatcher, market: ContractAddress
-) -> (bool, u256, u256) {
+fn get_virtual_inventory_for_swaps(data_store: IDataStoreDispatcher, market: ContractAddress) -> (bool, u256, u256) {
     let virtual_market_id = data_store.get_felt252(keys::virtual_market_id_key(market));
     if virtual_market_id.is_zero() {
         return (false, 0, 0);
@@ -1892,15 +1702,10 @@ fn apply_delta_to_funding_fee_amount_per_size(
     let delta = to_signed(delta, true);
     let next_value: u256 = data_store
         .apply_delta_to_u256(
-            keys::funding_fee_amount_per_size_key(market, collateral_token, is_long),
-            delta,
-            'negative_funding_fee'
+            keys::funding_fee_amount_per_size_key(market, collateral_token, is_long), delta, 'negative_funding_fee'
         );
     let delta = to_unsigned(delta);
-    event_emitter
-        .emit_funding_fee_amount_per_size_updated(
-            market, collateral_token, is_long, delta, next_value
-        );
+    event_emitter.emit_funding_fee_amount_per_size_updated(market, collateral_token, is_long, delta, next_value);
 }
 
 // Get the max position impact factor
@@ -1913,9 +1718,7 @@ fn apply_delta_to_funding_fee_amount_per_size(
 fn get_max_position_impact_factor(
     data_store: IDataStoreDispatcher, market: ContractAddress, is_positive: bool,
 ) -> u256 {
-    let (max_positive_impact_factor, max_negative_impact_factor) = get_max_position_impact_factors(
-        data_store, market
-    );
+    let (max_positive_impact_factor, max_negative_impact_factor) = get_max_position_impact_factors(data_store, market);
 
     if is_positive {
         max_positive_impact_factor
@@ -1924,13 +1727,9 @@ fn get_max_position_impact_factor(
     }
 }
 
-fn get_max_position_impact_factors(
-    data_store: IDataStoreDispatcher, market: ContractAddress,
-) -> (u256, u256) {
-    let mut max_positive_impact_factor: u256 = data_store
-        .get_u256(keys::max_position_impact_factor_key(market, true));
-    let max_negative_impact_factor: u256 = data_store
-        .get_u256(keys::max_position_impact_factor_key(market, false));
+fn get_max_position_impact_factors(data_store: IDataStoreDispatcher, market: ContractAddress,) -> (u256, u256) {
+    let mut max_positive_impact_factor: u256 = data_store.get_u256(keys::max_position_impact_factor_key(market, true));
+    let max_negative_impact_factor: u256 = data_store.get_u256(keys::max_position_impact_factor_key(market, false));
 
     if max_positive_impact_factor > max_negative_impact_factor {
         max_positive_impact_factor = max_negative_impact_factor;
@@ -1945,9 +1744,7 @@ fn get_max_position_impact_factors(
 // `market` - the market to check
 // # Returns
 // The max position impact factor for liquidations
-fn get_max_position_impact_factor_for_liquidations(
-    data_store: IDataStoreDispatcher, market: ContractAddress
-) -> u256 {
+fn get_max_position_impact_factor_for_liquidations(data_store: IDataStoreDispatcher, market: ContractAddress) -> u256 {
     data_store.get_u256(keys::max_position_impact_factor_for_liquidations_key(market))
 }
 
@@ -1971,8 +1768,7 @@ fn get_min_collateral_factor(data_store: IDataStoreDispatcher, market: ContractA
 fn get_min_collateral_factor_for_open_interest_multiplier(
     data_store: IDataStoreDispatcher, market: ContractAddress, is_long: bool
 ) -> u256 {
-    data_store
-        .get_u256(keys::min_collateral_factor_for_open_interest_multiplier_key(market, is_long))
+    data_store.get_u256(keys::min_collateral_factor_for_open_interest_multiplier_key(market, is_long))
 }
 
 // Get the min collateral factor for open interest
@@ -1986,9 +1782,7 @@ fn get_min_collateral_factor_for_open_interest_multiplier(
 fn get_min_collateral_factor_for_open_interest(
     data_store: IDataStoreDispatcher, market: Market, open_interest_delta: i256, is_long: bool
 ) -> u256 {
-    let mut open_interest: u256 = get_open_interest_for_market_is_long(
-        data_store, @market, is_long
-    );
+    let mut open_interest: u256 = get_open_interest_for_market_is_long(data_store, @market, is_long);
     open_interest = calc::sum_return_uint_256(open_interest, open_interest_delta);
     let multiplier_factor = get_min_collateral_factor_for_open_interest_multiplier(
         data_store, market.market_token, is_long
@@ -2022,9 +1816,7 @@ fn get_collateral_sum(
 // `is_long` - whether to check the long or short side
 // # Returns
 // The reserve factor for a market
-fn get_reserve_factor(
-    data_store: IDataStoreDispatcher, market: ContractAddress, is_long: bool
-) -> u256 {
+fn get_reserve_factor(data_store: IDataStoreDispatcher, market: ContractAddress, is_long: bool) -> u256 {
     data_store.get_u256(keys::reserve_factor_key(market, is_long))
 }
 
@@ -2035,9 +1827,7 @@ fn get_reserve_factor(
 // `is_long` - whether to check the long or short side
 // # Returns
 // The open interest reserve factor
-fn get_open_interest_reserve_factor(
-    data_store: IDataStoreDispatcher, market: ContractAddress, is_long: bool
-) -> u256 {
+fn get_open_interest_reserve_factor(data_store: IDataStoreDispatcher, market: ContractAddress, is_long: bool) -> u256 {
     data_store.get_u256(keys::open_interest_reserve_factor_key(market, is_long))
 }
 
@@ -2050,10 +1840,7 @@ fn get_open_interest_reserve_factor(
 // # Returns
 // The max pnl factor
 fn get_max_pnl_factor(
-    data_store: IDataStoreDispatcher,
-    pnl_factor_type: felt252,
-    market: ContractAddress,
-    is_long: bool
+    data_store: IDataStoreDispatcher, pnl_factor_type: felt252, market: ContractAddress, is_long: bool
 ) -> u256 {
     data_store.get_u256(keys::max_pnl_factor_key(pnl_factor_type, market, is_long))
 }
@@ -2065,9 +1852,7 @@ fn get_max_pnl_factor(
 // `is_long` - whether to check the long or short side
 // # Returns
 // The min pnl factor after adl
-fn get_min_pnl_factor_after_adl(
-    data_store: IDataStoreDispatcher, market: ContractAddress, is_long: bool
-) -> u256 {
+fn get_min_pnl_factor_after_adl(data_store: IDataStoreDispatcher, market: ContractAddress, is_long: bool) -> u256 {
     data_store.get_u256(keys::min_pnl_factor_after_adl_key(market, is_long))
 }
 
@@ -2100,10 +1885,7 @@ fn get_funding_exponent_factor(data_store: IDataStoreDispatcher, market: Contrac
 // # Returns
 // the funding fee amount per size for a market
 fn get_funding_fee_amount_per_size(
-    data_store: IDataStoreDispatcher,
-    market: ContractAddress,
-    collateral_token: ContractAddress,
-    is_long: bool
+    data_store: IDataStoreDispatcher, market: ContractAddress, collateral_token: ContractAddress, is_long: bool
 ) -> u256 {
     data_store.get_u256(keys::funding_fee_amount_per_size_key(market, collateral_token, is_long))
 }
@@ -2117,13 +1899,9 @@ fn get_funding_fee_amount_per_size(
 // # Returns
 // the claimable funding fee amount per size for a market
 fn get_claimable_funding_amount_per_size(
-    data_store: IDataStoreDispatcher,
-    market: ContractAddress,
-    collateral_token: ContractAddress,
-    is_long: bool
+    data_store: IDataStoreDispatcher, market: ContractAddress, collateral_token: ContractAddress, is_long: bool
 ) -> u256 {
-    data_store
-        .get_u256(keys::claimable_funding_amount_per_size_key(market, collateral_token, is_long))
+    data_store.get_u256(keys::claimable_funding_amount_per_size_key(market, collateral_token, is_long))
 }
 
 // Apply delta to the funding fee amount per size for a market
@@ -2153,10 +1931,7 @@ fn apply_delta_to_funding_fee_per_size(
             error //Error doesnt exist on solidity function, i just added it because of the merge of Library #1
         );
     let delta = to_unsigned(delta);
-    event_emitter
-        .emit_funding_fee_amount_per_size_updated(
-            market, collateral_token, is_long, delta, next_value
-        );
+    event_emitter.emit_funding_fee_amount_per_size_updated(market, collateral_token, is_long, delta, next_value);
 }
 
 // Apply delta to the claimable funding fee amount per size for a market
@@ -2179,14 +1954,9 @@ fn apply_delta_to_claimable_funding_amount_per_size(
     }
     let next_value: u256 = data_store
         .apply_delta_to_u256(
-            keys::claimable_funding_amount_per_size_key(market, collateral_token, is_long),
-            to_signed(delta, true),
-            0
+            keys::claimable_funding_amount_per_size_key(market, collateral_token, is_long), to_signed(delta, true), 0
         );
-    event_emitter
-        .emit_claimable_funding_amount_per_size_updated(
-            market, collateral_token, is_long, delta, next_value
-        );
+    event_emitter.emit_claimable_funding_amount_per_size_updated(market, collateral_token, is_long, delta, next_value);
 }
 
 // Get the number of seconds since funding was updated for a market
@@ -2194,9 +1964,7 @@ fn apply_delta_to_claimable_funding_amount_per_size(
 // `market` - the market to check
 // # Returns
 // the number of seconds since funding was updated for a market
-fn get_seconds_since_funding_updated(
-    data_store: IDataStoreDispatcher, market: ContractAddress
-) -> u256 {
+fn get_seconds_since_funding_updated(data_store: IDataStoreDispatcher, market: ContractAddress) -> u256 {
     //Error on this one but its normal the function is not create yet
     let updated_at: u256 = data_store.get_u256(keys::funding_updated_at_key(market));
     if (updated_at == 0) {
@@ -2212,10 +1980,7 @@ fn get_seconds_since_funding_updated(
 // `diff_usd` - the difference between the long and short open interest
 // `total_open_interest` - the total open interest
 fn get_funding_factor_per_second(
-    data_store: IDataStoreDispatcher,
-    market: ContractAddress,
-    diff_usd: u256,
-    total_open_interest: u256
+    data_store: IDataStoreDispatcher, market: ContractAddress, diff_usd: u256, total_open_interest: u256
 ) -> u256 {
     let stable_funding_factor: u256 = data_store.get_u256(keys::stable_funding_factor_key(market));
 
@@ -2236,9 +2001,7 @@ fn get_funding_factor_per_second(
     let funding_exponent_factor: u256 = get_funding_exponent_factor(data_store, market);
     let diff_usd_after_exponent: u256 = apply_exponent_factor(diff_usd, funding_exponent_factor);
 
-    let diff_usd_to_open_interest_factor: u256 = to_factor(
-        diff_usd_after_exponent, total_open_interest
-    );
+    let diff_usd_to_open_interest_factor: u256 = to_factor(diff_usd_after_exponent, total_open_interest);
 
     return apply_factor_u256(diff_usd_to_open_interest_factor, funding_factor);
 }
@@ -2249,9 +2012,7 @@ fn get_funding_factor_per_second(
 // `is_long` - whether to check the long or short side
 // # Returns
 // the borrowing factor for a market
-fn get_borrowing_factor(
-    data_store: IDataStoreDispatcher, market: ContractAddress, is_long: bool
-) -> u256 {
+fn get_borrowing_factor(data_store: IDataStoreDispatcher, market: ContractAddress, is_long: bool) -> u256 {
     data_store.get_u256(keys::borrowing_factor_key(market, is_long))
 }
 
@@ -2261,9 +2022,7 @@ fn get_borrowing_factor(
 // `is_long` - whether to check the long or short side
 // # Returns
 // the borrowing exponent factor for a market
-fn get_borrowing_exponent_factor(
-    data_store: IDataStoreDispatcher, market: ContractAddress, is_long: bool
-) -> u256 {
+fn get_borrowing_exponent_factor(data_store: IDataStoreDispatcher, market: ContractAddress, is_long: bool) -> u256 {
     data_store.get_u256(keys::borrowing_exponent_factor_key(market, is_long))
 }
 
@@ -2273,9 +2032,7 @@ fn get_borrowing_exponent_factor(
 // `is_long` - whether to check the long or short side
 // # Returns
 // the cumulative borrowing factor for a market
-fn get_cumulative_borrowing_factor(
-    data_store: @IDataStoreDispatcher, market: ContractAddress, is_long: bool
-) -> u256 {
+fn get_cumulative_borrowing_factor(data_store: @IDataStoreDispatcher, market: ContractAddress, is_long: bool) -> u256 {
     let data_store_n: IDataStoreDispatcher = *data_store;
     data_store_n.get_u256(keys::cumulative_borrowing_factor_key(market, is_long))
 }
@@ -2296,10 +2053,7 @@ fn increment_cumulative_borrowing_factor(
     let next_cumulative_borrowing_factor = data_store
         .increment_u256(keys::cumulative_borrowing_factor_key(market, is_long), delta);
 
-    event_emitter
-        .emit_cumulative_borrowing_factor_updated(
-            market, is_long, delta, next_cumulative_borrowing_factor
-        );
+    event_emitter.emit_cumulative_borrowing_factor_updated(market, is_long, delta, next_cumulative_borrowing_factor);
 }
 
 // Get the timestamp of when the cumulative borrowing factor was last updated
@@ -2397,13 +2151,9 @@ fn get_next_cumulative_borrowing_factor(
     let duration_in_seconds: u256 = get_seconds_since_cumulative_borrowing_factor_updated(
         data_store, market.market_token, is_long
     );
-    let borrowing_factor_per_second: u256 = get_borrowing_factor_per_second(
-        data_store, market, prices, is_long
-    );
+    let borrowing_factor_per_second: u256 = get_borrowing_factor_per_second(data_store, market, prices, is_long);
 
-    let cumulative_borrowing_factor: u256 = get_cumulative_borrowing_factor(
-        @data_store, market.market_token, is_long
-    );
+    let cumulative_borrowing_factor: u256 = get_cumulative_borrowing_factor(@data_store, market.market_token, is_long);
 
     let delta: u256 = duration_in_seconds * borrowing_factor_per_second;
     let next_cumulative_borrowing_factor: u256 = cumulative_borrowing_factor + delta;
@@ -2427,17 +2177,12 @@ fn get_borrowing_factor_per_second(
     // check if the borrowing fee for the smaller side should be skipped
     // if skipBorrowingFeeForSmallerSide is true, and the longOpenInterest is exactly the same as the shortOpenInterest
     // then the borrowing fee would be charged for both sides, this should be very rare
-    let skip_borrowing_fee_for_smaller_side: bool = data_store
-        .get_bool(keys::skip_borrowing_fee_for_smaller_side());
+    let skip_borrowing_fee_for_smaller_side: bool = data_store.get_bool(keys::skip_borrowing_fee_for_smaller_side());
 
     let market_snap = @market;
     if (skip_borrowing_fee_for_smaller_side) {
-        let long_open_interest: u256 = get_open_interest_for_market_is_long(
-            data_store, market_snap, true
-        );
-        let short_open_interest: u256 = get_open_interest_for_market_is_long(
-            data_store, market_snap, false
-        );
+        let long_open_interest: u256 = get_open_interest_for_market_is_long(data_store, market_snap, true);
+        let short_open_interest: u256 = get_open_interest_for_market_is_long(data_store, market_snap, false);
 
         // if getting the borrowing factor for longs and if the longOpenInterest
         // is smaller than the shortOpenInterest, then return zero
@@ -2456,12 +2201,8 @@ fn get_borrowing_factor_per_second(
         MarketError::UNABLE_TO_GET_BORROWING_FACTOR_EMPTY_POOL_USD(pool_usd);
     }
 
-    let borrowing_exponent_factor: u256 = get_borrowing_exponent_factor(
-        data_store, market.market_token, is_long
-    );
-    let reserved_usd_after_exponent: u256 = apply_exponent_factor(
-        reserved_usd, borrowing_exponent_factor
-    );
+    let borrowing_exponent_factor: u256 = get_borrowing_exponent_factor(data_store, market.market_token, is_long);
+    let reserved_usd_after_exponent: u256 = apply_exponent_factor(reserved_usd, borrowing_exponent_factor);
 
     let reserved_usd_to_pool_factor: u256 = to_factor(reserved_usd_after_exponent, pool_usd);
     let borrowing_factor: u256 = get_borrowing_factor(data_store, market.market_token, is_long);
@@ -2500,9 +2241,7 @@ fn get_total_pending_borrowing_fees(
 // `is_long` - whether to get the factor for the long or short side
 // #Return
 // The total borrowing value
-fn get_total_borrowing(
-    data_store: IDataStoreDispatcher, market: ContractAddress, is_long: bool
-) -> u256 {
+fn get_total_borrowing(data_store: IDataStoreDispatcher, market: ContractAddress, is_long: bool) -> u256 {
     data_store.get_u256(keys::total_borrowing_key(market, is_long))
 }
 
@@ -2511,9 +2250,7 @@ fn get_total_borrowing(
 // `market` - the market to get the borrowing factor per second for
 // `is_long` - whether to get the factor for the long or short side
 // `value` - the value to set to
-fn set_total_borrowing(
-    data_store: IDataStoreDispatcher, market: ContractAddress, is_long: bool, value: u256
-) {
+fn set_total_borrowing(data_store: IDataStoreDispatcher, market: ContractAddress, is_long: bool, value: u256) {
     data_store.set_u256(keys::total_borrowing_key(market, is_long), value)
 }
 
@@ -2555,9 +2292,7 @@ fn market_token_amount_to_usd(market_token_amount: u256, pool_value: u256, suppl
 // Validate that the specified market exists and is enabled
 // `data_store` - the data store to use
 // `market_add` the address of the market
-fn validate_enabled_market_check(
-    data_store: IDataStoreDispatcher, market_address: ContractAddress
-) {
+fn validate_enabled_market_check(data_store: IDataStoreDispatcher, market_address: ContractAddress) {
     let market: Market = data_store.get_market(market_address);
     validate_enabled_market(data_store, market);
 }
@@ -2568,8 +2303,7 @@ fn validate_enabled_market_check(
 fn validate_enabled_market(data_store: IDataStoreDispatcher, market: Market) {
     assert(market.market_token != 0.try_into().unwrap(), MarketError::EMPTY_MARKET);
 
-    let is_market_disabled: bool = data_store
-        .get_bool(keys::is_market_disabled_key(market.market_token));
+    let is_market_disabled: bool = data_store.get_bool(keys::is_market_disabled_key(market.market_token));
 
     if (is_market_disabled) {
         MarketError::DISABLED_MARKET(is_market_disabled);
@@ -2628,9 +2362,7 @@ fn get_swap_path_market(data_store: IDataStoreDispatcher, market_add: ContractAd
 
 // Get a list of market values based on an input array of market addresses
 // `swap_path` - list of market addresses
-fn get_swap_path_markets(
-    data_store: IDataStoreDispatcher, swap_path: Span32<ContractAddress>
-) -> Array<Market> {
+fn get_swap_path_markets(data_store: IDataStoreDispatcher, swap_path: Span32<ContractAddress>) -> Array<Market> {
     let mut markets: Array<Market> = ArrayTrait::new();
     let mut i: u32 = 0;
     let length: u32 = swap_path.len();
@@ -2688,9 +2420,7 @@ fn validate_max_pnl(
         MarketError::PNL_EXCEEDED_FOR_LONGS(is_pnl_factor_exceeded_for_longs);
     }
 
-    let (
-        is_pnl_factor_exceeded_for_shorts, _pnl_to_pool_factor_for_shorts, _max_pnl_factor_for_shorts
-    ) =
+    let (is_pnl_factor_exceeded_for_shorts, _pnl_to_pool_factor_for_shorts, _max_pnl_factor_for_shorts) =
         is_pnl_factor_exceeded_check(
         data_store, market, prices, false, pnl_factor_type_for_shorts,
     );
@@ -2726,21 +2456,12 @@ fn is_pnl_factor_exceeded(
 // `is_long` - whether to check the long or short side
 // `pnl_factor_type` - the pnl factor type to check
 fn is_pnl_factor_exceeded_check(
-    data_store: IDataStoreDispatcher,
-    market: Market,
-    prices: MarketPrices,
-    is_long: bool,
-    pnl_factor_type: felt252
+    data_store: IDataStoreDispatcher, market: Market, prices: MarketPrices, is_long: bool, pnl_factor_type: felt252
 ) -> (bool, i256, u256) {
-    let pnl_to_pool_factor: i256 = get_pnl_to_pool_factor_from_prices(
-        data_store, @market, @prices, is_long, true
-    );
-    let max_pnl_factor: u256 = get_max_pnl_factor(
-        data_store, pnl_factor_type, market.market_token, is_long
-    );
+    let pnl_to_pool_factor: i256 = get_pnl_to_pool_factor_from_prices(data_store, @market, @prices, is_long, true);
+    let max_pnl_factor: u256 = get_max_pnl_factor(data_store, pnl_factor_type, market.market_token, is_long);
 
-    let is_exceeded: bool = pnl_to_pool_factor > Zeroable::zero()
-        && to_unsigned(pnl_to_pool_factor) > max_pnl_factor;
+    let is_exceeded: bool = pnl_to_pool_factor > Zeroable::zero() && to_unsigned(pnl_to_pool_factor) > max_pnl_factor;
 
     (is_exceeded, pnl_to_pool_factor, max_pnl_factor)
 }
@@ -2797,9 +2518,7 @@ fn validate_market_token_balance_span(data_store: IDataStoreDispatcher, markets:
     };
 }
 
-fn validate_market_address_token_balance(
-    data_store: IDataStoreDispatcher, market_add: ContractAddress
-) {
+fn validate_market_address_token_balance(data_store: IDataStoreDispatcher, market_add: ContractAddress) {
     let market: Market = get_enabled_market(data_store, market_add);
     validate_market_token_balance_check(data_store, market);
 }
@@ -2813,17 +2532,12 @@ fn validate_market_token_balance_check(data_store: IDataStoreDispatcher, market:
     validate_market_token_balance_with_token(data_store, market, market.short_token);
 }
 
-fn validate_market_token_balance_with_token(
-    data_store: IDataStoreDispatcher, market: Market, token: ContractAddress
-) {
+fn validate_market_token_balance_with_token(data_store: IDataStoreDispatcher, market: Market, token: ContractAddress) {
     assert(
         market.market_token.is_non_zero() && token.is_non_zero(),
         MarketError::EMPTY_ADDRESS_IN_MARKET_TOKEN_BALANCE_VALIDATION
     );
-    let balance: u256 = IERC20Dispatcher { contract_address: token }
-        .balance_of(market.market_token)
-        .low
-        .into();
+    let balance: u256 = IERC20Dispatcher { contract_address: token }.balance_of(market.market_token).low.into();
     let expected_min_balance: u256 = get_expected_min_token_balance(data_store, market, token);
     assert(balance >= expected_min_balance, MarketError::INVALID_MARKET_TOKEN_BALANCE);
 
@@ -2834,9 +2548,7 @@ fn validate_market_token_balance_with_token(
 
     // use 1 for the getCollateralSum divisor since getCollateralSum does not sum over both the
     // longToken and shortToken
-    let mut collateral_amount: u256 = get_collateral_sum(
-        data_store, market.market_token, token, true, 1
-    );
+    let mut collateral_amount: u256 = get_collateral_sum(data_store, market.market_token, token, true, 1);
     collateral_amount += get_collateral_sum(data_store, market.market_token, token, false, 1);
 
     if (balance < collateral_amount) {
@@ -2849,29 +2561,21 @@ fn validate_market_token_balance_with_token(
     // in case of late liquidations, it may be possible for the claimableFundingFeeAmount to exceed the market token balance
     // but this should be very rare
     if (balance < claimable_funding_fee_amount) {
-        MarketError::INVALID_MARKET_TOKEN_BALANCE_FOR_CLAIMABLE_FUNDING(
-            balance, claimable_funding_fee_amount
-        );
+        MarketError::INVALID_MARKET_TOKEN_BALANCE_FOR_CLAIMABLE_FUNDING(balance, claimable_funding_fee_amount);
     }
 }
 
-fn get_expected_min_token_balance(
-    data_store: IDataStoreDispatcher, market: Market, token: ContractAddress
-) -> u256 {
+fn get_expected_min_token_balance(data_store: IDataStoreDispatcher, market: Market, token: ContractAddress) -> u256 {
     // get the pool amount directly as MarketUtils.get_pool_amount will divide the amount by 2
     // for markets with the same long and short token
     let pool_amount: u256 = data_store.get_u256(keys::pool_amount_key(market.market_token, token));
-    let swap_impact_pool_amount: u256 = get_swap_impact_pool_amount(
-        data_store, market.market_token, token
-    );
+    let swap_impact_pool_amount: u256 = get_swap_impact_pool_amount(data_store, market.market_token, token);
     let claimable_collateral_amount: u256 = data_store
         .get_u256(keys::claimable_collateral_amount_key(market.market_token, token));
-    let claimable_fee_amount: u256 = data_store
-        .get_u256(keys::claimable_fee_amount_key(market.market_token, token));
+    let claimable_fee_amount: u256 = data_store.get_u256(keys::claimable_fee_amount_key(market.market_token, token));
     let claimable_ui_fee_amount: u256 = data_store
         .get_u256(keys::claimable_ui_fee_amount_key(market.market_token, token));
-    let affiliate_reward_amount: u256 = data_store
-        .get_u256(keys::affiliate_reward_key(market.market_token, token));
+    let affiliate_reward_amount: u256 = data_store.get_u256(keys::affiliate_reward_key(market.market_token, token));
     // funding fees are excluded from this summation as claimable funding fees
     // are incremented without a corresponding decrease of the collateral of
     // other positions, the collateral of other positions is decreased when

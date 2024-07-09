@@ -21,8 +21,7 @@ use satoru::price::price::Price;
 use satoru::order::order::{Order};
 
 use satoru::reader::{
-    reader_utils::PositionInfo, reader_utils::BaseFundingValues,
-    reader_pricing_utils::ExecutionPriceResult,
+    reader_utils::PositionInfo, reader_utils::BaseFundingValues, reader_pricing_utils::ExecutionPriceResult,
 };
 
 use satoru::withdrawal::withdrawal::Withdrawal;
@@ -61,9 +60,7 @@ trait IReader<TContractState> {
     /// * `key` - The contract address serving as the identifier for the specific market data.
     /// # Returns
     /// Returns a struct representing market-related information.
-    fn get_market(
-        self: @TContractState, data_store: IDataStoreDispatcher, key: ContractAddress
-    ) -> Market;
+    fn get_market(self: @TContractState, data_store: IDataStoreDispatcher, key: ContractAddress) -> Market;
 
     /// Retrieve market-related data using a provided salt value as an additional parameter.
     /// # Arguments
@@ -71,9 +68,7 @@ trait IReader<TContractState> {
     /// * `salt` - Serves as an additional identifier or parameter for retrieving specific market data.
     /// # Returns
     /// Returns a struct representing market-related information.
-    fn get_market_by_salt(
-        self: @TContractState, data_store: IDataStoreDispatcher, salt: felt252
-    ) -> Market;
+    fn get_market_by_salt(self: @TContractState, data_store: IDataStoreDispatcher, salt: felt252) -> Market;
 
     /// Retrieve deposit-related data using a provided key value.
     /// # Arguments
@@ -81,9 +76,7 @@ trait IReader<TContractState> {
     /// * `key` - The key of the deposit.
     /// # Returns
     /// Returns a struct representing deposit-related information.
-    fn get_deposit(
-        self: @TContractState, data_store: IDataStoreDispatcher, key: felt252
-    ) -> Deposit;
+    fn get_deposit(self: @TContractState, data_store: IDataStoreDispatcher, key: felt252) -> Deposit;
 
     /// Retrieve withdrawal-related data using a provided key value.
     /// # Arguments
@@ -91,9 +84,7 @@ trait IReader<TContractState> {
     /// * `key` - The key of the withdrawal.
     /// # Returns
     /// Returns a struct representing withdrawal-related information.
-    fn get_withdrawal(
-        self: @TContractState, data_store: IDataStoreDispatcher, key: felt252
-    ) -> Withdrawal;
+    fn get_withdrawal(self: @TContractState, data_store: IDataStoreDispatcher, key: felt252) -> Withdrawal;
 
     /// Retrieve position-related data using a provided key value.
     /// # Arguments
@@ -101,9 +92,7 @@ trait IReader<TContractState> {
     /// * `key` - The key of the position.
     /// # Returns
     /// Returns a struct representing position-related information.
-    fn get_position(
-        self: @TContractState, data_store: IDataStoreDispatcher, key: felt252
-    ) -> Position;
+    fn get_position(self: @TContractState, data_store: IDataStoreDispatcher, key: felt252) -> Position;
 
     /// Retrieve order-related data using a provided key value.
     /// # Arguments
@@ -140,11 +129,7 @@ trait IReader<TContractState> {
     /// # Returns
     /// Returns an array of Position.
     fn get_account_positions(
-        self: @TContractState,
-        data_store: IDataStoreDispatcher,
-        account: ContractAddress,
-        start: u32,
-        end: u32
+        self: @TContractState, data_store: IDataStoreDispatcher, account: ContractAddress, start: u32, end: u32
     ) -> Array<Position>;
 
     /// Retrieve an array of position data associated with a specific account within a specified range.
@@ -195,11 +180,7 @@ trait IReader<TContractState> {
     /// # Returns
     /// Returns an array of Order structs representing the properties of orders associated with the specified account within the specified range.
     fn get_account_orders(
-        self: @TContractState,
-        data_store: IDataStoreDispatcher,
-        account: ContractAddress,
-        start: u32,
-        end: u32
+        self: @TContractState, data_store: IDataStoreDispatcher, account: ContractAddress, start: u32, end: u32
     ) -> Array<Order>;
 
     /// Retrieve an array of Market within a specified range of market keys.
@@ -209,9 +190,7 @@ trait IReader<TContractState> {
     /// * `end` - Representing the ending point in the market key range.
     /// # Returns
     /// Returns an array of Market structs representing the properties of markets within the specified range.
-    fn get_markets(
-        self: @TContractState, data_store: IDataStoreDispatcher, start: u32, end: u32
-    ) -> Array<Market>;
+    fn get_markets(self: @TContractState, data_store: IDataStoreDispatcher, start: u32, end: u32) -> Array<Market>;
 
     /// Retrieve an array of MarketInfo structures, which contain comprehensive information about multiple markets within a specified range of market keys.
     /// # Arguments
@@ -237,10 +216,7 @@ trait IReader<TContractState> {
     /// # Returns
     /// Returns MarketInfo struct containing comprehensive information about the specified market.
     fn get_market_info(
-        self: @TContractState,
-        data_store: IDataStoreDispatcher,
-        prices: MarketPrices,
-        market_key: ContractAddress
+        self: @TContractState, data_store: IDataStoreDispatcher, prices: MarketPrices, market_key: ContractAddress
     ) -> MarketInfo;
 
     /// Retrieves comprehensive information about a specific market identified by market_key.
@@ -453,12 +429,10 @@ mod Reader {
 
     // Local imports.
     use super::{MarketInfo, VirtualInventory, IDataStoreDispatcher, IDataStoreDispatcherTrait};
-    use satoru::mock::referral_storage::{
-        IReferralStorageDispatcher, IReferralStorageDispatcherTrait
-    };
+    use satoru::mock::referral_storage::{IReferralStorageDispatcher, IReferralStorageDispatcherTrait};
     use satoru::market::{
-        market_utils, market_utils::GetNextFundingAmountPerSizeResult, market::Market,
-        market_utils::MarketPrices, market_pool_value_info::MarketPoolValueInfo,
+        market_utils, market_utils::GetNextFundingAmountPerSizeResult, market::Market, market_utils::MarketPrices,
+        market_pool_value_info::MarketPoolValueInfo,
     };
     use satoru::utils::i256::i256;
     use satoru::withdrawal::withdrawal::Withdrawal;
@@ -471,8 +445,8 @@ mod Reader {
     use satoru::adl::adl_utils;
 
     use satoru::reader::{
-        reader_utils, reader_utils::PositionInfo, reader_utils::BaseFundingValues,
-        reader_pricing_utils, reader_pricing_utils::ExecutionPriceResult,
+        reader_utils, reader_utils::PositionInfo, reader_utils::BaseFundingValues, reader_pricing_utils,
+        reader_pricing_utils::ExecutionPriceResult,
     };
 
     // *************************************************************************
@@ -487,40 +461,28 @@ mod Reader {
     // *************************************************************************
     #[abi(embed_v0)]
     impl Reader of super::IReader<ContractState> {
-        fn get_market(
-            self: @ContractState, data_store: IDataStoreDispatcher, key: ContractAddress
-        ) -> Market {
+        fn get_market(self: @ContractState, data_store: IDataStoreDispatcher, key: ContractAddress) -> Market {
             data_store.get_market(key)
         }
 
-        fn get_market_by_salt(
-            self: @ContractState, data_store: IDataStoreDispatcher, salt: felt252
-        ) -> Market {
+        fn get_market_by_salt(self: @ContractState, data_store: IDataStoreDispatcher, salt: felt252) -> Market {
             data_store.get_by_salt_market(salt)
         }
 
 
-        fn get_deposit(
-            self: @ContractState, data_store: IDataStoreDispatcher, key: felt252
-        ) -> Deposit {
+        fn get_deposit(self: @ContractState, data_store: IDataStoreDispatcher, key: felt252) -> Deposit {
             data_store.get_deposit(key)
         }
 
-        fn get_withdrawal(
-            self: @ContractState, data_store: IDataStoreDispatcher, key: felt252
-        ) -> Withdrawal {
+        fn get_withdrawal(self: @ContractState, data_store: IDataStoreDispatcher, key: felt252) -> Withdrawal {
             data_store.get_withdrawal(key)
         }
 
-        fn get_position(
-            self: @ContractState, data_store: IDataStoreDispatcher, key: felt252
-        ) -> Position {
+        fn get_position(self: @ContractState, data_store: IDataStoreDispatcher, key: felt252) -> Position {
             data_store.get_position(key)
         }
 
-        fn get_order(
-            self: @ContractState, data_store: IDataStoreDispatcher, key: felt252
-        ) -> Order {
+        fn get_order(self: @ContractState, data_store: IDataStoreDispatcher, key: felt252) -> Order {
             data_store.get_order(key)
         }
 
@@ -533,17 +495,11 @@ mod Reader {
             size_delta_usd: u256
         ) -> (i256, i256, u256) {
             let position = data_store.get_position(position_key);
-            position_utils::get_position_pnl_usd(
-                data_store, market, prices, position, size_delta_usd
-            )
+            position_utils::get_position_pnl_usd(data_store, market, prices, position, size_delta_usd)
         }
 
         fn get_account_positions(
-            self: @ContractState,
-            data_store: IDataStoreDispatcher,
-            account: ContractAddress,
-            start: u32,
-            end: u32
+            self: @ContractState, data_store: IDataStoreDispatcher, account: ContractAddress, start: u32, end: u32
         ) -> Array<Position> {
             let position_keys = data_store.get_account_position_keys(account, start, end);
             let length = position_keys.len();
@@ -578,13 +534,7 @@ mod Reader {
                 let position_key = *position_keys.at(i);
                 let info = self
                     .get_position_info(
-                        data_store,
-                        referral_storage,
-                        position_key,
-                        *prices.at(i),
-                        0,
-                        ui_fee_receiver,
-                        true
+                        data_store, referral_storage, position_key, *prices.at(i), 0, ui_fee_receiver, true
                     );
                 position_info_list.append(info);
                 i += 1;
@@ -614,11 +564,7 @@ mod Reader {
         }
 
         fn get_account_orders(
-            self: @ContractState,
-            data_store: IDataStoreDispatcher,
-            account: ContractAddress,
-            start: u32,
-            end: u32
+            self: @ContractState, data_store: IDataStoreDispatcher, account: ContractAddress, start: u32, end: u32
         ) -> Array<Order> {
             let order_keys = data_store.get_account_order_keys(account, start, end);
             let length = order_keys.len();
@@ -635,9 +581,7 @@ mod Reader {
             orders
         }
 
-        fn get_markets(
-            self: @ContractState, data_store: IDataStoreDispatcher, start: u32, end: u32
-        ) -> Array<Market> {
+        fn get_markets(self: @ContractState, data_store: IDataStoreDispatcher, start: u32, end: u32) -> Array<Market> {
             let market_keys = data_store.get_market_keys(start, end);
             let length = market_keys.len();
             let mut markets = ArrayTrait::<Market>::new();
@@ -677,30 +621,22 @@ mod Reader {
         }
 
         fn get_market_info(
-            self: @ContractState,
-            data_store: IDataStoreDispatcher,
-            prices: MarketPrices,
-            market_key: ContractAddress
+            self: @ContractState, data_store: IDataStoreDispatcher, prices: MarketPrices, market_key: ContractAddress
         ) -> MarketInfo {
             let market = data_store.get_market(market_key);
-            let borrowing_factor_per_second_for_longs =
-                market_utils::get_borrowing_factor_per_second(
+            let borrowing_factor_per_second_for_longs = market_utils::get_borrowing_factor_per_second(
                 data_store, market, prices, true
             );
-            let borrowing_factor_per_second_for_shorts =
-                market_utils::get_borrowing_factor_per_second(
+            let borrowing_factor_per_second_for_shorts = market_utils::get_borrowing_factor_per_second(
                 data_store, market, prices, false
             );
 
             let base_funding = reader_utils::get_base_funding_values(data_store, market);
-            let next_funding = reader_utils::get_next_funding_amount_per_size(
-                data_store, market, prices
-            );
+            let next_funding = reader_utils::get_next_funding_amount_per_size(data_store, market, prices);
 
             let virtual_inventory = self.get_virtual_inventory(data_store, market);
 
-            let is_disabled = data_store
-                .get_bool(keys::is_market_disabled_key(market.market_token));
+            let is_disabled = data_store.get_bool(keys::is_market_disabled_key(market.market_token));
             MarketInfo {
                 market,
                 borrowing_factor_per_second_for_longs,
@@ -723,13 +659,7 @@ mod Reader {
             maximize: bool
         ) -> (i256, MarketPoolValueInfo) {
             market_utils::get_market_token_price(
-                data_store,
-                market,
-                index_token_price,
-                long_token_price,
-                short_token_price,
-                pnl_factor_type,
-                maximize
+                data_store, market, index_token_price, long_token_price, short_token_price, pnl_factor_type, maximize
             )
         }
 
@@ -762,9 +692,7 @@ mod Reader {
             is_long: bool,
             maximize: bool
         ) -> i256 {
-            market_utils::get_open_interest_with_pnl(
-                data_store, @market, @index_token_price, is_long, maximize
-            )
+            market_utils::get_open_interest_with_pnl(data_store, @market, @index_token_price, is_long, maximize)
         }
 
         fn get_pnl_to_pool_factor(
@@ -776,9 +704,7 @@ mod Reader {
             maximize: bool
         ) -> i256 {
             let market = data_store.get_market(market_address);
-            market_utils::get_pnl_to_pool_factor_from_prices(
-                data_store, @market, @prices, is_long, maximize
-            )
+            market_utils::get_pnl_to_pool_factor_from_prices(data_store, @market, @prices, is_long, maximize)
         }
 
         fn get_swap_amount_out(
@@ -790,9 +716,7 @@ mod Reader {
             amount_in: u256,
             ui_fee_receiver: ContractAddress
         ) -> (u256, i256, SwapFees) {
-            reader_pricing_utils::get_swap_amount_out(
-                data_store, market, prices, token_in, amount_in, ui_fee_receiver
-            )
+            reader_pricing_utils::get_swap_amount_out(data_store, market, prices, token_in, amount_in, ui_fee_receiver)
         }
 
         fn get_virtual_inventory(
@@ -802,14 +726,11 @@ mod Reader {
                 market_utils::get_virtual_inventory_for_swaps(
                 data_store, market.market_token
             );
-            let (_, virtual_inventory_for_positions) =
-                market_utils::get_virtual_inventory_for_positions(
+            let (_, virtual_inventory_for_positions) = market_utils::get_virtual_inventory_for_positions(
                 data_store, market.index_token
             );
             VirtualInventory {
-                virtual_pool_amount_for_long_token,
-                virtual_pool_amount_for_short_token,
-                virtual_inventory_for_positions
+                virtual_pool_amount_for_long_token, virtual_pool_amount_for_short_token, virtual_inventory_for_positions
             }
         }
 
@@ -860,8 +781,7 @@ mod Reader {
         ) -> (u64, bool, i256, u256) {
             let latest_adl_block = adl_utils::get_latest_adl_block(data_store, market, is_long);
             let _market = market_utils::get_enabled_market(data_store, market);
-            let (should_enabled_ald, pnl_to_pool_factor, max_pnl_factor) =
-                market_utils::is_pnl_factor_exceeded_check(
+            let (should_enabled_ald, pnl_to_pool_factor, max_pnl_factor) = market_utils::is_pnl_factor_exceeded_check(
                 data_store, _market, prices, is_long, keys::max_pnl_factor_for_adl()
             );
             (latest_adl_block, should_enabled_ald, pnl_to_pool_factor, max_pnl_factor)
@@ -877,12 +797,7 @@ mod Reader {
             should_validate_min_collateral_usd: bool
         ) -> (bool, felt252) {
             position_utils::is_position_liquiditable(
-                data_store,
-                referral_storage,
-                position,
-                market,
-                prices,
-                should_validate_min_collateral_usd
+                data_store, referral_storage, position, market, prices, should_validate_min_collateral_usd
             )
         }
     }

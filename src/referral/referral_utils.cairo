@@ -54,13 +54,9 @@ fn increment_affiliate_reward(
     }
     let next_value: u256 = data_store
         .increment_u256(keys::affiliate_reward_for_account_key(market, token, affiliate), delta);
-    let next_pool_value: u256 = data_store
-        .increment_u256(keys::affiliate_reward_key(market, token), delta);
+    let next_pool_value: u256 = data_store.increment_u256(keys::affiliate_reward_key(market, token), delta);
 
-    event_emitter
-        .emit_affiliate_reward_updated(
-            market, token, affiliate, delta, next_value, next_pool_value
-        );
+    event_emitter.emit_affiliate_reward_updated(market, token, affiliate, delta, next_value, next_pool_value);
 }
 
 /// Gets the referral information for the specified trader.
@@ -119,18 +115,13 @@ fn claim_affiliate_reward(
     let reward_amount: u256 = data_store.get_u256(key);
     data_store.set_u256(key, 0);
 
-    let next_pool_value: u256 = data_store
-        .decrement_u256(keys::affiliate_reward_key(market, token), reward_amount);
+    let next_pool_value: u256 = data_store.decrement_u256(keys::affiliate_reward_key(market, token), reward_amount);
 
-    IMarketTokenDispatcher { contract_address: market }
-        .transfer_out(market, token, receiver, reward_amount);
+    IMarketTokenDispatcher { contract_address: market }.transfer_out(market, token, receiver, reward_amount);
 
     market_utils::validate_market_token_balance_with_address(data_store, market);
 
-    event_emitter
-        .emit_affiliate_reward_claimed(
-            market, token, account, receiver, reward_amount, next_pool_value
-        );
+    event_emitter.emit_affiliate_reward_claimed(market, token, account, receiver, reward_amount, next_pool_value);
 
     return reward_amount;
 }

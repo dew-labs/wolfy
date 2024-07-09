@@ -7,11 +7,11 @@
 use result::ResultTrait;
 use debug::PrintTrait;
 use traits::{TryInto, Into};
-use starknet::{
-    ContractAddress, get_caller_address, Felt252TryIntoContractAddress, contract_address_const,
-    ClassHash,
+use starknet::{ContractAddress, get_caller_address, Felt252TryIntoContractAddress, contract_address_const, ClassHash,};
+use snforge_std::{
+    declare, start_cheat_caller_address, stop_cheat_caller_address, start_cheat_block_number, ContractClassTrait,
+    ContractClass
 };
-use snforge_std::{declare, start_cheat_caller_address, stop_cheat_caller_address, start_cheat_block_number, ContractClassTrait, ContractClass};
 
 
 // Local imports.
@@ -24,9 +24,7 @@ use satoru::deposit::deposit_vault::{IDepositVaultDispatcher, IDepositVaultDispa
 use satoru::deposit::deposit::Deposit;
 use satoru::withdrawal::withdrawal::Withdrawal;
 
-use satoru::exchange::withdrawal_handler::{
-    IWithdrawalHandlerDispatcher, IWithdrawalHandlerDispatcherTrait
-};
+use satoru::exchange::withdrawal_handler::{IWithdrawalHandlerDispatcher, IWithdrawalHandlerDispatcherTrait};
 use satoru::exchange::deposit_handler::{IDepositHandlerDispatcher, IDepositHandlerDispatcherTrait};
 use satoru::router::exchange_router::{IExchangeRouterDispatcher, IExchangeRouterDispatcherTrait};
 use satoru::mock::referral_storage::{IReferralStorageDispatcher, IReferralStorageDispatcherTrait};
@@ -43,27 +41,21 @@ use satoru::bank::bank::{IBankDispatcherTrait, IBankDispatcher};
 use satoru::bank::strict_bank::{IStrictBankDispatcher, IStrictBankDispatcherTrait};
 use satoru::token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
 use satoru::oracle::oracle::{IOracleDispatcher, IOracleDispatcherTrait};
-use satoru::withdrawal::withdrawal_vault::{
-    IWithdrawalVaultDispatcher, IWithdrawalVaultDispatcherTrait
-};
+use satoru::withdrawal::withdrawal_vault::{IWithdrawalVaultDispatcher, IWithdrawalVaultDispatcherTrait};
 use satoru::data::keys;
 use satoru::market::market_utils;
 use satoru::price::price::{Price, PriceTrait};
 use satoru::position::position_utils;
 use satoru::withdrawal::withdrawal_utils;
 
-use satoru::exchange::liquidation_handler::{
-    ILiquidationHandlerDispatcher, ILiquidationHandlerDispatcherTrait
-};
+use satoru::exchange::liquidation_handler::{ILiquidationHandlerDispatcher, ILiquidationHandlerDispatcherTrait};
 use satoru::order::order::{Order, OrderType, SecondaryOrderType, DecreasePositionSwapType};
 use satoru::order::order_vault::{IOrderVaultDispatcher, IOrderVaultDispatcherTrait};
 use satoru::order::base_order_utils::{CreateOrderParams};
 use satoru::oracle::oracle_store::{IOracleStoreDispatcher, IOracleStoreDispatcherTrait};
 use satoru::swap::swap_handler::{ISwapHandlerDispatcher, ISwapHandlerDispatcherTrait};
 use satoru::market::{market::{UniqueIdMarketImpl},};
-use satoru::exchange::order_handler::{
-    OrderHandler, IOrderHandlerDispatcher, IOrderHandlerDispatcherTrait
-};
+use satoru::exchange::order_handler::{OrderHandler, IOrderHandlerDispatcher, IOrderHandlerDispatcherTrait};
 use satoru::test_utils::tests_lib::{setup, create_market, teardown};
 
 fn deposit_setup(
@@ -168,10 +160,7 @@ fn deposit_setup(
             50000000000000000000000000000000000000000000000
         );
     data_store.set_u256(keys::reserve_factor_key(market.market_token, true), 1000000000000000000);
-    data_store
-        .set_u256(
-            keys::open_interest_reserve_factor_key(market.market_token, true), 1000000000000000000
-        );
+    data_store.set_u256(keys::open_interest_reserve_factor_key(market.market_token, true), 1000000000000000000);
 
     // Short setup
 
@@ -188,10 +177,7 @@ fn deposit_setup(
             50000000000000000000000000000000000000000000000
         );
     data_store.set_u256(keys::reserve_factor_key(market.market_token, false), 1000000000000000000);
-    data_store
-        .set_u256(
-            keys::open_interest_reserve_factor_key(market.market_token, false), 1000000000000000000
-        );
+    data_store.set_u256(keys::open_interest_reserve_factor_key(market.market_token, false), 1000000000000000000);
 
     data_store.set_bool('REENTRANCY_GUARD_STATUS', false);
 
@@ -203,8 +189,7 @@ fn deposit_setup(
         .mint(market.market_token, 25000000000000000000000000000000000000000); // 25000 USDC
     'filled pool 1'.print();
 
-    IERC20Dispatcher { contract_address: market.long_token }
-        .mint(caller_address, 9999999999999000000); // 9.999 ETH
+    IERC20Dispatcher { contract_address: market.long_token }.mint(caller_address, 9999999999999000000); // 9.999 ETH
     IERC20Dispatcher { contract_address: market.short_token }
         .mint(caller_address, 49999999999999999000000); // 49.999 UDC
     'filled account'.print();
@@ -214,10 +199,8 @@ fn deposit_setup(
 
     let balance_deposit_vault_before = IERC20Dispatcher { contract_address: market.short_token }
         .balance_of(deposit_vault.contract_address);
-    let balance_caller_ETH = IERC20Dispatcher { contract_address: market.long_token }
-        .balance_of(caller_address);
-    let balance_caller_USDC = IERC20Dispatcher { contract_address: market.short_token }
-        .balance_of(caller_address);
+    let balance_caller_ETH = IERC20Dispatcher { contract_address: market.long_token }.balance_of(caller_address);
+    let balance_caller_USDC = IERC20Dispatcher { contract_address: market.short_token }.balance_of(caller_address);
 
     assert(balance_deposit_vault_before == 0, 'balance deposit should be 0');
     assert(balance_caller_ETH == 10000000000000000000, 'balanc ETH should be 10 ETH');
@@ -226,23 +209,17 @@ fn deposit_setup(
     // Send token to deposit in the deposit vault (this should be in a multi call with create_deposit)
     start_cheat_caller_address(market.long_token, caller_address);
     start_cheat_caller_address(market.short_token, caller_address);
-    IERC20Dispatcher { contract_address: market.long_token }
-        .approve(caller_address, long_token_amount);
-    IERC20Dispatcher { contract_address: market.short_token }
-        .approve(caller_address, short_token_amount);
+    IERC20Dispatcher { contract_address: market.long_token }.approve(caller_address, long_token_amount);
+    IERC20Dispatcher { contract_address: market.short_token }.approve(caller_address, short_token_amount);
 
-    IERC20Dispatcher { contract_address: market.long_token }
-        .mint(caller_address, long_token_amount); // 20 ETH
-    IERC20Dispatcher { contract_address: market.short_token }
-        .mint(caller_address, short_token_amount); // 100 000 USDC
+    IERC20Dispatcher { contract_address: market.long_token }.mint(caller_address, long_token_amount); // 20 ETH
+    IERC20Dispatcher { contract_address: market.short_token }.mint(caller_address, short_token_amount); // 100 000 USDC
 
     // role_store.grant_role(exchange_router.contract_address, role::ROUTER_PLUGIN);
     // role_store.grant_role(caller_address, role::ROUTER_PLUGIN);
 
-    exchange_router
-        .send_tokens(market.long_token, deposit_vault.contract_address, long_token_amount);
-    exchange_router
-        .send_tokens(market.short_token, deposit_vault.contract_address, short_token_amount);
+    exchange_router.send_tokens(market.long_token, deposit_vault.contract_address, long_token_amount);
+    exchange_router.send_tokens(market.short_token, deposit_vault.contract_address, short_token_amount);
 
     stop_cheat_caller_address(market.long_token);
     stop_cheat_caller_address(market.short_token);
@@ -275,14 +252,8 @@ fn deposit_setup(
     assert(first_deposit.account == caller_address, 'Wrong account depositer');
     assert(first_deposit.receiver == caller_address, 'Wrong account receiver');
     assert(first_deposit.initial_long_token == market.long_token, 'Wrong initial long token');
-    assert(
-        first_deposit.initial_long_token_amount == long_token_amount,
-        'Wrong initial long token amount'
-    );
-    assert(
-        first_deposit.initial_short_token_amount == short_token_amount,
-        'Wrong init short token amount'
-    );
+    assert(first_deposit.initial_long_token_amount == long_token_amount, 'Wrong initial long token amount');
+    assert(first_deposit.initial_short_token_amount == short_token_amount, 'Wrong init short token amount');
 
     let price_params = SetPricesParams {
         signer_info: 0,
@@ -295,9 +266,7 @@ fn deposit_setup(
         compacted_min_prices_indexes: array![0],
         compacted_max_prices: array![4000, 1], // 500000, 10000 compacted
         compacted_max_prices_indexes: array![0],
-        signatures: array![
-            array!['signatures1', 'signatures2'].span(), array!['signatures1', 'signatures2'].span()
-        ],
+        signatures: array![array!['signatures1', 'signatures2'].span(), array!['signatures1', 'signatures2'].span()],
         price_feed_tokens: array![]
     };
 

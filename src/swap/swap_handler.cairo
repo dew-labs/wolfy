@@ -66,8 +66,7 @@ mod SwapHandler {
     #[abi(embed_v0)]
     impl SwapHandler of super::ISwapHandler<ContractState> {
         fn swap(ref self: ContractState, params: SwapParams) -> (ContractAddress, u256) {
-            let mut role_module: RoleModule::ContractState =
-                RoleModule::unsafe_new_contract_state();
+            let mut role_module: RoleModule::ContractState = RoleModule::unsafe_new_contract_state();
             role_module.only_controller();
 
             // TODO replace global reentrancy guard with simple one

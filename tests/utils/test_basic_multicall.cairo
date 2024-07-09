@@ -81,9 +81,7 @@ fn given_normal_conditions_when_multicall_then_works() {
     assert(data_store.get_felt252(1) == 42, 'Invalid value after first call');
 
     // check second call result
-    assert(
-        role_store.has_role(account_address, role::ROLE_ADMIN), 'Invalid role after second call'
-    );
+    assert(role_store.has_role(account_address, role::ROLE_ADMIN), 'Invalid role after second call');
 
     // *********************************************************************************************
     // *                              TEARDOWN                                                     *

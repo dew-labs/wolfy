@@ -170,31 +170,21 @@ fn get_median(arr: Span<u256>) -> u256 {
 /// # Returns
 /// The uncompacted value at the specified index in the array of compacted values.
 fn get_uncompacted_value(
-    compacted_values: Span<u256>,
-    index: usize,
-    compacted_value_bit_length: usize,
-    bit_mask: u256,
-    label: felt252
+    compacted_values: Span<u256>, index: usize, compacted_value_bit_length: usize, bit_mask: u256, label: felt252
 ) -> u256 {
-    error_utils::check_division_by_zero(
-        compacted_value_bit_length.into(), 'compacted_value_bit_length'
-    );
+    error_utils::check_division_by_zero(compacted_value_bit_length.into(), 'compacted_value_bit_length');
     let compacted_values_per_slot = 256 / compacted_value_bit_length; // 256 / 32 = 8
 
-    error_utils::check_division_by_zero(
-        compacted_values_per_slot.into(), 'compacted_values_per_slot'
-    );
+    error_utils::check_division_by_zero(compacted_values_per_slot.into(), 'compacted_values_per_slot');
     let slot_index = index / compacted_values_per_slot; // 1 / 4 = 0
     if slot_index >= compacted_values.len() {
         panic(array!['CompactedArrayOutOfBounds', index.into(), slot_index.into(), label]);
     }
 
     let slot_bits = *compacted_values.at(slot_index); // 4294967346000000
-    let offset = (index - slot_index * compacted_values_per_slot)
-        * compacted_value_bit_length; // = 32
+    let offset = (index - slot_index * compacted_values_per_slot) * compacted_value_bit_length; // = 32
 
-    let value = (slot_bits / pow(2, offset))
-        & bit_mask; // 4294967346000000 / 2^32 = 1000000 & bit_mask
+    let value = (slot_bits / pow(2, offset)) & bit_mask; // 4294967346000000 / 2^32 = 1000000 & bit_mask
 
     value
 }
@@ -223,9 +213,7 @@ impl StoreContractAddressSpan of Store<Span<ContractAddress>> {
         StoreContractAddressSpan::read_at_offset(address_domain, base, 0)
     }
 
-    fn write(
-        address_domain: u32, base: StorageBaseAddress, value: Span<ContractAddress>
-    ) -> SyscallResult<()> {
+    fn write(address_domain: u32, base: StorageBaseAddress, value: Span<ContractAddress>) -> SyscallResult<()> {
         StoreContractAddressSpan::write_at_offset(address_domain, base, 0, value)
     }
 
@@ -235,8 +223,7 @@ impl StoreContractAddressSpan of Store<Span<ContractAddress>> {
         let mut arr: Array<ContractAddress> = ArrayTrait::new();
 
         // Read the stored array's length. If the length is superior to 255, the read will fail.
-        let len: u8 = Store::<u8>::read_at_offset(address_domain, base, offset)
-            .expect('Storage Span too large');
+        let len: u8 = Store::<u8>::read_at_offset(address_domain, base, offset).expect('Storage Span too large');
         offset += 1;
 
         // Sequentially read all stored elements and append them to the array.
@@ -257,10 +244,7 @@ impl StoreContractAddressSpan of Store<Span<ContractAddress>> {
     }
 
     fn write_at_offset(
-        address_domain: u32,
-        base: StorageBaseAddress,
-        mut offset: u8,
-        mut value: Span<ContractAddress>
+        address_domain: u32, base: StorageBaseAddress, mut offset: u8, mut value: Span<ContractAddress>
     ) -> SyscallResult<()> {
         // Store the length of the array in the first storage slot.
         let len: u8 = value.len().try_into().expect('Storage - Span too large');
@@ -271,9 +255,7 @@ impl StoreContractAddressSpan of Store<Span<ContractAddress>> {
         loop {
             match value.pop_front() {
                 Option::Some(element) => {
-                    Store::<
-                        ContractAddress
-                    >::write_at_offset(address_domain, base, offset, *element);
+                    Store::<ContractAddress>::write_at_offset(address_domain, base, offset, *element);
                     offset += Store::<felt252>::size();
                 },
                 Option::None(_) => { break Result::Ok(()); }
@@ -296,11 +278,7 @@ impl StoreContractAddressSpan of Store<Span<ContractAddress>> {
 /// # Returns
 /// The uncompacted value at the specified index in the array of compacted values.
 fn get_uncompacted_value_u64(
-    compacted_values: Span<u64>,
-    index: usize,
-    compacted_value_bit_length: usize,
-    bit_mask: u64,
-    label: felt252
+    compacted_values: Span<u64>, index: usize, compacted_value_bit_length: usize, bit_mask: u64, label: felt252
 ) -> u64 {
     let compacted_values_per_slot = 64 / compacted_value_bit_length;
 

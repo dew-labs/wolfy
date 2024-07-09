@@ -3,9 +3,7 @@ use core::array::ArrayTrait;
 use core::traits::Into;
 
 use snforge_std::{declare, ContractClassTrait, start_cheat_caller_address};
-use satoru::tests_lib::{
-    teardown, deploy_role_store, deploy_swap_handler_address, deploy_data_store
-};
+use satoru::tests_lib::{teardown, deploy_role_store, deploy_swap_handler_address, deploy_data_store};
 use satoru::utils::span32::{Span32, Array32Trait};
 
 use satoru::swap::swap_handler::{ISwapHandlerDispatcher, ISwapHandlerDispatcherTrait};
@@ -16,14 +14,11 @@ use satoru::role::{role, role_store::{IRoleStoreDispatcher, IRoleStoreDispatcher
 use satoru::market::market::Market;
 use satoru::order::{
     order::{Order, SecondaryOrderType, OrderType, DecreasePositionSwapType},
-    order_vault::{IOrderVaultDispatcher, IOrderVaultDispatcherTrait},
-    base_order_utils::ExecuteOrderParamsContracts
+    order_vault::{IOrderVaultDispatcher, IOrderVaultDispatcherTrait}, base_order_utils::ExecuteOrderParamsContracts
 };
 use satoru::mock::referral_storage::{IReferralStorageDispatcher, IReferralStorageDispatcherTrait};
 
-use satoru::position::{
-    position::Position, decrease_position_utils, position_utils::UpdatePositionParams
-};
+use satoru::position::{position::Position, decrease_position_utils, position_utils::UpdatePositionParams};
 
 
 #[test]
@@ -149,9 +144,7 @@ fn create_new_update_position_params(
         ui_fee_receiver: contract_address_const::<'ui_fee_receiver'>(),
         market: contract_address_const::<'market'>(),
         initial_collateral_token: contract_address_const::<'token1'>(),
-        swap_path: array![
-            contract_address_const::<'swap_path_0'>(), contract_address_const::<'swap_path_1'>()
-        ]
+        swap_path: array![contract_address_const::<'swap_path_0'>(), contract_address_const::<'swap_path_1'>()]
             .span32(),
         size_delta_usd: 1000,
         initial_collateral_delta_amount: 1000,

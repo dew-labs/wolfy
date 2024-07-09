@@ -1,7 +1,6 @@
 use starknet::{ContractAddress, contract_address_const};
 use snforge_std::{
-    declare, ContractClassTrait, spy_events, SpyOn, EventSpy, EventFetcher, event_name_hash, Event,
-    EventAssertions
+    declare, ContractClassTrait, spy_events, SpyOn, EventSpy, EventFetcher, event_name_hash, Event, EventAssertions
 };
 use satoru::tests_lib::setup_event_emitter;
 use satoru::position::{
@@ -14,13 +13,11 @@ use satoru::pricing::position_pricing_utils::{
 use satoru::order::order::OrderType;
 use satoru::price::price::Price;
 
-use satoru::event::event_emitter::{
-    EventEmitter, IEventEmitterDispatcher, IEventEmitterDispatcherTrait
-};
+use satoru::event::event_emitter::{EventEmitter, IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
 
 use satoru::event::event_emitter::EventEmitter::{
-    PositionIncrease, PositionDecrease, InsolventClose, InsufficientFundingFeePayment,
-    PositionFeesInfo, PositionFeesCollected
+    PositionIncrease, PositionDecrease, InsolventClose, InsufficientFundingFeePayment, PositionFeesInfo,
+    PositionFeesCollected
 };
 
 
@@ -57,17 +54,11 @@ fn given_normal_conditions_when_emit_position_increase_then_works() {
                         PositionIncrease {
                             account: dummy_position_increase_params.position.account,
                             market: dummy_position_increase_params.position.market,
-                            collateral_token: dummy_position_increase_params
-                                .position
-                                .collateral_token,
+                            collateral_token: dummy_position_increase_params.position.collateral_token,
                             size_in_usd: dummy_position_increase_params.position.size_in_usd,
                             size_in_tokens: dummy_position_increase_params.position.size_in_tokens,
-                            collateral_amount: dummy_position_increase_params
-                                .position
-                                .collateral_amount,
-                            borrowing_factor: dummy_position_increase_params
-                                .position
-                                .borrowing_factor,
+                            collateral_amount: dummy_position_increase_params.position.collateral_amount,
+                            borrowing_factor: dummy_position_increase_params.position.borrowing_factor,
                             funding_fee_amount_per_size: dummy_position_increase_params
                                 .position
                                 .funding_fee_amount_per_size,
@@ -78,24 +69,14 @@ fn given_normal_conditions_when_emit_position_increase_then_works() {
                                 .position
                                 .short_token_claimable_funding_amount_per_size,
                             execution_price: dummy_position_increase_params.execution_price,
-                            index_token_price_max: dummy_position_increase_params
-                                .index_token_price
-                                .max,
-                            index_token_price_min: dummy_position_increase_params
-                                .index_token_price
-                                .min,
-                            collateral_token_price_max: dummy_position_increase_params
-                                .collateral_token_price
-                                .max,
-                            collateral_token_price_min: dummy_position_increase_params
-                                .collateral_token_price
-                                .min,
+                            index_token_price_max: dummy_position_increase_params.index_token_price.max,
+                            index_token_price_min: dummy_position_increase_params.index_token_price.min,
+                            collateral_token_price_max: dummy_position_increase_params.collateral_token_price.max,
+                            collateral_token_price_min: dummy_position_increase_params.collateral_token_price.min,
                             size_delta_usd: dummy_position_increase_params.size_delta_usd,
-                            size_delta_in_tokens: dummy_position_increase_params
-                                .size_delta_in_tokens,
+                            size_delta_in_tokens: dummy_position_increase_params.size_delta_in_tokens,
                             order_type: dummy_position_increase_params.order_type,
-                            collateral_delta_amount: dummy_position_increase_params
-                                .collateral_delta_amount,
+                            collateral_delta_amount: dummy_position_increase_params.collateral_delta_amount,
                             price_impact_usd: dummy_position_increase_params.price_impact_usd,
                             price_impact_amount: dummy_position_increase_params.price_impact_amount,
                             is_long: dummy_position_increase_params.position.is_long,
@@ -212,10 +193,7 @@ fn given_normal_conditions_when_emit_insolvent_close_then_works() {
     let remaining_cost_usd = 75;
 
     // Emit the event.
-    event_emitter
-        .emit_insolvent_close_info(
-            order_key, position_collateral_amount, base_pnl_usd, remaining_cost_usd
-        );
+    event_emitter.emit_insolvent_close_info(order_key, position_collateral_amount, base_pnl_usd, remaining_cost_usd);
 
     // Assert the event was emitted.
     spy
@@ -261,11 +239,7 @@ fn given_normal_conditions_when_emit_insufficient_funding_fee_payment_then_works
     // Emit the event.
     event_emitter
         .emit_insufficient_funding_fee_payment(
-            market,
-            token,
-            expected_amount,
-            amount_paid_in_collateral_token,
-            amount_paid_in_secondary_output_token
+            market, token, expected_amount, amount_paid_in_collateral_token, amount_paid_in_secondary_output_token
         );
 
     // Assert the event was emitted.
@@ -315,13 +289,7 @@ fn given_normal_conditions_when_emit_position_fees_collected_then_works() {
     // Emit the event.
     event_emitter
         .emit_position_fees_collected(
-            order_key,
-            position_key,
-            market,
-            collateral_token,
-            trade_size_usd,
-            is_increase,
-            dummy_position_fees
+            order_key, position_key, market, collateral_token, trade_size_usd, is_increase, dummy_position_fees
         );
 
     // Assert the event was emitted.
@@ -340,31 +308,17 @@ fn given_normal_conditions_when_emit_position_fees_collected_then_works() {
                             affiliate: dummy_position_fees.referral.affiliate,
                             trader: dummy_position_fees.referral.trader,
                             ui_fee_receiver: dummy_position_fees.ui.ui_fee_receiver,
-                            collateral_token_price_min: dummy_position_fees
-                                .collateral_token_price
-                                .min,
-                            collateral_token_price_max: dummy_position_fees
-                                .collateral_token_price
-                                .max,
+                            collateral_token_price_min: dummy_position_fees.collateral_token_price.min,
+                            collateral_token_price_max: dummy_position_fees.collateral_token_price.max,
                             trade_size_usd: trade_size_usd,
                             total_rebate_factor: dummy_position_fees.referral.total_rebate_factor,
-                            trader_discount_factor: dummy_position_fees
-                                .referral
-                                .trader_discount_factor,
+                            trader_discount_factor: dummy_position_fees.referral.trader_discount_factor,
                             total_rebate_amount: dummy_position_fees.referral.total_rebate_amount,
-                            trader_discount_amount: dummy_position_fees
-                                .referral
-                                .trader_discount_amount,
-                            affiliate_reward_amount: dummy_position_fees
-                                .referral
-                                .affiliate_reward_amount,
+                            trader_discount_amount: dummy_position_fees.referral.trader_discount_amount,
+                            affiliate_reward_amount: dummy_position_fees.referral.affiliate_reward_amount,
                             funding_fee_amount: dummy_position_fees.funding.funding_fee_amount,
-                            claimable_long_token_amount: dummy_position_fees
-                                .funding
-                                .claimable_long_token_amount,
-                            claimable_short_token_amount: dummy_position_fees
-                                .funding
-                                .claimable_short_token_amount,
+                            claimable_long_token_amount: dummy_position_fees.funding.claimable_long_token_amount,
+                            claimable_short_token_amount: dummy_position_fees.funding.claimable_short_token_amount,
                             latest_funding_fee_amount_per_size: dummy_position_fees
                                 .funding
                                 .latest_funding_fee_amount_per_size,
@@ -375,23 +329,17 @@ fn given_normal_conditions_when_emit_position_fees_collected_then_works() {
                                 .funding
                                 .latest_short_token_claimable_funding_amount_per_size,
                             borrowing_fee_usd: dummy_position_fees.borrowing.borrowing_fee_usd,
-                            borrowing_fee_amount: dummy_position_fees
-                                .borrowing
-                                .borrowing_fee_amount,
-                            borrowing_fee_receiver_factor: dummy_position_fees
-                                .borrowing
-                                .borrowing_fee_receiver_factor,
+                            borrowing_fee_amount: dummy_position_fees.borrowing.borrowing_fee_amount,
+                            borrowing_fee_receiver_factor: dummy_position_fees.borrowing.borrowing_fee_receiver_factor,
                             borrowing_fee_amount_for_fee_receiver: dummy_position_fees
                                 .borrowing
                                 .borrowing_fee_amount_for_fee_receiver,
                             position_fee_factor: dummy_position_fees.position_fee_factor,
                             protocol_fee_amount: dummy_position_fees.protocol_fee_amount,
-                            position_fee_receiver_factor: dummy_position_fees
-                                .position_fee_receiver_factor,
+                            position_fee_receiver_factor: dummy_position_fees.position_fee_receiver_factor,
                             fee_receiver_amount: dummy_position_fees.fee_receiver_amount,
                             fee_amount_for_pool: dummy_position_fees.fee_amount_for_pool,
-                            position_fee_amount_for_pool: dummy_position_fees
-                                .position_fee_amount_for_pool,
+                            position_fee_amount_for_pool: dummy_position_fees.position_fee_amount_for_pool,
                             position_fee_amount: dummy_position_fees.position_fee_amount,
                             total_cost_amount: dummy_position_fees.total_cost_amount,
                             ui_fee_receiver_factor: dummy_position_fees.ui.ui_fee_receiver_factor,
@@ -430,13 +378,7 @@ fn given_normal_conditions_when_emit_position_fees_info_then_works() {
     // Emit the event.
     event_emitter
         .emit_position_fees_info(
-            order_key,
-            position_key,
-            market,
-            collateral_token,
-            trade_size_usd,
-            is_increase,
-            dummy_position_fees
+            order_key, position_key, market, collateral_token, trade_size_usd, is_increase, dummy_position_fees
         );
 
     // Assert the event was emitted.
@@ -455,31 +397,17 @@ fn given_normal_conditions_when_emit_position_fees_info_then_works() {
                             affiliate: dummy_position_fees.referral.affiliate,
                             trader: dummy_position_fees.referral.trader,
                             ui_fee_receiver: dummy_position_fees.ui.ui_fee_receiver,
-                            collateral_token_price_min: dummy_position_fees
-                                .collateral_token_price
-                                .min,
-                            collateral_token_price_max: dummy_position_fees
-                                .collateral_token_price
-                                .max,
+                            collateral_token_price_min: dummy_position_fees.collateral_token_price.min,
+                            collateral_token_price_max: dummy_position_fees.collateral_token_price.max,
                             trade_size_usd: trade_size_usd,
                             total_rebate_factor: dummy_position_fees.referral.total_rebate_factor,
-                            trader_discount_factor: dummy_position_fees
-                                .referral
-                                .trader_discount_factor,
+                            trader_discount_factor: dummy_position_fees.referral.trader_discount_factor,
                             total_rebate_amount: dummy_position_fees.referral.total_rebate_amount,
-                            trader_discount_amount: dummy_position_fees
-                                .referral
-                                .trader_discount_amount,
-                            affiliate_reward_amount: dummy_position_fees
-                                .referral
-                                .affiliate_reward_amount,
+                            trader_discount_amount: dummy_position_fees.referral.trader_discount_amount,
+                            affiliate_reward_amount: dummy_position_fees.referral.affiliate_reward_amount,
                             funding_fee_amount: dummy_position_fees.funding.funding_fee_amount,
-                            claimable_long_token_amount: dummy_position_fees
-                                .funding
-                                .claimable_long_token_amount,
-                            claimable_short_token_amount: dummy_position_fees
-                                .funding
-                                .claimable_short_token_amount,
+                            claimable_long_token_amount: dummy_position_fees.funding.claimable_long_token_amount,
+                            claimable_short_token_amount: dummy_position_fees.funding.claimable_short_token_amount,
                             latest_funding_fee_amount_per_size: dummy_position_fees
                                 .funding
                                 .latest_funding_fee_amount_per_size,
@@ -490,23 +418,17 @@ fn given_normal_conditions_when_emit_position_fees_info_then_works() {
                                 .funding
                                 .latest_short_token_claimable_funding_amount_per_size,
                             borrowing_fee_usd: dummy_position_fees.borrowing.borrowing_fee_usd,
-                            borrowing_fee_amount: dummy_position_fees
-                                .borrowing
-                                .borrowing_fee_amount,
-                            borrowing_fee_receiver_factor: dummy_position_fees
-                                .borrowing
-                                .borrowing_fee_receiver_factor,
+                            borrowing_fee_amount: dummy_position_fees.borrowing.borrowing_fee_amount,
+                            borrowing_fee_receiver_factor: dummy_position_fees.borrowing.borrowing_fee_receiver_factor,
                             borrowing_fee_amount_for_fee_receiver: dummy_position_fees
                                 .borrowing
                                 .borrowing_fee_amount_for_fee_receiver,
                             position_fee_factor: dummy_position_fees.position_fee_factor,
                             protocol_fee_amount: dummy_position_fees.protocol_fee_amount,
-                            position_fee_receiver_factor: dummy_position_fees
-                                .position_fee_receiver_factor,
+                            position_fee_receiver_factor: dummy_position_fees.position_fee_receiver_factor,
                             fee_receiver_amount: dummy_position_fees.fee_receiver_amount,
                             fee_amount_for_pool: dummy_position_fees.fee_amount_for_pool,
-                            position_fee_amount_for_pool: dummy_position_fees
-                                .position_fee_amount_for_pool,
+                            position_fee_amount_for_pool: dummy_position_fees.position_fee_amount_for_pool,
                             position_fee_amount: dummy_position_fees.position_fee_amount,
                             total_cost_amount: dummy_position_fees.total_cost_amount,
                             ui_fee_receiver_factor: dummy_position_fees.ui.ui_fee_receiver_factor,
@@ -521,9 +443,7 @@ fn given_normal_conditions_when_emit_position_fees_info_then_works() {
     assert(spy.events.len() == 0, 'There should be no events');
 }
 
-fn create_dummy_position_increase_params(
-    event_emitter: IEventEmitterDispatcher
-) -> PositionIncreaseParams {
+fn create_dummy_position_increase_params(event_emitter: IEventEmitterDispatcher) -> PositionIncreaseParams {
     PositionIncreaseParams {
         event_emitter: event_emitter,
         order_key: 'order_key',
@@ -631,10 +551,8 @@ fn create_dummy_position_fees() -> PositionFees {
 
     let dummy_pos_ui_fees = PositionUiFees {
         /// The ui fee receiver address
-        ui_fee_receiver: contract_address_const::<'ui_fee_receiver'>(),
-        /// The factor for fee receiver.
-        ui_fee_receiver_factor: 2,
-        /// The ui fee amount in tokens.
+        ui_fee_receiver: contract_address_const::<'ui_fee_receiver'>(), /// The factor for fee receiver.
+        ui_fee_receiver_factor: 2, /// The ui fee amount in tokens.
         ui_fee_amount: 3,
     };
 

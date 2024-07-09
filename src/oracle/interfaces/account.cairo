@@ -2,11 +2,7 @@
 trait IAccount<TContractState> {
     fn __validate_declare__(self: @TContractState, class_hash: felt252) -> felt252;
     fn __validate_deploy__(
-        self: @TContractState,
-        class_hash: felt252,
-        contract_address_salt: felt252,
-        owner: felt252,
-        guardian: felt252
+        self: @TContractState, class_hash: felt252, contract_address_salt: felt252, owner: felt252, guardian: felt252
     ) -> felt252;
     // External
 
@@ -18,9 +14,7 @@ trait IAccount<TContractState> {
     /// Signature is required to prevent changing to an address which is not in control of the user
     /// Signature is the Signed Message of this hash:
     /// hash = pedersen(0, (change_owner selector, chainid, contract address, old_owner))
-    fn change_owner(
-        ref self: TContractState, new_owner: felt252, signature_r: felt252, signature_s: felt252
-    );
+    fn change_owner(ref self: TContractState, new_owner: felt252, signature_r: felt252, signature_s: felt252);
 
     /// @notice Changes the guardian
     /// Must be called by the account and authorised by the owner and a guardian (if guardian is set).

@@ -10,8 +10,7 @@ use starknet::ContractAddress;
 use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
 use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
 use satoru::oracle::{
-    oracle::{IOracleDispatcher, IOracleDispatcherTrait},
-    oracle_utils::{SetPricesParams, SimulatePricesParams},
+    oracle::{IOracleDispatcher, IOracleDispatcherTrait}, oracle_utils::{SetPricesParams, SimulatePricesParams},
 };
 use satoru::price::price::Price;
 use satoru::oracle::error::OracleError;
@@ -56,9 +55,7 @@ fn with_oracle_prices_after(oracle: IOracleDispatcher) {
 
 fn with_simulated_oracle_prices_before(oracle: IOracleDispatcher, params: SimulatePricesParams) {
     if (params.primary_tokens.len() != params.primary_prices.len()) {
-        OracleError::INVALID_PRIMARY_PRICES_FOR_SIMULATION(
-            params.primary_tokens.len(), params.primary_prices.len()
-        );
+        OracleError::INVALID_PRIMARY_PRICES_FOR_SIMULATION(params.primary_tokens.len(), params.primary_prices.len());
     }
     let mut cur_idx = 0;
     loop {

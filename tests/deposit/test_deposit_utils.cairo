@@ -11,8 +11,7 @@ use satoru::role::role;
 use satoru::tests_lib;
 use satoru::utils::span32::{Span32, Array32Trait};
 use satoru::deposit::{
-    deposit::Deposit, deposit_utils::CreateDepositParams, deposit_utils::create_deposit,
-    deposit_utils::cancel_deposit,
+    deposit::Deposit, deposit_utils::CreateDepositParams, deposit_utils::create_deposit, deposit_utils::cancel_deposit,
     deposit_vault::{IDepositVaultDispatcher, IDepositVaultDispatcherTrait}
 };
 
@@ -79,17 +78,11 @@ fn given_normal_conditions_when_cancel_deposit_then_works() {
 /// * `IDataStoreDispatcher` - The data store dispatcher.
 /// * `IRoleStoreDispatcher` - The role store dispatcher.
 fn setup() -> (
-    ContractAddress,
-    IDataStoreDispatcher,
-    IEventEmitterDispatcher,
-    IDepositVaultDispatcher,
-    IChainDispatcher
+    ContractAddress, IDataStoreDispatcher, IEventEmitterDispatcher, IDepositVaultDispatcher, IChainDispatcher
 ) {
     let (caller_address, role_store, data_store) = tests_lib::setup();
     let (_, event_emitter) = tests_lib::setup_event_emitter();
-    let deposit_vault_address = deploy_deposit_vault(
-        data_store.contract_address, role_store.contract_address
-    );
+    let deposit_vault_address = deploy_deposit_vault(data_store.contract_address, role_store.contract_address);
     let deposit_vault = IDepositVaultDispatcher { contract_address: deposit_vault_address };
 
     let chain_address = deploy_chain();
@@ -107,9 +100,7 @@ fn setup_role() -> (
 ) {
     let (caller_address, role_store, data_store) = tests_lib::setup();
     let (_, event_emitter) = tests_lib::setup_event_emitter();
-    let deposit_vault_address = deploy_deposit_vault(
-        data_store.contract_address, role_store.contract_address
-    );
+    let deposit_vault_address = deploy_deposit_vault(data_store.contract_address, role_store.contract_address);
     let deposit_vault = IDepositVaultDispatcher { contract_address: deposit_vault_address };
 
     let chain_address = deploy_chain();
@@ -118,9 +109,7 @@ fn setup_role() -> (
 }
 
 /// Utility function to deploy a `DepositVault` contract and return its dispatcher.
-fn deploy_deposit_vault(
-    data_store_address: ContractAddress, role_store_address: ContractAddress
-) -> ContractAddress {
+fn deploy_deposit_vault(data_store_address: ContractAddress, role_store_address: ContractAddress) -> ContractAddress {
     let contract = declare("DepositVault").unwrap();
     contract.deploy(@array![data_store_address.into(), role_store_address.into()]).unwrap()
 }
@@ -146,15 +135,9 @@ fn create_dummy_deposit_param() -> CreateDepositParams {
         /// The initial short token address.
         initial_short_token: 'initial_short_token'.try_into().unwrap(),
         /// The swap path into markets for the long token.
-        long_token_swap_path: array![
-            1.try_into().unwrap(), 2.try_into().unwrap(), 3.try_into().unwrap()
-        ]
-            .span32(),
+        long_token_swap_path: array![1.try_into().unwrap(), 2.try_into().unwrap(), 3.try_into().unwrap()].span32(),
         /// The swap path into markets for the short token.
-        short_token_swap_path: array![
-            4.try_into().unwrap(), 5.try_into().unwrap(), 6.try_into().unwrap()
-        ]
-            .span32(),
+        short_token_swap_path: array![4.try_into().unwrap(), 5.try_into().unwrap(), 6.try_into().unwrap()].span32(),
         /// The minimum acceptable number of liquidity tokens.
         min_market_tokens: 10,
         /// The execution fee for keepers.
@@ -179,10 +162,7 @@ fn create_dummy_deposit_param_market(
     let role_store = IRoleStoreDispatcher { contract_address: role_store_address };
     let caller_address: ContractAddress = contract_address_const::<'caller'>();
     let mut market = Market {
-        market_token: key,
-        index_token: address_zero,
-        long_token: address_zero,
-        short_token: address_zero,
+        market_token: key, index_token: address_zero, long_token: address_zero, short_token: address_zero,
     };
     // Test logic
     // Test set_market function without permission
@@ -205,15 +185,9 @@ fn create_dummy_deposit_param_market(
         /// The initial short token address.
         initial_short_token: 'initial_short_token'.try_into().unwrap(),
         /// The swap path into markets for the long token.
-        long_token_swap_path: array![
-            1.try_into().unwrap(), 2.try_into().unwrap(), 3.try_into().unwrap()
-        ]
-            .span32(),
+        long_token_swap_path: array![1.try_into().unwrap(), 2.try_into().unwrap(), 3.try_into().unwrap()].span32(),
         /// The swap path into markets for the short token.
-        short_token_swap_path: array![
-            4.try_into().unwrap(), 5.try_into().unwrap(), 6.try_into().unwrap()
-        ]
-            .span32(),
+        short_token_swap_path: array![4.try_into().unwrap(), 5.try_into().unwrap(), 6.try_into().unwrap()].span32(),
         /// The minimum acceptable number of liquidity tokens.
         min_market_tokens: 10,
         /// The execution fee for keepers.

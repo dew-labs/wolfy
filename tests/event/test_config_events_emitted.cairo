@@ -1,14 +1,11 @@
 use starknet::{ContractAddress, contract_address_const};
 use snforge_std::{
-    declare, ContractClassTrait, spy_events, SpyOn, EventSpy, EventFetcher, event_name_hash, Event,
-    EventAssertions
+    declare, ContractClassTrait, spy_events, SpyOn, EventSpy, EventFetcher, event_name_hash, Event, EventAssertions
 };
 
 use satoru::tests_lib::setup_event_emitter;
 
-use satoru::event::event_emitter::{
-    EventEmitter, IEventEmitterDispatcher, IEventEmitterDispatcherTrait
-};
+use satoru::event::event_emitter::{EventEmitter, IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
 
 use satoru::event::event_emitter::EventEmitter::{SetBool, SetAddress, SetFelt252, SetUint, SetInt};
 
@@ -37,9 +34,7 @@ fn given_normal_conditions_when_emit_set_bool_then_works() {
             @array![
                 (
                     contract_address,
-                    EventEmitter::Event::SetBool(
-                        SetBool { key: key, data_bytes: data.span(), value: value }
-                    )
+                    EventEmitter::Event::SetBool(SetBool { key: key, data_bytes: data.span(), value: value })
                 )
             ]
         );
@@ -72,9 +67,7 @@ fn given_normal_conditions_when_emit_set_address_then_works() {
             @array![
                 (
                     contract_address,
-                    EventEmitter::Event::SetAddress(
-                        SetAddress { key: key, data_bytes: data.span(), value: value }
-                    )
+                    EventEmitter::Event::SetAddress(SetAddress { key: key, data_bytes: data.span(), value: value })
                 )
             ]
         );
@@ -107,9 +100,7 @@ fn given_normal_conditions_when_emit_set_felt252_then_works() {
             @array![
                 (
                     contract_address,
-                    EventEmitter::Event::SetFelt252(
-                        SetFelt252 { key: key, data_bytes: data.span(), value: value }
-                    )
+                    EventEmitter::Event::SetFelt252(SetFelt252 { key: key, data_bytes: data.span(), value: value })
                 )
             ]
         );
@@ -142,9 +133,7 @@ fn given_normal_conditions_when_emit_set_uint_then_works() {
             @array![
                 (
                     contract_address,
-                    EventEmitter::Event::SetUint(
-                        SetUint { key: key, data_bytes: data.span(), value: value }
-                    )
+                    EventEmitter::Event::SetUint(SetUint { key: key, data_bytes: data.span(), value: value })
                 )
             ]
         );
@@ -178,9 +167,7 @@ fn given_normal_conditions_when_emit_set_int_then_works() {
             @array![
                 (
                     contract_address,
-                    EventEmitter::Event::SetInt(
-                        SetInt { key: key, data_bytes: data.span(), value: value }
-                    )
+                    EventEmitter::Event::SetInt(SetInt { key: key, data_bytes: data.span(), value: value })
                 )
             ]
         );

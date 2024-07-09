@@ -992,9 +992,7 @@ fn min_collateral_factor_key(market: ContractAddress) -> felt252 {
 /// # Arguments
 /// * `market` - The market address.
 /// * `is_long` - Whether the position is long.
-fn min_collateral_factor_for_open_interest_multiplier_key(
-    market: ContractAddress, is_long: bool
-) -> felt252 {
+fn min_collateral_factor_for_open_interest_multiplier_key(market: ContractAddress, is_long: bool) -> felt252 {
     let mut data = array![];
     data.append(min_collateral_factor_for_open_interest_multiplier());
     data.append(market.into());
@@ -1149,9 +1147,7 @@ fn oracle_type_key(token: ContractAddress) -> felt252 {
 /// * `market` - The market address.
 /// * `collateral_token` - The collateral token.
 /// * `is_long` - Whether to check the long or short open interest.
-fn open_interest_key(
-    market: ContractAddress, collateral_token: ContractAddress, is_long: bool
-) -> felt252 {
+fn open_interest_key(market: ContractAddress, collateral_token: ContractAddress, is_long: bool) -> felt252 {
     let mut data = array![];
     data.append(open_interest());
     data.append(market.into());
@@ -1165,9 +1161,7 @@ fn open_interest_key(
 /// * `market` - The market address.
 /// * `collateral_token` - The collateral token.
 /// * `is_long` - Whether to check the long or short open interest.
-fn open_interest_in_tokens_key(
-    market: ContractAddress, collateral_token: ContractAddress, is_long: bool
-) -> felt252 {
+fn open_interest_in_tokens_key(market: ContractAddress, collateral_token: ContractAddress, is_long: bool) -> felt252 {
     let mut data = array![];
     data.append(open_interest_in_tokens());
     data.append(market.into());
@@ -1181,9 +1175,7 @@ fn open_interest_in_tokens_key(
 /// * `market` - The market address.
 /// * `collateral_token` - The collateral token.
 /// * `is_long` - Whether to check the long or short collateral sum.
-fn collateral_sum_key(
-    market: ContractAddress, collateral_token: ContractAddress, is_long: bool
-) -> felt252 {
+fn collateral_sum_key(market: ContractAddress, collateral_token: ContractAddress, is_long: bool) -> felt252 {
     let mut data = array![];
     data.append(collateral_sum());
     data.append(market.into());
@@ -1462,9 +1454,7 @@ fn claimable_collateral_amount_for_account_key(
 /// * `market` - The market address.
 /// * `token` - The token address.
 /// * `time_key` - The time key for the claimable amount.
-fn claimable_collateral_factor_key(
-    market: ContractAddress, token: ContractAddress, time_key: u256
-) -> felt252 {
+fn claimable_collateral_factor_key(market: ContractAddress, token: ContractAddress, time_key: u256) -> felt252 {
     let mut data = array![];
     data.append(claimable_collateral_factor());
     data.append(market.into());

@@ -17,12 +17,11 @@ use alexandria_data_structures::array_ext::ArrayTraitExt;
 // Local imports.
 use satoru::utils::traits::ContractAddressDefault;
 use satoru::event::event_utils::{
-    Felt252IntoBool, Felt252IntoContractAddress, I256252DictValue, ContractAddressDictValue,
-    U256252DictValue, U256IntoFelt252
+    Felt252IntoBool, Felt252IntoContractAddress, I256252DictValue, ContractAddressDictValue, U256252DictValue,
+    U256IntoFelt252
 };
 use satoru::utils::serializable_dict::{
-    Item, ItemTrait, SerializableFelt252Dict, SerializableFelt252DictTrait,
-    SerializableFelt252DictTraitImpl
+    Item, ItemTrait, SerializableFelt252Dict, SerializableFelt252DictTrait, SerializableFelt252DictTraitImpl
 };
 
 // *********************************************************************************************
@@ -185,9 +184,7 @@ fn test_serializable_dict_serialize() {
     let out_value: u256 = retrieved_item.unwrap_single();
 
     assert(dict.contains('test_span'), 'key should be in dict');
-    let retrieved_item: Item<u256> = deserialized_dict
-        .get('test_span')
-        .expect('key should be in dict');
+    let retrieved_item: Item<u256> = deserialized_dict.get('test_span').expect('key should be in dict');
     let out_span: Span<u256> = retrieved_item.unwrap_span();
     assert(dict.len() == 2, 'wrong deserialized dict len');
     assert(dict.contains('test'), 'test should be in dict');

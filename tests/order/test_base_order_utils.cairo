@@ -4,9 +4,9 @@ use snforge_std::{declare, start_cheat_caller_address, stop_cheat_caller_address
 use satoru::order::{order::{OrderType, Order},};
 use satoru::price::price::{Price, PriceTrait};
 use satoru::order::base_order_utils::{
-    is_market_order, is_limit_order, is_swap_order, is_position_order, is_increase_order,
-    is_decrease_order, is_liquidation_order, validate_order_trigger_price,
-    get_execution_price_for_increase, get_execution_price_for_decrease, validate_non_empty_order
+    is_market_order, is_limit_order, is_swap_order, is_position_order, is_increase_order, is_decrease_order,
+    is_liquidation_order, validate_order_trigger_price, get_execution_price_for_increase,
+    get_execution_price_for_decrease, validate_non_empty_order
 };
 
 use satoru::data::data_store::{DataStore, IDataStoreDispatcher, IDataStoreDispatcherTrait};
@@ -118,39 +118,25 @@ fn given_normal_conditions_when_validate_order_trigger_price_then_works() {
     validate_order_trigger_price(oracle, index_token, OrderType::MarketSwap, 100, true);
 
     // Test limit increase orders
-    validate_order_trigger_price(
-        oracle, index_token, OrderType::LimitIncrease, price.max + 1, true
-    );
+    validate_order_trigger_price(oracle, index_token, OrderType::LimitIncrease, price.max + 1, true);
 
-    validate_order_trigger_price(
-        oracle, index_token, OrderType::LimitIncrease, price.min - 1, false
-    );
+    validate_order_trigger_price(oracle, index_token, OrderType::LimitIncrease, price.min - 1, false);
 
     // Test limit decrease orders
-    validate_order_trigger_price(
-        oracle, index_token, OrderType::LimitDecrease, price.min - 1, true
-    );
+    validate_order_trigger_price(oracle, index_token, OrderType::LimitDecrease, price.min - 1, true);
 
-    validate_order_trigger_price(
-        oracle, index_token, OrderType::LimitDecrease, price.max + 1, false
-    );
+    validate_order_trigger_price(oracle, index_token, OrderType::LimitDecrease, price.max + 1, false);
 
     // Test stop loss orders
-    validate_order_trigger_price(
-        oracle, index_token, OrderType::StopLossDecrease, price.min + 1, true
-    );
+    validate_order_trigger_price(oracle, index_token, OrderType::StopLossDecrease, price.min + 1, true);
 
-    validate_order_trigger_price(
-        oracle, index_token, OrderType::StopLossDecrease, price.max - 1, false
-    );
+    validate_order_trigger_price(oracle, index_token, OrderType::StopLossDecrease, price.max - 1, false);
 
     assert(true, 'e');
 }
 
 #[test]
-#[should_panic(
-    expected: ('invalid_order_price', 100000, 200000, 199999, 6053968548023263173723725853541)
-)]
+#[should_panic(expected: ('invalid_order_price', 100000, 200000, 199999, 6053968548023263173723725853541))]
 fn given_limit_increase_price_higher_than_trigger_when_validate_order_trigger_price_then_fails() {
     // Setup
     let (_, _, _, oracle) = setup();
@@ -159,16 +145,12 @@ fn given_limit_increase_price_higher_than_trigger_when_validate_order_trigger_pr
     oracle.set_primary_price(index_token, price);
 
     // Test
-    validate_order_trigger_price(
-        oracle, index_token, OrderType::LimitIncrease, price.max - 1, true
-    );
+    validate_order_trigger_price(oracle, index_token, OrderType::LimitIncrease, price.max - 1, true);
 }
 
 
 #[test]
-#[should_panic(
-    expected: ('invalid_order_price', 100000, 200000, 199999, 6053968548022900352478745817957)
-)]
+#[should_panic(expected: ('invalid_order_price', 100000, 200000, 199999, 6053968548022900352478745817957))]
 fn given_limit_decrease_price_lower_than_trigger_when_validate_order_trigger_price_then_fails() {
     // Setup
     let (_, _, _, oracle) = setup();
@@ -177,17 +159,11 @@ fn given_limit_decrease_price_lower_than_trigger_when_validate_order_trigger_pri
     oracle.set_primary_price(index_token, price);
 
     // Test
-    validate_order_trigger_price(
-        oracle, index_token, OrderType::LimitDecrease, price.max - 1, false
-    );
+    validate_order_trigger_price(oracle, index_token, OrderType::LimitDecrease, price.max - 1, false);
 }
 
 #[test]
-#[should_panic(
-    expected: (
-        'invalid_order_price', 100000, 200000, 99999, 110930490330413861099797394456752255845
-    )
-)]
+#[should_panic(expected: ('invalid_order_price', 100000, 200000, 99999, 110930490330413861099797394456752255845))]
 fn given_stop_loss_price_lower_than_trigger_when_validate_order_trigger_price_then_fails() {
     // Setup
     let (_, _, _, oracle) = setup();
@@ -196,9 +172,7 @@ fn given_stop_loss_price_lower_than_trigger_when_validate_order_trigger_price_th
     oracle.set_primary_price(index_token, price);
 
     // Test
-    validate_order_trigger_price(
-        oracle, index_token, OrderType::StopLossDecrease, price.min - 1, true
-    );
+    validate_order_trigger_price(oracle, index_token, OrderType::StopLossDecrease, price.min - 1, true);
 }
 
 
@@ -265,9 +239,7 @@ fn given_normal_conditions_when_get_execution_price_for_decrease_then_works() {
 #[test]
 #[should_panic(
     expected: (
-        'price_impact_too_large',
-        3618502788666131213697322783095070105623107215331596699973092056135872020466,
-        1
+        'price_impact_too_large', 3618502788666131213697322783095070105623107215331596699973092056135872020466, 1
     )
 )]
 fn given_price_impact_larger_than_order_when_get_execution_price_for_decrease_then_fails() {
@@ -375,23 +347,17 @@ fn deploy_price_feed() -> ContractAddress {
 }
 
 fn deploy_oracle(
-    oracle_store_address: ContractAddress,
-    role_store_address: ContractAddress,
-    pragma_address: ContractAddress
+    oracle_store_address: ContractAddress, role_store_address: ContractAddress, pragma_address: ContractAddress
 ) -> ContractAddress {
     let contract = declare("Oracle").unwrap();
     let caller_address: ContractAddress = contract_address_const::<'caller'>();
     let deployed_contract_address = contract_address_const::<'oracle'>();
     start_cheat_caller_address(deployed_contract_address, caller_address);
-    let constructor_calldata = array![
-        role_store_address.into(), oracle_store_address.into(), pragma_address.into()
-    ];
+    let constructor_calldata = array![role_store_address.into(), oracle_store_address.into(), pragma_address.into()];
     contract.deploy_at(@constructor_calldata, deployed_contract_address).unwrap()
 }
 
-fn deploy_oracle_store(
-    role_store_address: ContractAddress, event_emitter_address: ContractAddress
-) -> ContractAddress {
+fn deploy_oracle_store(role_store_address: ContractAddress, event_emitter_address: ContractAddress) -> ContractAddress {
     let contract = declare("OracleStore").unwrap();
     let caller_address: ContractAddress = contract_address_const::<'caller'>();
     let deployed_contract_address = contract_address_const::<'oracle_store'>();

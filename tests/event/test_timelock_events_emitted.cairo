@@ -1,19 +1,16 @@
 use starknet::{ContractAddress, contract_address_const};
 use snforge_std::{
-    declare, ContractClassTrait, spy_events, SpyOn, EventSpy, EventFetcher, event_name_hash, Event,
-    EventAssertions
+    declare, ContractClassTrait, spy_events, SpyOn, EventSpy, EventFetcher, event_name_hash, Event, EventAssertions
 };
 
 use satoru::tests_lib::setup_event_emitter;
 
-use satoru::event::event_emitter::{
-    EventEmitter, IEventEmitterDispatcher, IEventEmitterDispatcherTrait
-};
+use satoru::event::event_emitter::{EventEmitter, IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
 
 use satoru::event::event_emitter::EventEmitter::{
-    SignalAddOracleSigner, AddOracleSigner, SignalSetFeeReceiver, SignalRemoveOracleSigner,
-    RemoveOracleSigner, SetFeeReceiver, SignalGrantRole, GrantRole, SignalRevokeRole, RevokeRole,
-    SignalSetPriceFeed, SetPriceFeed, SignalPendingAction, ClearPendingAction
+    SignalAddOracleSigner, AddOracleSigner, SignalSetFeeReceiver, SignalRemoveOracleSigner, RemoveOracleSigner,
+    SetFeeReceiver, SignalGrantRole, GrantRole, SignalRevokeRole, RevokeRole, SignalSetPriceFeed, SetPriceFeed,
+    SignalPendingAction, ClearPendingAction
 };
 
 
@@ -76,9 +73,7 @@ fn given_normal_conditions_when_emit_add_oracle_signer_then_works() {
             @array![
                 (
                     contract_address,
-                    EventEmitter::Event::AddOracleSigner(
-                        AddOracleSigner { action_key: action_key, account: account }
-                    )
+                    EventEmitter::Event::AddOracleSigner(AddOracleSigner { action_key: action_key, account: account })
                 )
             ]
         );
@@ -215,9 +210,7 @@ fn given_normal_conditions_when_emit_set_fee_receiver_then_works() {
             @array![
                 (
                     contract_address,
-                    EventEmitter::Event::SetFeeReceiver(
-                        SetFeeReceiver { action_key: action_key, account: account }
-                    )
+                    EventEmitter::Event::SetFeeReceiver(SetFeeReceiver { action_key: action_key, account: account })
                 )
             ]
         );
@@ -252,9 +245,7 @@ fn given_normal_conditions_when_emit_signal_grant_role_then_works() {
                 (
                     contract_address,
                     EventEmitter::Event::SignalGrantRole(
-                        SignalGrantRole {
-                            action_key: action_key, account: account, role_key: role_key
-                        }
+                        SignalGrantRole { action_key: action_key, account: account, role_key: role_key }
                     )
                 )
             ]
@@ -326,9 +317,7 @@ fn given_normal_conditions_when_emit_signal_revoke_role_then_works() {
                 (
                     contract_address,
                     EventEmitter::Event::SignalRevokeRole(
-                        SignalRevokeRole {
-                            action_key: action_key, account: account, role_key: role_key
-                        }
+                        SignalRevokeRole { action_key: action_key, account: account, role_key: role_key }
                     )
                 )
             ]
@@ -396,12 +385,7 @@ fn given_normal_conditions_when_emit_signal_set_price_feed_then_works() {
     // Emit the event.
     event_emitter
         .emit_signal_set_price_feed(
-            action_key,
-            token,
-            price_feed,
-            price_feed_multiplier,
-            price_feed_heartbeat_duration,
-            stable_price
+            action_key, token, price_feed, price_feed_multiplier, price_feed_heartbeat_duration, stable_price
         );
 
     // Assert the event was emitted.
@@ -451,12 +435,7 @@ fn given_normal_conditions_when_emit_set_price_feed_then_works() {
     // Emit the event.
     event_emitter
         .emit_set_price_feed(
-            action_key,
-            token,
-            price_feed,
-            price_feed_multiplier,
-            price_feed_heartbeat_duration,
-            stable_price
+            action_key, token, price_feed, price_feed_multiplier, price_feed_heartbeat_duration, stable_price
         );
 
     // Assert the event was emitted.

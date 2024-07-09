@@ -17,12 +17,7 @@ use debug::PrintTrait;
 // token - The address of the ERC20 token that is being transferred.
 // receiver - The address of the recipient of the `token` transfer.
 // amount - The amount of `token` to transfer.
-fn transfer(
-    data_store: IDataStoreDispatcher,
-    token: ContractAddress,
-    receiver: ContractAddress,
-    amount: u256
-) {
+fn transfer(data_store: IDataStoreDispatcher, token: ContractAddress, receiver: ContractAddress, amount: u256) {
     if (amount.is_zero()) {
         return ();
     }
@@ -32,8 +27,7 @@ fn transfer(
 
     // transfer tokens to receiver and return if it suceeeds
     let amount_u256 = amount.into();
-    let success0 = IERC20Dispatcher { contract_address: token }
-        .transfer(recipient: receiver, amount: amount_u256);
+    let success0 = IERC20Dispatcher { contract_address: token }.transfer(recipient: receiver, amount: amount_u256);
     if (success0 == true) {
         return ();
     }

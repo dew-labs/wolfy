@@ -1,16 +1,11 @@
 use starknet::{ContractAddress, contract_address_const};
 use snforge_std::{
-    declare, ContractClassTrait, spy_events, SpyOn, EventSpy, EventFetcher, event_name_hash, Event,
-    EventAssertions
+    declare, ContractClassTrait, spy_events, SpyOn, EventSpy, EventFetcher, event_name_hash, Event, EventAssertions
 };
 
-use satoru::event::event_emitter::{
-    EventEmitter, IEventEmitterDispatcher, IEventEmitterDispatcherTrait
-};
+use satoru::event::event_emitter::{EventEmitter, IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
 
-use satoru::event::event_emitter::EventEmitter::{
-    WithdrawalCreated, WithdrawalExecuted, WithdrawalCancelled
-};
+use satoru::event::event_emitter::EventEmitter::{WithdrawalCreated, WithdrawalExecuted, WithdrawalCancelled};
 
 
 use satoru::withdrawal::withdrawal::Withdrawal;
@@ -86,12 +81,7 @@ fn given_normal_conditions_when_emit_withdrawal_executed_then_works() {
     // Assert the event was emitted.
     spy
         .assert_emitted(
-            @array![
-                (
-                    contract_address,
-                    EventEmitter::Event::WithdrawalExecuted(WithdrawalExecuted { key: key, })
-                )
-            ]
+            @array![(contract_address, EventEmitter::Event::WithdrawalExecuted(WithdrawalExecuted { key: key, }))]
         );
     // Assert there are no more events.
     assert(spy.events.len() == 0, 'There should be no events');
@@ -124,9 +114,7 @@ fn given_normal_conditions_when_emit_withdrawal_cancelled_then_works() {
                 (
                     contract_address,
                     EventEmitter::Event::WithdrawalCancelled(
-                        WithdrawalCancelled {
-                            key: key, reason: reason, reason_bytes: reason_bytes.span()
-                        }
+                        WithdrawalCancelled { key: key, reason: reason, reason_bytes: reason_bytes.span() }
                     )
                 )
             ]

@@ -19,9 +19,7 @@ use integer::BoundedInt;
 use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
 use satoru::event::{event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait},};
 use satoru::oracle::oracle::{IOracleDispatcher, IOracleDispatcherTrait};
-use satoru::market::market_utils::{
-    MarketPrices, get_enabled_market, get_market_prices, is_pnl_factor_exceeded_check
-};
+use satoru::market::market_utils::{MarketPrices, get_enabled_market, get_market_prices, is_pnl_factor_exceeded_check};
 use satoru::adl::error::AdlError;
 use satoru::data::keys;
 use satoru::utils::arrays::are_gte_u64;
@@ -113,9 +111,7 @@ fn update_adl_state(
     // will be used for ADL
     set_latest_adl_block(data_store, market, is_long, starknet::info::get_block_number());
 
-    emit_adl_state_updated(
-        event_emitter, market, is_long, pnl_to_pool_factor, max_pnl_factor, should_enable_adl
-    );
+    emit_adl_state_updated(event_emitter, market, is_long, pnl_to_pool_factor, max_pnl_factor, should_enable_adl);
 }
 
 /// Construct an ADL order, a decrease order is used to reduce a profitable position.
@@ -160,9 +156,7 @@ fn create_adl_order(params: CreateAdlOrderParams) -> felt252 {
         decrease_position_swap_type: DecreasePositionSwapType::SwapPnlTokenToCollateralToken,
         account: params.account,
         receiver: params.account,
-        callback_contract: get_saved_callback_contract(
-            params.data_store, params.account, params.market
-        ),
+        callback_contract: get_saved_callback_contract(params.data_store, params.account, params.market),
         ui_fee_receiver: contract_address_const::<0>(),
         market: params.market,
         initial_collateral_token: position.collateral_token,
@@ -191,17 +185,13 @@ fn create_adl_order(params: CreateAdlOrderParams) -> felt252 {
 /// * `is_long` - Indicates whether to check the long or short side of the market.
 /// * `max_oracle_block_numbers` - The oracle block numbers for the prices stored in the oracle.
 fn validate_adl(
-    data_store: IDataStoreDispatcher,
-    market: ContractAddress,
-    is_long: bool,
-    max_oracle_block_numbers: Span<u64>
+    data_store: IDataStoreDispatcher, market: ContractAddress, is_long: bool, max_oracle_block_numbers: Span<u64>
 ) {
     let is_adl_enabled = get_is_adl_enabled(data_store, market, is_long);
     assert(is_adl_enabled, AdlError::ADL_NOT_ENABLED);
     let latest_block = get_latest_adl_block(data_store, market, is_long);
     assert(
-        are_gte_u64(max_oracle_block_numbers, latest_block),
-        AdlError::ORACLE_BLOCK_NUMBERS_ARE_SMALLER_THAN_REQUIRED
+        are_gte_u64(max_oracle_block_numbers, latest_block), AdlError::ORACLE_BLOCK_NUMBERS_ARE_SMALLER_THAN_REQUIRED
     );
 }
 
@@ -212,13 +202,8 @@ fn validate_adl(
 /// * `is_long` - Indicates whether to check the long or short side of the market.
 /// # Returns
 /// Return the latest block at which the ADL flag was updated.
-fn get_latest_adl_block(
-    data_store: IDataStoreDispatcher, market: ContractAddress, is_long: bool
-) -> u64 {
-    data_store
-        .get_u256(keys::latest_adl_block_key(market, is_long))
-        .try_into()
-        .expect('get_u256 into u64 failed')
+fn get_latest_adl_block(data_store: IDataStoreDispatcher, market: ContractAddress, is_long: bool) -> u64 {
+    data_store.get_u256(keys::latest_adl_block_key(market, is_long)).try_into().expect('get_u256 into u64 failed')
 }
 
 /// Set the latest block at which the ADL flag was updated.
@@ -229,9 +214,7 @@ fn get_latest_adl_block(
 /// * `value` - The latest block number value.
 /// # Returns
 /// Return the latest block number value.
-fn set_latest_adl_block(
-    data_store: IDataStoreDispatcher, market: ContractAddress, is_long: bool, value: u64
-) -> u64 {
+fn set_latest_adl_block(data_store: IDataStoreDispatcher, market: ContractAddress, is_long: bool, value: u64) -> u64 {
     data_store.set_u256(keys::latest_adl_block_key(market, is_long), value.into());
     value
 }
@@ -243,9 +226,7 @@ fn set_latest_adl_block(
 /// * `is_long` - Indicates whether to check the long or short side of the market.
 /// # Returns
 /// Return whether ADL is enabled.
-fn get_is_adl_enabled(
-    data_store: IDataStoreDispatcher, market: ContractAddress, is_long: bool
-) -> bool {
+fn get_is_adl_enabled(data_store: IDataStoreDispatcher, market: ContractAddress, is_long: bool) -> bool {
     data_store.get_bool(keys::is_adl_enabled_key(market, is_long))
 }
 
@@ -257,9 +238,7 @@ fn get_is_adl_enabled(
 /// * `value` - Whether ADL is enabled.
 /// # Returns
 /// Return whether ADL is enabled.
-fn set_adl_enabled(
-    data_store: IDataStoreDispatcher, market: ContractAddress, is_long: bool, value: bool
-) -> bool {
+fn set_adl_enabled(data_store: IDataStoreDispatcher, market: ContractAddress, is_long: bool, value: bool) -> bool {
     data_store.set_bool(keys::is_adl_enabled_key(market, is_long), value);
     value
 }
@@ -281,7 +260,5 @@ fn emit_adl_state_updated(
     should_enable_adl: bool
 ) {
     event_emitter
-        .emit_adl_state_updated(
-            market, is_long, pnl_to_pool_factor.into(), max_pnl_factor, should_enable_adl,
-        );
+        .emit_adl_state_updated(market, is_long, pnl_to_pool_factor.into(), max_pnl_factor, should_enable_adl,);
 }

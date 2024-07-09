@@ -1,16 +1,13 @@
 use starknet::{ContractAddress, contract_address_const};
 use snforge_std::{
-    declare, ContractClassTrait, spy_events, SpyOn, EventSpy, EventFetcher, event_name_hash, Event,
-    EventAssertions
+    declare, ContractClassTrait, spy_events, SpyOn, EventSpy, EventFetcher, event_name_hash, Event, EventAssertions
 };
 
-use satoru::event::event_emitter::{
-    EventEmitter, IEventEmitterDispatcher, IEventEmitterDispatcherTrait
-};
+use satoru::event::event_emitter::{EventEmitter, IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
 
 use satoru::event::event_emitter::EventEmitter::{
-    OrderCreated, OrderExecuted, OrderUpdated, OrderSizeDeltaAutoUpdated,
-    OrderCollateralDeltaAmountAutoUpdated, OrderCancelled, OrderFrozen,
+    OrderCreated, OrderExecuted, OrderUpdated, OrderSizeDeltaAutoUpdated, OrderCollateralDeltaAmountAutoUpdated,
+    OrderCancelled, OrderFrozen,
 };
 
 
@@ -40,12 +37,7 @@ fn given_normal_conditions_when_emit_order_created_then_works() {
     // Assert the event was emitted.
     spy
         .assert_emitted(
-            @array![
-                (
-                    contract_address,
-                    EventEmitter::Event::OrderCreated(OrderCreated { key: key, order: order })
-                )
-            ]
+            @array![(contract_address, EventEmitter::Event::OrderCreated(OrderCreated { key: key, order: order }))]
         );
     // Assert there are no more events.
     assert(spy.events.len() == 0, 'There should be no events');
@@ -106,10 +98,7 @@ fn given_normal_conditions_when_emit_order_updated_then_works() {
     let min_output_amount: u256 = 500;
 
     // Emit the event.
-    event_emitter
-        .emit_order_updated(
-            key, size_delta_usd, acceptable_price, trigger_price, min_output_amount
-        );
+    event_emitter.emit_order_updated(key, size_delta_usd, acceptable_price, trigger_price, min_output_amount);
 
     // Assert the event was emitted.
     spy
@@ -161,9 +150,7 @@ fn given_normal_conditions_when_emit_order_size_delta_auto_updated_then_works() 
                     contract_address,
                     EventEmitter::Event::OrderSizeDeltaAutoUpdated(
                         OrderSizeDeltaAutoUpdated {
-                            key: key,
-                            size_delta_usd: size_delta_usd,
-                            next_size_delta_usd: next_size_delta_usd,
+                            key: key, size_delta_usd: size_delta_usd, next_size_delta_usd: next_size_delta_usd,
                         }
                     )
                 )
@@ -192,9 +179,7 @@ fn given_normal_conditions_when_emit_order_collateral_delta_amount_auto_updated_
 
     // Emit the event.
     event_emitter
-        .emit_order_collateral_delta_amount_auto_updated(
-            key, collateral_delta_amount, next_collateral_delta_amount
-        );
+        .emit_order_collateral_delta_amount_auto_updated(key, collateral_delta_amount, next_collateral_delta_amount);
 
     // Assert the event was emitted.
     spy
@@ -243,9 +228,7 @@ fn given_normal_conditions_when_emit_order_cancelled_then_works() {
                 (
                     contract_address,
                     EventEmitter::Event::OrderCancelled(
-                        OrderCancelled {
-                            key: key, reason: reason, reason_bytes: reason_bytes.span(),
-                        }
+                        OrderCancelled { key: key, reason: reason, reason_bytes: reason_bytes.span(), }
                     )
                 )
             ]

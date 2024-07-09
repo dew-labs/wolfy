@@ -6,18 +6,13 @@
 // Core lib imports.
 use integer::{u256_from_felt252};
 use result::ResultTrait;
-use starknet::{
-    ContractAddress, get_caller_address, Felt252TryIntoContractAddress, contract_address_const,
-    ClassHash,
-};
+use starknet::{ContractAddress, get_caller_address, Felt252TryIntoContractAddress, contract_address_const, ClassHash,};
 use snforge_std::{declare, start_cheat_caller_address, stop_cheat_caller_address, start_mock_call, ContractClassTrait};
 use traits::{TryInto, Into};
 
 // Local imports.
 use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
-use satoru::withdrawal::withdrawal_vault::{
-    IWithdrawalVaultDispatcher, IWithdrawalVaultDispatcherTrait
-};
+use satoru::withdrawal::withdrawal_vault::{IWithdrawalVaultDispatcher, IWithdrawalVaultDispatcherTrait};
 use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
 use satoru::role::role;
 use satoru::tests_lib;
@@ -94,8 +89,7 @@ fn given_caller_has_no_controller_role_when_transfer_out_then_fails() {
 fn given_receiver_is_contract_when_transfer_out_then_fails() {
     let (caller_address, receiver_address, _, data_store, withdrawal_vault, erc20) = setup();
 
-    withdrawal_vault
-        .transfer_out(erc20.contract_address, withdrawal_vault.contract_address, 100_u256);
+    withdrawal_vault.transfer_out(erc20.contract_address, withdrawal_vault.contract_address, 100_u256);
 
     teardown(data_store, withdrawal_vault);
 }
@@ -230,12 +224,8 @@ fn setup() -> (
     let receiver_address: ContractAddress = 0x202.try_into().unwrap();
 
     // deploy withdrawal vault
-    let withdrawal_vault_address = deploy_withdrawal_vault(
-        data_store.contract_address, role_store.contract_address
-    );
-    let withdrawal_vault = IWithdrawalVaultDispatcher {
-        contract_address: withdrawal_vault_address
-    };
+    let withdrawal_vault_address = deploy_withdrawal_vault(data_store.contract_address, role_store.contract_address);
+    let withdrawal_vault = IWithdrawalVaultDispatcher { contract_address: withdrawal_vault_address };
 
     // deploy erc20 token
     let erc20_contract_address = deploy_erc20_token(withdrawal_vault_address);
@@ -277,9 +267,7 @@ fn deploy_withdrawal_vault(
 /// * `ContractAddress` - The address of the ERC20 token.
 fn deploy_erc20_token(withdrawal_vault_address: ContractAddress) -> ContractAddress {
     let erc20_contract = declare("ERC20").unwrap();
-    let constructor_calldata = array![
-        'satoru', 'STU', INITIAL_TOKENS_MINTED, 0, withdrawal_vault_address.into()
-    ];
+    let constructor_calldata = array!['satoru', 'STU', INITIAL_TOKENS_MINTED, 0, withdrawal_vault_address.into()];
     erc20_contract.deploy(@constructor_calldata).unwrap()
 }
 

@@ -4,9 +4,7 @@
 //                                  IMPORTS
 // *************************************************************************
 // Core lib imports.
-use starknet::{
-    ContractAddress, get_caller_address, Felt252TryIntoContractAddress, contract_address_const
-};
+use starknet::{ContractAddress, get_caller_address, Felt252TryIntoContractAddress, contract_address_const};
 use snforge_std::{
     declare, start_cheat_caller_address, stop_cheat_caller_address, start_mock_call, test_address, ContractClassTrait,
     ContractClass, start_cheat_block_number
@@ -32,12 +30,9 @@ use satoru::swap::swap_handler::{ISwapHandlerDispatcher, ISwapHandlerDispatcherT
 use satoru::mock::referral_storage::{IReferralStorageDispatcher, IReferralStorageDispatcherTrait};
 use satoru::utils::span32::{Span32, Array32Trait};
 use satoru::market::{
-    market::{Market, UniqueIdMarketImpl},
-    market_factory::{IMarketFactoryDispatcher, IMarketFactoryDispatcherTrait}
+    market::{Market, UniqueIdMarketImpl}, market_factory::{IMarketFactoryDispatcher, IMarketFactoryDispatcherTrait}
 };
-use satoru::exchange::order_handler::{
-    OrderHandler, IOrderHandlerDispatcher, IOrderHandlerDispatcherTrait
-};
+use satoru::exchange::order_handler::{OrderHandler, IOrderHandlerDispatcher, IOrderHandlerDispatcherTrait};
 use satoru::token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
 
 // *********************************************************************************************
@@ -138,9 +133,7 @@ fn given_right_swap_order_params_when_execute_order_then_success() {
         compacted_min_prices_indexes: array![0],
         compacted_max_prices: array![2147483648010000], // 500000, 10000 compacted
         compacted_max_prices_indexes: array![0],
-        signatures: array![
-            array!['signatures1', 'signatures2'].span(), array!['signatures1', 'signatures2'].span()
-        ],
+        signatures: array![array!['signatures1', 'signatures2'].span(), array!['signatures1', 'signatures2'].span()],
         price_feed_tokens: array![]
     };
     start_cheat_caller_address(order_handler.contract_address, caller_address);
@@ -169,21 +162,16 @@ fn setup_contracts() -> (
     IOrderHandlerDispatcher,
     IMarketFactoryDispatcher
 ) {
-    let (caller_address, role_store, data_store, event_emitter, oracle) =
-        tests_lib::setup_oracle_and_store();
+    let (caller_address, role_store, data_store, event_emitter, oracle) = tests_lib::setup_oracle_and_store();
 
-    let order_vault_address = deploy_order_vault(
-        data_store.contract_address, role_store.contract_address
-    );
+    let order_vault_address = deploy_order_vault(data_store.contract_address, role_store.contract_address);
     let order_vault = IOrderVaultDispatcher { contract_address: order_vault_address };
 
     let swap_handler_address = deploy_swap_handler(role_store.contract_address);
     let swap_handler = ISwapHandlerDispatcher { contract_address: swap_handler_address };
 
     let referral_storage_address = deploy_referral_storage(event_emitter.contract_address);
-    let referral_storage = IReferralStorageDispatcher {
-        contract_address: referral_storage_address
-    };
+    let referral_storage = IReferralStorageDispatcher { contract_address: referral_storage_address };
 
     let order_handler_address = deploy_order_handler(
         data_store.contract_address,
@@ -234,9 +222,7 @@ fn create_market(market_factory: IMarketFactoryDispatcher) -> ContractAddress {
 }
 
 /// Utility function to deploy an `OrderVault` contract and return its address.
-fn deploy_order_vault(
-    data_store_address: ContractAddress, role_store_address: ContractAddress,
-) -> ContractAddress {
+fn deploy_order_vault(data_store_address: ContractAddress, role_store_address: ContractAddress,) -> ContractAddress {
     let contract = declare("OrderVault").unwrap();
     let mut constructor_calldata = array![];
     constructor_calldata.append(data_store_address.into());
@@ -257,9 +243,7 @@ fn deploy_tokens() -> (ContractAddress, ContractAddress) {
     contract.deploy_at(@constructor_calldata, eth_address).unwrap();
 
     let usdc_address = contract_address_const::<'USDC'>();
-    let constructor_calldata = array![
-        'usdc', 'USDC', 50000000000000000000000000000000000000, 0, caller_address.into()
-    ];
+    let constructor_calldata = array!['usdc', 'USDC', 50000000000000000000000000000000000000, 0, caller_address.into()];
     contract.deploy_at(@constructor_calldata, usdc_address).unwrap();
     (eth_address, usdc_address)
 }

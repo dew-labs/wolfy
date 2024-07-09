@@ -86,8 +86,7 @@ mod Router {
 
             // Transfer tokens from account to receiver.
             // It requires that account's allowance to this contract is at least `amount`.
-            IERC20Dispatcher { contract_address: token }
-                .transfer_from(account, receiver, amount.into());
+            IERC20Dispatcher { contract_address: token }.transfer_from(account, receiver, amount.into());
         }
     }
 }

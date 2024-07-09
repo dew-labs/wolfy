@@ -14,8 +14,8 @@ use satoru::swap::swap_handler::{ISwapHandlerDispatcher, ISwapHandlerDispatcherT
 use satoru::market::{market::Market, market_utils::MarketPrices, market_utils};
 use satoru::position::{position::Position, error::PositionError};
 use satoru::pricing::{
-    position_pricing_utils, position_pricing_utils::PositionFees,
-    position_pricing_utils::GetPriceImpactUsdParams, position_pricing_utils::GetPositionFeesParams
+    position_pricing_utils, position_pricing_utils::PositionFees, position_pricing_utils::GetPriceImpactUsdParams,
+    position_pricing_utils::GetPositionFeesParams
 };
 use satoru::order::{
     order::{Order, SecondaryOrderType}, base_order_utils::ExecuteOrderParamsContracts,
@@ -260,11 +260,7 @@ impl DefaultDecreasePositionCache of Default<DecreasePositionCache> {
 /// # Returns
 /// (position_pnl_usd, uncapped_position_pnl_usd, size_delta_in_tokens)
 fn get_position_pnl_usd(
-    data_store: IDataStoreDispatcher,
-    market: Market,
-    prices: MarketPrices,
-    position: Position,
-    size_delta_usd: u256,
+    data_store: IDataStoreDispatcher, market: Market, prices: MarketPrices, position: Position, size_delta_usd: u256,
 ) -> (i256, i256, u256) {
     let mut cache: GetPositionPnlUsdCache = Default::default();
     let execution_price = prices.index_token_price.pick_price_for_pnl(position.is_long, false);
@@ -285,9 +281,7 @@ fn get_position_pnl_usd(
         } else {
             market.short_token
         };
-        cache
-            .pool_token_amount =
-                market_utils::get_pool_amount(data_store, @market, cache.pnl_token);
+        cache.pool_token_amount = market_utils::get_pool_amount(data_store, @market, cache.pnl_token);
         cache
             .pool_token_price =
                 if position.is_long {
@@ -296,11 +290,7 @@ fn get_position_pnl_usd(
                     prices.short_token_price.min
                 };
         cache.pool_token_usd = cache.pool_token_amount * cache.pool_token_price;
-        cache
-            .pool_pnl =
-                market_utils::get_pnl(
-                    data_store, @market, @prices.index_token_price, position.is_long, true
-                );
+        cache.pool_pnl = market_utils::get_pnl(data_store, @market, @prices.index_token_price, position.is_long, true);
         cache
             .capped_pool_pnl =
                 market_utils::get_capped_pnl(
@@ -329,27 +319,19 @@ fn get_position_pnl_usd(
         if position.is_long {
             cache
                 .size_delta_in_tokens =
-                    calc::roundup_division(
-                        position.size_in_tokens * size_delta_usd, position.size_in_usd
-                    );
+                    calc::roundup_division(position.size_in_tokens * size_delta_usd, position.size_in_usd);
         } else {
             error_utils::check_division_by_zero(position.size_in_usd, 'position.size_in_usd');
-            cache.size_delta_in_tokens = position.size_in_tokens
-                * size_delta_usd
-                / position.size_in_usd;
+            cache.size_delta_in_tokens = position.size_in_tokens * size_delta_usd / position.size_in_usd;
         }
     }
     cache
         .position_pnl_usd =
-            precision::mul_div_ival(
-                cache.total_position_pnl, cache.size_delta_in_tokens, position.size_in_tokens
-            );
+            precision::mul_div_ival(cache.total_position_pnl, cache.size_delta_in_tokens, position.size_in_tokens);
     cache
         .uncapped_position_pnl_usd =
             precision::mul_div_ival(
-                cache.uncapped_total_position_pnl,
-                cache.size_delta_in_tokens,
-                position.size_in_tokens
+                cache.uncapped_total_position_pnl, cache.size_delta_in_tokens, position.size_in_tokens
             );
 
     (cache.position_pnl_usd, cache.uncapped_position_pnl_usd, cache.size_delta_in_tokens)
@@ -364,10 +346,7 @@ fn get_position_pnl_usd(
 /// # Returns
 /// The position key.
 fn get_position_key(
-    account: ContractAddress,
-    market: ContractAddress,
-    collateral_token: ContractAddress,
-    is_long: bool,
+    account: ContractAddress, market: ContractAddress, collateral_token: ContractAddress, is_long: bool,
 ) -> felt252 {
     let mut data = array![];
     data.append(account.into());
@@ -381,9 +360,7 @@ fn get_position_key(
 /// # Arguments
 /// *`position` - The position to validate.
 fn validate_non_empty_position(position: Position,) {
-    if (position.size_in_usd == 0
-        && position.size_in_tokens == 0
-        && position.collateral_amount == 0) {
+    if (position.size_in_usd == 0 && position.size_in_tokens == 0 && position.collateral_amount == 0) {
         panic_with_felt252(PositionError::EMPTY_POSITION);
     }
 }
@@ -415,10 +392,7 @@ fn validate_position(
     should_validate_min_position_size: bool,
     should_validate_min_collateral_usd: bool,
 ) {
-    assert(
-        position.size_in_usd != 0 && position.size_in_tokens != 0,
-        PositionError::INVALID_POSITION_SIZE_VALUES
-    );
+    assert(position.size_in_usd != 0 && position.size_in_tokens != 0, PositionError::INVALID_POSITION_SIZE_VALUES);
     market_utils::validate_enabled_market(data_store, market);
     market_utils::validate_market_collateral_token(market, position.collateral_token);
     if should_validate_min_position_size {
@@ -449,14 +423,10 @@ fn is_position_liquiditable(
     should_validate_min_collateral_usd: bool
 ) -> (bool, felt252) {
     let mut cache: IsPositionLiquidatableCache = Default::default();
-    let (pos_pnl_usd, _, _) = get_position_pnl_usd(
-        data_store, market, prices, position, position.size_in_usd
-    );
+    let (pos_pnl_usd, _, _) = get_position_pnl_usd(data_store, market, prices, position, position.size_in_usd);
     cache.position_pnl_usd = pos_pnl_usd;
 
-    cache
-        .collateral_token_price =
-            market_utils::get_cached_token_price(position.collateral_token, market, prices);
+    cache.collateral_token_price = market_utils::get_cached_token_price(position.collateral_token, market, prices);
 
     cache.collateral_usd = position.collateral_amount * cache.collateral_token_price.min;
 
@@ -466,10 +436,7 @@ fn is_position_liquiditable(
         .price_impact_usd =
             position_pricing_utils::get_price_impact_usd(
                 GetPriceImpactUsdParams {
-                    data_store,
-                    market,
-                    usd_delta: cache.usd_delta_for_price_impact,
-                    is_long: position.is_long
+                    data_store, market, usd_delta: cache.usd_delta_for_price_impact, is_long: position.is_long
                 }
             );
     cache.has_positive_impact = cache.price_impact_usd > Zeroable::zero();
@@ -521,9 +488,7 @@ fn is_position_liquiditable(
         - calc::to_signed(collateral_cost_usd, true);
 
     if should_validate_min_collateral_usd {
-        cache
-            .min_collateral_usd =
-                calc::to_signed(data_store.get_u256(keys::min_collateral_usd()), true);
+        cache.min_collateral_usd = calc::to_signed(data_store.get_u256(keys::min_collateral_usd()), true);
         if (cache.remaining_collateral_usd < cache.min_collateral_usd) {
             return (true, 'min collateral');
         }
@@ -531,18 +496,13 @@ fn is_position_liquiditable(
     if cache.remaining_collateral_usd <= Zeroable::zero() {
         return (true, '0<');
     }
-    cache
-        .min_collateral_factor =
-            market_utils::get_min_collateral_factor(data_store, market.market_token);
+    cache.min_collateral_factor = market_utils::get_min_collateral_factor(data_store, market.market_token);
     // validate if (remaining collateral) / position.size is less than the min collateral factor (max leverage exceeded)
     // this validation includes the position fee to be paid when closing the position
     // i.e. if the position does not have sufficient collateral after closing fees it is considered a liquidatable position
     cache
         .min_collateral_usd_for_leverage =
-            calc::to_signed(
-                precision::apply_factor_u256(position.size_in_usd, cache.min_collateral_factor),
-                true
-            );
+            calc::to_signed(precision::apply_factor_u256(position.size_in_usd, cache.min_collateral_factor), true);
 
     if cache.remaining_collateral_usd <= cache.min_collateral_usd_for_leverage {
         return (true, 'min collateral for leverage');
@@ -589,9 +549,7 @@ fn will_position_collateral_be_sufficient(
     is_long: bool,
     values: WillPositionCollateralBeSufficientValues,
 ) -> (bool, i256) {
-    let collateral_token_price = market_utils::get_cached_token_price(
-        collateral_token, market, prices
-    );
+    let collateral_token_price = market_utils::get_cached_token_price(collateral_token, market, prices);
     let mut remaining_collateral_usd = calc::to_signed(values.position_collateral_amount, true)
         * calc::to_signed(collateral_token_price.min, true);
     // deduct realized pnl if it is negative since this would be paid from
@@ -613,9 +571,7 @@ fn will_position_collateral_be_sufficient(
         data_store, market, values.open_interest_delta, is_long
     );
 
-    let min_collateral_factor_for_market = market_utils::get_min_collateral_factor(
-        data_store, market.market_token
-    );
+    let min_collateral_factor_for_market = market_utils::get_min_collateral_factor(data_store, market.market_token);
     // use the minCollateralFactor for the market if it is larger
     if (min_collateral_factor_for_market > min_collateral_factor) {
         min_collateral_factor = min_collateral_factor_for_market;
@@ -642,20 +598,12 @@ fn update_funding_and_borrowing_state(params: UpdatePositionParams, prices: Mark
     );
     // update the cumulative borrowing factor for longs
     market_utils::update_cumulative_borrowing_factor(
-        params.contracts.data_store,
-        params.contracts.event_emitter,
-        params.market,
-        prices,
-        true // isLong
+        params.contracts.data_store, params.contracts.event_emitter, params.market, prices, true // isLong
     );
 
     // update the cumulative borrowing factor for shorts
     market_utils::update_cumulative_borrowing_factor(
-        params.contracts.data_store,
-        params.contracts.event_emitter,
-        params.market,
-        prices,
-        false // isLong
+        params.contracts.data_store, params.contracts.event_emitter, params.market, prices, false // isLong
     );
 }
 
@@ -664,9 +612,7 @@ fn update_funding_and_borrowing_state(params: UpdatePositionParams, prices: Mark
 /// *`next_position_size_in_usd` - The next posiiton USD size
 /// *`next_position_borrowing_factor` - Thenext position borrowing factor
 fn update_total_borrowing(
-    params: UpdatePositionParams,
-    next_position_size_in_usd: u256,
-    next_position_borrowing_factor: u256,
+    params: UpdatePositionParams, next_position_size_in_usd: u256, next_position_borrowing_factor: u256,
 ) {
     market_utils::update_total_borrowing(
         params.contracts.data_store, // dataStore
@@ -716,9 +662,7 @@ fn increment_claimable_funding_amount(params: UpdatePositionParams, fees: Positi
 /// *`params` - The position parameters.
 /// *`size_delta_usd` - The USD change in position size.
 /// *`size_delta_in_tokens` - The change in position size.
-fn update_open_interest(
-    params: UpdatePositionParams, size_delta_usd: i256, size_delta_in_tokens: i256,
-) {
+fn update_open_interest(params: UpdatePositionParams, size_delta_usd: i256, size_delta_in_tokens: i256,) {
     if (size_delta_usd != Zeroable::zero()) {
         market_utils::apply_delta_to_open_interest(
             params.contracts.data_store,

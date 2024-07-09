@@ -1,22 +1,18 @@
 // Core libe imports.
-use starknet::{
-    ContractAddress, get_caller_address, Felt252TryIntoContractAddress, contract_address_const
-};
+use starknet::{ContractAddress, get_caller_address, Felt252TryIntoContractAddress, contract_address_const};
 
 // Local imports.
 use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
 use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
-use satoru::event::event_emitter::{
-    EventEmitter, IEventEmitterDispatcher, IEventEmitterDispatcherTrait
-};
+use satoru::event::event_emitter::{EventEmitter, IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
 use satoru::role::role;
 use satoru::order::order::{Order, OrderType, OrderTrait, DecreasePositionSwapType};
 use satoru::tests_lib::{setup, setup_event_emitter, setup_oracle_and_store, teardown};
 use satoru::position::position::{Position};
 
 use snforge_std::{
-    declare, start_cheat_caller_address, stop_cheat_caller_address, ContractClassTrait, spy_events, SpyOn, EventSpy, EventFetcher,
-    event_name_hash, Event, EventAssertions, start_mock_call
+    declare, start_cheat_caller_address, stop_cheat_caller_address, ContractClassTrait, spy_events, SpyOn, EventSpy,
+    EventFetcher, event_name_hash, Event, EventAssertions, start_mock_call
 };
 use satoru::adl::adl_utils;
 use satoru::utils::i256::{i256, i256_new};
@@ -189,9 +185,7 @@ fn given_small_block_number_when_update_adl_state_then_fails() {
     adl_utils::set_latest_adl_block(data_store, market, is_long, block_value);
 
     let block_numbers = array![10_u64, 11_u64];
-    adl_utils::update_adl_state(
-        data_store, event_emitter, oracle, market, is_long, block_numbers.span()
-    );
+    adl_utils::update_adl_state(data_store, event_emitter, oracle, market, is_long, block_numbers.span());
 
     teardown(data_store.contract_address);
 }
@@ -278,14 +272,10 @@ fn given_normal_conditions_when_update_adl_state_then_works() {
     oracle.set_primary_price(short_token_address, price);
 
     let block_value = 1_u64;
-    let set_block = adl_utils::set_latest_adl_block(
-        data_store, market_token_address, is_long, block_value
-    );
+    let set_block = adl_utils::set_latest_adl_block(data_store, market_token_address, is_long, block_value);
     let block_numbers = array![1_u64, 2_u64];
 
-    adl_utils::update_adl_state(
-        data_store, event_emitter, oracle, market_token_address, is_long, block_numbers.span()
-    );
+    adl_utils::update_adl_state(data_store, event_emitter, oracle, market_token_address, is_long, block_numbers.span());
 
     teardown(data_store.contract_address);
 }

@@ -29,9 +29,7 @@ trait IFeeHandler<TContractState> {
     /// # Arguments
     /// * `market` - The markets to claim fees from.
     /// * `tokens` - The fee tokens to claim.
-    fn claim_fees(
-        ref self: TContractState, market: Array<ContractAddress>, tokens: Array<ContractAddress>
-    );
+    fn claim_fees(ref self: TContractState, market: Array<ContractAddress>, tokens: Array<ContractAddress>);
 }
 
 #[starknet::contract]
@@ -100,23 +98,17 @@ mod FeeHandler {
             event_emitter_address: ContractAddress,
         ) {
             // Make sure the contract is not already initialized.
-            assert(
-                self.data_store.read().contract_address.is_zero(), FeeError::ALREADY_INITIALIZED
-            );
+            assert(self.data_store.read().contract_address.is_zero(), FeeError::ALREADY_INITIALIZED);
             self.data_store.write(IDataStoreDispatcher { contract_address: data_store_address });
             self.role_store.write(IRoleStoreDispatcher { contract_address: role_store_address });
-            self
-                .event_emitter
-                .write(IEventEmitterDispatcher { contract_address: event_emitter_address });
+            self.event_emitter.write(IEventEmitterDispatcher { contract_address: event_emitter_address });
         }
 
         /// Claim fees for the specified market.
         /// # Arguments
         /// * `markets` - The market to claim fees from.
         /// * `tokens` - The fee tokens.
-        fn claim_fees(
-            ref self: ContractState, market: Array<ContractAddress>, tokens: Array<ContractAddress>
-        ) {
+        fn claim_fees(ref self: ContractState, market: Array<ContractAddress>, tokens: Array<ContractAddress>) {
             assert(market.len() == tokens.len(), FeeError::INVALID_CLAIM_FEES_INPUT);
 
             let data_store = self.data_store.read();
@@ -129,9 +121,7 @@ mod FeeHandler {
                     break;
                 }
 
-                fee_utils::claim_fees(
-                    data_store, self.event_emitter.read(), *market.at(i), *tokens.at(i), receiver
-                );
+                fee_utils::claim_fees(data_store, self.event_emitter.read(), *market.at(i), *tokens.at(i), receiver);
 
                 i += 1;
             };

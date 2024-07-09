@@ -1,19 +1,15 @@
 use starknet::{ContractAddress, contract_address_const};
 use snforge_std::{
-    declare, ContractClassTrait, spy_events, SpyOn, EventSpy, EventFetcher, event_name_hash, Event,
-    EventAssertions
+    declare, ContractClassTrait, spy_events, SpyOn, EventSpy, EventFetcher, event_name_hash, Event, EventAssertions
 };
 use option::OptionTrait;
 use satoru::tests_lib::setup_event_emitter;
 
-use satoru::event::event_emitter::{
-    EventEmitter, IEventEmitterDispatcher, IEventEmitterDispatcherTrait
-};
+use satoru::event::event_emitter::{EventEmitter, IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
 
 use satoru::event::event_emitter::EventEmitter::{
     AfterDepositExecutionError, AfterDepositCancellationError, AfterWithdrawalExecutionError,
-    AfterWithdrawalCancellationError, AfterOrderExecutionError, AfterOrderCancellationError,
-    AfterOrderFrozenError
+    AfterWithdrawalCancellationError, AfterOrderExecutionError, AfterOrderCancellationError, AfterOrderFrozenError
 };
 
 use satoru::deposit::deposit::Deposit;
@@ -253,9 +249,7 @@ fn given_normal_conditions_when_emit_after_order_frozen_error_then_works() {
             @array![
                 (
                     contract_address,
-                    EventEmitter::Event::AfterOrderFrozenError(
-                        AfterOrderFrozenError { key: key, order: order_data }
-                    )
+                    EventEmitter::Event::AfterOrderFrozenError(AfterOrderFrozenError { key: key, order: order_data })
                 )
             ]
         );

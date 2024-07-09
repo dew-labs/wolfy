@@ -11,9 +11,7 @@ use satoru::order::order_vault::{IOrderVaultDispatcher, IOrderVaultDispatcherTra
 use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
 use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
 use satoru::mock::referral_storage::{IReferralStorageDispatcher, IReferralStorageDispatcherTrait};
-use satoru::event::event_utils::{
-    Felt252IntoContractAddress, ContractAddressDictValue, I256252DictValue
-};
+use satoru::event::event_utils::{Felt252IntoContractAddress, ContractAddressDictValue, I256252DictValue};
 // *************************************************************************
 //                  Interface of the `OrderUtils` contract.
 // *************************************************************************
@@ -44,9 +42,7 @@ trait IOrderUtils<TContractState> {
     /// Process an order execution.
     /// # Arguments
     /// * `params` - The parameters used to process the order.
-    fn process_order(
-        ref self: TContractState, params: ExecuteOrderParams
-    ); //TODO add LogData return value
+    fn process_order(ref self: TContractState, params: ExecuteOrderParams); //TODO add LogData return value
 
     /// Cancels an order.
     /// # Arguments
@@ -110,9 +106,7 @@ mod OrderUtils {
     use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
     use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
     use satoru::order::order_vault::{IOrderVaultDispatcher, IOrderVaultDispatcherTrait};
-    use satoru::mock::referral_storage::{
-        IReferralStorageDispatcher, IReferralStorageDispatcherTrait
-    };
+    use satoru::mock::referral_storage::{IReferralStorageDispatcher, IReferralStorageDispatcherTrait};
     use satoru::market::market_utils;
     use satoru::nonce::nonce_utils;
     use satoru::utils::account_utils;
@@ -121,9 +115,7 @@ mod OrderUtils {
     use satoru::callback::callback_utils;
     use satoru::gas::gas_utils;
     use satoru::order::order::{Order, OrderType, OrderTrait};
-    use satoru::event::event_utils::{
-        Felt252IntoContractAddress, ContractAddressDictValue, I256252DictValue
-    };
+    use satoru::event::event_utils::{Felt252IntoContractAddress, ContractAddressDictValue, I256252DictValue};
     use satoru::utils::serializable_dict::{SerializableFelt252Dict, SerializableFelt252DictTrait};
     use satoru::order::error::OrderError;
 
@@ -156,9 +148,7 @@ mod OrderUtils {
         self
             .decrease_order_utils_lib
             .write(IDecreaseOrderUtilsLibraryDispatcher { class_hash: decrease_order_class_hash });
-        self
-            .swap_order_utils_lib
-            .write(ISwapOrderUtilsLibraryDispatcher { class_hash: swap_order_class_hash });
+        self.swap_order_utils_lib.write(ISwapOrderUtilsLibraryDispatcher { class_hash: swap_order_class_hash });
     }
 
     // *************************************************************************
@@ -186,9 +176,7 @@ mod OrderUtils {
             mut params: CreateOrderParams
         ) -> felt252 {
             account_utils::validate_account(account);
-            referral_utils::set_trader_referral_code(
-                referral_storage, account, params.referral_code
-            );
+            referral_utils::set_trader_referral_code(referral_storage, account, params.referral_code);
 
             let mut initial_collateral_delta_amount = 0;
 
@@ -202,8 +190,7 @@ mod OrderUtils {
                 || params.order_type == OrderType::LimitIncrease) {
                 // for swaps and increase orders, the initialCollateralDeltaAmount is set based on the amount of tokens
                 // transferred to the orderVault
-                initial_collateral_delta_amount = order_vault
-                    .record_transfer_in(params.initial_collateral_token);
+                initial_collateral_delta_amount = order_vault.record_transfer_in(params.initial_collateral_token);
                 if (params.initial_collateral_token == fee_token) {
                     if (initial_collateral_delta_amount < params.execution_fee) {
                         OrderError::INSUFFICIENT_WNT_AMOUNT_FOR_EXECUTION_FEE(
@@ -225,9 +212,7 @@ mod OrderUtils {
             if (should_record_separate_execution_fee_transfer) {
                 let fee_token_amount = order_vault.record_transfer_in(fee_token);
                 if (fee_token_amount < params.execution_fee) {
-                    OrderError::INSUFFICIENT_WNT_AMOUNT_FOR_EXECUTION_FEE(
-                        fee_token_amount, params.execution_fee
-                    );
+                    OrderError::INSUFFICIENT_WNT_AMOUNT_FOR_EXECUTION_FEE(fee_token_amount, params.execution_fee);
                 }
                 params.execution_fee = fee_token_amount;
             }
@@ -269,9 +254,7 @@ mod OrderUtils {
 
             callback_utils::validate_callback_gas_limit(data_store, order.callback_gas_limit);
 
-            let estimated_gas_limit = gas_utils::estimate_execute_order_gas_limit(
-                data_store, @order
-            );
+            let estimated_gas_limit = gas_utils::estimate_execute_order_gas_limit(data_store, @order);
             gas_utils::validate_execution_fee(data_store, estimated_gas_limit, order.execution_fee);
 
             order.touch();
@@ -323,18 +306,11 @@ mod OrderUtils {
             // are called
 
             if (params.market.market_token != contract_address_const::<0>()) {
-                market_utils::validate_market_token_balance_check(
-                    params.contracts.data_store, params.market
-                );
+                market_utils::validate_market_token_balance_check(params.contracts.data_store, params.market);
             }
-            market_utils::validate_market_token_balance_array(
-                params.contracts.data_store, params.swap_path_markets
-            );
+            market_utils::validate_market_token_balance_array(params.contracts.data_store, params.swap_path_markets);
 
-            params
-                .contracts
-                .event_emitter
-                .emit_order_executed(params.key, params.secondary_order_type);
+            params.contracts.event_emitter.emit_order_executed(params.key, params.secondary_order_type);
         // callback_utils::after_order_execution(params.key, params.order, event_data);
 
         // the order.executionFee for liquidation / adl orders is zero
@@ -415,13 +391,7 @@ mod OrderUtils {
             // callback_utils::after_order_cancellation(key, order, event_data);
 
             gas_utils::pay_execution_fee_order(
-                data_store,
-                event_emitter,
-                order_vault,
-                order.execution_fee,
-                starting_gas,
-                keeper,
-                order.account
+                data_store, event_emitter, order_vault, order.execution_fee, starting_gas, keeper, order.account
             );
         }
 
@@ -469,13 +439,7 @@ mod OrderUtils {
             // callback_utils::after_order_frozen(key, order, event_data);
 
             gas_utils::pay_execution_fee_order(
-                data_store,
-                event_emitter,
-                order_vault,
-                execution_fee,
-                starting_gas,
-                keeper,
-                order.account
+                data_store, event_emitter, order_vault, execution_fee, starting_gas, keeper, order.account
             );
         }
     }
