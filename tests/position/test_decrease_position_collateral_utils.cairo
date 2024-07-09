@@ -1,7 +1,7 @@
 // Core lib imports.
 use array::ArrayTrait;
 use core::traits::{Into, TryInto};
-use snforge_std::{declare, ContractClassTrait, start_prank};
+use snforge_std::{declare, ContractClassTrait, start_cheat_caller_address};
 use starknet::{ContractAddress, contract_address_const};
 
 // Local imports.
@@ -26,29 +26,29 @@ use satoru::utils::span32::{Span32, Array32Trait};
 
 /// Utility function to deploy a `SwapHandler` contract and return its dispatcher.
 fn deploy_swap_handler_address(role_store_address: ContractAddress) -> ContractAddress {
-    let contract = declare('SwapHandler');
+    let contract = declare("SwapHandler").unwrap();
     let constructor_calldata = array![role_store_address.into()];
     contract.deploy(@constructor_calldata).unwrap()
 }
 
 fn deploy_token() -> ContractAddress {
-    let contract = declare('ERC20');
+    let contract = declare("ERC20").unwrap();
     let constructor_calldata = array!['Test', 'TST', 1000000, 0, 0x101];
     contract.deploy(@constructor_calldata).unwrap()
 }
 
 /// Utility function to deploy a `ReferralStorage` contract and return its dispatcher.
 fn deploy_referral_storage(event_emitter_address: ContractAddress) -> ContractAddress {
-    let contract = declare('ReferralStorage');
+    let contract = declare("ReferralStorage").unwrap();
     let constructor_calldata = array![event_emitter_address.into()];
     contract.deploy(@constructor_calldata).unwrap()
 }
 
 #[test]
 fn given_good_params_when_process_collateral_then_succeed() {
-    // 
-    // Setup  
-    //   
+    //
+    // Setup
+    //
     let (caller_address, role_store, data_store) = setup();
     let (event_emitter_address, event_emitter) = setup_event_emitter();
     let long_token_address = deploy_token();
@@ -94,9 +94,9 @@ fn given_good_params_when_process_collateral_then_succeed() {
 
 #[test]
 fn given_good_params_get_execution_price_then_succeed() {
-    // 
-    // Setup  
-    //   
+    //
+    // Setup
+    //
     let (caller_address, role_store, data_store) = setup();
     let (event_emitter_address, event_emitter) = setup_event_emitter();
     let long_token_address = deploy_token();

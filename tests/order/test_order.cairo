@@ -10,7 +10,7 @@ use starknet::{
     ContractAddress, get_caller_address, Felt252TryIntoContractAddress, contract_address_const,
     ClassHash,
 };
-use snforge_std::{declare, ContractClassTrait, start_roll};
+use snforge_std::{declare, ContractClassTrait, start_cheat_block_number};
 
 
 // Local imports.
@@ -33,7 +33,7 @@ fn given_normal_conditions_when_touch_then_expected_results() {
     let mut order = create_dummy_order();
 
     // Set current block to 42000.
-    start_roll(chain.contract_address, 42000);
+    start_cheat_block_number(chain.contract_address, 42000);
 
     // Call the `touch` function.
     // order.touch(chain);
@@ -78,7 +78,7 @@ fn create_dummy_order() -> Order {
 }
 
 /// Utility function to setup the test environment.
-fn setup() -> ( // This caller address will be used with `start_prank` cheatcode to mock the caller address.,
+fn setup() -> ( // This caller address will be used with `start_cheat_caller_address` cheatcode to mock the caller address.,
     ContractAddress, // An interface to interact with `Chain` contract.
      IChainDispatcher,
 ) {
@@ -86,7 +86,7 @@ fn setup() -> ( // This caller address will be used with `start_prank` cheatcode
     let caller_address = contract_address_const::<'caller'>();
     // Deploy the `Chain` contract.
 
-    let contract = declare('Chain');
+    let contract = declare("Chain").unwrap();
     let constructor_arguments: @Array::<felt252> = @ArrayTrait::new();
     let contract_address_chain = contract.deploy(constructor_arguments).unwrap();
 

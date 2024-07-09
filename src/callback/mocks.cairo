@@ -49,7 +49,7 @@ mod CallbackMock {
 }
 
 fn deploy_callback_mock() -> ICallbackMockDispatcher {
-    let contract = declare('CallbackMock');
-    let contract_address = contract.deploy(@array![]).unwrap();
+    let contract = declare("CallbackMock").unwrap();
+    let (contract_address, _) = contract.deploy(@array![]).unwrap();
     ICallbackMockDispatcher { contract_address }
 }

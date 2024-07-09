@@ -40,7 +40,6 @@ mod LiquidationHandler {
     // *************************************************************************
 
     // Core lib imports.
-
     use starknet::{ContractAddress, get_caller_address, get_contract_address, ClassHash};
 
     // Local imports.
@@ -74,10 +73,10 @@ mod LiquidationHandler {
     use satoru::feature::feature_utils::validate_feature;
     use satoru::utils::{starknet_utils, global_reentrancy_guard};
     use satoru::exchange::base_order_handler::BaseOrderHandler::{
-        event_emitter::InternalContractMemberStateTrait,
-        data_store::InternalContractMemberStateImpl,
-        order_utils_lib::InternalContractMemberStateTrait as OrderUtilsTrait,
-        oracle::InternalContractMemberStateTrait as OracleStateTrait,
+        event_emitterContractMemberStateTrait,
+        data_storeContractMemberStateTrait,
+        order_utils_libContractMemberStateTrait,
+        oracleContractMemberStateTrait,
     };
     use satoru::order::order_utils::IOrderUtilsDispatcherTrait;
 

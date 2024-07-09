@@ -7,24 +7,24 @@ use satoru::deposit::deposit::Deposit;
 use satoru::tests_lib::teardown;
 use satoru::utils::span32::{Span32, Array32Trait};
 
-use snforge_std::{declare, start_prank, ContractClassTrait};
+use snforge_std::{declare, start_cheat_caller_address, ContractClassTrait};
 
 /// Utility function to deploy a `DataStore` contract and return its dispatcher.
 fn deploy_data_store(role_store_address: ContractAddress) -> ContractAddress {
-    let contract = declare('DataStore');
+    let contract = declare("DataStore").unwrap();
     let caller_address: ContractAddress = contract_address_const::<'caller'>();
     let deployed_contract_address: ContractAddress = contract_address_const::<'data_store'>();
-    start_prank(deployed_contract_address, caller_address);
+    start_cheat_caller_address(deployed_contract_address, caller_address);
     let constructor_calldata = array![role_store_address.into()];
     contract.deploy_at(@constructor_calldata, deployed_contract_address).unwrap()
 }
 
 /// Utility function to deploy a `RoleStore` contract and return its dispatcher.
 fn deploy_role_store() -> ContractAddress {
-    let contract = declare('RoleStore');
+    let contract = declare("RoleStore").unwrap();
     let caller_address: ContractAddress = contract_address_const::<'caller'>();
     let deployed_contract_address: ContractAddress = contract_address_const::<'role_store'>();
-    start_prank(deployed_contract_address, caller_address);
+    start_cheat_caller_address(deployed_contract_address, caller_address);
     contract.deploy_at(@array![caller_address.into()], deployed_contract_address).unwrap()
 }
 
@@ -42,9 +42,9 @@ fn setup() -> (ContractAddress, IRoleStoreDispatcher, IDataStoreDispatcher) {
     let role_store = IRoleStoreDispatcher { contract_address: role_store_address };
     let data_store_address = deploy_data_store(role_store_address);
     let data_store = IDataStoreDispatcher { contract_address: data_store_address };
-    start_prank(role_store_address, caller_address);
+    start_cheat_caller_address(role_store_address, caller_address);
     role_store.grant_role(caller_address, role::CONTROLLER);
-    start_prank(data_store_address, caller_address);
+    start_cheat_caller_address(data_store_address, caller_address);
     (caller_address, role_store, data_store)
 }
 

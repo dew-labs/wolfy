@@ -8,7 +8,7 @@ use starknet::{
     ContractAddress, get_caller_address, Felt252TryIntoContractAddress, contract_address_const
 };
 use snforge_std::{
-    declare, start_prank, stop_prank, start_mock_call, test_address, ContractClassTrait
+    declare, start_cheat_caller_address, stop_cheat_caller_address, start_mock_call, test_address, ContractClassTrait
 };
 use traits::Default;
 use poseidon::poseidon_hash_span;
@@ -364,7 +364,7 @@ fn setup_base_order_handler_state(
 fn deploy_order_vault(
     data_store_address: ContractAddress, role_store_address: ContractAddress,
 ) -> ContractAddress {
-    let contract = declare('OrderVault');
+    let contract = declare("OrderVault").unwrap();
     let mut constructor_calldata = array![];
     constructor_calldata.append(data_store_address.into());
     constructor_calldata.append(role_store_address.into());
@@ -373,14 +373,14 @@ fn deploy_order_vault(
 
 /// Utility function to deploy a `SwapHandler` contract and return its address.
 fn deploy_swap_handler(role_store_address: ContractAddress) -> ContractAddress {
-    let contract = declare('SwapHandler');
+    let contract = declare("SwapHandler").unwrap();
     let constructor_calldata = array![role_store_address.into()];
     tests_lib::deploy_mock_contract(contract, @constructor_calldata)
 }
 
 /// Utility function to deploy a `ReferralStorage` contract and return its address.
 fn deploy_referral_storage(event_emitter_address: ContractAddress) -> ContractAddress {
-    let contract = declare('ReferralStorage');
+    let contract = declare("ReferralStorage").unwrap();
     let constructor_calldata = array![event_emitter_address.into()];
     tests_lib::deploy_mock_contract(contract, @constructor_calldata)
 }

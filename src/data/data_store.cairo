@@ -266,7 +266,7 @@ trait IDataStore<TContractState> {
 
     /// Return order keys between start - end  indexes for given account
     /// # Arguments
-    /// * `account` - The order account 
+    /// * `account` - The order account
     /// * `start` - Start index
     /// * `end` - Start index
     fn get_account_order_keys(
@@ -316,7 +316,7 @@ trait IDataStore<TContractState> {
 
     /// Return position keys between start - end  indexes for given account
     /// # Arguments
-    /// * `account` - The position account 
+    /// * `account` - The position account
     /// * `start` - Start index
     /// * `end` - Start index
     fn get_account_position_keys(
@@ -411,7 +411,7 @@ trait IDataStore<TContractState> {
 
     /// Return deposit keys between start - end  indexes for given account
     /// # Arguments
-    /// * `account` - The deposit account 
+    /// * `account` - The deposit account
     /// * `start` - Start index
     /// * `end` - Start index
     fn get_account_deposit_keys(
@@ -822,7 +822,7 @@ mod DataStore {
                 return Default::default();
             }
             let markets: List<Market> = self.markets.read();
-            let market_maybe = markets.get(offsetted_index - 1);
+            let market_maybe = markets.get(offsetted_index - 1).unwrap();
             match market_maybe {
                 Option::Some(market) => { market },
                 Option::None => { Default::default() }
@@ -871,12 +871,12 @@ mod DataStore {
             // Specifically handle case where there is only one market
             let last_market_index = markets.len() - 1;
             if index == last_market_index {
-                markets.pop_front();
+                markets.pop_front().unwrap();
                 self.market_indexes.write(key, 0);
                 return;
             }
 
-            let mut last_market_maybe = markets.pop_front();
+            let mut last_market_maybe = markets.pop_front().unwrap();
             match last_market_maybe {
                 Option::Some(last_market) => {
                     markets.set(index, last_market);
@@ -950,7 +950,7 @@ mod DataStore {
                 return Default::default();
             }
             let orders: List<Order> = self.orders.read();
-            let order_maybe = orders.get(offsetted_index - 1);
+            let order_maybe = orders.get(offsetted_index - 1).unwrap();
             match order_maybe {
                 Option::Some(order) => { order },
                 Option::None => { Default::default() }
@@ -998,13 +998,13 @@ mod DataStore {
             // Specifically handle case where there is only one order
             let last_order_index = orders.len() - 1;
             if index == last_order_index {
-                orders.pop_front();
+                orders.pop_front().unwrap();
                 self.order_indexes.write(key, 0);
                 self._remove_account_order(key, account);
                 return;
             }
 
-            let mut last_order_maybe = orders.pop_front();
+            let mut last_order_maybe = orders.pop_front().unwrap();
             match last_order_maybe {
                 Option::Some(last_order) => {
                     orders.set(index, last_order);
@@ -1087,7 +1087,7 @@ mod DataStore {
                 return Default::default();
             }
             let positions: List<Position> = self.positions.read();
-            let position_maybe = positions.get(offsetted_index - 1);
+            let position_maybe = positions.get(offsetted_index - 1).unwrap();
             match position_maybe {
                 Option::Some(position) => { position },
                 Option::None => { Default::default() }
@@ -1136,13 +1136,13 @@ mod DataStore {
             // Specifically handle case where there is only one position
             let last_position_index = positions.len() - 1;
             if index == last_position_index {
-                positions.pop_front();
+                positions.pop_front().unwrap();
                 self.position_indexes.write(key, 0);
                 self._remove_account_position(key, account);
                 return;
             }
 
-            let mut last_position_maybe = positions.pop_front();
+            let mut last_position_maybe = positions.pop_front().unwrap();
             match last_position_maybe {
                 Option::Some(last_position) => {
                     positions.set(index, last_position);
@@ -1225,7 +1225,7 @@ mod DataStore {
                 return Default::default();
             }
             let withdrawals: List<Withdrawal> = self.withdrawals.read();
-            let withdrawal_maybe = withdrawals.get(offsetted_index - 1);
+            let withdrawal_maybe = withdrawals.get(offsetted_index - 1).unwrap();
             match withdrawal_maybe {
                 Option::Some(withdrawal) => { withdrawal },
                 Option::None => { Default::default() }
@@ -1276,13 +1276,13 @@ mod DataStore {
             // Specifically handle case where there is only one withdrawal
             let last_withdrawal_index = withdrawals.len() - 1;
             if index == last_withdrawal_index {
-                withdrawals.pop_front();
+                withdrawals.pop_front().unwrap();
                 self.withdrawal_indexes.write(key, 0);
                 self._remove_account_withdrawal(key, account);
                 return;
             }
 
-            let mut last_withdrawal_maybe = withdrawals.pop_front();
+            let mut last_withdrawal_maybe = withdrawals.pop_front().unwrap();
             match last_withdrawal_maybe {
                 Option::Some(last_withdrawal) => {
                     withdrawals.set(index, last_withdrawal);
@@ -1361,7 +1361,7 @@ mod DataStore {
                 return Default::default();
             }
             let deposits: List<Deposit> = self.deposits.read();
-            let deposit_maybe = deposits.get(offsetted_index - 1);
+            let deposit_maybe = deposits.get(offsetted_index - 1).unwrap();
             match deposit_maybe {
                 Option::Some(deposit) => { deposit },
                 Option::None => { Default::default() }
@@ -1409,13 +1409,13 @@ mod DataStore {
             // Specifically handle case where there is only one deposit
             let last_deposit_index = deposits.len() - 1;
             if index == last_deposit_index {
-                deposits.pop_front();
+                deposits.pop_front().unwrap();
                 self.deposit_indexes.write(key, 0);
                 self._remove_account_deposit(key, account);
                 return;
             }
 
-            let mut last_deposit_maybe = deposits.pop_front();
+            let mut last_deposit_maybe = deposits.pop_front().unwrap();
             match last_deposit_maybe {
                 Option::Some(last_deposit) => {
                     deposits.set(index, last_deposit);
@@ -1502,7 +1502,7 @@ mod DataStore {
                 }
                 let withdrawal_key: felt252 = account_withdrawals[i];
                 if withdrawal_key == key {
-                    let mut last_key_maybe = account_withdrawals.pop_front();
+                    let mut last_key_maybe = account_withdrawals.pop_front().unwrap();
                     match last_key_maybe {
                         Option::Some(last_key) => {
                             // If the list is empty, then there's no need to replace an existing key
@@ -1534,7 +1534,7 @@ mod DataStore {
                 }
                 let order_key: felt252 = account_orders[i];
                 if order_key == key {
-                    let mut last_key_maybe = account_orders.pop_front();
+                    let mut last_key_maybe = account_orders.pop_front().unwrap();
                     match last_key_maybe {
                         Option::Some(last_key) => {
                             // If the list is empty, then there's no need to replace an existing key
@@ -1568,7 +1568,7 @@ mod DataStore {
                 }
                 let deposit_key = account_deposits[i];
                 if deposit_key == key {
-                    let mut last_key_maybe = account_deposits.pop_front();
+                    let mut last_key_maybe = account_deposits.pop_front().unwrap();
                     match last_key_maybe {
                         Option::Some(last_key) => {
                             // If the list is empty, then there's no need to replace an existing key
@@ -1602,7 +1602,7 @@ mod DataStore {
                 }
                 let position_key: felt252 = account_positions[i];
                 if position_key == key {
-                    let mut last_key_maybe = account_positions.pop_front();
+                    let mut last_key_maybe = account_positions.pop_front().unwrap();
                     match last_key_maybe {
                         Option::Some(last_key) => {
                             // If the list is empty, then there's no need to replace an existing key

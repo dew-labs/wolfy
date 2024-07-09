@@ -1,5 +1,5 @@
 use snforge_std::{
-    declare, start_prank, stop_prank, start_roll, ContractClassTrait, ContractClass, PrintTrait
+    declare, start_cheat_caller_address, stop_cheat_caller_address, start_cheat_block_number, ContractClassTrait, ContractClass, PrintTrait
 };
 
 use satoru::exchange::liquidation_handler::{
@@ -25,7 +25,7 @@ use satoru::liquidation::liquidation_utils::create_liquidation_order;
 use satoru::exchange::base_order_handler::{
     IBaseOrderHandler,
     BaseOrderHandler::{
-        event_emitter::InternalContractMemberStateTrait, data_store::InternalContractMemberStateImpl
+        event_emitterContractMemberStateTrait, data_storeContractMemberStateImpl
     }
 };
 
@@ -95,10 +95,10 @@ fn given_empty_price_feed_multiplier_when_create_execute_liquidation_then_fails(
     ) =
         _setup();
 
-    start_prank(role_store.contract_address, admin());
+    start_cheat_caller_address(role_store.contract_address, admin());
     role_store.grant_role(liquidation_keeper, role::LIQUIDATION_KEEPER);
-    stop_prank(role_store.contract_address);
-    start_prank(liquidation_handler_address, liquidation_keeper);
+    stop_cheat_caller_address(role_store.contract_address);
+    start_cheat_caller_address(liquidation_handler_address, liquidation_keeper);
 
     let collateral_token: ContractAddress = contract_address_const::<'USDC'>();
     let token1 = contract_address_const::<'ETH'>();
@@ -142,16 +142,16 @@ fn given_disabled_feature_when_create_execute_liquidation_then_fails() {
     let account = contract_address_const::<'account'>();
 
     // Grant LIQUIDATION_KEEPER role
-    start_prank(role_store.contract_address, admin());
+    start_cheat_caller_address(role_store.contract_address, admin());
     role_store.grant_role(liquidation_keeper, role::LIQUIDATION_KEEPER);
-    stop_prank(role_store.contract_address);
-    start_prank(liquidation_handler_address, liquidation_keeper);
+    stop_cheat_caller_address(role_store.contract_address);
+    start_cheat_caller_address(liquidation_handler_address, liquidation_keeper);
 
     let collateral_token: ContractAddress = contract_address_const::<'USDC'>();
     let token1 = contract_address_const::<'ETH'>();
     let token2 = contract_address_const::<'BTC'>();
 
-    // Use mock account to match keys                                                          
+    // Use mock account to match keys
     signer1
         .change_owner(
             1221698997303567203808303576674742997327105320284925779268978961645745386877, 0, 0
@@ -182,7 +182,7 @@ fn given_disabled_feature_when_create_execute_liquidation_then_fails() {
     };
     data_store.set_market(market.market_token, 0, market);
 
-    // Set position 
+    // Set position
     let pos_key = get_position_key(account, market.market_token, collateral_token, true);
     let mut position: Position = Default::default();
     position.account = account;
@@ -232,16 +232,16 @@ fn given_negative_open_interest_when_create_execute_liquidation_then_fails() {
     let account = contract_address_const::<'account'>();
 
     // Grant LIQUIDATION_KEEPER role
-    start_prank(role_store.contract_address, admin());
+    start_cheat_caller_address(role_store.contract_address, admin());
     role_store.grant_role(liquidation_keeper, role::LIQUIDATION_KEEPER);
-    stop_prank(role_store.contract_address);
-    start_prank(liquidation_handler_address, liquidation_keeper);
+    stop_cheat_caller_address(role_store.contract_address);
+    start_cheat_caller_address(liquidation_handler_address, liquidation_keeper);
 
     let collateral_token: ContractAddress = contract_address_const::<'USDC'>();
     let token1 = contract_address_const::<'ETH'>();
     let token2 = contract_address_const::<'BTC'>();
 
-    // Use mock account to match keys                                                          
+    // Use mock account to match keys
     signer1
         .change_owner(
             1221698997303567203808303576674742997327105320284925779268978961645745386877, 0, 0
@@ -272,7 +272,7 @@ fn given_negative_open_interest_when_create_execute_liquidation_then_fails() {
     };
     data_store.set_market(market.market_token, 0, market);
 
-    // Set position 
+    // Set position
     let pos_key = get_position_key(account, market.market_token, collateral_token, true);
     let mut position: Position = Default::default();
     position.account = account;
@@ -318,15 +318,15 @@ fn given_normal_conditions_when_create_execute_liquidation_then_works() {
     let account = contract_address_const::<'account'>();
 
     // Grant LIQUIDATION_KEEPER role
-    start_prank(role_store.contract_address, admin());
+    start_cheat_caller_address(role_store.contract_address, admin());
     role_store.grant_role(liquidation_keeper, role::LIQUIDATION_KEEPER);
-    stop_prank(role_store.contract_address);
-    start_prank(liquidation_handler_address, liquidation_keeper);
+    stop_cheat_caller_address(role_store.contract_address);
+    start_cheat_caller_address(liquidation_handler_address, liquidation_keeper);
 
     let (collateral_token, token1, fee_token) = setup_tokens();
     let token2 = contract_address_const::<'BTC'>();
 
-    // Use mock account to match keys                                                          
+    // Use mock account to match keys
     signer1
         .change_owner(
             1221698997303567203808303576674742997327105320284925779268978961645745386877, 0, 0
@@ -359,7 +359,7 @@ fn given_normal_conditions_when_create_execute_liquidation_then_works() {
     };
     data_store.set_market(market.market_token, 0, market);
 
-    // Set position 
+    // Set position
     let pos_key = get_position_key(account, market.market_token, collateral_token, true);
     let mut position: Position = Default::default();
     position.account = account;
@@ -437,30 +437,30 @@ fn admin() -> ContractAddress {
 
 
 fn deploy_data_store(role_store_address: ContractAddress) -> ContractAddress {
-    let contract = declare('DataStore');
+    let contract = declare("DataStore").unwrap();
 
     let deployed_contract_address = contract_address_const::<'data_store'>();
-    start_prank(deployed_contract_address, admin());
+    start_cheat_caller_address(deployed_contract_address, admin());
     let constructor_calldata = array![role_store_address.into()];
     contract.deploy_at(@constructor_calldata, deployed_contract_address).unwrap()
 }
 
 
 fn deploy_event_emitter() -> ContractAddress {
-    let contract = declare('EventEmitter');
+    let contract = declare("EventEmitter").unwrap();
 
     let deployed_contract_address = contract_address_const::<'event_emitter'>();
-    start_prank(deployed_contract_address, admin());
+    start_cheat_caller_address(deployed_contract_address, admin());
     contract.deploy_at(@array![], deployed_contract_address).unwrap()
 }
 
 fn deploy_order_vault(
     data_store_address: ContractAddress, role_store_address: ContractAddress
 ) -> ContractAddress {
-    let contract = declare('OrderVault');
+    let contract = declare("OrderVault").unwrap();
 
     let deployed_contract_address = contract_address_const::<'order_vault'>();
-    start_prank(deployed_contract_address, admin());
+    start_cheat_caller_address(deployed_contract_address, admin());
     contract
         .deploy_at(
             @array![data_store_address.into(), role_store_address.into()], deployed_contract_address
@@ -477,10 +477,10 @@ fn deploy_liquidation_handler(
     oracle_address: ContractAddress,
     ref_storage_address: ContractAddress
 ) -> ContractAddress {
-    let contract = declare('LiquidationHandler');
+    let contract = declare("LiquidationHandler").unwrap();
 
     let deployed_contract_address = contract_address_const::<'liquidation_handler'>();
-    start_prank(deployed_contract_address, admin());
+    start_cheat_caller_address(deployed_contract_address, admin());
     contract
         .deploy_at(
             @array![
@@ -502,10 +502,10 @@ fn deploy_oracle(
     oracle_store_address: ContractAddress,
     pragma_address: ContractAddress
 ) -> ContractAddress {
-    let contract = declare('Oracle');
+    let contract = declare("Oracle").unwrap();
 
     let deployed_contract_address = contract_address_const::<'oracle'>();
-    start_prank(deployed_contract_address, admin());
+    start_cheat_caller_address(deployed_contract_address, admin());
     contract
         .deploy_at(
             @array![role_store_address.into(), oracle_store_address.into(), pragma_address.into()],
@@ -517,27 +517,27 @@ fn deploy_oracle(
 fn deploy_swap_handler(
     role_store_address: ContractAddress, data_store_address: ContractAddress
 ) -> ContractAddress {
-    let contract = declare('SwapHandler');
+    let contract = declare("SwapHandler").unwrap();
 
     let deployed_contract_address = contract_address_const::<'swap_handler'>();
-    start_prank(deployed_contract_address, admin());
+    start_cheat_caller_address(deployed_contract_address, admin());
     contract.deploy_at(@array![role_store_address.into()], deployed_contract_address).unwrap()
 }
 
 fn deploy_referral_storage(event_emitter: ContractAddress) -> ContractAddress {
-    let contract = declare('ReferralStorage');
+    let contract = declare("ReferralStorage").unwrap();
     let deployed_contract_address = contract_address_const::<'referral_storage'>();
-    start_prank(deployed_contract_address, admin());
+    start_cheat_caller_address(deployed_contract_address, admin());
     contract.deploy_at(@array![event_emitter.into()], deployed_contract_address).unwrap()
 }
 
 fn deploy_oracle_store(
     role_store_address: ContractAddress, event_emitter_address: ContractAddress,
 ) -> ContractAddress {
-    let contract = declare('OracleStore');
+    let contract = declare("OracleStore").unwrap();
 
     let deployed_contract_address = contract_address_const::<'oracle_store'>();
-    start_prank(deployed_contract_address, admin());
+    start_cheat_caller_address(deployed_contract_address, admin());
     contract
         .deploy_at(
             @array![role_store_address.into(), event_emitter_address.into()],
@@ -548,23 +548,23 @@ fn deploy_oracle_store(
 
 
 fn deploy_role_store() -> ContractAddress {
-    let contract = declare('RoleStore');
+    let contract = declare("RoleStore").unwrap();
     let deployed_contract_address: ContractAddress = contract_address_const::<'role_store'>();
-    start_prank(deployed_contract_address, admin());
+    start_cheat_caller_address(deployed_contract_address, admin());
     contract.deploy_at(@array![admin().into()], deployed_contract_address).unwrap()
 }
 
 fn deploy_price_feed() -> ContractAddress {
-    let contract = declare('PriceFeed');
+    let contract = declare("PriceFeed").unwrap();
     let deployed_contract_address: ContractAddress = contract_address_const::<'price_feed'>();
-    start_prank(deployed_contract_address, admin());
+    start_cheat_caller_address(deployed_contract_address, admin());
     contract.deploy_at(@array![], deployed_contract_address).unwrap()
 }
 
 fn deploy_signers(
     signer1: ContractAddress, signer2: ContractAddress
 ) -> (ContractAddress, ContractAddress) {
-    let contract = declare('MockAccount');
+    let contract = declare("MockAccount").unwrap();
     (
         contract.deploy_at(@array![], signer1).unwrap(),
         contract.deploy_at(@array![], signer2).unwrap()
@@ -573,7 +573,7 @@ fn deploy_signers(
 
 
 fn setup_tokens() -> (ContractAddress, ContractAddress, ContractAddress) {
-    let contract = declare('ERC20');
+    let contract = declare("ERC20").unwrap();
     let deployed_contract_address: ContractAddress = contract_address_const::<'USDC'>();
     let mut constructor_calldata = array![
         'USDC', 'USDC', 10000000000000000000000000000, 0, admin().into()
@@ -647,18 +647,18 @@ fn _setup() -> (
     let (signer1, signer2) = deploy_signers(
         contract_address_const::<'signer1'>(), contract_address_const::<'signer2'>()
     );
-    start_prank(oracle_store_address, admin());
+    start_cheat_caller_address(oracle_store_address, admin());
     oracle_store.add_signer(signer1);
     oracle_store.add_signer(signer2);
-    stop_prank(oracle_store_address);
+    stop_cheat_caller_address(oracle_store_address);
 
-    start_prank(role_store.contract_address, admin());
+    start_cheat_caller_address(role_store.contract_address, admin());
     role_store.grant_role(liquidation_handler_address, role::CONTROLLER);
     role_store.grant_role(admin(), role::MARKET_KEEPER);
     role_store.grant_role(admin(), role::CONTROLLER);
-    stop_prank(role_store.contract_address);
+    stop_cheat_caller_address(role_store.contract_address);
 
-    start_prank(data_store_address, admin());
+    start_cheat_caller_address(data_store_address, admin());
 
     (
         data_store,

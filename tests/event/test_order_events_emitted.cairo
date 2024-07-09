@@ -298,7 +298,7 @@ fn given_normal_conditions_when_emit_order_frozen_then_works() {
 /// * `ContractAddress` - The address of the event emitter contract.
 /// * `IEventEmitterDispatcher` - The event emitter store dispatcher.
 fn setup() -> (ContractAddress, IEventEmitterDispatcher) {
-    let contract = declare('EventEmitter');
+    let contract = declare("EventEmitter").unwrap();
     let contract_address = contract.deploy(@array![]).unwrap();
     let event_emitter = IEventEmitterDispatcher { contract_address };
     return (contract_address, event_emitter);

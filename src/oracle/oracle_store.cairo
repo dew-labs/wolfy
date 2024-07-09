@@ -60,7 +60,8 @@ mod OracleStore {
     // *************************************************************************
 
     // Core lib imports.
-    use core::zeroable::Zeroable;
+    use core::option::OptionTrait;
+use core::zeroable::Zeroable;
     use starknet::{ContractAddress, contract_address_const};
 
     use alexandria_storage::list::{ListTrait, List};
@@ -137,7 +138,7 @@ mod OracleStore {
             let mut signers = self.signers.read();
             let last_signer_index = signers.len();
             let signer_to_remove_index = self.signers_indexes.read(account);
-            let last_signer = signers.get(last_signer_index).expect('failed to get last signer');
+            let last_signer = signers.get(last_signer_index).expect('failed to get last signer').unwrap();
             signers.set(signer_to_remove_index, last_signer);
             self.signers_indexes.write(last_signer, signer_to_remove_index);
             signers.len = signers.len() - 1;
@@ -161,7 +162,7 @@ mod OracleStore {
                 if start == end {
                     break;
                 }
-                signers_subset.append(signers.get(index).expect('out of bound signer index'))
+                signers_subset.append(signers.get(index).expect('out of bound signer index').unwrap())
             };
 
             signers_subset

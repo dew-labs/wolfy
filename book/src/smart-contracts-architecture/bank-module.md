@@ -73,7 +73,7 @@ use starknet::{ContractAddress, contract_address_const};
 use satoru::bank::bank::{IBankDispatcherTrait, IBankDispatcher};
 
 // Deploying the Bank contract
-let bank_contract = declare('Bank');
+let bank_contract = declare("Bank").unwrap();
 let constructor_calldata = array![data_store_contract_address.into(), role_store_contract_address.into()];
 let bank_contract_address = bank_contract.deploy(@constructor_calldata).unwrap();
 let bank_dispatcher = IBankDispatcher { contract_address: bank_contract_address };

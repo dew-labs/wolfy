@@ -10,7 +10,7 @@ use starknet::{
     ContractAddress, get_caller_address, Felt252TryIntoContractAddress, contract_address_const,
     ClassHash,
 };
-use snforge_std::{declare, start_prank, stop_prank, start_warp, ContractClassTrait, ContractClass};
+use snforge_std::{declare, start_cheat_caller_address, stop_cheat_caller_address, start_warp, ContractClassTrait, ContractClass};
 
 
 // Local imports.
@@ -409,7 +409,7 @@ fn given_normal_conditions_when_increment_claimable_collateral_amount_then_works
     // Fill required data store keys.
     data_store.set_u256(keys::claimable_collateral_time_divisor(), 1);
 
-    // Actual test case. 
+    // Actual test case.
     // TODO uncomment below when we can use get_block_timestamp() with foundry
     // market_utils::increment_claimable_collateral_amount(
     //     data_store, event_emitter, market_address, token, account, delta
@@ -922,7 +922,7 @@ fn given_normal_conditions_when_apply_delta_to_swap_impact_pool_then_works() {
 
 /// Utility function to setup the test environment.
 fn setup() -> (
-    // This caller address will be used with `start_prank` cheatcode to mock the caller address.,
+    // This caller address will be used with `start_cheat_caller_address` cheatcode to mock the caller address.,
     ContractAddress,
     // Address of the `MarketFactory` contract.
     ContractAddress,
@@ -991,7 +991,7 @@ fn grant_roles_and_prank(
     data_store: IDataStoreDispatcher,
     market_factory: IMarketFactoryDispatcher,
 ) {
-    start_prank(role_store.contract_address, caller_address);
+    start_cheat_caller_address(role_store.contract_address, caller_address);
 
     // Grant the caller the `CONTROLLER` role.
     // We use the same account to deploy data_store and role_store, so we can grant the role
@@ -1004,23 +1004,23 @@ fn grant_roles_and_prank(
 
     // Prank the caller address for calls to data_store contract.
     // We need this so that the caller has the CONTROLLER role.
-    start_prank(data_store.contract_address, caller_address);
+    start_cheat_caller_address(data_store.contract_address, caller_address);
 
     // Prank the caller address for calls to market_factory contract.
     // We need this so that the caller has the MARKET_KEEPER role.
-    start_prank(market_factory.contract_address, caller_address);
+    start_cheat_caller_address(market_factory.contract_address, caller_address);
 }
 
 /// Utility function to teardown the test environment.
 fn teardown(data_store: IDataStoreDispatcher, market_factory: IMarketFactoryDispatcher) {
     // Stop pranking the caller address.
-    stop_prank(data_store.contract_address);
-    stop_prank(market_factory.contract_address);
+    stop_cheat_caller_address(data_store.contract_address);
+    stop_cheat_caller_address(market_factory.contract_address);
 }
 
 /// Setup required contracts.
 fn setup_contracts() -> (
-    // This caller address will be used with `start_prank` cheatcode to mock the caller address.,
+    // This caller address will be used with `start_cheat_caller_address` cheatcode to mock the caller address.,
     ContractAddress,
     // Address of the `MarketFactory` contract.
     ContractAddress,
@@ -1053,7 +1053,7 @@ fn setup_contracts() -> (
     let data_store = IDataStoreDispatcher { contract_address: data_store_address };
 
     // Declare the `MarketToken` contract.
-    let market_token_class_hash = declare('MarketToken');
+    let market_token_class_hash = declare("MarketToken").unwrap();
 
     // Declare the `Chain` library contract.
     let chain_address = deploy_chain();
@@ -1093,10 +1093,10 @@ fn deploy_market_factory(
     event_emitter_address: ContractAddress,
     market_token_class_hash: ContractClass,
 ) -> ContractAddress {
-    let contract = declare('MarketFactory');
+    let contract = declare("MarketFactory").unwrap();
     let caller_address: ContractAddress = contract_address_const::<'caller'>();
     let deployed_contract_address = contract_address_const::<'market_factory'>();
-    start_prank(deployed_contract_address, caller_address);
+    start_cheat_caller_address(deployed_contract_address, caller_address);
     let mut constructor_calldata = array![];
     constructor_calldata.append(data_store_address.into());
     constructor_calldata.append(role_store_address.into());
@@ -1107,33 +1107,33 @@ fn deploy_market_factory(
 
 
 fn deploy_data_store(role_store_address: ContractAddress) -> ContractAddress {
-    let contract = declare('DataStore');
+    let contract = declare("DataStore").unwrap();
     let caller_address: ContractAddress = contract_address_const::<'caller'>();
     let deployed_contract_address = contract_address_const::<'data_store'>();
-    start_prank(deployed_contract_address, caller_address);
+    start_cheat_caller_address(deployed_contract_address, caller_address);
     let constructor_calldata = array![role_store_address.into()];
     contract.deploy_at(@constructor_calldata, deployed_contract_address).unwrap()
 }
 
 fn deploy_role_store() -> ContractAddress {
-    let contract = declare('RoleStore');
+    let contract = declare("RoleStore").unwrap();
     let caller_address: ContractAddress = contract_address_const::<'caller'>();
     let deployed_contract_address = contract_address_const::<'role_store'>();
-    start_prank(deployed_contract_address, caller_address);
+    start_cheat_caller_address(deployed_contract_address, caller_address);
     contract.deploy_at(@array![caller_address.into()], deployed_contract_address).unwrap()
 }
 
 fn deploy_event_emitter() -> ContractAddress {
-    let contract = declare('EventEmitter');
+    let contract = declare("EventEmitter").unwrap();
     let caller_address: ContractAddress = contract_address_const::<'caller'>();
     let deployed_contract_address = contract_address_const::<'event_emitter'>();
-    start_prank(deployed_contract_address, caller_address);
+    start_cheat_caller_address(deployed_contract_address, caller_address);
     contract.deploy_at(@array![], deployed_contract_address).unwrap()
 }
 
 /// Utility function to deploy a `Chain` contract and return its address.
 fn deploy_chain() -> ContractAddress {
-    let contract = declare('Chain');
+    let contract = declare("Chain").unwrap();
     let constructor_arguments: @Array::<felt252> = @ArrayTrait::new();
     contract.deploy(constructor_arguments).unwrap()
 }

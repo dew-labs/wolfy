@@ -100,7 +100,7 @@ mod OrderHandler {
     // *************************************************************************
 
     // Core lib imports.
-    use satoru::exchange::base_order_handler::BaseOrderHandler::order_utils_lib::InternalContractMemberStateTrait;
+    use satoru::exchange::base_order_handler::BaseOrderHandler::order_utils_libContractMemberStateTrait;
     use satoru::order::order_utils::IOrderUtilsDispatcherTrait;
     use core::starknet::SyscallResultTrait;
     use core::traits::Into;
@@ -126,12 +126,12 @@ mod OrderHandler {
     // use satoru::exchange::exchange_utils;
     use satoru::exchange::base_order_handler::{IBaseOrderHandler, BaseOrderHandler};
     use satoru::exchange::base_order_handler::BaseOrderHandler::{
-        role_store::InternalContractMemberStateTrait as RoleStoreStateTrait,
-        data_store::InternalContractMemberStateTrait as DataStoreStateTrait,
-        event_emitter::InternalContractMemberStateTrait as EventEmitterStateTrait,
-        order_vault::InternalContractMemberStateTrait as OrderVaultStateTrait,
-        referral_storage::InternalContractMemberStateTrait as ReferralStorageStateTrait,
-        oracle::InternalContractMemberStateTrait as OracleStateTrait,
+        role_storeContractMemberStateTrait,
+        data_storeContractMemberStateTrait,
+        event_emitterContractMemberStateTrait,
+        order_vaultContractMemberStateTrait,
+        referral_storageContractMemberStateTrait,
+        oracleContractMemberStateTrait,
         InternalTrait as BaseOrderHandleInternalTrait,
     };
     use satoru::feature::feature_utils::{validate_feature};

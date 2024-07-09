@@ -12,7 +12,7 @@ use satoru::market::market::Market;
 use satoru::pricing::position_pricing_utils::{
     GetPositionFeesParams, PositionFundingFees, GetPriceImpactUsdParams
 };
-use snforge_std::{declare, start_prank, stop_prank, ContractClassTrait};
+use snforge_std::{declare, start_cheat_caller_address, stop_cheat_caller_address, ContractClassTrait};
 use satoru::utils::precision::{FLOAT_PRECISION, FLOAT_PRECISION_SQRT};
 use satoru::utils::i256::{i256, i256_new};
 
@@ -148,45 +148,45 @@ fn given_normal_conditions_when_get_position_fees_after_referral_then_works() {
 }
 
 fn deploy_data_store(role_store_address: ContractAddress) -> ContractAddress {
-    let contract = declare('DataStore');
+    let contract = declare("DataStore").unwrap();
     let caller_address: ContractAddress = contract_address_const::<'caller'>();
     let deployed_contract_address = contract_address_const::<'data_store'>();
-    start_prank(deployed_contract_address, caller_address);
+    start_cheat_caller_address(deployed_contract_address, caller_address);
     let constructor_calldata = array![role_store_address.into()];
     contract.deploy_at(@constructor_calldata, deployed_contract_address).unwrap()
 }
 
 fn deploy_role_store() -> ContractAddress {
-    let contract = declare('RoleStore');
+    let contract = declare("RoleStore").unwrap();
     let caller_address: ContractAddress = contract_address_const::<'caller'>();
     let deployed_contract_address = contract_address_const::<'role_store'>();
-    start_prank(deployed_contract_address, caller_address);
+    start_cheat_caller_address(deployed_contract_address, caller_address);
     contract.deploy_at(@array![caller_address.into()], deployed_contract_address).unwrap()
 }
 
 fn deploy_referral_storage(event_emitter_address: ContractAddress) -> ContractAddress {
-    let contract = declare('ReferralStorage');
+    let contract = declare("ReferralStorage").unwrap();
     let caller_address: ContractAddress = contract_address_const::<'caller'>();
     let deployed_contract_address = contract_address_const::<'referral_storage'>();
-    start_prank(deployed_contract_address, caller_address);
+    start_cheat_caller_address(deployed_contract_address, caller_address);
     let constructor_calldata = array![event_emitter_address.into()];
     contract.deploy_at(@constructor_calldata, deployed_contract_address).unwrap()
 }
 
 fn deploy_governable(event_emitter_address: ContractAddress) -> ContractAddress {
-    let contract = declare('Governable');
+    let contract = declare("Governable").unwrap();
     let caller_address: ContractAddress = contract_address_const::<'caller'>();
     let deployed_contract_address = contract_address_const::<'governable'>();
-    start_prank(deployed_contract_address, caller_address);
+    start_cheat_caller_address(deployed_contract_address, caller_address);
     let constructor_calldata = array![event_emitter_address.into()];
     contract.deploy_at(@constructor_calldata, deployed_contract_address).unwrap()
 }
 
 fn deploy_event_emitter() -> ContractAddress {
-    let contract = declare('EventEmitter');
+    let contract = declare("EventEmitter").unwrap();
     let caller_address: ContractAddress = contract_address_const::<'caller'>();
     let deployed_contract_address = contract_address_const::<'event_emitter'>();
-    start_prank(deployed_contract_address, caller_address);
+    start_cheat_caller_address(deployed_contract_address, caller_address);
     contract.deploy_at(@array![], deployed_contract_address).unwrap()
 }
 
@@ -209,14 +209,14 @@ fn setup() -> (ContractAddress, IDataStoreDispatcher, IReferralStorageDispatcher
     let governable_address = deploy_governable(event_emitter_address);
     let governable = IGovernableDispatcher { contract_address: governable_address };
 
-    start_prank(event_emitter_address, caller_address);
-    start_prank(data_store_address, caller_address);
-    start_prank(referral_storage_address, caller_address);
-    start_prank(governable_address, caller_address);
+    start_cheat_caller_address(event_emitter_address, caller_address);
+    start_cheat_caller_address(data_store_address, caller_address);
+    start_cheat_caller_address(referral_storage_address, caller_address);
+    start_cheat_caller_address(governable_address, caller_address);
 
-    start_prank(role_store_address, caller_address);
+    start_cheat_caller_address(role_store_address, caller_address);
     role_store.grant_role(caller_address, role::CONTROLLER);
-    start_prank(data_store_address, caller_address);
+    start_cheat_caller_address(data_store_address, caller_address);
     (caller_address, data_store, referral_storage)
 }
 

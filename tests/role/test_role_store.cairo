@@ -2,7 +2,7 @@ use result::ResultTrait;
 use traits::TryInto;
 use starknet::{ContractAddress, contract_address_const};
 use starknet::Felt252TryIntoContractAddress;
-use snforge_std::{declare, start_prank, ContractClassTrait};
+use snforge_std::{declare, start_cheat_caller_address, ContractClassTrait};
 //use array::ArrayTrait;
 
 use satoru::role::role::ROLE_ADMIN;
@@ -16,7 +16,7 @@ fn given_normal_conditions_when_has_role_after_grant_then_works() {
     let role_store = setup();
 
     // Use the address that has been used to deploy role_store.
-    start_prank(role_store.contract_address, admin());
+    start_cheat_caller_address(role_store.contract_address, admin());
 
     // Check that the account address does not have the admin role.
     assert(!role_store.has_role(account_1(), ROLE_ADMIN), 'Invalid role');
@@ -31,7 +31,7 @@ fn given_normal_conditions_when_has_role_after_revoke_then_works() {
     let role_store = setup();
 
     // Use the address that has been used to deploy role_store.
-    start_prank(role_store.contract_address, admin());
+    start_cheat_caller_address(role_store.contract_address, admin());
 
     // Grant admin role to account address.
     role_store.grant_role(account_1(), ROLE_ADMIN);
@@ -48,7 +48,7 @@ fn given_normal_conditions_when_revoke_role_on_1_ROLE_ADMIN_panics() {
     let role_store = setup();
 
     // Use the address that has been used to deploy role_store.
-    start_prank(role_store.contract_address, admin());
+    start_cheat_caller_address(role_store.contract_address, admin());
     // assert that there is only one role ROLE_ADMIN present
     assert(role_store.get_role_member_count(ROLE_ADMIN) == 1, 'members count != 1');
 
@@ -64,7 +64,7 @@ fn given_normal_conditions_when_get_role_count_then_works() {
     let role_store = setup();
 
     // Use the address that has been used to deploy role_store.
-    start_prank(role_store.contract_address, admin());
+    start_cheat_caller_address(role_store.contract_address, admin());
 
     // Here, we will test the role count. Initially, it should be 1.
     assert(role_store.get_role_count() == 1, 'Initial role count should be 1');
@@ -75,7 +75,7 @@ fn given_normal_conditions_when_get_role_count_then_works() {
     assert(role_store.get_role_count() == 2, 'Role count should be 2');
     // Grant MARKET_KEEPER role to account address.
     role_store.grant_role(account_1(), MARKET_KEEPER);
-    // After granting the role MARKET_KEEPER, the count should be 3. 
+    // After granting the role MARKET_KEEPER, the count should be 3.
     assert(role_store.get_role_count() == 3, 'Role count should be 3');
 
     // The ROLE_ADMIN role is already assigned, let's try to reassign it to see if duplicates are managed.
@@ -95,7 +95,7 @@ fn given_normal_conditions_when_get_roles_then_works() {
     let role_store = setup();
 
     // Use the address that has been used to deploy role_store.
-    start_prank(role_store.contract_address, admin());
+    start_cheat_caller_address(role_store.contract_address, admin());
 
     // Grant CONTROLLER role to account address.
     role_store.grant_role(account_1(), CONTROLLER);
@@ -125,7 +125,7 @@ fn given_normal_conditions_when_get_role_member_count_then_works() {
     let role_store = setup();
 
     // Use the address that has been used to deploy role_store.
-    start_prank(role_store.contract_address, admin());
+    start_cheat_caller_address(role_store.contract_address, admin());
     // Grant CONTROLLER role to account address.
     role_store.grant_role(account_1(), CONTROLLER);
     role_store.grant_role(account_2(), CONTROLLER);
@@ -145,7 +145,7 @@ fn given_normal_conditions_when_get_role_members_then_works() {
     let role_store = setup();
 
     // Use the address that has been used to deploy role_store.
-    start_prank(role_store.contract_address, admin());
+    start_cheat_caller_address(role_store.contract_address, admin());
     // Grant CONTROLLER role to accounts.
     role_store.grant_role(account_1(), CONTROLLER);
     role_store.grant_role(account_2(), CONTROLLER);
@@ -188,10 +188,10 @@ fn setup() -> IRoleStoreDispatcher {
 }
 
 fn deploy_role_store() -> ContractAddress {
-    let contract = declare('RoleStore');
+    let contract = declare("RoleStore").unwrap();
     let caller_address: ContractAddress = contract_address_const::<'caller'>();
     let deployed_contract_address = contract_address_const::<'role_store'>();
-    start_prank(deployed_contract_address, caller_address);
+    start_cheat_caller_address(deployed_contract_address, caller_address);
     contract.deploy_at(@array![caller_address.into()], deployed_contract_address).unwrap()
 }
 

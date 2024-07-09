@@ -17,7 +17,7 @@ use satoru::deposit::{
 };
 
 
-use snforge_std::{declare, start_prank, ContractClassTrait};
+use snforge_std::{declare, start_cheat_caller_address, ContractClassTrait};
 
 
 #[test]
@@ -121,13 +121,13 @@ fn setup_role() -> (
 fn deploy_deposit_vault(
     data_store_address: ContractAddress, role_store_address: ContractAddress
 ) -> ContractAddress {
-    let contract = declare('DepositVault');
+    let contract = declare("DepositVault").unwrap();
     contract.deploy(@array![data_store_address.into(), role_store_address.into()]).unwrap()
 }
 
 /// Utility function to deploy a `Chain` contract and return its dispatcher.
 fn deploy_chain() -> ContractAddress {
-    let contract = declare('Chain');
+    let contract = declare("Chain").unwrap();
     contract.deploy(@array![]).unwrap()
 }
 
@@ -165,7 +165,7 @@ fn create_dummy_deposit_param() -> CreateDepositParams {
 }
 
 fn deploy_data_store(role_store_address: ContractAddress) -> ContractAddress {
-    let contract = declare('DataStore');
+    let contract = declare("DataStore").unwrap();
     let constructor_calldata = array![role_store_address.into()];
     contract.deploy(@constructor_calldata).unwrap()
 }
@@ -186,9 +186,9 @@ fn create_dummy_deposit_param_market(
     };
     // Test logic
     // Test set_market function without permission
-    start_prank(role_store_address, caller_address);
+    start_cheat_caller_address(role_store_address, caller_address);
     role_store.grant_role(caller_address, role::MARKET_KEEPER);
-    start_prank(data_store_address, caller_address);
+    start_cheat_caller_address(data_store_address, caller_address);
     data_store.set_market(key, 0, market);
 
     CreateDepositParams {

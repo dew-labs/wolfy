@@ -11,7 +11,7 @@ use starknet::{
     ContractAddress, get_caller_address, Felt252TryIntoContractAddress, contract_address_const,
     ClassHash,
 };
-use snforge_std::{declare, start_prank, stop_prank, start_roll, ContractClassTrait, ContractClass};
+use snforge_std::{declare, start_cheat_caller_address, stop_cheat_caller_address, start_cheat_block_number, ContractClassTrait, ContractClass};
 
 
 // Local imports.
@@ -137,15 +137,15 @@ fn test_long_increase_decrease_close() {
         ); // 1 000 000
 
     // Send token to order_vault in multicall with create_order
-    start_prank(contract_address_const::<'ETH'>(), caller_address);
+    start_cheat_caller_address(contract_address_const::<'ETH'>(), caller_address);
     IERC20Dispatcher { contract_address: contract_address_const::<'ETH'>() }
         .transfer(order_vault.contract_address, 1000000000000000000); // 1ETH
 
     'transfer made'.print();
     // Create order_params Struct
     let contract_address = contract_address_const::<0>();
-    start_prank(market.market_token, caller_address);
-    start_prank(market.long_token, caller_address);
+    start_cheat_caller_address(market.market_token, caller_address);
+    start_cheat_caller_address(market.long_token, caller_address);
     let order_params_long = CreateOrderParams {
         receiver: caller_address,
         callback_contract: contract_address,
@@ -167,9 +167,9 @@ fn test_long_increase_decrease_close() {
     };
     // Create the swap order.
     role_store.grant_role(exchange_router.contract_address, role::CONTROLLER);
-    start_roll(exchange_router.contract_address, 1930);
+    start_cheat_block_number(exchange_router.contract_address, 1930);
     'try to create prder'.print();
-    start_prank(exchange_router.contract_address, caller_address);
+    start_cheat_caller_address(exchange_router.contract_address, caller_address);
     let key_long = exchange_router.create_order(order_params_long);
     'long created'.print();
     let got_order_long = data_store.get_order(key_long);
@@ -197,9 +197,9 @@ fn test_long_increase_decrease_close() {
     let keeper_address = contract_address_const::<'keeper'>();
     role_store.grant_role(keeper_address, role::ORDER_KEEPER);
 
-    stop_prank(order_handler.contract_address);
-    start_prank(order_handler.contract_address, keeper_address);
-    start_roll(order_handler.contract_address, 1935);
+    stop_cheat_caller_address(order_handler.contract_address);
+    start_cheat_caller_address(order_handler.contract_address, keeper_address);
+    start_cheat_block_number(order_handler.contract_address, 1935);
     // TODO add real signatures check on Oracle Account
     order_handler.execute_order(key_long, set_price_params);
     'long position SUCCEEDED'.print();
@@ -228,12 +228,12 @@ fn test_long_increase_decrease_close() {
     //////////////////////////////// INCREASE POSITION //////////////////////////////////
 
     // Send token to order_vault in multicall with create_order
-    start_prank(contract_address_const::<'ETH'>(), caller_address);
+    start_cheat_caller_address(contract_address_const::<'ETH'>(), caller_address);
     IERC20Dispatcher { contract_address: contract_address_const::<'ETH'>() }
         .transfer(order_vault.contract_address, 2000000000000000000); // 2ETH
 
-    start_prank(market.market_token, caller_address);
-    start_prank(market.long_token, caller_address);
+    start_cheat_caller_address(market.market_token, caller_address);
+    start_cheat_caller_address(market.long_token, caller_address);
     let order_params_long_inc = CreateOrderParams {
         receiver: caller_address,
         callback_contract: contract_address,
@@ -255,9 +255,9 @@ fn test_long_increase_decrease_close() {
     };
     // Create the long order.
     role_store.grant_role(exchange_router.contract_address, role::CONTROLLER);
-    start_roll(exchange_router.contract_address, 1940);
+    start_cheat_block_number(exchange_router.contract_address, 1940);
     'try to create order'.print();
-    start_prank(exchange_router.contract_address, caller_address);
+    start_cheat_caller_address(exchange_router.contract_address, caller_address);
     let key_long_inc = exchange_router.create_order(order_params_long_inc);
     'Long increase created'.print();
 
@@ -283,9 +283,9 @@ fn test_long_increase_decrease_close() {
     let keeper_address = contract_address_const::<'keeper'>();
     role_store.grant_role(keeper_address, role::ORDER_KEEPER);
 
-    stop_prank(order_handler.contract_address);
-    start_prank(order_handler.contract_address, keeper_address);
-    start_roll(order_handler.contract_address, 1945);
+    stop_cheat_caller_address(order_handler.contract_address);
+    start_cheat_caller_address(order_handler.contract_address, keeper_address);
+    start_cheat_block_number(order_handler.contract_address, 1945);
     // TODO add real signatures check on Oracle Account
     order_handler.execute_order(key_long_inc, set_price_params_inc);
     'long pos inc SUCCEEDED'.print();
@@ -329,8 +329,8 @@ fn test_long_increase_decrease_close() {
     // Size = 11200$ -----> 25% = 2800
     // Collateral token amount = 3 ETH -----> 25% = 0.75 ETH
 
-    start_prank(market.market_token, caller_address);
-    start_prank(market.long_token, caller_address);
+    start_cheat_caller_address(market.market_token, caller_address);
+    start_cheat_caller_address(market.long_token, caller_address);
     let order_params_long_dec = CreateOrderParams {
         receiver: caller_address,
         callback_contract: contract_address,
@@ -352,9 +352,9 @@ fn test_long_increase_decrease_close() {
     };
     // Create the long order.
     role_store.grant_role(exchange_router.contract_address, role::CONTROLLER);
-    start_roll(exchange_router.contract_address, 1950);
+    start_cheat_block_number(exchange_router.contract_address, 1950);
     'try to create order'.print();
-    start_prank(exchange_router.contract_address, caller_address);
+    start_cheat_caller_address(exchange_router.contract_address, caller_address);
     let key_long_dec = exchange_router.create_order(order_params_long_dec);
     'long decrease created'.print();
     let got_order_long_dec = data_store.get_order(key_long_dec);
@@ -380,9 +380,9 @@ fn test_long_increase_decrease_close() {
     let keeper_address = contract_address_const::<'keeper'>();
     role_store.grant_role(keeper_address, role::ORDER_KEEPER);
 
-    stop_prank(order_handler.contract_address);
-    start_prank(order_handler.contract_address, keeper_address);
-    start_roll(order_handler.contract_address, 1955);
+    stop_cheat_caller_address(order_handler.contract_address);
+    start_cheat_caller_address(order_handler.contract_address, keeper_address);
+    start_cheat_block_number(order_handler.contract_address, 1955);
     order_handler.execute_order(key_long_dec, set_price_params_dec);
     'long pos dec SUCCEEDED'.print();
 
@@ -450,8 +450,8 @@ fn test_long_increase_decrease_close() {
         );
     assert(position_info.base_pnl_usd.mag == 600000000000000000000, 'PnL should be 600$');
 
-    start_prank(market.market_token, caller_address);
-    start_prank(market.long_token, caller_address);
+    start_cheat_caller_address(market.market_token, caller_address);
+    start_cheat_caller_address(market.long_token, caller_address);
     let order_params_long_dec_2 = CreateOrderParams {
         receiver: caller_address,
         callback_contract: contract_address,
@@ -473,9 +473,9 @@ fn test_long_increase_decrease_close() {
     };
     // Create the long order.
     role_store.grant_role(exchange_router.contract_address, role::CONTROLLER);
-    start_roll(exchange_router.contract_address, 1960);
+    start_cheat_block_number(exchange_router.contract_address, 1960);
     'try to create order'.print();
-    start_prank(exchange_router.contract_address, caller_address);
+    start_cheat_caller_address(exchange_router.contract_address, caller_address);
     let key_long_dec_2 = exchange_router.create_order(order_params_long_dec_2);
     'long decrease created'.print();
     let got_order_long_dec = data_store.get_order(key_long_dec_2);
@@ -501,9 +501,9 @@ fn test_long_increase_decrease_close() {
         price_feed_tokens: array![]
     };
 
-    stop_prank(order_handler.contract_address);
-    start_prank(order_handler.contract_address, keeper_address);
-    start_roll(order_handler.contract_address, 1965);
+    stop_cheat_caller_address(order_handler.contract_address);
+    start_cheat_caller_address(order_handler.contract_address, keeper_address);
+    start_cheat_block_number(order_handler.contract_address, 1965);
     // TODO add real signatures check on Oracle Account
     order_handler.execute_order(key_long_dec_2, set_price_params_dec2);
     'Long pos close SUCCEEDED'.print();
@@ -605,15 +605,15 @@ fn test_takeprofit_long() {
         ); // 1 000 000
 
     // Send token to order_vault in multicall with create_order
-    start_prank(contract_address_const::<'ETH'>(), caller_address);
+    start_cheat_caller_address(contract_address_const::<'ETH'>(), caller_address);
     IERC20Dispatcher { contract_address: contract_address_const::<'ETH'>() }
         .transfer(order_vault.contract_address, 1000000000000000000); // 1ETH
 
     'transfer made'.print();
     // Create order_params Struct
     let contract_address = contract_address_const::<0>();
-    start_prank(market.market_token, caller_address);
-    start_prank(market.long_token, caller_address);
+    start_cheat_caller_address(market.market_token, caller_address);
+    start_cheat_caller_address(market.long_token, caller_address);
     let order_params_long = CreateOrderParams {
         receiver: caller_address,
         callback_contract: contract_address,
@@ -635,9 +635,9 @@ fn test_takeprofit_long() {
     };
     // Create the swap order.
     role_store.grant_role(exchange_router.contract_address, role::CONTROLLER);
-    start_roll(exchange_router.contract_address, 1930);
+    start_cheat_block_number(exchange_router.contract_address, 1930);
     'try to create prder'.print();
-    start_prank(exchange_router.contract_address, caller_address);
+    start_cheat_caller_address(exchange_router.contract_address, caller_address);
     let key_long = exchange_router.create_order(order_params_long);
     'long created'.print();
     let got_order_long = data_store.get_order(key_long);
@@ -665,9 +665,9 @@ fn test_takeprofit_long() {
     let keeper_address = contract_address_const::<'keeper'>();
     role_store.grant_role(keeper_address, role::ORDER_KEEPER);
 
-    stop_prank(order_handler.contract_address);
-    start_prank(order_handler.contract_address, keeper_address);
-    start_roll(order_handler.contract_address, 1935);
+    stop_cheat_caller_address(order_handler.contract_address);
+    start_cheat_caller_address(order_handler.contract_address, keeper_address);
+    start_cheat_block_number(order_handler.contract_address, 1935);
     // TODO add real signatures check on Oracle Account
     order_handler.execute_order(key_long, set_price_params);
     'long position SUCCEEDED'.print();
@@ -696,12 +696,12 @@ fn test_takeprofit_long() {
     //////////////////////////////// TRIGGER INCREASE POSITION //////////////////////////////////
 
     // Send token to order_vault in multicall with create_order
-    start_prank(contract_address_const::<'ETH'>(), caller_address);
+    start_cheat_caller_address(contract_address_const::<'ETH'>(), caller_address);
     IERC20Dispatcher { contract_address: contract_address_const::<'ETH'>() }
         .transfer(order_vault.contract_address, 2000000000000000000); // 2ETH
 
-    start_prank(market.market_token, caller_address);
-    start_prank(market.long_token, caller_address);
+    start_cheat_caller_address(market.market_token, caller_address);
+    start_cheat_caller_address(market.long_token, caller_address);
     let order_params_long_inc = CreateOrderParams {
         receiver: caller_address,
         callback_contract: contract_address,
@@ -724,9 +724,9 @@ fn test_takeprofit_long() {
 
     // Create the long order.
     role_store.grant_role(exchange_router.contract_address, role::CONTROLLER);
-    start_roll(exchange_router.contract_address, 1940);
+    start_cheat_block_number(exchange_router.contract_address, 1940);
     'try to create order'.print();
-    start_prank(exchange_router.contract_address, caller_address);
+    start_cheat_caller_address(exchange_router.contract_address, caller_address);
     let key_long_inc = exchange_router.create_order(order_params_long_inc);
     'Long increase created'.print();
 
@@ -752,9 +752,9 @@ fn test_takeprofit_long() {
     let keeper_address = contract_address_const::<'keeper'>();
     role_store.grant_role(keeper_address, role::ORDER_KEEPER);
 
-    stop_prank(order_handler.contract_address);
-    start_prank(order_handler.contract_address, keeper_address);
-    start_roll(order_handler.contract_address, 1945);
+    stop_cheat_caller_address(order_handler.contract_address);
+    start_cheat_caller_address(order_handler.contract_address, keeper_address);
+    start_cheat_block_number(order_handler.contract_address, 1945);
     // TODO add real signatures check on Oracle Account
     order_handler.execute_order(key_long_inc, set_price_params_inc);
     'long pos inc SUCCEEDED'.print();
@@ -800,8 +800,8 @@ fn test_takeprofit_long() {
     // Size = 11200$ -----> 25% = 2800
     // Collateral token amount = 3 ETH -----> 25% = 0.75 ETH
 
-    start_prank(market.market_token, caller_address);
-    start_prank(market.long_token, caller_address);
+    start_cheat_caller_address(market.market_token, caller_address);
+    start_cheat_caller_address(market.long_token, caller_address);
     let order_params_long_dec = CreateOrderParams {
         receiver: caller_address,
         callback_contract: contract_address,
@@ -823,9 +823,9 @@ fn test_takeprofit_long() {
     };
     // Create the long order.
     role_store.grant_role(exchange_router.contract_address, role::CONTROLLER);
-    start_roll(exchange_router.contract_address, 1950);
+    start_cheat_block_number(exchange_router.contract_address, 1950);
     'try to create order'.print();
-    start_prank(exchange_router.contract_address, caller_address);
+    start_cheat_caller_address(exchange_router.contract_address, caller_address);
     let key_long_dec = exchange_router.create_order(order_params_long_dec);
     'long decrease created'.print();
     let got_order_long_dec = data_store.get_order(key_long_dec);
@@ -851,9 +851,9 @@ fn test_takeprofit_long() {
     let keeper_address = contract_address_const::<'keeper'>();
     role_store.grant_role(keeper_address, role::ORDER_KEEPER);
 
-    stop_prank(order_handler.contract_address);
-    start_prank(order_handler.contract_address, keeper_address);
-    start_roll(order_handler.contract_address, 1955);
+    stop_cheat_caller_address(order_handler.contract_address);
+    start_cheat_caller_address(order_handler.contract_address, keeper_address);
+    start_cheat_block_number(order_handler.contract_address, 1955);
     order_handler.execute_order(key_long_dec, set_price_params_dec);
     'long pos dec SUCCEEDED'.print();
 
@@ -921,8 +921,8 @@ fn test_takeprofit_long() {
         );
     assert(position_info.base_pnl_usd.mag == 600000000000000000000, 'PnL should be 600$');
 
-    start_prank(market.market_token, caller_address);
-    start_prank(market.long_token, caller_address);
+    start_cheat_caller_address(market.market_token, caller_address);
+    start_cheat_caller_address(market.long_token, caller_address);
     let order_params_long_dec_2 = CreateOrderParams {
         receiver: caller_address,
         callback_contract: contract_address,
@@ -944,9 +944,9 @@ fn test_takeprofit_long() {
     };
     // Create the long order.
     role_store.grant_role(exchange_router.contract_address, role::CONTROLLER);
-    start_roll(exchange_router.contract_address, 1960);
+    start_cheat_block_number(exchange_router.contract_address, 1960);
     'try to create order'.print();
-    start_prank(exchange_router.contract_address, caller_address);
+    start_cheat_caller_address(exchange_router.contract_address, caller_address);
     let key_long_dec_2 = exchange_router.create_order(order_params_long_dec_2);
     'long decrease created'.print();
     let got_order_long_dec = data_store.get_order(key_long_dec_2);
@@ -972,9 +972,9 @@ fn test_takeprofit_long() {
         price_feed_tokens: array![]
     };
 
-    stop_prank(order_handler.contract_address);
-    start_prank(order_handler.contract_address, keeper_address);
-    start_roll(order_handler.contract_address, 1965);
+    stop_cheat_caller_address(order_handler.contract_address);
+    start_cheat_caller_address(order_handler.contract_address, keeper_address);
+    start_cheat_block_number(order_handler.contract_address, 1965);
     // TODO add real signatures check on Oracle Account
     order_handler.execute_order(key_long_dec_2, set_price_params_dec2);
     'Long pos close SUCCEEDED'.print();
@@ -1077,15 +1077,15 @@ fn test_takeprofit_long_increase_fails() {
         ); // 1 000 000
 
     // Send token to order_vault in multicall with create_order
-    start_prank(contract_address_const::<'ETH'>(), caller_address);
+    start_cheat_caller_address(contract_address_const::<'ETH'>(), caller_address);
     IERC20Dispatcher { contract_address: contract_address_const::<'ETH'>() }
         .transfer(order_vault.contract_address, 1000000000000000000); // 1ETH
 
     'transfer made'.print();
     // Create order_params Struct
     let contract_address = contract_address_const::<0>();
-    start_prank(market.market_token, caller_address);
-    start_prank(market.long_token, caller_address);
+    start_cheat_caller_address(market.market_token, caller_address);
+    start_cheat_caller_address(market.long_token, caller_address);
     let order_params_long = CreateOrderParams {
         receiver: caller_address,
         callback_contract: contract_address,
@@ -1107,9 +1107,9 @@ fn test_takeprofit_long_increase_fails() {
     };
     // Create the swap order.
     role_store.grant_role(exchange_router.contract_address, role::CONTROLLER);
-    start_roll(exchange_router.contract_address, 1930);
+    start_cheat_block_number(exchange_router.contract_address, 1930);
     'try to create prder'.print();
-    start_prank(exchange_router.contract_address, caller_address);
+    start_cheat_caller_address(exchange_router.contract_address, caller_address);
     let key_long = exchange_router.create_order(order_params_long);
     'long created'.print();
     let got_order_long = data_store.get_order(key_long);
@@ -1137,9 +1137,9 @@ fn test_takeprofit_long_increase_fails() {
     let keeper_address = contract_address_const::<'keeper'>();
     role_store.grant_role(keeper_address, role::ORDER_KEEPER);
 
-    stop_prank(order_handler.contract_address);
-    start_prank(order_handler.contract_address, keeper_address);
-    start_roll(order_handler.contract_address, 1935);
+    stop_cheat_caller_address(order_handler.contract_address);
+    start_cheat_caller_address(order_handler.contract_address, keeper_address);
+    start_cheat_block_number(order_handler.contract_address, 1935);
     // TODO add real signatures check on Oracle Account
     order_handler.execute_order(key_long, set_price_params);
     'long position SUCCEEDED'.print();
@@ -1168,12 +1168,12 @@ fn test_takeprofit_long_increase_fails() {
     //////////////////////////////// TRIGGER INCREASE POSITION //////////////////////////////////
 
     // Send token to order_vault in multicall with create_order
-    start_prank(contract_address_const::<'ETH'>(), caller_address);
+    start_cheat_caller_address(contract_address_const::<'ETH'>(), caller_address);
     IERC20Dispatcher { contract_address: contract_address_const::<'ETH'>() }
         .transfer(order_vault.contract_address, 2000000000000000000); // 2ETH
 
-    start_prank(market.market_token, caller_address);
-    start_prank(market.long_token, caller_address);
+    start_cheat_caller_address(market.market_token, caller_address);
+    start_cheat_caller_address(market.long_token, caller_address);
     let order_params_long_inc = CreateOrderParams {
         receiver: caller_address,
         callback_contract: contract_address,
@@ -1196,9 +1196,9 @@ fn test_takeprofit_long_increase_fails() {
 
     // Create the long order.
     role_store.grant_role(exchange_router.contract_address, role::CONTROLLER);
-    start_roll(exchange_router.contract_address, 1940);
+    start_cheat_block_number(exchange_router.contract_address, 1940);
     'try to create order'.print();
-    start_prank(exchange_router.contract_address, caller_address);
+    start_cheat_caller_address(exchange_router.contract_address, caller_address);
     let key_long_inc = exchange_router.create_order(order_params_long_inc);
     'Long increase created'.print();
 
@@ -1224,9 +1224,9 @@ fn test_takeprofit_long_increase_fails() {
     let keeper_address = contract_address_const::<'keeper'>();
     role_store.grant_role(keeper_address, role::ORDER_KEEPER);
 
-    stop_prank(order_handler.contract_address);
-    start_prank(order_handler.contract_address, keeper_address);
-    start_roll(order_handler.contract_address, 1945);
+    stop_cheat_caller_address(order_handler.contract_address);
+    start_cheat_caller_address(order_handler.contract_address, keeper_address);
+    start_cheat_block_number(order_handler.contract_address, 1945);
     // TODO add real signatures check on Oracle Account
     order_handler.execute_order(key_long_inc, set_price_params_inc);
     'long pos inc SUCCEEDED'.print();
@@ -1272,8 +1272,8 @@ fn test_takeprofit_long_increase_fails() {
     // Size = 11200$ -----> 25% = 2800
     // Collateral token amount = 3 ETH -----> 25% = 0.75 ETH
 
-    start_prank(market.market_token, caller_address);
-    start_prank(market.long_token, caller_address);
+    start_cheat_caller_address(market.market_token, caller_address);
+    start_cheat_caller_address(market.long_token, caller_address);
     let order_params_long_dec = CreateOrderParams {
         receiver: caller_address,
         callback_contract: contract_address,
@@ -1295,9 +1295,9 @@ fn test_takeprofit_long_increase_fails() {
     };
     // Create the long order.
     role_store.grant_role(exchange_router.contract_address, role::CONTROLLER);
-    start_roll(exchange_router.contract_address, 1950);
+    start_cheat_block_number(exchange_router.contract_address, 1950);
     'try to create order'.print();
-    start_prank(exchange_router.contract_address, caller_address);
+    start_cheat_caller_address(exchange_router.contract_address, caller_address);
     let key_long_dec = exchange_router.create_order(order_params_long_dec);
     'long decrease created'.print();
     let got_order_long_dec = data_store.get_order(key_long_dec);
@@ -1323,9 +1323,9 @@ fn test_takeprofit_long_increase_fails() {
     let keeper_address = contract_address_const::<'keeper'>();
     role_store.grant_role(keeper_address, role::ORDER_KEEPER);
 
-    stop_prank(order_handler.contract_address);
-    start_prank(order_handler.contract_address, keeper_address);
-    start_roll(order_handler.contract_address, 1955);
+    stop_cheat_caller_address(order_handler.contract_address);
+    start_cheat_caller_address(order_handler.contract_address, keeper_address);
+    start_cheat_block_number(order_handler.contract_address, 1955);
     order_handler.execute_order(key_long_dec, set_price_params_dec);
     'long pos dec SUCCEEDED'.print();
 
@@ -1393,8 +1393,8 @@ fn test_takeprofit_long_increase_fails() {
         );
     assert(position_info.base_pnl_usd.mag == 600000000000000000000, 'PnL should be 600$');
 
-    start_prank(market.market_token, caller_address);
-    start_prank(market.long_token, caller_address);
+    start_cheat_caller_address(market.market_token, caller_address);
+    start_cheat_caller_address(market.long_token, caller_address);
     let order_params_long_dec_2 = CreateOrderParams {
         receiver: caller_address,
         callback_contract: contract_address,
@@ -1416,9 +1416,9 @@ fn test_takeprofit_long_increase_fails() {
     };
     // Create the long order.
     role_store.grant_role(exchange_router.contract_address, role::CONTROLLER);
-    start_roll(exchange_router.contract_address, 1960);
+    start_cheat_block_number(exchange_router.contract_address, 1960);
     'try to create order'.print();
-    start_prank(exchange_router.contract_address, caller_address);
+    start_cheat_caller_address(exchange_router.contract_address, caller_address);
     let key_long_dec_2 = exchange_router.create_order(order_params_long_dec_2);
     'long decrease created'.print();
     let got_order_long_dec = data_store.get_order(key_long_dec_2);
@@ -1444,9 +1444,9 @@ fn test_takeprofit_long_increase_fails() {
         price_feed_tokens: array![]
     };
 
-    stop_prank(order_handler.contract_address);
-    start_prank(order_handler.contract_address, keeper_address);
-    start_roll(order_handler.contract_address, 1965);
+    stop_cheat_caller_address(order_handler.contract_address);
+    start_cheat_caller_address(order_handler.contract_address, keeper_address);
+    start_cheat_block_number(order_handler.contract_address, 1965);
     // TODO add real signatures check on Oracle Account
     order_handler.execute_order(key_long_dec_2, set_price_params_dec2);
     'Long pos close SUCCEEDED'.print();
@@ -1549,15 +1549,15 @@ fn test_takeprofit_long_decrease_fails() {
         ); // 1 000 000
 
     // Send token to order_vault in multicall with create_order
-    start_prank(contract_address_const::<'ETH'>(), caller_address);
+    start_cheat_caller_address(contract_address_const::<'ETH'>(), caller_address);
     IERC20Dispatcher { contract_address: contract_address_const::<'ETH'>() }
         .transfer(order_vault.contract_address, 1000000000000000000); // 1ETH
 
     'transfer made'.print();
     // Create order_params Struct
     let contract_address = contract_address_const::<0>();
-    start_prank(market.market_token, caller_address);
-    start_prank(market.long_token, caller_address);
+    start_cheat_caller_address(market.market_token, caller_address);
+    start_cheat_caller_address(market.long_token, caller_address);
     let order_params_long = CreateOrderParams {
         receiver: caller_address,
         callback_contract: contract_address,
@@ -1579,9 +1579,9 @@ fn test_takeprofit_long_decrease_fails() {
     };
     // Create the swap order.
     role_store.grant_role(exchange_router.contract_address, role::CONTROLLER);
-    start_roll(exchange_router.contract_address, 1930);
+    start_cheat_block_number(exchange_router.contract_address, 1930);
     'try to create prder'.print();
-    start_prank(exchange_router.contract_address, caller_address);
+    start_cheat_caller_address(exchange_router.contract_address, caller_address);
     let key_long = exchange_router.create_order(order_params_long);
     'long created'.print();
     let got_order_long = data_store.get_order(key_long);
@@ -1609,9 +1609,9 @@ fn test_takeprofit_long_decrease_fails() {
     let keeper_address = contract_address_const::<'keeper'>();
     role_store.grant_role(keeper_address, role::ORDER_KEEPER);
 
-    stop_prank(order_handler.contract_address);
-    start_prank(order_handler.contract_address, keeper_address);
-    start_roll(order_handler.contract_address, 1935);
+    stop_cheat_caller_address(order_handler.contract_address);
+    start_cheat_caller_address(order_handler.contract_address, keeper_address);
+    start_cheat_block_number(order_handler.contract_address, 1935);
     // TODO add real signatures check on Oracle Account
     order_handler.execute_order(key_long, set_price_params);
     'long position SUCCEEDED'.print();
@@ -1640,12 +1640,12 @@ fn test_takeprofit_long_decrease_fails() {
     //////////////////////////////// TRIGGER INCREASE POSITION //////////////////////////////////
 
     // Send token to order_vault in multicall with create_order
-    start_prank(contract_address_const::<'ETH'>(), caller_address);
+    start_cheat_caller_address(contract_address_const::<'ETH'>(), caller_address);
     IERC20Dispatcher { contract_address: contract_address_const::<'ETH'>() }
         .transfer(order_vault.contract_address, 2000000000000000000); // 2ETH
 
-    start_prank(market.market_token, caller_address);
-    start_prank(market.long_token, caller_address);
+    start_cheat_caller_address(market.market_token, caller_address);
+    start_cheat_caller_address(market.long_token, caller_address);
     let order_params_long_inc = CreateOrderParams {
         receiver: caller_address,
         callback_contract: contract_address,
@@ -1668,9 +1668,9 @@ fn test_takeprofit_long_decrease_fails() {
 
     // Create the long order.
     role_store.grant_role(exchange_router.contract_address, role::CONTROLLER);
-    start_roll(exchange_router.contract_address, 1940);
+    start_cheat_block_number(exchange_router.contract_address, 1940);
     'try to create order'.print();
-    start_prank(exchange_router.contract_address, caller_address);
+    start_cheat_caller_address(exchange_router.contract_address, caller_address);
     let key_long_inc = exchange_router.create_order(order_params_long_inc);
     'Long increase created'.print();
 
@@ -1696,9 +1696,9 @@ fn test_takeprofit_long_decrease_fails() {
     let keeper_address = contract_address_const::<'keeper'>();
     role_store.grant_role(keeper_address, role::ORDER_KEEPER);
 
-    stop_prank(order_handler.contract_address);
-    start_prank(order_handler.contract_address, keeper_address);
-    start_roll(order_handler.contract_address, 1945);
+    stop_cheat_caller_address(order_handler.contract_address);
+    start_cheat_caller_address(order_handler.contract_address, keeper_address);
+    start_cheat_block_number(order_handler.contract_address, 1945);
     // TODO add real signatures check on Oracle Account
     order_handler.execute_order(key_long_inc, set_price_params_inc);
     'long pos inc SUCCEEDED'.print();
@@ -1744,8 +1744,8 @@ fn test_takeprofit_long_decrease_fails() {
     // Size = 11200$ -----> 25% = 2800
     // Collateral token amount = 3 ETH -----> 25% = 0.75 ETH
 
-    start_prank(market.market_token, caller_address);
-    start_prank(market.long_token, caller_address);
+    start_cheat_caller_address(market.market_token, caller_address);
+    start_cheat_caller_address(market.long_token, caller_address);
     let order_params_long_dec = CreateOrderParams {
         receiver: caller_address,
         callback_contract: contract_address,
@@ -1767,9 +1767,9 @@ fn test_takeprofit_long_decrease_fails() {
     };
     // Create the long order.
     role_store.grant_role(exchange_router.contract_address, role::CONTROLLER);
-    start_roll(exchange_router.contract_address, 1950);
+    start_cheat_block_number(exchange_router.contract_address, 1950);
     'try to create order'.print();
-    start_prank(exchange_router.contract_address, caller_address);
+    start_cheat_caller_address(exchange_router.contract_address, caller_address);
     let key_long_dec = exchange_router.create_order(order_params_long_dec);
     'long decrease created'.print();
     let got_order_long_dec = data_store.get_order(key_long_dec);
@@ -1795,9 +1795,9 @@ fn test_takeprofit_long_decrease_fails() {
     let keeper_address = contract_address_const::<'keeper'>();
     role_store.grant_role(keeper_address, role::ORDER_KEEPER);
 
-    stop_prank(order_handler.contract_address);
-    start_prank(order_handler.contract_address, keeper_address);
-    start_roll(order_handler.contract_address, 1955);
+    stop_cheat_caller_address(order_handler.contract_address);
+    start_cheat_caller_address(order_handler.contract_address, keeper_address);
+    start_cheat_block_number(order_handler.contract_address, 1955);
     order_handler.execute_order(key_long_dec, set_price_params_dec);
     'long pos dec SUCCEEDED'.print();
 
@@ -1865,8 +1865,8 @@ fn test_takeprofit_long_decrease_fails() {
         );
     assert(position_info.base_pnl_usd.mag == 600000000000000000000, 'PnL should be 600$');
 
-    start_prank(market.market_token, caller_address);
-    start_prank(market.long_token, caller_address);
+    start_cheat_caller_address(market.market_token, caller_address);
+    start_cheat_caller_address(market.long_token, caller_address);
     let order_params_long_dec_2 = CreateOrderParams {
         receiver: caller_address,
         callback_contract: contract_address,
@@ -1888,9 +1888,9 @@ fn test_takeprofit_long_decrease_fails() {
     };
     // Create the long order.
     role_store.grant_role(exchange_router.contract_address, role::CONTROLLER);
-    start_roll(exchange_router.contract_address, 1960);
+    start_cheat_block_number(exchange_router.contract_address, 1960);
     'try to create order'.print();
-    start_prank(exchange_router.contract_address, caller_address);
+    start_cheat_caller_address(exchange_router.contract_address, caller_address);
     let key_long_dec_2 = exchange_router.create_order(order_params_long_dec_2);
     'long decrease created'.print();
     let got_order_long_dec = data_store.get_order(key_long_dec_2);
@@ -1916,9 +1916,9 @@ fn test_takeprofit_long_decrease_fails() {
         price_feed_tokens: array![]
     };
 
-    stop_prank(order_handler.contract_address);
-    start_prank(order_handler.contract_address, keeper_address);
-    start_roll(order_handler.contract_address, 1965);
+    stop_cheat_caller_address(order_handler.contract_address);
+    start_cheat_caller_address(order_handler.contract_address, keeper_address);
+    start_cheat_block_number(order_handler.contract_address, 1965);
     // TODO add real signatures check on Oracle Account
     order_handler.execute_order(key_long_dec_2, set_price_params_dec2);
     'Long pos close SUCCEEDED'.print();
@@ -2021,15 +2021,15 @@ fn test_takeprofit_long_close_fails() {
         ); // 1 000 000
 
     // Send token to order_vault in multicall with create_order
-    start_prank(contract_address_const::<'ETH'>(), caller_address);
+    start_cheat_caller_address(contract_address_const::<'ETH'>(), caller_address);
     IERC20Dispatcher { contract_address: contract_address_const::<'ETH'>() }
         .transfer(order_vault.contract_address, 1000000000000000000); // 1ETH
 
     'transfer made'.print();
     // Create order_params Struct
     let contract_address = contract_address_const::<0>();
-    start_prank(market.market_token, caller_address);
-    start_prank(market.long_token, caller_address);
+    start_cheat_caller_address(market.market_token, caller_address);
+    start_cheat_caller_address(market.long_token, caller_address);
     let order_params_long = CreateOrderParams {
         receiver: caller_address,
         callback_contract: contract_address,
@@ -2051,9 +2051,9 @@ fn test_takeprofit_long_close_fails() {
     };
     // Create the swap order.
     role_store.grant_role(exchange_router.contract_address, role::CONTROLLER);
-    start_roll(exchange_router.contract_address, 1930);
+    start_cheat_block_number(exchange_router.contract_address, 1930);
     'try to create prder'.print();
-    start_prank(exchange_router.contract_address, caller_address);
+    start_cheat_caller_address(exchange_router.contract_address, caller_address);
     let key_long = exchange_router.create_order(order_params_long);
     'long created'.print();
     let got_order_long = data_store.get_order(key_long);
@@ -2081,9 +2081,9 @@ fn test_takeprofit_long_close_fails() {
     let keeper_address = contract_address_const::<'keeper'>();
     role_store.grant_role(keeper_address, role::ORDER_KEEPER);
 
-    stop_prank(order_handler.contract_address);
-    start_prank(order_handler.contract_address, keeper_address);
-    start_roll(order_handler.contract_address, 1935);
+    stop_cheat_caller_address(order_handler.contract_address);
+    start_cheat_caller_address(order_handler.contract_address, keeper_address);
+    start_cheat_block_number(order_handler.contract_address, 1935);
     // TODO add real signatures check on Oracle Account
     order_handler.execute_order(key_long, set_price_params);
     'long position SUCCEEDED'.print();
@@ -2112,12 +2112,12 @@ fn test_takeprofit_long_close_fails() {
     //////////////////////////////// TRIGGER INCREASE POSITION //////////////////////////////////
 
     // Send token to order_vault in multicall with create_order
-    start_prank(contract_address_const::<'ETH'>(), caller_address);
+    start_cheat_caller_address(contract_address_const::<'ETH'>(), caller_address);
     IERC20Dispatcher { contract_address: contract_address_const::<'ETH'>() }
         .transfer(order_vault.contract_address, 2000000000000000000); // 2ETH
 
-    start_prank(market.market_token, caller_address);
-    start_prank(market.long_token, caller_address);
+    start_cheat_caller_address(market.market_token, caller_address);
+    start_cheat_caller_address(market.long_token, caller_address);
     let order_params_long_inc = CreateOrderParams {
         receiver: caller_address,
         callback_contract: contract_address,
@@ -2140,9 +2140,9 @@ fn test_takeprofit_long_close_fails() {
 
     // Create the long order.
     role_store.grant_role(exchange_router.contract_address, role::CONTROLLER);
-    start_roll(exchange_router.contract_address, 1940);
+    start_cheat_block_number(exchange_router.contract_address, 1940);
     'try to create order'.print();
-    start_prank(exchange_router.contract_address, caller_address);
+    start_cheat_caller_address(exchange_router.contract_address, caller_address);
     let key_long_inc = exchange_router.create_order(order_params_long_inc);
     'Long increase created'.print();
 
@@ -2168,9 +2168,9 @@ fn test_takeprofit_long_close_fails() {
     let keeper_address = contract_address_const::<'keeper'>();
     role_store.grant_role(keeper_address, role::ORDER_KEEPER);
 
-    stop_prank(order_handler.contract_address);
-    start_prank(order_handler.contract_address, keeper_address);
-    start_roll(order_handler.contract_address, 1945);
+    stop_cheat_caller_address(order_handler.contract_address);
+    start_cheat_caller_address(order_handler.contract_address, keeper_address);
+    start_cheat_block_number(order_handler.contract_address, 1945);
     // TODO add real signatures check on Oracle Account
     order_handler.execute_order(key_long_inc, set_price_params_inc);
     'long pos inc SUCCEEDED'.print();
@@ -2216,8 +2216,8 @@ fn test_takeprofit_long_close_fails() {
     // Size = 11200$ -----> 25% = 2800
     // Collateral token amount = 3 ETH -----> 25% = 0.75 ETH
 
-    start_prank(market.market_token, caller_address);
-    start_prank(market.long_token, caller_address);
+    start_cheat_caller_address(market.market_token, caller_address);
+    start_cheat_caller_address(market.long_token, caller_address);
     let order_params_long_dec = CreateOrderParams {
         receiver: caller_address,
         callback_contract: contract_address,
@@ -2239,9 +2239,9 @@ fn test_takeprofit_long_close_fails() {
     };
     // Create the long order.
     role_store.grant_role(exchange_router.contract_address, role::CONTROLLER);
-    start_roll(exchange_router.contract_address, 1950);
+    start_cheat_block_number(exchange_router.contract_address, 1950);
     'try to create order'.print();
-    start_prank(exchange_router.contract_address, caller_address);
+    start_cheat_caller_address(exchange_router.contract_address, caller_address);
     let key_long_dec = exchange_router.create_order(order_params_long_dec);
     'long decrease created'.print();
     let got_order_long_dec = data_store.get_order(key_long_dec);
@@ -2267,9 +2267,9 @@ fn test_takeprofit_long_close_fails() {
     let keeper_address = contract_address_const::<'keeper'>();
     role_store.grant_role(keeper_address, role::ORDER_KEEPER);
 
-    stop_prank(order_handler.contract_address);
-    start_prank(order_handler.contract_address, keeper_address);
-    start_roll(order_handler.contract_address, 1955);
+    stop_cheat_caller_address(order_handler.contract_address);
+    start_cheat_caller_address(order_handler.contract_address, keeper_address);
+    start_cheat_block_number(order_handler.contract_address, 1955);
     order_handler.execute_order(key_long_dec, set_price_params_dec);
     'long pos dec SUCCEEDED'.print();
 
@@ -2337,8 +2337,8 @@ fn test_takeprofit_long_close_fails() {
         );
     assert(position_info.base_pnl_usd.mag == 600000000000000000000, 'PnL should be 600$');
 
-    start_prank(market.market_token, caller_address);
-    start_prank(market.long_token, caller_address);
+    start_cheat_caller_address(market.market_token, caller_address);
+    start_cheat_caller_address(market.long_token, caller_address);
     let order_params_long_dec_2 = CreateOrderParams {
         receiver: caller_address,
         callback_contract: contract_address,
@@ -2360,9 +2360,9 @@ fn test_takeprofit_long_close_fails() {
     };
     // Create the long order.
     role_store.grant_role(exchange_router.contract_address, role::CONTROLLER);
-    start_roll(exchange_router.contract_address, 1960);
+    start_cheat_block_number(exchange_router.contract_address, 1960);
     'try to create order'.print();
-    start_prank(exchange_router.contract_address, caller_address);
+    start_cheat_caller_address(exchange_router.contract_address, caller_address);
     let key_long_dec_2 = exchange_router.create_order(order_params_long_dec_2);
     'long decrease created'.print();
     let got_order_long_dec = data_store.get_order(key_long_dec_2);
@@ -2388,9 +2388,9 @@ fn test_takeprofit_long_close_fails() {
         price_feed_tokens: array![]
     };
 
-    stop_prank(order_handler.contract_address);
-    start_prank(order_handler.contract_address, keeper_address);
-    start_roll(order_handler.contract_address, 1965);
+    stop_cheat_caller_address(order_handler.contract_address);
+    start_cheat_caller_address(order_handler.contract_address, keeper_address);
+    start_cheat_block_number(order_handler.contract_address, 1965);
     // TODO add real signatures check on Oracle Account
     order_handler.execute_order(key_long_dec_2, set_price_params_dec2);
     'Long pos close SUCCEEDED'.print();
@@ -2500,15 +2500,15 @@ fn test_long_liquidation() {
         ); // 1 000 000
 
     // Send token to order_vault in multicall with create_order
-    start_prank(contract_address_const::<'ETH'>(), caller_address);
+    start_cheat_caller_address(contract_address_const::<'ETH'>(), caller_address);
     IERC20Dispatcher { contract_address: contract_address_const::<'ETH'>() }
         .transfer(order_vault.contract_address, 1000000000000000000); // 1ETH
 
     'transfer made'.print();
     // Create order_params Struct
     let contract_address = contract_address_const::<0>();
-    start_prank(market.market_token, caller_address);
-    start_prank(market.long_token, caller_address);
+    start_cheat_caller_address(market.market_token, caller_address);
+    start_cheat_caller_address(market.long_token, caller_address);
     let order_params_long = CreateOrderParams {
         receiver: caller_address,
         callback_contract: contract_address,
@@ -2530,9 +2530,9 @@ fn test_long_liquidation() {
     };
     // Create the swap order.
     role_store.grant_role(exchange_router.contract_address, role::CONTROLLER);
-    start_roll(exchange_router.contract_address, 1930);
+    start_cheat_block_number(exchange_router.contract_address, 1930);
     'try to create prder'.print();
-    start_prank(exchange_router.contract_address, caller_address);
+    start_cheat_caller_address(exchange_router.contract_address, caller_address);
     let key_long = exchange_router.create_order(order_params_long);
     'long created'.print();
     let got_order_long = data_store.get_order(key_long);
@@ -2560,9 +2560,9 @@ fn test_long_liquidation() {
     let keeper_address = contract_address_const::<'keeper'>();
     role_store.grant_role(keeper_address, role::ORDER_KEEPER);
 
-    stop_prank(order_handler.contract_address);
-    start_prank(order_handler.contract_address, keeper_address);
-    start_roll(order_handler.contract_address, 1935);
+    stop_cheat_caller_address(order_handler.contract_address);
+    start_cheat_caller_address(order_handler.contract_address, keeper_address);
+    start_cheat_block_number(order_handler.contract_address, 1935);
     // TODO add real signatures check on Oracle Account
     order_handler.execute_order(key_long, set_price_params);
     'long position SUCCEEDED'.print();
@@ -2796,15 +2796,15 @@ fn test_long_leverage_positif_close() {
         ); // 1 000 000
 
     // Send token to order_vault in multicall with create_order
-    start_prank(contract_address_const::<'ETH'>(), caller_address);
+    start_cheat_caller_address(contract_address_const::<'ETH'>(), caller_address);
     IERC20Dispatcher { contract_address: contract_address_const::<'ETH'>() }
         .transfer(order_vault.contract_address, 1000000000000000000); // 1ETH
 
     'transfer made'.print();
     // Create order_params Struct
     let contract_address = contract_address_const::<0>();
-    start_prank(market.market_token, caller_address);
-    start_prank(market.long_token, caller_address);
+    start_cheat_caller_address(market.market_token, caller_address);
+    start_cheat_caller_address(market.long_token, caller_address);
     let order_params_long = CreateOrderParams {
         receiver: caller_address,
         callback_contract: contract_address,
@@ -2826,9 +2826,9 @@ fn test_long_leverage_positif_close() {
     };
     // Create the swap order.
     role_store.grant_role(exchange_router.contract_address, role::CONTROLLER);
-    start_roll(exchange_router.contract_address, 1930);
+    start_cheat_block_number(exchange_router.contract_address, 1930);
     'try to create prder'.print();
-    start_prank(exchange_router.contract_address, caller_address);
+    start_cheat_caller_address(exchange_router.contract_address, caller_address);
     let key_long = exchange_router.create_order(order_params_long);
     'long created'.print();
     let got_order_long = data_store.get_order(key_long);
@@ -2856,9 +2856,9 @@ fn test_long_leverage_positif_close() {
     let keeper_address = contract_address_const::<'keeper'>();
     role_store.grant_role(keeper_address, role::ORDER_KEEPER);
 
-    stop_prank(order_handler.contract_address);
-    start_prank(order_handler.contract_address, keeper_address);
-    start_roll(order_handler.contract_address, 1935);
+    stop_cheat_caller_address(order_handler.contract_address);
+    start_cheat_caller_address(order_handler.contract_address, keeper_address);
+    start_cheat_block_number(order_handler.contract_address, 1935);
     // TODO add real signatures check on Oracle Account
     order_handler.execute_order(key_long, set_price_params);
     'long position SUCCEEDED'.print();
@@ -2909,8 +2909,8 @@ fn test_long_leverage_positif_close() {
         );
     assert(position_info.base_pnl_usd.mag == 5000000000000000000000, 'PnL should be 5000$');
 
-    start_prank(market.market_token, caller_address);
-    start_prank(market.long_token, caller_address);
+    start_cheat_caller_address(market.market_token, caller_address);
+    start_cheat_caller_address(market.long_token, caller_address);
     let order_params_long_dec_2 = CreateOrderParams {
         receiver: caller_address,
         callback_contract: contract_address,
@@ -2932,9 +2932,9 @@ fn test_long_leverage_positif_close() {
     };
     // Create the long order.
     role_store.grant_role(exchange_router.contract_address, role::CONTROLLER);
-    start_roll(exchange_router.contract_address, 1960);
+    start_cheat_block_number(exchange_router.contract_address, 1960);
     'try to create order'.print();
-    start_prank(exchange_router.contract_address, caller_address);
+    start_cheat_caller_address(exchange_router.contract_address, caller_address);
     let key_long_dec_2 = exchange_router.create_order(order_params_long_dec_2);
     'long decrease created'.print();
     let got_order_long_dec = data_store.get_order(key_long_dec_2);
@@ -2960,9 +2960,9 @@ fn test_long_leverage_positif_close() {
         price_feed_tokens: array![]
     };
 
-    stop_prank(order_handler.contract_address);
-    start_prank(order_handler.contract_address, keeper_address);
-    start_roll(order_handler.contract_address, 1965);
+    stop_cheat_caller_address(order_handler.contract_address);
+    start_cheat_caller_address(order_handler.contract_address, keeper_address);
+    start_cheat_block_number(order_handler.contract_address, 1965);
     // TODO add real signatures check on Oracle Account
     order_handler.execute_order(key_long_dec_2, set_price_params_dec2);
     'Long pos close SUCCEEDED'.print();
@@ -3072,15 +3072,15 @@ fn test_long_leverage_liquidation() {
         ); // 1 000 000
 
     // Send token to order_vault in multicall with create_order
-    start_prank(contract_address_const::<'ETH'>(), caller_address);
+    start_cheat_caller_address(contract_address_const::<'ETH'>(), caller_address);
     IERC20Dispatcher { contract_address: contract_address_const::<'ETH'>() }
         .transfer(order_vault.contract_address, 1000000000000000000); // 1ETH
 
     'transfer made'.print();
     // Create order_params Struct
     let contract_address = contract_address_const::<0>();
-    start_prank(market.market_token, caller_address);
-    start_prank(market.long_token, caller_address);
+    start_cheat_caller_address(market.market_token, caller_address);
+    start_cheat_caller_address(market.long_token, caller_address);
     let order_params_long = CreateOrderParams {
         receiver: caller_address,
         callback_contract: contract_address,
@@ -3102,9 +3102,9 @@ fn test_long_leverage_liquidation() {
     };
     // Create the swap order.
     role_store.grant_role(exchange_router.contract_address, role::CONTROLLER);
-    start_roll(exchange_router.contract_address, 1930);
+    start_cheat_block_number(exchange_router.contract_address, 1930);
     'try to create prder'.print();
-    start_prank(exchange_router.contract_address, caller_address);
+    start_cheat_caller_address(exchange_router.contract_address, caller_address);
     let key_long = exchange_router.create_order(order_params_long);
     'long created'.print();
     let got_order_long = data_store.get_order(key_long);
@@ -3132,9 +3132,9 @@ fn test_long_leverage_liquidation() {
     let keeper_address = contract_address_const::<'keeper'>();
     role_store.grant_role(keeper_address, role::ORDER_KEEPER);
 
-    stop_prank(order_handler.contract_address);
-    start_prank(order_handler.contract_address, keeper_address);
-    start_roll(order_handler.contract_address, 1935);
+    stop_cheat_caller_address(order_handler.contract_address);
+    start_cheat_caller_address(order_handler.contract_address, keeper_address);
+    start_cheat_block_number(order_handler.contract_address, 1935);
     // TODO add real signatures check on Oracle Account
     order_handler.execute_order(key_long, set_price_params);
     'long position SUCCEEDED'.print();

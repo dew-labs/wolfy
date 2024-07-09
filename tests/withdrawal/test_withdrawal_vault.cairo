@@ -10,7 +10,7 @@ use starknet::{
     ContractAddress, get_caller_address, Felt252TryIntoContractAddress, contract_address_const,
     ClassHash,
 };
-use snforge_std::{declare, start_prank, stop_prank, start_mock_call, ContractClassTrait};
+use snforge_std::{declare, start_cheat_caller_address, stop_cheat_caller_address, start_mock_call, ContractClassTrait};
 use traits::{TryInto, Into};
 
 // Local imports.
@@ -46,7 +46,7 @@ fn given_already_intialized_when_initialize_then_fails() {
 fn given_normal_conditions_when_transfer_out_then_works() {
     let (caller_address, receiver_address, _, data_store, withdrawal_vault, erc20) = setup();
 
-    start_prank(withdrawal_vault.contract_address, caller_address);
+    start_cheat_caller_address(withdrawal_vault.contract_address, caller_address);
 
     let amount_to_transfer: u256 = 100;
     withdrawal_vault.transfer_out(erc20.contract_address, receiver_address, amount_to_transfer);
@@ -58,7 +58,7 @@ fn given_normal_conditions_when_transfer_out_then_works() {
     );
     assert(contract_balance == expected_balance, 'transfer_out failed');
 
-    // check that the balance of the receiver increases 
+    // check that the balance of the receiver increases
     let receiver_balance = erc20.balance_of(receiver_address);
     let expected_balance: u256 = amount_to_transfer.into();
     assert(receiver_balance == expected_balance, 'transfer_out failed');
@@ -82,8 +82,8 @@ fn given_not_enough_token_when_transfer_out_then_fails() {
 fn given_caller_has_no_controller_role_when_transfer_out_then_fails() {
     let (caller_address, receiver_address, _, data_store, withdrawal_vault, erc20) = setup();
 
-    stop_prank(withdrawal_vault.contract_address);
-    start_prank(withdrawal_vault.contract_address, receiver_address);
+    stop_cheat_caller_address(withdrawal_vault.contract_address);
+    start_cheat_caller_address(withdrawal_vault.contract_address, receiver_address);
     withdrawal_vault.transfer_out(erc20.contract_address, caller_address, 100_u256);
 
     teardown(data_store, withdrawal_vault);
@@ -242,7 +242,7 @@ fn setup() -> (
     let erc20 = IERC20Dispatcher { contract_address: erc20_contract_address };
 
     // start prank and give controller role to caller_address
-    start_prank(withdrawal_vault.contract_address, caller_address);
+    start_cheat_caller_address(withdrawal_vault.contract_address, caller_address);
 
     return (caller_address, receiver_address, role_store, data_store, withdrawal_vault, erc20);
 }
@@ -260,7 +260,7 @@ fn setup() -> (
 fn deploy_withdrawal_vault(
     data_store_address: ContractAddress, role_store_address: ContractAddress
 ) -> ContractAddress {
-    let withdrawal_vault_contract = declare('WithdrawalVault');
+    let withdrawal_vault_contract = declare("WithdrawalVault").unwrap();
     let constructor_calldata = array![data_store_address.into(), role_store_address.into()];
     withdrawal_vault_contract.deploy(@constructor_calldata).unwrap()
 }
@@ -276,7 +276,7 @@ fn deploy_withdrawal_vault(
 ///
 /// * `ContractAddress` - The address of the ERC20 token.
 fn deploy_erc20_token(withdrawal_vault_address: ContractAddress) -> ContractAddress {
-    let erc20_contract = declare('ERC20');
+    let erc20_contract = declare("ERC20").unwrap();
     let constructor_calldata = array![
         'satoru', 'STU', INITIAL_TOKENS_MINTED, 0, withdrawal_vault_address.into()
     ];
@@ -288,5 +288,5 @@ fn deploy_erc20_token(withdrawal_vault_address: ContractAddress) -> ContractAddr
 // *********************************************************************************************
 fn teardown(data_store: IDataStoreDispatcher, withdrawal_vault: IWithdrawalVaultDispatcher) {
     tests_lib::teardown(data_store.contract_address);
-    stop_prank(withdrawal_vault.contract_address);
+    stop_cheat_caller_address(withdrawal_vault.contract_address);
 }

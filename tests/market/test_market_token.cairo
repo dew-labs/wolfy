@@ -3,7 +3,7 @@ use traits::{TryInto, Into};
 use starknet::{
     ContractAddress, get_caller_address, Felt252TryIntoContractAddress, contract_address_const
 };
-use snforge_std::{declare, start_prank, stop_prank, ContractClassTrait};
+use snforge_std::{declare, start_cheat_caller_address, stop_cheat_caller_address, ContractClassTrait};
 
 
 use satoru::market::market_token::{IMarketTokenDispatcher, IMarketTokenDispatcherTrait};
@@ -41,7 +41,7 @@ fn given_normal_conditions_when_mint_then_expected_results() {
 
 /// Utility function to setup the test environment.
 fn setup() -> (
-    // This caller address will be used with `start_prank` cheatcode to mock the caller address.,
+    // This caller address will be used with `start_cheat_caller_address` cheatcode to mock the caller address.,
     ContractAddress, // Interface to interact with the `RoleStore` contract.
     IRoleStoreDispatcher, // Interface to interact with the `MarketToken` contract.
     IMarketTokenDispatcher,
@@ -59,7 +59,7 @@ fn setup() -> (
     // Create a safe dispatcher to interact with the contract.
     let market_token = IMarketTokenDispatcher { contract_address: market_token_address };
 
-    start_prank(role_store.contract_address, caller_address);
+    start_cheat_caller_address(role_store.contract_address, caller_address);
 
     // Grant the caller the CONTROLLER role.
     // We use the same account to deploy data_store and role_store, so we can grant the role
@@ -68,7 +68,7 @@ fn setup() -> (
 
     // Prank the caller address for calls to data_store contract.
     // We need this so that the caller has the CONTROLLER role.
-    start_prank(market_token_address, caller_address);
+    start_cheat_caller_address(market_token_address, caller_address);
 
     (caller_address, role_store, market_token)
 }
@@ -79,23 +79,23 @@ fn setup() -> (
 ///
 /// * `market_token_address` - The address of the `MarketToken` contract.
 fn teardown(market_token_address: ContractAddress) {
-    stop_prank(market_token_address);
+    stop_cheat_caller_address(market_token_address);
 }
 
 /// Utility function to deploy a market token and return its address.
 fn deploy_market_token(
     role_store_address: ContractAddress, data_store_address: ContractAddress
 ) -> ContractAddress {
-    let contract = declare('MarketToken');
+    let contract = declare("MarketToken").unwrap();
     let mut constructor_calldata = array![role_store_address.into(), data_store_address.into()];
 
     contract.deploy(@constructor_calldata).unwrap()
 }
 
 fn deploy_role_store() -> ContractAddress {
-    let contract = declare('RoleStore');
+    let contract = declare("RoleStore").unwrap();
     let caller_address: ContractAddress = contract_address_const::<'caller'>();
     let deployed_contract_address = contract_address_const::<'role_store'>();
-    start_prank(deployed_contract_address, caller_address);
+    start_cheat_caller_address(deployed_contract_address, caller_address);
     contract.deploy_at(@array![caller_address.into()], deployed_contract_address).unwrap()
 }

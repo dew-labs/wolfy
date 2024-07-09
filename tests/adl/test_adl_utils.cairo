@@ -15,7 +15,7 @@ use satoru::tests_lib::{setup, setup_event_emitter, setup_oracle_and_store, tear
 use satoru::position::position::{Position};
 
 use snforge_std::{
-    declare, start_prank, stop_prank, ContractClassTrait, spy_events, SpyOn, EventSpy, EventFetcher,
+    declare, start_cheat_caller_address, stop_cheat_caller_address, ContractClassTrait, spy_events, SpyOn, EventSpy, EventFetcher,
     event_name_hash, Event, EventAssertions, start_mock_call
 };
 use satoru::adl::adl_utils;
@@ -149,11 +149,11 @@ fn given_normal_conditions_when_emit_adl_state_updated_then_works() {
     let should_enable_adl: bool = true;
 
     // Emit event
-    start_prank(event_emitter_address, caller_address);
+    start_cheat_caller_address(event_emitter_address, caller_address);
     adl_utils::emit_adl_state_updated(
         event_emitter, market, is_long, pnl_to_pool_factor, max_pnl_factor, should_enable_adl
     );
-    stop_prank(event_emitter_address);
+    stop_cheat_caller_address(event_emitter_address);
     spy.fetch_events(); // This throw error
     assert(spy.events.len() == 1, 'There should be one event');
     spy
@@ -223,7 +223,7 @@ fn given_non_valid_position_when_create_adl_order_then_fails() {
 #[test]
 fn given_normal_conditions_when_create_adl_order_then_works() { // Setup
     let (caller_address, role_store, data_store, event_emitter, oracle) = setup_oracle_and_store();
-    // TODO 
+    // TODO
     // For testing "position_utils::get_position_key",  ".data_store.get_position" should be implmented
     let account1 = 'account1'.try_into().unwrap();
     let market = 'market'.try_into().unwrap();
@@ -251,7 +251,7 @@ fn given_normal_conditions_when_create_adl_order_then_works() { // Setup
 fn given_normal_conditions_when_update_adl_state_then_works() {
     // Setup
     let (caller_address, role_store, data_store, event_emitter, oracle) = setup_oracle_and_store();
-    // TODO 
+    // TODO
     // For testing "get_enabled_market",  "get_market_prices" and "is_pnl_factor_exceeded_direct" should be implmented
     let is_long = false;
     let market_token_address = contract_address_const::<'market_token'>();
@@ -265,12 +265,12 @@ fn given_normal_conditions_when_update_adl_state_then_works() {
         short_token: short_token_address,
     };
 
-    start_prank(role_store.contract_address, caller_address);
+    start_cheat_caller_address(role_store.contract_address, caller_address);
     role_store.grant_role(caller_address, role::MARKET_KEEPER);
 
     let price = Price { min: 1, max: 200 };
 
-    stop_prank(role_store.contract_address);
+    stop_cheat_caller_address(role_store.contract_address);
     data_store.set_market(market_token_address, 0, market);
 
     oracle.set_primary_price(index_token_address, price);

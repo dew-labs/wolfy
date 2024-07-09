@@ -1,5 +1,5 @@
 // Core lib imports.
-use snforge_std::{declare, ContractClassTrait, start_prank, ContractClass};
+use snforge_std::{declare, ContractClassTrait, start_cheat_caller_address, ContractClass};
 use array::ArrayTrait;
 use core::traits::Into;
 use starknet::{get_caller_address, ContractAddress, contract_address_const,};
@@ -26,19 +26,19 @@ use debug::PrintTrait;
 //TODO Tests need to be added after implementation of swap_utils
 
 fn deploy_data_store(role_store_address: ContractAddress) -> ContractAddress {
-    let contract = declare('DataStore');
+    let contract = declare("DataStore").unwrap();
     let caller_address: ContractAddress = contract_address_const::<'caller'>();
     let deployed_contract_address = contract_address_const::<'data_store'>();
-    start_prank(deployed_contract_address, caller_address);
+    start_cheat_caller_address(deployed_contract_address, caller_address);
     let constructor_calldata = array![role_store_address.into()];
     contract.deploy_at(@constructor_calldata, deployed_contract_address).unwrap()
 }
 
 fn deploy_event_emitter() -> ContractAddress {
-    let contract = declare('EventEmitter');
+    let contract = declare("EventEmitter").unwrap();
     let caller_address: ContractAddress = contract_address_const::<'caller'>();
     let deployed_contract_address = contract_address_const::<'event_emitter'>();
-    start_prank(deployed_contract_address, caller_address);
+    start_cheat_caller_address(deployed_contract_address, caller_address);
     contract.deploy_at(@array![], deployed_contract_address).unwrap()
 }
 
@@ -46,10 +46,10 @@ fn deploy_event_emitter() -> ContractAddress {
 fn deploy_bank_address(
     data_store_address: ContractAddress, role_store_address: ContractAddress
 ) -> ContractAddress {
-    let contract = declare('Bank');
+    let contract = declare("Bank").unwrap();
     let caller_address: ContractAddress = contract_address_const::<'caller'>();
     let deployed_contract_address = contract_address_const::<'bank'>();
-    start_prank(deployed_contract_address, caller_address);
+    start_cheat_caller_address(deployed_contract_address, caller_address);
     let mut constructor_calldata = array![];
     constructor_calldata.append(data_store_address.into());
     constructor_calldata.append(role_store_address.into());
@@ -61,24 +61,24 @@ fn deploy_bank_address(
 fn deploy_swap_handler_address(
     role_store_address: ContractAddress, data_store_address: ContractAddress
 ) -> ContractAddress {
-    let contract = declare('SwapHandler');
+    let contract = declare("SwapHandler").unwrap();
     let caller_address: ContractAddress = contract_address_const::<'caller'>();
     let deployed_contract_address = contract_address_const::<'swap_handler'>();
-    start_prank(deployed_contract_address, caller_address);
+    start_cheat_caller_address(deployed_contract_address, caller_address);
     let constructor_calldata = array![role_store_address.into()];
     contract.deploy(@constructor_calldata).unwrap()
 }
 
 fn deploy_role_store() -> ContractAddress {
-    let contract = declare('RoleStore');
+    let contract = declare("RoleStore").unwrap();
     let caller_address: ContractAddress = contract_address_const::<'caller'>();
     let deployed_contract_address = contract_address_const::<'role_store'>();
-    start_prank(deployed_contract_address, caller_address);
+    start_cheat_caller_address(deployed_contract_address, caller_address);
     contract.deploy_at(@array![caller_address.into()], deployed_contract_address).unwrap()
 }
 
 fn deploy_tokens() -> (ContractAddress, ContractAddress, ContractAddress) {
-    let contract = declare('ERC20');
+    let contract = declare("ERC20").unwrap();
     let caller_address: ContractAddress = contract_address_const::<'caller'>();
     let constructor_calldata = array!['satoru_index', 'STU', 4000, 0, caller_address.into()];
     let constructor_calldata1 = array!['satoru_long', 'STU', 4000, 0, caller_address.into()];
@@ -97,10 +97,10 @@ fn deploy_market_factory(
     event_emitter_address: ContractAddress,
     market_token_class_hash: ContractClass,
 ) -> ContractAddress {
-    let contract = declare('MarketFactory');
+    let contract = declare("MarketFactory").unwrap();
     let caller_address: ContractAddress = contract_address_const::<'caller'>();
     let deployed_contract_address = contract_address_const::<'market_factory'>();
-    start_prank(deployed_contract_address, caller_address);
+    start_cheat_caller_address(deployed_contract_address, caller_address);
     let mut constructor_calldata = array![];
     constructor_calldata.append(data_store_address.into());
     constructor_calldata.append(role_store_address.into());
@@ -110,7 +110,7 @@ fn deploy_market_factory(
 }
 
 fn declare_market_token() -> ContractClass {
-    declare('MarketToken')
+    declare("MarketToken").unwrap()
 }
 
 
@@ -174,17 +174,17 @@ fn setup() -> (
     );
     let market_factory = IMarketFactoryDispatcher { contract_address: market_factory_address };
 
-    start_prank(role_store_address, caller_address);
-    start_prank(data_store_address, caller_address);
-    start_prank(event_emitter_address, caller_address);
-    start_prank(oracle_address, caller_address);
-    start_prank(bank_address, caller_address);
-    start_prank(swap_handler_address, caller_address);
-    start_prank(index_token_address, caller_address);
-    start_prank(long_token_address, caller_address);
-    start_prank(short_token_address, caller_address);
-    // start_prank(market_token_address, caller_address);
-    start_prank(market_factory_address, caller_address);
+    start_cheat_caller_address(role_store_address, caller_address);
+    start_cheat_caller_address(data_store_address, caller_address);
+    start_cheat_caller_address(event_emitter_address, caller_address);
+    start_cheat_caller_address(oracle_address, caller_address);
+    start_cheat_caller_address(bank_address, caller_address);
+    start_cheat_caller_address(swap_handler_address, caller_address);
+    start_cheat_caller_address(index_token_address, caller_address);
+    start_cheat_caller_address(long_token_address, caller_address);
+    start_cheat_caller_address(short_token_address, caller_address);
+    // start_cheat_caller_address(market_token_address, caller_address);
+    start_cheat_caller_address(market_factory_address, caller_address);
 
     // Grant the caller the `CONTROLLER` role.
     role_store.grant_role(caller_address, role::CONTROLLER);
@@ -415,7 +415,7 @@ fn given_swap_path_market_then_works() {
     ) =
         setup();
 
-    //create Market 
+    //create Market
     let index_token = index_token_handler.contract_address;
     let long_token = long_token_handler.contract_address;
     let short_token = short_token_handler.contract_address;

@@ -11,7 +11,7 @@ use starknet::{
     ContractAddress, get_caller_address, Felt252TryIntoContractAddress, contract_address_const,
     ClassHash,
 };
-use snforge_std::{declare, start_prank, stop_prank, start_warp, ContractClassTrait, ContractClass};
+use snforge_std::{declare, start_cheat_caller_address, stop_cheat_caller_address, start_warp, ContractClassTrait, ContractClass};
 use poseidon::poseidon_hash_span;
 use zeroable::Zeroable;
 // Local imports.
@@ -43,9 +43,9 @@ use satoru::order::base_order_utils::ExecuteOrderParamsContracts;
 use satoru::utils::i256::{i256, i256_new};
 #[test]
 fn given_normal_conditions_when_get_position_key_then_works() {
-    // 
-    // Setup  
-    //   
+    //
+    // Setup
+    //
     let account: ContractAddress = contract_address_const::<'account'>();
     let market: ContractAddress = contract_address_const::<'market'>();
     let token: ContractAddress = contract_address_const::<'token'>();
@@ -65,9 +65,9 @@ fn given_normal_conditions_when_get_position_key_then_works() {
 #[test]
 #[should_panic(expected: ('empty_position',))]
 fn given_empty_position_when_validate_non_empty_position_then_fails() {
-    // 
-    // Setup  
-    //   
+    //
+    // Setup
+    //
     let position: Position = Default::default();
 
     // Test
@@ -76,9 +76,9 @@ fn given_empty_position_when_validate_non_empty_position_then_fails() {
 
 #[test]
 fn given_normal_conditions_when_validate_non_empty_position_then_works() {
-    // 
-    // Setup  
-    //   
+    //
+    // Setup
+    //
 
     let mut position: Position = Default::default();
     position.size_in_tokens = 123;
@@ -96,9 +96,9 @@ fn given_normal_conditions_when_validate_non_empty_position_then_works() {
 #[test]
 #[should_panic(expected: ('invalid_position_size_values',))]
 fn given_invalid_position_size_when_validate_position_then_fails() {
-    // 
-    // Setup  
-    //   
+    //
+    // Setup
+    //
     let (caller_address, role_store, data_store) = setup();
 
     let referral_storage = IReferralStorageDispatcher {
@@ -121,9 +121,9 @@ fn given_invalid_position_size_when_validate_position_then_fails() {
 #[test]
 #[should_panic(expected: ('empty_market',))]
 fn given_empty_market_when_validate_position_then_fails() {
-    // 
-    // Setup  
-    //   
+    //
+    // Setup
+    //
     let (caller_address, role_store, data_store) = setup();
 
     let referral_storage = IReferralStorageDispatcher {
@@ -153,9 +153,9 @@ fn given_empty_market_when_validate_position_then_fails() {
 #[test]
 #[should_panic(expected: ('minimum_position_size',))]
 fn given_minimum_position_size_when_validate_position_then_fails() {
-    // 
-    // Setup  
-    //   
+    //
+    // Setup
+    //
     let (caller_address, role_store, data_store) = setup();
 
     let referral_storage = IReferralStorageDispatcher {
@@ -189,7 +189,7 @@ fn given_minimum_position_size_when_validate_position_then_fails() {
     let retrieved_size = data_store.get_u256(keys::min_position_size_usd());
     assert(retrieved_size == min_size, 'invalid key assignment');
 
-    // Fail 
+    // Fail
     position_utils::validate_position(
         data_store,
         referral_storage,
@@ -204,9 +204,9 @@ fn given_minimum_position_size_when_validate_position_then_fails() {
 
 #[test]
 fn given_normal_conditions_when_increment_claimable_funding_amount_then_works() {
-    // 
-    // Setup  
-    //   
+    //
+    // Setup
+    //
     let (caller_address, role_store, data_store) = setup();
     let (event_emitter_address, event_emitter) = setup_event_emitter();
 
@@ -274,7 +274,7 @@ fn given_normal_conditions_when_increment_claimable_funding_amount_then_works() 
 
 /// Utility function to deploy a `ReferralStorage` contract and return its dispatcher.
 fn deploy_referral_storage(event_emitter_address: ContractAddress) -> ContractAddress {
-    let contract = declare('ReferralStorage');
+    let contract = declare("ReferralStorage").unwrap();
     let constructor_calldata = array![event_emitter_address.into()];
     contract.deploy(@constructor_calldata).unwrap()
 }
@@ -282,9 +282,9 @@ fn deploy_referral_storage(event_emitter_address: ContractAddress) -> ContractAd
 
 #[test]
 fn given_negative_remaining_collateral_usd_when_checking_liquidatability_then_invalid_position() {
-    // 
-    // Setup  
-    //   
+    //
+    // Setup
+    //
     let (caller_address, role_store, data_store) = setup();
     let (event_emitter_address, event_emitter) = setup_event_emitter();
 
@@ -343,9 +343,9 @@ fn given_negative_remaining_collateral_usd_when_checking_liquidatability_then_in
 
 #[test]
 fn given_below_minimum_collateral_when_checking_liquidatability_then_invalid_position() {
-    // 
-    // Setup  
-    //   
+    //
+    // Setup
+    //
     let (caller_address, role_store, data_store) = setup();
     let (event_emitter_address, event_emitter) = setup_event_emitter();
 
@@ -403,9 +403,9 @@ fn given_below_minimum_collateral_when_checking_liquidatability_then_invalid_pos
 
 #[test]
 fn given_valid_position_when_checking_liquidatability_then_valid_position() {
-    // 
-    // Setup  
-    //   
+    //
+    // Setup
+    //
     let (caller_address, role_store, data_store) = setup();
     let (event_emitter_address, event_emitter) = setup_event_emitter();
 
@@ -463,9 +463,9 @@ fn given_valid_position_when_checking_liquidatability_then_valid_position() {
 
 #[test]
 fn given_below_min_collateral_leverage_when_checking_liquidatability_then_invalid_position() {
-    // 
-    // Setup  
-    //   
+    //
+    // Setup
+    //
     let (caller_address, role_store, data_store) = setup();
     let (event_emitter_address, event_emitter) = setup_event_emitter();
 
@@ -528,9 +528,9 @@ fn given_below_min_collateral_leverage_when_checking_liquidatability_then_invali
 
 #[test]
 fn given_initial_total_borrowing_when_updating_then_correct_total_borrowing() {
-    // 
-    // Setup  
-    //   
+    //
+    // Setup
+    //
     let (caller_address, role_store, data_store) = setup();
     let (event_emitter_address, event_emitter) = setup_event_emitter();
 
@@ -561,7 +561,7 @@ fn given_initial_total_borrowing_when_updating_then_correct_total_borrowing() {
 
     //Test
 
-    //Update total borrowing 
+    //Update total borrowing
     let next_position_size_in_usd: u256 = 1000000000000000;
     let next_position_borrowing_factor: u256 = 20000000;
 
@@ -575,9 +575,9 @@ fn given_initial_total_borrowing_when_updating_then_correct_total_borrowing() {
 
 #[test]
 fn given_initial_open_interest_when_updating_then_correct_open_interest() {
-    // 
-    // Setup  
-    //   
+    //
+    // Setup
+    //
     let (caller_address, role_store, data_store) = setup();
     let (event_emitter_address, event_emitter) = setup_event_emitter();
 
@@ -613,7 +613,7 @@ fn given_initial_open_interest_when_updating_then_correct_open_interest() {
         secondary_order_type: SecondaryOrderType::None,
     };
 
-    //Update open interest 
+    //Update open interest
     let size_delta_usd: i256 = 10.into();
     let size_delta_in_tokens: i256 = 20.into();
 
@@ -631,9 +631,9 @@ fn given_initial_open_interest_when_updating_then_correct_open_interest() {
 
 #[test]
 fn given_valid_referral_when_handling_then_referral_successfully_processed() {
-    // 
-    // Setup  
-    //   
+    //
+    // Setup
+    //
     let (caller_address, role_store, data_store) = setup();
     let (event_emitter_address, event_emitter) = setup_event_emitter();
 
@@ -675,7 +675,7 @@ fn given_valid_referral_when_handling_then_referral_successfully_processed() {
 
     params.position.market = params.market.market_token;
 
-    //Test 
+    //Test
 
     position_utils::handle_referral(params, fees);
     let affiliate_reward_value = data_store.get_u256(affiliate_reward_for_account_key);

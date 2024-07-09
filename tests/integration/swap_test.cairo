@@ -11,7 +11,7 @@ use starknet::{
     ContractAddress, get_caller_address, Felt252TryIntoContractAddress, contract_address_const,
     ClassHash,
 };
-use snforge_std::{declare, start_prank, stop_prank, start_roll, ContractClassTrait, ContractClass};
+use snforge_std::{declare, start_cheat_caller_address, stop_cheat_caller_address, start_cheat_block_number, ContractClassTrait, ContractClass};
 
 
 // Local imports.
@@ -140,7 +140,7 @@ fn test_swap_market() {
     // 50 000 USDC
     assert(balance_USDC_before_swap == 50000000000000000000000, 'wrong balance USDC before swap');
 
-    start_prank(contract_address_const::<'ETH'>(), caller_address); //change to switch swap
+    start_cheat_caller_address(contract_address_const::<'ETH'>(), caller_address); //change to switch swap
     // Send token to order_vault in multicall with create_order
     IERC20Dispatcher { contract_address: contract_address_const::<'ETH'>() } //change to switch swap
         .transfer(order_vault.contract_address, 1000000000000000000);
@@ -163,7 +163,7 @@ fn test_swap_market() {
 
     // Create order_params Struct
     let contract_address = contract_address_const::<0>();
-    start_prank(market.long_token, caller_address); //change to switch swap
+    start_cheat_caller_address(market.long_token, caller_address); //change to switch swap
 
     let order_params = CreateOrderParams {
         receiver: caller_address,
@@ -185,7 +185,7 @@ fn test_swap_market() {
         referral_code: 0
     };
     // Create the swap order.
-    start_roll(order_handler.contract_address, 1920);
+    start_cheat_block_number(order_handler.contract_address, 1920);
 
     // Create the order but we do not execute it yet
     let key = order_handler.create_order(caller_address, order_params);
@@ -228,9 +228,9 @@ fn test_swap_market() {
     let keeper_address = contract_address_const::<'keeper'>();
     role_store.grant_role(keeper_address, role::ORDER_KEEPER);
 
-    stop_prank(order_handler.contract_address);
-    start_prank(order_handler.contract_address, keeper_address);
-    start_roll(order_handler.contract_address, 1925);
+    stop_cheat_caller_address(order_handler.contract_address);
+    start_cheat_caller_address(order_handler.contract_address, keeper_address);
+    start_cheat_block_number(order_handler.contract_address, 1925);
     order_handler.execute_order(key, set_price_params);
 
     let balance_ETH_after = IERC20Dispatcher { contract_address: contract_address_const::<'ETH'>() }

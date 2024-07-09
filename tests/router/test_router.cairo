@@ -1,7 +1,7 @@
 use result::ResultTrait;
 use traits::{TryInto, Into};
 use starknet::{ContractAddress, get_caller_address, contract_address_const};
-use snforge_std::{declare, start_prank, stop_prank, ContractClassTrait, ContractClass};
+use snforge_std::{declare, start_cheat_caller_address, stop_cheat_caller_address, ContractClassTrait, ContractClass};
 use satoru::router::router::{IRouterDispatcher, IRouterDispatcherTrait};
 use satoru::token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
 use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
@@ -25,12 +25,12 @@ fn given_normal_conditions_when_transfer_then_expected_results() {
     // *********************************************************************************************
 
     // Add allowance to the router contract.
-    start_prank(test_token.contract_address, sender_address);
+    start_cheat_caller_address(test_token.contract_address, sender_address);
     test_token.approve(router.contract_address, mint_amount);
-    stop_prank(test_token.contract_address);
+    stop_cheat_caller_address(test_token.contract_address);
 
     // Transfer tokens from the sender address to the receiver address.
-    start_prank(router.contract_address, caller_address);
+    start_cheat_caller_address(router.contract_address, caller_address);
     router
         .plugin_transfer(
             test_token.contract_address, sender_address, receiver_address, transfer_amount
@@ -68,12 +68,12 @@ fn given_bad_caller_when_transfer_then_fail() {
     // *********************************************************************************************
 
     // Add allowance to the router contract.
-    start_prank(test_token.contract_address, sender_address);
+    start_cheat_caller_address(test_token.contract_address, sender_address);
     test_token.approve(router.contract_address, mint_amount);
-    stop_prank(test_token.contract_address);
+    stop_cheat_caller_address(test_token.contract_address);
 
     // Prank with a not authorized caller.
-    start_prank(router.contract_address, receiver_address);
+    start_cheat_caller_address(router.contract_address, receiver_address);
     // Try to ransfer tokens from the sender address to the receiver address.
     // We expect this call to panic with `unauthorized_access`.
     router
@@ -112,9 +112,9 @@ fn setup(
     let role_store_address = deploy_role_store();
     // Grant the caller the `ROUTER_PLUGIN` role.
     let role_store = IRoleStoreDispatcher { contract_address: role_store_address };
-    start_prank(role_store_address, caller_address);
+    start_cheat_caller_address(role_store_address, caller_address);
     role_store.grant_role(caller_address, role::ROUTER_PLUGIN);
-    stop_prank(role_store_address);
+    stop_cheat_caller_address(role_store_address);
 
     // Deploy the router contract.
     let router_address = deploy_router(role_store_address);
@@ -131,8 +131,8 @@ fn setup(
 /// * `test_token_address` - The address of the Test Token contract.
 /// * `router_address` - The address of the `Router` contract.
 fn teardown(test_token_address: ContractAddress, router_address: ContractAddress) {
-    stop_prank(test_token_address);
-    stop_prank(router_address);
+    stop_cheat_caller_address(test_token_address);
+    stop_cheat_caller_address(router_address);
 }
 
 /// Utility function to deploy a test token and return its address.
@@ -142,7 +142,7 @@ fn teardown(test_token_address: ContractAddress, router_address: ContractAddress
 /// * `minter_address` - The address of the wallet who will get the initial supply.
 /// * `initial_amount` - The amount of token minted during the deployment.
 fn deploy_mock_token(minter_address: ContractAddress, initial_amount: u256) -> ContractAddress {
-    let contract = declare('ERC20');
+    let contract = declare("ERC20").unwrap();
     let mut constructor_calldata: Array::<felt252> = array![];
     constructor_calldata.append('TestToken');
     constructor_calldata.append('TST');
@@ -158,19 +158,19 @@ fn deploy_mock_token(minter_address: ContractAddress, initial_amount: u256) -> C
 ///
 /// * `role_store_address` - The address of the `RoleStore` contract associated with the `Router`.
 fn deploy_router(role_store_address: ContractAddress) -> ContractAddress {
-    let contract = declare('Router');
+    let contract = declare("Router").unwrap();
     let caller_address: ContractAddress = contract_address_const::<'caller'>();
     let deployed_contract_address = contract_address_const::<'router'>();
-    start_prank(deployed_contract_address, caller_address);
+    start_cheat_caller_address(deployed_contract_address, caller_address);
     let mut constructor_calldata: Array::<felt252> = array![];
     constructor_calldata.append(role_store_address.into());
     contract.deploy_at(@constructor_calldata, deployed_contract_address).unwrap()
 }
 
 fn deploy_role_store() -> ContractAddress {
-    let contract = declare('RoleStore');
+    let contract = declare("RoleStore").unwrap();
     let caller_address: ContractAddress = contract_address_const::<'caller'>();
     let deployed_contract_address = contract_address_const::<'role_store'>();
-    start_prank(deployed_contract_address, caller_address);
+    start_cheat_caller_address(deployed_contract_address, caller_address);
     contract.deploy_at(@array![caller_address.into()], deployed_contract_address).unwrap()
 }

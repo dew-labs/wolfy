@@ -4,7 +4,7 @@
 // *                                       IMPORTS                                             *
 // *********************************************************************************************
 // Core lib imports.
-use snforge_std::{declare, start_prank, stop_prank, ContractClassTrait};
+use snforge_std::{declare, start_cheat_caller_address, stop_cheat_caller_address, ContractClassTrait};
 use starknet::{ContractAddress, contract_address_const};
 
 // Local imports.
@@ -43,10 +43,10 @@ fn given_normal_conditions_when_setting_handler_from_storage_than_work() {
 #[should_panic(expected: ('Unauthorized gov caller',))]
 fn given_caller_has_no_gov_role_then_fails() {
     let (caller_address, _, data_store, _, referral_storage, _) = setup();
-    stop_prank(referral_storage.contract_address);
+    stop_cheat_caller_address(referral_storage.contract_address);
 
     let dummy_address: ContractAddress = contract_address_const::<'dummy'>();
-    start_prank(referral_storage.contract_address, dummy_address);
+    start_cheat_caller_address(referral_storage.contract_address, dummy_address);
     referral_storage.set_handler(caller_address, true);
     tests_lib::teardown(data_store.contract_address);
 }
@@ -357,37 +357,37 @@ fn setup() -> (
     let governable_address = deploy_governable(event_emitter_address);
     let governable = IGovernableDispatcher { contract_address: governable_address };
 
-    start_prank(role_store.contract_address, caller_address);
-    start_prank(event_emitter_address, caller_address);
-    start_prank(data_store.contract_address, caller_address);
-    start_prank(referral_storage_address, caller_address);
-    start_prank(governable_address, caller_address);
+    start_cheat_caller_address(role_store.contract_address, caller_address);
+    start_cheat_caller_address(event_emitter_address, caller_address);
+    start_cheat_caller_address(data_store.contract_address, caller_address);
+    start_cheat_caller_address(referral_storage_address, caller_address);
+    start_cheat_caller_address(governable_address, caller_address);
 
     return (caller_address, role_store, data_store, event_emitter, referral_storage, governable);
 }
 
 fn deploy_event_emitter() -> ContractAddress {
-    let contract = declare('EventEmitter');
+    let contract = declare("EventEmitter").unwrap();
     let caller_address: ContractAddress = contract_address_const::<'caller'>();
     let deployed_contract_address = contract_address_const::<'event_emitter'>();
-    start_prank(deployed_contract_address, caller_address);
+    start_cheat_caller_address(deployed_contract_address, caller_address);
     contract.deploy_at(@array![], deployed_contract_address).unwrap()
 }
 
 fn deploy_referral_storage(event_emitter_address: ContractAddress) -> ContractAddress {
-    let contract = declare('ReferralStorage');
+    let contract = declare("ReferralStorage").unwrap();
     let caller_address: ContractAddress = contract_address_const::<'caller'>();
     let deployed_contract_address = contract_address_const::<'referral_storage'>();
-    start_prank(deployed_contract_address, caller_address);
+    start_cheat_caller_address(deployed_contract_address, caller_address);
     let constructor_calldata = array![event_emitter_address.into()];
     contract.deploy_at(@constructor_calldata, deployed_contract_address).unwrap()
 }
 
 fn deploy_governable(event_emitter_address: ContractAddress) -> ContractAddress {
-    let contract = declare('Governable');
+    let contract = declare("Governable").unwrap();
     let caller_address: ContractAddress = contract_address_const::<'caller'>();
     let deployed_contract_address = contract_address_const::<'governable'>();
-    start_prank(deployed_contract_address, caller_address);
+    start_cheat_caller_address(deployed_contract_address, caller_address);
     let constructor_calldata = array![event_emitter_address.into()];
     contract.deploy_at(@constructor_calldata, deployed_contract_address).unwrap()
 }

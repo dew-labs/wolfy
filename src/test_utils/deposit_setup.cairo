@@ -11,7 +11,7 @@ use starknet::{
     ContractAddress, get_caller_address, Felt252TryIntoContractAddress, contract_address_const,
     ClassHash,
 };
-use snforge_std::{declare, start_prank, stop_prank, start_roll, ContractClassTrait, ContractClass};
+use snforge_std::{declare, start_cheat_caller_address, stop_cheat_caller_address, start_cheat_block_number, ContractClassTrait, ContractClass};
 
 
 // Local imports.
@@ -69,7 +69,7 @@ use satoru::test_utils::tests_lib::{setup, create_market, teardown};
 fn deposit_setup(
     long_token_amount: u256, short_token_amount: u256
 ) -> (
-    // This caller address will be used with `start_prank` cheatcode to mock the caller address.,
+    // This caller address will be used with `start_cheat_caller_address` cheatcode to mock the caller address.,
     ContractAddress,
     // Address of the `MarketFactory` contract.
     ContractAddress,
@@ -224,8 +224,8 @@ fn deposit_setup(
     assert(balance_caller_USDC == 50000000000000000000000, 'USDC be 50 000 USDC');
 
     // Send token to deposit in the deposit vault (this should be in a multi call with create_deposit)
-    start_prank(market.long_token, caller_address);
-    start_prank(market.short_token, caller_address);
+    start_cheat_caller_address(market.long_token, caller_address);
+    start_cheat_caller_address(market.short_token, caller_address);
     IERC20Dispatcher { contract_address: market.long_token }
         .approve(caller_address, long_token_amount);
     IERC20Dispatcher { contract_address: market.short_token }
@@ -244,8 +244,8 @@ fn deposit_setup(
     exchange_router
         .send_tokens(market.short_token, deposit_vault.contract_address, short_token_amount);
 
-    stop_prank(market.long_token);
-    stop_prank(market.short_token);
+    stop_cheat_caller_address(market.long_token);
+    stop_cheat_caller_address(market.short_token);
 
     // Create Deposit
 
@@ -266,7 +266,7 @@ fn deposit_setup(
     };
     'create deposit'.print();
 
-    start_roll(deposit_handler.contract_address, 1910);
+    start_cheat_block_number(deposit_handler.contract_address, 1910);
     let key = deposit_handler.create_deposit(caller_address, params);
     let first_deposit = data_store.get_deposit(key);
 
@@ -301,7 +301,7 @@ fn deposit_setup(
         price_feed_tokens: array![]
     };
 
-    start_prank(role_store.contract_address, caller_address);
+    start_cheat_caller_address(role_store.contract_address, caller_address);
 
     role_store.grant_role(caller_address, role::ORDER_KEEPER);
     role_store.grant_role(caller_address, role::ROLE_ADMIN);
@@ -311,7 +311,7 @@ fn deposit_setup(
     'execute deposit'.print();
 
     // Execute Deposit
-    start_roll(deposit_handler.contract_address, 1915);
+    start_cheat_block_number(deposit_handler.contract_address, 1915);
     deposit_handler.execute_deposit(key, price_params);
 
     'executed deposit'.print();

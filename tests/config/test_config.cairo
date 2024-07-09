@@ -7,7 +7,7 @@
 use result::ResultTrait;
 use traits::{TryInto, Into};
 use starknet::{ContractAddress, get_caller_address, contract_address_const, ClassHash,};
-use snforge_std::{declare, start_prank, stop_prank, ContractClassTrait};
+use snforge_std::{declare, start_cheat_caller_address, stop_cheat_caller_address, ContractClassTrait};
 
 // Local imports.
 use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
@@ -163,7 +163,7 @@ fn grant_roles_and_prank(
     data_store: IDataStoreDispatcher,
     config: IConfigDispatcher
 ) {
-    start_prank(role_store.contract_address, caller_address);
+    start_cheat_caller_address(role_store.contract_address, caller_address);
 
     // Grant the caller the CONTROLLER role. This is necessary for the caller to have the permissions
     // to perform certain actions in the tests.
@@ -175,18 +175,18 @@ fn grant_roles_and_prank(
 
     // Start pranking the data store contract. This is necessary to mock the behavior of the contract
     // for testing purposes.
-    start_prank(data_store.contract_address, caller_address);
+    start_cheat_caller_address(data_store.contract_address, caller_address);
 
     // Start pranking the config contract. This is necessary to mock the behavior of the contract
     // for testing purposes.
-    start_prank(config.contract_address, caller_address);
+    start_cheat_caller_address(config.contract_address, caller_address);
 }
 
 /// Utility function to teardown the test environment.
 fn teardown(data_store: IDataStoreDispatcher, config: IConfigDispatcher) {
     // Stop pranking contracts.
-    stop_prank(data_store.contract_address);
-    stop_prank(config.contract_address);
+    stop_cheat_caller_address(data_store.contract_address);
+    stop_cheat_caller_address(config.contract_address);
 }
 
 /// Utility function to setup the test environment.
@@ -208,7 +208,7 @@ fn setup() -> (
 
 /// Setup required contracts.
 fn setup_contracts() -> (
-    // This caller address will be used with `start_prank` cheatcode to mock the caller address.,
+    // This caller address will be used with `start_cheat_caller_address` cheatcode to mock the caller address.,
     ContractAddress,
     // Interface to interact with the `Config` contract.
     IConfigDispatcher,
@@ -252,10 +252,10 @@ fn deploy_config(
     role_store_address: ContractAddress,
     event_emitter_address: ContractAddress,
 ) -> ContractAddress {
-    let contract = declare('Config');
+    let contract = declare("Config").unwrap();
     let caller_address = contract_address_const::<'caller'>();
     let config_address = contract_address_const::<'config'>();
-    start_prank(config_address, caller_address);
+    start_cheat_caller_address(config_address, caller_address);
     let mut constructor_calldata = array![];
     constructor_calldata.append(role_store_address.into());
     constructor_calldata.append(data_store_address.into());
@@ -266,10 +266,10 @@ fn deploy_config(
 
 /// Utility function to deploy a data store contract and return its address.
 fn deploy_data_store(role_store_address: ContractAddress) -> ContractAddress {
-    let contract = declare('DataStore');
+    let contract = declare("DataStore").unwrap();
     let caller_address = contract_address_const::<'caller'>();
     let data_store_address = contract_address_const::<'data_store'>();
-    start_prank(data_store_address, caller_address);
+    start_cheat_caller_address(data_store_address, caller_address);
     let mut constructor_calldata = array![];
     constructor_calldata.append(role_store_address.into());
     contract.deploy_at(@constructor_calldata, data_store_address).unwrap()
@@ -279,20 +279,20 @@ fn deploy_data_store(role_store_address: ContractAddress) -> ContractAddress {
 /// Copied from `tests/role/test_role_store.rs`.
 /// TODO: Find a way to share this code.
 fn deploy_role_store() -> ContractAddress {
-    let contract = declare('RoleStore');
+    let contract = declare("RoleStore").unwrap();
     let caller_address = contract_address_const::<'caller'>();
     let role_store_address = contract_address_const::<'role_store'>();
-    start_prank(role_store_address, caller_address);
+    start_cheat_caller_address(role_store_address, caller_address);
     let constructor_arguments: @Array::<felt252> = @array![caller_address.into()];
     contract.deploy_at(constructor_arguments, role_store_address).unwrap()
 }
 
 /// Utility function to deploy a `EventEmitter` contract and return its address.
 fn deploy_event_emitter() -> ContractAddress {
-    let contract = declare('EventEmitter');
+    let contract = declare("EventEmitter").unwrap();
     let caller_address = contract_address_const::<'caller'>();
     let event_emitter_address = contract_address_const::<'event_emitter'>();
-    start_prank(event_emitter_address, caller_address);
+    start_cheat_caller_address(event_emitter_address, caller_address);
     let constructor_arguments: @Array::<felt252> = @ArrayTrait::new();
     contract.deploy_at(constructor_arguments, event_emitter_address).unwrap()
 }

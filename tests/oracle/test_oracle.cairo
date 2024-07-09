@@ -1,6 +1,6 @@
 use starknet::{ContractAddress, contract_address_const};
 
-use snforge_std::{declare, start_prank, stop_prank, ContractClassTrait};
+use snforge_std::{declare, start_cheat_caller_address, stop_cheat_caller_address, ContractClassTrait};
 
 use satoru::data::data_store::{DataStore, IDataStoreDispatcher, IDataStoreDispatcherTrait};
 use satoru::data::keys;
@@ -21,7 +21,7 @@ fn given_normal_conditions_when_set_primary_price_then_works() {
     let token = contract_address_const::<111>();
     let price = Price { min: 10, max: 11 };
 
-    start_prank(oracle.contract_address, controller);
+    start_cheat_caller_address(oracle.contract_address, controller);
     oracle.set_primary_price(token, price);
 
     let price_from_view = oracle.get_primary_price(token);
@@ -41,7 +41,7 @@ fn given_normal_conditions_when_clear_all_prices_then_works() {
     let token2 = contract_address_const::<222>();
     let price2 = Price { min: 20, max: 22 };
 
-    start_prank(oracle.contract_address, controller);
+    start_cheat_caller_address(oracle.contract_address, controller);
     oracle.set_primary_price(token1, price1);
     oracle.set_primary_price(token2, price2);
     assert(oracle.get_tokens_with_prices_count() == 2, 'wrong tokens count');
@@ -64,7 +64,7 @@ fn given_normal_conditions_when_tokens_with_prices_count_then_works() {
 
     assert(oracle.get_tokens_with_prices_count() == 0, 'wrong tokens count');
 
-    start_prank(oracle.contract_address, controller);
+    start_cheat_caller_address(oracle.contract_address, controller);
     oracle.set_primary_price(token1, price1);
     oracle.set_primary_price(token2, price2);
     oracle.set_primary_price(token3, price3);
@@ -88,7 +88,7 @@ fn given_normal_conditions_when_get_tokens_with_prices_then_works() {
     let token3 = contract_address_const::<333>();
     let price3 = Price { min: 30, max: 33 };
 
-    start_prank(oracle.contract_address, controller);
+    start_cheat_caller_address(oracle.contract_address, controller);
     oracle.set_primary_price(token1, price1);
     oracle.set_primary_price(token2, price2);
     oracle.set_primary_price(token3, price3);
@@ -126,7 +126,7 @@ fn given_normal_conditions_when_get_primary_price_then_works() {
     let token3 = contract_address_const::<'DAI'>();
     let price3 = Price { min: 30, max: 33 };
 
-    start_prank(oracle.contract_address, controller);
+    start_cheat_caller_address(oracle.contract_address, controller);
     oracle.set_primary_price(token1, price1);
     oracle.set_primary_price(token2, price2);
     oracle.set_primary_price(token3, price3);
@@ -162,7 +162,7 @@ fn given_normal_conditions_when_price_feed_multiplier_then_works() {
 //     let token3 = contract_address_const::<'DAI'>();
 //     let price3 = Price { min: 30, max: 33 };
 
-//     start_prank(oracle.contract_address, controller);
+//     start_cheat_caller_address(oracle.contract_address, controller);
 //     oracle.set_primary_price(token1, price1);
 //     oracle.set_primary_price(token2, price2);
 //     oracle.set_primary_price(token3, price3);
@@ -176,7 +176,7 @@ fn given_normal_conditions_when_price_feed_multiplier_then_works() {
 //     let (controller, data_store, event_emitter, oracle) = setup();
 //     let params = mock_set_prices_params();
 
-//     start_prank(oracle.contract_address, controller);
+//     start_cheat_caller_address(oracle.contract_address, controller);
 //     oracle.set_prices(data_store, event_emitter, params);
 //     // teardown
 //     tests_lib::teardown(data_store.contract_address);
@@ -196,11 +196,11 @@ fn setup() -> (ContractAddress, IDataStoreDispatcher, IEventEmitterDispatcher, I
     let pragma_address = deploy_price_feed();
     let oracle_address = deploy_oracle(oracle_store_address, role_store_address, pragma_address);
     let oracle = IOracleDispatcher { contract_address: oracle_address };
-    start_prank(role_store_address, caller_address);
+    start_cheat_caller_address(role_store_address, caller_address);
     role_store.grant_role(caller_address, role::CONTROLLER);
     role_store.grant_role(order_keeper, role::ORDER_KEEPER);
     oracle_store.add_signer(contract_address_const::<'signer'>());
-    start_prank(data_store_address, caller_address);
+    start_cheat_caller_address(data_store_address, caller_address);
     data_store
         .set_u256(
             keys::price_feed_multiplier_key(contract_address_const::<'ETH'>()),
@@ -221,10 +221,10 @@ fn setup() -> (ContractAddress, IDataStoreDispatcher, IEventEmitterDispatcher, I
 }
 
 fn deploy_price_feed() -> ContractAddress {
-    let contract = declare('PriceFeed');
+    let contract = declare("PriceFeed").unwrap();
     let caller_address: ContractAddress = contract_address_const::<'caller'>();
     let deployed_contract_address = contract_address_const::<'price_feed'>();
-    start_prank(deployed_contract_address, caller_address);
+    start_cheat_caller_address(deployed_contract_address, caller_address);
     contract.deploy_at(@array![], deployed_contract_address).unwrap()
 }
 
@@ -233,10 +233,10 @@ fn deploy_oracle(
     role_store_address: ContractAddress,
     pragma_address: ContractAddress
 ) -> ContractAddress {
-    let contract = declare('Oracle');
+    let contract = declare("Oracle").unwrap();
     let caller_address: ContractAddress = contract_address_const::<'caller'>();
     let deployed_contract_address = contract_address_const::<'oracle'>();
-    start_prank(deployed_contract_address, caller_address);
+    start_cheat_caller_address(deployed_contract_address, caller_address);
     let constructor_calldata = array![
         role_store_address.into(), oracle_store_address.into(), pragma_address.into()
     ];
@@ -246,36 +246,36 @@ fn deploy_oracle(
 fn deploy_oracle_store(
     role_store_address: ContractAddress, event_emitter_address: ContractAddress
 ) -> ContractAddress {
-    let contract = declare('OracleStore');
+    let contract = declare("OracleStore").unwrap();
     let caller_address: ContractAddress = contract_address_const::<'caller'>();
     let deployed_contract_address = contract_address_const::<'oracle_store'>();
-    start_prank(deployed_contract_address, caller_address);
+    start_cheat_caller_address(deployed_contract_address, caller_address);
     let constructor_calldata = array![role_store_address.into(), event_emitter_address.into()];
     contract.deploy_at(@constructor_calldata, deployed_contract_address).unwrap()
 }
 
 fn deploy_data_store(role_store_address: ContractAddress) -> ContractAddress {
-    let contract = declare('DataStore');
+    let contract = declare("DataStore").unwrap();
     let caller_address: ContractAddress = contract_address_const::<'caller'>();
     let deployed_contract_address = contract_address_const::<'data_store'>();
-    start_prank(deployed_contract_address, caller_address);
+    start_cheat_caller_address(deployed_contract_address, caller_address);
     let constructor_calldata = array![role_store_address.into()];
     contract.deploy_at(@constructor_calldata, deployed_contract_address).unwrap()
 }
 
 fn deploy_role_store() -> ContractAddress {
-    let contract = declare('RoleStore');
+    let contract = declare("RoleStore").unwrap();
     let caller_address: ContractAddress = contract_address_const::<'caller'>();
     let deployed_contract_address = contract_address_const::<'role_store'>();
-    start_prank(deployed_contract_address, caller_address);
+    start_cheat_caller_address(deployed_contract_address, caller_address);
     contract.deploy_at(@array![caller_address.into()], deployed_contract_address).unwrap()
 }
 
 fn deploy_event_emitter() -> ContractAddress {
-    let contract = declare('EventEmitter');
+    let contract = declare("EventEmitter").unwrap();
     let caller_address: ContractAddress = contract_address_const::<'caller'>();
     let deployed_contract_address = contract_address_const::<'event_emitter'>();
-    start_prank(deployed_contract_address, caller_address);
+    start_cheat_caller_address(deployed_contract_address, caller_address);
     contract.deploy_at(@array![], deployed_contract_address).unwrap()
 }
 

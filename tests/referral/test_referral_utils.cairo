@@ -10,7 +10,7 @@ use satoru::event::event_emitter::EventEmitter::{AffiliateRewardUpdated, Affilia
 use satoru::mock::governable::{IGovernableDispatcher, IGovernableDispatcherTrait};
 use snforge_std::{
     declare, ContractClassTrait, spy_events, SpyOn, EventSpy, EventFetcher, event_name_hash, Event,
-    EventAssertions, start_prank, stop_prank
+    EventAssertions, start_cheat_caller_address, stop_cheat_caller_address
 };
 use satoru::role::role;
 use satoru::deposit::deposit::Deposit;
@@ -24,44 +24,44 @@ use satoru::token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
 
 
 fn deploy_data_store(role_store_address: ContractAddress) -> ContractAddress {
-    let contract = declare('DataStore');
+    let contract = declare("DataStore").unwrap();
     let caller_address: ContractAddress = contract_address_const::<'caller'>();
     let deployed_contract_address = contract_address_const::<'data_store'>();
-    start_prank(deployed_contract_address, caller_address);
+    start_cheat_caller_address(deployed_contract_address, caller_address);
     let constructor_calldata = array![role_store_address.into()];
     contract.deploy_at(@constructor_calldata, deployed_contract_address).unwrap()
 }
 
 fn deploy_role_store() -> ContractAddress {
-    let contract = declare('RoleStore');
+    let contract = declare("RoleStore").unwrap();
     let caller_address: ContractAddress = contract_address_const::<'caller'>();
     let deployed_contract_address = contract_address_const::<'role_store'>();
-    start_prank(deployed_contract_address, caller_address);
+    start_cheat_caller_address(deployed_contract_address, caller_address);
     contract.deploy_at(@array![caller_address.into()], deployed_contract_address).unwrap()
 }
 
 fn deploy_event_emitter() -> ContractAddress {
-    let contract = declare('EventEmitter');
+    let contract = declare("EventEmitter").unwrap();
     let caller_address: ContractAddress = contract_address_const::<'caller'>();
     let deployed_contract_address = contract_address_const::<'event_emitter'>();
-    start_prank(deployed_contract_address, caller_address);
+    start_cheat_caller_address(deployed_contract_address, caller_address);
     contract.deploy_at(@array![], deployed_contract_address).unwrap()
 }
 
 fn deploy_referral_storage(event_emitter_address: ContractAddress) -> ContractAddress {
-    let contract = declare('ReferralStorage');
+    let contract = declare("ReferralStorage").unwrap();
     let caller_address: ContractAddress = contract_address_const::<'caller'>();
     let deployed_contract_address = contract_address_const::<'referral_storage'>();
-    start_prank(deployed_contract_address, caller_address);
+    start_cheat_caller_address(deployed_contract_address, caller_address);
     let constructor_calldata = array![event_emitter_address.into()];
     contract.deploy_at(@constructor_calldata, deployed_contract_address).unwrap()
 }
 
 fn deploy_governable(event_emitter_address: ContractAddress) -> ContractAddress {
-    let contract = declare('Governable');
+    let contract = declare("Governable").unwrap();
     let caller_address: ContractAddress = contract_address_const::<'caller'>();
     let deployed_contract_address = contract_address_const::<'governable'>();
-    start_prank(deployed_contract_address, caller_address);
+    start_cheat_caller_address(deployed_contract_address, caller_address);
     let constructor_calldata = array![event_emitter_address.into()];
     contract.deploy_at(@constructor_calldata, deployed_contract_address).unwrap()
 }
@@ -70,27 +70,27 @@ fn deploy_governable(event_emitter_address: ContractAddress) -> ContractAddress 
 fn deploy_market_token(
     role_store_address: ContractAddress, data_store_address: ContractAddress
 ) -> ContractAddress {
-    let contract = declare('MarketToken');
+    let contract = declare("MarketToken").unwrap();
     let caller_address: ContractAddress = contract_address_const::<'caller'>();
     let deployed_contract_address = contract_address_const::<'market_token'>();
-    start_prank(deployed_contract_address, caller_address);
+    start_cheat_caller_address(deployed_contract_address, caller_address);
     let constructor_calldata = array![role_store_address.into(), data_store_address.into()];
     contract.deploy_at(@constructor_calldata, deployed_contract_address).unwrap()
 }
 
-/// Utility function to deploy a mock token contract 
+/// Utility function to deploy a mock token contract
 fn setup_mock_token(
     recipient: ContractAddress, market_token: ContractAddress
 ) -> (ContractAddress, IERC20Dispatcher) {
-    let contract = declare('ERC20');
+    let contract = declare("ERC20").unwrap();
     let constructor_calldata = array![11, 11, 10000000000000000000000, 0, recipient.into()];
     let token_address = contract.deploy(@constructor_calldata).unwrap();
 
     let token_contract = IERC20Dispatcher { contract_address: token_address };
 
-    start_prank(token_address, recipient);
+    start_cheat_caller_address(token_address, recipient);
     token_contract.transfer(market_token, 10000000000000000000000);
-    stop_prank(token_address);
+    stop_cheat_caller_address(token_address);
     (token_address, token_contract)
 }
 
@@ -138,12 +138,12 @@ fn setup() -> (
     let governable_address = deploy_governable(event_emitter_address);
     let governable = IGovernableDispatcher { contract_address: governable_address };
 
-    start_prank(role_store_address, caller_address);
-    start_prank(event_emitter_address, caller_address);
-    start_prank(data_store_address, caller_address);
-    start_prank(referral_storage_address, caller_address);
-    start_prank(governable_address, caller_address);
-    start_prank(market_token_address, caller_address);
+    start_cheat_caller_address(role_store_address, caller_address);
+    start_cheat_caller_address(event_emitter_address, caller_address);
+    start_cheat_caller_address(data_store_address, caller_address);
+    start_cheat_caller_address(referral_storage_address, caller_address);
+    start_cheat_caller_address(governable_address, caller_address);
+    start_cheat_caller_address(market_token_address, caller_address);
 
     (
         caller_address,

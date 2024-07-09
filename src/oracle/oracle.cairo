@@ -219,7 +219,7 @@ mod Oracle {
     };
     use satoru::role::role_module::{
         IRoleModule, RoleModule
-    }; //::role_store::IInternalContractMemberStateTrait as RoleModuleStateTrait;
+    }; //::role_storeContractMemberStateTrait as RoleModuleStateTrait;
     use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
     use satoru::utils::{arrays, arrays::pow, bits, calc, precision};
     use satoru::utils::u256_mask::{Mask, MaskTrait, validate_unique_and_set_index};
@@ -351,7 +351,7 @@ mod Oracle {
                 if self.tokens_with_prices.read().len() == Zeroable::zero() {
                     break;
                 }
-                let token = self.tokens_with_prices.read().get(0).expect('array get failed');
+                let token = self.tokens_with_prices.read().get(0).expect('array get failed').unwrap();
                 self.remove_primary_price(token);
             };
         }
@@ -374,7 +374,7 @@ mod Oracle {
                 if i == tokens_with_prices_len {
                     break;
                 }
-                if !token_with_prices.get(i).expect('array get failed').is_zero() {
+                if !token_with_prices.get(i).expect('array get failed').unwrap().is_zero() {
                     count += 1;
                 }
                 i += 1;
@@ -892,7 +892,7 @@ mod Oracle {
         fn remove_primary_price(ref self: ContractState, token: ContractAddress) {
             self.primary_prices.write(token, Zeroable::zero());
             let mut tokens_prices = self.tokens_with_prices.read();
-            tokens_prices.pop_front();
+            tokens_prices.pop_front().unwrap();
             self.tokens_with_prices.write(tokens_prices);
         }
 
@@ -1038,9 +1038,9 @@ mod Oracle {
                 if len == tokens_with_prices.len() {
                     break;
                 }
-                let token_with_price = tokens_with_prices.get(len);
+                let token_with_price = tokens_with_prices.get(len).unwrap();
                 match token_with_price {
-                    Option::Some(t) => {
+                    Option::Some(_) => {
                         if token_with_price.unwrap() == token {
                             index = Option::Some(len);
                         }

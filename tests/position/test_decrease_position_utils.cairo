@@ -2,7 +2,7 @@ use starknet::{get_caller_address, ContractAddress, contract_address_const};
 use core::array::ArrayTrait;
 use core::traits::Into;
 
-use snforge_std::{declare, ContractClassTrait, start_prank};
+use snforge_std::{declare, ContractClassTrait, start_cheat_caller_address};
 use satoru::tests_lib::{
     teardown, deploy_role_store, deploy_swap_handler_address, deploy_data_store
 };
@@ -32,7 +32,7 @@ fn given_normal_conditions_when_partially_decrease_position() {
 
     let mut params = create_new_update_position_params(OrderType::LimitSwap, swap_handler);
     params.order.size_delta_usd = 800;
-    // TODO: implement update params to not be 
+    // TODO: implement update params to not be
     //decrease_position_utils::decrease_position(ref params);
     assert(true, 'Not implemented yet');
 }
@@ -43,7 +43,7 @@ fn given_normal_conditions_when_totally_decrease_position() {
 
     let mut params = create_new_update_position_params(OrderType::LimitSwap, swap_handler);
 
-    // TODO: implement update params to not be 
+    // TODO: implement update params to not be
     //decrease_position_utils::decrease_position(ref params);
     assert(true, 'Not implemented yet');
 }
@@ -55,7 +55,7 @@ fn given_invalid_decrease_order_size_when_decrease_position_then_fails() {
     let mut params = create_new_update_position_params(OrderType::LimitSwap, swap_handler);
     params.order.size_delta_usd = 1500;
 
-    // TODO: implement update params to not be 
+    // TODO: implement update params to not be
     //decrease_position_utils::decrease_position(ref params);
     panic(array!['Not implemented yet']);
 }
@@ -68,7 +68,7 @@ fn given_unable_to_withdraw_collateral_when_decrease_position_then_fails() {
     let mut params = create_new_update_position_params(OrderType::LimitDecrease, swap_handler);
     params.order.size_delta_usd = 1000;
     params.position.collateral_amount = 1000;
-    // TODO: implement update params to not be 
+    // TODO: implement update params to not be
     //decrease_position_utils::decrease_position(ref params);
     panic(array!['Not implemented yet']);
 }
@@ -81,7 +81,7 @@ fn given_position_should_be_liquidated_when_decrease_position_then_fails() {
     let mut params = create_new_update_position_params(OrderType::Liquidation, swap_handler);
     params.order.size_delta_usd = 800;
 
-    // TODO: implement update params to not be 
+    // TODO: implement update params to not be
     //decrease_position_utils::decrease_position(ref params);
     panic(array!['Not implemented yet']);
 }
@@ -106,8 +106,8 @@ fn setup() -> (ContractAddress, ISwapHandlerDispatcher) {
     let swap_handler_address = deploy_swap_handler_address(role_store_address, data_store_address);
     let swap_handler = ISwapHandlerDispatcher { contract_address: swap_handler_address };
 
-    start_prank(role_store_address, caller_address);
-    start_prank(swap_handler_address, caller_address);
+    start_cheat_caller_address(role_store_address, caller_address);
+    start_cheat_caller_address(swap_handler_address, caller_address);
 
     (caller_address, swap_handler)
 }

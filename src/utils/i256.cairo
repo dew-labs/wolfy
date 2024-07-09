@@ -350,19 +350,19 @@ impl u256Intoi256 of Into<u256, i256> {
     }
 }
 
-impl I256TryIntoFelt252 of TryInto<i256, felt252> {
-    fn try_into(self: i256) -> Option<felt252> {
-        let val: Option<felt252> = self.mag.try_into();
-        match val {
-            Option::Some(val) => Option::Some(val * if self.sign {
-                -1
-            } else {
-                1
-            }),
-            Option::None(()) => Option::None(())
-        }
-    }
-}
+// impl I256TryIntoFelt252 of TryInto<i256, felt252> {
+//     fn try_into(self: i256) -> Option<felt252> {
+//         let val: Option<felt252> = self.mag.try_into();
+//         match val {
+//             Option::Some(val) => Option::Some(val * if self.sign {
+//                 -1
+//             } else {
+//                 1
+//             }),
+//             Option::None(()) => Option::None(())
+//         }
+//     }
+// }
 
 impl I256IntoFelt252 of Into<i256, felt252> {
     fn into(self: i256) -> felt252 {

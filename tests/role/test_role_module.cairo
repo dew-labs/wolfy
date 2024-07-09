@@ -2,7 +2,7 @@ use result::ResultTrait;
 use traits::TryInto;
 use starknet::{ContractAddress, contract_address_const};
 use starknet::Felt252TryIntoContractAddress;
-use snforge_std::{declare, start_prank, ContractClassTrait};
+use snforge_std::{declare, start_cheat_caller_address, ContractClassTrait};
 
 
 use satoru::role::{
@@ -26,8 +26,8 @@ fn given_normal_conditions_when_only_self_then_works() {
     // *                              TEST LOGIC                                                   *
     // *********************************************************************************************
     let caller_address: ContractAddress = contract_address_const::<'caller'>();
-    start_prank(role_store.contract_address, caller_address);
-    start_prank(role_module.contract_address, role_module.contract_address);
+    start_cheat_caller_address(role_store.contract_address, caller_address);
+    start_cheat_caller_address(role_module.contract_address, role_module.contract_address);
 
     // Check that only self is allowed.
     role_module.only_self();
@@ -49,8 +49,8 @@ fn given_not_self_when_only_self_then_fails() {
     // *                              TEST LOGIC                                                   *
     // *********************************************************************************************
     let caller_address: ContractAddress = contract_address_const::<'caller'>();
-    start_prank(role_store.contract_address, caller_address);
-    start_prank(role_module.contract_address, caller_address);
+    start_cheat_caller_address(role_store.contract_address, caller_address);
+    start_cheat_caller_address(role_module.contract_address, caller_address);
 
     // Check that only self is allowed, expect to fail.
     role_module.only_self();
@@ -73,8 +73,8 @@ fn given_not_self_when_only_timelock_multisig_then_works() {
 
     // Use the address that has been used to deploy role_store.
     let caller_address: ContractAddress = contract_address_const::<'caller'>();
-    start_prank(role_store.contract_address, caller_address);
-    start_prank(role_module.contract_address, caller_address);
+    start_cheat_caller_address(role_store.contract_address, caller_address);
+    start_cheat_caller_address(role_module.contract_address, caller_address);
 
     // Grant timelock_multisig role to account address.
     role_store.grant_role(caller_address, TIMELOCK_MULTISIG);
@@ -100,8 +100,8 @@ fn given_not_timelock_multisig_when_only_timelock_multisig_then_fails() {
 
     // Use the address that has been used to deploy role_store.
     let caller_address: ContractAddress = contract_address_const::<'caller'>();
-    start_prank(role_store.contract_address, caller_address);
-    start_prank(role_module.contract_address, caller_address);
+    start_cheat_caller_address(role_store.contract_address, caller_address);
+    start_cheat_caller_address(role_module.contract_address, caller_address);
 
     // Check that the account address has the timelock_multisig role, expect to fail.
     role_module.only_timelock_multisig();
@@ -123,8 +123,8 @@ fn given_normal_conditions_when_only_timelock_admin_then_works() {
     // *********************************************************************************************
 
     let caller_address: ContractAddress = contract_address_const::<'caller'>();
-    start_prank(role_store.contract_address, caller_address);
-    start_prank(role_module.contract_address, caller_address);
+    start_cheat_caller_address(role_store.contract_address, caller_address);
+    start_cheat_caller_address(role_module.contract_address, caller_address);
 
     // Grant timelock_admin role to account address.
     role_store.grant_role(caller_address, TIMELOCK_ADMIN);
@@ -149,8 +149,8 @@ fn given_not_timelock_admin_when_only_timelock_admin_then_fails() {
     // *********************************************************************************************
 
     let caller_address: ContractAddress = contract_address_const::<'caller'>();
-    start_prank(role_store.contract_address, caller_address);
-    start_prank(role_module.contract_address, caller_address);
+    start_cheat_caller_address(role_store.contract_address, caller_address);
+    start_cheat_caller_address(role_module.contract_address, caller_address);
 
     // Check that the account address has the timelock_admin role, expect to fail.
     role_module.only_timelock_admin();
@@ -173,8 +173,8 @@ fn given_normal_conditions_when_only_config_keeper_then_works() {
     // *********************************************************************************************
 
     let caller_address: ContractAddress = contract_address_const::<'caller'>();
-    start_prank(role_store.contract_address, caller_address);
-    start_prank(role_module.contract_address, caller_address);
+    start_cheat_caller_address(role_store.contract_address, caller_address);
+    start_cheat_caller_address(role_module.contract_address, caller_address);
 
     // Grant config_keeper role to account address.
     role_store.grant_role(caller_address, CONFIG_KEEPER);
@@ -200,8 +200,8 @@ fn given_not_config_keeper_when_only_config_keeper_then_fails() {
     // *********************************************************************************************
 
     let caller_address: ContractAddress = contract_address_const::<'caller'>();
-    start_prank(role_store.contract_address, caller_address);
-    start_prank(role_module.contract_address, caller_address);
+    start_cheat_caller_address(role_store.contract_address, caller_address);
+    start_cheat_caller_address(role_module.contract_address, caller_address);
 
     // Check that the account address has the config_keeper role, expect to fail.
     role_module.only_config_keeper();
@@ -222,8 +222,8 @@ fn given_normal_conditions_when_only_controller_then_works() {
     // *********************************************************************************************
 
     let caller_address: ContractAddress = contract_address_const::<'caller'>();
-    start_prank(role_store.contract_address, caller_address);
-    start_prank(role_module.contract_address, caller_address);
+    start_cheat_caller_address(role_store.contract_address, caller_address);
+    start_cheat_caller_address(role_module.contract_address, caller_address);
 
     // Grant controller_role to account address.
     role_store.grant_role(caller_address, CONTROLLER);
@@ -247,8 +247,8 @@ fn given_not_controller_when_only_controller_then_fails() {
     // *********************************************************************************************
 
     let caller_address: ContractAddress = contract_address_const::<'caller'>();
-    start_prank(role_store.contract_address, caller_address);
-    start_prank(role_module.contract_address, caller_address);
+    start_cheat_caller_address(role_store.contract_address, caller_address);
+    start_cheat_caller_address(role_module.contract_address, caller_address);
 
     // Check that the account address has the controller_role, expect to fail.
     role_module.only_controller();
@@ -269,8 +269,8 @@ fn given_normal_conditions_when_only_router_plugin_then_works() {
     // *********************************************************************************************
 
     let caller_address: ContractAddress = contract_address_const::<'caller'>();
-    start_prank(role_store.contract_address, caller_address);
-    start_prank(role_module.contract_address, caller_address);
+    start_cheat_caller_address(role_store.contract_address, caller_address);
+    start_cheat_caller_address(role_module.contract_address, caller_address);
 
     // Grant router_plugin role to account address.
     role_store.grant_role(caller_address, ROUTER_PLUGIN);
@@ -294,8 +294,8 @@ fn given_not_router_plugin_when_only_router_plugin_then_fails() {
     // *********************************************************************************************
 
     let caller_address: ContractAddress = contract_address_const::<'caller'>();
-    start_prank(role_store.contract_address, caller_address);
-    start_prank(role_module.contract_address, caller_address);
+    start_cheat_caller_address(role_store.contract_address, caller_address);
+    start_cheat_caller_address(role_module.contract_address, caller_address);
 
     // Check that the account address has the router_plugin role, expect to fail.
     role_module.only_router_plugin();
@@ -316,8 +316,8 @@ fn given_normal_conditions_when_only_market_keeper_then_works() {
     // *********************************************************************************************
 
     let caller_address: ContractAddress = contract_address_const::<'caller'>();
-    start_prank(role_store.contract_address, caller_address);
-    start_prank(role_module.contract_address, caller_address);
+    start_cheat_caller_address(role_store.contract_address, caller_address);
+    start_cheat_caller_address(role_module.contract_address, caller_address);
 
     // Grant market_keeper role to account address.
     role_store.grant_role(caller_address, MARKET_KEEPER);
@@ -341,8 +341,8 @@ fn given_not_market_keeper_when_only_market_keeper_then_fails() {
     // *********************************************************************************************
 
     let caller_address: ContractAddress = contract_address_const::<'caller'>();
-    start_prank(role_store.contract_address, caller_address);
-    start_prank(role_module.contract_address, caller_address);
+    start_cheat_caller_address(role_store.contract_address, caller_address);
+    start_cheat_caller_address(role_module.contract_address, caller_address);
 
     // Check that the account address has the market_keeper role, expect to fail.
     role_module.only_market_keeper();
@@ -363,8 +363,8 @@ fn given_normal_conditions_when_only_fee_keeper_then_works() {
     // *********************************************************************************************
 
     let caller_address: ContractAddress = contract_address_const::<'caller'>();
-    start_prank(role_store.contract_address, caller_address);
-    start_prank(role_module.contract_address, caller_address);
+    start_cheat_caller_address(role_store.contract_address, caller_address);
+    start_cheat_caller_address(role_module.contract_address, caller_address);
 
     // Grant fee keeper_role to account address.
     role_store.grant_role(caller_address, FEE_KEEPER);
@@ -388,8 +388,8 @@ fn given_not_fee_keeper_when_only_fee_keeper_then_fails() {
     // *********************************************************************************************
 
     let caller_address: ContractAddress = contract_address_const::<'caller'>();
-    start_prank(role_store.contract_address, caller_address);
-    start_prank(role_module.contract_address, caller_address);
+    start_cheat_caller_address(role_store.contract_address, caller_address);
+    start_cheat_caller_address(role_module.contract_address, caller_address);
 
     // Check that the account address has the fee keeper_role, expect to fail.
     role_module.only_fee_keeper();
@@ -410,8 +410,8 @@ fn given_normal_conditions_when_only_order_keeper_then_works() {
     // *********************************************************************************************
 
     let caller_address: ContractAddress = contract_address_const::<'caller'>();
-    start_prank(role_store.contract_address, caller_address);
-    start_prank(role_module.contract_address, caller_address);
+    start_cheat_caller_address(role_store.contract_address, caller_address);
+    start_cheat_caller_address(role_module.contract_address, caller_address);
 
     // Grant order_keeper role to account address.
     role_store.grant_role(caller_address, ORDER_KEEPER);
@@ -435,8 +435,8 @@ fn given_not_order_keeper_when_only_order_keeper_then_fails() {
     // *********************************************************************************************
 
     let caller_address: ContractAddress = contract_address_const::<'caller'>();
-    start_prank(role_store.contract_address, caller_address);
-    start_prank(role_module.contract_address, caller_address);
+    start_cheat_caller_address(role_store.contract_address, caller_address);
+    start_cheat_caller_address(role_module.contract_address, caller_address);
 
     // Check that the account address has the order_keeper role, expect to fail.
     role_module.only_order_keeper();
@@ -457,8 +457,8 @@ fn given_normal_conditions_when_only_pricing_keeper_then_works() {
     // *********************************************************************************************
 
     let caller_address: ContractAddress = contract_address_const::<'caller'>();
-    start_prank(role_store.contract_address, caller_address);
-    start_prank(role_module.contract_address, caller_address);
+    start_cheat_caller_address(role_store.contract_address, caller_address);
+    start_cheat_caller_address(role_module.contract_address, caller_address);
 
     // Grant pricing_keeper role to account address.
     role_store.grant_role(caller_address, PRICING_KEEPER);
@@ -482,8 +482,8 @@ fn given_not_pricing_keeper_when_only_pricing_keeper_then_fails() {
     // *********************************************************************************************
 
     let caller_address: ContractAddress = contract_address_const::<'caller'>();
-    start_prank(role_store.contract_address, caller_address);
-    start_prank(role_module.contract_address, caller_address);
+    start_cheat_caller_address(role_store.contract_address, caller_address);
+    start_cheat_caller_address(role_module.contract_address, caller_address);
 
     // Check that the account address has the pricing_keeper role, expect to fail.
     role_module.only_pricing_keeper();
@@ -504,8 +504,8 @@ fn given_normal_conditions_when_only_liquidation_keeper_then_works() {
     // *********************************************************************************************
 
     let caller_address: ContractAddress = contract_address_const::<'caller'>();
-    start_prank(role_store.contract_address, caller_address);
-    start_prank(role_module.contract_address, caller_address);
+    start_cheat_caller_address(role_store.contract_address, caller_address);
+    start_cheat_caller_address(role_module.contract_address, caller_address);
 
     // Grant liquidation_keeper role to account address.
     role_store.grant_role(caller_address, LIQUIDATION_KEEPER);
@@ -529,8 +529,8 @@ fn given_not_liquidation_keeper_when_only_liquidation_keeper_then_fails() {
     // *********************************************************************************************
 
     let caller_address: ContractAddress = contract_address_const::<'caller'>();
-    start_prank(role_store.contract_address, caller_address);
-    start_prank(role_module.contract_address, caller_address);
+    start_cheat_caller_address(role_store.contract_address, caller_address);
+    start_cheat_caller_address(role_module.contract_address, caller_address);
 
     // Check that the account address has the liquidation_keeper role, expect to fail.
     role_module.only_liquidation_keeper();
@@ -552,8 +552,8 @@ fn given_normal_conditions_when_only_adl_keeper_then_works() {
     // *********************************************************************************************
 
     let caller_address: ContractAddress = contract_address_const::<'caller'>();
-    start_prank(role_store.contract_address, caller_address);
-    start_prank(role_module.contract_address, caller_address);
+    start_cheat_caller_address(role_store.contract_address, caller_address);
+    start_cheat_caller_address(role_module.contract_address, caller_address);
 
     // Grant adl_keeper role to account address.
     role_store.grant_role(caller_address, ADL_KEEPER);
@@ -577,8 +577,8 @@ fn given_not_adl_keeper_when_only_adl_keeper_then_works() {
     // *********************************************************************************************
 
     let caller_address: ContractAddress = contract_address_const::<'caller'>();
-    start_prank(role_store.contract_address, caller_address);
-    start_prank(role_module.contract_address, caller_address);
+    start_cheat_caller_address(role_store.contract_address, caller_address);
+    start_cheat_caller_address(role_module.contract_address, caller_address);
 
     // Check that the account address has the adl_keeper role, expect to fail.
     role_module.only_adl_keeper();
@@ -589,7 +589,7 @@ fn given_not_adl_keeper_when_only_adl_keeper_then_works() {
 }
 
 fn setup() -> (
-    // This caller address will be used with `start_prank` cheatcode to mock the caller address.,
+    // This caller address will be used with `start_cheat_caller_address` cheatcode to mock the caller address.,
     IRoleStoreDispatcher, // Interface to interact with the `MarketToken` contract.
     IRoleModuleDispatcher,
 ) {
@@ -605,19 +605,19 @@ fn setup() -> (
 fn teardown() {}
 
 fn deploy_role_store() -> ContractAddress {
-    let contract = declare('RoleStore');
+    let contract = declare("RoleStore").unwrap();
     let caller_address: ContractAddress = contract_address_const::<'caller'>();
     let deployed_contract_address = contract_address_const::<'role_store'>();
-    start_prank(deployed_contract_address, caller_address);
+    start_cheat_caller_address(deployed_contract_address, caller_address);
     contract.deploy_at(@array![caller_address.into()], deployed_contract_address).unwrap()
 }
 
 // Utility function to deploy a role module contract and return its address.
 fn deploy_role_module(role_store_address: ContractAddress) -> ContractAddress {
-    let contract = declare('RoleModule');
+    let contract = declare("RoleModule").unwrap();
     let caller_address: ContractAddress = contract_address_const::<'caller'>();
     let deployed_contract_address = contract_address_const::<'role_module'>();
-    start_prank(deployed_contract_address, caller_address);
+    start_cheat_caller_address(deployed_contract_address, caller_address);
     let mut constructor_calldata = array![];
     constructor_calldata.append(role_store_address.into());
     contract.deploy_at(@constructor_calldata, deployed_contract_address).unwrap()

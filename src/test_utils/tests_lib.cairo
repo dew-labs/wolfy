@@ -11,7 +11,7 @@ use starknet::{
     ContractAddress, get_caller_address, Felt252TryIntoContractAddress, contract_address_const,
     ClassHash,
 };
-use snforge_std::{declare, start_prank, stop_prank, start_roll, ContractClassTrait, ContractClass};
+use snforge_std::{declare, start_cheat_caller_address, stop_cheat_caller_address, start_cheat_block_number, ContractClassTrait, ContractClass};
 
 
 // Local imports.
@@ -77,15 +77,15 @@ fn create_market(market_factory: IMarketFactoryDispatcher) -> ContractAddress {
 /// Utility functions to deploy tokens for a market.
 fn deploy_tokens() -> (ContractAddress, ContractAddress) {
     let caller_address: ContractAddress = contract_address_const::<'caller'>();
-    let contract = declare('ERC20');
+    let contract = declare("ERC20").unwrap();
 
     let eth_address = contract_address_const::<'ETH'>();
-    let _constructor_calldata = array!['Ethereum', 'ETH', 1000000, 0, caller_address.into()];
+    let constructor_calldata = array!['Ethereum', 'ETH', 1000000, 0, caller_address.into()];
     // let constructor_calldata = array!['Ethereum', 'ETH', 10000000000000000000, 0, caller_address.into()];
     contract.deploy_at(@constructor_calldata, eth_address).unwrap();
 
     let usdc_address = contract_address_const::<'USDC'>();
-    let _constructor_calldata = array!['usdc', 'USDC', 1000000, 0, caller_address.into()];
+    let constructor_calldata = array!['usdc', 'USDC', 1000000, 0, caller_address.into()];
     // let constructor_calldata = array!['usdc', 'USDC', 100000000000000000000000, 0, caller_address.into()];
     contract.deploy_at(@constructor_calldata, usdc_address).unwrap();
     (eth_address, usdc_address)
@@ -94,7 +94,7 @@ fn deploy_tokens() -> (ContractAddress, ContractAddress) {
 
 /// Utility function to setup the test environment.
 fn setup() -> (
-    // This caller address will be used with `start_prank` cheatcode to mock the caller address.,
+    // This caller address will be used with `start_cheat_caller_address` cheatcode to mock the caller address.,
     ContractAddress,
     // Address of the `MarketFactory` contract.
     ContractAddress,
@@ -190,7 +190,7 @@ fn grant_roles_and_prank(
     data_store: IDataStoreDispatcher,
     market_factory: IMarketFactoryDispatcher,
 ) {
-    start_prank(role_store.contract_address, caller_address);
+    start_cheat_caller_address(role_store.contract_address, caller_address);
 
     // Grant the caller the `CONTROLLER` role.
     role_store.grant_role(caller_address, role::CONTROLLER);
@@ -201,22 +201,22 @@ fn grant_roles_and_prank(
 
     // Prank the caller address for calls to `DataStore` contract.
     // We need this so that the caller has the CONTROLLER role.
-    start_prank(data_store.contract_address, caller_address);
+    start_cheat_caller_address(data_store.contract_address, caller_address);
 
     // Start pranking the `MarketFactory` contract. This is necessary to mock the behavior of the contract
     // for testing purposes.
-    start_prank(market_factory.contract_address, caller_address);
+    start_cheat_caller_address(market_factory.contract_address, caller_address);
 }
 
 /// Utility function to teardown the test environment.
 fn teardown(data_store: IDataStoreDispatcher, market_factory: IMarketFactoryDispatcher) {
-    stop_prank(data_store.contract_address);
-    stop_prank(market_factory.contract_address);
+    stop_cheat_caller_address(data_store.contract_address);
+    stop_cheat_caller_address(market_factory.contract_address);
 }
 
 /// Setup required contracts.
 fn setup_contracts() -> (
-    // This caller address will be used with `start_prank` cheatcode to mock the caller address.,
+    // This caller address will be used with `start_cheat_caller_address` cheatcode to mock the caller address.,
     ContractAddress,
     // Address of the `MarketFactory` contract.
     ContractAddress,
@@ -410,7 +410,7 @@ fn setup_contracts() -> (
 
 /// Utility function to declare a `MarketToken` contract.
 fn declare_market_token() -> ContractClass {
-    declare('MarketToken')
+    declare("MarketToken").unwrap()
 }
 
 /// Utility function to deploy a market factory contract and return its address.
@@ -420,51 +420,56 @@ fn deploy_market_factory(
     event_emitter_address: ContractAddress,
     market_token_class_hash: ContractClass,
 ) -> ContractAddress {
-    let contract = declare('MarketFactory');
-    let _caller_address: ContractAddress = contract_address_const::<'caller'>();
-    let _deployed_contract_address = contract_address_const::<'market_factory'>();
-    start_prank(deployed_contract_address, caller_address);
+    let contract = declare("MarketFactory").unwrap();
+    let caller_address: ContractAddress = contract_address_const::<'caller'>();
+    let deployed_contract_address = contract_address_const::<'market_factory'>();
+    start_cheat_caller_address(deployed_contract_address, caller_address);
     let mut constructor_calldata = array![];
     constructor_calldata.append(data_store_address.into());
     constructor_calldata.append(role_store_address.into());
     constructor_calldata.append(event_emitter_address.into());
     constructor_calldata.append(market_token_class_hash.class_hash.into());
-    contract.deploy_at(@constructor_calldata, deployed_contract_address).unwrap()
+    let (contract_address, _) = contract.deploy_at(@constructor_calldata, deployed_contract_address).unwrap();
+	contract_address
 }
 
 
 fn deploy_data_store(role_store_address: ContractAddress) -> ContractAddress {
-    let contract = declare('DataStore');
-    let _caller_address: ContractAddress = contract_address_const::<'caller'>();
-    let _deployed_contract_address: ContractAddress = 0x1.try_into().unwrap();
-    start_prank(deployed_contract_address, caller_address);
-    let _constructor_calldata = array![role_store_address.into()];
-    contract.deploy_at(@constructor_calldata, deployed_contract_address).unwrap()
+    let contract = declare("DataStore").unwrap();
+    let caller_address: ContractAddress = contract_address_const::<'caller'>();
+    let deployed_contract_address: ContractAddress = 0x1.try_into().unwrap();
+    start_cheat_caller_address(deployed_contract_address, caller_address);
+    let constructor_calldata = array![role_store_address.into()];
+    let (contract_address, _) = contract.deploy_at(@constructor_calldata, deployed_contract_address).unwrap();
+	contract_address
 }
 
 fn deploy_role_store() -> ContractAddress {
-    let contract = declare('RoleStore');
-    let _caller_address: ContractAddress = contract_address_const::<'caller'>();
-    let _deployed_contract_address = contract_address_const::<'role_store'>();
-    start_prank(deployed_contract_address, caller_address);
-    contract.deploy_at(@array![caller_address.into()], deployed_contract_address).unwrap()
+    let contract = declare("RoleStore").unwrap();
+    let caller_address: ContractAddress = contract_address_const::<'caller'>();
+    let deployed_contract_address = contract_address_const::<'role_store'>();
+    start_cheat_caller_address(deployed_contract_address, caller_address);
+    let (contract_address, _) = contract.deploy_at(@array![caller_address.into()], deployed_contract_address).unwrap();
+	contract_address
 }
 
 fn deploy_event_emitter() -> ContractAddress {
-    let contract = declare('EventEmitter');
-    let _caller_address: ContractAddress = contract_address_const::<'caller'>();
-    let _deployed_contract_address = contract_address_const::<'event_emitter'>();
-    start_prank(deployed_contract_address, caller_address);
-    contract.deploy_at(@array![], deployed_contract_address).unwrap()
+    let contract = declare("EventEmitter").unwrap();
+    let caller_address: ContractAddress = contract_address_const::<'caller'>();
+    let deployed_contract_address = contract_address_const::<'event_emitter'>();
+    start_cheat_caller_address(deployed_contract_address, caller_address);
+    let (contract_address, _) = contract.deploy_at(@array![], deployed_contract_address).unwrap();
+	contract_address
 }
 
 fn deploy_router(role_store_address: ContractAddress) -> ContractAddress {
-    let contract = declare('Router');
-    let _caller_address: ContractAddress = contract_address_const::<'caller'>();
-    let _deployed_contract_address = contract_address_const::<'router'>();
-    start_prank(deployed_contract_address, caller_address);
-    let _constructor_calldata = array![role_store_address.into()];
-    contract.deploy_at(@constructor_calldata, deployed_contract_address).unwrap()
+    let contract = declare("Router").unwrap();
+    let caller_address: ContractAddress = contract_address_const::<'caller'>();
+    let deployed_contract_address = contract_address_const::<'router'>();
+    start_cheat_caller_address(deployed_contract_address, caller_address);
+    let constructor_calldata = array![role_store_address.into()];
+    let (contract_address, _) = contract.deploy_at(@constructor_calldata, deployed_contract_address).unwrap();
+	contract_address
 }
 
 fn deploy_deposit_handler(
@@ -474,11 +479,11 @@ fn deploy_deposit_handler(
     deposit_vault_address: ContractAddress,
     oracle_address: ContractAddress
 ) -> ContractAddress {
-    let contract = declare('DepositHandler');
-    let _caller_address: ContractAddress = contract_address_const::<'caller'>();
-    let _deployed_contract_address = contract_address_const::<'deposit_handler'>();
-    start_prank(deployed_contract_address, caller_address);
-    contract
+    let contract = declare("DepositHandler").unwrap();
+    let caller_address: ContractAddress = contract_address_const::<'caller'>();
+    let deployed_contract_address = contract_address_const::<'deposit_handler'>();
+    start_cheat_caller_address(deployed_contract_address, caller_address);
+    let (contract_address, _) = contract
         .deploy_at(
             @array![
                 data_store_address.into(),
@@ -489,22 +494,24 @@ fn deploy_deposit_handler(
             ],
             deployed_contract_address
         )
-        .unwrap()
+        .unwrap();
+	contract_address
 }
 
 fn deploy_oracle_store(
     role_store_address: ContractAddress, event_emitter_address: ContractAddress,
 ) -> ContractAddress {
-    let contract = declare('OracleStore');
-    let _caller_address: ContractAddress = contract_address_const::<'caller'>();
-    let _deployed_contract_address = contract_address_const::<'oracle_store'>();
-    start_prank(deployed_contract_address, caller_address);
-    contract
+    let contract = declare("OracleStore").unwrap();
+    let caller_address: ContractAddress = contract_address_const::<'caller'>();
+    let deployed_contract_address = contract_address_const::<'oracle_store'>();
+    start_cheat_caller_address(deployed_contract_address, caller_address);
+    let (contract_address, _) = contract
         .deploy_at(
             @array![role_store_address.into(), event_emitter_address.into()],
             deployed_contract_address
         )
-        .unwrap()
+        .unwrap();
+	contract_address
 }
 
 fn deploy_oracle(
@@ -512,30 +519,32 @@ fn deploy_oracle(
     oracle_store_address: ContractAddress,
     pragma_address: ContractAddress
 ) -> ContractAddress {
-    let contract = declare('Oracle');
-    let _caller_address: ContractAddress = contract_address_const::<'caller'>();
-    let _deployed_contract_address = contract_address_const::<'oracle'>();
-    start_prank(deployed_contract_address, caller_address);
-    contract
+    let contract = declare("Oracle").unwrap();
+    let caller_address: ContractAddress = contract_address_const::<'caller'>();
+    let deployed_contract_address = contract_address_const::<'oracle'>();
+    start_cheat_caller_address(deployed_contract_address, caller_address);
+    let (contract_address, _) = contract
         .deploy_at(
             @array![role_store_address.into(), oracle_store_address.into(), pragma_address.into()],
             deployed_contract_address
         )
-        .unwrap()
+        .unwrap();
+	contract_address
 }
 
 fn deploy_deposit_vault(
     role_store_address: ContractAddress, data_store_address: ContractAddress
 ) -> ContractAddress {
-    let contract = declare('DepositVault');
-    let _caller_address: ContractAddress = contract_address_const::<'caller'>();
-    let _deployed_contract_address = contract_address_const::<'deposit_vault'>();
-    start_prank(deployed_contract_address, caller_address);
-    contract
+    let contract = declare("DepositVault").unwrap();
+    let caller_address: ContractAddress = contract_address_const::<'caller'>();
+    let deployed_contract_address = contract_address_const::<'deposit_vault'>();
+    start_cheat_caller_address(deployed_contract_address, caller_address);
+    let (contract_address, _) = contract
         .deploy_at(
             @array![data_store_address.into(), role_store_address.into()], deployed_contract_address
         )
-        .unwrap()
+        .unwrap();
+	contract_address
 }
 
 fn deploy_withdrawal_handler(
@@ -545,29 +554,31 @@ fn deploy_withdrawal_handler(
     withdrawal_vault_address: ContractAddress,
     oracle_address: ContractAddress
 ) -> ContractAddress {
-    let contract = declare('WithdrawalHandler');
-    let _caller_address: ContractAddress = contract_address_const::<'caller'>();
-    let _deployed_contract_address = contract_address_const::<'withdrawal_handler'>();
-    start_prank(deployed_contract_address, caller_address);
-    let _constructor_calldata = array![
+    let contract = declare("WithdrawalHandler").unwrap();
+    let caller_address: ContractAddress = contract_address_const::<'caller'>();
+    let deployed_contract_address = contract_address_const::<'withdrawal_handler'>();
+    start_cheat_caller_address(deployed_contract_address, caller_address);
+    let constructor_calldata = array![
         data_store_address.into(),
         role_store_address.into(),
         event_emitter_address.into(),
         withdrawal_vault_address.into(),
         oracle_address.into()
     ];
-    contract.deploy_at(@constructor_calldata, deployed_contract_address).unwrap()
+    let (contract_address, _) = contract.deploy_at(@constructor_calldata, deployed_contract_address).unwrap();
+	contract_address
 }
 
 fn deploy_withdrawal_vault(
     data_store_address: ContractAddress, role_store_address: ContractAddress
 ) -> ContractAddress {
-    let contract = declare('WithdrawalVault');
-    let _caller_address: ContractAddress = contract_address_const::<'caller'>();
-    let _deployed_contract_address = contract_address_const::<'withdrawal_vault'>();
-    start_prank(deployed_contract_address, caller_address);
-    let _constructor_calldata = array![data_store_address.into(), role_store_address.into()];
-    contract.deploy_at(@constructor_calldata, deployed_contract_address).unwrap()
+    let contract = declare("WithdrawalVault").unwrap();
+    let caller_address: ContractAddress = contract_address_const::<'caller'>();
+    let deployed_contract_address = contract_address_const::<'withdrawal_vault'>();
+    start_cheat_caller_address(deployed_contract_address, caller_address);
+    let constructor_calldata = array![data_store_address.into(), role_store_address.into()];
+    let (contract_address, _) = contract.deploy_at(@constructor_calldata, deployed_contract_address).unwrap();
+	contract_address
 }
 
 fn deploy_order_handler(
@@ -583,11 +594,11 @@ fn deploy_order_handler(
     decrease_order_class_hash: ClassHash,
     swap_order_class_hash: ClassHash
 ) -> ContractAddress {
-    let contract = declare('OrderHandler');
-    let _caller_address: ContractAddress = contract_address_const::<'caller'>();
-    let _deployed_contract_address = contract_address_const::<'order_handler'>();
-    start_prank(deployed_contract_address, caller_address);
-    let _constructor_calldata = array![
+    let contract = declare("OrderHandler").unwrap();
+    let caller_address: ContractAddress = contract_address_const::<'caller'>();
+    let deployed_contract_address = contract_address_const::<'order_handler'>();
+    start_cheat_caller_address(deployed_contract_address, caller_address);
+    let constructor_calldata = array![
         data_store_address.into(),
         role_store_address.into(),
         event_emitter_address.into(),
@@ -600,7 +611,8 @@ fn deploy_order_handler(
         decrease_order_class_hash.into(),
         swap_order_class_hash.into()
     ];
-    contract.deploy_at(@constructor_calldata, deployed_contract_address).unwrap()
+    let (contract_address, _) = contract.deploy_at(@constructor_calldata, deployed_contract_address).unwrap();
+	contract_address
 }
 
 fn deploy_liquidation_handler(
@@ -616,11 +628,11 @@ fn deploy_liquidation_handler(
     decrease_order_class_hash: ClassHash,
     swap_order_class_hash: ClassHash
 ) -> ContractAddress {
-    let contract = declare('LiquidationHandler');
-    let _caller_address: ContractAddress = contract_address_const::<'caller'>();
-    let _deployed_contract_address = contract_address_const::<'liquidation_handler'>();
-    start_prank(deployed_contract_address, caller_address);
-    let _constructor_calldata = array![
+    let contract = declare("LiquidationHandler").unwrap();
+    let caller_address: ContractAddress = contract_address_const::<'caller'>();
+    let deployed_contract_address = contract_address_const::<'liquidation_handler'>();
+    start_cheat_caller_address(deployed_contract_address, caller_address);
+    let constructor_calldata = array![
         data_store_address.into(),
         role_store_address.into(),
         event_emitter_address.into(),
@@ -633,27 +645,30 @@ fn deploy_liquidation_handler(
         decrease_order_class_hash.into(),
         swap_order_class_hash.into()
     ];
-    contract.deploy_at(@constructor_calldata, deployed_contract_address).unwrap()
+    let (contract_address, _) = contract.deploy_at(@constructor_calldata, deployed_contract_address).unwrap();
+	contract_address
 }
 
 fn deploy_swap_handler_address(
     role_store_address: ContractAddress, data_store_address: ContractAddress
 ) -> ContractAddress {
-    let contract = declare('SwapHandler');
-    let _caller_address: ContractAddress = contract_address_const::<'caller'>();
-    let _deployed_contract_address = contract_address_const::<'swap_handler'>();
-    start_prank(deployed_contract_address, caller_address);
-    let _constructor_calldata = array![role_store_address.into()];
-    contract.deploy_at(@constructor_calldata, deployed_contract_address).unwrap()
+    let contract = declare("SwapHandler").unwrap();
+    let caller_address: ContractAddress = contract_address_const::<'caller'>();
+    let deployed_contract_address = contract_address_const::<'swap_handler'>();
+    start_cheat_caller_address(deployed_contract_address, caller_address);
+    let constructor_calldata = array![role_store_address.into()];
+    let (contract_address, _) = contract.deploy_at(@constructor_calldata, deployed_contract_address).unwrap();
+	contract_address
 }
 
 fn deploy_referral_storage(event_emitter_address: ContractAddress) -> ContractAddress {
-    let contract = declare('ReferralStorage');
-    let _caller_address: ContractAddress = contract_address_const::<'caller'>();
-    let _deployed_contract_address = contract_address_const::<'referral_storage'>();
-    start_prank(deployed_contract_address, caller_address);
-    let _constructor_calldata = array![event_emitter_address.into()];
-    contract.deploy_at(@constructor_calldata, deployed_contract_address).unwrap()
+    let contract = declare("ReferralStorage").unwrap();
+    let caller_address: ContractAddress = contract_address_const::<'caller'>();
+    let deployed_contract_address = contract_address_const::<'referral_storage'>();
+    start_cheat_caller_address(deployed_contract_address, caller_address);
+    let constructor_calldata = array![event_emitter_address.into()];
+    let (contract_address, _) = contract.deploy_at(@constructor_calldata, deployed_contract_address).unwrap();
+	contract_address
 }
 
 fn deploy_exchange_router(
@@ -665,11 +680,11 @@ fn deploy_exchange_router(
     withdrawal_handler_address: ContractAddress,
     order_handler_address: ContractAddress
 ) -> ContractAddress {
-    let contract = declare('ExchangeRouter');
-    let _caller_address: ContractAddress = contract_address_const::<'caller'>();
-    let _deployed_contract_address = contract_address_const::<'exchange_router'>();
-    start_prank(deployed_contract_address, caller_address);
-    let _constructor_calldata = array![
+    let contract = declare("ExchangeRouter").unwrap();
+    let caller_address: ContractAddress = contract_address_const::<'caller'>();
+    let deployed_contract_address = contract_address_const::<'exchange_router'>();
+    start_cheat_caller_address(deployed_contract_address, caller_address);
+    let constructor_calldata = array![
         router_address.into(),
         data_store_address.into(),
         role_store_address.into(),
@@ -678,76 +693,82 @@ fn deploy_exchange_router(
         withdrawal_handler_address.into(),
         order_handler_address.into()
     ];
-    contract.deploy_at(@constructor_calldata, deployed_contract_address).unwrap()
+    let (contract_address, _) = contract.deploy_at(@constructor_calldata, deployed_contract_address).unwrap();
+	contract_address
 }
 
 fn deploy_order_vault(
     data_store_address: ContractAddress, role_store_address: ContractAddress,
 ) -> ContractAddress {
-    let contract = declare('OrderVault');
-    let _caller_address: ContractAddress = contract_address_const::<'caller'>();
-    let _deployed_contract_address = contract_address_const::<'order_vault'>();
-    start_prank(deployed_contract_address, caller_address);
+    let contract = declare("OrderVault").unwrap();
+    let caller_address: ContractAddress = contract_address_const::<'caller'>();
+    let deployed_contract_address = contract_address_const::<'order_vault'>();
+    start_cheat_caller_address(deployed_contract_address, caller_address);
     let mut constructor_calldata = array![];
     constructor_calldata.append(data_store_address.into());
     constructor_calldata.append(role_store_address.into());
-    contract.deploy_at(@constructor_calldata, deployed_contract_address).unwrap()
+    let (contract_address, _) = contract.deploy_at(@constructor_calldata, deployed_contract_address).unwrap();
+	contract_address
 }
 
 fn declare_increase_order() -> ClassHash {
-    declare('IncreaseOrderUtils').class_hash
+    declare("IncreaseOrderUtils").unwrap().class_hash
 }
 fn declare_decrease_order() -> ClassHash {
-    declare('DecreaseOrderUtils').class_hash
+    declare("DecreaseOrderUtils").unwrap().class_hash
 }
 fn declare_swap_order() -> ClassHash {
-    declare('SwapOrderUtils').class_hash
+    declare("SwapOrderUtils").unwrap().class_hash
 }
 
 
 fn declare_order_utils() -> ClassHash {
-    declare('OrderUtils').class_hash
+    declare("OrderUtils").unwrap().class_hash
 }
 
 fn deploy_bank(
     data_store_address: ContractAddress, role_store_address: ContractAddress,
 ) -> ContractAddress {
-    let _caller_address: ContractAddress = contract_address_const::<'caller'>();
-    let _bank_address: ContractAddress = contract_address_const::<'bank'>();
-    let contract = declare('Bank');
+    let caller_address: ContractAddress = contract_address_const::<'caller'>();
+    let bank_address: ContractAddress = contract_address_const::<'bank'>();
+    let contract = declare("Bank").unwrap();
     let mut constructor_calldata = array![];
     constructor_calldata.append(data_store_address.into());
     constructor_calldata.append(role_store_address.into());
-    start_prank(data_store_address, caller_address);
-    contract.deploy_at(@constructor_calldata, bank_address).unwrap()
+    start_cheat_caller_address(data_store_address, caller_address);
+    let (contract_address, _) = contract.deploy_at(@constructor_calldata, bank_address).unwrap();
+	contract_address
 }
 
 fn deploy_strict_bank(
     data_store_address: ContractAddress, role_store_address: ContractAddress,
 ) -> ContractAddress {
-    let _caller_address: ContractAddress = contract_address_const::<'caller'>();
-    let _strict_bank_address: ContractAddress = contract_address_const::<'strict_bank'>();
-    let contract = declare('StrictBank');
+    let caller_address: ContractAddress = contract_address_const::<'caller'>();
+    let strict_bank_address: ContractAddress = contract_address_const::<'strict_bank'>();
+    let contract = declare("StrictBank").unwrap();
     let mut constructor_calldata = array![];
     constructor_calldata.append(data_store_address.into());
     constructor_calldata.append(role_store_address.into());
-    start_prank(strict_bank_address, caller_address);
-    contract.deploy_at(@constructor_calldata, strict_bank_address).unwrap()
+    start_cheat_caller_address(strict_bank_address, caller_address);
+    let (contract_address, _) = contract.deploy_at(@constructor_calldata, strict_bank_address).unwrap();
+	contract_address
 }
 
 fn deploy_reader() -> ContractAddress {
-    let _caller_address: ContractAddress = contract_address_const::<'caller'>();
-    let _reader_address: ContractAddress = contract_address_const::<'reader'>();
-    let contract = declare('Reader');
-    let mut _constructor_calldata = array![];
-    start_prank(reader_address, caller_address);
-    contract.deploy_at(@constructor_calldata, reader_address).unwrap()
+    let caller_address: ContractAddress = contract_address_const::<'caller'>();
+    let reader_address: ContractAddress = contract_address_const::<'reader'>();
+    let contract = declare("Reader").unwrap();
+    let mut constructor_calldata = array![];
+    start_cheat_caller_address(reader_address, caller_address);
+    let (contract_address, _) = contract.deploy_at(@constructor_calldata, reader_address).unwrap();
+	contract_address
 }
 
 fn deploy_erc20_token(deposit_vault_address: ContractAddress) -> ContractAddress {
-    let erc20_contract = declare('ERC20');
-    let _constructor_calldata3 = array![
+    let erc20_contract = declare("ERC20").unwrap();
+    let constructor_calldata3 = array![
         'satoru', 'STU', INITIAL_TOKENS_MINTED, 0, deposit_vault_address.into()
     ];
-    erc20_contract.deploy(@constructor_calldata3).unwrap()
+    let (contract_address, _) = erc20_contract.deploy(@constructor_calldata3).unwrap();
+	contract_address
 }

@@ -6,7 +6,7 @@
 
 use result::ResultTrait;
 use starknet::{ContractAddress, get_caller_address, contract_address_const, ClassHash};
-use snforge_std::{declare, ContractClassTrait, start_roll};
+use snforge_std::{declare, ContractClassTrait, start_cheat_block_number};
 
 // TODO test when StrictBank functions will be implemented.
 

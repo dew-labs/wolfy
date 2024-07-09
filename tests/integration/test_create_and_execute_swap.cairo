@@ -8,8 +8,8 @@ use starknet::{
     ContractAddress, get_caller_address, Felt252TryIntoContractAddress, contract_address_const
 };
 use snforge_std::{
-    declare, start_prank, stop_prank, start_mock_call, test_address, ContractClassTrait,
-    ContractClass, start_roll
+    declare, start_cheat_caller_address, stop_cheat_caller_address, start_mock_call, test_address, ContractClassTrait,
+    ContractClass, start_cheat_block_number
 };
 use traits::Default;
 use poseidon::poseidon_hash_span;
@@ -65,8 +65,8 @@ fn given_right_swap_order_params_when_execute_order_then_success() {
     let market = data_store.get_market(create_market(market_factory));
 
     // Transfer tokens in the order_vault in order for initial_collateral_delta_amount to be non zero.
-    start_prank(contract_address_const::<'ETH'>(), caller_address);
-    start_prank(contract_address_const::<'USDC'>(), caller_address);
+    start_cheat_caller_address(contract_address_const::<'ETH'>(), caller_address);
+    start_cheat_caller_address(contract_address_const::<'USDC'>(), caller_address);
     IERC20Dispatcher { contract_address: contract_address_const::<'ETH'>() }
         .transfer(order_vault.contract_address, 5000000000000000000000000000000);
     // IERC20Dispatcher {contract_address: contract_address_const::<'USDC'>()}
@@ -99,7 +99,7 @@ fn given_right_swap_order_params_when_execute_order_then_success() {
     data_store.set_address(keys::fee_token(), market.index_token);
     data_store.set_u256(keys::max_swap_path_length(), 5);
 
-    start_prank(market.long_token, caller_address);
+    start_cheat_caller_address(market.long_token, caller_address);
     let order_params = CreateOrderParams {
         receiver: caller_address,
         callback_contract: contract_address,
@@ -120,7 +120,7 @@ fn given_right_swap_order_params_when_execute_order_then_success() {
         referral_code: 0
     };
     // Create the swap order.
-    start_roll(order_handler.contract_address, 1910);
+    start_cheat_block_number(order_handler.contract_address, 1910);
     let key = order_handler.create_order(caller_address, order_params);
 
     // data_store.set_u256(keys::pool_amount_key(market.market_token, contract_address_const::<'USDC'>()), );
@@ -143,8 +143,8 @@ fn given_right_swap_order_params_when_execute_order_then_success() {
         ],
         price_feed_tokens: array![]
     };
-    start_prank(order_handler.contract_address, caller_address);
-    start_roll(order_handler.contract_address, 1915);
+    start_cheat_caller_address(order_handler.contract_address, caller_address);
+    start_cheat_block_number(order_handler.contract_address, 1915);
     // TODO add real signatures check on Oracle Account
     //order_handler.execute_order(key, set_price_params);
 
@@ -237,7 +237,7 @@ fn create_market(market_factory: IMarketFactoryDispatcher) -> ContractAddress {
 fn deploy_order_vault(
     data_store_address: ContractAddress, role_store_address: ContractAddress,
 ) -> ContractAddress {
-    let contract = declare('OrderVault');
+    let contract = declare("OrderVault").unwrap();
     let mut constructor_calldata = array![];
     constructor_calldata.append(data_store_address.into());
     constructor_calldata.append(role_store_address.into());
@@ -247,7 +247,7 @@ fn deploy_order_vault(
 /// Utility functions to deploy tokens for a market.
 fn deploy_tokens() -> (ContractAddress, ContractAddress) {
     let caller_address: ContractAddress = contract_address_const::<'caller'>();
-    let contract = declare('ERC20');
+    let contract = declare("ERC20").unwrap();
 
     let eth_address = contract_address_const::<'ETH'>();
 
@@ -274,7 +274,7 @@ fn deploy_order_handler(
     swap_handler_address: ContractAddress,
     referral_storage_address: ContractAddress
 ) -> ContractAddress {
-    let contract = declare('OrderHandler');
+    let contract = declare("OrderHandler").unwrap();
     let mut constructor_calldata = array![];
     constructor_calldata.append(data_store_address.into());
     constructor_calldata.append(role_store_address.into());
@@ -288,14 +288,14 @@ fn deploy_order_handler(
 
 /// Utility function to deploy a `SwapHandler` contract and return its address.
 fn deploy_swap_handler(role_store_address: ContractAddress) -> ContractAddress {
-    let contract = declare('SwapHandler');
+    let contract = declare("SwapHandler").unwrap();
     let constructor_calldata = array![role_store_address.into()];
     tests_lib::deploy_mock_contract(contract, @constructor_calldata)
 }
 
 /// Utility function to deploy a `ReferralStorage` contract and return its address.
 fn deploy_referral_storage(event_emitter_address: ContractAddress) -> ContractAddress {
-    let contract = declare('ReferralStorage');
+    let contract = declare("ReferralStorage").unwrap();
     let constructor_calldata = array![event_emitter_address.into()];
     tests_lib::deploy_mock_contract(contract, @constructor_calldata)
 }
@@ -307,10 +307,10 @@ fn deploy_market_factory(
     event_emitter_address: ContractAddress,
     market_token_class_hash: ContractClass,
 ) -> ContractAddress {
-    let contract = declare('MarketFactory');
+    let contract = declare("MarketFactory").unwrap();
     let caller_address: ContractAddress = contract_address_const::<'caller'>();
     let deployed_contract_address = contract_address_const::<'market_factory'>();
-    start_prank(deployed_contract_address, caller_address);
+    start_cheat_caller_address(deployed_contract_address, caller_address);
     let mut constructor_calldata = array![];
     constructor_calldata.append(data_store_address.into());
     constructor_calldata.append(role_store_address.into());
@@ -321,5 +321,5 @@ fn deploy_market_factory(
 
 /// Utility function to declare a `MarketToken` contract.
 fn declare_market_token() -> ContractClass {
-    declare('MarketToken')
+    declare("MarketToken").unwrap()
 }

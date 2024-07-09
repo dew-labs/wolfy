@@ -1,7 +1,7 @@
 use starknet::{
     ContractAddress, get_caller_address, Felt252TryIntoContractAddress, contract_address_const
 };
-use snforge_std::{declare, start_prank, stop_prank, ContractClassTrait};
+use snforge_std::{declare, start_cheat_caller_address, stop_cheat_caller_address, ContractClassTrait};
 
 use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
 use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
@@ -22,9 +22,9 @@ fn setup() -> (ContractAddress, IRoleStoreDispatcher, IDataStoreDispatcher) {
     let role_store = IRoleStoreDispatcher { contract_address: role_store_address };
     let data_store_address = deploy_data_store(role_store_address);
     let data_store = IDataStoreDispatcher { contract_address: data_store_address };
-    start_prank(role_store_address, caller_address);
+    start_cheat_caller_address(role_store_address, caller_address);
     role_store.grant_role(caller_address, role::CONTROLLER);
-    start_prank(data_store_address, caller_address);
+    start_cheat_caller_address(data_store_address, caller_address);
     (caller_address, role_store, data_store)
 }
 
@@ -38,10 +38,10 @@ fn setup() -> (ContractAddress, IRoleStoreDispatcher, IDataStoreDispatcher) {
 ///
 /// * `ContractAddress` - The address of the deployed data store contract.
 fn deploy_data_store(role_store_address: ContractAddress) -> ContractAddress {
-    let contract = declare('DataStore');
+    let contract = declare("DataStore").unwrap();
     let caller_address: ContractAddress = contract_address_const::<'caller'>();
     let deployed_contract_address: ContractAddress = contract_address_const::<'data_store'>();
-    start_prank(deployed_contract_address, caller_address);
+    start_cheat_caller_address(deployed_contract_address, caller_address);
     let constructor_calldata = array![role_store_address.into()];
     contract.deploy_at(@constructor_calldata, deployed_contract_address).unwrap()
 }
@@ -52,10 +52,10 @@ fn deploy_data_store(role_store_address: ContractAddress) -> ContractAddress {
 ///
 /// * `ContractAddress` - The address of the deployed role store contract.
 fn deploy_role_store() -> ContractAddress {
-    let contract = declare('RoleStore');
+    let contract = declare("RoleStore").unwrap();
     let caller_address: ContractAddress = contract_address_const::<'caller'>();
     let deployed_contract_address: ContractAddress = contract_address_const::<'role_store'>();
-    start_prank(deployed_contract_address, caller_address);
+    start_cheat_caller_address(deployed_contract_address, caller_address);
     contract.deploy_at(@array![caller_address.into()], deployed_contract_address).unwrap()
 }
 
@@ -508,5 +508,5 @@ fn given_caller_not_controller_when_remove_withdrawal_then_fails() {
 ///
 /// * `data_store_address` - The address of the data store contract.
 fn teardown(data_store_address: ContractAddress) {
-    stop_prank(data_store_address);
+    stop_cheat_caller_address(data_store_address);
 }

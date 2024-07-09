@@ -197,7 +197,7 @@ fn test_i128_division_by_zero() {
     i128::i128_new(12, true) / i128::i128_new(0, false);
 }
 
-// Mul 
+// Mul
 #[test]
 fn test_i128_multiplication() {
     assert(
@@ -252,7 +252,7 @@ fn test_i128_multiplication_by_zero() {
 // }
 
 // fn deploy() -> ITestI128StorageDispatcher {
-//     let contract = declare('test_i128_storage_contract');
+//     let contract = declare("test_i128_storage_contract").unwrap();
 //     let contract_address = contract.deploy(@array![]).unwrap();
 //     ITestI128StorageDispatcher { contract_address }
 // }
