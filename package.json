@@ -1,6 +1,7 @@
 {
     "scripts": {
         "deploy-app": "jiti ./scripts/app/deployApp.ts",
+        "get-abis": "jiti ./scripts/app/getAbis.ts",
         "typecheck": "tsc --noEmit"
     },
     "type": "module",
