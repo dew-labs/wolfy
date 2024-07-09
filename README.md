@@ -46,7 +46,7 @@ scarb build
 
 ## Satoru compatible frontends
 
-You can find the list of Satoru-compatible frontends, all of which have been built on top of the Satoru platform : 
+You can find the list of Satoru-compatible frontends, all of which have been built on top of the Satoru platform :
 
 - [Zohal](https://github.com/Zohal-Starknet/zohal-interface)
 
@@ -75,9 +75,7 @@ To deploy the contracts of Satoru, you first need to setup a smart wallet :
 Once your smart wallet is setup, you can now run deployment files to deploy contracts, for example :
 
 ```bash
-cd scripts
-
-./deploy_contract.sh
+pnpm deploy-app
 ```
 
 ## Deployed Contracts
