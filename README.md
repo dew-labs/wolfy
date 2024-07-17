@@ -39,7 +39,8 @@ Setup a starknet account: [Guide](https://docs.starknet.io/quick-start/set-up-an
 Prepare `.env` based on `.env.example`
 
 ```sh
-pnpm deploy
+pnpm deploy-app
+pnpm deploy-app > output.txt
 ```
 
 ## Deployed Contracts
