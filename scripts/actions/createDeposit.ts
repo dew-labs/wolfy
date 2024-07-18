@@ -1,6 +1,6 @@
-import { Account, Contract, RpcProvider, shortString, uint256, ec } from "starknet";
+import { Contract, uint256 } from "starknet";
 import dotenv from "dotenv";
-import { ensureDeployed, ensureRole, getCompiledSierra, settingUp } from "../utils";
+import { ensureDeployed, getCompiledSierra, settingUp } from "../utils";
 
 dotenv.config();
 
@@ -30,7 +30,8 @@ async function create_deposit() {
     const usdcContract = new Contract(compiledERC20SierraAbi, usdc.address, account0);
     const zEthContract = new Contract(compiledERC20SierraAbi, zEth.address, account0);
 
-    // Mint zETH to deposit vault
+    // Mint zETH to deposit vault, can comment if already minted
+    console.log("Mint zETH to deposit vault");
     const transferCall = zEthContract.populate("mint", [
         depositVaultAddress,
         uint256.bnToUint256(50000000000000000000000000000n),
@@ -38,7 +39,8 @@ async function create_deposit() {
     const transferTx = await zEthContract.mint(transferCall.calldata);
     await account0.waitForTransaction(transferTx.transaction_hash);
 
-    // Mint USDC to deposit vault
+    // Mint USDC to deposit vault, can comment if already minted
+    console.log("Mint USDC to deposit vault");
     const transferUSDCCall2 = usdcContract.populate("mint", [
         depositVaultAddress,
         uint256.bnToUint256(50000000000000000000000000000n),
@@ -50,9 +52,13 @@ async function create_deposit() {
     const oracleContract = new Contract(abiOracle, oracleAddress, account0);
 
     // Set primary price of zETH in oracle
+    console.log("Set primary price of zETH in oracle");
     const setPrimaryPriceCall1 = oracleContract.populate("set_primary_price", [
         zEthContract.address,
-        uint256.bnToUint256(5000n),
+        {
+            min: uint256.bnToUint256(5000n),
+            max: uint256.bnToUint256(5000n),
+        },
     ]);
     const setPrimaryPriceTx1 = await oracleContract.set_primary_price(
         setPrimaryPriceCall1.calldata
@@ -60,9 +66,13 @@ async function create_deposit() {
     await account0.waitForTransaction(setPrimaryPriceTx1.transaction_hash);
 
     // Set primary price of USDC in oracle
+    console.log("Set primary price of USDC in oracle");
     const setPrimaryPriceCall2 = oracleContract.populate("set_primary_price", [
         usdcContract.address,
-        uint256.bnToUint256(1n),
+        {
+            min: uint256.bnToUint256(1n),
+            max: uint256.bnToUint256(1n),
+        },
     ]);
     const setPrimaryPriceTx2 = await oracleContract.set_primary_price(
         setPrimaryPriceCall2.calldata
