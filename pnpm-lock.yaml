@@ -18,8 +18,8 @@ importers:
         specifier: ^1.21.6
         version: 1.21.6
       starknet:
-        specifier: ^6.11.0
-        version: 6.11.0
+        specifier: ^7.0.0
+        version: 7.0.0
       typescript:
         specifier: ^5.5.3
         version: 5.5.3
@@ -109,9 +109,6 @@ packages:
     resolution: {integrity: sha512-DyFP3BM/3YHTQOCUL/w0OZHR0lpKeGrxotcHWcqNEdnltqFwXVfhEBQ94eIo34AfQpo0rGki4cyIiftY06h2Fg==}
     engines: {node: 6.* || 8.* || >= 10.*}
 
-  get-starknet-core@4.0.0:
-    resolution: {integrity: sha512-6pLmidQZkC3wZsrHY99grQHoGpuuXqkbSP65F8ov1/JsEI8DDLkhsAuLCKFzNOK56cJp+f1bWWfTJ57e9r5eqQ==}
-
   graceful-fs@4.2.11:
     resolution: {integrity: sha512-RbJ5/jmFcNNCcDV5o9eTnBLJ/HszWV0P73bc+Ff4nS/rJj+YaS6IGyiOL0VoBYX+l1Wrl3k63h/KrH+nhJ0XvQ==}
 
@@ -167,8 +164,8 @@ packages:
   set-cookie-parser@2.6.0:
     resolution: {integrity: sha512-RVnVQxTXuerk653XfuliOxBP81Sf0+qfQE73LIYKcyMYHG94AuH0kgrQpRDuTZnSmjpysHmzxJXKNfa6PjFhyQ==}
 
-  starknet@6.11.0:
-    resolution: {integrity: sha512-u50KrGDi9fbu1Ogu7ynwF/tSeFlp3mzOg1/Y5x50tYFICImo3OfY4lOz9OtYDk404HK4eUujKkhov9tG7GAKlg==}
+  starknet@7.0.0:
+    resolution: {integrity: sha512-TF4OhkouJuTvSniATB+rxjsiuaicjb5IPPwc2NhcYfIVM6FA+eNnacE9o54IFUNh7CAvltjfDqyvEXM99VIBpA==}
 
   string-width@4.2.3:
     resolution: {integrity: sha512-wKyQRQpjJ0sIp62ErSZdGsjMJWsap5oRNihHhu6G7JVO/9jIB6UyevL+tXuOqrng8j/cxKTWyWUwvSTriiZz/g==}
@@ -315,10 +312,6 @@ snapshots:
 
   get-caller-file@2.0.5: {}
 
-  get-starknet-core@4.0.0:
-    dependencies:
-      '@starknet-io/types-js': 0.7.7
-
   graceful-fs@4.2.11: {}
 
   is-fullwidth-code-point@3.0.0: {}
@@ -362,7 +355,7 @@ snapshots:
 
   set-cookie-parser@2.6.0: {}
 
-  starknet@6.11.0:
+  starknet@7.0.0:
     dependencies:
       '@noble/curves': 1.4.2
       '@noble/hashes': 1.4.0
@@ -370,7 +363,6 @@ snapshots:
       '@scure/starknet': 1.0.0
       abi-wan-kanabi: 2.2.2
       fetch-cookie: 3.0.1
-      get-starknet-core: 4.0.0
       isomorphic-fetch: 3.0.0
       lossless-json: 4.0.1
       pako: 2.1.0

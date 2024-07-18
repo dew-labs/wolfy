@@ -1,7 +1,12 @@
 {
     "scripts": {
+        "verify": "pnpm dlx starkscan",
         "deploy-app": "jiti ./scripts/app/deployApp.ts",
+        "action:createMarket": "jiti ./scripts/actions/createMarket.ts",
+        "action:createDeposit": "jiti ./scripts/actions/createDeposit.ts",
         "get-abis": "jiti ./scripts/app/getAbis.ts",
+        "get-class-hashes": "jiti ./scripts/app/getClassHashes.ts",
+        "test": "jiti ./scripts/test.ts",
         "typecheck": "tsc --noEmit"
     },
     "type": "module",
@@ -9,7 +14,7 @@
         "@types/node": "^20.14.10",
         "dotenv": "^16.4.5",
         "jiti": "^1.21.6",
-        "starknet": "^6.11.0",
+        "starknet": "^7.0.0",
         "typescript": "^5.5.3"
     },
     "packageManager": "pnpm@9.5.0+sha512.140036830124618d624a2187b50d04289d5a087f326c9edfc0ccd733d76c4f52c3a313d4fc148794a2a9d81553016004e6742e8cf850670268a7387fc220c903"
