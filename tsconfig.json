@@ -7,12 +7,7 @@
         "moduleResolution": "bundler",
         "resolveJsonModule": true,
         "allowImportingTsExtensions": true,
-        "lib": [
-            "ESNext",
-            "DOM",
-            "DOM.Iterable",
-            "WebWorker"
-        ],
+        "lib": ["ESNext", "DOM", "DOM.Iterable", "WebWorker"],
         "useDefineForClassFields": true, // https://vitejs.dev/guide/features.html#usedefineforclassfields
         // Interop constraints
         "isolatedModules": true,
@@ -51,11 +46,9 @@
         // because the full non-relative path would be longer.
         "baseUrl": ".",
         "paths": {
-            "@/*": [
-                "./src/*"
-            ],
+            "@/*": ["./src/*"]
         },
-        "types": []
+        "types": ["node"]
     },
     "exclude": [
         "node_modules/*"

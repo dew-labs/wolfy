@@ -1,3 +1,4 @@
+import { getCompiledSierra, getContracts, settingUp } from "../../utils";
 import {
     Account,
     Contract,
@@ -10,62 +11,46 @@ import {
     CairoCustomEnum,
     ec,
 } from "starknet";
-import fs from "fs";
-import dotenv from "dotenv";
-
-dotenv.config();
 
 async function create_market() {
-    // connect provider
-    const providerUrl = process.env.PROVIDER_URL;
-    const provider = new RpcProvider({ nodeUrl: providerUrl! });
-    // connect your account. To adapt to your own account :
-    const privateKey0: string = process.env.ACCOUNT_PRIVATE as string;
-    const account0Address: string = process.env.ACCOUNT_PUBLIC as string;
+    const { account } = await settingUp();
+    const contracts = getContracts();
+
     const marketTokenAddress = "0x4b3bd2fe7f3dd02a6a143a3040ede80048388e0cf1c20dc748d6a6d6fa93069";
     const eth: string = "0x75acffcc1c3661fe1cfbb6d2c444355ef01e85a40e65962a4d9a2ac38903934";
     const usdc: string = "0x70d22d4962de09d9ec0a590e9ff33a496425277235890575457f9582d837964";
 
-    const account0 = new Account(provider, account0Address!, privateKey0!);
-    console.log("Interacting with Account: " + account0Address);
-
-    const compiledOrderHandlerSierra = json.parse(
-        fs.readFileSync("./target/dev/satoru_OrderHandler.contract_class.json").toString("ascii")
-    );
+    const compiledOrderHandlerSierra = getCompiledSierra("OrderHandler");
 
     const orderHandlerContract = new Contract(
         compiledOrderHandlerSierra.abi,
-        process.env.ORDER_HANDLER as string,
-        provider
+        contracts.ORDER_HANDLER as string,
+        account
     );
 
-    const compiledRoleStoreSierra = json.parse(
-        fs.readFileSync("./target/dev/satoru_RoleStore.contract_class.json").toString("ascii")
-    );
+    const compiledRoleStoreSierra = getCompiledSierra("RoleStore");
     const roleStoreContract = new Contract(
         compiledRoleStoreSierra.abi,
-        process.env.ROLE_STORE as string,
-        provider
+        contracts.ROLE_STORE as string,
+        account
     );
-    roleStoreContract.connect(account0);
 
     console.log("Granting roles...");
     const roleCall2 = roleStoreContract.populate("grant_role", [
-        account0Address as string,
+        account.address as string,
         shortString.encodeShortString("ORDER_KEEPER"),
     ]);
     const grant_role_tx2 = await roleStoreContract.grant_role(roleCall2.calldata);
-    await provider.waitForTransaction(grant_role_tx2.transaction_hash);
+    await account.waitForTransaction(grant_role_tx2.transaction_hash);
     const roleCall3 = roleStoreContract.populate("grant_role", [
         "0x04b79329e9b295a50a27533d52484e0e3eb36a7f3303274745b6fe0e5dce7cc3" as string,
         shortString.encodeShortString("CONTROLLER"),
     ]);
     const grant_role_tx3 = await roleStoreContract.grant_role(roleCall3.calldata);
-    await provider.waitForTransaction(grant_role_tx3.transaction_hash);
+    await account.waitForTransaction(grant_role_tx3.transaction_hash);
 
     console.log("Roles granted.");
 
-    orderHandlerContract.connect(account0);
     const setPricesParams = {
         signer_info: 1,
         tokens: [
@@ -87,12 +72,11 @@ async function create_market() {
         price_feed_tokens: [],
     };
 
-    orderHandlerContract.connect(account0);
     let key = "0x5dabb2c7c283c2b4759e3e8e38131a9f825decf26bd73a2e720c02222fa3c2f";
     const executeOrderCall = orderHandlerContract.populate("execute_order_keeper", [
         key,
         setPricesParams,
-        account0Address,
+        account.address,
     ]);
     let tx = await orderHandlerContract.execute_order_keeper(executeOrderCall.calldata);
 }

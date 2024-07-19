@@ -1,3 +1,4 @@
+import { getCompiledSierra, getContracts, settingUp } from "../../utils";
 import {
     Account,
     Contract,
@@ -10,56 +11,38 @@ import {
     CairoCustomEnum,
     ec,
 } from "starknet";
-import fs from "fs";
-import dotenv from "dotenv";
-
-dotenv.config();
 
 async function create_market() {
-    // connect provider
-    const providerUrl = process.env.PROVIDER_URL;
-    const provider = new RpcProvider({ nodeUrl: providerUrl! });
-    // connect your account. To adapt to your own account :
-    const privateKey0: string = process.env.ACCOUNT_PRIVATE as string;
-    const account0Address: string = process.env.ACCOUNT_PUBLIC as string;
+    const { account } = await settingUp();
+    const contracts = getContracts();
+
     const marketTokenAddress = "0x4b3bd2fe7f3dd02a6a143a3040ede80048388e0cf1c20dc748d6a6d6fa93069";
     const eth: string = "0x75acffcc1c3661fe1cfbb6d2c444355ef01e85a40e65962a4d9a2ac38903934";
     const usdc: string = "0x70d22d4962de09d9ec0a590e9ff33a496425277235890575457f9582d837964";
 
-    const account0 = new Account(provider, account0Address!, privateKey0!);
-    console.log("Interacting with Account: " + account0Address);
-
-    const compiledOrderHandlerSierra = json.parse(
-        fs.readFileSync("./target/dev/satoru_OrderHandler.contract_class.json").toString("ascii")
-    );
+    const compiledOrderHandlerSierra = getCompiledSierra("OrderHandler");
 
     const orderHandlerContract = new Contract(
         compiledOrderHandlerSierra.abi,
-        process.env.ORDER_HANDLER as string,
-        provider
+        contracts.ORDER_HANDLER as string,
+        account
     );
-    const compiledERC20Sierra = json.parse(
-        fs.readFileSync("./target/dev/satoru_ERC20.contract_class.json").toString("ascii")
-    );
+    const compiledERC20Sierra = getCompiledSierra("ERC20");
 
-    const ethContract = new Contract(compiledERC20Sierra.abi, eth as string, provider);
-    ethContract.connect(account0);
+    const ethContract = new Contract(compiledERC20Sierra.abi, eth as string, account);
     const transferCall = ethContract.populate("transfer", [
-        process.env.ORDER_VAULT as string,
+        contracts.ORDER_VAULT as string,
         uint256.bnToUint256(1000000000000000000n),
     ]);
     const transferTx = await ethContract.transfer(transferCall.calldata);
-    await provider.waitForTransaction(transferTx.transaction_hash);
+    await account.waitForTransaction(transferTx.transaction_hash);
 
-    const compiledRoleStoreSierra = json.parse(
-        fs.readFileSync("./target/dev/satoru_RoleStore.contract_class.json").toString("ascii")
-    );
+    const compiledRoleStoreSierra = getCompiledSierra("RoleStore");
     const roleStoreContract = new Contract(
         compiledRoleStoreSierra.abi,
-        process.env.ROLE_STORE as string,
-        provider
+        contracts.ROLE_STORE as string,
+        account
     );
-    roleStoreContract.connect(account0);
 
     console.log("Granting roles...");
     const roleCall2 = roleStoreContract.populate("grant_role", [
@@ -67,12 +50,11 @@ async function create_market() {
         shortString.encodeShortString("CONTROLLER"),
     ]);
     const grant_role_tx2 = await roleStoreContract.grant_role(roleCall2.calldata);
-    await provider.waitForTransaction(grant_role_tx2.transaction_hash);
+    await account.waitForTransaction(grant_role_tx2.transaction_hash);
     console.log("Roles granted.");
 
-    orderHandlerContract.connect(account0);
     const createOrderParams = {
-        receiver: account0.address,
+        receiver: account.address,
         callback_contract: 0,
         ui_fee_receiver: 0,
         market: 0,
@@ -91,11 +73,11 @@ async function create_market() {
         referral_code: 0,
     };
     const createOrderCall = orderHandlerContract.populate("create_order", [
-        account0.address,
+        account.address,
         createOrderParams,
     ]);
     const createOrderTx = await orderHandlerContract.create_order(createOrderCall.calldata);
-    await provider.waitForTransaction(createOrderTx.transaction_hash);
+    await account.waitForTransaction(createOrderTx.transaction_hash);
     console.log("Order created.");
 }
 

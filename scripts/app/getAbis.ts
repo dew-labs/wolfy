@@ -1,5 +1,5 @@
 import { json } from "starknet"
-import fs from 'fs'
+import fs from "node:fs";
 
 const CONTRACTS = [
     ["RoleStore", "./target/dev/satoru_RoleStore.contract_class.json"],
@@ -21,16 +21,16 @@ const CONTRACTS = [
     ["Reader", "./target/dev/satoru_Reader.contract_class.json"],
     ["Router", "./target/dev/satoru_Router.contract_class.json"],
     ["ExchangeRouter", "./target/dev/satoru_ExchangeRouter.contract_class.json"],
-]
+];
 
 function getAbis() {
     CONTRACTS.forEach(([name, path]) => {
-        const compiledSierra = json.parse(fs.readFileSync( path).toString( "ascii"))
-        const abiContent = JSON.stringify(compiledSierra.abi)
-        fs.writeFileSync(`${__dirname}/../../artifacts/${name}Abi.json`, abiContent,{ flag: 'w' })
-        const tsContent = `const ${name}ABI=${abiContent} as const;export default ${name}ABI`
-        fs.writeFileSync(`${__dirname}/../../artifacts/${name}ABI.ts`, tsContent,{ flag: 'w' })
-    })
+        const compiledSierra = json.parse(fs.readFileSync(path).toString("ascii"));
+        const abiContent = JSON.stringify(compiledSierra.abi);
+        fs.writeFileSync(`${__dirname}/../../artifacts/${name}Abi.json`, abiContent, { flag: "w" });
+        const tsContent = `const ${name}ABI=${abiContent} as const;export default ${name}ABI`;
+        fs.writeFileSync(`${__dirname}/../../artifacts/${name}ABI.ts`, tsContent, { flag: "w" });
+    });
 }
 
 getAbis()

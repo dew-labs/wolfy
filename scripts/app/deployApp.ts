@@ -1,77 +1,77 @@
 import { Contract } from "starknet";
-
-import dotenv from "dotenv";
-import { ensureDeclared, ensureDeployed, ensureRole, settingUp } from "../utils";
-
-dotenv.config();
+import {
+    ensureDeclared,
+    ensureDeployed,
+    ensureRole,
+    getContracts,
+    getPragmaContract,
+    settingUp,
+} from "../utils";
 
 async function deploy() {
-    const account0 = await settingUp();
+    const { account } = await settingUp();
+
+    const contracts = getContracts();
 
     // -------------------------------------------------------------------------
 
     const roleStore = await ensureDeployed(
-        account0,
-        process.env.ROLE_STORE,
+        account,
+        contracts.ROLE_STORE,
         "RoleStore",
-        { admin: account0.address },
+        { admin: account.address },
         true
     );
 
     // -------------------------------------------------------------------------
 
-    const dataStore = await ensureDeployed(account0, process.env.DATA_STORE, "DataStore", {
+    const dataStore = await ensureDeployed(account, contracts.DATA_STORE, "DataStore", {
         role_store_address: roleStore.address,
     });
 
     // -------------------------------------------------------------------------
 
-    const roleStoreContract = new Contract(roleStore.abi, roleStore.address, account0);
+    const roleStoreContract = new Contract(roleStore.abi, roleStore.address, account);
 
-    await ensureRole(roleStoreContract, "Account0", account0.address, "CONTROLLER");
-
-    // -------------------------------------------------------------------------
-
-    const eventEmitter = await ensureDeployed(
-        account0,
-        process.env.EVENT_EMITTER,
-        "EventEmitter",
-        {}
-    );
+    await ensureRole(roleStoreContract, "Account0", account.address, "CONTROLLER");
 
     // -------------------------------------------------------------------------
 
-    const oracleStore = await ensureDeployed(account0, process.env.ORACLE_STORE, "OracleStore", {
+    const eventEmitter = await ensureDeployed(account, contracts.EVENT_EMITTER, "EventEmitter", {});
+
+    // -------------------------------------------------------------------------
+
+    const oracleStore = await ensureDeployed(account, contracts.ORACLE_STORE, "OracleStore", {
         role_store_address: roleStore.address,
         event_emitter_address: eventEmitter.address,
     });
 
     // -------------------------------------------------------------------------
 
-    const oracle = await ensureDeployed(account0, process.env.ORACLE, "Oracle", {
+    const oracle = await ensureDeployed(account, contracts.ORACLE, "Oracle", {
         role_store_address: roleStore.address,
         oracle_store_address: oracleStore.address,
-        pragma_address: account0.address,
+        pragma_address: getPragmaContract(),
     });
 
     // -------------------------------------------------------------------------
 
-    const orderVault = await ensureDeployed(account0, process.env.ORDER_VAULT, "OrderVault", {
+    const orderVault = await ensureDeployed(account, contracts.ORDER_VAULT, "OrderVault", {
         data_store_address: dataStore.address,
         role_store_address: roleStore.address,
     });
 
     // -------------------------------------------------------------------------
 
-    const swapHandler = await ensureDeployed(account0, process.env.SWAP_HANDLER, "SwapHandler", {
+    const swapHandler = await ensureDeployed(account, contracts.SWAP_HANDLER, "SwapHandler", {
         role_store_address: roleStore.address,
     });
 
     // -------------------------------------------------------------------------
 
     const referralStorage = await ensureDeployed(
-        account0,
-        process.env.REFERRAL_STORAGE,
+        account,
+        contracts.REFERRAL_STORAGE,
         "ReferralStorage",
         {
             event_emitter_address: eventEmitter.address,
@@ -81,8 +81,8 @@ async function deploy() {
     // -------------------------------------------------------------------------
 
     const increaseOrderUtils = await ensureDeployed(
-        account0,
-        process.env.INCREASE_ORDER_UTILS,
+        account,
+        contracts.INCREASE_ORDER_UTILS,
         "IncreaseOrderUtils",
         {},
         true
@@ -91,8 +91,8 @@ async function deploy() {
     // -------------------------------------------------------------------------
 
     const decreaseOrderUtils = await ensureDeployed(
-        account0,
-        process.env.DECREASE_ORDER_UTILS,
+        account,
+        contracts.DECREASE_ORDER_UTILS,
         "DecreaseOrderUtils",
         {},
         true
@@ -101,8 +101,8 @@ async function deploy() {
     // -------------------------------------------------------------------------
 
     const swapOrderUtils = await ensureDeployed(
-        account0,
-        process.env.SWAP_ORDER_UTILS,
+        account,
+        contracts.SWAP_ORDER_UTILS,
         "SwapOrderUtils",
         {},
         true
@@ -111,8 +111,8 @@ async function deploy() {
     // -------------------------------------------------------------------------
 
     const orderUtils = await ensureDeployed(
-        account0,
-        process.env.ORDER_UTILS,
+        account,
+        contracts.ORDER_UTILS,
         "OrderUtils",
         {
             increase_order_class_hash: increaseOrderUtils.address,
@@ -124,7 +124,7 @@ async function deploy() {
 
     // -------------------------------------------------------------------------
 
-    const orderHandler = await ensureDeployed(account0, process.env.ORDER_HANDLER, "OrderHandler", {
+    const orderHandler = await ensureDeployed(account, contracts.ORDER_HANDLER, "OrderHandler", {
         data_store_address: dataStore.address,
         role_store_address: roleStore.address,
         event_emitter_address: eventEmitter.address,
@@ -140,7 +140,7 @@ async function deploy() {
 
     // -------------------------------------------------------------------------
 
-    const depositVault = await ensureDeployed(account0, process.env.DEPOSIT_VAULT, "DepositVault", {
+    const depositVault = await ensureDeployed(account, contracts.DEPOSIT_VAULT, "DepositVault", {
         data_store_address: dataStore.address,
         role_store_address: roleStore.address,
     });
@@ -148,8 +148,8 @@ async function deploy() {
     // -------------------------------------------------------------------------
 
     const depositHandler = await ensureDeployed(
-        account0,
-        process.env.DEPOSIT_HANDLER,
+        account,
+        contracts.DEPOSIT_HANDLER,
         "DepositHandler",
         {
             data_store_address: dataStore.address,
@@ -163,8 +163,8 @@ async function deploy() {
     // -------------------------------------------------------------------------
 
     const withdrawalVault = await ensureDeployed(
-        account0,
-        process.env.WITHDRAWAL_VAULT,
+        account,
+        contracts.WITHDRAWAL_VAULT,
         "WithdrawalVault",
         {
             data_store_address: dataStore.address,
@@ -175,8 +175,8 @@ async function deploy() {
     // -------------------------------------------------------------------------
 
     const withdrawalHandler = await ensureDeployed(
-        account0,
-        process.env.WITHDRAWAL_HANDLER,
+        account,
+        contracts.WITHDRAWAL_HANDLER,
         "WithdrawalHandler",
         {
             data_store_address: dataStore.address,
@@ -189,37 +189,32 @@ async function deploy() {
 
     // -------------------------------------------------------------------------
 
-    const marketTokenClassHash = await ensureDeclared(account0, "MarketToken");
+    const marketTokenClassHash = await ensureDeclared(account, "MarketToken");
 
     // -------------------------------------------------------------------------
 
-    const marketFactory = await ensureDeployed(
-        account0,
-        process.env.MARKET_FACTORY,
-        "MarketFactory",
-        {
-            data_store_address: dataStore.address,
-            role_store_address: roleStore.address,
-            event_emitter_address: eventEmitter.address,
-            market_token_class_hash: marketTokenClassHash,
-        }
-    );
+    await ensureDeployed(account, contracts.MARKET_FACTORY, "MarketFactory", {
+        data_store_address: dataStore.address,
+        role_store_address: roleStore.address,
+        event_emitter_address: eventEmitter.address,
+        market_token_class_hash: marketTokenClassHash,
+    });
 
     // -------------------------------------------------------------------------
 
-    const reader = await ensureDeployed(account0, process.env.READER, "Reader", {});
+    await ensureDeployed(account, contracts.READER, "Reader", {});
 
     // -------------------------------------------------------------------------
 
-    const router = await ensureDeployed(account0, process.env.ROUTER, "Router", {
+    const router = await ensureDeployed(account, contracts.ROUTER, "Router", {
         role_store_address: roleStore.address,
     });
 
     // -------------------------------------------------------------------------
 
     const exchangeRouter = await ensureDeployed(
-        account0,
-        process.env.EXCHANGE_ROUTER,
+        account,
+        contracts.EXCHANGE_ROUTER,
         "ExchangeRouter",
         {
             router_address: router.address,
@@ -234,8 +229,8 @@ async function deploy() {
 
     // -------------------------------------------------------------------------
 
-    await ensureRole(roleStoreContract, "Account0", account0.address, "MARKET_KEEPER");
-    await ensureRole(roleStoreContract, "Account0", account0.address, "ORDER_KEEPER");
+    await ensureRole(roleStoreContract, "Account0", account.address, "MARKET_KEEPER");
+    await ensureRole(roleStoreContract, "Account0", account.address, "ORDER_KEEPER");
     await ensureRole(roleStoreContract, "OrderHandler", orderHandler.address, "CONTROLLER");
     await ensureRole(
         roleStoreContract,

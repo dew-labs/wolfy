@@ -13,7 +13,7 @@ import {
     type CompiledContract,
     RpcProvider,
 } from "starknet";
-import fs from "fs";
+import fs from "node:fs";
 
 export function pascalToUpperSnakeCase(pascalStr: string): string {
     return pascalStr
@@ -141,7 +141,7 @@ export async function ensureDeclared(account: Account, contractPath: string): Pr
         await account.waitForTransaction(declareResponse.transaction_hash);
         console.log(`${contractPath} declared.`);
     } catch (error) {
-        console.log("${contractPath} already declared.");
+        console.log(`${contractPath} already declared.`);
     }
     return getClassHashFromSierra(compiledSierra);
 }
@@ -173,5 +173,52 @@ export async function settingUp() {
     const resp = await account0.getSpecVersion();
     console.log("rpc version =", resp);
 
-    return account0;
+    return {
+        account: account0,
+        feeToken: process.env.FEE_TOKEN as string,
+    };
+}
+
+export function getPragmaContract() {
+    const net = process.env.NET;
+    switch (net) {
+        case "mainnet":
+            return "0x2a85bd616f912537c50a49a4076db02c00b29b2cdc8a197ce92ed1837fa875b";
+        case "sepolia":
+            return "0x36031daa264c24520b11d93af622c848b2499b66b41d611bac95e13cfca131a";
+        default:
+            throw new Error(`Unsupported network: ${net}`);
+    }
+}
+
+export function getContracts() {
+    const net = process.env.NET;
+    const contracts = JSON.parse(fs.readFileSync(`./contracts.${net}.json`).toString("ascii"));
+
+    return contracts as {
+        ROLE_STORE: string;
+        DATA_STORE: string;
+        EVENT_EMITTER: string;
+        ORACLE_STORE: string;
+        ORACLE: string;
+        ORDER_VAULT: string;
+        SWAP_HANDLER: string;
+        REFERRAL_STORAGE: string;
+        INCREASE_ORDER_UTILS: string;
+        DECREASE_ORDER_UTILS: string;
+        SWAP_ORDER_UTILS: string;
+        ORDER_UTILS: string;
+        ORDER_HANDLER: string;
+        DEPOSIT_VAULT: string;
+        DEPOSIT_HANDLER: string;
+        WITHDRAWAL_VAULT: string;
+        WITHDRAWAL_HANDLER: string;
+        MARKET_FACTORY: string;
+        READER: string;
+        ROUTER: string;
+        EXCHANGE_ROUTER: string;
+        USDC: string;
+        zETH: string;
+        MARKET_TOKEN: string;
+    };
 }
