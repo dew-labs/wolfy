@@ -19,8 +19,8 @@ pnpm install
 ## Test
 
 ```sh
-snforge test
-snforge test --ignored
+scarb test
+scarb test --ignored
 ```
 
 This will execute the tests in `tests` directory and print the results.

@@ -10,6 +10,10 @@ documentation = "https://keep-starknet-strange.github.io/satoru/"
 homepage = "https://keep-starknet-strange.github.io/satoru/"
 repository = "https://github.com/keep-starknet-strange/satoru"
 readme = "README.md"
+experimental-features = ["negative_impls"]
+
+[scripts]
+test = "snforge test"
 
 [[target.starknet-contract]]
 sierra = true
