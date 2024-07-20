@@ -8,13 +8,14 @@ use satoru::market::market_token::{IMarketTokenDispatcher, IMarketTokenDispatche
 use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
 use satoru::role::role;
 use satoru::market::market_utils;
+use satoru::test_utils::tests_lib;
 
 #[test]
 fn given_normal_conditions_when_mint_then_expected_results() {
     // *********************************************************************************************
     // *                              SETUP                                                        *
     // *********************************************************************************************
-    let (caller_address, role_store, market_token) = setup();
+    let (caller_address, _role_store, market_token) = setup();
 
     // *********************************************************************************************
     // *                              TEST LOGIC                                                   *
@@ -44,16 +45,31 @@ fn setup() -> (
     IRoleStoreDispatcher, // Interface to interact with the `MarketToken` contract.
     IMarketTokenDispatcher,
 ) {
-    let caller_address: ContractAddress = contract_address_const::<'caller'>();
-
-    // Deploy the role store contract.
-    let role_store_address = deploy_role_store();
-
-    // Create a role store dispatcher.
-    let role_store = IRoleStoreDispatcher { contract_address: role_store_address };
+    let (
+        caller_address,
+        _market_factory_address,
+        _role_store_address,
+        _data_store_address,
+        _market_token_class_hash,
+        _market_factory,
+        role_store,
+        _data_store,
+        _event_emitter,
+        _exchange_router,
+        _deposit_handler,
+        _deposit_vault,
+        _oracle,
+        _order_handler,
+        _order_vault,
+        _reader,
+        _referral_storage,
+        _withdrawal_handler,
+        _withdrawal_vault,
+        _liquidation_handler,
+    ) = tests_lib::setup();
 
     // Deploy the contract.
-    let market_token_address = deploy_market_token(role_store_address, 11111.try_into().unwrap());
+    let market_token_address = deploy_market_token(role_store.contract_address, 11111.try_into().unwrap());
     // Create a safe dispatcher to interact with the contract.
     let market_token = IMarketTokenDispatcher { contract_address: market_token_address };
 
@@ -80,18 +96,10 @@ fn teardown(market_token_address: ContractAddress) {
     stop_cheat_caller_address(market_token_address);
 }
 
-/// Utility function to deploy a market token and return its address.
 fn deploy_market_token(role_store_address: ContractAddress, data_store_address: ContractAddress) -> ContractAddress {
     let contract = declare("MarketToken").unwrap();
     let mut constructor_calldata = array![role_store_address.into(), data_store_address.into()];
 
-    contract.deploy(@constructor_calldata).unwrap()
-}
-
-fn deploy_role_store() -> ContractAddress {
-    let contract = declare("RoleStore").unwrap();
-    let caller_address: ContractAddress = contract_address_const::<'caller'>();
-    let deployed_contract_address = contract_address_const::<'role_store'>();
-    start_cheat_caller_address(deployed_contract_address, caller_address);
-    contract.deploy_at(@array![caller_address.into()], deployed_contract_address).unwrap()
+    let (contract_address, _) = contract.deploy(@constructor_calldata).unwrap();
+    contract_address
 }

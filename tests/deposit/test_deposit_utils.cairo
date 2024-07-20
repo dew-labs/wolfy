@@ -8,7 +8,7 @@ use satoru::chain::chain::{IChainDispatcher, IChainDispatcherTrait};
 use satoru::data::keys;
 use satoru::market::market::Market;
 use satoru::role::role;
-use satoru::tests_lib;
+use satoru::test_utils::tests_lib;
 use satoru::utils::span32::{Span32, Array32Trait};
 use satoru::deposit::{
     deposit::Deposit, deposit_utils::CreateDepositParams, deposit_utils::create_deposit, deposit_utils::cancel_deposit,
@@ -21,19 +21,19 @@ use snforge_std::{declare, start_cheat_caller_address, ContractClassTrait};
 
 #[test]
 fn given_normal_conditions_when_deposit_then_works() {
-    let (caller_address, data_store, event_emitter, deposit_vault, chain) = setup();
+    let (caller_address, data_store, role_store, event_emitter, deposit_vault, chain) = setup();
     let account: ContractAddress = 'account'.try_into().unwrap();
     let deposit_param = create_dummy_deposit_param();
-// let key = create_deposit(
-//     data_store, event_emitter, deposit_vault, account, deposit_param
-// );
+    let key = create_deposit(
+        data_store, event_emitter, deposit_vault, account, deposit_param
+    );
 }
 
 //TODO : Use this test when get_market function is implemented
 // #[test]
 // #[should_panic(expected: ('insufficient_execution_fee',))]
 // fn given_unsufficient_fee_token_amount_for_deposit_then_fails() {
-//     let (caller_address, data_store, event_emitter, deposit_vault, chain, role_store) = setup_role();
+//     let (caller_address, data_store, role_store, event_emitter, deposit_vault, chain) = setup();
 //     let account: ContractAddress = 'account'.try_into().unwrap();
 //     let deposit_param = create_dummy_deposit_param_market(data_store, role_store);
 //     let key = create_deposit(data_store, event_emitter, deposit_vault, account, deposit_param);
@@ -42,7 +42,7 @@ fn given_normal_conditions_when_deposit_then_works() {
 // #[test]
 // #[should_panic(expected: ('empty_deposit_amounts',))]
 // fn given_empty_deposit_amount_then_fails() {
-//     let (caller_address, data_store, event_emitter, deposit_vault, chain) = setup();
+//     let (caller_address, data_store, role_store, event_emitter, deposit_vault, chain) = setup();
 //     let account: ContractAddress = 'account'.try_into().unwrap();
 //     let deposit_param = create_dummy_deposit_param();
 //     let key = create_deposit(
@@ -52,7 +52,7 @@ fn given_normal_conditions_when_deposit_then_works() {
 
 #[test]
 fn given_normal_conditions_when_cancel_deposit_then_works() {
-    let (caller_address, data_store, event_emitter, deposit_vault, chain) = setup();
+    let (caller_address, data_store, role_store, event_emitter, deposit_vault, chain) = setup();
     let account: ContractAddress = 'account'.try_into().unwrap();
     let keeper: ContractAddress = 'keeper'.try_into().unwrap();
     let deposit_param = create_dummy_deposit_param();
@@ -60,13 +60,13 @@ fn given_normal_conditions_when_cancel_deposit_then_works() {
     let reason = 'key';
     let starting_gas = 2;
     let reason_bytes = array!['reason_bytes_1', 'reason_bytes_2',];
-// let key = create_deposit(
-//     data_store, event_emitter, deposit_vault, account, deposit_param
-// );
+    let key = create_deposit(
+        data_store, event_emitter, deposit_vault, account, deposit_param
+    );
 
-// cancel_deposit(
-//     data_store, event_emitter, deposit_vault, key, keeper, starting_gas, reason, reason_bytes
-// );
+    cancel_deposit(
+        data_store, event_emitter, deposit_vault, key, keeper, starting_gas, reason, reason_bytes
+    );
 }
 
 
@@ -78,46 +78,41 @@ fn given_normal_conditions_when_cancel_deposit_then_works() {
 /// * `IDataStoreDispatcher` - The data store dispatcher.
 /// * `IRoleStoreDispatcher` - The role store dispatcher.
 fn setup() -> (
-    ContractAddress, IDataStoreDispatcher, IEventEmitterDispatcher, IDepositVaultDispatcher, IChainDispatcher
+    ContractAddress, IDataStoreDispatcher, IRoleStoreDispatcher, IEventEmitterDispatcher, IDepositVaultDispatcher, IChainDispatcher
 ) {
-    let (caller_address, role_store, data_store) = tests_lib::setup();
-    let (_, event_emitter) = tests_lib::setup_event_emitter();
-    let deposit_vault_address = deploy_deposit_vault(data_store.contract_address, role_store.contract_address);
-    let deposit_vault = IDepositVaultDispatcher { contract_address: deposit_vault_address };
+    let (
+        caller_address,
+        _market_factory__address,
+        _role_store_address,
+        _data_store_address,
+        _market_token_class_hash,
+        _market_factory,
+        role_store,
+        data_store,
+        event_emitter,
+        _exchange_router,
+        _deposit_handler,
+        deposit_vault,
+        _oracle,
+        _order_handler,
+        _order_vault,
+        _reader,
+        _referal_storage,
+        _withdrawal_handler,
+        _withdrawal_vault,
+        _liquidation_handler
+    ) = tests_lib::setup();
 
     let chain_address = deploy_chain();
     let chain = IChainDispatcher { contract_address: chain_address };
-    (caller_address, data_store, event_emitter, deposit_vault, chain)
-}
-
-fn setup_role() -> (
-    ContractAddress,
-    IDataStoreDispatcher,
-    IEventEmitterDispatcher,
-    IDepositVaultDispatcher,
-    IChainDispatcher,
-    ContractAddress
-) {
-    let (caller_address, role_store, data_store) = tests_lib::setup();
-    let (_, event_emitter) = tests_lib::setup_event_emitter();
-    let deposit_vault_address = deploy_deposit_vault(data_store.contract_address, role_store.contract_address);
-    let deposit_vault = IDepositVaultDispatcher { contract_address: deposit_vault_address };
-
-    let chain_address = deploy_chain();
-    let chain = IChainDispatcher { contract_address: chain_address };
-    (caller_address, data_store, event_emitter, deposit_vault, chain, role_store.contract_address)
-}
-
-/// Utility function to deploy a `DepositVault` contract and return its dispatcher.
-fn deploy_deposit_vault(data_store_address: ContractAddress, role_store_address: ContractAddress) -> ContractAddress {
-    let contract = declare("DepositVault").unwrap();
-    contract.deploy(@array![data_store_address.into(), role_store_address.into()]).unwrap()
+    (caller_address, data_store, role_store, event_emitter, deposit_vault, chain)
 }
 
 /// Utility function to deploy a `Chain` contract and return its dispatcher.
 fn deploy_chain() -> ContractAddress {
     let contract = declare("Chain").unwrap();
-    contract.deploy(@array![]).unwrap()
+    let (contract_address, _) = contract.deploy(@array![]).unwrap();
+    contract_address
 }
 
 fn create_dummy_deposit_param() -> CreateDepositParams {
@@ -147,18 +142,12 @@ fn create_dummy_deposit_param() -> CreateDepositParams {
     }
 }
 
-fn deploy_data_store(role_store_address: ContractAddress) -> ContractAddress {
-    let contract = declare("DataStore").unwrap();
-    let constructor_calldata = array![role_store_address.into()];
-    contract.deploy(@constructor_calldata).unwrap()
-}
-
 fn create_dummy_deposit_param_market(
     data_store: IDataStoreDispatcher, role_store_address: ContractAddress
 ) -> CreateDepositParams {
     let key: ContractAddress = 12345.try_into().unwrap();
     let address_zero: ContractAddress = 42.try_into().unwrap();
-    let data_store_address = deploy_data_store(role_store_address);
+    let data_store_address = tests_lib::deploy_data_store(role_store_address);
     let role_store = IRoleStoreDispatcher { contract_address: role_store_address };
     let caller_address: ContractAddress = contract_address_const::<'caller'>();
     let mut market = Market {

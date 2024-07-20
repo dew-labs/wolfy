@@ -8,13 +8,14 @@ use snforge_std::{
 
 use satoru::data::keys;
 use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
+use satoru::market::market_factory::{IMarketFactoryDispatcher, IMarketFactoryDispatcherTrait};
 use satoru::exchange::exchange_utils::validate_request_cancellation;
-use satoru::tests_lib::{setup, teardown};
+use satoru::test_utils::tests_lib;
 
 #[test]
 fn given_exchange_utils_when_validate_request_cancellation_then_success() {
     // Setup
-    let (_, _, data_store) = setup();
+    let (data_store, market_factory) = setup();
     let contract_address = contract_address_const::<0>();
 
     // Test
@@ -30,14 +31,14 @@ fn given_exchange_utils_when_validate_request_cancellation_then_success() {
     validate_request_cancellation(data_store, created_at_block, 'SOME_REQUEST_TYPE');
 
     // Teardown
-    teardown(data_store.contract_address);
+    tests_lib::teardown(data_store, market_factory);
 }
 
 #[test]
 #[should_panic(expected: ('request_not_yet_cancellable', 'SOME_REQUEST_TYPE'))]
 fn given_exchange_utils_when_validate_request_cancellation_then_fails() {
     // Setup
-    let (_, _, data_store) = setup();
+    let (data_store, _) = setup();
     let contract_address = contract_address_const::<0>();
 
     // Test
@@ -48,4 +49,31 @@ fn given_exchange_utils_when_validate_request_cancellation_then_fails() {
     let created_at_block = block_number - 4;
 
     validate_request_cancellation(data_store, created_at_block, 'SOME_REQUEST_TYPE');
+}
+
+fn setup() -> (IDataStoreDispatcher, IMarketFactoryDispatcher) {
+    let (
+        _caller_address,
+        _market_factory__address,
+        _role_store_address,
+        _data_store_address,
+        _market_token_class_hash,
+        market_factory,
+        _role_store,
+        data_store,
+        _event_emitter,
+        _exchange_router,
+        _deposit_handler,
+        _deposit_vault,
+        _oracle,
+        _order_handler,
+        _order_vault,
+        _reader,
+        _referal_storage,
+        _withdrawal_handler,
+        _withdrawal_vault,
+        _liquidation_handler
+    ) = tests_lib::setup();
+
+    (data_store, market_factory)
 }

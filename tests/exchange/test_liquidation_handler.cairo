@@ -1,6 +1,6 @@
 use snforge_std::{
     declare, start_cheat_caller_address, stop_cheat_caller_address, start_cheat_block_number, ContractClassTrait,
-    ContractClass, PrintTrait
+    ContractClass
 };
 
 use satoru::exchange::liquidation_handler::{
@@ -22,7 +22,7 @@ use satoru::utils::span32::{Span32, Array32Trait};
 use satoru::position::{position::Position, position_utils::get_position_key};
 use satoru::liquidation::liquidation_utils::create_liquidation_order;
 use satoru::exchange::base_order_handler::{
-    IBaseOrderHandler, BaseOrderHandler::{event_emitterContractMemberStateTrait, data_storeContractMemberStateImpl}
+    IBaseOrderHandler, BaseOrderHandler::{event_emitterContractMemberStateTrait}
 };
 
 use satoru::event::event_emitter::{IEventEmitterDispatcher};
@@ -37,6 +37,8 @@ use satoru::utils::precision;
 use satoru::price::price::Price;
 use satoru::market::market::{Market};
 use satoru::nonce::nonce_utils;
+use satoru::test_utils::tests_lib;
+
 const max_u256: u256 = 340282366920938463463374607431768211455;
 
 
@@ -405,124 +407,11 @@ fn admin() -> ContractAddress {
     contract_address_const::<'caller'>()
 }
 
-
-fn deploy_data_store(role_store_address: ContractAddress) -> ContractAddress {
-    let contract = declare("DataStore").unwrap();
-
-    let deployed_contract_address = contract_address_const::<'data_store'>();
-    start_cheat_caller_address(deployed_contract_address, admin());
-    let constructor_calldata = array![role_store_address.into()];
-    contract.deploy_at(@constructor_calldata, deployed_contract_address).unwrap()
-}
-
-
-fn deploy_event_emitter() -> ContractAddress {
-    let contract = declare("EventEmitter").unwrap();
-
-    let deployed_contract_address = contract_address_const::<'event_emitter'>();
-    start_cheat_caller_address(deployed_contract_address, admin());
-    contract.deploy_at(@array![], deployed_contract_address).unwrap()
-}
-
-fn deploy_order_vault(data_store_address: ContractAddress, role_store_address: ContractAddress) -> ContractAddress {
-    let contract = declare("OrderVault").unwrap();
-
-    let deployed_contract_address = contract_address_const::<'order_vault'>();
-    start_cheat_caller_address(deployed_contract_address, admin());
-    contract
-        .deploy_at(@array![data_store_address.into(), role_store_address.into()], deployed_contract_address)
-        .unwrap()
-}
-
-fn deploy_liquidation_handler(
-    role_store_address: ContractAddress,
-    data_store_address: ContractAddress,
-    event_emitter_address: ContractAddress,
-    order_vault_address: ContractAddress,
-    swap_handler_address: ContractAddress,
-    oracle_address: ContractAddress,
-    ref_storage_address: ContractAddress
-) -> ContractAddress {
-    let contract = declare("LiquidationHandler").unwrap();
-
-    let deployed_contract_address = contract_address_const::<'liquidation_handler'>();
-    start_cheat_caller_address(deployed_contract_address, admin());
-    contract
-        .deploy_at(
-            @array![
-                data_store_address.into(),
-                role_store_address.into(),
-                event_emitter_address.into(),
-                order_vault_address.into(),
-                oracle_address.into(),
-                swap_handler_address.into(),
-                ref_storage_address.into()
-            ],
-            deployed_contract_address
-        )
-        .unwrap()
-}
-
-fn deploy_oracle(
-    role_store_address: ContractAddress, oracle_store_address: ContractAddress, pragma_address: ContractAddress
-) -> ContractAddress {
-    let contract = declare("Oracle").unwrap();
-
-    let deployed_contract_address = contract_address_const::<'oracle'>();
-    start_cheat_caller_address(deployed_contract_address, admin());
-    contract
-        .deploy_at(
-            @array![role_store_address.into(), oracle_store_address.into(), pragma_address.into()],
-            deployed_contract_address
-        )
-        .unwrap()
-}
-
-fn deploy_swap_handler(role_store_address: ContractAddress, data_store_address: ContractAddress) -> ContractAddress {
-    let contract = declare("SwapHandler").unwrap();
-
-    let deployed_contract_address = contract_address_const::<'swap_handler'>();
-    start_cheat_caller_address(deployed_contract_address, admin());
-    contract.deploy_at(@array![role_store_address.into()], deployed_contract_address).unwrap()
-}
-
-fn deploy_referral_storage(event_emitter: ContractAddress) -> ContractAddress {
-    let contract = declare("ReferralStorage").unwrap();
-    let deployed_contract_address = contract_address_const::<'referral_storage'>();
-    start_cheat_caller_address(deployed_contract_address, admin());
-    contract.deploy_at(@array![event_emitter.into()], deployed_contract_address).unwrap()
-}
-
-fn deploy_oracle_store(
-    role_store_address: ContractAddress, event_emitter_address: ContractAddress,
-) -> ContractAddress {
-    let contract = declare("OracleStore").unwrap();
-
-    let deployed_contract_address = contract_address_const::<'oracle_store'>();
-    start_cheat_caller_address(deployed_contract_address, admin());
-    contract
-        .deploy_at(@array![role_store_address.into(), event_emitter_address.into()], deployed_contract_address)
-        .unwrap()
-}
-
-
-fn deploy_role_store() -> ContractAddress {
-    let contract = declare("RoleStore").unwrap();
-    let deployed_contract_address: ContractAddress = contract_address_const::<'role_store'>();
-    start_cheat_caller_address(deployed_contract_address, admin());
-    contract.deploy_at(@array![admin().into()], deployed_contract_address).unwrap()
-}
-
-fn deploy_price_feed() -> ContractAddress {
-    let contract = declare("PriceFeed").unwrap();
-    let deployed_contract_address: ContractAddress = contract_address_const::<'price_feed'>();
-    start_cheat_caller_address(deployed_contract_address, admin());
-    contract.deploy_at(@array![], deployed_contract_address).unwrap()
-}
-
 fn deploy_signers(signer1: ContractAddress, signer2: ContractAddress) -> (ContractAddress, ContractAddress) {
     let contract = declare("MockAccount").unwrap();
-    (contract.deploy_at(@array![], signer1).unwrap(), contract.deploy_at(@array![], signer2).unwrap())
+    let (contract_address, _) = contract.deploy_at(@array![], signer1).unwrap();
+    let (contract_address2, _) = contract.deploy_at(@array![], signer2).unwrap();
+    (contract_address, contract_address2)
 }
 
 
@@ -531,15 +420,15 @@ fn setup_tokens() -> (ContractAddress, ContractAddress, ContractAddress) {
     let deployed_contract_address: ContractAddress = contract_address_const::<'USDC'>();
     let mut constructor_calldata = array!['USDC', 'USDC', 10000000000000000000000000000, 0, admin().into()];
 
-    let usdc_address = contract.deploy_at(@constructor_calldata, deployed_contract_address).unwrap();
+    let (usdc_address, _) = contract.deploy_at(@constructor_calldata, deployed_contract_address).unwrap();
 
     let deployed_contract_address2: ContractAddress = contract_address_const::<'ETH'>();
     let constructor_calldata2 = array!['ETH', 'ETH', 100000000000000000000000000000, 0, admin().into()];
-    let eth_address = contract.deploy_at(@constructor_calldata2, deployed_contract_address2).unwrap();
+    let (eth_address, _) = contract.deploy_at(@constructor_calldata2, deployed_contract_address2).unwrap();
 
     let deployed_contract_address3: ContractAddress = contract_address_const::<'FEE'>();
     let constructor_calldata3 = array!['FEE', 'FEE', 100000000000000000000000000000, 0, admin().into()];
-    let fee_address = contract.deploy_at(@constructor_calldata3, deployed_contract_address3).unwrap();
+    let (fee_address, _) = contract.deploy_at(@constructor_calldata3, deployed_contract_address3).unwrap();
 
     (usdc_address, eth_address, fee_address)
 }
@@ -556,46 +445,43 @@ fn _setup() -> (
     IAccountDispatcher,
     IAccountDispatcher
 ) {
-    let liquidation_keeper: ContractAddress = 0x2233.try_into().unwrap();
-    let role_store_address = deploy_role_store();
-    let role_store = IRoleStoreDispatcher { contract_address: role_store_address };
-
-    let data_store_address = deploy_data_store(role_store_address);
-    let data_store = IDataStoreDispatcher { contract_address: data_store_address };
-    let event_emitter_address = deploy_event_emitter();
-    let event_emitter = IEventEmitterDispatcher { contract_address: event_emitter_address };
-    let order_vault_address = deploy_order_vault(data_store_address, role_store_address);
-    let swap_handler_address = deploy_swap_handler(role_store_address, data_store_address);
-    let oracle_store_address = deploy_oracle_store(role_store_address, event_emitter_address);
-    let price_feed = deploy_price_feed();
-    let oracle_address = deploy_oracle(role_store_address, oracle_store_address, price_feed);
-
-    let ref_storage_address = deploy_referral_storage(event_emitter_address);
-    let liquidation_handler_address = deploy_liquidation_handler(
+    let (
+        _caller_address,
+        _market_factory_address,
         role_store_address,
         data_store_address,
-        event_emitter_address,
-        order_vault_address,
-        swap_handler_address,
-        oracle_address,
-        ref_storage_address
-    );
-    let liquidation_handler_dispatcher = ILiquidationHandlerDispatcher {
-        contract_address: liquidation_handler_address
-    };
+        _market_token_class_hash,
+        _market_factory,
+        role_store,
+        data_store,
+        event_emitter,
+        _exchange_router,
+        _deposit_handler,
+        _deposit_vault,
+        oracle,
+        _order_handler,
+        _order_vault,
+        _reader,
+        _referral_storage,
+        _withdrawal_handler,
+        _withdrawal_vault,
+        liquidation_handler,
+    ) = tests_lib::setup();
 
-    let oracle_store = IOracleStoreDispatcher { contract_address: oracle_store_address };
+    let liquidation_keeper: ContractAddress = 0x2233.try_into().unwrap();
 
     let (signer1, signer2) = deploy_signers(
         contract_address_const::<'signer1'>(), contract_address_const::<'signer2'>()
     );
+    let oracle_store_address = tests_lib::deploy_oracle_store(role_store_address, event_emitter.contract_address);
+    let oracle_store = IOracleStoreDispatcher { contract_address: oracle_store_address };
     start_cheat_caller_address(oracle_store_address, admin());
     oracle_store.add_signer(signer1);
     oracle_store.add_signer(signer2);
     stop_cheat_caller_address(oracle_store_address);
 
     start_cheat_caller_address(role_store.contract_address, admin());
-    role_store.grant_role(liquidation_handler_address, role::CONTROLLER);
+    role_store.grant_role(liquidation_handler.contract_address, role::CONTROLLER);
     role_store.grant_role(admin(), role::MARKET_KEEPER);
     role_store.grant_role(admin(), role::CONTROLLER);
     stop_cheat_caller_address(role_store.contract_address);
@@ -605,11 +491,11 @@ fn _setup() -> (
     (
         data_store,
         liquidation_keeper,
-        liquidation_handler_address,
-        liquidation_handler_dispatcher,
+        liquidation_handler.contract_address,
+        liquidation_handler,
         event_emitter,
         role_store,
-        IOracleDispatcher { contract_address: oracle_address },
+        oracle,
         IAccountDispatcher { contract_address: signer1 },
         IAccountDispatcher { contract_address: signer2 },
     )

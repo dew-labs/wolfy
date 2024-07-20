@@ -4,15 +4,15 @@ use starknet::{ContractAddress, get_caller_address, Felt252TryIntoContractAddres
 // Local imports.
 use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
 use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
+use satoru::market::market_factory::{IMarketFactoryDispatcher, IMarketFactoryDispatcherTrait};
 use satoru::event::event_emitter::{EventEmitter, IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
 use satoru::role::role;
 use satoru::order::order::{Order, OrderType, OrderTrait, DecreasePositionSwapType};
-use satoru::tests_lib::{setup, setup_event_emitter, setup_oracle_and_store, teardown};
+use satoru::test_utils::tests_lib;
 use satoru::position::position::{Position};
 
 use snforge_std::{
-    declare, start_cheat_caller_address, stop_cheat_caller_address, ContractClassTrait, spy_events, SpyOn, EventSpy,
-    EventFetcher, event_name_hash, Event, EventAssertions, start_mock_call
+    declare, start_cheat_caller_address, stop_cheat_caller_address, ContractClassTrait, spy_events, EventSpy, EventSpyAssertionsTrait, Event, EventSpyTrait, start_mock_call
 };
 use satoru::adl::adl_utils;
 use satoru::utils::i256::{i256, i256_new};
@@ -23,7 +23,7 @@ use satoru::oracle::oracle::{IOracleDispatcher, IOracleDispatcherTrait};
 #[test]
 fn given_normal_conditions_when_set_latest_adl_block_then_works() {
     // Setup
-    let (caller_address, role_store, data_store) = setup();
+    let (caller_address, role_store, data_store, market_factory, _, _) = setup();
     let market = 'market'.try_into().unwrap();
     let is_long = false;
 
@@ -51,14 +51,14 @@ fn given_normal_conditions_when_set_latest_adl_block_then_works() {
     let block_default = adl_utils::get_latest_adl_block(data_store, market, is_long2);
     assert(block_default == 0, 'Invalid lates_block4');
 
-    teardown(data_store.contract_address);
+    tests_lib::teardown(data_store, market_factory);
 }
 
 
 #[test]
 fn given_normal_conditions_when_set_adl_enabled_then_works() {
     // Setup
-    let (caller_address, role_store, data_store) = setup();
+    let (caller_address, role_store, data_store, market_factory, _, _) = setup();
     let market = 'market'.try_into().unwrap();
     let is_long = false;
 
@@ -73,7 +73,7 @@ fn given_normal_conditions_when_set_adl_enabled_then_works() {
     let is_enabled_after = adl_utils::get_is_adl_enabled(data_store, market, is_long);
     assert(is_enabled_after == enabled_value, 'Invalid enabled result2');
 
-    teardown(data_store.contract_address);
+    tests_lib::teardown(data_store, market_factory);
 }
 
 
@@ -81,13 +81,13 @@ fn given_normal_conditions_when_set_adl_enabled_then_works() {
 #[should_panic(expected: ('adl_not_enabled',))]
 fn given_not_enabled_condition_when_validate_adl_then_fails() {
     // Setup
-    let (caller_address, role_store, data_store) = setup();
+    let (caller_address, role_store, data_store, market_factory, _, _) = setup();
     let market = 'market'.try_into().unwrap();
     let block_numbers = array![10_u64, 8_u64];
     // Test logic
     adl_utils::validate_adl(data_store, market, false, block_numbers.span());
 
-    teardown(data_store.contract_address);
+    tests_lib::teardown(data_store, market_factory);
 }
 
 
@@ -95,7 +95,7 @@ fn given_not_enabled_condition_when_validate_adl_then_fails() {
 #[should_panic(expected: ('block_no_smaller_than_required',))]
 fn given_small_block_number_when_validate_adl_then_fails() {
     // Setup
-    let (caller_address, role_store, data_store) = setup();
+    let (caller_address, role_store, data_store, market_factory, _, _) = setup();
     let market = 'market'.try_into().unwrap();
     let is_long = false;
 
@@ -109,13 +109,13 @@ fn given_small_block_number_when_validate_adl_then_fails() {
     let block_numbers = array![10_u64, 11_u64];
     adl_utils::validate_adl(data_store, market, is_long, block_numbers.span());
 
-    teardown(data_store.contract_address);
+    tests_lib::teardown(data_store, market_factory);
 }
 
 #[test]
 fn given_normal_conditions_when_validate_adl_then_works() {
     // Setup
-    let (caller_address, role_store, data_store) = setup();
+    let (caller_address, role_store, data_store, market_factory, _, _) = setup();
     let market = 'market'.try_into().unwrap();
     let is_long = false;
 
@@ -129,15 +129,14 @@ fn given_normal_conditions_when_validate_adl_then_works() {
     let block_numbers = array![11111111_u64, 12111111_u64];
     adl_utils::validate_adl(data_store, market, is_long, block_numbers.span());
 
-    teardown(data_store.contract_address);
+    tests_lib::teardown(data_store, market_factory);
 }
 
 #[test]
 fn given_normal_conditions_when_emit_adl_state_updated_then_works() {
     // Setup
-    let (caller_address, role_store, data_store) = setup();
-    let (event_emitter_address, event_emitter) = setup_event_emitter();
-    let mut spy = spy_events(SpyOn::One(event_emitter_address));
+    let (caller_address, role_store, data_store, market_factory, event_emitter, _) = setup();
+    let mut spy = spy_events();
     let market: ContractAddress = 'market'.try_into().unwrap();
     let is_long = true;
     let pnl_to_pool_factor: i256 = i256_new(12345, false);
@@ -145,13 +144,12 @@ fn given_normal_conditions_when_emit_adl_state_updated_then_works() {
     let should_enable_adl: bool = true;
 
     // Emit event
-    start_cheat_caller_address(event_emitter_address, caller_address);
+    start_cheat_caller_address(event_emitter.contract_address, caller_address);
     adl_utils::emit_adl_state_updated(
         event_emitter, market, is_long, pnl_to_pool_factor, max_pnl_factor, should_enable_adl
     );
-    stop_cheat_caller_address(event_emitter_address);
-    spy.fetch_events(); // This throw error
-    assert(spy.events.len() == 1, 'There should be one event');
+    stop_cheat_caller_address(event_emitter.contract_address);
+    assert(spy.get_events().events.len() == 1, 'There should be one event');
     spy
         .assert_emitted(
             @array![
@@ -170,7 +168,7 @@ fn given_normal_conditions_when_emit_adl_state_updated_then_works() {
             ]
         );
 
-    teardown(data_store.contract_address);
+    tests_lib::teardown(data_store, market_factory);
 }
 
 
@@ -178,7 +176,7 @@ fn given_normal_conditions_when_emit_adl_state_updated_then_works() {
 #[should_panic(expected: ('block_no_smaller_than_required',))]
 fn given_small_block_number_when_update_adl_state_then_fails() {
     // Setup
-    let (caller_address, role_store, data_store, event_emitter, oracle) = setup_oracle_and_store();
+    let (caller_address, role_store, data_store, market_factory, event_emitter, oracle) = setup();
     let market = 'market'.try_into().unwrap();
     let is_long = false;
     let block_value = 1234_u64;
@@ -187,7 +185,7 @@ fn given_small_block_number_when_update_adl_state_then_fails() {
     let block_numbers = array![10_u64, 11_u64];
     adl_utils::update_adl_state(data_store, event_emitter, oracle, market, is_long, block_numbers.span());
 
-    teardown(data_store.contract_address);
+    tests_lib::teardown(data_store, market_factory);
 }
 
 
@@ -196,7 +194,7 @@ fn given_small_block_number_when_update_adl_state_then_fails() {
 fn given_non_valid_position_when_create_adl_order_then_fails() {
     // Setup
 
-    let (caller_address, role_store, data_store, event_emitter, oracle) = setup_oracle_and_store();
+    let (caller_address, role_store, data_store, market_factory, event_emitter, oracle) = setup();
     let accoun1 = 'accoun1'.try_into().unwrap();
     let market = 'market'.try_into().unwrap();
     let collateral_token = 'token'.try_into().unwrap();
@@ -216,7 +214,7 @@ fn given_non_valid_position_when_create_adl_order_then_fails() {
 
 #[test]
 fn given_normal_conditions_when_create_adl_order_then_works() { // Setup
-    let (caller_address, role_store, data_store, event_emitter, oracle) = setup_oracle_and_store();
+    let (caller_address, role_store, data_store, market_factory, event_emitter, oracle) = setup();
     // TODO
     // For testing "position_utils::get_position_key",  ".data_store.get_position" should be implmented
     let account1 = 'account1'.try_into().unwrap();
@@ -244,7 +242,7 @@ fn given_normal_conditions_when_create_adl_order_then_works() { // Setup
 #[test]
 fn given_normal_conditions_when_update_adl_state_then_works() {
     // Setup
-    let (caller_address, role_store, data_store, event_emitter, oracle) = setup_oracle_and_store();
+    let (caller_address, role_store, data_store, market_factory, event_emitter, oracle) = setup();
     // TODO
     // For testing "get_enabled_market",  "get_market_prices" and "is_pnl_factor_exceeded_direct" should be implmented
     let is_long = false;
@@ -277,6 +275,32 @@ fn given_normal_conditions_when_update_adl_state_then_works() {
 
     adl_utils::update_adl_state(data_store, event_emitter, oracle, market_token_address, is_long, block_numbers.span());
 
-    teardown(data_store.contract_address);
+    tests_lib::teardown(data_store, market_factory);
 }
 
+fn setup() -> (ContractAddress, IRoleStoreDispatcher, IDataStoreDispatcher, IMarketFactoryDispatcher, IEventEmitterDispatcher, IOracleDispatcher) {
+    let (
+        caller_address,
+        _market_factory__address,
+        _role_store_address,
+        _data_store_address,
+        _market_token_class_hash,
+        market_factory,
+        role_store,
+        data_store,
+        event_emitter,
+        _exchange_router,
+        _deposit_handler,
+        _deposit_vault,
+        oracle,
+        _order_handler,
+        _order_vault,
+        _reader,
+        _referal_storage,
+        _withdrawal_handler,
+        _withdrawal_vault,
+        _liquidation_handler
+    ) = tests_lib::setup();
+
+    (caller_address, role_store, data_store, market_factory, event_emitter, oracle)
+}

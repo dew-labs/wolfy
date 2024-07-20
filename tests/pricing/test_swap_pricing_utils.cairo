@@ -5,7 +5,7 @@ use satoru::pricing::swap_pricing_utils::{
 };
 use satoru::market::market::Market;
 use satoru::utils::calc;
-use satoru::tests_lib::{setup, teardown};
+use satoru::test_utils::tests_lib::{setup, teardown};
 use satoru::utils::i256::{i256, i256_new};
 
 #[test]
@@ -13,7 +13,28 @@ fn given_normal_conditions_when_swap_pricing_utils_functions_then_works() {
     // *********************************************************************************************
     // *                              SETUP                                                        *
     // *********************************************************************************************
-    let (_, _, data_store) = setup();
+    let (
+        _caller_address,
+        _market_factory__address,
+        _role_store_address,
+        _data_store_address,
+        _market_token_class_hash,
+        market_factory,
+        _role_store,
+        data_store,
+        _event_emitter,
+        _exchange_router,
+        _deposit_handler,
+        _deposit_vault,
+        _oracle,
+        _order_handler,
+        _order_vault,
+        _reader,
+        _referal_storage,
+        _withdrawal_handler,
+        _withdrawal_vault,
+        _liquidation_handler
+    ) = setup();
 
     let market_token = 'market_token'.try_into().unwrap();
     let index_token = 'index_token'.try_into().unwrap();
@@ -45,7 +66,7 @@ fn given_normal_conditions_when_swap_pricing_utils_functions_then_works() {
     // *********************************************************************************************
     // *                              TEARDOWN                                                     *
     // *********************************************************************************************
-    teardown(data_store.contract_address);
+    teardown(data_store, market_factory);
 }
 
 #[test]
@@ -53,7 +74,28 @@ fn given_normal_conditions_when_get_next_pool_amount_usd_then_works() {
     // *********************************************************************************************
     // *                              SETUP                                                        *
     // *********************************************************************************************
-    let (_, _, data_store) = setup();
+    let (
+        _caller_address,
+        _market_factory__address,
+        _role_store_address,
+        _data_store_address,
+        _market_token_class_hash,
+        market_factory,
+        _role_store,
+        data_store,
+        _event_emitter,
+        _exchange_router,
+        _deposit_handler,
+        _deposit_vault,
+        _oracle,
+        _order_handler,
+        _order_vault,
+        _reader,
+        _referal_storage,
+        _withdrawal_handler,
+        _withdrawal_vault,
+        _liquidation_handler
+    ) = setup();
 
     let market_token = 'market_token'.try_into().unwrap();
     let index_token = 'index_token'.try_into().unwrap();
@@ -90,7 +132,7 @@ fn given_normal_conditions_when_get_next_pool_amount_usd_then_works() {
     // *********************************************************************************************
     // *                              TEARDOWN                                                     *
     // *********************************************************************************************
-    teardown(data_store.contract_address);
+    teardown(data_store, market_factory);
 }
 
 #[test]
@@ -98,7 +140,28 @@ fn given_normal_conditions_when_get_swap_fees_then_works() {
     // *********************************************************************************************
     // *                              SETUP                                                        *
     // *********************************************************************************************
-    let (_, _, data_store) = setup();
+    let (
+        _caller_address,
+        _market_factory__address,
+        _role_store_address,
+        _data_store_address,
+        _market_token_class_hash,
+        market_factory,
+        _role_store,
+        data_store,
+        _event_emitter,
+        _exchange_router,
+        _deposit_handler,
+        _deposit_vault,
+        _oracle,
+        _order_handler,
+        _order_vault,
+        _reader,
+        _referal_storage,
+        _withdrawal_handler,
+        _withdrawal_vault,
+        _liquidation_handler
+    ) = setup();
 
     let market_token = 'market_token'.try_into().unwrap();
     let ui_fee_receiver = 'ui_fee_receiver'.try_into().unwrap();
@@ -125,5 +188,5 @@ fn given_normal_conditions_when_get_swap_fees_then_works() {
     // *********************************************************************************************
     // *                              TEARDOWN                                                     *
     // *********************************************************************************************
-    teardown(data_store.contract_address);
+    teardown(data_store, market_factory);
 }

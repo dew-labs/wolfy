@@ -38,11 +38,6 @@ fn given_normal_conditions_when_touch_then_expected_results() {
     //order.touch();
 
     //assert(order.updated_at_block == 42000, 'bad value');
-
-    // *********************************************************************************************
-    // *                              TEARDOWN                                                     *
-    // *********************************************************************************************
-    teardown();
 }
 
 fn create_dummy_order() -> Order {
@@ -77,7 +72,7 @@ fn create_dummy_order() -> Order {
 /// Utility function to setup the test environment.
 fn setup() -> ( // This caller address will be used with `start_cheat_caller_address` cheatcode to mock the caller address.,
     ContractAddress, // An interface to interact with `Chain` contract.
-     IChainDispatcher,
+    IChainDispatcher,
 ) {
     // Create a fake caller address.
     let caller_address = contract_address_const::<'caller'>();
@@ -85,12 +80,10 @@ fn setup() -> ( // This caller address will be used with `start_cheat_caller_add
 
     let contract = declare("Chain").unwrap();
     let constructor_arguments: @Array::<felt252> = @ArrayTrait::new();
-    let contract_address_chain = contract.deploy(constructor_arguments).unwrap();
+    let (contract_address_chain, _) = contract.deploy(constructor_arguments).unwrap();
 
     let chain = IChainDispatcher { contract_address: contract_address_chain };
     // Return the test environment.
     (caller_address, chain)
 }
 
-/// Utility function to teardown the test environment.
-fn teardown() {}

@@ -1,13 +1,34 @@
 use satoru::data::data_store::IDataStoreDispatcherTrait;
 use satoru::utils::global_reentrancy_guard::{non_reentrant_before, non_reentrant_after};
-use satoru::tests_lib::{setup, teardown};
+use satoru::test_utils::tests_lib::{setup, teardown};
 
 #[test]
 fn given_normal_conditions_when_non_reentrancy_before_and_after_then_works() {
     // *********************************************************************************************
     // *                              SETUP                                                        *
     // *********************************************************************************************
-    let (_, _, data_store) = setup();
+    let (
+        _caller_address,
+        _market_factory__address,
+        _role_store_address,
+        _data_store_address,
+        _market_token_class_hash,
+        _market_factory,
+        _role_store,
+        data_store,
+        _event_emitter,
+        _exchange_router,
+        _deposit_handler,
+        _deposit_vault,
+        _oracle,
+        _order_handler,
+        _order_vault,
+        _reader,
+        _referal_storage,
+        _withdrawal_handler,
+        _withdrawal_vault,
+        _liquidation_handler
+    ) = setup();
     // *********************************************************************************************
     // *                              TEST LOGIC                                                   *
     // *********************************************************************************************
@@ -38,7 +59,28 @@ fn given_reentrant_call_when_reentrancy_before_and_after_then_fails() {
     // *********************************************************************************************
     // *                              SETUP                                                        *
     // *********************************************************************************************
-    let (_, _, data_store) = setup();
+    let (
+        _caller_address,
+        _market_factory__address,
+        _role_store_address,
+        _data_store_address,
+        _market_token_class_hash,
+        _market_factory,
+        _role_store,
+        data_store,
+        _event_emitter,
+        _exchange_router,
+        _deposit_handler,
+        _deposit_vault,
+        _oracle,
+        _order_handler,
+        _order_vault,
+        _reader,
+        _referal_storage,
+        _withdrawal_handler,
+        _withdrawal_vault,
+        _liquidation_handler
+    ) = setup();
 
     // *********************************************************************************************
     // *                              TEST LOGIC                                                   *

@@ -1,8 +1,10 @@
 use starknet::{ContractAddress, contract_address_const};
 
-use satoru::data::data_store::IDataStoreDispatcherTrait;
 use satoru::order::order::{Order, OrderType, OrderTrait};
-use satoru::tests_lib::{setup, teardown};
+use satoru::market::market_factory::{IMarketFactoryDispatcher, IMarketFactoryDispatcherTrait};
+use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
+use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
+use satoru::test_utils::tests_lib;
 use satoru::utils::i256::{i256, i256_new};
 
 
@@ -11,7 +13,7 @@ fn given_normal_conditions_when_felt252_functions_then_expected_results() {
     // *********************************************************************************************
     // *                              SETUP                                                        *
     // *********************************************************************************************
-    let (caller_address, role_store, data_store) = setup();
+    let (caller_address, role_store, data_store, market_factory) = setup();
 
     // *********************************************************************************************
     // *                              TEST LOGIC                                                   *
@@ -47,7 +49,7 @@ fn given_normal_conditions_when_felt252_functions_then_expected_results() {
     // *********************************************************************************************
     // *                              TEARDOWN                                                     *
     // *********************************************************************************************
-    teardown(data_store.contract_address);
+    tests_lib::teardown(data_store, market_factory);
 }
 
 #[test]
@@ -55,7 +57,7 @@ fn given_normal_conditions_when_bool_functions_then_expected_results() {
     // *********************************************************************************************
     // *                              SETUP                                                        *
     // *********************************************************************************************
-    let (caller_address, role_store, data_store) = setup();
+    let (caller_address, role_store, data_store, market_factory) = setup();
 
     // *********************************************************************************************
     // *                              TEST LOGIC                                                   *
@@ -76,7 +78,7 @@ fn given_normal_conditions_when_bool_functions_then_expected_results() {
     // *********************************************************************************************
     // *                              TEARDOWN                                                     *
     // *********************************************************************************************
-    teardown(data_store.contract_address);
+    tests_lib::teardown(data_store, market_factory);
 }
 
 
@@ -85,7 +87,7 @@ fn given_normal_conditions_when_u256_functions_then_expected_results() {
     // *********************************************************************************************
     // *                              SETUP                                                        *
     // *********************************************************************************************
-    let (caller_address, role_store, data_store) = setup();
+    let (caller_address, role_store, data_store, market_factory) = setup();
 
     // *********************************************************************************************
     // *                              TEST LOGIC                                                   *
@@ -121,7 +123,7 @@ fn given_normal_conditions_when_u256_functions_then_expected_results() {
     // *********************************************************************************************
     // *                              TEARDOWN                                                     *
     // *********************************************************************************************
-    teardown(data_store.contract_address);
+    tests_lib::teardown(data_store, market_factory);
 }
 
 #[test]
@@ -129,7 +131,7 @@ fn given_normal_conditions_when_i256_functions_then_expected_results() {
     // *********************************************************************************************
     // *                              SETUP                                                        *
     // *********************************************************************************************
-    let (caller_address, role_store, data_store) = setup();
+    let (caller_address, role_store, data_store, market_factory) = setup();
 
     // *********************************************************************************************
     // *                              TEST LOGIC                                                   *
@@ -165,7 +167,7 @@ fn given_normal_conditions_when_i256_functions_then_expected_results() {
     // *********************************************************************************************
     // *                              TEARDOWN                                                     *
     // *********************************************************************************************
-    teardown(data_store.contract_address);
+    tests_lib::teardown(data_store, market_factory);
 }
 
 #[test]
@@ -173,7 +175,7 @@ fn given_normal_conditions_when_address_functions_then_expected_results() {
     // *********************************************************************************************
     // *                              SETUP                                                        *
     // *********************************************************************************************
-    let (caller_address, role_store, data_store) = setup();
+    let (caller_address, role_store, data_store, market_factory) = setup();
 
     // *********************************************************************************************
     // *                              TEST LOGIC                                                   *
@@ -193,5 +195,32 @@ fn given_normal_conditions_when_address_functions_then_expected_results() {
     // *********************************************************************************************
     // *                              TEARDOWN                                                     *
     // *********************************************************************************************
-    teardown(data_store.contract_address);
+    tests_lib::teardown(data_store, market_factory);
+}
+
+fn setup() -> (ContractAddress, IRoleStoreDispatcher, IDataStoreDispatcher, IMarketFactoryDispatcher) {
+    let (
+        caller_address,
+        _market_factory__address,
+        _role_store_address,
+        _data_store_address,
+        _market_token_class_hash,
+        market_factory,
+        role_store,
+        data_store,
+        _event_emitter,
+        _exchange_router,
+        _deposit_handler,
+        _deposit_vault,
+        _oracle,
+        _order_handler,
+        _order_vault,
+        _reader,
+        _referal_storage,
+        _withdrawal_handler,
+        _withdrawal_vault,
+        _liquidation_handler
+    ) = tests_lib::setup();
+
+    (caller_address, role_store, data_store, market_factory)
 }

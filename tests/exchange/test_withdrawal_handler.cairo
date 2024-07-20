@@ -17,6 +17,7 @@ use satoru::withdrawal::withdrawal_utils::CreateWithdrawalParams;
 use satoru::withdrawal::withdrawal::Withdrawal;
 use satoru::market::market::Market;
 use traits::Default;
+use satoru::test_utils::tests_lib;
 
 // This tests check withdrawal creation under normal condition
 // It calls withdrawal_handler.create_withdrawal
@@ -372,134 +373,31 @@ fn create_withrawal_params(market: ContractAddress) -> CreateWithdrawalParams {
     }
 }
 
-fn deploy_tokens() -> (ContractAddress, ContractAddress) {
-    let contract = declare("ERC20").unwrap();
-    let caller_address: ContractAddress = contract_address_const::<'caller'>();
-
-    let fee_token_address = contract_address_const::<'fee_token'>();
-    let constructor_calldata = array!['FEE_TOKEN', 'FEE', 1000000, 0, 0x101];
-    contract.deploy_at(@constructor_calldata, fee_token_address).unwrap();
-
-    let market_token_address = contract_address_const::<'market_token'>();
-    let constructor_calldata = array!['MARKET_TOKEN', 'MKT', 1000000, 0, caller_address.into()];
-    contract.deploy_at(@constructor_calldata, market_token_address).unwrap();
-
-    (fee_token_address, market_token_address)
-}
-
-fn deploy_withdrawal_handler(
-    data_store_address: ContractAddress,
-    role_store_address: ContractAddress,
-    event_emitter_address: ContractAddress,
-    withdrawal_vault_address: ContractAddress,
-    oracle_address: ContractAddress
-) -> ContractAddress {
-    let contract = declare("WithdrawalHandler").unwrap();
-    let caller_address: ContractAddress = contract_address_const::<'caller'>();
-    let deployed_contract_address = contract_address_const::<'withdrawal_handler'>();
-    start_cheat_caller_address(deployed_contract_address, caller_address);
-    let constructor_calldata = array![
-        data_store_address.into(),
-        role_store_address.into(),
-        event_emitter_address.into(),
-        withdrawal_vault_address.into(),
-        oracle_address.into()
-    ];
-    contract.deploy_at(@constructor_calldata, deployed_contract_address).unwrap()
-}
-
-fn deploy_oracle(
-    role_store_address: ContractAddress, oracle_store_address: ContractAddress, pragma_address: ContractAddress
-) -> ContractAddress {
-    let contract = declare("Oracle").unwrap();
-    let caller_address: ContractAddress = contract_address_const::<'caller'>();
-    let deployed_contract_address = contract_address_const::<'oracle'>();
-    start_cheat_caller_address(deployed_contract_address, caller_address);
-    contract
-        .deploy_at(
-            @array![role_store_address.into(), oracle_store_address.into(), pragma_address.into()],
-            deployed_contract_address
-        )
-        .unwrap()
-}
-
-fn deploy_oracle_store(
-    role_store_address: ContractAddress, event_emitter_address: ContractAddress,
-) -> ContractAddress {
-    let contract = declare("OracleStore").unwrap();
-    let caller_address: ContractAddress = contract_address_const::<'caller'>();
-    let deployed_contract_address = contract_address_const::<'oracle_store'>();
-    start_cheat_caller_address(deployed_contract_address, caller_address);
-    contract
-        .deploy_at(@array![role_store_address.into(), event_emitter_address.into()], deployed_contract_address)
-        .unwrap()
-}
-
-fn deploy_withdrawal_vault(
-    data_store_address: ContractAddress, role_store_address: ContractAddress
-) -> ContractAddress {
-    let contract = declare("WithdrawalVault").unwrap();
-    let caller_address: ContractAddress = contract_address_const::<'caller'>();
-    let deployed_contract_address = contract_address_const::<'withdrawal_vault'>();
-    start_cheat_caller_address(deployed_contract_address, caller_address);
-    let constructor_calldata = array![data_store_address.into(), role_store_address.into()];
-    contract.deploy_at(@constructor_calldata, deployed_contract_address).unwrap()
-}
-
-fn deploy_data_store(role_store_address: ContractAddress) -> ContractAddress {
-    let contract = declare("DataStore").unwrap();
-    let caller_address: ContractAddress = contract_address_const::<'caller'>();
-    let deployed_contract_address = contract_address_const::<'data_store'>();
-    start_cheat_caller_address(deployed_contract_address, caller_address);
-    let constructor_calldata = array![role_store_address.into()];
-    contract.deploy_at(@constructor_calldata, deployed_contract_address).unwrap()
-}
-
-fn deploy_role_store() -> ContractAddress {
-    let contract = declare("RoleStore").unwrap();
-    let caller_address: ContractAddress = contract_address_const::<'caller'>();
-    let deployed_contract_address = contract_address_const::<'role_store'>();
-    start_cheat_caller_address(deployed_contract_address, caller_address);
-    contract.deploy_at(@array![caller_address.into()], deployed_contract_address).unwrap()
-}
-
-fn deploy_event_emitter() -> ContractAddress {
-    let contract = declare("EventEmitter").unwrap();
-    let caller_address: ContractAddress = contract_address_const::<'caller'>();
-    let deployed_contract_address = contract_address_const::<'event_emitter'>();
-    start_cheat_caller_address(deployed_contract_address, caller_address);
-    contract.deploy_at(@array![], deployed_contract_address).unwrap()
-}
-
 fn setup() -> (
     ContractAddress, IDataStoreDispatcher, IEventEmitterDispatcher, IWithdrawalHandlerDispatcher, ContractAddress
 ) {
-    let caller_address: ContractAddress = contract_address_const::<'caller'>();
-    let order_keeper: ContractAddress = 0x2233.try_into().unwrap();
-    let (fee_token_address, _) = deploy_tokens();
-    let role_store_address = deploy_role_store();
-    let role_store = IRoleStoreDispatcher { contract_address: role_store_address };
-    let data_store_address = deploy_data_store(role_store_address);
-    let data_store = IDataStoreDispatcher { contract_address: data_store_address };
-    let event_emitter_address = deploy_event_emitter();
-    let event_emitter = IEventEmitterDispatcher { contract_address: event_emitter_address };
-    let withdrawal_vault_address = deploy_withdrawal_vault(data_store_address, role_store_address);
-    let oracle_store_address = deploy_oracle_store(role_store_address, event_emitter_address);
-    let oracle_address = deploy_oracle(oracle_store_address, role_store_address, contract_address_const::<'pragma'>());
-    let withdrawal_handler_address = deploy_withdrawal_handler(
-        data_store_address, role_store_address, event_emitter_address, withdrawal_vault_address, oracle_address
-    );
+let (
+        caller_address,
+        _market_factory_address,
+        _role_store_address,
+        _data_store_address,
+        _market_token_class_hash,
+        _market_factory,
+        _role_store,
+        data_store,
+        event_emitter,
+        _exchange_router,
+        _deposit_handler,
+        _deposit_vault,
+        _oracle,
+        _order_handler,
+        _order_vault,
+        _reader,
+        _referral_storage,
+        withdrawal_handler,
+        withdrawal_vault,
+        _liquidation_handler,
+    ) = tests_lib::setup();
 
-    let withdrawal_handler = IWithdrawalHandlerDispatcher { contract_address: withdrawal_handler_address };
-    start_cheat_caller_address(role_store_address, caller_address);
-    role_store.grant_role(caller_address, role::CONTROLLER);
-    role_store.grant_role(order_keeper, role::ORDER_KEEPER);
-    role_store.grant_role(caller_address, role::MARKET_KEEPER);
-    role_store.grant_role(withdrawal_handler_address, role::CONTROLLER);
-    start_cheat_caller_address(data_store_address, caller_address);
-
-    data_store.set_address(keys::fee_token(), fee_token_address);
-    //let market_token = IMarketTokenDispatcher { contract_address: market_token_address };
-
-    (caller_address, data_store, event_emitter, withdrawal_handler, withdrawal_vault_address)
+    (caller_address, data_store, event_emitter, withdrawal_handler, withdrawal_vault.contract_address)
 }

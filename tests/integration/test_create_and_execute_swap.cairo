@@ -14,7 +14,7 @@ use poseidon::poseidon_hash_span;
 use debug::PrintTrait;
 // Local imports.
 use satoru::role::role;
-use satoru::tests_lib;
+use satoru::test_utils::tests_lib;
 
 use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
 use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
@@ -57,7 +57,7 @@ fn given_right_swap_order_params_when_execute_order_then_success() {
     let contract_address = contract_address_const::<0>();
     // Test
     // Create market.
-    let market = data_store.get_market(create_market(market_factory));
+    let market = data_store.get_market(tests_lib::create_market(market_factory));
 
     // Transfer tokens in the order_vault in order for initial_collateral_delta_amount to be non zero.
     start_cheat_caller_address(contract_address_const::<'ETH'>(), caller_address);
@@ -142,7 +142,7 @@ fn given_right_swap_order_params_when_execute_order_then_success() {
     //order_handler.execute_order(key, set_price_params);
 
     // Teardown
-    tests_lib::teardown(data_store.contract_address);
+    tests_lib::teardown(data_store, market_factory);
 }
 
 // *********************************************************************************************
@@ -162,41 +162,31 @@ fn setup_contracts() -> (
     IOrderHandlerDispatcher,
     IMarketFactoryDispatcher
 ) {
-    let (caller_address, role_store, data_store, event_emitter, oracle) = tests_lib::setup_oracle_and_store();
+    let (
+        caller_address,
+        market_factory_address,
+        role_store_address,
+        data_store_address,
+        market_token_class_hash,
+        market_factory,
+        role_store,
+        data_store,
+        event_emitter,
+        exchange_router,
+        deposit_handler,
+        deposit_vault,
+        oracle,
+        order_handler,
+        order_vault,
+        reader,
+        referral_storage,
+        withdrawal_handler,
+        withdrawal_vault,
+        liquidation_handler,
+    ) = tests_lib::setup();
 
-    let order_vault_address = deploy_order_vault(data_store.contract_address, role_store.contract_address);
-    let order_vault = IOrderVaultDispatcher { contract_address: order_vault_address };
-
-    let swap_handler_address = deploy_swap_handler(role_store.contract_address);
+    let swap_handler_address = tests_lib::deploy_swap_handler(role_store.contract_address, data_store.contract_address);
     let swap_handler = ISwapHandlerDispatcher { contract_address: swap_handler_address };
-
-    let referral_storage_address = deploy_referral_storage(event_emitter.contract_address);
-    let referral_storage = IReferralStorageDispatcher { contract_address: referral_storage_address };
-
-    let order_handler_address = deploy_order_handler(
-        data_store.contract_address,
-        role_store.contract_address,
-        event_emitter.contract_address,
-        order_vault_address,
-        oracle.contract_address,
-        swap_handler_address,
-        referral_storage_address
-    );
-    let order_handler = IOrderHandlerDispatcher { contract_address: order_handler_address };
-
-    let market_token_class_hash = declare_market_token();
-    let market_factory_address = deploy_market_factory(
-        data_store.contract_address,
-        role_store.contract_address,
-        event_emitter.contract_address,
-        market_token_class_hash
-    );
-    // Create a safe dispatcher to interact with the contract.
-    let market_factory = IMarketFactoryDispatcher { contract_address: market_factory_address };
-
-    role_store.grant_role(caller_address, role::MARKET_KEEPER);
-    role_store.grant_role(caller_address, role::ORDER_KEEPER);
-    role_store.grant_role(order_handler.contract_address, role::CONTROLLER);
 
     return (
         caller_address,
@@ -210,100 +200,4 @@ fn setup_contracts() -> (
         order_handler,
         market_factory
     );
-}
-
-fn create_market(market_factory: IMarketFactoryDispatcher) -> ContractAddress {
-    // Create a market.
-    let (index_token, short_token) = deploy_tokens();
-    let market_type = 'market_type';
-
-    // Index token is the same as long token here.
-    market_factory.create_market(index_token, index_token, short_token, market_type)
-}
-
-/// Utility function to deploy an `OrderVault` contract and return its address.
-fn deploy_order_vault(data_store_address: ContractAddress, role_store_address: ContractAddress,) -> ContractAddress {
-    let contract = declare("OrderVault").unwrap();
-    let mut constructor_calldata = array![];
-    constructor_calldata.append(data_store_address.into());
-    constructor_calldata.append(role_store_address.into());
-    tests_lib::deploy_mock_contract(contract, @constructor_calldata)
-}
-
-/// Utility functions to deploy tokens for a market.
-fn deploy_tokens() -> (ContractAddress, ContractAddress) {
-    let caller_address: ContractAddress = contract_address_const::<'caller'>();
-    let contract = declare("ERC20").unwrap();
-
-    let eth_address = contract_address_const::<'ETH'>();
-
-    let constructor_calldata = array![
-        'Ethereum', 'ETH', 50000000000000000000000000000000000000, 0, caller_address.into()
-    ];
-    contract.deploy_at(@constructor_calldata, eth_address).unwrap();
-
-    let usdc_address = contract_address_const::<'USDC'>();
-    let constructor_calldata = array!['usdc', 'USDC', 50000000000000000000000000000000000000, 0, caller_address.into()];
-    contract.deploy_at(@constructor_calldata, usdc_address).unwrap();
-    (eth_address, usdc_address)
-}
-
-/// Utility function to deploy an `OrderHandler` contract and return its address.
-fn deploy_order_handler(
-    data_store_address: ContractAddress,
-    role_store_address: ContractAddress,
-    event_emitter_address: ContractAddress,
-    order_vault_address: ContractAddress,
-    oracle_address: ContractAddress,
-    swap_handler_address: ContractAddress,
-    referral_storage_address: ContractAddress
-) -> ContractAddress {
-    let contract = declare("OrderHandler").unwrap();
-    let mut constructor_calldata = array![];
-    constructor_calldata.append(data_store_address.into());
-    constructor_calldata.append(role_store_address.into());
-    constructor_calldata.append(event_emitter_address.into());
-    constructor_calldata.append(order_vault_address.into());
-    constructor_calldata.append(oracle_address.into());
-    constructor_calldata.append(swap_handler_address.into());
-    constructor_calldata.append(referral_storage_address.into());
-    tests_lib::deploy_mock_contract(contract, @constructor_calldata)
-}
-
-/// Utility function to deploy a `SwapHandler` contract and return its address.
-fn deploy_swap_handler(role_store_address: ContractAddress) -> ContractAddress {
-    let contract = declare("SwapHandler").unwrap();
-    let constructor_calldata = array![role_store_address.into()];
-    tests_lib::deploy_mock_contract(contract, @constructor_calldata)
-}
-
-/// Utility function to deploy a `ReferralStorage` contract and return its address.
-fn deploy_referral_storage(event_emitter_address: ContractAddress) -> ContractAddress {
-    let contract = declare("ReferralStorage").unwrap();
-    let constructor_calldata = array![event_emitter_address.into()];
-    tests_lib::deploy_mock_contract(contract, @constructor_calldata)
-}
-
-/// Utility function to deploy a market factory contract and return its address.
-fn deploy_market_factory(
-    data_store_address: ContractAddress,
-    role_store_address: ContractAddress,
-    event_emitter_address: ContractAddress,
-    market_token_class_hash: ContractClass,
-) -> ContractAddress {
-    let contract = declare("MarketFactory").unwrap();
-    let caller_address: ContractAddress = contract_address_const::<'caller'>();
-    let deployed_contract_address = contract_address_const::<'market_factory'>();
-    start_cheat_caller_address(deployed_contract_address, caller_address);
-    let mut constructor_calldata = array![];
-    constructor_calldata.append(data_store_address.into());
-    constructor_calldata.append(role_store_address.into());
-    constructor_calldata.append(event_emitter_address.into());
-    constructor_calldata.append(market_token_class_hash.class_hash.into());
-    contract.deploy_at(@constructor_calldata, deployed_contract_address).unwrap()
-}
-
-/// Utility function to declare a `MarketToken` contract.
-fn declare_market_token() -> ContractClass {
-    declare("MarketToken").unwrap()
 }

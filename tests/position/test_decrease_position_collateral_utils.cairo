@@ -20,27 +20,46 @@ use satoru::position::{
 };
 use satoru::price::price::Price;
 use satoru::swap::swap_handler::ISwapHandlerDispatcher;
-use satoru::tests_lib::{setup, teardown, setup_event_emitter};
+use satoru::test_utils::tests_lib;
 use satoru::utils::span32::{Span32, Array32Trait};
+use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
+use satoru::market::market_factory::{IMarketFactoryDispatcher, IMarketFactoryDispatcherTrait};
 
-/// Utility function to deploy a `SwapHandler` contract and return its dispatcher.
-fn deploy_swap_handler_address(role_store_address: ContractAddress) -> ContractAddress {
-    let contract = declare("SwapHandler").unwrap();
-    let constructor_calldata = array![role_store_address.into()];
-    contract.deploy(@constructor_calldata).unwrap()
+fn setup() -> (ContractAddress, IRoleStoreDispatcher, IDataStoreDispatcher, IEventEmitterDispatcher, IReferralStorageDispatcher, ISwapHandlerDispatcher, IMarketFactoryDispatcher) {
+    let (
+        caller_address,
+        _market_factory_address,
+        _role_store_address,
+        _data_store_address,
+        _market_token_class_hash,
+        market_factory,
+        role_store,
+        data_store,
+        event_emitter,
+        _exchange_router,
+        _deposit_handler,
+        _deposit_vault,
+        _oracle,
+        _order_handler,
+        _order_vault,
+        _reader,
+        referral_storage,
+        _withdrawal_handler,
+        _withdrawal_vault,
+        _liquidation_handler,
+    ) = tests_lib::setup();
+
+    let swap_handler_address = tests_lib::deploy_swap_handler(role_store.contract_address, data_store.contract_address);
+    let swap_handler = ISwapHandlerDispatcher { contract_address: swap_handler_address };
+
+    (caller_address, role_store, data_store, event_emitter, referral_storage, swap_handler, market_factory)
 }
 
 fn deploy_token() -> ContractAddress {
     let contract = declare("ERC20").unwrap();
     let constructor_calldata = array!['Test', 'TST', 1000000, 0, 0x101];
-    contract.deploy(@constructor_calldata).unwrap()
-}
-
-/// Utility function to deploy a `ReferralStorage` contract and return its dispatcher.
-fn deploy_referral_storage(event_emitter_address: ContractAddress) -> ContractAddress {
-    let contract = declare("ReferralStorage").unwrap();
-    let constructor_calldata = array![event_emitter_address.into()];
-    contract.deploy(@constructor_calldata).unwrap()
+    let (contract_address, _) = contract.deploy(@constructor_calldata).unwrap();
+    contract_address
 }
 
 #[test]
@@ -48,8 +67,7 @@ fn given_good_params_when_process_collateral_then_succeed() {
     //
     // Setup
     //
-    let (caller_address, role_store, data_store) = setup();
-    let (event_emitter_address, event_emitter) = setup_event_emitter();
+    let (caller_address, role_store, data_store, event_emitter, referral_storage, swap_handler, market_factory) = setup();
     let long_token_address = deploy_token();
 
     // setting open_interest to 10_000 to allow decreasing position.
@@ -57,16 +75,13 @@ fn given_good_params_when_process_collateral_then_succeed() {
         .set_u256(
             keys::open_interest_key(contract_address_const::<'market_token'>(), long_token_address, true), 10_000
         );
-    let swap_handler_address = deploy_swap_handler_address(role_store.contract_address);
-    let swap_handler = ISwapHandlerDispatcher { contract_address: swap_handler_address };
-    let referral_storage_address = deploy_referral_storage(event_emitter_address);
 
     let params = create_new_update_position_params(
         DecreasePositionSwapType::SwapCollateralTokenToPnlToken,
         swap_handler,
         data_store.contract_address,
-        event_emitter_address,
-        referral_storage_address,
+        event_emitter.contract_address,
+        referral_storage.contract_address,
         long_token_address,
     );
 
@@ -75,7 +90,7 @@ fn given_good_params_when_process_collateral_then_succeed() {
     //
     // Execution
     //
-    let result = decrease_position_collateral_utils::process_collateral(event_emitter, params, values);
+    let result = decrease_position_collateral_utils::process_collateral(params, values);
 
     // Checks
     let open_interest = data_store
@@ -87,8 +102,7 @@ fn given_good_params_get_execution_price_then_succeed() {
     //
     // Setup
     //
-    let (caller_address, role_store, data_store) = setup();
-    let (event_emitter_address, event_emitter) = setup_event_emitter();
+    let (caller_address, role_store, data_store, event_emitter, referral_storage, swap_handler, market_factory) = setup();
     let long_token_address = deploy_token();
 
     // setting open_interest to 10_000 to allow decreasing position.
@@ -96,16 +110,13 @@ fn given_good_params_get_execution_price_then_succeed() {
         .set_u256(
             keys::open_interest_key(contract_address_const::<'market_token'>(), long_token_address, true), 10_000
         );
-    let swap_handler_address = deploy_swap_handler_address(role_store.contract_address);
-    let swap_handler = ISwapHandlerDispatcher { contract_address: swap_handler_address };
-    let referral_storage_address = deploy_referral_storage(event_emitter_address);
 
     let params = create_new_update_position_params(
         DecreasePositionSwapType::SwapCollateralTokenToPnlToken,
         swap_handler,
         data_store.contract_address,
-        event_emitter_address,
-        referral_storage_address,
+        event_emitter.contract_address,
+        referral_storage.contract_address,
         long_token_address
     );
 
@@ -119,7 +130,7 @@ fn given_good_params_get_execution_price_then_succeed() {
     // Checks
     //
     assert(execution_price > 0, 'no execution price');
-    teardown(data_store.contract_address);
+    tests_lib::teardown(data_store, market_factory);
 }
 
 /// Utility function to create new UpdatePositionParams struct
@@ -208,14 +219,14 @@ fn create_new_decrease_position_cache(long_token_address: ContractAddress) -> De
     let price = Price { min: 1, max: 1 };
     DecreasePositionCache {
         prices: MarketPrices { index_token_price: price, long_token_price: price, short_token_price: price, },
-        estimated_position_pnl_usd: 100,
-        estimated_realized_pnl_usd: 0,
-        estimated_remaining_pnl_usd: 100,
+        estimated_position_pnl_usd: 100.into(),
+        estimated_realized_pnl_usd: 0.into(),
+        estimated_remaining_pnl_usd: 100.into(),
         pnl_token: long_token_address,
         pnl_token_price: price,
         collateral_token_price: price,
-        initial_collateral_amount: 100,
-        next_position_size_in_usd: 500,
-        next_position_borrowing_factor: 100000,
+        initial_collateral_amount: 100.into(),
+        next_position_size_in_usd: 500.into(),
+        next_position_borrowing_factor: 100000.into(),
     }
 }

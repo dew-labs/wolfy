@@ -136,7 +136,7 @@ fn setup() -> (
         order_handler,
         order_vault,
         reader,
-        referal_storage,
+        referral_storage,
         withdrawal_handler,
         withdrawal_vault,
         liquidation_handler,
@@ -160,7 +160,7 @@ fn setup() -> (
         order_handler,
         order_vault,
         reader,
-        referal_storage,
+        referral_storage,
         withdrawal_handler,
         withdrawal_vault,
         liquidation_handler,
@@ -291,7 +291,7 @@ fn setup_contracts() -> (
     let order_vault_address = deploy_order_vault(data_store.contract_address, role_store.contract_address);
     let order_vault = IOrderVaultDispatcher { contract_address: order_vault_address };
 
-    let swap_handler_address = deploy_swap_handler_address(role_store_address, data_store_address);
+    let swap_handler_address = deploy_swap_handler(role_store_address, data_store_address);
     let referral_storage_address = deploy_referral_storage(event_emitter_address);
     let increase_order_class_hash = declare_increase_order();
     let decrease_order_class_hash = declare_decrease_order();
@@ -339,7 +339,7 @@ fn setup_contracts() -> (
     let reader_address = deploy_reader();
     let reader = IReaderDispatcher { contract_address: reader_address };
 
-    let referal_storage = IReferralStorageDispatcher { contract_address: referral_storage_address };
+    let referral_storage = IReferralStorageDispatcher { contract_address: referral_storage_address };
 
     let withdrawal_handler = IWithdrawalHandlerDispatcher { contract_address: withdrawal_handler_address };
     let withdrawal_vault = IWithdrawalVaultDispatcher { contract_address: withdrawal_vault_address };
@@ -375,7 +375,7 @@ fn setup_contracts() -> (
         order_handler,
         order_vault,
         reader,
-        referal_storage,
+        referral_storage,
         withdrawal_handler,
         withdrawal_vault,
         liquidation_handler,
@@ -614,7 +614,7 @@ fn deploy_liquidation_handler(
     contract_address
 }
 
-fn deploy_swap_handler_address(
+fn deploy_swap_handler(
     role_store_address: ContractAddress, data_store_address: ContractAddress
 ) -> ContractAddress {
     let contract = declare("SwapHandler").unwrap();

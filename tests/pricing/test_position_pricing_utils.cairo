@@ -13,12 +13,34 @@ use satoru::pricing::position_pricing_utils::{GetPositionFeesParams, PositionFun
 use snforge_std::{declare, start_cheat_caller_address, stop_cheat_caller_address, ContractClassTrait};
 use satoru::utils::precision::{FLOAT_PRECISION, FLOAT_PRECISION_SQRT};
 use satoru::utils::i256::{i256, i256_new};
+use satoru::test_utils::tests_lib::{setup};
 
 // TODO add asserts for each test when possible
 
 #[test]
 fn given_normal_conditions_when_get_price_impact_usd_then_works() {
-    let (caller_address, data_store, referral_storage) = setup();
+    let (
+        _caller_address,
+        _market_factory__address,
+        _role_store_address,
+        _data_store_address,
+        _market_token_class_hash,
+        _market_factory,
+        _role_store,
+        data_store,
+        _event_emitter,
+        _exchange_router,
+        _deposit_handler,
+        _deposit_vault,
+        _oracle,
+        _order_handler,
+        _order_vault,
+        _reader,
+        _referal_storage,
+        _withdrawal_handler,
+        _withdrawal_vault,
+        _liquidation_handler
+    ) = setup();
 
     let get_price_impact_params = create_get_price_impact_usd_params(data_store);
     position_pricing_utils::get_price_impact_usd(get_price_impact_params);
@@ -26,7 +48,28 @@ fn given_normal_conditions_when_get_price_impact_usd_then_works() {
 
 #[test]
 fn given_normal_conditions_when_get_next_open_interest_then_works() {
-    let (caller_address, data_store, referral_storage) = setup();
+    let (
+        _caller_address,
+        _market_factory__address,
+        _role_store_address,
+        _data_store_address,
+        _market_token_class_hash,
+        _market_factory,
+        _role_store,
+        data_store,
+        _event_emitter,
+        _exchange_router,
+        _deposit_handler,
+        _deposit_vault,
+        _oracle,
+        _order_handler,
+        _order_vault,
+        _reader,
+        _referal_storage,
+        _withdrawal_handler,
+        _withdrawal_vault,
+        _liquidation_handler
+    ) = setup();
 
     let get_price_impact_params = create_get_price_impact_usd_params(data_store);
     position_pricing_utils::get_next_open_interest(get_price_impact_params);
@@ -34,7 +77,28 @@ fn given_normal_conditions_when_get_next_open_interest_then_works() {
 
 #[test]
 fn given_normal_conditions_when_get_next_open_interest_for_virtual_inventory_then_works() {
-    let (caller_address, data_store, referral_storage) = setup();
+    let (
+        _caller_address,
+        _market_factory__address,
+        _role_store_address,
+        _data_store_address,
+        _market_token_class_hash,
+        _market_factory,
+        _role_store,
+        data_store,
+        _event_emitter,
+        _exchange_router,
+        _deposit_handler,
+        _deposit_vault,
+        _oracle,
+        _order_handler,
+        _order_vault,
+        _reader,
+        _referal_storage,
+        _withdrawal_handler,
+        _withdrawal_vault,
+        _liquidation_handler
+    ) = setup();
 
     let get_price_impact_params = create_get_price_impact_usd_params(data_store);
     position_pricing_utils::get_next_open_interest_for_virtual_inventory(get_price_impact_params, i256_new(50, false));
@@ -42,7 +106,28 @@ fn given_normal_conditions_when_get_next_open_interest_for_virtual_inventory_the
 
 #[test]
 fn given_normal_conditions_when_get_next_open_interest_params_then_works() {
-    let (caller_address, data_store, referral_storage) = setup();
+    let (
+        _caller_address,
+        _market_factory__address,
+        _role_store_address,
+        _data_store_address,
+        _market_token_class_hash,
+        _market_factory,
+        _role_store,
+        data_store,
+        _event_emitter,
+        _exchange_router,
+        _deposit_handler,
+        _deposit_vault,
+        _oracle,
+        _order_handler,
+        _order_vault,
+        _reader,
+        _referal_storage,
+        _withdrawal_handler,
+        _withdrawal_vault,
+        _liquidation_handler
+    ) = setup();
 
     let get_price_impact_params = create_get_price_impact_usd_params(data_store);
     position_pricing_utils::get_next_open_interest_params(get_price_impact_params, 100, 20);
@@ -50,7 +135,28 @@ fn given_normal_conditions_when_get_next_open_interest_params_then_works() {
 
 #[test]
 fn given_normal_conditions_when_get_position_fees_then_works() {
-    let (caller_address, data_store, referral_storage) = setup();
+    let (
+        _caller_address,
+        _market_factory__address,
+        _role_store_address,
+        _data_store_address,
+        _market_token_class_hash,
+        _market_factory,
+        _role_store,
+        data_store,
+        _event_emitter,
+        _exchange_router,
+        _deposit_handler,
+        _deposit_vault,
+        _oracle,
+        _order_handler,
+        _order_vault,
+        _reader,
+        referral_storage,
+        _withdrawal_handler,
+        _withdrawal_vault,
+        _liquidation_handler
+    ) = setup();
 
     let position = Position {
         key: 1,
@@ -86,7 +192,28 @@ fn given_normal_conditions_when_get_position_fees_then_works() {
 
 #[test]
 fn given_normal_conditions_when_get_borrowing_fees_then_works() {
-    let (caller_address, data_store, referral_storage) = setup();
+    let (
+        _caller_address,
+        _market_factory__address,
+        _role_store_address,
+        _data_store_address,
+        _market_token_class_hash,
+        _market_factory,
+        _role_store,
+        data_store,
+        _event_emitter,
+        _exchange_router,
+        _deposit_handler,
+        _deposit_vault,
+        _oracle,
+        _order_handler,
+        _order_vault,
+        _reader,
+        _referal_storage,
+        _withdrawal_handler,
+        _withdrawal_vault,
+        _liquidation_handler
+    ) = setup();
     let price = Price { min: 5, max: 10 };
 
     position_pricing_utils::get_borrowing_fees(data_store, price, 3);
@@ -94,7 +221,6 @@ fn given_normal_conditions_when_get_borrowing_fees_then_works() {
 
 #[test]
 fn given_normal_conditions_when_get_funding_fees_then_works() {
-    let (caller_address, data_store, referral_storage) = setup();
     let position_funding_fees = PositionFundingFees {
         funding_fee_amount: 10,
         claimable_long_token_amount: 100,
@@ -126,7 +252,28 @@ fn given_normal_conditions_when_get_funding_fees_then_works() {
 
 #[test]
 fn given_normal_conditions_when_get_ui_fees_then_works() {
-    let (caller_address, data_store, referral_storage) = setup();
+    let (
+        _caller_address,
+        _market_factory__address,
+        _role_store_address,
+        _data_store_address,
+        _market_token_class_hash,
+        _market_factory,
+        _role_store,
+        data_store,
+        _event_emitter,
+        _exchange_router,
+        _deposit_handler,
+        _deposit_vault,
+        _oracle,
+        _order_handler,
+        _order_vault,
+        _reader,
+        _referal_storage,
+        _withdrawal_handler,
+        _withdrawal_vault,
+        _liquidation_handler
+    ) = setup();
     let price = Price { min: 5, max: 10 };
     let ui_fee_receiver = contract_address_const::<'ui_fee_receiver'>();
     position_pricing_utils::get_ui_fees(data_store, price, 10, ui_fee_receiver);
@@ -134,7 +281,28 @@ fn given_normal_conditions_when_get_ui_fees_then_works() {
 
 #[test]
 fn given_normal_conditions_when_get_position_fees_after_referral_then_works() {
-    let (caller_address, data_store, referral_storage) = setup();
+    let (
+        _caller_address,
+        _market_factory__address,
+        _role_store_address,
+        _data_store_address,
+        _market_token_class_hash,
+        _market_factory,
+        _role_store,
+        data_store,
+        _event_emitter,
+        _exchange_router,
+        _deposit_handler,
+        _deposit_vault,
+        _oracle,
+        _order_handler,
+        _order_vault,
+        _reader,
+        referral_storage,
+        _withdrawal_handler,
+        _withdrawal_vault,
+        _liquidation_handler
+    ) = setup();
     let price = Price { min: 5, max: 10 };
     let account = contract_address_const::<'account'>();
     let market = contract_address_const::<'market'>();
@@ -142,78 +310,6 @@ fn given_normal_conditions_when_get_position_fees_after_referral_then_works() {
         data_store, referral_storage, price, true, account, market, 10
     );
 }
-
-fn deploy_data_store(role_store_address: ContractAddress) -> ContractAddress {
-    let contract = declare("DataStore").unwrap();
-    let caller_address: ContractAddress = contract_address_const::<'caller'>();
-    let deployed_contract_address = contract_address_const::<'data_store'>();
-    start_cheat_caller_address(deployed_contract_address, caller_address);
-    let constructor_calldata = array![role_store_address.into()];
-    contract.deploy_at(@constructor_calldata, deployed_contract_address).unwrap()
-}
-
-fn deploy_role_store() -> ContractAddress {
-    let contract = declare("RoleStore").unwrap();
-    let caller_address: ContractAddress = contract_address_const::<'caller'>();
-    let deployed_contract_address = contract_address_const::<'role_store'>();
-    start_cheat_caller_address(deployed_contract_address, caller_address);
-    contract.deploy_at(@array![caller_address.into()], deployed_contract_address).unwrap()
-}
-
-fn deploy_referral_storage(event_emitter_address: ContractAddress) -> ContractAddress {
-    let contract = declare("ReferralStorage").unwrap();
-    let caller_address: ContractAddress = contract_address_const::<'caller'>();
-    let deployed_contract_address = contract_address_const::<'referral_storage'>();
-    start_cheat_caller_address(deployed_contract_address, caller_address);
-    let constructor_calldata = array![event_emitter_address.into()];
-    contract.deploy_at(@constructor_calldata, deployed_contract_address).unwrap()
-}
-
-fn deploy_governable(event_emitter_address: ContractAddress) -> ContractAddress {
-    let contract = declare("Governable").unwrap();
-    let caller_address: ContractAddress = contract_address_const::<'caller'>();
-    let deployed_contract_address = contract_address_const::<'governable'>();
-    start_cheat_caller_address(deployed_contract_address, caller_address);
-    let constructor_calldata = array![event_emitter_address.into()];
-    contract.deploy_at(@constructor_calldata, deployed_contract_address).unwrap()
-}
-
-fn deploy_event_emitter() -> ContractAddress {
-    let contract = declare("EventEmitter").unwrap();
-    let caller_address: ContractAddress = contract_address_const::<'caller'>();
-    let deployed_contract_address = contract_address_const::<'event_emitter'>();
-    start_cheat_caller_address(deployed_contract_address, caller_address);
-    contract.deploy_at(@array![], deployed_contract_address).unwrap()
-}
-
-fn setup() -> (ContractAddress, IDataStoreDispatcher, IReferralStorageDispatcher) {
-    let caller_address: ContractAddress = contract_address_const::<'caller'>();
-
-    let role_store_address = deploy_role_store();
-    let role_store = IRoleStoreDispatcher { contract_address: role_store_address };
-
-    let data_store_address = deploy_data_store(role_store_address);
-    let data_store = IDataStoreDispatcher { contract_address: data_store_address };
-
-    let event_emitter_address = deploy_event_emitter();
-    let event_emitter = IEventEmitterDispatcher { contract_address: event_emitter_address };
-
-    let referral_storage_address = deploy_referral_storage(event_emitter_address);
-    let referral_storage = IReferralStorageDispatcher { contract_address: referral_storage_address };
-    let governable_address = deploy_governable(event_emitter_address);
-    let governable = IGovernableDispatcher { contract_address: governable_address };
-
-    start_cheat_caller_address(event_emitter_address, caller_address);
-    start_cheat_caller_address(data_store_address, caller_address);
-    start_cheat_caller_address(referral_storage_address, caller_address);
-    start_cheat_caller_address(governable_address, caller_address);
-
-    start_cheat_caller_address(role_store_address, caller_address);
-    role_store.grant_role(caller_address, role::CONTROLLER);
-    start_cheat_caller_address(data_store_address, caller_address);
-    (caller_address, data_store, referral_storage)
-}
-
 
 fn create_get_price_impact_usd_params(data_store: IDataStoreDispatcher) -> GetPriceImpactUsdParams {
     let market = Market {

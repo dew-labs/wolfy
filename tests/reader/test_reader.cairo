@@ -7,7 +7,7 @@ use satoru::reader::reader::{IReaderDispatcher, IReaderDispatcherTrait, MarketIn
 use satoru::mock::referral_storage::{IReferralStorageDispatcher, IReferralStorageDispatcherTrait};
 use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
 use satoru::market::market_token::{IMarketTokenDispatcher, IMarketTokenDispatcherTrait};
-use satoru::tests_lib::{deploy_data_store, deploy_role_store, setup_oracle_and_store};
+use satoru::test_utils::tests_lib::{deploy_data_store, deploy_role_store};
 
 use satoru::reader::{
     reader_utils::PositionInfo, reader_utils::BaseFundingValues, reader_pricing_utils::ExecutionPriceResult,
@@ -15,7 +15,7 @@ use satoru::reader::{
 };
 use satoru::role::role;
 use satoru::order::order::{Order, OrderType, OrderTrait, DecreasePositionSwapType};
-use satoru::tests_lib::{setup, teardown};
+use satoru::test_utils::tests_lib::{setup, teardown};
 use satoru::utils::span32::{Span32, Array32Trait};
 use satoru::market::market::{Market};
 use satoru::market::market_pool_value_info::{MarketPoolValueInfo};
@@ -35,8 +35,29 @@ fn given_normal_conditions_when_get_market_then_works() {
     //
     // Setup
     //
-    let (caller_address, role_store, data_store) = setup();
-    let (reader_address, reader) = setup_reader();
+    let (
+        caller_address,
+        _market_factory__address,
+        _role_store_address,
+        _data_store_address,
+        _market_token_class_hash,
+        market_factory,
+        role_store,
+        data_store,
+        _event_emitter,
+        _exchange_router,
+        _deposit_handler,
+        _deposit_vault,
+        _oracle,
+        _order_handler,
+        _order_vault,
+        _reader,
+        _referal_storage,
+        _withdrawal_handler,
+        _withdrawal_vault,
+        _liquidation_handler
+    ) = setup();
+    let (_, reader) = setup_reader();
 
     let key: ContractAddress = 123456789.try_into().unwrap();
     let mut market = Market {
@@ -56,7 +77,7 @@ fn given_normal_conditions_when_get_market_then_works() {
     let market_by_key = reader.get_market(data_store, key);
     assert(market_by_key == market, 'Invalid market by key');
 
-    teardown(data_store.contract_address);
+    teardown(data_store, market_factory);
 }
 
 #[test]
@@ -64,8 +85,29 @@ fn given_normal_conditions_when_get_market_by_salt_then_works() {
     //
     // Setup
     //
-    let (caller_address, role_store, data_store) = setup();
-    let (reader_address, reader) = setup_reader();
+    let (
+        caller_address,
+        _market_factory__address,
+        _role_store_address,
+        _data_store_address,
+        _market_token_class_hash,
+        market_factory,
+        role_store,
+        data_store,
+        _event_emitter,
+        _exchange_router,
+        _deposit_handler,
+        _deposit_vault,
+        _oracle,
+        _order_handler,
+        _order_vault,
+        _reader,
+        _referal_storage,
+        _withdrawal_handler,
+        _withdrawal_vault,
+        _liquidation_handler
+    ) = setup();
+    let (_, reader) = setup_reader();
 
     let key: ContractAddress = 123456789.try_into().unwrap();
     let mut market = Market {
@@ -101,7 +143,7 @@ fn given_normal_conditions_when_get_market_by_salt_then_works() {
     let market_by_key2 = reader.get_market_by_salt(data_store, salt2);
     assert(market_by_key2 == market2, 'Invalid market2 by key');
 
-    teardown(data_store.contract_address);
+    teardown(data_store, market_factory);
 }
 
 
@@ -110,8 +152,29 @@ fn given_normal_conditions_when_get_deposit_then_works() {
     //
     // Setup
     //
-    let (caller_address, role_store, data_store) = setup();
-    let (reader_address, reader) = setup_reader();
+    let (
+        _caller_address,
+        _market_factory__address,
+        _role_store_address,
+        _data_store_address,
+        _market_token_class_hash,
+        market_factory,
+        _role_store,
+        data_store,
+        _event_emitter,
+        _exchange_router,
+        _deposit_handler,
+        _deposit_vault,
+        _oracle,
+        _order_handler,
+        _order_vault,
+        _reader,
+        _referal_storage,
+        _withdrawal_handler,
+        _withdrawal_vault,
+        _liquidation_handler
+    ) = setup();
+    let (_, reader) = setup_reader();
 
     let key = 123456789;
     // Create random deposit
@@ -129,7 +192,7 @@ fn given_normal_conditions_when_get_deposit_then_works() {
     let deposit_by_key = reader.get_deposit(data_store, key);
     assert(deposit_by_key == deposit, 'Invalid deposit by key');
 
-    teardown(data_store.contract_address);
+    teardown(data_store, market_factory);
 }
 
 
@@ -138,8 +201,29 @@ fn given_normal_conditions_when_get_withdrawal_then_works() {
     //
     // Setup
     //
-    let (caller_address, role_store, data_store) = setup();
-    let (reader_address, reader) = setup_reader();
+    let (
+        _caller_address,
+        _market_factory__address,
+        _role_store_address,
+        _data_store_address,
+        _market_token_class_hash,
+        market_factory,
+        _role_store,
+        data_store,
+        _event_emitter,
+        _exchange_router,
+        _deposit_handler,
+        _deposit_vault,
+        _oracle,
+        _order_handler,
+        _order_vault,
+        _reader,
+        _referal_storage,
+        _withdrawal_handler,
+        _withdrawal_vault,
+        _liquidation_handler
+    ) = setup();
+    let (_, reader) = setup_reader();
 
     let key = 123456789;
     // Create random withdrawal
@@ -157,7 +241,7 @@ fn given_normal_conditions_when_get_withdrawal_then_works() {
     let withdrawal_by_key = reader.get_withdrawal(data_store, key);
     assert(withdrawal_by_key == withdrawal, 'Invalid withdrawal by key');
 
-    teardown(data_store.contract_address);
+    teardown(data_store, market_factory);
 }
 
 
@@ -166,8 +250,29 @@ fn given_normal_conditions_when_get_position_then_works() {
     //
     // Setup
     //
-    let (caller_address, role_store, data_store) = setup();
-    let (reader_address, reader) = setup_reader();
+    let (
+        _caller_address,
+        _market_factory__address,
+        _role_store_address,
+        _data_store_address,
+        _market_token_class_hash,
+        market_factory,
+        _role_store,
+        data_store,
+        _event_emitter,
+        _exchange_router,
+        _deposit_handler,
+        _deposit_vault,
+        _oracle,
+        _order_handler,
+        _order_vault,
+        _reader,
+        _referal_storage,
+        _withdrawal_handler,
+        _withdrawal_vault,
+        _liquidation_handler
+    ) = setup();
+    let (_, reader) = setup_reader();
     let key = 123456789;
     // Create random position
     let mut position: Position = Default::default();
@@ -184,7 +289,7 @@ fn given_normal_conditions_when_get_position_then_works() {
     let position_by_key = reader.get_position(data_store, key);
     assert(position_by_key == position, 'Invalid position by key');
 
-    teardown(data_store.contract_address);
+    teardown(data_store, market_factory);
 }
 
 
@@ -193,8 +298,29 @@ fn given_normal_conditions_when_get_order_then_works() {
     //
     // Setup
     //
-    let (caller_address, role_store, data_store) = setup();
-    let (reader_address, reader) = setup_reader();
+    let (
+        _caller_address,
+        _market_factory__address,
+        _role_store_address,
+        _data_store_address,
+        _market_token_class_hash,
+        market_factory,
+        _role_store,
+        data_store,
+        _event_emitter,
+        _exchange_router,
+        _deposit_handler,
+        _deposit_vault,
+        _oracle,
+        _order_handler,
+        _order_vault,
+        _reader,
+        _referal_storage,
+        _withdrawal_handler,
+        _withdrawal_vault,
+        _liquidation_handler
+    ) = setup();
+    let (_, reader) = setup_reader();
 
     let key = 123456789;
     // Create random order
@@ -212,7 +338,7 @@ fn given_normal_conditions_when_get_order_then_works() {
     let order_by_key = reader.get_order(data_store, key);
     assert(order_by_key == order, 'Invalid order by key');
 
-    teardown(data_store.contract_address);
+    teardown(data_store, market_factory);
 }
 
 
@@ -221,8 +347,29 @@ fn given_normal_conditions_when_get_position_pnl_usd_then_works() {
     //
     // Setup
     //
-    let (caller_address, role_store, data_store) = setup();
-    let (reader_address, reader) = setup_reader();
+    let (
+        caller_address,
+        _market_factory__address,
+        _role_store_address,
+        _data_store_address,
+        _market_token_class_hash,
+        market_factory,
+        role_store,
+        data_store,
+        _event_emitter,
+        _exchange_router,
+        _deposit_handler,
+        _deposit_vault,
+        _oracle,
+        _order_handler,
+        _order_vault,
+        _reader,
+        _referal_storage,
+        _withdrawal_handler,
+        _withdrawal_vault,
+        _liquidation_handler
+    ) = setup();
+    let (_, reader) = setup_reader();
 
     let key: ContractAddress = 123456789.try_into().unwrap();
     let account = 'account'.try_into().unwrap();
@@ -256,11 +403,11 @@ fn given_normal_conditions_when_get_position_pnl_usd_then_works() {
     data_store.set_market(key, 1, market);
     data_store.set_position(key_1, position);
 
-    let (data1, data2, data3) = reader.get_position_pnl_usd(data_store, market, prices, key_1, 1000000);
+    let (_data1, _data2, data3) = reader.get_position_pnl_usd(data_store, market, prices, key_1, 1000000);
     let data3_felt: felt252 = data3.try_into().expect('u256 into felt failed');
 
     assert(data3_felt == 10000, 'Invalid');
-    teardown(data_store.contract_address);
+    teardown(data_store, market_factory);
 }
 
 
@@ -269,8 +416,29 @@ fn given_normal_conditions_when_get_account_positions_then_works() {
     //
     // Setup
     //
-    let (caller_address, role_store, data_store) = setup();
-    let (reader_address, reader) = setup_reader();
+    let (
+        _caller_address,
+        _market_factory__address,
+        _role_store_address,
+        _data_store_address,
+        _market_token_class_hash,
+        market_factory,
+        _role_store,
+        data_store,
+        _event_emitter,
+        _exchange_router,
+        _deposit_handler,
+        _deposit_vault,
+        _oracle,
+        _order_handler,
+        _order_vault,
+        _reader,
+        _referal_storage,
+        _withdrawal_handler,
+        _withdrawal_vault,
+        _liquidation_handler
+    ) = setup();
+    let (_, reader) = setup_reader();
 
     let key_1 = 1111111111;
     let account = 'account'.try_into().unwrap();
@@ -316,7 +484,7 @@ fn given_normal_conditions_when_get_account_positions_then_works() {
     assert(account_position.at(2) == @position3, 'invalid position3');
     assert(account_position.at(3) == @position4, 'invalid position4');
 
-    teardown(data_store.contract_address);
+    teardown(data_store, market_factory);
 }
 
 // error `Option::unwrap()` on a `None` value
@@ -361,7 +529,7 @@ fn given_normal_conditions_when_get_account_positions_then_works() {
 //     let res: PositionInfo = reader
 //         .get_position_info(data_store, referral, key_4, prices, size_delta, ui_fee_receiver, true);
 //     // assert(res.position.key == 44444444444, 'wrong_key');
-//     teardown(data_store.contract_address);
+//     teardown(data_store, market_factory);
 // }
 
 // error `Option::unwrap()` on a `None` value
@@ -472,8 +640,29 @@ fn given_normal_conditions_when_get_account_orders_then_works() {
     //
     // Setup
     //
-    let (caller_address, role_store, data_store) = setup();
-    let (reader_address, reader) = setup_reader();
+    let (
+        _caller_address,
+        _market_factory__address,
+        _role_store_address,
+        _data_store_address,
+        _market_token_class_hash,
+        market_factory,
+        _role_store,
+        data_store,
+        _event_emitter,
+        _exchange_router,
+        _deposit_handler,
+        _deposit_vault,
+        _oracle,
+        _order_handler,
+        _order_vault,
+        _reader,
+        _referal_storage,
+        _withdrawal_handler,
+        _withdrawal_vault,
+        _liquidation_handler
+    ) = setup();
+    let (_reader_address, reader) = setup_reader();
 
     let key_1 = 1111111111;
     let account = 'account'.try_into().unwrap();
@@ -519,7 +708,7 @@ fn given_normal_conditions_when_get_account_orders_then_works() {
     assert(account_order.at(2) == @order3, 'invalid order3');
     assert(account_order.at(3) == @order4, 'invalid order4');
 
-    teardown(data_store.contract_address);
+    teardown(data_store, market_factory);
 }
 
 
@@ -528,8 +717,29 @@ fn given_normal_conditions_when_get_markets_then_works() {
     //
     // Setup
     //
-    let (caller_address, role_store, data_store) = setup();
-    let (reader_address, reader) = setup_reader();
+    let (
+        caller_address,
+        _market_factory__address,
+        _role_store_address,
+        _data_store_address,
+        _market_token_class_hash,
+        market_factory,
+        role_store,
+        data_store,
+        _event_emitter,
+        _exchange_router,
+        _deposit_handler,
+        _deposit_vault,
+        _oracle,
+        _order_handler,
+        _order_vault,
+        _reader,
+        _referal_storage,
+        _withdrawal_handler,
+        _withdrawal_vault,
+        _liquidation_handler
+    ) = setup();
+    let (_, reader) = setup_reader();
 
     let key_1: ContractAddress = 1111111111.try_into().unwrap();
     let key_2: ContractAddress = 22222222222.try_into().unwrap();
@@ -570,7 +780,7 @@ fn given_normal_conditions_when_get_markets_then_works() {
     assert(markets.at(2) == @market3, 'invalid market3');
     assert(markets.at(3) == @market4, 'invalid market4');
 
-    teardown(data_store.contract_address);
+    teardown(data_store, market_factory);
 }
 
 #[test]
@@ -578,8 +788,29 @@ fn given_normal_conditions_when_get_market_info_then_works() {
     //
     // Setup
     //
-    let (caller_address, role_store, data_store) = setup();
-    let (reader_address, reader) = setup_reader();
+    let (
+        caller_address,
+        _market_factory__address,
+        _role_store_address,
+        _data_store_address,
+        _market_token_class_hash,
+        market_factory,
+        role_store,
+        data_store,
+        _event_emitter,
+        _exchange_router,
+        _deposit_handler,
+        _deposit_vault,
+        _oracle,
+        _order_handler,
+        _order_vault,
+        _reader,
+        _referal_storage,
+        _withdrawal_handler,
+        _withdrawal_vault,
+        _liquidation_handler
+    ) = setup();
+    let (_, reader) = setup_reader();
 
     let key: ContractAddress = 123456789.try_into().unwrap();
 
@@ -604,13 +835,34 @@ fn given_normal_conditions_when_get_market_info_then_works() {
 
     let res: MarketInfo = reader.get_market_info(data_store, prices, key);
     assert(res.market.market_token == key, 'invalid_info');
-    teardown(data_store.contract_address);
+    teardown(data_store, market_factory);
 }
 
 #[test]
 fn given_normal_conditions_when_get_market_info_list_then_works() {
-    let (caller_address, role_store, data_store) = setup();
-    let (reader_address, reader) = setup_reader();
+    let (
+        caller_address,
+        _market_factory__address,
+        _role_store_address,
+        _data_store_address,
+        _market_token_class_hash,
+        market_factory,
+        role_store,
+        data_store,
+        _event_emitter,
+        _exchange_router,
+        _deposit_handler,
+        _deposit_vault,
+        _oracle,
+        _order_handler,
+        _order_vault,
+        _reader,
+        _referal_storage,
+        _withdrawal_handler,
+        _withdrawal_vault,
+        _liquidation_handler
+    ) = setup();
+    let (_, reader) = setup_reader();
 
     let market_key_1: ContractAddress = 123456789.try_into().unwrap();
     let market_1 = Market {
@@ -665,15 +917,36 @@ fn given_normal_conditions_when_get_market_info_list_then_works() {
     let res: Array<MarketInfo> = reader.get_market_info_list(data_store, prices_arr, start, end);
     assert(*res.at(0).market.market_token == market_key_1, 'wrong_key');
     assert(*res.at(1).market.market_token == market_key_2, 'wrong_key');
-    teardown(data_store.contract_address);
+    teardown(data_store, market_factory);
 }
 
 #[test]
 fn given_normal_conditions_when_get_market_token_price_then_works() {
-    let (caller_address, role_store, data_store) = setup();
+    let (
+        caller_address,
+        _market_factory__address,
+        _role_store_address,
+        _data_store_address,
+        _market_token_class_hash,
+        market_factory,
+        role_store,
+        data_store,
+        _event_emitter,
+        _exchange_router,
+        _deposit_handler,
+        _deposit_vault,
+        _oracle,
+        _order_handler,
+        _order_vault,
+        _reader,
+        _referal_storage,
+        _withdrawal_handler,
+        _withdrawal_vault,
+        _liquidation_handler
+    ) = setup();
     let role_store_address: ContractAddress = contract_address_const::<'role_store'>();
     let data_store_address: ContractAddress = contract_address_const::<'data_store'>();
-    let (reader_address, reader) = setup_reader();
+    let (_, reader) = setup_reader();
     let market_address = deploy_market_token(role_store_address, data_store_address);
 
     let key: ContractAddress = market_address;
@@ -697,14 +970,14 @@ fn given_normal_conditions_when_get_market_token_price_then_works() {
 
     data_store.set_market(key, 0, market);
 
-    let (market_token_price_, pool_val_info) = reader
+    let (market_token_price_, _pool_val_info) = reader
         .get_market_token_price(
             data_store, market, index_prices_one, index_prices_two, index_prices_three, pnl_factor, true
         );
     let market_token_price_felt: felt252 = market_token_price_.into();
     let expected_price = 100000000000000000000;
     assert(market_token_price_felt == expected_price, 'invalid_token_price');
-    teardown(data_store.contract_address);
+    teardown(data_store, market_factory);
 }
 
 
@@ -713,8 +986,29 @@ fn given_normal_conditions_when_get_net_pnl_then_works() {
     //
     // Setup
     //
-    let (caller_address, role_store, data_store) = setup();
-    let (reader_address, reader) = setup_reader();
+    let (
+        caller_address,
+        _market_factory__address,
+        _role_store_address,
+        _data_store_address,
+        _market_token_class_hash,
+        market_factory,
+        role_store,
+        data_store,
+        _event_emitter,
+        _exchange_router,
+        _deposit_handler,
+        _deposit_vault,
+        _oracle,
+        _order_handler,
+        _order_vault,
+        _reader,
+        _referal_storage,
+        _withdrawal_handler,
+        _withdrawal_vault,
+        _liquidation_handler
+    ) = setup();
+    let (_reader_address, reader) = setup_reader();
 
     let market_token_address: ContractAddress = 123456789.try_into().unwrap();
     let mut market = Market {
@@ -741,7 +1035,7 @@ fn given_normal_conditions_when_get_net_pnl_then_works() {
     data_store.set_u256(open_interest_in_tokens_key_for_long, 200);
 
     // Set open interest in tokens for short token.
-    let open_interest_in_tokens_key_for_short = keys::open_interest_in_tokens_key(
+    let _open_interest_in_tokens_key_for_short = keys::open_interest_in_tokens_key(
         market_token_address, market.short_token, is_long
     );
 
@@ -753,7 +1047,7 @@ fn given_normal_conditions_when_get_net_pnl_then_works() {
     let net_pnl: i256 = reader.get_net_pnl(data_store, market, price, maximize);
 
     assert(net_pnl == i256_new(9750, false), 'wrong net_pnl');
-    teardown(data_store.contract_address);
+    teardown(data_store, market_factory);
 }
 
 #[test]
@@ -761,8 +1055,29 @@ fn given_normal_conditions_when_get_pnl_then_works() {
     //
     // Setup
     //
-    let (caller_address, role_store, data_store) = setup();
-    let (reader_address, reader) = setup_reader();
+    let (
+        _caller_address,
+        _market_factory__address,
+        _role_store_address,
+        _data_store_address,
+        _market_token_class_hash,
+        market_factory,
+        _role_store,
+        data_store,
+        _event_emitter,
+        _exchange_router,
+        _deposit_handler,
+        _deposit_vault,
+        _oracle,
+        _order_handler,
+        _order_vault,
+        _reader,
+        _referal_storage,
+        _withdrawal_handler,
+        _withdrawal_vault,
+        _liquidation_handler
+    ) = setup();
+    let (_, reader) = setup_reader();
 
     let market_token_address = contract_address_const::<'market_token'>();
     let market = Market {
@@ -802,13 +1117,34 @@ fn given_normal_conditions_when_get_pnl_then_works() {
     // Perform assertions.
     assert(pnl == i256_new(22250, false), 'wrong pnl');
 
-    teardown(data_store.contract_address);
+    teardown(data_store, market_factory);
 }
 // TODO missing libraries  'market_utils::get_open_interest_with_pnl' not implemented
 #[test]
 fn given_normal_conditions_when_get_open_interest_with_pnl_then_works() {
-    let (caller_address, role_store, data_store) = setup();
-    let (reader_address, reader) = setup_reader();
+    let (
+        _caller_address,
+        _market_factory__address,
+        _role_store_address,
+        _data_store_address,
+        _market_token_class_hash,
+        market_factory,
+        _role_store,
+        data_store,
+        _event_emitter,
+        _exchange_router,
+        _deposit_handler,
+        _deposit_vault,
+        _oracle,
+        _order_handler,
+        _order_vault,
+        _reader,
+        _referal_storage,
+        _withdrawal_handler,
+        _withdrawal_vault,
+        _liquidation_handler
+    ) = setup();
+    let (_, reader) = setup_reader();
 
     let market_token_address = contract_address_const::<'market_token'>();
     let market = Market {
@@ -843,7 +1179,7 @@ fn given_normal_conditions_when_get_open_interest_with_pnl_then_works() {
     data_store.set_u256(open_interest_in_tokens_key_for_short, 250);
     let res = reader.get_open_interest_with_pnl(data_store, market, price, is_long, maximize);
     assert(res == i256_new(22500, false), 'incorrect open_interest');
-    teardown(data_store.contract_address);
+    teardown(data_store, market_factory);
 }
 // audit, return value is 0x0
 // TODO missing libraries  'market_utils::get_pnl_to_pool_factor' not implemented
@@ -898,7 +1234,7 @@ fn given_normal_conditions_when_get_open_interest_with_pnl_then_works() {
 //     let res : i256 = reader.get_pnl_to_pool_factor(data_store,market_token_address,prices,is_long,maximize);
 //     let resfelt : felt252 = res.into();
 //     resfelt.print();
-//     teardown(data_store.contract_address);
+//     teardown(data_store, market_factory);
 // }
 
 // audit //panic error, unwrap failed
@@ -942,7 +1278,7 @@ fn given_normal_conditions_when_get_open_interest_with_pnl_then_works() {
 //     data_store.set_market(market_token_address, 0, market);
 //     let amount_in : u256 = 20000;
 //     // reader.get_swap_amount_out(data_store,market,prices,token_,amount_in,ui_fee_receiver);
-//     teardown(data_store.contract_address);
+//     teardown(data_store, market_factory);
 // }
 
 // // audit, function call returns 0x0
@@ -965,13 +1301,34 @@ fn given_normal_conditions_when_get_open_interest_with_pnl_then_works() {
 //     data_store.set_market(market_token_address, 0, market);
 //     let virtual_inventory : VirtualInventory = reader.get_virtual_inventory(data_store, market);
 //     virtual_inventory.virtual_pool_amount_for_long_token.print();
-//     teardown(data_store.contract_address);
+//     teardown(data_store, market_factory);
 // }
 
 #[test]
 fn given_normal_conditions_when_get_execution_price_then_works() {
-    let (caller_address, role_store, data_store) = setup();
-    let (reader_address, reader) = setup_reader();
+    let (
+        caller_address,
+        _market_factory__address,
+        _role_store_address,
+        _data_store_address,
+        _market_token_class_hash,
+        market_factory,
+        role_store,
+        data_store,
+        _event_emitter,
+        _exchange_router,
+        _deposit_handler,
+        _deposit_vault,
+        _oracle,
+        _order_handler,
+        _order_vault,
+        _reader,
+        _referal_storage,
+        _withdrawal_handler,
+        _withdrawal_vault,
+        _liquidation_handler
+    ) = setup();
+    let (_, reader) = setup_reader();
     let market_key_1: ContractAddress = 123456789.try_into().unwrap();
     let market_1 = Market {
         market_token: market_key_1,
@@ -1004,7 +1361,7 @@ fn given_normal_conditions_when_get_execution_price_then_works() {
             data_store, market_key_1, price1, position2.size_in_usd, position2.size_in_tokens, size, is_long
         );
     assert(res.execution_price == 200, 'incorrect execution_price');
-    teardown(data_store.contract_address);
+    teardown(data_store, market_factory);
 }
 
 //audit, returns a panicked crates error
@@ -1041,7 +1398,7 @@ fn given_normal_conditions_when_get_execution_price_then_works() {
 //     let (data1, data2) = reader.get_swap_price_impact(data_store,market_key_1,token_in,token_out,amount_in,price1,price2);
 //     let datafel : felt252 = data1.into();
 //     datafel.print();
-//     teardown(data_store.contract_address);
+//     teardown(data_store, market_factory);
 // }
 
 //audit, returns an unwrap failed error
@@ -1081,7 +1438,7 @@ fn given_normal_conditions_when_get_execution_price_then_works() {
 
 //     data_store.set_market(market_token_address, 0, market);
 //     let (data1, data2, data3, data4) = reader.get_adl_state(data_store,market_token_address,true,prices);
-//     teardown(data_store.contract_address);
+//     teardown(data_store, market_factory);
 // }
 
 // *************************************************************************
@@ -1090,27 +1447,9 @@ fn given_normal_conditions_when_get_execution_price_then_works() {
 
 fn setup_reader() -> (ContractAddress, IReaderDispatcher) {
     let contract = declare("Reader").unwrap();
-    let reader_address = contract.deploy(@array![]).unwrap();
+    let (reader_address, _) = contract.deploy(@array![]).unwrap();
     let reader = IReaderDispatcher { contract_address: reader_address };
     (reader_address, reader)
-}
-fn setup_referral_storage() -> (ContractAddress, IReferralStorageDispatcher) {
-    let event_emitter_address = deploy_event_emitter();
-    // Create a safe dispatcher to interact with the contract.
-    let event_emitter = IEventEmitterDispatcher { contract_address: event_emitter_address };
-
-    let contract = declare("ReferralStorage").unwrap();
-    let referral_storage_address = contract.deploy(@array![event_emitter_address.into()]).unwrap();
-    let referral = IReferralStorageDispatcher { contract_address: referral_storage_address };
-    (referral_storage_address, referral)
-}
-
-fn deploy_event_emitter() -> ContractAddress {
-    let contract = declare("EventEmitter").unwrap();
-    let caller_address: ContractAddress = contract_address_const::<'caller'>();
-    let deployed_contract_address = contract_address_const::<'event_emitter'>();
-    start_cheat_caller_address(deployed_contract_address, caller_address);
-    contract.deploy_at(@array![], deployed_contract_address).unwrap()
 }
 
 fn deploy_market_token(role_store: ContractAddress, data_store: ContractAddress) -> ContractAddress {
@@ -1118,6 +1457,6 @@ fn deploy_market_token(role_store: ContractAddress, data_store: ContractAddress)
     let caller_address: ContractAddress = contract_address_const::<'caller'>();
     let deployed_contract_address = contract_address_const::<'market_token'>();
     start_cheat_caller_address(deployed_contract_address, caller_address);
-    contract.deploy_at(@array![role_store.into(), data_store.into()], deployed_contract_address).unwrap()
+    let (contract_address, _) = contract.deploy_at(@array![role_store.into(), data_store.into()], deployed_contract_address).unwrap();
+    contract_address
 }
-

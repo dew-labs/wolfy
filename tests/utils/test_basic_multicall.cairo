@@ -6,7 +6,8 @@ use starknet::{
 use snforge_std::{declare, start_cheat_caller_address, stop_cheat_caller_address, ContractClassTrait};
 use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
 use satoru::role::{role, role_store::IRoleStoreDispatcher, role_store::IRoleStoreDispatcherTrait};
-use satoru::tests_lib::{setup, teardown};
+use satoru::test_utils::tests_lib;
+use satoru::market::market_factory::{IMarketFactoryDispatcher, IMarketFactoryDispatcherTrait};
 
 
 #[test]
@@ -14,7 +15,7 @@ fn given_normal_conditions_when_simple_multicall_then_works() {
     // *********************************************************************************************
     // *                              SETUP                                                        *
     // *********************************************************************************************
-    let (_, _, data_store) = setup();
+    let (_, data_store, market_factory) = setup();
 
     // *********************************************************************************************
     // *                              TEST LOGIC                                                   *
@@ -25,7 +26,7 @@ fn given_normal_conditions_when_simple_multicall_then_works() {
     let first_call = Call {
         to: data_store.contract_address,
         selector: selector!("set_felt252"), /// generate keccak hash for 'set_felt252' in cairo
-        calldata: calldata_param
+        calldata: calldata_param.span()
     };
     calls.append(first_call);
 
@@ -37,7 +38,7 @@ fn given_normal_conditions_when_simple_multicall_then_works() {
     // *********************************************************************************************
     // *                              TEARDOWN                                                     *
     // *********************************************************************************************
-    teardown(data_store.contract_address);
+    tests_lib::teardown(data_store, market_factory);
 }
 
 
@@ -46,7 +47,7 @@ fn given_normal_conditions_when_multicall_then_works() {
     // *********************************************************************************************
     // *                              SETUP                                                        *
     // *********************************************************************************************
-    let (_, role_store, data_store) = setup();
+    let (role_store, data_store, market_factory) = setup();
 
     // *********************************************************************************************
     // *                              TEST LOGIC                                                   *
@@ -59,7 +60,7 @@ fn given_normal_conditions_when_multicall_then_works() {
     let first_call = Call {
         to: data_store.contract_address,
         selector: selector!("set_felt252"), // generate keccak hash for 'set_felt252'
-        calldata: calldata_param
+        calldata: calldata_param.span()
     };
     calls.append(first_call);
 
@@ -70,7 +71,7 @@ fn given_normal_conditions_when_multicall_then_works() {
     let second_call = Call {
         to: role_store.contract_address,
         selector: selector!("grant_role"), // generate keccak hash for 'grant_role'
-        calldata: calldata2_param
+        calldata: calldata2_param.span()
     };
     calls.append(second_call);
 
@@ -86,7 +87,7 @@ fn given_normal_conditions_when_multicall_then_works() {
     // *********************************************************************************************
     // *                              TEARDOWN                                                     *
     // *********************************************************************************************
-    teardown(data_store.contract_address);
+    tests_lib::teardown(data_store, market_factory);
 }
 
 #[test]
@@ -95,7 +96,7 @@ fn given_no_data_when_multicall_then_fails() {
     // *********************************************************************************************
     // *                              SETUP                                                        *
     // *********************************************************************************************
-    let (_, _, data_store) = setup();
+    let (_role_store, data_store, market_factory) = setup();
 
     // *********************************************************************************************
     // *                              TEST LOGIC                                                   *
@@ -106,7 +107,7 @@ fn given_no_data_when_multicall_then_fails() {
     let first_call = Call {
         to: data_store.contract_address,
         selector: selector!("set_felt25"), /// generate keccak hash for 'set_felt252' in cairo
-        calldata: calldata_param
+        calldata: calldata_param.span()
     };
 
     // should panic due to empty calls. Notice that calls has no append()
@@ -118,5 +119,31 @@ fn given_no_data_when_multicall_then_fails() {
     // *********************************************************************************************
     // *                              TEARDOWN                                                     *
     // *********************************************************************************************
-    teardown(data_store.contract_address);
+    tests_lib::teardown(data_store, market_factory);
+}
+
+fn setup() -> (IRoleStoreDispatcher, IDataStoreDispatcher, IMarketFactoryDispatcher) {
+    let (
+        _caller_address,
+        _market_factory__address,
+        _role_store_address,
+        _data_store_address,
+        _market_token_class_hash,
+        market_factory,
+        role_store,
+        data_store,
+        _event_emitter,
+        _exchange_router,
+        _deposit_handler,
+        _deposit_vault,
+        _oracle,
+        _order_handler,
+        _order_vault,
+        _reader,
+        _referal_storage,
+        _withdrawal_handler,
+        _withdrawal_vault,
+        _liquidation_handler
+    ) = tests_lib::setup();
+    (role_store, data_store, market_factory)
 }

@@ -9,7 +9,7 @@ use result::ResultTrait;
 use traits::{TryInto, Into};
 use starknet::{ContractAddress, get_caller_address, Felt252TryIntoContractAddress, contract_address_const, ClassHash,};
 use snforge_std::{
-    declare, start_cheat_caller_address, stop_cheat_caller_address, start_warp, ContractClassTrait, ContractClass
+    declare, start_cheat_caller_address, stop_cheat_caller_address, start_cheat_block_timestamp, ContractClassTrait, ContractClass
 };
 use poseidon::poseidon_hash_span;
 use zeroable::Zeroable;
@@ -29,7 +29,7 @@ use satoru::position::{
     position::Position, position_utils::UpdatePositionParams, position_utils::WillPositionCollateralBeSufficientValues,
     position_utils
 };
-use satoru::tests_lib::{setup, setup_event_emitter, teardown};
+use satoru::test_utils::tests_lib::{setup, teardown};
 use satoru::mock::referral_storage::{IReferralStorageDispatcher, IReferralStorageDispatcherTrait};
 use satoru::pricing::position_pricing_utils::{PositionFees, PositionReferralFees};
 use satoru::order::{
@@ -98,7 +98,28 @@ fn given_invalid_position_size_when_validate_position_then_fails() {
     //
     // Setup
     //
-    let (caller_address, role_store, data_store) = setup();
+    let (
+        _caller_address,
+        _market_factory__address,
+        _role_store_address,
+        _data_store_address,
+        _market_token_class_hash,
+        market_factory,
+        _role_store,
+        data_store,
+        _event_emitter,
+        _exchange_router,
+        _deposit_handler,
+        _deposit_vault,
+        _oracle,
+        _order_handler,
+        _order_vault,
+        _reader,
+        referral_storage,
+        _withdrawal_handler,
+        _withdrawal_vault,
+        _liquidation_handler
+    ) = setup();
 
     let referral_storage = IReferralStorageDispatcher { contract_address: contract_address_const::<'12345'>() };
 
@@ -110,7 +131,7 @@ fn given_invalid_position_size_when_validate_position_then_fails() {
     };
     // Test
     position_utils::validate_position(data_store, referral_storage, position, market, prices, false, false);
-    teardown(data_store.contract_address);
+    teardown(data_store, market_factory);
 }
 
 #[test]
@@ -119,7 +140,28 @@ fn given_empty_market_when_validate_position_then_fails() {
     //
     // Setup
     //
-    let (caller_address, role_store, data_store) = setup();
+    let (
+        _caller_address,
+        _market_factory__address,
+        _role_store_address,
+        _data_store_address,
+        _market_token_class_hash,
+        market_factory,
+        _role_store,
+        data_store,
+        _event_emitter,
+        _exchange_router,
+        _deposit_handler,
+        _deposit_vault,
+        _oracle,
+        _order_handler,
+        _order_vault,
+        _reader,
+        referral_storage,
+        _withdrawal_handler,
+        _withdrawal_vault,
+        _liquidation_handler
+    ) = setup();
 
     let referral_storage = IReferralStorageDispatcher { contract_address: contract_address_const::<'12345'>() };
 
@@ -137,7 +179,7 @@ fn given_empty_market_when_validate_position_then_fails() {
     // Test
     // Should fail at 'validate_enabled_market'
     position_utils::validate_position(data_store, referral_storage, position, market, prices, false, false);
-    teardown(data_store.contract_address);
+    teardown(data_store, market_factory);
 }
 
 
@@ -147,7 +189,28 @@ fn given_minimum_position_size_when_validate_position_then_fails() {
     //
     // Setup
     //
-    let (caller_address, role_store, data_store) = setup();
+    let (
+        _caller_address,
+        _market_factory__address,
+        _role_store_address,
+        _data_store_address,
+        _market_token_class_hash,
+        market_factory,
+        _role_store,
+        data_store,
+        _event_emitter,
+        _exchange_router,
+        _deposit_handler,
+        _deposit_vault,
+        _oracle,
+        _order_handler,
+        _order_vault,
+        _reader,
+        referral_storage,
+        _withdrawal_handler,
+        _withdrawal_vault,
+        _liquidation_handler
+    ) = setup();
 
     let referral_storage = IReferralStorageDispatcher { contract_address: contract_address_const::<'12345'>() };
     let token: ContractAddress = contract_address_const::<'token'>();
@@ -182,7 +245,7 @@ fn given_minimum_position_size_when_validate_position_then_fails() {
     position_utils::validate_position(
         data_store, referral_storage, position, market, prices, should_validate_min_position_size, false
     );
-    teardown(data_store.contract_address);
+    teardown(data_store, market_factory);
 }
 
 #[test]
@@ -190,8 +253,28 @@ fn given_normal_conditions_when_increment_claimable_funding_amount_then_works() 
     //
     // Setup
     //
-    let (caller_address, role_store, data_store) = setup();
-    let (event_emitter_address, event_emitter) = setup_event_emitter();
+    let (
+        _caller_address,
+        _market_factory__address,
+        _role_store_address,
+        _data_store_address,
+        _market_token_class_hash,
+        market_factory,
+        _role_store,
+        data_store,
+        event_emitter,
+        _exchange_router,
+        _deposit_handler,
+        _deposit_vault,
+        _oracle,
+        _order_handler,
+        _order_vault,
+        _reader,
+        referral_storage,
+        _withdrawal_handler,
+        _withdrawal_vault,
+        _liquidation_handler
+    ) = setup();
 
     let market_token: ContractAddress = contract_address_const::<'market_token'>();
     let long_token: ContractAddress = contract_address_const::<'long_token'>();
@@ -247,15 +330,7 @@ fn given_normal_conditions_when_increment_claimable_funding_amount_then_works() 
     assert(retrieved_claimable_long == long_token_amount, 'Invalid claimable for long');
     assert(retrieved_claimable_short == short_token_amount, 'Invalid claimable for short');
 
-    teardown(data_store.contract_address);
-}
-
-
-/// Utility function to deploy a `ReferralStorage` contract and return its dispatcher.
-fn deploy_referral_storage(event_emitter_address: ContractAddress) -> ContractAddress {
-    let contract = declare("ReferralStorage").unwrap();
-    let constructor_calldata = array![event_emitter_address.into()];
-    contract.deploy(@constructor_calldata).unwrap()
+    teardown(data_store, market_factory);
 }
 
 
@@ -264,12 +339,28 @@ fn given_negative_remaining_collateral_usd_when_checking_liquidatability_then_in
     //
     // Setup
     //
-    let (caller_address, role_store, data_store) = setup();
-    let (event_emitter_address, event_emitter) = setup_event_emitter();
-
-    let referral_storage_address: ContractAddress = deploy_referral_storage(event_emitter_address);
-
-    let referral_storage = IReferralStorageDispatcher { contract_address: referral_storage_address };
+    let (
+        _caller_address,
+        _market_factory__address,
+        _role_store_address,
+        _data_store_address,
+        _market_token_class_hash,
+        _market_factory,
+        _role_store,
+        data_store,
+        _event_emitter,
+        _exchange_router,
+        _deposit_handler,
+        _deposit_vault,
+        _oracle,
+        _order_handler,
+        _order_vault,
+        _reader,
+        referral_storage,
+        _withdrawal_handler,
+        _withdrawal_vault,
+        _liquidation_handler
+    ) = setup();
 
     let market_token: ContractAddress = contract_address_const::<'market_token'>();
     let long_token: ContractAddress = contract_address_const::<'long_token'>();
@@ -321,12 +412,28 @@ fn given_below_minimum_collateral_when_checking_liquidatability_then_invalid_pos
     //
     // Setup
     //
-    let (caller_address, role_store, data_store) = setup();
-    let (event_emitter_address, event_emitter) = setup_event_emitter();
-
-    let referral_storage_address: ContractAddress = deploy_referral_storage(event_emitter_address);
-
-    let referral_storage = IReferralStorageDispatcher { contract_address: referral_storage_address };
+    let (
+        _caller_address,
+        _market_factory__address,
+        _role_store_address,
+        _data_store_address,
+        _market_token_class_hash,
+        _market_factory,
+        _role_store,
+        data_store,
+        event_emitter,
+        _exchange_router,
+        _deposit_handler,
+        _deposit_vault,
+        _oracle,
+        _order_handler,
+        _order_vault,
+        _reader,
+        referral_storage,
+        _withdrawal_handler,
+        _withdrawal_vault,
+        _liquidation_handler
+    ) = setup();
 
     let market_token: ContractAddress = contract_address_const::<'market_token'>();
     let long_token: ContractAddress = contract_address_const::<'long_token'>();
@@ -377,12 +484,28 @@ fn given_valid_position_when_checking_liquidatability_then_valid_position() {
     //
     // Setup
     //
-    let (caller_address, role_store, data_store) = setup();
-    let (event_emitter_address, event_emitter) = setup_event_emitter();
-
-    let referral_storage_address: ContractAddress = deploy_referral_storage(event_emitter_address);
-
-    let referral_storage = IReferralStorageDispatcher { contract_address: referral_storage_address };
+    let (
+        _caller_address,
+        _market_factory__address,
+        _role_store_address,
+        _data_store_address,
+        _market_token_class_hash,
+        _market_factory,
+        _role_store,
+        data_store,
+        event_emitter,
+        _exchange_router,
+        _deposit_handler,
+        _deposit_vault,
+        _oracle,
+        _order_handler,
+        _order_vault,
+        _reader,
+        referral_storage,
+        _withdrawal_handler,
+        _withdrawal_vault,
+        _liquidation_handler
+    ) = setup();
 
     let market_token: ContractAddress = contract_address_const::<'market_token'>();
     let long_token: ContractAddress = contract_address_const::<'long_token'>();
@@ -433,12 +556,28 @@ fn given_below_min_collateral_leverage_when_checking_liquidatability_then_invali
     //
     // Setup
     //
-    let (caller_address, role_store, data_store) = setup();
-    let (event_emitter_address, event_emitter) = setup_event_emitter();
-
-    let referral_storage_address: ContractAddress = deploy_referral_storage(event_emitter_address);
-
-    let referral_storage = IReferralStorageDispatcher { contract_address: referral_storage_address };
+    let (
+        _caller_address,
+        _market_factory__address,
+        _role_store_address,
+        _data_store_address,
+        _market_token_class_hash,
+        _market_factory,
+        _role_store,
+        data_store,
+        event_emitter,
+        _exchange_router,
+        _deposit_handler,
+        _deposit_vault,
+        _oracle,
+        _order_handler,
+        _order_vault,
+        _reader,
+        referral_storage,
+        _withdrawal_handler,
+        _withdrawal_vault,
+        _liquidation_handler
+    ) = setup();
 
     let market_token: ContractAddress = contract_address_const::<'market_token'>();
     let long_token: ContractAddress = contract_address_const::<'long_token'>();
@@ -494,8 +633,28 @@ fn given_initial_total_borrowing_when_updating_then_correct_total_borrowing() {
     //
     // Setup
     //
-    let (caller_address, role_store, data_store) = setup();
-    let (event_emitter_address, event_emitter) = setup_event_emitter();
+    let (
+        _caller_address,
+        _market_factory__address,
+        _role_store_address,
+        _data_store_address,
+        _market_token_class_hash,
+        _market_factory,
+        _role_store,
+        data_store,
+        event_emitter,
+        _exchange_router,
+        _deposit_handler,
+        _deposit_vault,
+        _oracle,
+        _order_handler,
+        _order_vault,
+        _reader,
+        referral_storage,
+        _withdrawal_handler,
+        _withdrawal_vault,
+        _liquidation_handler
+    ) = setup();
 
     let market_token: ContractAddress = contract_address_const::<'market_token'>();
     let long_token: ContractAddress = contract_address_const::<'long_token'>();
@@ -539,8 +698,28 @@ fn given_initial_open_interest_when_updating_then_correct_open_interest() {
     //
     // Setup
     //
-    let (caller_address, role_store, data_store) = setup();
-    let (event_emitter_address, event_emitter) = setup_event_emitter();
+    let (
+        _caller_address,
+        _market_factory__address,
+        _role_store_address,
+        _data_store_address,
+        _market_token_class_hash,
+        _market_factory,
+        _role_store,
+        data_store,
+        event_emitter,
+        _exchange_router,
+        _deposit_handler,
+        _deposit_vault,
+        _oracle,
+        _order_handler,
+        _order_vault,
+        _reader,
+        referral_storage,
+        _withdrawal_handler,
+        _withdrawal_vault,
+        _liquidation_handler
+    ) = setup();
 
     let market_token: ContractAddress = contract_address_const::<'market_token'>();
     let long_token: ContractAddress = contract_address_const::<'long_token'>();
@@ -593,8 +772,28 @@ fn given_valid_referral_when_handling_then_referral_successfully_processed() {
     //
     // Setup
     //
-    let (caller_address, role_store, data_store) = setup();
-    let (event_emitter_address, event_emitter) = setup_event_emitter();
+    let (
+        _caller_address,
+        _market_factory__address,
+        _role_store_address,
+        _data_store_address,
+        _market_token_class_hash,
+        _market_factory,
+        _role_store,
+        data_store,
+        event_emitter,
+        _exchange_router,
+        _deposit_handler,
+        _deposit_vault,
+        _oracle,
+        _order_handler,
+        _order_vault,
+        _reader,
+        referral_storage,
+        _withdrawal_handler,
+        _withdrawal_vault,
+        _liquidation_handler
+    ) = setup();
 
     let market_token: ContractAddress = contract_address_const::<'market_token'>();
     let long_token: ContractAddress = contract_address_const::<'long_token'>();
@@ -646,7 +845,28 @@ fn given_valid_referral_when_handling_then_referral_successfully_processed() {
 #[test]
 fn test_will_position_collateral_be_sufficient() {
     // Setup
-    let (caller_address, role_store, data_store) = setup();
+    let (
+        _caller_address,
+        _market_factory__address,
+        _role_store_address,
+        _data_store_address,
+        _market_token_class_hash,
+        _market_factory,
+        _role_store,
+        data_store,
+        _event_emitter,
+        _exchange_router,
+        _deposit_handler,
+        _deposit_vault,
+        _oracle,
+        _order_handler,
+        _order_vault,
+        _reader,
+        referral_storage,
+        _withdrawal_handler,
+        _withdrawal_vault,
+        _liquidation_handler
+    ) = setup();
 
     let market_token: ContractAddress = contract_address_const::<'market_token'>();
     let long_token: ContractAddress = contract_address_const::<'long_token'>();

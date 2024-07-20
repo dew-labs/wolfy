@@ -1,9 +1,9 @@
 use starknet::{ContractAddress, contract_address_const};
 use snforge_std::{
-    declare, ContractClassTrait, spy_events, SpyOn, EventSpy, EventFetcher, event_name_hash, Event, EventAssertions
+    declare, ContractClassTrait, spy_events, EventSpy, EventSpyTrait, Event, EventSpyAssertionsTrait
 };
 
-use satoru::tests_lib::setup_event_emitter;
+use satoru::test_utils::tests_lib::deploy_event_emitter;
 
 use satoru::event::event_emitter::{EventEmitter, IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
 
@@ -14,8 +14,9 @@ fn given_normal_conditions_when_emit_set_bool_then_works() {
     // *********************************************************************************************
     // *                              SETUP                                                        *
     // *********************************************************************************************
-    let (contract_address, event_emitter) = setup_event_emitter();
-    let mut spy = spy_events(SpyOn::One(contract_address));
+    let contract_address = deploy_event_emitter();
+    let event_emitter = IEventEmitterDispatcher { contract_address };
+    let mut spy = spy_events();
 
     // *********************************************************************************************
     // *                              TEST LOGIC                                                   *
@@ -39,7 +40,7 @@ fn given_normal_conditions_when_emit_set_bool_then_works() {
             ]
         );
     // Assert there are no more events.
-    assert(spy.events.len() == 0, 'There should be no events');
+    assert(spy.get_events().events.len() == 1, 'There should be no events');
 }
 
 #[test]
@@ -47,8 +48,9 @@ fn given_normal_conditions_when_emit_set_address_then_works() {
     // *********************************************************************************************
     // *                              SETUP                                                        *
     // *********************************************************************************************
-    let (contract_address, event_emitter) = setup_event_emitter();
-    let mut spy = spy_events(SpyOn::One(contract_address));
+    let contract_address = deploy_event_emitter();
+    let event_emitter = IEventEmitterDispatcher { contract_address };
+    let mut spy = spy_events();
 
     // *********************************************************************************************
     // *                              TEST LOGIC                                                   *
@@ -72,7 +74,7 @@ fn given_normal_conditions_when_emit_set_address_then_works() {
             ]
         );
     // Assert there are no more events.
-    assert(spy.events.len() == 0, 'There should be no events');
+    assert(spy.get_events().events.len() == 1, 'There should be no events');
 }
 
 #[test]
@@ -80,8 +82,9 @@ fn given_normal_conditions_when_emit_set_felt252_then_works() {
     // *********************************************************************************************
     // *                              SETUP                                                        *
     // *********************************************************************************************
-    let (contract_address, event_emitter) = setup_event_emitter();
-    let mut spy = spy_events(SpyOn::One(contract_address));
+    let contract_address = deploy_event_emitter();
+    let event_emitter = IEventEmitterDispatcher { contract_address };
+    let mut spy = spy_events();
 
     // *********************************************************************************************
     // *                              TEST LOGIC                                                   *
@@ -105,7 +108,7 @@ fn given_normal_conditions_when_emit_set_felt252_then_works() {
             ]
         );
     // Assert there are no more events.
-    assert(spy.events.len() == 0, 'There should be no events');
+    assert(spy.get_events().events.len() == 1, 'There should be no events');
 }
 
 #[test]
@@ -113,8 +116,9 @@ fn given_normal_conditions_when_emit_set_uint_then_works() {
     // *********************************************************************************************
     // *                              SETUP                                                        *
     // *********************************************************************************************
-    let (contract_address, event_emitter) = setup_event_emitter();
-    let mut spy = spy_events(SpyOn::One(contract_address));
+    let contract_address = deploy_event_emitter();
+    let event_emitter = IEventEmitterDispatcher { contract_address };
+    let mut spy = spy_events();
 
     // *********************************************************************************************
     // *                              TEST LOGIC                                                   *
@@ -138,7 +142,7 @@ fn given_normal_conditions_when_emit_set_uint_then_works() {
             ]
         );
     // Assert there are no more events.
-    assert(spy.events.len() == 0, 'There should be no events');
+    assert(spy.get_events().events.len() == 1, 'There should be no events');
 }
 
 // TODO: update type when int will be supported.
@@ -147,8 +151,9 @@ fn given_normal_conditions_when_emit_set_int_then_works() {
     // *********************************************************************************************
     // *                              SETUP                                                        *
     // *********************************************************************************************
-    let (contract_address, event_emitter) = setup_event_emitter();
-    let mut spy = spy_events(SpyOn::One(contract_address));
+    let contract_address = deploy_event_emitter();
+    let event_emitter = IEventEmitterDispatcher { contract_address };
+    let mut spy = spy_events();
 
     // *********************************************************************************************
     // *                              TEST LOGIC                                                   *
@@ -172,5 +177,5 @@ fn given_normal_conditions_when_emit_set_int_then_works() {
             ]
         );
     // Assert there are no more events.
-    assert(spy.events.len() == 0, 'There should be no events');
+    assert(spy.get_events().events.len() == 1, 'There should be no events');
 }

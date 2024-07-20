@@ -2,16 +2,17 @@ use starknet::{ContractAddress, contract_address_const};
 
 use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
 use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
+use satoru::market::market_factory::{IMarketFactoryDispatcher, IMarketFactoryDispatcherTrait};
 use satoru::role::role;
 use satoru::position::position::Position;
-use satoru::tests_lib::{setup, teardown};
+use satoru::test_utils::tests_lib;
 
 use snforge_std::{declare, start_cheat_caller_address, stop_cheat_caller_address, ContractClassTrait};
 
 #[test]
 fn given_normal_conditions_when_set_position_new_and_override_then_works() {
     // Setup
-    let (caller_address, role_store, data_store) = setup();
+    let (caller_address, role_store, data_store, market_factory) = setup();
 
     let key: felt252 = 123456789;
     let account = 'account'.try_into().unwrap();
@@ -58,7 +59,7 @@ fn given_normal_conditions_when_set_position_new_and_override_then_works() {
     let account_position_keys = data_store.get_account_position_keys(account, 0, 10);
     assert(account_position_keys.len() == 1, 'Acc position # should be 1');
 
-    teardown(data_store.contract_address);
+    tests_lib::teardown(data_store, market_factory);
 }
 
 
@@ -66,7 +67,7 @@ fn given_normal_conditions_when_set_position_new_and_override_then_works() {
 #[should_panic(expected: ('position_account_cant_be_0',))]
 fn given_position_account_0_when_set_position_then_fails() {
     // Setup
-    let (caller_address, role_store, data_store) = setup();
+    let (caller_address, role_store, data_store, market_factory) = setup();
 
     let key: felt252 = 123456789;
     let account = contract_address_const::<0>();
@@ -84,14 +85,14 @@ fn given_position_account_0_when_set_position_then_fails() {
     // Test set_position function with account 0
     data_store.set_position(key, position);
 
-    teardown(data_store.contract_address);
+    tests_lib::teardown(data_store, market_factory);
 }
 
 #[test]
 #[should_panic(expected: ('unauthorized_access',))]
 fn given_caller_not_controller_when_set_position_then_fails() {
     // Setup
-    let (caller_address, role_store, data_store) = setup();
+    let (caller_address, role_store, data_store, market_factory) = setup();
     role_store.revoke_role(caller_address, role::CONTROLLER);
 
     let key: felt252 = 123456789;
@@ -110,14 +111,14 @@ fn given_caller_not_controller_when_set_position_then_fails() {
     // Test set_position function without permission
     data_store.set_position(key, position);
 
-    teardown(data_store.contract_address);
+    tests_lib::teardown(data_store, market_factory);
 }
 
 
 #[test]
 #[should_panic(expected: ('unauthorized_access',))]
 fn given_normal_conditions_when_get_position_keys_then_works() {
-    let (caller_address, role_store, data_store) = setup();
+    let (caller_address, role_store, data_store, market_factory) = setup();
     role_store.revoke_role(caller_address, role::CONTROLLER);
     let key: felt252 = 123456789;
     let account = 'account'.try_into().unwrap();
@@ -146,14 +147,14 @@ fn given_normal_conditions_when_get_position_keys_then_works() {
     let account_position_keys = data_store.get_account_position_keys(account, 0, 10);
     assert(account_position_keys.len() == 0, 'Acc position # not empty');
 
-    teardown(data_store.contract_address);
+    tests_lib::teardown(data_store, market_factory);
 }
 
 
 #[test]
 fn given_normal_conditions_when_remove_only_position_then_works() {
     // Setup
-    let (caller_address, role_store, data_store) = setup();
+    let (caller_address, role_store, data_store, market_factory) = setup();
     let key: felt252 = 123456789;
     let account = 'account'.try_into().unwrap();
     let mut position: Position = create_new_position(
@@ -183,14 +184,14 @@ fn given_normal_conditions_when_remove_only_position_then_works() {
     let account_position_keys = data_store.get_account_position_keys(account, 0, 10);
     assert(account_position_keys.len() == 0, 'Acc position # not empty');
 
-    teardown(data_store.contract_address);
+    tests_lib::teardown(data_store, market_factory);
 }
 
 
 #[test]
 fn given_normal_conditions_when_remove_1_of_n_position_then_works() {
     // Setup
-    let (caller_address, role_store, data_store) = setup();
+    let (caller_address, role_store, data_store, market_factory) = setup();
     let key_1: felt252 = 123456789;
     let account = 'account'.try_into().unwrap();
     let mut position_1: Position = create_new_position(
@@ -239,13 +240,13 @@ fn given_normal_conditions_when_remove_1_of_n_position_then_works() {
     let account_position_keys = data_store.get_account_position_keys(account, 0, 10);
     assert(account_position_keys.len() == 1, 'Acc position # not 1');
 
-    teardown(data_store.contract_address);
+    tests_lib::teardown(data_store, market_factory);
 }
 
 #[test]
 fn given_normal_conditions_when_remove_last_position_then_works() {
     // Setup
-    let (caller_address, role_store, data_store) = setup();
+    let (caller_address, role_store, data_store, market_factory) = setup();
     let key_1: felt252 = 123456789;
     let account = 'account'.try_into().unwrap();
     let mut position_1: Position = create_new_position(
@@ -294,7 +295,7 @@ fn given_normal_conditions_when_remove_last_position_then_works() {
     let account_position_keys = data_store.get_account_position_keys(account, 0, 10);
     assert(account_position_keys.len() == 1, 'Acc position # not 1');
 
-    teardown(data_store.contract_address);
+    tests_lib::teardown(data_store, market_factory);
 }
 
 
@@ -302,7 +303,7 @@ fn given_normal_conditions_when_remove_last_position_then_works() {
 #[should_panic(expected: ('unauthorized_access',))]
 fn given_caller_not_controller_when_remove_1_of_n_position_then_fails() {
     // Setup
-    let (caller_address, role_store, data_store) = setup();
+    let (caller_address, role_store, data_store, market_factory) = setup();
     role_store.revoke_role(caller_address, role::CONTROLLER);
     let key: felt252 = 123456789;
     let account = 'account'.try_into().unwrap();
@@ -328,14 +329,14 @@ fn given_caller_not_controller_when_remove_1_of_n_position_then_fails() {
     let account_position_keys = data_store.get_account_position_keys(account, 0, 10);
     assert(account_position_keys.len() == 0, 'Acc position # not empty');
 
-    teardown(data_store.contract_address);
+    tests_lib::teardown(data_store, market_factory);
 }
 
 
 #[test]
 fn given_caller_not_controller_when_multiple_account_keys_then_fails() {
     // Setup
-    let (caller_address, role_store, data_store) = setup();
+    let (caller_address, role_store, data_store, market_factory) = setup();
     let key_1: felt252 = 123456789;
     let account = 'account'.try_into().unwrap();
     let mut position_1: Position = create_new_position(
@@ -421,7 +422,7 @@ fn given_caller_not_controller_when_multiple_account_keys_then_fails() {
     // Given
     data_store.remove_position(key_1, account);
 
-    teardown(data_store.contract_address);
+    tests_lib::teardown(data_store, market_factory);
 }
 
 /// Utility function to create new Position  struct
@@ -460,4 +461,31 @@ fn create_new_position(
         decreased_at_block,
         is_long,
     }
+}
+
+fn setup() -> (ContractAddress, IRoleStoreDispatcher, IDataStoreDispatcher, IMarketFactoryDispatcher) {
+    let (
+        caller_address,
+        _market_factory__address,
+        _role_store_address,
+        _data_store_address,
+        _market_token_class_hash,
+        market_factory,
+        role_store,
+        data_store,
+        _event_emitter,
+        _exchange_router,
+        _deposit_handler,
+        _deposit_vault,
+        _oracle,
+        _order_handler,
+        _order_vault,
+        _reader,
+        _referal_storage,
+        _withdrawal_handler,
+        _withdrawal_vault,
+        _liquidation_handler
+    ) = tests_lib::setup();
+
+    (caller_address, role_store, data_store, market_factory)
 }

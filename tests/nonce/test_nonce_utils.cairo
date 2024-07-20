@@ -1,13 +1,34 @@
 use satoru::data::data_store::IDataStoreDispatcherTrait;
 use satoru::nonce::nonce_utils::{get_current_nonce, increment_nonce, compute_key};
-use satoru::tests_lib::{setup, teardown};
+use satoru::test_utils::tests_lib::{setup, teardown};
 
 #[test]
 fn given_normal_conditions_when_nonce_utils_functions_then_works() {
     // *********************************************************************************************
     // *                              SETUP                                                        *
     // *********************************************************************************************
-    let (_, _, data_store) = setup();
+    let (
+        _caller_address,
+        _market_factory__address,
+        _role_store_address,
+        _data_store_address,
+        _market_token_class_hash,
+        market_factory,
+        _role_store,
+        data_store,
+        _event_emitter,
+        _exchange_router,
+        _deposit_handler,
+        _deposit_vault,
+        _oracle,
+        _order_handler,
+        _order_vault,
+        _reader,
+        _referal_storage,
+        _withdrawal_handler,
+        _withdrawal_vault,
+        _liquidation_handler
+    ) = setup();
 
     // *********************************************************************************************
     // *                              TEST LOGIC                                                   *
@@ -28,5 +49,5 @@ fn given_normal_conditions_when_nonce_utils_functions_then_works() {
     // *********************************************************************************************
     // *                              TEARDOWN                                                     *
     // *********************************************************************************************
-    teardown(data_store.contract_address);
+    teardown(data_store, market_factory);
 }

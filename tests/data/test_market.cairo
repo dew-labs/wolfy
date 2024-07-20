@@ -4,8 +4,10 @@ use poseidon::poseidon_hash_span;
 
 use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
 use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
+use satoru::market::market_factory::{IMarketFactoryDispatcher, IMarketFactoryDispatcherTrait};
 use satoru::role::role;
 use satoru::market::market::{Market};
+use satoru::test_utils::tests_lib;
 
 
 /// Utility function to setup the test environment.
@@ -15,54 +17,36 @@ use satoru::market::market::{Market};
 /// * `ContractAddress` - The address of the caller.
 /// * `IRoleStoreDispatcher` - The role store dispatcher.
 /// * `IDataStoreDispatcher` - The data store dispatcher.
-fn setup() -> (ContractAddress, IRoleStoreDispatcher, IDataStoreDispatcher) {
-    let caller_address: ContractAddress = contract_address_const::<'caller'>();
-    let role_store_address = deploy_role_store();
-    let role_store = IRoleStoreDispatcher { contract_address: role_store_address };
-    let data_store_address = deploy_data_store(role_store_address);
-    let data_store = IDataStoreDispatcher { contract_address: data_store_address };
-    start_cheat_caller_address(role_store_address, caller_address);
-    role_store.grant_role(caller_address, role::MARKET_KEEPER);
-    role_store.grant_role(caller_address, role::CONTROLLER);
-    start_cheat_caller_address(data_store_address, caller_address);
-    (caller_address, role_store, data_store)
-}
-
-/// Utility function to deploy a data store contract and return its address.
-///
-/// # Arguments
-///
-/// * `role_store_address` - The address of the role store contract.
-///
-/// # Returns
-///
-/// * `ContractAddress` - The address of the deployed data store contract.
-fn deploy_data_store(role_store_address: ContractAddress) -> ContractAddress {
-    let contract = declare("DataStore").unwrap();
-    let caller_address: ContractAddress = contract_address_const::<'caller'>();
-    let deployed_contract_address: ContractAddress = contract_address_const::<'data_store'>();
-    start_cheat_caller_address(deployed_contract_address, caller_address);
-    let constructor_calldata = array![role_store_address.into()];
-    contract.deploy_at(@constructor_calldata, deployed_contract_address).unwrap()
-}
-
-/// Utility function to deploy a role store contract and return its address.
-///
-/// # Returns
-///
-/// * `ContractAddress` - The address of the deployed role store contract.
-fn deploy_role_store() -> ContractAddress {
-    let contract = declare("RoleStore").unwrap();
-    let caller_address: ContractAddress = contract_address_const::<'caller'>();
-    let deployed_contract_address: ContractAddress = contract_address_const::<'role_store'>();
-    start_cheat_caller_address(deployed_contract_address, caller_address);
-    contract.deploy_at(@array![caller_address.into()], deployed_contract_address).unwrap()
+fn setup() -> (ContractAddress, IRoleStoreDispatcher, IDataStoreDispatcher, IMarketFactoryDispatcher) {
+    let (
+        caller_address,
+        _market_factory__address,
+        _role_store_address,
+        _data_store_address,
+        _market_token_class_hash,
+        market_factory,
+        role_store,
+        data_store,
+        _event_emitter,
+        _exchange_router,
+        _deposit_handler,
+        _deposit_vault,
+        _oracle,
+        _order_handler,
+        _order_vault,
+        _reader,
+        _referal_storage,
+        _withdrawal_handler,
+        _withdrawal_vault,
+        _liquidation_handler
+    ) = tests_lib::setup();
+    (caller_address, role_store, data_store, market_factory)
 }
 
 #[test]
 fn given_normal_conditions_when_set_market_new_and_override_then_works() {
     // Setup
-    let (caller_address, role_store, data_store) = setup();
+    let (caller_address, role_store, data_store, market_factory) = setup();
     let address_zero = contract_address_const::<0>();
 
     let key = contract_address_const::<123456789>();
@@ -87,12 +71,12 @@ fn given_normal_conditions_when_set_market_new_and_override_then_works() {
     assert(market_by_key == market, 'Invalid market by key');
     assert(market_by_key.index_token == address_one, 'Invalid market value');
 
-    teardown(data_store.contract_address);
+    tests_lib::teardown(data_store, market_factory);
 }
 
 fn given_normal_conditions_when_set_market_and_get_by_salt_then_works() {
     // Setup
-    let (caller_address, role_store, data_store) = setup();
+    let (caller_address, role_store, data_store, market_factory) = setup();
     let address_zero = contract_address_const::<0>();
 
     let key = contract_address_const::<123456789>();
@@ -110,14 +94,14 @@ fn given_normal_conditions_when_set_market_and_get_by_salt_then_works() {
     let market_by_key = data_store.get_by_salt_market(salt);
     assert(market_by_key == market, 'Invalid market by key');
 
-    teardown(data_store.contract_address);
+    tests_lib::teardown(data_store, market_factory);
 }
 
 #[test]
 #[should_panic(expected: ('unauthorized_access',))]
 fn given_not_market_keeper_when_set_market_then_fails() {
     // Setup
-    let (caller_address, role_store, data_store) = setup();
+    let (caller_address, role_store, data_store, market_factory) = setup();
     role_store.revoke_role(caller_address, role::MARKET_KEEPER);
     let address_zero = contract_address_const::<0>();
 
@@ -131,13 +115,13 @@ fn given_not_market_keeper_when_set_market_then_fails() {
     // Test set_market function without permission
     data_store.set_market(key, 0, market);
 
-    teardown(data_store.contract_address);
+    tests_lib::teardown(data_store, market_factory);
 }
 
 #[test]
 fn given_normal_conditions_when_get_market_keys_then_works() {
     // Setup
-    let (caller_address, role_store, data_store) = setup();
+    let (caller_address, role_store, data_store, market_factory) = setup();
     let address_zero = contract_address_const::<0>();
 
     let key = contract_address_const::<123456789>();
@@ -158,13 +142,13 @@ fn given_normal_conditions_when_get_market_keys_then_works() {
     assert(*market_keys.at(0) == key, 'market should be removed');
     assert(*market_keys.at(1) == key_2, 'market should be removed');
 
-    teardown(data_store.contract_address);
+    tests_lib::teardown(data_store, market_factory);
 }
 
 #[test]
 fn given_normal_conditions_when_remove_only_one_market_then_works() {
     // Setup
-    let (caller_address, role_store, data_store) = setup();
+    let (caller_address, role_store, data_store, market_factory) = setup();
     let address_zero = contract_address_const::<0>();
 
     let key = contract_address_const::<123456789>();
@@ -181,13 +165,13 @@ fn given_normal_conditions_when_remove_only_one_market_then_works() {
     let market_by_key = data_store.get_market(key);
     assert(market_by_key.market_token.is_zero(), 'market should be removed');
 
-    teardown(data_store.contract_address);
+    tests_lib::teardown(data_store, market_factory);
 }
 
 #[test]
 fn given_normal_conditions_when_remove_1_of_n_market_then_works() {
     // Setup
-    let (caller_address, role_store, data_store) = setup();
+    let (caller_address, role_store, data_store, market_factory) = setup();
     let address_zero = contract_address_const::<0>();
     let address_one: ContractAddress = 1.try_into().unwrap();
 
@@ -214,7 +198,7 @@ fn given_normal_conditions_when_remove_1_of_n_market_then_works() {
     let market_2_by_key = data_store.get_market(key_2);
     assert(market_2_by_key.market_token.is_non_zero(), 'market2 shouldnt be removed');
 
-    teardown(data_store.contract_address);
+    tests_lib::teardown(data_store, market_factory);
 }
 
 
@@ -222,7 +206,7 @@ fn given_normal_conditions_when_remove_1_of_n_market_then_works() {
 #[should_panic(expected: ('unauthorized_access',))]
 fn given_caller_not_market_keeper_when_remove_market_then_fails() {
     // Setup
-    let (caller_address, role_store, data_store) = setup();
+    let (caller_address, role_store, data_store, market_factory) = setup();
     role_store.revoke_role(caller_address, role::MARKET_KEEPER);
     let address_zero = contract_address_const::<0>();
 
@@ -237,15 +221,5 @@ fn given_caller_not_market_keeper_when_remove_market_then_fails() {
     data_store.remove_market(key);
 
     // Then
-    teardown(data_store.contract_address);
-}
-
-
-/// Utility function to teardown the test environment.
-///
-/// # Arguments
-///
-/// * `data_store_address` - The address of the data store contract.
-fn teardown(data_store_address: ContractAddress) {
-    stop_cheat_caller_address(data_store_address);
+    tests_lib::teardown(data_store, market_factory);
 }

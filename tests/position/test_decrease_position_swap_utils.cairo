@@ -1,4 +1,4 @@
-use satoru::tests_lib::{teardown};
+use satoru::test_utils::tests_lib;
 use satoru::swap::swap_handler::{ISwapHandlerDispatcher, ISwapHandlerDispatcherTrait};
 use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
 use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
@@ -24,35 +24,9 @@ use snforge_std::{declare, ContractClassTrait, start_cheat_caller_address};
 use starknet::{get_caller_address, ContractAddress, contract_address_const};
 use array::ArrayTrait;
 use satoru::utils::i256::{i256, i256_new};
+use debug::PrintTrait;
 
 //TODO Tests need to be added after implementation of decrease_position_swap_utils
-
-/// Utility function to deploy a `SwapHandler` contract and return its dispatcher.
-fn deploy_swap_handler_address(
-    role_store_address: ContractAddress, data_store_address: ContractAddress
-) -> ContractAddress {
-    let contract = declare("SwapHandler").unwrap();
-    let caller_address: ContractAddress = contract_address_const::<'caller'>();
-    let deployed_contract_address = contract_address_const::<'swap_handler'>();
-    start_cheat_caller_address(deployed_contract_address, caller_address);
-    let constructor_calldata = array![role_store_address.into()];
-    contract.deploy_at(@constructor_calldata, deployed_contract_address).unwrap()
-}
-
-fn deploy_role_store() -> ContractAddress {
-    let contract = declare("RoleStore").unwrap();
-    let caller_address: ContractAddress = contract_address_const::<'caller'>();
-    let deployed_contract_address = contract_address_const::<'role_store'>();
-    start_cheat_caller_address(deployed_contract_address, caller_address);
-    contract.deploy_at(@array![caller_address.into()], deployed_contract_address).unwrap()
-}
-
-/// Utility function to deploy a `DataStore` contract and return its dispatcher.
-fn deploy_data_store(role_store_address: ContractAddress) -> ContractAddress {
-    let contract = declare("DataStore").unwrap();
-    let constructor_calldata = array![role_store_address.into()];
-    contract.deploy(@constructor_calldata).unwrap()
-}
 
 /// Utility function to setup the test environment.
 ///
@@ -62,19 +36,32 @@ fn deploy_data_store(role_store_address: ContractAddress) -> ContractAddress {
 /// * `IRoleStoreDispatcher` - The role store dispatcher.
 /// * `ISwapHandlerDispatcher` - The swap handler dispatcher.
 fn setup() -> (ContractAddress, IRoleStoreDispatcher, ISwapHandlerDispatcher) {
-    let caller_address: ContractAddress = contract_address_const::<'caller'>();
+    let (
+        caller_address,
+        _market_factory_address,
+        _role_store_address,
+        _data_store_address,
+        _market_token_class_hash,
+        _market_factory,
+        role_store,
+        data_store,
+        _event_emitter,
+        _exchange_router,
+        _deposit_handler,
+        _deposit_vault,
+        _oracle,
+        _order_handler,
+        _order_vault,
+        _reader,
+        _referral_storage,
+        _withdrawal_handler,
+        _withdrawal_vault,
+        _liquidation_handler,
+    ) = tests_lib::setup();
 
-    let role_store_address = deploy_role_store();
-    let role_store = IRoleStoreDispatcher { contract_address: role_store_address };
-
-    let data_store_address = deploy_data_store(role_store_address);
-    let data_store = IDataStoreDispatcher { contract_address: data_store_address };
-
-    let swap_handler_address = deploy_swap_handler_address(role_store_address, data_store_address);
+    let swap_handler_address = tests_lib::deploy_swap_handler(role_store.contract_address, data_store.contract_address);
     let swap_handler = ISwapHandlerDispatcher { contract_address: swap_handler_address };
-
-    start_cheat_caller_address(role_store_address, caller_address);
-    start_cheat_caller_address(swap_handler_address, caller_address);
+    start_cheat_caller_address(swap_handler.contract_address, caller_address);
 
     // Grant the caller the `CONTROLLER` role.
     role_store.grant_role(caller_address, role::CONTROLLER);
@@ -132,7 +119,7 @@ fn given_unauthorized_access_role_when_swap_to_pnl_token_then_fails() {
 
 //     assert(decrease_position_values.output.output_token == (0.try_into().unwrap()), 'Error');
 
-//     teardown(role_store.contract_address);
+//     tests_lib::teardown(role_store, market_factory);
 // }
 
 /// Utility function to create new UpdatePositionParams struct

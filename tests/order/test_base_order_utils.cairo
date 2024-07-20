@@ -1,5 +1,6 @@
 use starknet::{ContractAddress, contract_address_const};
 use snforge_std::{declare, start_cheat_caller_address, stop_cheat_caller_address, ContractClassTrait};
+use satoru::test_utils::tests_lib::{setup};
 
 use satoru::order::{order::{OrderType, Order},};
 use satoru::price::price::{Price, PriceTrait};
@@ -107,7 +108,28 @@ fn given_normal_conditions_when_is_liquidation_order_then_works() {
 #[test]
 fn given_normal_conditions_when_validate_order_trigger_price_then_works() {
     // Setup
-    let (_, _, _, oracle) = setup();
+    let (
+        _caller_address,
+        _market_factory__address,
+        _role_store_address,
+        _data_store_address,
+        _market_token_class_hash,
+        _market_factory,
+        _role_store,
+        _data_store,
+        _event_emitter,
+        _exchange_router,
+        _deposit_handler,
+        _deposit_vault,
+        oracle,
+        _order_handler,
+        _order_vault,
+        _reader,
+        _referal_storage,
+        _withdrawal_handler,
+        _withdrawal_vault,
+        _liquidation_handler
+    ) = setup();
     let index_token = contract_address_const::<'ETH'>();
     let price = Price { min: 100000, max: 200000 };
     oracle.set_primary_price(index_token, price);
@@ -136,10 +158,31 @@ fn given_normal_conditions_when_validate_order_trigger_price_then_works() {
 }
 
 #[test]
-#[should_panic(expected: ('invalid_order_price', 100000, 200000, 199999, 6053968548023263173723725853541))]
+#[should_panic(expected: ('invalid_order_price', 6053968548023263173723725853541))]
 fn given_limit_increase_price_higher_than_trigger_when_validate_order_trigger_price_then_fails() {
     // Setup
-    let (_, _, _, oracle) = setup();
+    let (
+        _caller_address,
+        _market_factory__address,
+        _role_store_address,
+        _data_store_address,
+        _market_token_class_hash,
+        _market_factory,
+        _role_store,
+        _data_store,
+        _event_emitter,
+        _exchange_router,
+        _deposit_handler,
+        _deposit_vault,
+        oracle,
+        _order_handler,
+        _order_vault,
+        _reader,
+        _referal_storage,
+        _withdrawal_handler,
+        _withdrawal_vault,
+        _liquidation_handler
+    ) = setup();
     let index_token = contract_address_const::<'ETH'>();
     let price = Price { min: 100000, max: 200000 };
     oracle.set_primary_price(index_token, price);
@@ -150,10 +193,31 @@ fn given_limit_increase_price_higher_than_trigger_when_validate_order_trigger_pr
 
 
 #[test]
-#[should_panic(expected: ('invalid_order_price', 100000, 200000, 199999, 6053968548022900352478745817957))]
+#[should_panic(expected: ('invalid_order_price', 6053968548022900352478745817957))]
 fn given_limit_decrease_price_lower_than_trigger_when_validate_order_trigger_price_then_fails() {
     // Setup
-    let (_, _, _, oracle) = setup();
+    let (
+        _caller_address,
+        _market_factory__address,
+        _role_store_address,
+        _data_store_address,
+        _market_token_class_hash,
+        _market_factory,
+        _role_store,
+        _data_store,
+        _event_emitter,
+        _exchange_router,
+        _deposit_handler,
+        _deposit_vault,
+        oracle,
+        _order_handler,
+        _order_vault,
+        _reader,
+        _referal_storage,
+        _withdrawal_handler,
+        _withdrawal_vault,
+        _liquidation_handler
+    ) = setup();
     let index_token = contract_address_const::<'ETH'>();
     let price = Price { min: 100000, max: 200000 };
     oracle.set_primary_price(index_token, price);
@@ -163,10 +227,31 @@ fn given_limit_decrease_price_lower_than_trigger_when_validate_order_trigger_pri
 }
 
 #[test]
-#[should_panic(expected: ('invalid_order_price', 100000, 200000, 99999, 110930490330413861099797394456752255845))]
+#[should_panic(expected: ('invalid_order_price', 110930490330413861099797394456752255845))]
 fn given_stop_loss_price_lower_than_trigger_when_validate_order_trigger_price_then_fails() {
     // Setup
-    let (_, _, _, oracle) = setup();
+    let (
+        _caller_address,
+        _market_factory__address,
+        _role_store_address,
+        _data_store_address,
+        _market_token_class_hash,
+        _market_factory,
+        _role_store,
+        _data_store,
+        _event_emitter,
+        _exchange_router,
+        _deposit_handler,
+        _deposit_vault,
+        oracle,
+        _order_handler,
+        _order_vault,
+        _reader,
+        _referal_storage,
+        _withdrawal_handler,
+        _withdrawal_vault,
+        _liquidation_handler
+    ) = setup();
     let index_token = contract_address_const::<'ETH'>();
     let price = Price { min: 100000, max: 200000 };
     oracle.set_primary_price(index_token, price);
@@ -307,86 +392,4 @@ fn given_normal_conditions_when_validate_non_empty_order_then_works() {
 fn given_empty_order_when_validate_non_empty_order_then_fails() {
     let order: Order = Default::default();
     validate_non_empty_order(@order);
-}
-
-
-// *********************************************************************************************
-// *                              SETUP                                                        *
-// *********************************************************************************************
-
-fn setup() -> (ContractAddress, IDataStoreDispatcher, IEventEmitterDispatcher, IOracleDispatcher) {
-    let caller_address = contract_address_const::<'caller'>();
-    let order_keeper = contract_address_const::<0x2233>();
-    let role_store_address = deploy_role_store();
-    let role_store = IRoleStoreDispatcher { contract_address: role_store_address };
-    let data_store_address = deploy_data_store(role_store_address);
-    let data_store = IDataStoreDispatcher { contract_address: data_store_address };
-    let event_emitter_address = deploy_event_emitter();
-    let event_emitter = IEventEmitterDispatcher { contract_address: event_emitter_address };
-    let oracle_store_address = deploy_oracle_store(role_store_address, event_emitter_address);
-    let oracle_store = IOracleStoreDispatcher { contract_address: oracle_store_address };
-    let pragma_address = deploy_price_feed();
-    let oracle_address = deploy_oracle(oracle_store_address, role_store_address, pragma_address);
-    let oracle = IOracleDispatcher { contract_address: oracle_address };
-    start_cheat_caller_address(role_store_address, caller_address);
-    role_store.grant_role(caller_address, role::CONTROLLER);
-    role_store.grant_role(order_keeper, role::ORDER_KEEPER);
-    oracle_store.add_signer(contract_address_const::<'signer'>());
-    start_cheat_caller_address(data_store_address, caller_address);
-    start_cheat_caller_address(oracle_address, caller_address);
-
-    (caller_address, data_store, event_emitter, oracle)
-}
-
-fn deploy_price_feed() -> ContractAddress {
-    let contract = declare("PriceFeed").unwrap();
-    let caller_address: ContractAddress = contract_address_const::<'caller'>();
-    let deployed_contract_address = contract_address_const::<'price_feed'>();
-    start_cheat_caller_address(deployed_contract_address, caller_address);
-    contract.deploy_at(@array![], deployed_contract_address).unwrap()
-}
-
-fn deploy_oracle(
-    oracle_store_address: ContractAddress, role_store_address: ContractAddress, pragma_address: ContractAddress
-) -> ContractAddress {
-    let contract = declare("Oracle").unwrap();
-    let caller_address: ContractAddress = contract_address_const::<'caller'>();
-    let deployed_contract_address = contract_address_const::<'oracle'>();
-    start_cheat_caller_address(deployed_contract_address, caller_address);
-    let constructor_calldata = array![role_store_address.into(), oracle_store_address.into(), pragma_address.into()];
-    contract.deploy_at(@constructor_calldata, deployed_contract_address).unwrap()
-}
-
-fn deploy_oracle_store(role_store_address: ContractAddress, event_emitter_address: ContractAddress) -> ContractAddress {
-    let contract = declare("OracleStore").unwrap();
-    let caller_address: ContractAddress = contract_address_const::<'caller'>();
-    let deployed_contract_address = contract_address_const::<'oracle_store'>();
-    start_cheat_caller_address(deployed_contract_address, caller_address);
-    let constructor_calldata = array![role_store_address.into(), event_emitter_address.into()];
-    contract.deploy_at(@constructor_calldata, deployed_contract_address).unwrap()
-}
-
-fn deploy_data_store(role_store_address: ContractAddress) -> ContractAddress {
-    let contract = declare("DataStore").unwrap();
-    let caller_address: ContractAddress = contract_address_const::<'caller'>();
-    let deployed_contract_address = contract_address_const::<'data_store'>();
-    start_cheat_caller_address(deployed_contract_address, caller_address);
-    let constructor_calldata = array![role_store_address.into()];
-    contract.deploy_at(@constructor_calldata, deployed_contract_address).unwrap()
-}
-
-fn deploy_role_store() -> ContractAddress {
-    let contract = declare("RoleStore").unwrap();
-    let caller_address: ContractAddress = contract_address_const::<'caller'>();
-    let deployed_contract_address = contract_address_const::<'role_store'>();
-    start_cheat_caller_address(deployed_contract_address, caller_address);
-    contract.deploy_at(@array![caller_address.into()], deployed_contract_address).unwrap()
-}
-
-fn deploy_event_emitter() -> ContractAddress {
-    let contract = declare("EventEmitter").unwrap();
-    let caller_address: ContractAddress = contract_address_const::<'caller'>();
-    let deployed_contract_address = contract_address_const::<'event_emitter'>();
-    start_cheat_caller_address(deployed_contract_address, caller_address);
-    contract.deploy_at(@array![], deployed_contract_address).unwrap()
 }
