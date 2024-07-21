@@ -23,8 +23,7 @@ To handle the decimals, multiply the value by `(10 ^ 30)`.
 
 Price would be stored as `5000 (10 ^ 18) * (10 ^ 30) => 5000 * (10 ^ 12)`.
 
-For gas optimization, these prices are sent to the oracle in the form of a uint8
-decimal multiplier value and uint32 price value.
+For gas optimization, these prices are sent to the oracle in the form of a uint8 decimal multiplier value and uint32 price value.
 
 If the decimal multiplier value is set to 8, the uint32 value would be `5000 * (10 ^ 12) (10 ^ 8) => 5000 * (10 ^ 4)`.
 
@@ -77,13 +76,13 @@ Decimals: 30 - (token decimals) - (number of decimals desired for precision)
 - USDC: 30 - 6 - 6 => 18
 - DG: 30 - 18 - 11 => 1.
 
-
 ### Oracle primary and secondary price
 
 It is possible to update the oracle to support a primary_price and a secondary_price
 which would allow for stop-loss orders to be executed at exactly the trigger_price
 
 However, this may lead to gaming issues, an example:
+
 - The current price is $2020
 - A user has a long position and creates a stop-loss decrease order for < $2010
 - If the order has a swap from ETH to USDC and the user is able to cause the order

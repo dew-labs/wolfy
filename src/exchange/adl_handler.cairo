@@ -83,7 +83,7 @@ mod AdlHandler {
     use satoru::oracle::oracle_utils::SetPricesParams;
     use satoru::order::{
         order::{SecondaryOrderType, OrderType, Order}, order_vault::{IOrderVaultDispatcher, IOrderVaultDispatcherTrait},
-        base_order_utils::{ExecuteOrderParams, ExecuteOrderParamsContracts}, order_utils::{IOrderUtilsDispatcher}
+        base_order_utils::{ExecuteOrderParams}, order_utils::{IOrderUtilsDispatcher}
     };
     use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
     use satoru::swap::swap_handler::{ISwapHandlerDispatcher, ISwapHandlerDispatcherTrait};

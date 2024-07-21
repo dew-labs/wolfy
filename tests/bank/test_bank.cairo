@@ -40,6 +40,7 @@ fn setup() -> (
         _withdrawal_handler,
         _withdrawal_vault,
         _liquidation_handler,
+        _,
     ) = tests_lib::setup();
 
     let bank = tests_lib::deploy_bank(data_store.contract_address, role_store.contract_address);

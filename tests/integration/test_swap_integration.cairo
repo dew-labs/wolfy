@@ -83,6 +83,7 @@ fn test_swap_market_integration() {
         withdrawal_handler,
         withdrawal_vault,
         liquidation_handler,
+        _,
     ) =
         setup();
 

@@ -118,6 +118,7 @@ fn setup() -> (
     IWithdrawalHandlerDispatcher,
     IWithdrawalVaultDispatcher,
     ILiquidationHandlerDispatcher,
+    ISwapHandlerDispatcher,
 ) {
     let (
         caller_address,
@@ -140,9 +141,11 @@ fn setup() -> (
         withdrawal_handler,
         withdrawal_vault,
         liquidation_handler,
-    ) =
-        setup_contracts();
-    grant_roles_and_prank(caller_address, role_store, data_store, market_factory);
+        swap_handler,
+    ) = setup_contracts();
+
+    grant_roles_and_prank(caller_address, role_store, data_store, market_factory, swap_handler);
+
     (
         caller_address,
         market_factory.contract_address,
@@ -164,6 +167,7 @@ fn setup() -> (
         withdrawal_handler,
         withdrawal_vault,
         liquidation_handler,
+        swap_handler,
     )
 }
 
@@ -181,6 +185,7 @@ fn grant_roles_and_prank(
     role_store: IRoleStoreDispatcher,
     data_store: IDataStoreDispatcher,
     market_factory: IMarketFactoryDispatcher,
+    swap_handler: ISwapHandlerDispatcher,
 ) {
     start_cheat_caller_address(role_store.contract_address, caller_address);
 
@@ -198,6 +203,8 @@ fn grant_roles_and_prank(
     // Start pranking the `MarketFactory` contract. This is necessary to mock the behavior of the contract
     // for testing purposes.
     start_cheat_caller_address(market_factory.contract_address, caller_address);
+
+    start_cheat_caller_address(swap_handler.contract_address, caller_address);
 }
 
 /// Utility function to teardown the test environment.
@@ -210,27 +217,16 @@ fn teardown(data_store: IDataStoreDispatcher, market_factory: IMarketFactoryDisp
 fn setup_contracts() -> (
     // This caller address will be used with `start_cheat_caller_address` cheatcode to mock the caller address.,
     ContractAddress,
-    // Address of the `MarketFactory` contract.
     ContractAddress,
-    // Address of the `RoleStore` contract.
     ContractAddress,
-    // Address of the `DataStore` contract.
     ContractAddress,
-    // The `MarketToken` class hash for the factory.
     ContractClass,
-    // Interface to interact with the `MarketFactory` contract.
     IMarketFactoryDispatcher,
-    // Interface to interact with the `RoleStore` contract.
     IRoleStoreDispatcher,
-    // Interface to interact with the `DataStore` contract.
     IDataStoreDispatcher,
-    // Interface to interact with the `EventEmitter` contract.
     IEventEmitterDispatcher,
-    // Interface to interact with the `ExchangeRouter` contract.
     IExchangeRouterDispatcher,
-    // Interface to interact with the `DepositHandler` contract.
     IDepositHandlerDispatcher,
-    // Interface to interact with the `DepositHandler` contract.
     IDepositVaultDispatcher,
     IOracleDispatcher,
     IOrderHandlerDispatcher,
@@ -240,6 +236,7 @@ fn setup_contracts() -> (
     IWithdrawalHandlerDispatcher,
     IWithdrawalVaultDispatcher,
     ILiquidationHandlerDispatcher,
+    ISwapHandlerDispatcher,
 ) {
     // Deploy the role store contract.
     let role_store_address = deploy_role_store();
@@ -339,6 +336,7 @@ fn setup_contracts() -> (
     let reader_address = deploy_reader();
     let reader = IReaderDispatcher { contract_address: reader_address };
 
+    let swap_handler = ISwapHandlerDispatcher { contract_address: swap_handler_address };
     let referral_storage = IReferralStorageDispatcher { contract_address: referral_storage_address };
 
     let withdrawal_handler = IWithdrawalHandlerDispatcher { contract_address: withdrawal_handler_address };
@@ -358,6 +356,7 @@ fn setup_contracts() -> (
     );
 
     let liquidation_handler = ILiquidationHandlerDispatcher { contract_address: liquidation_handler_address };
+
     (
         contract_address_const::<'caller'>(),
         market_factory_address,
@@ -379,6 +378,7 @@ fn setup_contracts() -> (
         withdrawal_handler,
         withdrawal_vault,
         liquidation_handler,
+        swap_handler,
     )
 }
 

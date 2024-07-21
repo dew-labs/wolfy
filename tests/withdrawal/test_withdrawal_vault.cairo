@@ -241,6 +241,7 @@ fn setup() -> (
         _withdrawal_handler,
         withdrawal_vault,
         _liquidation_handler,
+        _,
     ) = tests_lib::setup();
 
     // get receiver_address

@@ -232,7 +232,8 @@ fn setup_contracts() -> (
         _referal_storage,
         _withdrawal_handler,
         _withdrawal_vault,
-        _liquidation_handler
+        _liquidation_handler,
+        _,
     ) = tests_lib::setup();
 
     // Deploy the `Config` contract.

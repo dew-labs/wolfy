@@ -290,10 +290,8 @@ fn setup_contracts() -> (
         withdrawal_handler,
         withdrawal_vault,
         liquidation_handler,
+        swap_handler,
     ) = tests_lib::setup();
-
-    let swap_handler_address = tests_lib::deploy_swap_handler(role_store.contract_address, data_store.contract_address);
-    let swap_handler = ISwapHandlerDispatcher { contract_address: swap_handler_address };
 
     let base_order_handler_state = setup_base_order_handler_state(
         data_store.contract_address,

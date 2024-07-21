@@ -123,7 +123,7 @@ fn create_deposit(
     let estimated_gas_limit = gas_utils::estimate_execute_deposit_gas_limit(data_store, deposit);
     gas_utils::validate_execution_fee(data_store, estimated_gas_limit, params.execution_fee);
 
-    // add deposit values in data_store 
+    // add deposit values in data_store
     data_store.set_deposit(key, deposit);
 
     // emit event

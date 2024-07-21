@@ -13,10 +13,9 @@ use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
 use satoru::role::role;
 use satoru::utils::precision;
 use satoru::test_utils::tests_lib;
-use satoru::test_utils::tests_lib::setup;
+use satoru::market::market_factory::{IMarketFactoryDispatcher, IMarketFactoryDispatcherTrait};
 
-#[test]
-fn given_normal_conditions_when_set_primary_price_then_works() {
+fn setup() -> (ContractAddress, IMarketFactoryDispatcher, IDataStoreDispatcher, IOracleDispatcher) {
     let (
         caller_address,
         _market_factory__address,
@@ -37,8 +36,16 @@ fn given_normal_conditions_when_set_primary_price_then_works() {
         _referal_storage,
         _withdrawal_handler,
         _withdrawal_vault,
-        _liquidation_handler
-    ) = setup();
+        _liquidation_handler,
+        _order_vault
+    ) = tests_lib::setup();
+
+    (caller_address, market_factory, data_store, oracle)
+}
+
+#[test]
+fn given_normal_conditions_when_set_primary_price_then_works() {
+    let (caller_address, market_factory, data_store, oracle) = setup();
 
     let token = contract_address_const::<111>();
     let price = Price { min: 10, max: 11 };
@@ -54,28 +61,7 @@ fn given_normal_conditions_when_set_primary_price_then_works() {
 
 #[test]
 fn given_normal_conditions_when_clear_all_prices_then_works() {
-    let (
-        caller_address,
-        _market_factory__address,
-        _role_store_address,
-        _data_store_address,
-        _market_token_class_hash,
-        market_factory,
-        _role_store,
-        data_store,
-        _event_emitter,
-        _exchange_router,
-        _deposit_handler,
-        _deposit_vault,
-        oracle,
-        _order_handler,
-        _order_vault,
-        _reader,
-        _referal_storage,
-        _withdrawal_handler,
-        _withdrawal_vault,
-        _liquidation_handler
-    ) = setup();
+    let (caller_address, market_factory, data_store, oracle) = setup();
 
     let token1 = contract_address_const::<111>();
     let price1 = Price { min: 10, max: 11 };
@@ -95,28 +81,7 @@ fn given_normal_conditions_when_clear_all_prices_then_works() {
 
 #[test]
 fn given_normal_conditions_when_tokens_with_prices_count_then_works() {
-    let (
-        caller_address,
-        _market_factory__address,
-        _role_store_address,
-        _data_store_address,
-        _market_token_class_hash,
-        market_factory,
-        _role_store,
-        data_store,
-        _event_emitter,
-        _exchange_router,
-        _deposit_handler,
-        _deposit_vault,
-        oracle,
-        _order_handler,
-        _order_vault,
-        _reader,
-        _referal_storage,
-        _withdrawal_handler,
-        _withdrawal_vault,
-        _liquidation_handler
-    ) = setup();
+    let (caller_address, market_factory, data_store, oracle) = setup();
     let token1 = contract_address_const::<111>();
     let price1 = Price { min: 10, max: 11 };
     let token2 = contract_address_const::<222>();
@@ -138,28 +103,7 @@ fn given_normal_conditions_when_tokens_with_prices_count_then_works() {
 
 #[test]
 fn given_normal_conditions_when_get_tokens_with_prices_then_works() {
-    let (
-        caller_address,
-        _market_factory__address,
-        _role_store_address,
-        _data_store_address,
-        _market_token_class_hash,
-        market_factory,
-        _role_store,
-        data_store,
-        _event_emitter,
-        _exchange_router,
-        _deposit_handler,
-        _deposit_vault,
-        oracle,
-        _order_handler,
-        _order_vault,
-        _reader,
-        _referal_storage,
-        _withdrawal_handler,
-        _withdrawal_vault,
-        _liquidation_handler
-    ) = setup();
+    let (caller_address, market_factory, data_store, oracle) = setup();
 
     let prices = oracle.get_tokens_with_prices(0, 5);
     assert(prices == array![], 'wrong prices array');
@@ -200,28 +144,7 @@ fn given_normal_conditions_when_get_tokens_with_prices_then_works() {
 
 #[test]
 fn given_normal_conditions_when_get_primary_price_then_works() {
-    let (
-        caller_address,
-        _market_factory__address,
-        _role_store_address,
-        _data_store_address,
-        _market_token_class_hash,
-        market_factory,
-        _role_store,
-        data_store,
-        _event_emitter,
-        _exchange_router,
-        _deposit_handler,
-        _deposit_vault,
-        oracle,
-        _order_handler,
-        _order_vault,
-        _reader,
-        _referal_storage,
-        _withdrawal_handler,
-        _withdrawal_vault,
-        _liquidation_handler
-    ) = setup();
+    let (caller_address, market_factory, data_store, oracle) = setup();
 
     let token1 = contract_address_const::<'ETH'>();
     let price1 = Price { min: 10, max: 11 };
@@ -243,30 +166,10 @@ fn given_normal_conditions_when_get_primary_price_then_works() {
 
 #[test]
 fn given_normal_conditions_when_price_feed_multiplier_then_works() {
-    let (
-        caller_address,
-        _market_factory__address,
-        _role_store_address,
-        _data_store_address,
-        _market_token_class_hash,
-        market_factory,
-        _role_store,
-        data_store,
-        _event_emitter,
-        _exchange_router,
-        _deposit_handler,
-        _deposit_vault,
-        oracle,
-        _order_handler,
-        _order_vault,
-        _reader,
-        _referal_storage,
-        _withdrawal_handler,
-        _withdrawal_vault,
-        _liquidation_handler
-    ) = setup();
+    let (caller_address, market_factory, data_store, oracle) = setup();
 
     let token = contract_address_const::<'ETH'>();
+    data_store.set_u256(keys::price_feed_multiplier_key(token), precision::FLOAT_PRECISION);
 
     oracle.get_price_feed_multiplier(data_store, token);
     // teardown

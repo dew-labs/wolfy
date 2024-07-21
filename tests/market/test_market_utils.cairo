@@ -1025,6 +1025,7 @@ fn setup_contracts() -> (
         _withdrawal_handler,
         _withdrawal_vault,
         _liquidation_handler,
+        _,
     ) = tests_lib::setup();
 
     // Declare the `Chain` library contract.

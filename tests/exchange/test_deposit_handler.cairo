@@ -90,6 +90,7 @@ fn setup() -> IDepositHandlerDispatcher {
         _withdrawal_handler,
         _withdrawal_vault,
         _liquidation_handler,
+        _,
     ) = tests_lib::setup();
     deposit_handler
 }

@@ -58,7 +58,7 @@ mod LiquidationHandler {
     use satoru::order::{
         order_utils::{IOrderUtilsDispatcher}, order::{SecondaryOrderType, OrderType, Order},
         order_vault::{IOrderVaultDispatcher, IOrderVaultDispatcherTrait},
-        base_order_utils::{ExecuteOrderParams, ExecuteOrderParamsContracts}
+        base_order_utils::{ExecuteOrderParams}
     };
     use satoru::swap::swap_handler::{ISwapHandlerDispatcher, ISwapHandlerDispatcherTrait};
     use satoru::market::market::Market;

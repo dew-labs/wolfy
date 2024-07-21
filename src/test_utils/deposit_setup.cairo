@@ -119,8 +119,8 @@ fn deposit_setup(
         withdrawal_handler,
         withdrawal_vault,
         liquidation_handler,
-    ) =
-        setup();
+        _,
+    ) = setup();
 
     // *********************************************************************************************
     // *                              TEST LOGIC                                                   *

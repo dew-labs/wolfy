@@ -1,6 +1,6 @@
 use starknet::{ContractAddress, contract_address_const};
 use snforge_std::{declare, start_cheat_caller_address, stop_cheat_caller_address, ContractClassTrait};
-use satoru::test_utils::tests_lib::{setup};
+use satoru::test_utils::tests_lib;
 
 use satoru::order::{order::{OrderType, Order},};
 use satoru::price::price::{Price, PriceTrait};
@@ -107,32 +107,7 @@ fn given_normal_conditions_when_is_liquidation_order_then_works() {
 
 #[test]
 fn given_normal_conditions_when_validate_order_trigger_price_then_works() {
-    // Setup
-    let (
-        _caller_address,
-        _market_factory__address,
-        _role_store_address,
-        _data_store_address,
-        _market_token_class_hash,
-        _market_factory,
-        _role_store,
-        _data_store,
-        _event_emitter,
-        _exchange_router,
-        _deposit_handler,
-        _deposit_vault,
-        oracle,
-        _order_handler,
-        _order_vault,
-        _reader,
-        _referal_storage,
-        _withdrawal_handler,
-        _withdrawal_vault,
-        _liquidation_handler
-    ) = setup();
-    let index_token = contract_address_const::<'ETH'>();
-    let price = Price { min: 100000, max: 200000 };
-    oracle.set_primary_price(index_token, price);
+    let (oracle, index_token, price) = setup();
 
     // Test
 
@@ -160,32 +135,7 @@ fn given_normal_conditions_when_validate_order_trigger_price_then_works() {
 #[test]
 #[should_panic(expected: ('invalid_order_price', 6053968548023263173723725853541))]
 fn given_limit_increase_price_higher_than_trigger_when_validate_order_trigger_price_then_fails() {
-    // Setup
-    let (
-        _caller_address,
-        _market_factory__address,
-        _role_store_address,
-        _data_store_address,
-        _market_token_class_hash,
-        _market_factory,
-        _role_store,
-        _data_store,
-        _event_emitter,
-        _exchange_router,
-        _deposit_handler,
-        _deposit_vault,
-        oracle,
-        _order_handler,
-        _order_vault,
-        _reader,
-        _referal_storage,
-        _withdrawal_handler,
-        _withdrawal_vault,
-        _liquidation_handler
-    ) = setup();
-    let index_token = contract_address_const::<'ETH'>();
-    let price = Price { min: 100000, max: 200000 };
-    oracle.set_primary_price(index_token, price);
+    let (oracle, index_token, price) = setup();
 
     // Test
     validate_order_trigger_price(oracle, index_token, OrderType::LimitIncrease, price.max - 1, true);
@@ -196,31 +146,7 @@ fn given_limit_increase_price_higher_than_trigger_when_validate_order_trigger_pr
 #[should_panic(expected: ('invalid_order_price', 6053968548022900352478745817957))]
 fn given_limit_decrease_price_lower_than_trigger_when_validate_order_trigger_price_then_fails() {
     // Setup
-    let (
-        _caller_address,
-        _market_factory__address,
-        _role_store_address,
-        _data_store_address,
-        _market_token_class_hash,
-        _market_factory,
-        _role_store,
-        _data_store,
-        _event_emitter,
-        _exchange_router,
-        _deposit_handler,
-        _deposit_vault,
-        oracle,
-        _order_handler,
-        _order_vault,
-        _reader,
-        _referal_storage,
-        _withdrawal_handler,
-        _withdrawal_vault,
-        _liquidation_handler
-    ) = setup();
-    let index_token = contract_address_const::<'ETH'>();
-    let price = Price { min: 100000, max: 200000 };
-    oracle.set_primary_price(index_token, price);
+    let (oracle, index_token, price) = setup();
 
     // Test
     validate_order_trigger_price(oracle, index_token, OrderType::LimitDecrease, price.max - 1, false);
@@ -230,31 +156,7 @@ fn given_limit_decrease_price_lower_than_trigger_when_validate_order_trigger_pri
 #[should_panic(expected: ('invalid_order_price', 110930490330413861099797394456752255845))]
 fn given_stop_loss_price_lower_than_trigger_when_validate_order_trigger_price_then_fails() {
     // Setup
-    let (
-        _caller_address,
-        _market_factory__address,
-        _role_store_address,
-        _data_store_address,
-        _market_token_class_hash,
-        _market_factory,
-        _role_store,
-        _data_store,
-        _event_emitter,
-        _exchange_router,
-        _deposit_handler,
-        _deposit_vault,
-        oracle,
-        _order_handler,
-        _order_vault,
-        _reader,
-        _referal_storage,
-        _withdrawal_handler,
-        _withdrawal_vault,
-        _liquidation_handler
-    ) = setup();
-    let index_token = contract_address_const::<'ETH'>();
-    let price = Price { min: 100000, max: 200000 };
-    oracle.set_primary_price(index_token, price);
+    let (oracle, index_token, price) = setup();
 
     // Test
     validate_order_trigger_price(oracle, index_token, OrderType::StopLossDecrease, price.min - 1, true);
@@ -392,4 +294,36 @@ fn given_normal_conditions_when_validate_non_empty_order_then_works() {
 fn given_empty_order_when_validate_non_empty_order_then_fails() {
     let order: Order = Default::default();
     validate_non_empty_order(@order);
+}
+
+fn setup() -> (IOracleDispatcher, ContractAddress, Price) {
+    let (
+        _caller_address,
+        _market_factory__address,
+        _role_store_address,
+        _data_store_address,
+        _market_token_class_hash,
+        _market_factory,
+        _role_store,
+        _data_store,
+        _event_emitter,
+        _exchange_router,
+        _deposit_handler,
+        _deposit_vault,
+        oracle,
+        _order_handler,
+        _order_vault,
+        _reader,
+        _referal_storage,
+        _withdrawal_handler,
+        _withdrawal_vault,
+        _liquidation_handler,
+        _
+    ) = tests_lib::setup();
+
+    let index_token = contract_address_const::<'ETH'>();
+    let price = Price { min: 100000, max: 200000 };
+    oracle.set_primary_price(index_token, price);
+
+    (oracle, index_token, price)
 }

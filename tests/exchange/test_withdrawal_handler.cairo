@@ -397,6 +397,7 @@ let (
         withdrawal_handler,
         withdrawal_vault,
         _liquidation_handler,
+        _,
     ) = tests_lib::setup();
 
     (caller_address, data_store, event_emitter, withdrawal_handler, withdrawal_vault.contract_address)

@@ -27,7 +27,8 @@ fn given_normal_conditions_when_nonce_utils_functions_then_works() {
         _referal_storage,
         _withdrawal_handler,
         _withdrawal_vault,
-        _liquidation_handler
+        _liquidation_handler,
+        _,
     ) = setup();
 
     // *********************************************************************************************

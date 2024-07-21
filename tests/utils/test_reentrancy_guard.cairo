@@ -27,7 +27,8 @@ fn given_normal_conditions_when_non_reentrancy_before_and_after_then_works() {
         _referal_storage,
         _withdrawal_handler,
         _withdrawal_vault,
-        _liquidation_handler
+        _liquidation_handler,
+        _
     ) = setup();
     // *********************************************************************************************
     // *                              TEST LOGIC                                                   *
@@ -79,7 +80,8 @@ fn given_reentrant_call_when_reentrancy_before_and_after_then_fails() {
         _referal_storage,
         _withdrawal_handler,
         _withdrawal_vault,
-        _liquidation_handler
+        _liquidation_handler,
+        _
     ) = setup();
 
     // *********************************************************************************************

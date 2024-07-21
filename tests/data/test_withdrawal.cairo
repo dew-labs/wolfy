@@ -36,7 +36,8 @@ fn setup() -> (ContractAddress, IRoleStoreDispatcher, IDataStoreDispatcher) {
         _referal_storage,
         _withdrawal_handler,
         _withdrawal_vault,
-        _liquidation_handler
+        _liquidation_handler,
+        _,
     ) = tests_lib::setup();
     (caller_address, role_store, data_store)
 }

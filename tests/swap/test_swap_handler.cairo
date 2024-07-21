@@ -88,13 +88,11 @@ fn setup() -> (
         _withdrawal_handler,
         _withdrawal_vault,
         _liquidation_handler,
+        swap_handler,
     ) = tests_lib::setup();
 
     let bank_address = tests_lib::deploy_bank(data_store.contract_address, role_store.contract_address);
     let bank = IBankDispatcher { contract_address: bank_address };
-
-    let swap_handler_address = tests_lib::deploy_swap_handler(role_store.contract_address, data_store.contract_address);
-    let swap_handler = ISwapHandlerDispatcher { contract_address: swap_handler_address };
 
     let (index_token_address, long_token_address, short_token_address) = deploy_tokens();
     let index_token_handler = IERC20Dispatcher { contract_address: index_token_address };
@@ -113,7 +111,7 @@ fn setup() -> (
     start_cheat_caller_address(event_emitter.contract_address, caller_address);
     start_cheat_caller_address(oracle.contract_address, caller_address);
     start_cheat_caller_address(bank_address, caller_address);
-    start_cheat_caller_address(swap_handler_address, caller_address);
+    start_cheat_caller_address(swap_handler.contract_address, caller_address);
     start_cheat_caller_address(index_token_address, caller_address);
     start_cheat_caller_address(long_token_address, caller_address);
     start_cheat_caller_address(short_token_address, caller_address);

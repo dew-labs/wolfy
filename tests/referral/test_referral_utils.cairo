@@ -362,6 +362,7 @@ fn setup() -> (
         _withdrawal_handler,
         _withdrawal_vault,
         _liquidation_handler,
+        _,
     ) = tests_lib::setup();
 
     let market_token_address = deploy_market_token(role_store.contract_address, data_store.contract_address);

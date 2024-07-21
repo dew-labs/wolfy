@@ -25,6 +25,8 @@ use satoru::utils::span32::{Span32, Array32Trait};
 use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
 use satoru::market::market_factory::{IMarketFactoryDispatcher, IMarketFactoryDispatcherTrait};
 
+use debug::PrintTrait;
+
 fn setup() -> (ContractAddress, IRoleStoreDispatcher, IDataStoreDispatcher, IEventEmitterDispatcher, IReferralStorageDispatcher, ISwapHandlerDispatcher, IMarketFactoryDispatcher) {
     let (
         caller_address,
@@ -47,10 +49,8 @@ fn setup() -> (ContractAddress, IRoleStoreDispatcher, IDataStoreDispatcher, IEve
         _withdrawal_handler,
         _withdrawal_vault,
         _liquidation_handler,
+        swap_handler,
     ) = tests_lib::setup();
-
-    let swap_handler_address = tests_lib::deploy_swap_handler(role_store.contract_address, data_store.contract_address);
-    let swap_handler = ISwapHandlerDispatcher { contract_address: swap_handler_address };
 
     (caller_address, role_store, data_store, event_emitter, referral_storage, swap_handler, market_factory)
 }

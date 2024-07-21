@@ -44,7 +44,7 @@ fn setup() -> (ContractAddress, IRoleStoreDispatcher, ISwapHandlerDispatcher) {
         _market_token_class_hash,
         _market_factory,
         role_store,
-        data_store,
+        _data_store,
         _event_emitter,
         _exchange_router,
         _deposit_handler,
@@ -57,14 +57,8 @@ fn setup() -> (ContractAddress, IRoleStoreDispatcher, ISwapHandlerDispatcher) {
         _withdrawal_handler,
         _withdrawal_vault,
         _liquidation_handler,
+        swap_handler,
     ) = tests_lib::setup();
-
-    let swap_handler_address = tests_lib::deploy_swap_handler(role_store.contract_address, data_store.contract_address);
-    let swap_handler = ISwapHandlerDispatcher { contract_address: swap_handler_address };
-    start_cheat_caller_address(swap_handler.contract_address, caller_address);
-
-    // Grant the caller the `CONTROLLER` role.
-    role_store.grant_role(caller_address, role::CONTROLLER);
 
     (caller_address, role_store, swap_handler)
 }

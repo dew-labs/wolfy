@@ -1,7 +1,7 @@
 use result::ResultTrait;
 use traits::{TryInto, Into};
 use starknet::{ContractAddress, get_caller_address, Felt252TryIntoContractAddress, contract_address_const};
-use snforge_std::{declare, start_cheat_caller_address, stop_cheat_caller_address, ContractClassTrait};
+use snforge_std::{declare, start_cheat_caller_address, stop_cheat_caller_address, ContractClass, ContractClassTrait};
 
 
 use satoru::market::market_token::{IMarketTokenDispatcher, IMarketTokenDispatcherTrait};
@@ -50,7 +50,7 @@ fn setup() -> (
         _market_factory_address,
         _role_store_address,
         _data_store_address,
-        _market_token_class_hash,
+        market_token_class_hash,
         _market_factory,
         role_store,
         _data_store,
@@ -66,10 +66,11 @@ fn setup() -> (
         _withdrawal_handler,
         _withdrawal_vault,
         _liquidation_handler,
+        _,
     ) = tests_lib::setup();
 
     // Deploy the contract.
-    let market_token_address = deploy_market_token(role_store.contract_address, 11111.try_into().unwrap());
+    let market_token_address = deploy_only_market_token(market_token_class_hash, role_store.contract_address, 11111.try_into().unwrap());
     // Create a safe dispatcher to interact with the contract.
     let market_token = IMarketTokenDispatcher { contract_address: market_token_address };
 
@@ -96,8 +97,7 @@ fn teardown(market_token_address: ContractAddress) {
     stop_cheat_caller_address(market_token_address);
 }
 
-fn deploy_market_token(role_store_address: ContractAddress, data_store_address: ContractAddress) -> ContractAddress {
-    let contract = declare("MarketToken").unwrap();
+fn deploy_only_market_token(contract: ContractClass, role_store_address: ContractAddress, data_store_address: ContractAddress) -> ContractAddress {
     let mut constructor_calldata = array![role_store_address.into(), data_store_address.into()];
 
     let (contract_address, _) = contract.deploy(@constructor_calldata).unwrap();

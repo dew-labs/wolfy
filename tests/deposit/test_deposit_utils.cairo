@@ -55,6 +55,7 @@ fn given_normal_conditions_when_cancel_deposit_then_works() {
     let (caller_address, data_store, role_store, event_emitter, deposit_vault, chain) = setup();
     let account: ContractAddress = 'account'.try_into().unwrap();
     let keeper: ContractAddress = 'keeper'.try_into().unwrap();
+    // TODO: create real market instead of dummy
     let deposit_param = create_dummy_deposit_param();
     let key = 'key';
     let reason = 'key';
@@ -100,7 +101,8 @@ fn setup() -> (
         _referal_storage,
         _withdrawal_handler,
         _withdrawal_vault,
-        _liquidation_handler
+        _liquidation_handler,
+        _,
     ) = tests_lib::setup();
 
     let chain_address = deploy_chain();

@@ -31,6 +31,7 @@ use satoru::position::position::Position;
 use satoru::utils::{i256::{i256, i256_neg}, error_utils};
 use satoru::utils::precision::{apply_exponent_factor, float_to_wei, mul_div};
 use satoru::data::keys::{skip_borrowing_fee_for_smaller_side, max_swap_path_length};
+use debug::PrintTrait;
 
 /// Struct to store the prices of tokens of a market.
 /// # Params
@@ -1331,8 +1332,6 @@ fn validate_pool_amount(data_store: @IDataStoreDispatcher, market: @Market, toke
         MarketError::MAX_POOL_AMOUNT_EXCEEDED(pool_amount, max_pool_amount);
     }
 }
-
-use debug::PrintTrait;
 
 /// Validates that the amount of tokens required to be reserved is below the configured threshold.
 /// # Arguments

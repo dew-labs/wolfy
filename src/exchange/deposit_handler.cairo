@@ -72,7 +72,7 @@ mod DepositHandler {
         oracle_modules::{with_oracle_prices_before, with_oracle_prices_after},
         oracle_utils::{SetPricesParams, SimulatePricesParams}
     };
-    use satoru::order::base_order_utils::{ExecuteOrderParams, ExecuteOrderParamsContracts};
+    use satoru::order::base_order_utils::{ExecuteOrderParams};
     use satoru::swap::swap_handler::{ISwapHandlerDispatcher, ISwapHandlerDispatcherTrait};
     use satoru::market::market::Market;
     use satoru::deposit::{

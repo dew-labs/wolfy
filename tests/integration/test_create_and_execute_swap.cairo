@@ -43,13 +43,12 @@ fn given_right_swap_order_params_when_execute_order_then_success() {
     // Setup
     let (
         caller_address,
-        role_store,
+        _role_store,
         data_store,
-        event_emitter,
+        _event_emitter,
         order_vault,
-        oracle,
-        swap_handler,
-        referral_storage,
+        _oracle,
+        _referral_storage,
         order_handler,
         market_factory
     ) =
@@ -116,13 +115,13 @@ fn given_right_swap_order_params_when_execute_order_then_success() {
     };
     // Create the swap order.
     start_cheat_block_number(order_handler.contract_address, 1910);
-    let key = order_handler.create_order(caller_address, order_params);
+    let _key = order_handler.create_order(caller_address, order_params);
 
     // data_store.set_u256(keys::pool_amount_key(market.market_token, contract_address_const::<'USDC'>()), );
     // data_store.set_u256(keys::pool_amount_key(market.market_token, contract_address_const::<'ETH'>()), 1000000);
     // Execute the swap order.
-    let signatures: Span<felt252> = array![0].span();
-    let set_price_params = SetPricesParams {
+    let _signatures: Span<felt252> = array![0].span();
+    let _set_price_params = SetPricesParams {
         signer_info: 1,
         tokens: array![contract_address_const::<'ETH'>(), contract_address_const::<'USDC'>()],
         compacted_min_oracle_block_numbers: array![1900, 1900],
@@ -157,36 +156,33 @@ fn setup_contracts() -> (
     IEventEmitterDispatcher,
     IOrderVaultDispatcher,
     IOracleDispatcher,
-    ISwapHandlerDispatcher,
     IReferralStorageDispatcher,
     IOrderHandlerDispatcher,
     IMarketFactoryDispatcher
 ) {
     let (
         caller_address,
-        market_factory_address,
-        role_store_address,
-        data_store_address,
-        market_token_class_hash,
+        _market_factory_address,
+        _role_store_address,
+        _data_store_address,
+        _market_token_class_hash,
         market_factory,
         role_store,
         data_store,
         event_emitter,
-        exchange_router,
-        deposit_handler,
-        deposit_vault,
+        _exchange_router,
+        _deposit_handler,
+        _deposit_vault,
         oracle,
         order_handler,
         order_vault,
-        reader,
+        _reader,
         referral_storage,
-        withdrawal_handler,
-        withdrawal_vault,
-        liquidation_handler,
+        _withdrawal_handler,
+        _withdrawal_vault,
+        _liquidation_handler,
+        _,
     ) = tests_lib::setup();
-
-    let swap_handler_address = tests_lib::deploy_swap_handler(role_store.contract_address, data_store.contract_address);
-    let swap_handler = ISwapHandlerDispatcher { contract_address: swap_handler_address };
 
     return (
         caller_address,
@@ -195,7 +191,6 @@ fn setup_contracts() -> (
         event_emitter,
         order_vault,
         oracle,
-        swap_handler,
         referral_storage,
         order_handler,
         market_factory

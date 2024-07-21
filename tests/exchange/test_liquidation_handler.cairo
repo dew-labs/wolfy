@@ -466,6 +466,7 @@ fn _setup() -> (
         _withdrawal_handler,
         _withdrawal_vault,
         liquidation_handler,
+        _,
     ) = tests_lib::setup();
 
     let liquidation_keeper: ContractAddress = 0x2233.try_into().unwrap();

@@ -7,11 +7,15 @@ use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
 use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
 use satoru::role::role;
 use satoru::test_utils::tests_lib;
+use satoru::data::keys;
+
+use debug::PrintTrait;
 
 #[test]
 fn given_normal_conditions_when_fee_handler_then_works() {
     let (_, _, _, fee_handler) = setup();
 
+    // TODO: deploy real market token instead of using dummy one
     let markets: Array<ContractAddress> = array![
         0x777.try_into().unwrap(), 0x888.try_into().unwrap(), 0x999.try_into().unwrap()
     ];
@@ -27,6 +31,7 @@ fn given_normal_conditions_when_fee_handler_then_works() {
 fn given_wrong_inputs_when_fee_handler_then_fails() {
     let (_, _, _, fee_handler) = setup();
 
+    // TODO: deploy real market token instead of using dummy one
     let markets: Array<ContractAddress> = array![
         0x777.try_into().unwrap(), 0x888.try_into().unwrap(), 0x999.try_into().unwrap()
     ];
@@ -46,6 +51,12 @@ fn deploy_fee_handler(
         data_store_address.into(), role_store_address.into(), event_emitter_address.into()
     ];
     let (contract_address, _) = contract.deploy_at(@constructor_calldata, deployed_contract_address).unwrap();
+    contract_address
+}
+
+fn deploy_account() -> ContractAddress {
+    let contract = declare("MockAccount").unwrap();
+    let (contract_address, _) = contract.deploy(@array![]).unwrap();
     contract_address
 }
 
@@ -70,11 +81,15 @@ fn setup() -> (ContractAddress, IDataStoreDispatcher, IEventEmitterDispatcher, I
         _referal_storage,
         _withdrawal_handler,
         _withdrawal_vault,
-        _liquidation_handler
+        _liquidation_handler,
+        _,
     ) = tests_lib::setup();
 
     let fee_handler_address = deploy_fee_handler(role_store.contract_address, data_store.contract_address, event_emitter.contract_address);
     let fee_handler = IFeeHandlerDispatcher { contract_address: fee_handler_address };
+
+    let account = deploy_account();
+    data_store.set_address(keys::fee_receiver(), account);
 
     (caller_address, data_store, event_emitter, fee_handler)
 }

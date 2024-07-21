@@ -88,7 +88,8 @@ fn setup() -> (IDataStoreDispatcher, IEventEmitterDispatcher, IMarketFactoryDisp
         _referal_storage,
         _withdrawal_handler,
         _withdrawal_vault,
-        _liquidation_handler
+        _liquidation_handler,
+        _,
     ) = tests_lib::setup();
 
     (data_store, event_emitter, market_factory)

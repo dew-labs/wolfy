@@ -50,7 +50,8 @@ fn setup_contracts() -> (
         _referal_storage,
         _withdrawal_handler,
         _withdrawal_vault,
-        _liquidation_handler
+        _liquidation_handler,
+        _,
     ) = setup();
 
     // Deploy the bank contract

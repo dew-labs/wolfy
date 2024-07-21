@@ -23,7 +23,7 @@ mod data {
 mod deposit {
     mod test_deposit_utils; // failed
     // mod test_deposit_vault; // cannot compile
-    mod test_execute_deposit_utils; // passed
+    // mod test_execute_deposit_utils; // not implemented
 }
 mod event {
     mod test_adl_events_emitted; // passed

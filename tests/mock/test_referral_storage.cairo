@@ -367,6 +367,7 @@ fn setup() -> (
         withdrawal_handler,
         withdrawal_vault,
         liquidation_handler,
+        _,
     ) = tests_lib::setup();
 
     let governable_address = deploy_governable(event_emitter.contract_address);
