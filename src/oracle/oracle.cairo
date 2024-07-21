@@ -302,7 +302,7 @@ mod Oracle {
                 OracleError::NON_EMPTY_TOKENS_WITH_PRICES(tokens_with_prices_len);
             };
 
-            self.set_prices_from_price_feeds(data_store, event_emitter, @params.price_feed_tokens);
+            // self.set_prices_from_price_feeds(data_store, event_emitter, @params.price_feed_tokens); // TODO uncomment
             // it is possible for transactions to be executed using just params.priceFeedTokens
             // in this case if params.tokens is empty, the function can return
             if params.tokens.len().is_zero() {
