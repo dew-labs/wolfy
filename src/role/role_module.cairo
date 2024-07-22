@@ -33,11 +33,12 @@ mod RoleModule {
     //                                  IMPORTS
     // *************************************************************************
 
-    // Core lib imports.    
+    // Core lib imports.
     use starknet::{ContractAddress, get_caller_address, get_contract_address};
 
     // Local imports.
     use satoru::role::{role, error::RoleError, role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait}};
+    use debug::PrintTrait;
 
 
     #[storage]
@@ -107,6 +108,7 @@ mod RoleModule {
     impl InternalFunctions of InternalFunctionsTrait {
         fn _validate_role(self: @ContractState, role_key: felt252) {
             let caller = get_caller_address();
+            caller.print();
             let role_store = self.role_store.read();
             assert(role_store.has_role(caller, role_key), RoleError::UNAUTHORIZED_ACCESS);
         }

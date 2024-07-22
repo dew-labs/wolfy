@@ -2403,6 +2403,8 @@ fn test_long_liquidation() {
         price_feed_tokens: array![]
     };
 
+    role_store.grant_role(caller_address, role::LIQUIDATION_KEEPER);
+
     // Execute Liquidation
     liquidation_handler
         .execute_liquidation(
@@ -2698,21 +2700,21 @@ fn test_long_leverage_liquidation() {
     // *********************************************************************************************
     let (
         caller_address,
-        market_token_class,
+        _market_token_class,
         market_factory,
         role_store,
         data_store,
-        event_emitter,
+        _event_emitter,
         exchange_router,
-        deposit_handler,
-        deposit_vault,
-        oracle,
+        _deposit_handler,
+        _deposit_vault,
+        _oracle,
         order_handler,
         order_vault,
         reader,
         referal_storage,
-        withdrawal_handler,
-        withdrawal_vault,
+        _withdrawal_handler,
+        _withdrawal_vault,
         liquidation_handler,
         market,
     ) =
@@ -2887,6 +2889,8 @@ fn test_long_leverage_liquidation() {
         signatures: array![array!['signatures1', 'signatures2'].span(), array!['signatures1', 'signatures2'].span()],
         price_feed_tokens: array![]
     };
+
+    role_store.grant_role(caller_address, role::LIQUIDATION_KEEPER);
 
     // Execute Liquidation
     liquidation_handler

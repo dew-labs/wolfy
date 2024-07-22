@@ -63,30 +63,36 @@ const INITIAL_TOKENS_MINTED: felt252 = 1000;
 fn test_swap_market() {
     let (
         caller_address,
-        market_token_class,
+        _market_token_class,
         market_factory,
         role_store,
         data_store,
-        event_emitter,
-        exchange_router,
-        deposit_handler,
-        deposit_vault,
-        oracle,
+        _event_emitter,
+        _exchange_router,
+        _deposit_handler,
+        _deposit_vault,
+        _oracle,
         order_handler,
         order_vault,
-        reader,
-        referal_storage,
-        withdrawal_handler,
-        withdrawal_vault,
-        liquidation_handler,
+        _reader,
+        _referal_storage,
+        _withdrawal_handler,
+        _withdrawal_vault,
+        _liquidation_handler,
         market,
     ) =
         deposit_setup(
         20000000000000000000, 100000000000000000000000
     );
 
-    let balance_caller_ETH = IERC20Dispatcher { contract_address: market.long_token }.balance_of(caller_address);
-    let balance_caller_USDC = IERC20Dispatcher { contract_address: market.short_token }.balance_of(caller_address);
+    let ETH = IERC20Dispatcher { contract_address: contract_address_const::<'ETH'>() };
+    let USDC = IERC20Dispatcher { contract_address: contract_address_const::<'USDC'>() };
+
+    let long_token = IERC20Dispatcher { contract_address: market.long_token };
+    let short_token = IERC20Dispatcher { contract_address: market.short_token };
+
+    let balance_caller_ETH = long_token.balance_of(caller_address);
+    let balance_caller_USDC = short_token.balance_of(caller_address);
 
     assert(balance_caller_ETH == 10000000000000000000, 'balanc ETH should be 10 ETH');
     assert(balance_caller_USDC == 50000000000000000000000, 'USDC be 50 000 USDC');
@@ -110,21 +116,24 @@ fn test_swap_market() {
 
     // // --------------------------------------------------SWAP TEST ETH->USDC --------------------------------------------------
     'Swap ETH to USDC'.print();
-    let balance_ETH_before_swap = IERC20Dispatcher { contract_address: contract_address_const::<'ETH'>() }
-        .balance_of(caller_address);
 
-    let balance_USDC_before_swap = IERC20Dispatcher { contract_address: contract_address_const::<'USDC'>() }
-        .balance_of(caller_address);
+    let balance_ETH_before_swap = ETH.balance_of(caller_address);
+    let balance_USDC_before_swap = USDC.balance_of(caller_address);
 
     // 10 ETH
     assert(balance_ETH_before_swap == 10000000000000000000, 'wrong balance ETH before swap');
     // 50 000 USDC
     assert(balance_USDC_before_swap == 50000000000000000000000, 'wrong balance USDC before swap');
 
-    start_cheat_caller_address(contract_address_const::<'ETH'>(), caller_address); //change to switch swap
+    start_cheat_caller_address(contract_address_const::<'ETH'>(), caller_address); // change to switch swap
+
     // Send token to order_vault in multicall with create_order
-    IERC20Dispatcher { contract_address: contract_address_const::<'ETH'>() } //change to switch swap
+    'Transfer'.print();
+
+    IERC20Dispatcher { contract_address: contract_address_const::<'ETH'>() } // change to switch swap
         .transfer(order_vault.contract_address, 1000000000000000000);
+
+    'Transfered'.print();
 
     let balance_ETH_before = IERC20Dispatcher { contract_address: contract_address_const::<'ETH'>() }
         .balance_of(caller_address);
@@ -164,8 +173,10 @@ fn test_swap_market() {
     // Create the swap order.
     start_cheat_block_number(order_handler.contract_address, 1920);
 
+    'Create order'.print();
     // Create the order but we do not execute it yet
     let key = order_handler.create_order(caller_address, order_params);
+    'Created'.print();
 
     let got_order = data_store.get_order(key);
 
@@ -202,7 +213,10 @@ fn test_swap_market() {
     stop_cheat_caller_address(order_handler.contract_address);
     start_cheat_caller_address(order_handler.contract_address, keeper_address);
     start_cheat_block_number(order_handler.contract_address, 1925);
+
+    'Execute order'.print();
     order_handler.execute_order(key, set_price_params);
+    'Executed'.print();
 
     let balance_ETH_after = IERC20Dispatcher { contract_address: contract_address_const::<'ETH'>() }
         .balance_of(caller_address);

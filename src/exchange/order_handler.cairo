@@ -197,8 +197,9 @@ mod OrderHandler {
     impl OrderHandlerImpl of super::IOrderHandler<ContractState> {
         fn create_order(ref self: ContractState, account: ContractAddress, params: CreateOrderParams) -> felt252 {
             // Check only controller.
-            // let role_module_state = RoleModule::unsafe_new_contract_state(); // TODO uncomment role
-            // role_module_state.only_controller();
+            let role_module_state = RoleModule::unsafe_new_contract_state();
+            role_module_state.only_order_keeper();
+
             // Fetch data store.
             let base_order_handler_state = BaseOrderHandler::unsafe_new_contract_state();
             let data_store = base_order_handler_state.data_store.read();
@@ -242,7 +243,7 @@ mod OrderHandler {
             // TODO: Did not implement starting gas and try / catch logic as not available in Cairo
             self._execute_order(key, oracle_params, get_contract_address());
             oracle_modules::with_oracle_prices_after(base_order_handler_state.oracle.read());
-        // non_reentrant_after(data_store);
+            // non_reentrant_after(data_store);
         }
 
         fn execute_order_keeper(

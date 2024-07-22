@@ -212,8 +212,10 @@ fn deposit_setup(
     IERC20Dispatcher { contract_address: market.long_token }.mint(caller_address, long_token_amount); // 20 ETH
     IERC20Dispatcher { contract_address: market.short_token }.mint(caller_address, short_token_amount); // 100 000 USDC
 
-    // role_store.grant_role(exchange_router.contract_address, role::ROUTER_PLUGIN);
-    // role_store.grant_role(caller_address, role::ROUTER_PLUGIN);
+    role_store.grant_role(exchange_router.contract_address, role::ROUTER_PLUGIN);
+    role_store.grant_role(caller_address, role::ROUTER_PLUGIN);
+
+    role_store.grant_role(order_handler.contract_address, role::CONTROLLER); // for tests::integration::swap_test::test_swap_market
 
     exchange_router.send_tokens(market.long_token, deposit_vault.contract_address, long_token_amount);
     exchange_router.send_tokens(market.short_token, deposit_vault.contract_address, short_token_amount);

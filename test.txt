@@ -19,7 +19,7 @@ Failures:
     tests::deposit::test_deposit_utils::given_normal_conditions_when_deposit_then_works
     tests::deposit::test_deposit_utils::given_normal_conditions_when_cancel_deposit_then_works
 
-    // incorrect received amountincorrect received amount
+    // incorrect received amount
     tests::deposit::test_deposit_vault::given_more_balance_when_2nd_record_transfer_in_then_works
 
     // Expected to panic but didn't
@@ -35,22 +35,16 @@ Failures:
     tests::withdrawal::test_withdrawal_vault::given_more_balance_when_sync_token_balance_then_works
     tests::withdrawal::test_withdrawal_vault::given_less_balance_when_sync_token_balance_then_works
 
-    // unauthorized_access
-    tests::integration::swap_test::test_swap_market
-    tests::integration::test_short_integration::test_short_increase_decrease_close
-    tests::integration::test_long_integration::test_long_increase_decrease_close
-    tests::integration::test_long_integration::test_takeprofit_long
-    tests::integration::test_long_integration::test_long_liquidation
-    tests::integration::test_long_integration::test_long_leverage_positif_close
-    tests::integration::test_long_integration::test_long_leverage_liquidation
+    // The test panic right, but somehow the test runner could catch it
+    // (0x696e76616c69645f6f726465725f7072696365 ('invalid_order_price'), 0x4c696d69744465637265617365 ('LimitDecrease'))
     tests::integration::test_long_integration::test_takeprofit_long_decrease_fails
-    tests::integration::test_long_integration::test_takeprofit_long_increase_fails
     tests::integration::test_long_integration::test_takeprofit_long_close_fails
+    tests::integration::test_long_integration::test_takeprofit_long_increase_fails
 
     // u256_sub Overflow
     tests::integration::test_create_and_execute_swap::given_right_swap_order_params_when_execute_order_then_success
 
-    // contract not deployed
+    // contract not deployed: need to deploy market token
     tests::exchange::test_withdrawal_handler::given_normal_conditions_when_create_withdrawal_then_works
     tests::exchange::test_withdrawal_handler::given_market_token_equals_zero_when_cancel_withdrawal_then_fails
     tests::exchange::test_withdrawal_handler::given_market_token_amount_equal_zero_when_create_withdrawal_then_fails

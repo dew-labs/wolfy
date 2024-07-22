@@ -311,20 +311,20 @@ mod OrderUtils {
             market_utils::validate_market_token_balance_array(params.contracts.data_store, params.swap_path_markets);
 
             params.contracts.event_emitter.emit_order_executed(params.key, params.secondary_order_type);
-        // callback_utils::after_order_execution(params.key, params.order, event_data);
+            // callback_utils::after_order_execution(params.key, params.order, event_data);
 
-        // the order.executionFee for liquidation / adl orders is zero
-        // gas costs for liquidations / adl is subsidised by the treasury
-        // TODO crashing
-        // gas_utils::pay_execution_fee_order(
-        //     params.contracts.data_store,
-        //     params.contracts.event_emitter,
-        //     params.contracts.order_vault,
-        //     params.order.execution_fee,
-        //     params.starting_gas,
-        //     params.keeper,
-        //     params.order.account
-        // );
+            // the order.executionFee for liquidation / adl orders is zero
+            // gas costs for liquidations / adl is subsidised by the treasury
+            // TODO crashing
+            // gas_utils::pay_execution_fee_order(
+            //     params.contracts.data_store,
+            //     params.contracts.event_emitter,
+            //     params.contracts.order_vault,
+            //     params.order.execution_fee,
+            //     params.starting_gas,
+            //     params.keeper,
+            //     params.order.account
+            // );
         }
 
         /// Process an order execution.
