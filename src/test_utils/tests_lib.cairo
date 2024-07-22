@@ -69,16 +69,6 @@ fn deploy_mock_account_at(mock_account_contract: ContractClass, address: Contrac
 }
 
 // Not used in setup
-fn create_market(market_factory: IMarketFactoryDispatcher) -> ContractAddress {
-    // Create a market.
-    let (index_token, short_token) = deploy_tokens();
-    let market_type = 'market_type';
-
-    // Index token is the same as long token here.
-    market_factory.create_market(index_token, index_token, short_token, market_type)
-}
-
-// Not used in setup
 fn deploy_tokens() -> (ContractAddress, ContractAddress) {
     let caller_address: ContractAddress = get_c4ller_address();
     let contract = declare("ERC20").unwrap();
@@ -101,6 +91,16 @@ fn deploy_erc20_token(deposit_vault_address: ContractAddress) -> ContractAddress
     let constructor_calldata3 = array!['satoru', 'STU', INITIAL_TOKENS_MINTED, 0, deposit_vault_address.into()];
     let (contract_address, _) = erc20_contract.deploy(@constructor_calldata3).unwrap();
     contract_address
+}
+
+// Not used in setup
+fn create_market(market_factory: IMarketFactoryDispatcher) -> ContractAddress {
+    // Create a market.
+    let (index_token, short_token) = deploy_tokens();
+    let market_type = 'market_type';
+
+    // Index token is the same as long token here.
+    market_factory.create_market(index_token, index_token, short_token, market_type)
 }
 
 /// Utility function to setup the test environment.
@@ -160,7 +160,7 @@ fn setup() -> (
         oracle_store,
     ) = setup_contracts();
 
-    grant_roles_and_prank();
+    grant_roles();
 
     (
         caller_address,
@@ -192,17 +192,10 @@ fn setup() -> (
 }
 
 // Utility function to grant roles and prank the caller address.
-fn grant_roles_and_prank() {
+fn grant_roles() {
     let caller_address = get_c4ller_address();
 
     let role_store = IRoleStoreDispatcher { contract_address: get_role_store_address() };
-
-    start_cheat_caller_address(get_role_store_address(), caller_address);
-    start_cheat_caller_address(get_data_store_address(), caller_address);
-    start_cheat_caller_address(get_market_factory_address(), caller_address);
-    start_cheat_caller_address(get_swap_handler_address(), caller_address);
-    start_cheat_caller_address(get_bank_address(), caller_address);
-    start_cheat_caller_address(get_strict_bank_address(), caller_address);
 
     role_store.grant_role(caller_address, role::CONTROLLER);
     role_store.grant_role(caller_address, role::MARKET_KEEPER);
@@ -216,6 +209,20 @@ fn teardown() {
     stop_cheat_caller_address(get_swap_handler_address());
     stop_cheat_caller_address(get_bank_address());
     stop_cheat_caller_address(get_strict_bank_address());
+    stop_cheat_caller_address(get_event_emitter_address());
+    stop_cheat_caller_address(get_oracle_store_address());
+    stop_cheat_caller_address(get_router_address());
+    stop_cheat_caller_address(get_deposit_handler_address());
+    stop_cheat_caller_address(get_oracle_address());
+    stop_cheat_caller_address(get_deposit_vault_address());
+    stop_cheat_caller_address(get_withdrawal_handler_address());
+    stop_cheat_caller_address(get_withdrawal_vault_address());
+    stop_cheat_caller_address(get_order_handler_address());
+    stop_cheat_caller_address(get_liquidation_handler_address());
+    stop_cheat_caller_address(get_referral_storage_address());
+    stop_cheat_caller_address(get_exchange_router_address());
+    stop_cheat_caller_address(get_order_vault_address());
+    stop_cheat_caller_address(get_reader_address());
 }
 
 /// Setup required contracts.
@@ -715,7 +722,7 @@ fn deploy_bank(data_store_address: ContractAddress, role_store_address: Contract
     let mut constructor_calldata = array![];
     constructor_calldata.append(data_store_address.into());
     constructor_calldata.append(role_store_address.into());
-    start_cheat_caller_address(data_store_address, caller_address);
+    start_cheat_caller_address(bank_address, caller_address);
     let (contract_address, _) = contract.deploy_at(@constructor_calldata, bank_address).unwrap();
     contract_address
 }
