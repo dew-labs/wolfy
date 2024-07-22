@@ -15,7 +15,7 @@ fn given_normal_conditions_when_transfer_then_expected_results() {
     // *********************************************************************************************
     let mint_amount = 10000;
     let transfer_amount: u256 = 100;
-    let receiver_address: ContractAddress = 0x103.try_into().unwrap();
+    let receiver_address = contract_address_const::<'dummy_receiver'>();
     let (sender_address, caller_address, router, test_token) = setup(mint_amount);
 
     let sender_initial_balance = test_token.balance_of(sender_address);
@@ -54,7 +54,7 @@ fn given_bad_caller_when_transfer_then_fail() {
     // *********************************************************************************************
     let mint_amount = 10000;
     let transfer_amount: u256 = 100;
-    let receiver_address: ContractAddress = 0x103.try_into().unwrap();
+    let receiver_address = contract_address_const::<'dummy_receiver'>();
     let (sender_address, _, router, test_token) = setup(mint_amount);
 
     // *********************************************************************************************

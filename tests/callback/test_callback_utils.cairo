@@ -54,7 +54,7 @@ fn given_normal_conditions_when_saved_callback_then_works() {
 // TODO bad syscall_ptr
 #[test]
 fn given_normal_conditions_when_callback_contract_functions_then_works() {
-    let (data_store, event_emitter, _) = setup();
+    let (_data_store, _event_emitter, _) = setup();
 
     let mut deposit: Deposit = Default::default();
     let mut log_data: LogData = Default::default();
@@ -70,10 +70,11 @@ fn given_normal_conditions_when_callback_contract_functions_then_works() {
 fn setup() -> (IDataStoreDispatcher, IEventEmitterDispatcher, IMarketFactoryDispatcher) {
     let (
         _caller_address,
-        _market_factory__address,
-        _role_store_address,
-        _data_store_address,
-        _market_token_class_hash,
+        _market_token_class,
+        _increase_order_class,
+        _decrease_order_class,
+        _swap_order_class,
+        _order_utils_class,
         market_factory,
         _role_store,
         data_store,
@@ -89,6 +90,9 @@ fn setup() -> (IDataStoreDispatcher, IEventEmitterDispatcher, IMarketFactoryDisp
         _withdrawal_handler,
         _withdrawal_vault,
         _liquidation_handler,
+        _,
+        _,
+        _,
         _,
     ) = tests_lib::setup();
 

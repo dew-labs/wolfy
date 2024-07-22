@@ -47,10 +47,11 @@ fn setup() -> (
 ) {
     let (
         caller_address,
-        _market_factory_address,
-        _role_store_address,
-        _data_store_address,
-        market_token_class_hash,
+        market_token_class,
+        _increase_order_class,
+        _decrease_order_class,
+        _swap_order_class,
+        _order_utils_class,
         _market_factory,
         role_store,
         _data_store,
@@ -67,10 +68,13 @@ fn setup() -> (
         _withdrawal_vault,
         _liquidation_handler,
         _,
+        _,
+        _,
+        _,
     ) = tests_lib::setup();
 
     // Deploy the contract.
-    let market_token_address = deploy_only_market_token(market_token_class_hash, role_store.contract_address, 11111.try_into().unwrap());
+    let market_token_address = deploy_only_market_token(market_token_class, role_store.contract_address, 11111.try_into().unwrap());
     // Create a safe dispatcher to interact with the contract.
     let market_token = IMarketTokenDispatcher { contract_address: market_token_address };
 

@@ -1,6 +1,6 @@
 use satoru::data::data_store::IDataStoreDispatcherTrait;
 use satoru::utils::global_reentrancy_guard::{non_reentrant_before, non_reentrant_after};
-use satoru::test_utils::tests_lib::{setup, teardown};
+use satoru::test_utils::tests_lib;
 
 #[test]
 fn given_normal_conditions_when_non_reentrancy_before_and_after_then_works() {
@@ -9,10 +9,11 @@ fn given_normal_conditions_when_non_reentrancy_before_and_after_then_works() {
     // *********************************************************************************************
     let (
         _caller_address,
-        _market_factory__address,
-        _role_store_address,
-        _data_store_address,
-        _market_token_class_hash,
+        _market_token_class,
+        _increase_order_class,
+        _decrease_order_class,
+        _swap_order_class,
+        _order_utils_class,
         _market_factory,
         _role_store,
         data_store,
@@ -28,8 +29,11 @@ fn given_normal_conditions_when_non_reentrancy_before_and_after_then_works() {
         _withdrawal_handler,
         _withdrawal_vault,
         _liquidation_handler,
-        _
-    ) = setup();
+        _,
+        _,
+        _,
+        _,
+    ) = tests_lib::setup();
     // *********************************************************************************************
     // *                              TEST LOGIC                                                   *
     // *********************************************************************************************
@@ -62,10 +66,11 @@ fn given_reentrant_call_when_reentrancy_before_and_after_then_fails() {
     // *********************************************************************************************
     let (
         _caller_address,
-        _market_factory__address,
-        _role_store_address,
-        _data_store_address,
-        _market_token_class_hash,
+        _market_token_class,
+        _increase_order_class,
+        _decrease_order_class,
+        _swap_order_class,
+        _order_utils_class,
         _market_factory,
         _role_store,
         data_store,
@@ -81,8 +86,11 @@ fn given_reentrant_call_when_reentrancy_before_and_after_then_fails() {
         _withdrawal_handler,
         _withdrawal_vault,
         _liquidation_handler,
-        _
-    ) = setup();
+        _,
+        _,
+        _,
+        _,
+    ) = tests_lib::setup();
 
     // *********************************************************************************************
     // *                              TEST LOGIC                                                   *

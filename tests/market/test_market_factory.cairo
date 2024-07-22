@@ -26,15 +26,15 @@ fn given_normal_conditions_when_create_market_then_market_is_created() {
     // *                              SETUP                                                        *
     // *********************************************************************************************
     let (
-        caller_address,
-        market_factory_address,
-        role_store_address,
-        data_store_address,
-        market_token_class_hash,
+        _caller_address,
+        _market_factory_address,
+        _role_store_address,
+        _data_store_address,
+        _market_token_class,
         market_factory,
-        role_store,
+        _role_store,
         data_store,
-        event_emitter,
+        _event_emitter,
     ) =
         setup();
 
@@ -78,15 +78,15 @@ fn given_bad_params_when_create_market_then_fail() {
     // *                              SETUP                                                        *
     // *********************************************************************************************
     let (
-        caller_address,
-        market_factory_address,
-        role_store_address,
-        data_store_address,
-        market_token_class_hash,
+        _caller_address,
+        _market_factory_address,
+        _role_store_address,
+        _data_store_address,
+        _market_token_class,
         market_factory,
-        role_store,
+        _role_store,
         data_store,
-        event_emitter,
+        _event_emitter,
     ) =
         setup();
 
@@ -100,9 +100,9 @@ fn given_bad_params_when_create_market_then_fail() {
     let index_token = contract_address_const::<0>();
     let long_token = contract_address_const::<'long_token'>();
     let short_token = contract_address_const::<'short_token'>();
-    let market_type = 'market_type';
+    let _market_type = 'market_type';
 
-    let new_market = Market { market_token, index_token, long_token, short_token, };
+    let _new_market = Market { market_token, index_token, long_token, short_token, };
 
     // Try to create a market.
     // This must fail because the index token is invalid.
@@ -145,10 +145,10 @@ fn setup() -> (
 ) {
     let (
         caller_address,
-        market_factory_address,
+        _market_factory_address,
         role_store_address,
         data_store_address,
-        market_token_class_hash,
+        market_token_class,
         market_factory,
         role_store,
         data_store,
@@ -161,7 +161,7 @@ fn setup() -> (
         market_factory.contract_address,
         role_store_address,
         data_store_address,
-        market_token_class_hash,
+        market_token_class,
         market_factory,
         role_store,
         data_store,
@@ -232,10 +232,11 @@ fn setup_contracts() -> (
 
     let (
         caller_address,
-        market_factory_address,
-        _role_store_address,
-        _data_store_address,
-        market_token_class_hash,
+        market_token_class,
+        _increase_order_class,
+        _decrease_order_class,
+        _swap_order_class,
+        _order_utils_class,
         market_factory,
         role_store,
         data_store,
@@ -252,14 +253,17 @@ fn setup_contracts() -> (
         _withdrawal_vault,
         _liquidation_handler,
         _,
+        _,
+        _,
+        _,
     ) = tests_lib::setup();
 
     (
         caller_address,
-        market_factory_address,
+        market_factory.contract_address,
         role_store.contract_address,
         data_store.contract_address,
-        market_token_class_hash,
+        market_token_class,
         market_factory,
         role_store,
         data_store,

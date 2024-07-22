@@ -20,10 +20,11 @@ use satoru::test_utils::tests_lib;
 fn setup() -> (ContractAddress, IRoleStoreDispatcher, IDataStoreDispatcher, IMarketFactoryDispatcher) {
     let (
         caller_address,
-        _market_factory__address,
-        _role_store_address,
-        _data_store_address,
-        _market_token_class_hash,
+        _market_token_class,
+        _increase_order_class,
+        _decrease_order_class,
+        _swap_order_class,
+        _order_utils_class,
         market_factory,
         role_store,
         data_store,
@@ -40,6 +41,9 @@ fn setup() -> (ContractAddress, IRoleStoreDispatcher, IDataStoreDispatcher, IMar
         _withdrawal_vault,
         _liquidation_handler,
         _,
+        _,
+        _,
+        _,
     ) = tests_lib::setup();
     (caller_address, role_store, data_store, market_factory)
 }
@@ -47,7 +51,7 @@ fn setup() -> (ContractAddress, IRoleStoreDispatcher, IDataStoreDispatcher, IMar
 #[test]
 fn given_normal_conditions_when_set_market_new_and_override_then_works() {
     // Setup
-    let (caller_address, role_store, data_store, market_factory) = setup();
+    let (_caller_address, _role_store, data_store, market_factory) = setup();
     let address_zero = contract_address_const::<0>();
 
     let key = contract_address_const::<123456789>();
@@ -77,7 +81,7 @@ fn given_normal_conditions_when_set_market_new_and_override_then_works() {
 
 fn given_normal_conditions_when_set_market_and_get_by_salt_then_works() {
     // Setup
-    let (caller_address, role_store, data_store, market_factory) = setup();
+    let (_caller_address, _role_store, data_store, market_factory) = setup();
     let address_zero = contract_address_const::<0>();
 
     let key = contract_address_const::<123456789>();
@@ -122,7 +126,7 @@ fn given_not_market_keeper_when_set_market_then_fails() {
 #[test]
 fn given_normal_conditions_when_get_market_keys_then_works() {
     // Setup
-    let (caller_address, role_store, data_store, market_factory) = setup();
+    let (_caller_address, _role_store, data_store, market_factory) = setup();
     let address_zero = contract_address_const::<0>();
 
     let key = contract_address_const::<123456789>();
@@ -149,7 +153,7 @@ fn given_normal_conditions_when_get_market_keys_then_works() {
 #[test]
 fn given_normal_conditions_when_remove_only_one_market_then_works() {
     // Setup
-    let (caller_address, role_store, data_store, market_factory) = setup();
+    let (_caller_address, _role_store, data_store, market_factory) = setup();
     let address_zero = contract_address_const::<0>();
 
     let key = contract_address_const::<123456789>();
@@ -172,7 +176,7 @@ fn given_normal_conditions_when_remove_only_one_market_then_works() {
 #[test]
 fn given_normal_conditions_when_remove_1_of_n_market_then_works() {
     // Setup
-    let (caller_address, role_store, data_store, market_factory) = setup();
+    let (_caller_address, _role_store, data_store, market_factory) = setup();
     let address_zero = contract_address_const::<0>();
     let address_one: ContractAddress = 1.try_into().unwrap();
 

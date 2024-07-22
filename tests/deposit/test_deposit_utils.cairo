@@ -21,10 +21,10 @@ use snforge_std::{declare, start_cheat_caller_address, ContractClassTrait};
 
 #[test]
 fn given_normal_conditions_when_deposit_then_works() {
-    let (caller_address, data_store, role_store, event_emitter, deposit_vault, chain) = setup();
+    let (_caller_address, data_store, _role_store, event_emitter, deposit_vault, _chain) = setup();
     let account: ContractAddress = 'account'.try_into().unwrap();
     let deposit_param = create_dummy_deposit_param();
-    let key = create_deposit(
+    let _key = create_deposit(
         data_store, event_emitter, deposit_vault, account, deposit_param
     );
 }
@@ -52,12 +52,12 @@ fn given_normal_conditions_when_deposit_then_works() {
 
 #[test]
 fn given_normal_conditions_when_cancel_deposit_then_works() {
-    let (caller_address, data_store, role_store, event_emitter, deposit_vault, chain) = setup();
+    let (_caller_address, data_store, _role_store, event_emitter, deposit_vault, _chain) = setup();
     let account: ContractAddress = 'account'.try_into().unwrap();
     let keeper: ContractAddress = 'keeper'.try_into().unwrap();
     // TODO: create real market instead of dummy
     let deposit_param = create_dummy_deposit_param();
-    let key = 'key';
+    let _key = 'key';
     let reason = 'key';
     let starting_gas = 2;
     let reason_bytes = array!['reason_bytes_1', 'reason_bytes_2',];
@@ -83,10 +83,11 @@ fn setup() -> (
 ) {
     let (
         caller_address,
-        _market_factory__address,
-        _role_store_address,
-        _data_store_address,
-        _market_token_class_hash,
+        _market_token_class,
+        _increase_order_class,
+        _decrease_order_class,
+        _swap_order_class,
+        _order_utils_class,
         _market_factory,
         role_store,
         data_store,
@@ -102,6 +103,9 @@ fn setup() -> (
         _withdrawal_handler,
         _withdrawal_vault,
         _liquidation_handler,
+        _,
+        _,
+        _,
         _,
     ) = tests_lib::setup();
 

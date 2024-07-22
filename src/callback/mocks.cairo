@@ -1,8 +1,6 @@
 use starknet::ContractAddress;
 use snforge_std::{declare, ContractClassTrait};
 
-use satoru::test_utils::tests_lib::{setup, teardown, deploy_event_emitter};
-
 #[starknet::interface]
 trait ICallbackMock<TContractState> {
     fn get_counter(self: @TContractState) -> u32;

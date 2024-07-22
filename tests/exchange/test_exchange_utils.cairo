@@ -16,7 +16,7 @@ use satoru::test_utils::tests_lib;
 fn given_exchange_utils_when_validate_request_cancellation_then_success() {
     // Setup
     let (data_store, market_factory) = setup();
-    let contract_address = contract_address_const::<0>();
+    let _contract_address = contract_address_const::<0>();
 
     // Test
     let expiration_age = 5;
@@ -39,7 +39,7 @@ fn given_exchange_utils_when_validate_request_cancellation_then_success() {
 fn given_exchange_utils_when_validate_request_cancellation_then_fails() {
     // Setup
     let (data_store, _) = setup();
-    let contract_address = contract_address_const::<0>();
+    let _contract_address = contract_address_const::<0>();
 
     // Test
     let expiration_age = 5;
@@ -54,10 +54,11 @@ fn given_exchange_utils_when_validate_request_cancellation_then_fails() {
 fn setup() -> (IDataStoreDispatcher, IMarketFactoryDispatcher) {
     let (
         _caller_address,
-        _market_factory__address,
-        _role_store_address,
-        _data_store_address,
-        _market_token_class_hash,
+        _market_token_class,
+        _increase_order_class,
+        _decrease_order_class,
+        _swap_order_class,
+        _order_utils_class,
         market_factory,
         _role_store,
         data_store,
@@ -73,6 +74,9 @@ fn setup() -> (IDataStoreDispatcher, IMarketFactoryDispatcher) {
         _withdrawal_handler,
         _withdrawal_vault,
         _liquidation_handler,
+        _,
+        _,
+        _,
         _,
     ) = tests_lib::setup();
 

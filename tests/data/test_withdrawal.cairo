@@ -18,10 +18,11 @@ use satoru::test_utils::tests_lib;
 fn setup() -> (ContractAddress, IRoleStoreDispatcher, IDataStoreDispatcher) {
     let (
         caller_address,
-        _market_factory__address,
-        _role_store_address,
-        _data_store_address,
-        _market_token_class_hash,
+        _market_token_class,
+        _increase_order_class,
+        _decrease_order_class,
+        _swap_order_class,
+        _order_utils_class,
         _market_factory,
         role_store,
         data_store,
@@ -38,6 +39,9 @@ fn setup() -> (ContractAddress, IRoleStoreDispatcher, IDataStoreDispatcher) {
         _withdrawal_vault,
         _liquidation_handler,
         _,
+        _,
+        _,
+        _,
     ) = tests_lib::setup();
     (caller_address, role_store, data_store)
 }
@@ -45,7 +49,7 @@ fn setup() -> (ContractAddress, IRoleStoreDispatcher, IDataStoreDispatcher) {
 #[test]
 fn given_normal_conditions_when_set_withdrawal_new_and_override_then_works() {
     // Setup
-    let (caller_address, role_store, data_store) = setup();
+    let (_caller_address, _role_store, data_store) = setup();
     let account = 'account'.try_into().unwrap();
     let long_token_swap_path: Span32<ContractAddress> = array![
         1.try_into().unwrap(), 2.try_into().unwrap(), 3.try_into().unwrap()
@@ -111,7 +115,7 @@ fn given_normal_conditions_when_set_withdrawal_new_and_override_then_works() {
 #[should_panic(expected: ('withdrawal account cant be 0',))]
 fn given_withdrawal_account_0_when_set_withdrawal_then_fails() {
     // Setup
-    let (caller_address, role_store, data_store) = setup();
+    let (_caller_address, _role_store, data_store) = setup();
     let account = contract_address_const::<0>();
     let long_token_swap_path: Span32<ContractAddress> = array![
         1.try_into().unwrap(), 2.try_into().unwrap(), 3.try_into().unwrap()
@@ -243,7 +247,7 @@ fn given_caller_not_controller_when_get_withdrawal_keys_then_fails() {
 #[test]
 fn given_normal_conditions_when_remove_only_withdrawal_then_works() {
     // Setup
-    let (caller_address, role_store, data_store) = setup();
+    let (_caller_address, _role_store, data_store) = setup();
     let account = 'account'.try_into().unwrap();
     let long_token_swap_path: Span32<ContractAddress> = array![
         1.try_into().unwrap(), 2.try_into().unwrap(), 3.try_into().unwrap()
@@ -293,7 +297,7 @@ fn given_normal_conditions_when_remove_only_withdrawal_then_works() {
 #[test]
 fn given_normal_conditions_when_remove_1_of_n_withdrawal_then_works() {
     // Setup
-    let (caller_address, role_store, data_store) = setup();
+    let (_caller_address, _role_store, data_store) = setup();
     let account = 'account'.try_into().unwrap();
     let long_token_swap_path: Span32<ContractAddress> = array![
         1.try_into().unwrap(), 2.try_into().unwrap(), 3.try_into().unwrap()
@@ -365,7 +369,7 @@ fn given_normal_conditions_when_remove_1_of_n_withdrawal_then_works() {
 #[test]
 fn given_normal_conditions_when_remove_last_withdrawal_then_works() {
     // Setup
-    let (caller_address, role_store, data_store) = setup();
+    let (_caller_address, _role_store, data_store) = setup();
     let account = 'account'.try_into().unwrap();
     let long_token_swap_path: Span32<ContractAddress> = array![
         1.try_into().unwrap(), 2.try_into().unwrap(), 3.try_into().unwrap()

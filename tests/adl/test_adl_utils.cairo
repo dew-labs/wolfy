@@ -23,7 +23,7 @@ use satoru::oracle::oracle::{IOracleDispatcher, IOracleDispatcherTrait};
 #[test]
 fn given_normal_conditions_when_set_latest_adl_block_then_works() {
     // Setup
-    let (caller_address, role_store, data_store, market_factory, _, _) = setup();
+    let (_caller_address, _role_store, data_store, market_factory, _, _) = setup();
     let market = 'market'.try_into().unwrap();
     let is_long = false;
 
@@ -58,7 +58,7 @@ fn given_normal_conditions_when_set_latest_adl_block_then_works() {
 #[test]
 fn given_normal_conditions_when_set_adl_enabled_then_works() {
     // Setup
-    let (caller_address, role_store, data_store, market_factory, _, _) = setup();
+    let (_caller_address, _role_store, data_store, market_factory, _, _) = setup();
     let market = 'market'.try_into().unwrap();
     let is_long = false;
 
@@ -81,7 +81,7 @@ fn given_normal_conditions_when_set_adl_enabled_then_works() {
 #[should_panic(expected: ('adl_not_enabled',))]
 fn given_not_enabled_condition_when_validate_adl_then_fails() {
     // Setup
-    let (caller_address, role_store, data_store, market_factory, _, _) = setup();
+    let (_caller_address, _role_store, data_store, market_factory, _, _) = setup();
     let market = 'market'.try_into().unwrap();
     let block_numbers = array![10_u64, 8_u64];
     // Test logic
@@ -95,7 +95,7 @@ fn given_not_enabled_condition_when_validate_adl_then_fails() {
 #[should_panic(expected: ('block_no_smaller_than_required',))]
 fn given_small_block_number_when_validate_adl_then_fails() {
     // Setup
-    let (caller_address, role_store, data_store, market_factory, _, _) = setup();
+    let (_caller_address, _role_store, data_store, market_factory, _, _) = setup();
     let market = 'market'.try_into().unwrap();
     let is_long = false;
 
@@ -115,7 +115,7 @@ fn given_small_block_number_when_validate_adl_then_fails() {
 #[test]
 fn given_normal_conditions_when_validate_adl_then_works() {
     // Setup
-    let (caller_address, role_store, data_store, market_factory, _, _) = setup();
+    let (_caller_address, _role_store, data_store, market_factory, _, _) = setup();
     let market = 'market'.try_into().unwrap();
     let is_long = false;
 
@@ -135,7 +135,7 @@ fn given_normal_conditions_when_validate_adl_then_works() {
 #[test]
 fn given_normal_conditions_when_emit_adl_state_updated_then_works() {
     // Setup
-    let (caller_address, role_store, data_store, market_factory, event_emitter, _) = setup();
+    let (caller_address, _role_store, data_store, market_factory, event_emitter, _) = setup();
     let mut spy = spy_events();
     let market: ContractAddress = 'market'.try_into().unwrap();
     let is_long = true;
@@ -176,7 +176,7 @@ fn given_normal_conditions_when_emit_adl_state_updated_then_works() {
 #[should_panic(expected: ('block_no_smaller_than_required',))]
 fn given_small_block_number_when_update_adl_state_then_fails() {
     // Setup
-    let (caller_address, role_store, data_store, market_factory, event_emitter, oracle) = setup();
+    let (_caller_address, _role_store, data_store, market_factory, event_emitter, oracle) = setup();
     let market = 'market'.try_into().unwrap();
     let is_long = false;
     let block_value = 1234_u64;
@@ -194,7 +194,7 @@ fn given_small_block_number_when_update_adl_state_then_fails() {
 fn given_non_valid_position_when_create_adl_order_then_fails() {
     // Setup
 
-    let (caller_address, role_store, data_store, market_factory, event_emitter, oracle) = setup();
+    let (_caller_address, _role_store, data_store, _market_factory, event_emitter, _oracle) = setup();
     let accoun1 = 'accoun1'.try_into().unwrap();
     let market = 'market'.try_into().unwrap();
     let collateral_token = 'token'.try_into().unwrap();
@@ -214,7 +214,7 @@ fn given_non_valid_position_when_create_adl_order_then_fails() {
 
 #[test]
 fn given_normal_conditions_when_create_adl_order_then_works() { // Setup
-    let (caller_address, role_store, data_store, market_factory, event_emitter, oracle) = setup();
+    let (_caller_address, _role_store, data_store, _market_factory, event_emitter, _oracle) = setup();
     // TODO
     // For testing "position_utils::get_position_key",  ".data_store.get_position" should be implmented
     let account1 = 'account1'.try_into().unwrap();
@@ -270,7 +270,7 @@ fn given_normal_conditions_when_update_adl_state_then_works() {
     oracle.set_primary_price(short_token_address, price);
 
     let block_value = 1_u64;
-    let set_block = adl_utils::set_latest_adl_block(data_store, market_token_address, is_long, block_value);
+    let _set_block = adl_utils::set_latest_adl_block(data_store, market_token_address, is_long, block_value);
     let block_numbers = array![1_u64, 2_u64];
 
     adl_utils::update_adl_state(data_store, event_emitter, oracle, market_token_address, is_long, block_numbers.span());
@@ -281,10 +281,11 @@ fn given_normal_conditions_when_update_adl_state_then_works() {
 fn setup() -> (ContractAddress, IRoleStoreDispatcher, IDataStoreDispatcher, IMarketFactoryDispatcher, IEventEmitterDispatcher, IOracleDispatcher) {
     let (
         caller_address,
-        _market_factory__address,
-        _role_store_address,
-        _data_store_address,
-        _market_token_class_hash,
+        _market_token_class,
+        _increase_order_class,
+        _decrease_order_class,
+        _swap_order_class,
+        _order_utils_class,
         market_factory,
         role_store,
         data_store,
@@ -300,7 +301,10 @@ fn setup() -> (ContractAddress, IRoleStoreDispatcher, IDataStoreDispatcher, IMar
         _withdrawal_handler,
         _withdrawal_vault,
         _liquidation_handler,
-        _
+        _,
+        _,
+        _,
+        _,
     ) = tests_lib::setup();
 
     (caller_address, role_store, data_store, market_factory, event_emitter, oracle)

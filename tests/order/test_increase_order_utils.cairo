@@ -3,7 +3,6 @@ use snforge_std::{start_mock_call, stop_mock_call};
 
 use satoru::data::data_store::IDataStoreDispatcherTrait;
 use satoru::nonce::nonce_utils::{get_current_nonce, increment_nonce, compute_key};
-use satoru::test_utils::tests_lib::{setup, teardown};
 use satoru::oracle::oracle::{IOracleSafeDispatcher, IOracleDispatcher, IOracleDispatcherTrait};
 use satoru::order::{error::OrderError, order::{Order, SecondaryOrderType, OrderType, DecreasePositionSwapType},};
 use satoru::order::increase_order_utils::IncreaseOrderUtils::{validate_oracle_block_numbers};

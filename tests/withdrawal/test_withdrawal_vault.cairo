@@ -222,10 +222,11 @@ fn setup() -> (
     // get caller_address, role store and data_store from tests_lib::setup()
     let (
         caller_address,
-        _market_factory_address,
-        _role_store_address,
-        _data_store_address,
-        _market_token_class_hash,
+        _market_token_class,
+        _increase_order_class,
+        _decrease_order_class,
+        _swap_order_class,
+        _order_utils_class,
         market_factory,
         role_store,
         data_store,
@@ -242,17 +243,17 @@ fn setup() -> (
         withdrawal_vault,
         _liquidation_handler,
         _,
+        _,
+        _,
+        _,
     ) = tests_lib::setup();
 
     // get receiver_address
-    let receiver_address: ContractAddress = 0x202.try_into().unwrap();
+    let receiver_address = contract_address_const::<'dummy_receiver'>();
 
     // deploy erc20 token
     let erc20_contract_address = tests_lib::deploy_erc20_token(withdrawal_vault.contract_address);
     let erc20 = IERC20Dispatcher { contract_address: erc20_contract_address };
-
-    // start prank and give controller role to caller_address
-    start_cheat_caller_address(withdrawal_vault.contract_address, caller_address);
 
     return (caller_address, receiver_address, role_store, data_store, withdrawal_vault, erc20, market_factory);
 }

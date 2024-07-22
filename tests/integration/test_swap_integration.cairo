@@ -55,7 +55,6 @@ use satoru::swap::swap_handler::{ISwapHandlerDispatcher, ISwapHandlerDispatcherT
 use satoru::market::{market::{UniqueIdMarketImpl},};
 use satoru::exchange::order_handler::{OrderHandler, IOrderHandlerDispatcher, IOrderHandlerDispatcherTrait};
 const INITIAL_TOKENS_MINTED: felt252 = 1000;
-use satoru::test_utils::tests_lib::{setup, teardown, create_market};
 
 #[test]
 fn test_swap_market_integration() {
@@ -67,7 +66,7 @@ fn test_swap_market_integration() {
         market_factory_address,
         role_store_address,
         data_store_address,
-        market_token_class_hash,
+        market_token_class,
         market_factory,
         role_store,
         data_store,
@@ -84,15 +83,17 @@ fn test_swap_market_integration() {
         withdrawal_vault,
         liquidation_handler,
         _,
-    ) =
-        setup();
+        _,
+        _,
+        _,
+    ) = tests_lib::setup();
 
     // *********************************************************************************************
     // *                              TEST LOGIC                                                   *
     // *********************************************************************************************
 
     // Create a market.
-    let market = data_store.get_market(create_market(market_factory));
+    let market = data_store.get_market(tests_lib::create_market(market_factory));
 
     // Set params in data_store
     data_store.set_address(keys::fee_token(), market.index_token);

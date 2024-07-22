@@ -6,7 +6,7 @@
 // Core lib imports.
 use starknet::{ContractAddress, get_caller_address, Felt252TryIntoContractAddress, contract_address_const};
 use snforge_std::{
-    declare, start_cheat_caller_address, stop_cheat_caller_address, start_mock_call, test_address, ContractClassTrait
+    declare, start_cheat_caller_address, stop_cheat_caller_address, start_mock_call, test_address, ContractClass, ContractClassTrait
 };
 use traits::Default;
 use poseidon::poseidon_hash_span;
@@ -40,7 +40,7 @@ use satoru::exchange::base_order_handler::{IBaseOrderHandlerDispatcher, IBaseOrd
 #[should_panic(expected: ('already_initialized',))]
 fn given_already_intialized_state_when_initialize_then_fails() {
     let (
-        caller_address,
+        _caller_address,
         role_store,
         data_store,
         event_emitter,
@@ -49,13 +49,12 @@ fn given_already_intialized_state_when_initialize_then_fails() {
         referral_storage,
         oracle,
         mut base_order_handler_state,
-        _
+        _,
+        increase_order_class,
+        decrease_order_class,
+        swap_order_class,
+        order_utils_class,
     ) = setup_contracts();
-
-    let increase_order_utils_class_hash = tests_lib::declare_increase_order();
-    let decrease_order_utils_class_hash = tests_lib::declare_decrease_order();
-    let swap_order_utils_class_hash = tests_lib::declare_swap_order();
-    let order_utils_class_hash = tests_lib::declare_order_utils();
 
     BaseOrderHandler::BaseOrderHandlerImpl::initialize(
         ref base_order_handler_state,
@@ -66,10 +65,10 @@ fn given_already_intialized_state_when_initialize_then_fails() {
         oracle.contract_address,
         swap_handler.contract_address,
         referral_storage.contract_address,
-        order_utils_class_hash,
-        increase_order_utils_class_hash,
-        decrease_order_utils_class_hash,
-        swap_order_utils_class_hash,
+        order_utils_class.class_hash,
+        increase_order_class.class_hash,
+        decrease_order_class.class_hash,
+        swap_order_class.class_hash,
     );
 }
 
@@ -78,7 +77,7 @@ fn given_normal_conditions_when_get_execute_order_params_then_works() {
     // Setup
     let (
         caller_address,
-        role_store,
+        _role_store,
         data_store,
         event_emitter,
         order_vault,
@@ -86,7 +85,11 @@ fn given_normal_conditions_when_get_execute_order_params_then_works() {
         swap_handler,
         referral_storage,
         mut base_order_handler_state,
-        market_factory
+        market_factory,
+        _,
+        _,
+        _,
+        _,
     ) =
         setup_contracts();
 
@@ -130,15 +133,19 @@ fn given_normal_conditions_when_get_execute_order_params_then_works() {
 fn given_non_found_order_when_get_execute_order_params_then_returns_empty_order() {
     let (
         caller_address,
-        role_store,
+        _role_store,
         data_store,
-        event_emitter,
-        order_vault,
-        oracle,
-        swap_handler,
-        referral_storage,
+        _event_emitter,
+        _order_vault,
+        _oracle,
+        _swap_handler,
+        _referral_storage,
         mut base_order_handler_state,
-        market_factory
+        market_factory,
+        _,
+        _,
+        _,
+        _,
     ) =
         setup_contracts();
 
@@ -268,39 +275,54 @@ fn setup_contracts() -> (
     IReferralStorageDispatcher,
     BaseOrderHandler::ContractState,
     IMarketFactoryDispatcher,
+    ContractClass,
+    ContractClass,
+    ContractClass,
+    ContractClass,
 ) {
     let (
         caller_address,
-        market_factory_address,
-        role_store_address,
-        data_store_address,
-        market_token_class_hash,
+        _market_token_class,
+        increase_order_class,
+        decrease_order_class,
+        swap_order_class,
+        order_utils_class,
         market_factory,
         role_store,
         data_store,
         event_emitter,
-        exchange_router,
-        deposit_handler,
-        deposit_vault,
+        _exchange_router,
+        _deposit_handler,
+        _deposit_vault,
         oracle,
-        order_handler,
+        _order_handler,
         order_vault,
-        reader,
+        _reader,
         referral_storage,
-        withdrawal_handler,
-        withdrawal_vault,
-        liquidation_handler,
+        _withdrawal_handler,
+        _withdrawal_vault,
+        _liquidation_handler,
         swap_handler,
+        _,
+        _,
+        _,
     ) = tests_lib::setup();
 
-    let base_order_handler_state = setup_base_order_handler_state(
+    let mut base_order_handler_state = BaseOrderHandler::contract_state_for_testing();
+
+    BaseOrderHandler::BaseOrderHandlerImpl::initialize(
+        ref base_order_handler_state,
         data_store.contract_address,
         role_store.contract_address,
         event_emitter.contract_address,
         order_vault.contract_address,
         oracle.contract_address,
         swap_handler.contract_address,
-        referral_storage.contract_address
+        referral_storage.contract_address,
+        order_utils_class.class_hash,
+        increase_order_class.class_hash,
+        decrease_order_class.class_hash,
+        swap_order_class.class_hash,
     );
 
     return (
@@ -313,41 +335,10 @@ fn setup_contracts() -> (
         swap_handler,
         referral_storage,
         base_order_handler_state,
-        market_factory
+        market_factory,
+        increase_order_class,
+        decrease_order_class,
+        swap_order_class,
+        order_utils_class,
     );
-}
-
-/// Utility function to deploy a `BaseOrderhandler` contract and return its address.
-fn setup_base_order_handler_state(
-    data_store_address: ContractAddress,
-    role_store_address: ContractAddress,
-    event_emitter_address: ContractAddress,
-    order_vault_address: ContractAddress,
-    oracle_address: ContractAddress,
-    swap_handler_address: ContractAddress,
-    referral_storage_address: ContractAddress
-) -> BaseOrderHandler::ContractState {
-    let mut base_order_handler_state = BaseOrderHandler::contract_state_for_testing();
-
-    let increase_order_utils_class_hash = tests_lib::declare_increase_order();
-    let decrease_order_utils_class_hash = tests_lib::declare_decrease_order();
-    let swap_order_utils_class_hash = tests_lib::declare_swap_order();
-    let order_utils_class_hash = tests_lib::declare_order_utils();
-
-    BaseOrderHandler::BaseOrderHandlerImpl::initialize(
-        ref base_order_handler_state,
-        data_store_address,
-        role_store_address,
-        event_emitter_address,
-        order_vault_address,
-        oracle_address,
-        swap_handler_address,
-        referral_storage_address,
-        order_utils_class_hash,
-        increase_order_utils_class_hash,
-        decrease_order_utils_class_hash,
-        swap_order_utils_class_hash,
-    );
-
-    return base_order_handler_state;
 }

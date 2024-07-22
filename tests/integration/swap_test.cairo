@@ -63,10 +63,7 @@ const INITIAL_TOKENS_MINTED: felt252 = 1000;
 fn test_swap_market() {
     let (
         caller_address,
-        market_factory_address,
-        role_store_address,
-        data_store_address,
-        market_token_class_hash,
+        market_token_class,
         market_factory,
         role_store,
         data_store,

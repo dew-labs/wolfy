@@ -18,7 +18,6 @@ use satoru::role::role;
 use satoru::market::market::Market;
 use satoru::market::market_token::{IMarketTokenDispatcher, IMarketTokenDispatcherTrait};
 use satoru::price::price::{Price, PriceTrait};
-use satoru::test_utils::tests_lib::{deploy_oracle_store, deploy_oracle};
 use satoru::market::market_factory::{IMarketFactoryDispatcher, IMarketFactoryDispatcherTrait};
 use debug::PrintTrait;
 
@@ -69,11 +68,12 @@ fn setup() -> (
 ) {
     let (
         caller_address,
-        _market_factory_address,
-        role_store_address,
-        data_store_address,
-        _market_token_class_hash,
-        _market_factory,
+        market_token_class,
+        _increase_order_class,
+        _decrease_order_class,
+        _swap_order_class,
+        _order_utils_class,
+        market_factory,
         role_store,
         data_store,
         event_emitter,
@@ -89,38 +89,19 @@ fn setup() -> (
         _withdrawal_vault,
         _liquidation_handler,
         swap_handler,
+        bank,
+        _,
+        _,
     ) = tests_lib::setup();
-
-    let bank_address = tests_lib::deploy_bank(data_store.contract_address, role_store.contract_address);
-    let bank = IBankDispatcher { contract_address: bank_address };
 
     let (index_token_address, long_token_address, short_token_address) = deploy_tokens();
     let index_token_handler = IERC20Dispatcher { contract_address: index_token_address };
     let long_token_handler = IERC20Dispatcher { contract_address: long_token_address };
     let short_token_handler = IERC20Dispatcher { contract_address: short_token_address };
 
-    let market_token_class_hash = tests_lib::declare_market_token();
-
-    let market_factory_address = tests_lib::deploy_market_factory(
-        data_store_address, role_store_address, event_emitter.contract_address, market_token_class_hash
-    );
-    let market_factory = IMarketFactoryDispatcher { contract_address: market_factory_address };
-
-    start_cheat_caller_address(role_store.contract_address, caller_address);
-    start_cheat_caller_address(data_store.contract_address, caller_address);
-    start_cheat_caller_address(event_emitter.contract_address, caller_address);
-    start_cheat_caller_address(oracle.contract_address, caller_address);
-    start_cheat_caller_address(bank_address, caller_address);
-    start_cheat_caller_address(swap_handler.contract_address, caller_address);
     start_cheat_caller_address(index_token_address, caller_address);
     start_cheat_caller_address(long_token_address, caller_address);
     start_cheat_caller_address(short_token_address, caller_address);
-    // start_cheat_caller_address(market_token_address, caller_address);
-    start_cheat_caller_address(market_factory_address, caller_address);
-
-    // Grant the caller the `CONTROLLER` role.
-    role_store.grant_role(caller_address, role::CONTROLLER);
-    role_store.grant_role(caller_address, role::MARKET_KEEPER);
 
     index_token_handler.mint(caller_address, 2000000000000000000);
     long_token_handler.mint(caller_address, 2000000000000000000);
@@ -401,6 +382,4 @@ fn given_swap_path_market_then_works() {
 
     tests_lib::teardown(data_store, market_factory);
 }
-//TODO add more tested when swap_handler has been implemented
-
-
+// TODO add more tested when swap_handler has been implemented

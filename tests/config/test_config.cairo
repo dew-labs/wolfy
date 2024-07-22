@@ -23,7 +23,7 @@ fn given_normal_conditions_when_set_bool_then_works() {
     // *********************************************************************************************
     // *                              SETUP                                                        *
     // *********************************************************************************************
-    let (caller_address, config, role_store, data_store, event_emitter) = setup();
+    let (_caller_address, config, _role_store, data_store, _event_emitter) = setup();
 
     // *********************************************************************************************
     // *                              TEST LOGIC                                                   *
@@ -57,7 +57,7 @@ fn given_normal_conditions_when_set_address_then_works() {
     // *********************************************************************************************
     // *                              SETUP                                                        *
     // *********************************************************************************************
-    let (caller_address, config, role_store, data_store, event_emitter) = setup();
+    let (_caller_address, config, _role_store, data_store, _event_emitter) = setup();
 
     // *********************************************************************************************
     // *                              TEST LOGIC                                                   *
@@ -93,19 +93,19 @@ fn given_not_allowed_key_when_set_address_then_fails() {
     // *********************************************************************************************
     // *                              SETUP                                                        *
     // *********************************************************************************************
-    let (caller_address, config, role_store, data_store, event_emitter) = setup();
+    let (_caller_address, config, _role_store, data_store, _event_emitter) = setup();
 
     // *********************************************************************************************
     // *                              TEST LOGIC                                                   *
     // *********************************************************************************************
 
     // Define variables to be used in the test.
-    let not_allowed_key = 'not_allowed_key';
+    let _not_allowed_key = 'not_allowed_key';
     let mut data = array![];
     data.append('data_1');
     data.append('data_2');
     data.append('data_3');
-    let value = contract_address_const::<1>();
+    let _value = contract_address_const::<1>();
 
     // *********************************************************************************************
     // *                              TEARDOWN                                                     *
@@ -118,7 +118,7 @@ fn given_normal_conditions_when_set_felt252_then_works() {
     // *********************************************************************************************
     // *                              SETUP                                                        *
     // *********************************************************************************************
-    let (caller_address, config, role_store, data_store, event_emitter) = setup();
+    let (_caller_address, config, _role_store, data_store, _event_emitter) = setup();
 
     // *********************************************************************************************
     // *                              TEST LOGIC                                                   *
@@ -214,10 +214,11 @@ fn setup_contracts() -> (
 ) {
     let (
         _caller_address,
-        _market_factory__address,
-        _role_store_address,
-        _data_store_address,
-        _market_token_class_hash,
+        _market_token_class,
+        _increase_order_class,
+        _decrease_order_class,
+        _swap_order_class,
+        _order_utils_class,
         _market_factory,
         role_store,
         data_store,
@@ -233,6 +234,9 @@ fn setup_contracts() -> (
         _withdrawal_handler,
         _withdrawal_vault,
         _liquidation_handler,
+        _,
+        _,
+        _,
         _,
     ) = tests_lib::setup();
 

@@ -30,10 +30,11 @@ use debug::PrintTrait;
 fn setup() -> (ContractAddress, IRoleStoreDispatcher, IDataStoreDispatcher, IEventEmitterDispatcher, IReferralStorageDispatcher, ISwapHandlerDispatcher, IMarketFactoryDispatcher) {
     let (
         caller_address,
-        _market_factory_address,
-        _role_store_address,
-        _data_store_address,
-        _market_token_class_hash,
+        _market_token_class,
+        _increase_order_class,
+        _decrease_order_class,
+        _swap_order_class,
+        _order_utils_class,
         market_factory,
         role_store,
         data_store,
@@ -50,6 +51,9 @@ fn setup() -> (ContractAddress, IRoleStoreDispatcher, IDataStoreDispatcher, IEve
         _withdrawal_vault,
         _liquidation_handler,
         swap_handler,
+        _,
+        _,
+        _,
     ) = tests_lib::setup();
 
     (caller_address, role_store, data_store, event_emitter, referral_storage, swap_handler, market_factory)

@@ -17,7 +17,7 @@ use satoru::token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
 use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
 use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
 use satoru::role::role;
-use satoru::test_utils::tests_lib::{setup, deploy_bank, deploy_strict_bank, deploy_erc20_token};
+use satoru::test_utils::tests_lib;
 
 /// Setup required contracts.
 fn setup_contracts() -> (
@@ -32,10 +32,11 @@ fn setup_contracts() -> (
 
     let (
         caller_address,
-        _market_factory__address,
-        _role_store_address,
-        _data_store_address,
-        _market_token_class_hash,
+        _market_token_class,
+        _increase_order_class,
+        _decrease_order_class,
+        _swap_order_class,
+        _order_utils_class,
         _market_factory,
         role_store,
         data_store,
@@ -52,17 +53,12 @@ fn setup_contracts() -> (
         _withdrawal_vault,
         _liquidation_handler,
         _,
-    ) = setup();
+        bank,
+        strict_bank,
+        _,
+    ) = tests_lib::setup();
 
-    // Deploy the bank contract
-    let bank_address = deploy_bank(data_store.contract_address, role_store.contract_address);
-    let bank = IBankDispatcher { contract_address: bank_address };
-
-    // Deploy the strict bank contract
-    let strict_bank_address = deploy_strict_bank(data_store.contract_address, role_store.contract_address);
-    let strict_bank = IStrictBankDispatcher { contract_address: strict_bank_address };
-
-    let receiver_address: ContractAddress = 0x202.try_into().unwrap();
+    let receiver_address = contract_address_const::<'dummy_receiver'>();
 
     (caller_address, receiver_address, role_store, data_store, bank, strict_bank)
 }
@@ -91,7 +87,7 @@ fn given_normal_conditions_when_transfer_out_then_works() {
     let (_caller_address, receiver_address, _role_store, data_store, _bank, strict_bank) = setup_contracts();
 
     // deploy erc20 token
-    let erc20_contract_address = deploy_erc20_token(strict_bank.contract_address);
+    let erc20_contract_address = tests_lib::deploy_erc20_token(strict_bank.contract_address);
     let erc20_dispatcher = IERC20Dispatcher { contract_address: erc20_contract_address };
 
     // call the transfer_out function
@@ -116,7 +112,7 @@ fn given_caller_has_no_controller_role_when_transfer_out_then_fails() {
     // *********************************************************************************************
 
     // deploy erc20 token
-    let erc20_contract_address = deploy_erc20_token(strict_bank.contract_address);
+    let erc20_contract_address = tests_lib::deploy_erc20_token(strict_bank.contract_address);
 
     // stop prank as caller_address and start prank as receiver_address who has no controller role
     stop_cheat_caller_address(strict_bank.contract_address);
@@ -133,7 +129,7 @@ fn given_receiver_is_contract_when_transfer_out_then_fails() {
     let (_caller_address, _receiver_address, _role_store, data_store, _bank, strict_bank) = setup_contracts();
 
     // deploy erc20 token. Mint to bank since we call transfer out in bank contract which restricts sending to self
-    let erc20_contract_address = deploy_erc20_token(strict_bank.contract_address);
+    let erc20_contract_address = tests_lib::deploy_erc20_token(strict_bank.contract_address);
 
     strict_bank.transfer_out(strict_bank.contract_address, erc20_contract_address, strict_bank.contract_address, 100_u256);
 
@@ -150,7 +146,7 @@ fn given_normal_conditions_when_record_transfer_in_works() {
     // *********************************************************************************************
 
     // deploy erc20 token
-    let erc20_contract_address = deploy_erc20_token(strict_bank.contract_address);
+    let erc20_contract_address = tests_lib::deploy_erc20_token(strict_bank.contract_address);
     let erc20_dispatcher = IERC20Dispatcher { contract_address: erc20_contract_address };
 
     start_cheat_caller_address(erc20_contract_address, caller_address);
@@ -176,7 +172,7 @@ fn given_caller_has_no_controller_role_when_record_transfer_in_then_fails() {
     // *********************************************************************************************
 
     // deploy erc20 token
-    let erc20_contract_address = deploy_erc20_token(strict_bank.contract_address);
+    let erc20_contract_address = tests_lib::deploy_erc20_token(strict_bank.contract_address);
 
     // stop prank as caller_address and start prank as receiver_address who has no controller role
     stop_cheat_caller_address(strict_bank.contract_address);
@@ -196,7 +192,7 @@ fn given_normal_conditions_when_sync_token_balance_passes() {
     // *********************************************************************************************
 
     // deploy erc20 token
-    let erc20_contract_address = deploy_erc20_token(strict_bank.contract_address);
+    let erc20_contract_address = tests_lib::deploy_erc20_token(strict_bank.contract_address);
     let erc20_dispatcher = IERC20Dispatcher { contract_address: erc20_contract_address };
 
     start_cheat_caller_address(erc20_contract_address, caller_address);
@@ -220,7 +216,7 @@ fn given_caller_has_no_controller_role_when_sync_token_balance_then_fails() {
     // *********************************************************************************************
 
     // deploy erc20 token
-    let erc20_contract_address = deploy_erc20_token(strict_bank.contract_address);
+    let erc20_contract_address = tests_lib::deploy_erc20_token(strict_bank.contract_address);
     let erc20_dispatcher = IERC20Dispatcher { contract_address: erc20_contract_address };
 
     start_cheat_caller_address(erc20_contract_address, caller_address);

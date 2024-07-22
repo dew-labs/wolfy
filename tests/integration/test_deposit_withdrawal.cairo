@@ -815,7 +815,7 @@ fn setup() -> (ContractAddress, IRoleStoreDispatcher, IDataStoreDispatcher, IDep
         market_factory_address,
         role_store_address,
         data_store_address,
-        market_token_class_hash,
+        market_token_class,
         market_factory,
         role_store,
         data_store,
@@ -831,6 +831,10 @@ fn setup() -> (ContractAddress, IRoleStoreDispatcher, IDataStoreDispatcher, IDep
         withdrawal_handler,
         withdrawal_vault,
         liquidation_handler,
+        _,
+        _,
+        _,
+        _,
     ) = tests_lib::setup();
 
     (caller_address, role_store, data_store, deposit_handler, deposit_vault, oracle, withdrawal_handler, withdrawal_vault, order_handler, order_vault, market_factory)

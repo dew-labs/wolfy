@@ -7,7 +7,7 @@ use satoru::event::event_emitter::{EventEmitter, IEventEmitterDispatcher, IEvent
 use satoru::event::event_emitter::EventEmitter::{AffiliateRewardUpdated, AffiliateRewardClaimed};
 use satoru::mock::governable::{IGovernableDispatcher, IGovernableDispatcherTrait};
 use snforge_std::{
-    declare, ContractClassTrait, spy_events, EventSpy, Event, start_cheat_caller_address, stop_cheat_caller_address, EventSpyAssertionsTrait, EventSpyTrait
+    declare, ContractClass, ContractClassTrait, spy_events, EventSpy, Event, start_cheat_caller_address, stop_cheat_caller_address, EventSpyAssertionsTrait, EventSpyTrait
 };
 use satoru::role::role;
 use satoru::deposit::deposit::Deposit;
@@ -310,9 +310,7 @@ fn setup_mock_token(recipient: ContractAddress, market_token: ContractAddress) -
 }
 
 
-fn deploy_market_token(role_store_address: ContractAddress, data_store_address: ContractAddress) -> ContractAddress {
-    let contract = declare("MarketToken").unwrap();
-    let caller_address: ContractAddress = contract_address_const::<'caller'>();
+fn deploy_market_token(contract: ContractClass, caller_address: ContractAddress, role_store_address: ContractAddress, data_store_address: ContractAddress) -> ContractAddress {
     let deployed_contract_address = contract_address_const::<'market_token'>();
     start_cheat_caller_address(deployed_contract_address, caller_address);
     let constructor_calldata = array![role_store_address.into(), data_store_address.into()];
@@ -343,10 +341,11 @@ fn setup() -> (
 ) {
     let (
         caller_address,
-        _market_factory_address,
-        _role_store_address,
-        _data_store_address,
-        _market_token_class_hash,
+        market_token_class,
+        _increase_order_class,
+        _decrease_order_class,
+        _swap_order_class,
+        _order_utils_class,
         market_factory,
         role_store,
         data_store,
@@ -363,9 +362,12 @@ fn setup() -> (
         _withdrawal_vault,
         _liquidation_handler,
         _,
+        _,
+        _,
+        _,
     ) = tests_lib::setup();
 
-    let market_token_address = deploy_market_token(role_store.contract_address, data_store.contract_address);
+    let market_token_address = deploy_market_token(market_token_class, caller_address, role_store.contract_address, data_store.contract_address);
     let market_token = IMarketTokenDispatcher { contract_address: market_token_address };
 
     let governable_address = deploy_governable(event_emitter.contract_address);

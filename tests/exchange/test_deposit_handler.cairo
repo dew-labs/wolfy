@@ -71,10 +71,11 @@ fn create_deposit_params() -> CreateDepositParams {
 fn setup() -> IDepositHandlerDispatcher {
     let (
         _caller_address,
-        _market_factory_address,
-        _role_store_address,
-        _data_store_address,
-        _market_token_class_hash,
+        _market_token_class,
+        _increase_order_class,
+        _decrease_order_class,
+        _swap_order_class,
+        _order_utils_class,
         _market_factory,
         _role_store,
         _data_store,
@@ -90,6 +91,9 @@ fn setup() -> IDepositHandlerDispatcher {
         _withdrawal_handler,
         _withdrawal_vault,
         _liquidation_handler,
+        _,
+        _,
+        _,
         _,
     ) = tests_lib::setup();
     deposit_handler

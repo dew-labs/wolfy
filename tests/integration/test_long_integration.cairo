@@ -65,10 +65,7 @@ fn test_long_increase_decrease_close() {
     // *********************************************************************************************
     let (
         caller_address,
-        market_factory_address,
-        role_store_address,
-        data_store_address,
-        market_token_class_hash,
+        market_token_class,
         market_factory,
         role_store,
         data_store,
@@ -492,10 +489,7 @@ fn test_takeprofit_long() {
     // *********************************************************************************************
     let (
         caller_address,
-        market_factory_address,
-        role_store_address,
-        data_store_address,
-        market_token_class_hash,
+        market_token_class,
         market_factory,
         role_store,
         data_store,
@@ -916,7 +910,6 @@ fn test_takeprofit_long() {
 }
 
 #[test]
-#[ignore]
 #[should_panic(expected: ('invalid_order_price', 'LimitIncrease',))]
 fn test_takeprofit_long_increase_fails() {
     // *********************************************************************************************
@@ -924,10 +917,7 @@ fn test_takeprofit_long_increase_fails() {
     // *********************************************************************************************
     let (
         caller_address,
-        market_factory_address,
-        role_store_address,
-        data_store_address,
-        market_token_class_hash,
+        market_token_class,
         market_factory,
         role_store,
         data_store,
@@ -1348,7 +1338,6 @@ fn test_takeprofit_long_increase_fails() {
 }
 
 #[test]
-#[ignore]
 #[should_panic(expected: ('invalid_order_price', 'LimitDecrease',))]
 fn test_takeprofit_long_decrease_fails() {
     // *********************************************************************************************
@@ -1356,10 +1345,7 @@ fn test_takeprofit_long_decrease_fails() {
     // *********************************************************************************************
     let (
         caller_address,
-        market_factory_address,
-        role_store_address,
-        data_store_address,
-        market_token_class_hash,
+        market_token_class,
         market_factory,
         role_store,
         data_store,
@@ -1780,7 +1766,6 @@ fn test_takeprofit_long_decrease_fails() {
 }
 
 #[test]
-#[ignore]
 #[should_panic(expected: ('invalid_order_price', 'LimitDecrease',))]
 fn test_takeprofit_long_close_fails() {
     // *********************************************************************************************
@@ -1788,10 +1773,7 @@ fn test_takeprofit_long_close_fails() {
     // *********************************************************************************************
     let (
         caller_address,
-        market_factory_address,
-        role_store_address,
-        data_store_address,
-        market_token_class_hash,
+        market_token_class,
         market_factory,
         role_store,
         data_store,
@@ -2218,10 +2200,7 @@ fn test_long_liquidation() {
     // *********************************************************************************************
     let (
         caller_address,
-        market_factory_address,
-        role_store_address,
-        data_store_address,
-        market_token_class_hash,
+        market_token_class,
         market_factory,
         role_store,
         data_store,
@@ -2477,10 +2456,7 @@ fn test_long_leverage_positif_close() {
     // *********************************************************************************************
     let (
         caller_address,
-        market_factory_address,
-        role_store_address,
-        data_store_address,
-        market_token_class_hash,
+        market_token_class,
         market_factory,
         role_store,
         data_store,
@@ -2722,10 +2698,7 @@ fn test_long_leverage_liquidation() {
     // *********************************************************************************************
     let (
         caller_address,
-        market_factory_address,
-        role_store_address,
-        data_store_address,
-        market_token_class_hash,
+        market_token_class,
         market_factory,
         role_store,
         data_store,

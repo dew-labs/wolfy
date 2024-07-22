@@ -49,12 +49,12 @@ fn given_unauthorized_access_when_create_execute_liquidation_then_fails() {
 
     let collateral_token: ContractAddress = contract_address_const::<1>();
     let (
-        data_store,
-        liquidation_keeper,
-        liquidation_handler_address,
+        _data_store,
+        _liquidation_keeper,
+        _liquidation_handler_address,
         liquidation_handler_dispatcher,
         _,
-        role_store,
+        _role_store,
         _,
         _,
         _
@@ -78,9 +78,9 @@ fn given_unauthorized_access_when_create_execute_liquidation_then_fails() {
 #[should_panic(expected: ('empty price feed', 'ETH'))]
 fn given_empty_price_feed_multiplier_when_create_execute_liquidation_then_fails() {
     // Setup
-    let collateral_token: ContractAddress = contract_address_const::<1>();
+    let _collateral_token: ContractAddress = contract_address_const::<1>();
     let (
-        data_store,
+        _data_store,
         liquidation_keeper,
         liquidation_handler_address,
         liquidation_handler_dispatcher,
@@ -99,9 +99,9 @@ fn given_empty_price_feed_multiplier_when_create_execute_liquidation_then_fails(
 
     let collateral_token: ContractAddress = contract_address_const::<'USDC'>();
     let token1 = contract_address_const::<'ETH'>();
-    let price_feed_tokens1 = contract_address_const::<'price_feed_tokens'>();
+    let _price_feed_tokens1 = contract_address_const::<'price_feed_tokens'>();
 
-    let price: Price = Default::default();
+    let _price: Price = Default::default();
 
     let mut oracle_params = mock_set_prices_params(token1, collateral_token);
     oracle_params.price_feed_tokens = array![token1];
@@ -129,9 +129,9 @@ fn given_disabled_feature_when_create_execute_liquidation_then_fails() {
         liquidation_keeper,
         liquidation_handler_address,
         liquidation_handler_dispatcher,
-        event_emitter,
+        _event_emitter,
         role_store,
-        oracle,
+        _oracle,
         signer1,
         signer2
     ) =
@@ -162,8 +162,8 @@ fn given_disabled_feature_when_create_execute_liquidation_then_fails() {
     data_store.set_u256(keys::price_feed_multiplier_key(collateral_token), precision::FLOAT_PRECISION);
     data_store.set_u256(keys::max_oracle_ref_price_deviation_factor(), max_u256);
 
-    let usdc_price = Price { min: 1000000, max: 1000000 };
-    let eth_price = Price { min: 17500000000000, max: 17500000000000 };
+    let _usdc_price = Price { min: 1000000, max: 1000000 };
+    let _eth_price = Price { min: 17500000000000, max: 17500000000000 };
     let mut market = Market {
         market_token: contract_address_const::<'market'>(),
         index_token: collateral_token,
@@ -210,9 +210,9 @@ fn given_negative_open_interest_when_create_execute_liquidation_then_fails() {
         liquidation_keeper,
         liquidation_handler_address,
         liquidation_handler_dispatcher,
-        event_emitter,
+        _event_emitter,
         role_store,
-        oracle,
+        _oracle,
         signer1,
         signer2
     ) =
@@ -243,8 +243,8 @@ fn given_negative_open_interest_when_create_execute_liquidation_then_fails() {
     data_store.set_u256(keys::price_feed_multiplier_key(collateral_token), precision::FLOAT_PRECISION);
     data_store.set_u256(keys::max_oracle_ref_price_deviation_factor(), max_u256);
 
-    let usdc_price = Price { min: 1000000, max: 1000000 };
-    let eth_price = Price { min: 17500000000000, max: 17500000000000 };
+    let _usdc_price = Price { min: 1000000, max: 1000000 };
+    let _eth_price = Price { min: 17500000000000, max: 17500000000000 };
     let mut market = Market {
         market_token: contract_address_const::<'market'>(),
         index_token: collateral_token,
@@ -289,7 +289,7 @@ fn given_normal_conditions_when_create_execute_liquidation_then_works() {
         liquidation_keeper,
         liquidation_handler_address,
         liquidation_handler_dispatcher,
-        event_emitter,
+        _event_emitter,
         role_store,
         oracle,
         signer1,
@@ -323,8 +323,8 @@ fn given_normal_conditions_when_create_execute_liquidation_then_works() {
     data_store.set_u256(keys::price_feed_multiplier_key(collateral_token), precision::FLOAT_PRECISION);
     data_store.set_u256(keys::max_oracle_ref_price_deviation_factor(), max_u256);
 
-    let usdc_price = Price { min: 1000000, max: 1000000 };
-    let eth_price = Price { min: 17500000000000, max: 17500000000000 };
+    let _usdc_price = Price { min: 1000000, max: 1000000 };
+    let _eth_price = Price { min: 17500000000000, max: 17500000000000 };
     let mut market = Market {
         market_token: contract_address_const::<'market'>(),
         index_token: collateral_token,
@@ -447,10 +447,11 @@ fn _setup() -> (
 ) {
     let (
         _caller_address,
-        _market_factory_address,
-        role_store_address,
-        data_store_address,
-        _market_token_class_hash,
+        _market_token_class,
+        _increase_order_class,
+        _decrease_order_class,
+        _swap_order_class,
+        _order_utils_class,
         _market_factory,
         role_store,
         data_store,
@@ -467,6 +468,9 @@ fn _setup() -> (
         _withdrawal_vault,
         liquidation_handler,
         _,
+        _,
+        _,
+        oracle_store,
     ) = tests_lib::setup();
 
     let liquidation_keeper: ContractAddress = 0x2233.try_into().unwrap();
@@ -474,12 +478,11 @@ fn _setup() -> (
     let (signer1, signer2) = deploy_signers(
         contract_address_const::<'signer1'>(), contract_address_const::<'signer2'>()
     );
-    let oracle_store_address = tests_lib::deploy_oracle_store(role_store_address, event_emitter.contract_address);
-    let oracle_store = IOracleStoreDispatcher { contract_address: oracle_store_address };
-    start_cheat_caller_address(oracle_store_address, admin());
+
+    start_cheat_caller_address(oracle_store.contract_address, admin());
     oracle_store.add_signer(signer1);
     oracle_store.add_signer(signer2);
-    stop_cheat_caller_address(oracle_store_address);
+    stop_cheat_caller_address(oracle_store.contract_address);
 
     start_cheat_caller_address(role_store.contract_address, admin());
     role_store.grant_role(liquidation_handler.contract_address, role::CONTROLLER);
@@ -487,7 +490,7 @@ fn _setup() -> (
     role_store.grant_role(admin(), role::CONTROLLER);
     stop_cheat_caller_address(role_store.contract_address);
 
-    start_cheat_caller_address(data_store_address, admin());
+    start_cheat_caller_address(data_store.contract_address, admin());
 
     (
         data_store,

@@ -132,10 +132,11 @@ fn given_normal_conditions_when_get_swap_fees_then_works() {
 fn setup() -> (IMarketFactoryDispatcher, IDataStoreDispatcher) {
     let (
         _caller_address,
-        _market_factory__address,
-        _role_store_address,
-        _data_store_address,
-        _market_token_class_hash,
+        _market_token_class,
+        _increase_order_class,
+        _decrease_order_class,
+        _swap_order_class,
+        _order_utils_class,
         market_factory,
         _role_store,
         data_store,
@@ -151,7 +152,10 @@ fn setup() -> (IMarketFactoryDispatcher, IDataStoreDispatcher) {
         _withdrawal_handler,
         _withdrawal_vault,
         _liquidation_handler,
-        _
+        _,
+        _,
+        _,
+        _,
     ) = tests_lib::setup();
 
     (market_factory, data_store)

@@ -57,6 +57,7 @@ use satoru::market::{market::{UniqueIdMarketImpl},};
 use satoru::exchange::order_handler::{OrderHandler, IOrderHandlerDispatcher, IOrderHandlerDispatcherTrait};
 const INITIAL_TOKENS_MINTED: felt252 = 1000;
 
+// Not used in setup()
 fn create_market(market_factory: IMarketFactoryDispatcher) -> ContractAddress {
     // Create a market.
     let (index_token, short_token) = deploy_tokens();
@@ -66,6 +67,7 @@ fn create_market(market_factory: IMarketFactoryDispatcher) -> ContractAddress {
     market_factory.create_market(index_token, index_token, short_token, market_type)
 }
 
+// Not used in setup()
 /// Utility functions to deploy tokens for a market.
 fn deploy_tokens() -> (ContractAddress, ContractAddress) {
     let caller_address: ContractAddress = contract_address_const::<'caller'>();
@@ -83,32 +85,29 @@ fn deploy_tokens() -> (ContractAddress, ContractAddress) {
     (eth_address, usdc_address)
 }
 
+// Not used in setup
+fn deploy_erc20_token(deposit_vault_address: ContractAddress) -> ContractAddress {
+    let erc20_contract = declare("ERC20").unwrap();
+    let constructor_calldata3 = array!['satoru', 'STU', INITIAL_TOKENS_MINTED, 0, deposit_vault_address.into()];
+    let (contract_address, _) = erc20_contract.deploy(@constructor_calldata3).unwrap();
+    contract_address
+}
 
 /// Utility function to setup the test environment.
 fn setup() -> (
     // This caller address will be used with `start_cheat_caller_address` cheatcode to mock the caller address.,
     ContractAddress,
-    // Address of the `MarketFactory` contract.
-    ContractAddress,
-    // Address of the `RoleStore` contract.
-    ContractAddress,
-    // Address of the `DataStore` contract.
-    ContractAddress,
-    // The `MarketToken` class hash for the factory.
     ContractClass,
-    // Interface to interact with the `MarketFactory` contract.
+    ContractClass,
+    ContractClass,
+    ContractClass,
+    ContractClass,
     IMarketFactoryDispatcher,
-    // Interface to interact with the `RoleStore` contract.
     IRoleStoreDispatcher,
-    // Interface to interact with the `DataStore` contract.
     IDataStoreDispatcher,
-    // Interface to interact with the `EventEmitter` contract.
     IEventEmitterDispatcher,
-    // Interface to interact with the `ExchangeRouter` contract.
     IExchangeRouterDispatcher,
-    // Interface to interact with the `DepositHandler` contract.
     IDepositHandlerDispatcher,
-    // Interface to interact with the `DepositHandler` contract.
     IDepositVaultDispatcher,
     IOracleDispatcher,
     IOrderHandlerDispatcher,
@@ -119,13 +118,17 @@ fn setup() -> (
     IWithdrawalVaultDispatcher,
     ILiquidationHandlerDispatcher,
     ISwapHandlerDispatcher,
+    IBankDispatcher,
+    IStrictBankDispatcher,
+    IOracleStoreDispatcher,
 ) {
     let (
         caller_address,
-        _market_factory_address,
-        role_store_address,
-        data_store_address,
-        market_token_class_hash,
+        market_token_class,
+        increase_order_class,
+        decrease_order_class,
+        swap_order_class,
+        order_utils_class,
         market_factory,
         role_store,
         data_store,
@@ -142,16 +145,20 @@ fn setup() -> (
         withdrawal_vault,
         liquidation_handler,
         swap_handler,
+        bank,
+        strict_bank,
+        oracle_store,
     ) = setup_contracts();
 
-    grant_roles_and_prank(caller_address, role_store, data_store, market_factory, swap_handler);
+    grant_roles_and_prank(caller_address, role_store, data_store, market_factory, swap_handler, bank, strict_bank);
 
     (
         caller_address,
-        market_factory.contract_address,
-        role_store_address,
-        data_store_address,
-        market_token_class_hash,
+        market_token_class,
+        increase_order_class,
+        decrease_order_class,
+        swap_order_class,
+        order_utils_class,
         market_factory,
         role_store,
         data_store,
@@ -168,24 +175,22 @@ fn setup() -> (
         withdrawal_vault,
         liquidation_handler,
         swap_handler,
+        bank,
+        strict_bank,
+        oracle_store,
     )
 }
 
 // Utility function to grant roles and prank the caller address.
 /// Grants roles and pranks the caller address.
-///
-/// # Arguments
-///
-/// * `caller_address` - The address of the caller.
-/// * `role_store` - The interface to interact with the `RoleStore` contract.
-/// * `data_store` - The interface to interact with the `DataStore` contract.
-/// * `market_factory` - The interface to interact with the `MarketFactory` contract.
 fn grant_roles_and_prank(
     caller_address: ContractAddress,
     role_store: IRoleStoreDispatcher,
     data_store: IDataStoreDispatcher,
     market_factory: IMarketFactoryDispatcher,
     swap_handler: ISwapHandlerDispatcher,
+    bank: IBankDispatcher,
+    strict_bank: IStrictBankDispatcher,
 ) {
     start_cheat_caller_address(role_store.contract_address, caller_address);
 
@@ -205,6 +210,9 @@ fn grant_roles_and_prank(
     start_cheat_caller_address(market_factory.contract_address, caller_address);
 
     start_cheat_caller_address(swap_handler.contract_address, caller_address);
+
+    start_cheat_caller_address(bank.contract_address, caller_address);
+    start_cheat_caller_address(strict_bank.contract_address, caller_address);
 }
 
 /// Utility function to teardown the test environment.
@@ -217,9 +225,10 @@ fn teardown(data_store: IDataStoreDispatcher, market_factory: IMarketFactoryDisp
 fn setup_contracts() -> (
     // This caller address will be used with `start_cheat_caller_address` cheatcode to mock the caller address.,
     ContractAddress,
-    ContractAddress,
-    ContractAddress,
-    ContractAddress,
+    ContractClass,
+    ContractClass,
+    ContractClass,
+    ContractClass,
     ContractClass,
     IMarketFactoryDispatcher,
     IRoleStoreDispatcher,
@@ -237,6 +246,9 @@ fn setup_contracts() -> (
     IWithdrawalVaultDispatcher,
     ILiquidationHandlerDispatcher,
     ISwapHandlerDispatcher,
+    IBankDispatcher,
+    IStrictBankDispatcher,
+    IOracleStoreDispatcher,
 ) {
     // Deploy the role store contract.
     let role_store_address = deploy_role_store();
@@ -250,7 +262,7 @@ fn setup_contracts() -> (
     let data_store = IDataStoreDispatcher { contract_address: data_store_address };
 
     // Declare the `MarketToken` contract.
-    let market_token_class_hash = declare_market_token();
+    let market_token_class = declare_market_token();
 
     // Deploy the event emitter contract.
     let event_emitter_address = deploy_event_emitter();
@@ -262,7 +274,7 @@ fn setup_contracts() -> (
 
     // Deploy the market factory.
     let market_factory_address = deploy_market_factory(
-        data_store_address, role_store_address, event_emitter_address, market_token_class_hash
+        data_store_address, role_store_address, event_emitter_address, market_token_class
     );
     // Create a safe dispatcher to interact with the contract.
     let market_factory = IMarketFactoryDispatcher { contract_address: market_factory_address };
@@ -270,6 +282,7 @@ fn setup_contracts() -> (
     let oracle_store_address = deploy_oracle_store(role_store_address, event_emitter_address);
     let oracle_address = deploy_oracle(role_store_address, oracle_store_address, contract_address_const::<'pragma'>());
 
+    let oracle_store = IOracleStoreDispatcher { contract_address: oracle_store_address };
     let oracle = IOracleDispatcher { contract_address: oracle_address };
 
     let deposit_vault_address = deploy_deposit_vault(role_store_address, data_store_address);
@@ -290,11 +303,11 @@ fn setup_contracts() -> (
 
     let swap_handler_address = deploy_swap_handler(role_store_address, data_store_address);
     let referral_storage_address = deploy_referral_storage(event_emitter_address);
-    let increase_order_class_hash = declare_increase_order();
-    let decrease_order_class_hash = declare_decrease_order();
-    let swap_order_class_hash = declare_swap_order();
 
-    let order_utils_class_hash = declare_order_utils();
+    let increase_order_class = declare_increase_order();
+    let decrease_order_class = declare_decrease_order();
+    let swap_order_class = declare_swap_order();
+    let order_utils_class = declare_order_utils();
 
     let order_handler_address = deploy_order_handler(
         data_store_address,
@@ -304,10 +317,10 @@ fn setup_contracts() -> (
         oracle_address,
         swap_handler_address,
         referral_storage_address,
-        order_utils_class_hash,
-        increase_order_class_hash,
-        decrease_order_class_hash,
-        swap_order_class_hash
+        order_utils_class.class_hash,
+        increase_order_class.class_hash,
+        decrease_order_class.class_hash,
+        swap_order_class.class_hash,
     );
     let order_handler = IOrderHandlerDispatcher { contract_address: order_handler_address };
 
@@ -325,13 +338,13 @@ fn setup_contracts() -> (
     let bank_address = deploy_bank(data_store_address, role_store_address);
 
     //Create a safe dispatcher to interact with the Bank contract.
-    let _bank = IBankDispatcher { contract_address: bank_address };
+    let bank = IBankDispatcher { contract_address: bank_address };
 
     // Deploy the strict bank contract
     let strict_bank_address = deploy_strict_bank(data_store_address, role_store_address);
 
     //Create a safe dispatcher to interact with the StrictBank contract.
-    let _strict_bank = IStrictBankDispatcher { contract_address: strict_bank_address };
+    let strict_bank = IStrictBankDispatcher { contract_address: strict_bank_address };
 
     let reader_address = deploy_reader();
     let reader = IReaderDispatcher { contract_address: reader_address };
@@ -349,20 +362,21 @@ fn setup_contracts() -> (
         oracle_address,
         swap_handler_address,
         referral_storage_address,
-        order_utils_class_hash,
-        increase_order_class_hash,
-        decrease_order_class_hash,
-        swap_order_class_hash
+        order_utils_class.class_hash,
+        increase_order_class.class_hash,
+        decrease_order_class.class_hash,
+        swap_order_class.class_hash,
     );
 
     let liquidation_handler = ILiquidationHandlerDispatcher { contract_address: liquidation_handler_address };
 
     (
         contract_address_const::<'caller'>(),
-        market_factory_address,
-        role_store_address,
-        data_store_address,
-        market_token_class_hash,
+        market_token_class,
+        increase_order_class,
+        decrease_order_class,
+        swap_order_class,
+        order_utils_class,
         market_factory,
         role_store,
         data_store,
@@ -379,6 +393,9 @@ fn setup_contracts() -> (
         withdrawal_vault,
         liquidation_handler,
         swap_handler,
+        bank,
+        strict_bank,
+        oracle_store,
     )
 }
 
@@ -392,7 +409,7 @@ fn deploy_market_factory(
     data_store_address: ContractAddress,
     role_store_address: ContractAddress,
     event_emitter_address: ContractAddress,
-    market_token_class_hash: ContractClass,
+    market_token_class: ContractClass,
 ) -> ContractAddress {
     let contract = declare("MarketFactory").unwrap();
     let caller_address: ContractAddress = contract_address_const::<'caller'>();
@@ -402,7 +419,7 @@ fn deploy_market_factory(
     constructor_calldata.append(data_store_address.into());
     constructor_calldata.append(role_store_address.into());
     constructor_calldata.append(event_emitter_address.into());
-    constructor_calldata.append(market_token_class_hash.class_hash.into());
+    constructor_calldata.append(market_token_class.class_hash.into());
     let (contract_address, _) = contract.deploy_at(@constructor_calldata, deployed_contract_address).unwrap();
     contract_address
 }
@@ -554,10 +571,10 @@ fn deploy_order_handler(
     oracle_address: ContractAddress,
     swap_handler_address: ContractAddress,
     referral_storage_address: ContractAddress,
-    order_utils_class_hash: ClassHash,
-    increase_order_class_hash: ClassHash,
-    decrease_order_class_hash: ClassHash,
-    swap_order_class_hash: ClassHash
+    order_utils_class: ClassHash,
+    increase_order_class: ClassHash,
+    decrease_order_class: ClassHash,
+    swap_order_class: ClassHash
 ) -> ContractAddress {
     let contract = declare("OrderHandler").unwrap();
     let caller_address: ContractAddress = contract_address_const::<'caller'>();
@@ -571,10 +588,10 @@ fn deploy_order_handler(
         oracle_address.into(),
         swap_handler_address.into(),
         referral_storage_address.into(),
-        order_utils_class_hash.into(),
-        increase_order_class_hash.into(),
-        decrease_order_class_hash.into(),
-        swap_order_class_hash.into()
+        order_utils_class.into(),
+        increase_order_class.into(),
+        decrease_order_class.into(),
+        swap_order_class.into()
     ];
     let (contract_address, _) = contract.deploy_at(@constructor_calldata, deployed_contract_address).unwrap();
     contract_address
@@ -588,10 +605,10 @@ fn deploy_liquidation_handler(
     oracle_address: ContractAddress,
     swap_handler_address: ContractAddress,
     referral_storage_address: ContractAddress,
-    order_utils_class_hash: ClassHash,
-    increase_order_class_hash: ClassHash,
-    decrease_order_class_hash: ClassHash,
-    swap_order_class_hash: ClassHash
+    order_utils_class: ClassHash,
+    increase_order_class: ClassHash,
+    decrease_order_class: ClassHash,
+    swap_order_class: ClassHash
 ) -> ContractAddress {
     let contract = declare("LiquidationHandler").unwrap();
     let caller_address: ContractAddress = contract_address_const::<'caller'>();
@@ -605,10 +622,10 @@ fn deploy_liquidation_handler(
         oracle_address.into(),
         swap_handler_address.into(),
         referral_storage_address.into(),
-        order_utils_class_hash.into(),
-        increase_order_class_hash.into(),
-        decrease_order_class_hash.into(),
-        swap_order_class_hash.into()
+        order_utils_class.into(),
+        increase_order_class.into(),
+        decrease_order_class.into(),
+        swap_order_class.into()
     ];
     let (contract_address, _) = contract.deploy_at(@constructor_calldata, deployed_contract_address).unwrap();
     contract_address
@@ -674,19 +691,19 @@ fn deploy_order_vault(data_store_address: ContractAddress, role_store_address: C
     contract_address
 }
 
-fn declare_increase_order() -> ClassHash {
-    declare("IncreaseOrderUtils").unwrap().class_hash
+fn declare_increase_order() -> ContractClass {
+    declare("IncreaseOrderUtils").unwrap()
 }
-fn declare_decrease_order() -> ClassHash {
-    declare("DecreaseOrderUtils").unwrap().class_hash
+fn declare_decrease_order() -> ContractClass {
+    declare("DecreaseOrderUtils").unwrap()
 }
-fn declare_swap_order() -> ClassHash {
-    declare("SwapOrderUtils").unwrap().class_hash
+fn declare_swap_order() -> ContractClass {
+    declare("SwapOrderUtils").unwrap()
 }
 
 
-fn declare_order_utils() -> ClassHash {
-    declare("OrderUtils").unwrap().class_hash
+fn declare_order_utils() -> ContractClass {
+    declare("OrderUtils").unwrap()
 }
 
 fn deploy_bank(data_store_address: ContractAddress, role_store_address: ContractAddress,) -> ContractAddress {
@@ -720,12 +737,5 @@ fn deploy_reader() -> ContractAddress {
     let mut constructor_calldata = array![];
     start_cheat_caller_address(reader_address, caller_address);
     let (contract_address, _) = contract.deploy_at(@constructor_calldata, reader_address).unwrap();
-    contract_address
-}
-
-fn deploy_erc20_token(deposit_vault_address: ContractAddress) -> ContractAddress {
-    let erc20_contract = declare("ERC20").unwrap();
-    let constructor_calldata3 = array!['satoru', 'STU', INITIAL_TOKENS_MINTED, 0, deposit_vault_address.into()];
-    let (contract_address, _) = erc20_contract.deploy(@constructor_calldata3).unwrap();
     contract_address
 }
