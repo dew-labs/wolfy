@@ -13,9 +13,8 @@ use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
 use satoru::role::role;
 use satoru::utils::precision;
 use satoru::test_utils::tests_lib;
-use satoru::market::market_factory::{IMarketFactoryDispatcher, IMarketFactoryDispatcherTrait};
 
-fn setup() -> (ContractAddress, IMarketFactoryDispatcher, IDataStoreDispatcher, IOracleDispatcher) {
+fn setup() -> (ContractAddress, IDataStoreDispatcher, IOracleDispatcher) {
     let (
         caller_address,
         _market_token_class,
@@ -23,7 +22,7 @@ fn setup() -> (ContractAddress, IMarketFactoryDispatcher, IDataStoreDispatcher, 
         _decrease_order_class,
         _swap_order_class,
         _order_utils_class,
-        market_factory,
+        _market_factory,
         _role_store,
         data_store,
         _event_emitter,
@@ -44,12 +43,12 @@ fn setup() -> (ContractAddress, IMarketFactoryDispatcher, IDataStoreDispatcher, 
         _,
     ) = tests_lib::setup();
 
-    (caller_address, market_factory, data_store, oracle)
+    (caller_address, data_store, oracle)
 }
 
 #[test]
 fn given_normal_conditions_when_set_primary_price_then_works() {
-    let (caller_address, market_factory, data_store, oracle) = setup();
+    let (caller_address, data_store, oracle) = setup();
 
     let token = contract_address_const::<111>();
     let price = Price { min: 10, max: 11 };
@@ -60,12 +59,12 @@ fn given_normal_conditions_when_set_primary_price_then_works() {
     let price_from_view = oracle.get_primary_price(token);
     assert(price_from_view.min == price.min && price_from_view.max == price.max, 'wrong primary price');
     // teardown
-    tests_lib::teardown(data_store, market_factory);
+    tests_lib::teardown();
 }
 
 #[test]
 fn given_normal_conditions_when_clear_all_prices_then_works() {
-    let (caller_address, market_factory, data_store, oracle) = setup();
+    let (caller_address, data_store, oracle) = setup();
 
     let token1 = contract_address_const::<111>();
     let price1 = Price { min: 10, max: 11 };
@@ -80,12 +79,12 @@ fn given_normal_conditions_when_clear_all_prices_then_works() {
     oracle.clear_all_prices();
     assert(oracle.get_tokens_with_prices_count() == 0, 'wrong tokens count');
     // teardown
-    tests_lib::teardown(data_store, market_factory);
+    tests_lib::teardown();
 }
 
 #[test]
 fn given_normal_conditions_when_tokens_with_prices_count_then_works() {
-    let (caller_address, market_factory, data_store, oracle) = setup();
+    let (caller_address, data_store, oracle) = setup();
     let token1 = contract_address_const::<111>();
     let price1 = Price { min: 10, max: 11 };
     let token2 = contract_address_const::<222>();
@@ -102,12 +101,12 @@ fn given_normal_conditions_when_tokens_with_prices_count_then_works() {
 
     assert(oracle.get_tokens_with_prices_count() == 3, 'wrong tokens count');
     // teardown
-    tests_lib::teardown(data_store, market_factory);
+    tests_lib::teardown();
 }
 
 #[test]
 fn given_normal_conditions_when_get_tokens_with_prices_then_works() {
-    let (caller_address, market_factory, data_store, oracle) = setup();
+    let (caller_address, data_store, oracle) = setup();
 
     let prices = oracle.get_tokens_with_prices(0, 5);
     assert(prices == array![], 'wrong prices array');
@@ -143,12 +142,12 @@ fn given_normal_conditions_when_get_tokens_with_prices_then_works() {
     let prices = oracle.get_tokens_with_prices(2, 5);
     assert(prices == array![token3], 'wrong prices array 2-5');
     // teardown
-    tests_lib::teardown(data_store, market_factory);
+    tests_lib::teardown();
 }
 
 #[test]
 fn given_normal_conditions_when_get_primary_price_then_works() {
-    let (caller_address, market_factory, data_store, oracle) = setup();
+    let (caller_address, data_store, oracle) = setup();
 
     let token1 = contract_address_const::<'ETH'>();
     let price1 = Price { min: 10, max: 11 };
@@ -165,19 +164,19 @@ fn given_normal_conditions_when_get_primary_price_then_works() {
     assert(is_price_eq(oracle.get_primary_price(token2), price2), 'wrong price token-2');
     assert(is_price_eq(oracle.get_primary_price(token3), price3), 'wrong price token-3');
     // teardown
-    tests_lib::teardown(data_store, market_factory);
+    tests_lib::teardown();
 }
 
 #[test]
 fn given_normal_conditions_when_price_feed_multiplier_then_works() {
-    let (caller_address, market_factory, data_store, oracle) = setup();
+    let (caller_address, data_store, oracle) = setup();
 
     let token = contract_address_const::<'ETH'>();
     data_store.set_u256(keys::price_feed_multiplier_key(token), precision::FLOAT_PRECISION);
 
     oracle.get_price_feed_multiplier(data_store, token);
     // teardown
-    tests_lib::teardown(data_store, market_factory);
+    tests_lib::teardown();
 }
 
 // TODO for two next tests:
@@ -221,7 +220,7 @@ fn given_normal_conditions_when_price_feed_multiplier_then_works() {
 //     oracle.set_primary_price(token3, price3);
 //     let validated_prices = oracle.validate_prices(data_store, params);
 //     // teardown
-//     tests_lib::teardown(data_store, market_factory);
+//     tests_lib::teardown();
 // }
 
 // #[test]
@@ -253,7 +252,7 @@ fn given_normal_conditions_when_price_feed_multiplier_then_works() {
 //     start_cheat_caller_address(oracle.contract_address, caller_address);
 //     oracle.set_prices(data_store, event_emitter, params);
 //     // teardown
-//     tests_lib::teardown(data_store, market_factory);
+//     tests_lib::teardown();
 // }
 
 fn mock_set_prices_params() -> SetPricesParams {

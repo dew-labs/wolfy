@@ -3,7 +3,7 @@ mod adl {
 }
 mod bank {
     mod test_bank;
-    mod test_strict_bank;
+    mod test_strict_bank; // failed
 }
 mod callback {
     mod test_callback_utils;
@@ -21,8 +21,8 @@ mod data {
     mod test_withdrawal;
 }
 mod deposit {
-    mod test_deposit_utils;
-    mod test_deposit_vault;
+    mod test_deposit_utils; // failed
+    mod test_deposit_vault; // failed
     // mod test_execute_deposit_utils; // not implemented
 }
 mod event {
@@ -42,9 +42,9 @@ mod event {
     mod test_event_utils;
 }
 mod exchange {
-    mod test_liquidation_handler;
-    mod test_withdrawal_handler;
-    mod test_deposit_handler;
+    mod test_liquidation_handler; // failed
+    mod test_withdrawal_handler; // failed
+    mod test_deposit_handler; // failed
     mod test_exchange_utils;
     mod test_base_order_handler;
 }
@@ -52,7 +52,7 @@ mod feature {
     mod test_feature_utils;
 }
 mod fee {
-    mod test_fee_handler;
+    mod test_fee_handler; // failed
     mod test_fee_utils;
 }
 mod market {
@@ -96,7 +96,7 @@ mod router {
     mod test_router;
 }
 mod swap {
-    mod test_swap_handler;
+    mod test_swap_handler; // failed
 }
 mod utils {
     mod test_account_utils;
@@ -112,7 +112,7 @@ mod utils {
     mod test_u256_mask;
 }
 mod withdrawal {
-    mod test_withdrawal_vault;
+    mod test_withdrawal_vault; // failed
 }
 mod mock {
     mod test_governable;
@@ -123,7 +123,7 @@ mod referral {
 }
 
 mod integration {
-    mod test_create_and_execute_swap;
+    mod test_create_and_execute_swap; // failed
     // mod test_deposit_withdrawal; // outdated
     mod test_short_integration;
     // mod test_swap_integration; // outdated

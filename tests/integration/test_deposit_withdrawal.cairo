@@ -135,7 +135,7 @@ fn given_normal_conditions_when_create_market_and_add_liquidity_then_market_is_c
     // *********************************************************************************************
     // *                              TEARDOWN                                                     *
     // *********************************************************************************************
-    tests_lib::teardown(data_store, market_factory);
+    tests_lib::teardown();
 }
 
 #[test]
@@ -558,7 +558,7 @@ fn test_deposit_market_integration() {
     // *********************************************************************************************
     // *                              TEARDOWN                                                     *
     // *********************************************************************************************
-    tests_lib::teardown(data_store, market_factory);
+    tests_lib::teardown();
 }
 
 #[test]
@@ -806,13 +806,13 @@ fn test_deposit_withdraw_integration() {
     // *********************************************************************************************
     // *                              TEARDOWN                                                     *
     // *********************************************************************************************
-    tests_lib::teardown(data_store, market_factory);
+    tests_lib::teardown();
 }
 
 fn setup() -> (ContractAddress, IRoleStoreDispatcher, IDataStoreDispatcher, IDepositHandlerDispatcher, IDepositVaultDispatcher, IOracleDispatcher, IWithdrawalHandlerDispatcher, IWithdrawalVaultDispatcher, IOrderHandlerDispatcher, IOrderVaultDispatcher, IMarketFactoryDispatcher) {
     let (
         caller_address,
-        market_factory_address,
+        _market_factory_address,
         role_store_address,
         data_store_address,
         market_token_class,

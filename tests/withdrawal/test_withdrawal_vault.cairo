@@ -263,6 +263,6 @@ fn setup() -> (
 // *                                     TEARDOWN                                              *
 // *********************************************************************************************
 fn teardown(data_store: IDataStoreDispatcher, withdrawal_vault: IWithdrawalVaultDispatcher, market_factory: IMarketFactoryDispatcher) {
-    tests_lib::teardown(data_store, market_factory);
+    tests_lib::teardown();
     stop_cheat_caller_address(withdrawal_vault.contract_address);
 }

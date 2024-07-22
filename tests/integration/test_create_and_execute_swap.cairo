@@ -141,7 +141,7 @@ fn given_right_swap_order_params_when_execute_order_then_success() {
     //order_handler.execute_order(key, set_price_params);
 
     // Teardown
-    tests_lib::teardown(data_store, market_factory);
+    tests_lib::teardown();
 }
 
 // *********************************************************************************************

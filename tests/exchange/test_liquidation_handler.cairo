@@ -404,13 +404,14 @@ fn mock_set_prices_params(token1: ContractAddress, token2: ContractAddress) -> S
 
 
 fn admin() -> ContractAddress {
-    contract_address_const::<'caller'>()
+    tests_lib::get_c4ller_address()
 }
 
 fn deploy_signers(signer1: ContractAddress, signer2: ContractAddress) -> (ContractAddress, ContractAddress) {
-    let contract = declare("MockAccount").unwrap();
-    let (contract_address, _) = contract.deploy_at(@array![], signer1).unwrap();
-    let (contract_address2, _) = contract.deploy_at(@array![], signer2).unwrap();
+    let mock_account_contract = tests_lib::declare_mock_account();
+
+    let contract_address = tests_lib::deploy_mock_account_at(mock_account_contract, signer1);
+    let contract_address2 = tests_lib::deploy_mock_account_at(mock_account_contract, signer2);
     (contract_address, contract_address2)
 }
 

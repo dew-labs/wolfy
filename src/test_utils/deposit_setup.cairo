@@ -60,23 +60,14 @@ use satoru::exchange::order_handler::{OrderHandler, IOrderHandlerDispatcher, IOr
 fn deposit_setup(
     long_token_amount: u256, short_token_amount: u256
 ) -> (
-    // This caller address will be used with `start_cheat_caller_address` cheatcode to mock the caller address.,
     ContractAddress,
-    // The `MarketToken` class hash for the factory.
     ContractClass,
-    // Interface to interact with the `MarketFactory` contract.
     IMarketFactoryDispatcher,
-    // Interface to interact with the `RoleStore` contract.
     IRoleStoreDispatcher,
-    // Interface to interact with the `DataStore` contract.
     IDataStoreDispatcher,
-    // Interface to interact with the `EventEmitter` contract.
     IEventEmitterDispatcher,
-    // Interface to interact with the `ExchangeRouter` contract.
     IExchangeRouterDispatcher,
-    // Interface to interact with the `DepositHandler` contract.
     IDepositHandlerDispatcher,
-    // Interface to interact with the `DepositHandler` contract.
     IDepositVaultDispatcher,
     IOracleDispatcher,
     IOrderHandlerDispatcher,
@@ -134,12 +125,12 @@ fn deposit_setup(
     data_store
         .set_u256(
             keys::max_pool_amount_key(market.market_token, market.long_token),
-            5000000000000000000000000000000000000000000 //500 000 ETH
+            5000000000000000000000000000000000000000000 // 500 000 ETH
         );
     data_store
         .set_u256(
             keys::max_pool_amount_key(market.market_token, market.short_token),
-            2500000000000000000000000000000000000000000000 //250 000 000 USDC
+            2500000000000000000000000000000000000000000000 // 250 000 000 USDC
         );
 
     // Long setups

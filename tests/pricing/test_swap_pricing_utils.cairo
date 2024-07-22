@@ -6,7 +6,6 @@ use satoru::market::market::Market;
 use satoru::utils::calc;
 use satoru::test_utils::tests_lib;
 use satoru::utils::i256::{i256, i256_new};
-use satoru::market::market_factory::{IMarketFactoryDispatcher, IMarketFactoryDispatcherTrait};
 use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
 
 #[test]
@@ -14,7 +13,7 @@ fn given_normal_conditions_when_swap_pricing_utils_functions_then_works() {
     // *********************************************************************************************
     // *                              SETUP                                                        *
     // *********************************************************************************************
-    let (market_factory, data_store) = setup();
+    let data_store = setup();
 
     let market_token = 'market_token'.try_into().unwrap();
     let index_token = 'index_token'.try_into().unwrap();
@@ -46,7 +45,7 @@ fn given_normal_conditions_when_swap_pricing_utils_functions_then_works() {
     // *********************************************************************************************
     // *                              TEARDOWN                                                     *
     // *********************************************************************************************
-    tests_lib::teardown(data_store, market_factory);
+    tests_lib::teardown();
 }
 
 #[test]
@@ -54,7 +53,7 @@ fn given_normal_conditions_when_get_next_pool_amount_usd_then_works() {
     // *********************************************************************************************
     // *                              SETUP                                                        *
     // *********************************************************************************************
-    let (market_factory, data_store) = setup();
+    let data_store = setup();
 
     let market_token = 'market_token'.try_into().unwrap();
     let index_token = 'index_token'.try_into().unwrap();
@@ -91,7 +90,7 @@ fn given_normal_conditions_when_get_next_pool_amount_usd_then_works() {
     // *********************************************************************************************
     // *                              TEARDOWN                                                     *
     // *********************************************************************************************
-    tests_lib::teardown(data_store, market_factory);
+    tests_lib::teardown();
 }
 
 #[test]
@@ -99,7 +98,7 @@ fn given_normal_conditions_when_get_swap_fees_then_works() {
     // *********************************************************************************************
     // *                              SETUP                                                        *
     // *********************************************************************************************
-    let (market_factory, data_store) = setup();
+    let data_store = setup();
 
     let market_token = 'market_token'.try_into().unwrap();
     let ui_fee_receiver = 'ui_fee_receiver'.try_into().unwrap();
@@ -126,10 +125,10 @@ fn given_normal_conditions_when_get_swap_fees_then_works() {
     // *********************************************************************************************
     // *                              TEARDOWN                                                     *
     // *********************************************************************************************
-    tests_lib::teardown(data_store, market_factory);
+    tests_lib::teardown();
 }
 
-fn setup() -> (IMarketFactoryDispatcher, IDataStoreDispatcher) {
+fn setup() -> IDataStoreDispatcher {
     let (
         _caller_address,
         _market_token_class,
@@ -137,7 +136,7 @@ fn setup() -> (IMarketFactoryDispatcher, IDataStoreDispatcher) {
         _decrease_order_class,
         _swap_order_class,
         _order_utils_class,
-        market_factory,
+        _market_factory,
         _role_store,
         data_store,
         _event_emitter,
@@ -158,5 +157,5 @@ fn setup() -> (IMarketFactoryDispatcher, IDataStoreDispatcher) {
         _,
     ) = tests_lib::setup();
 
-    (market_factory, data_store)
+    data_store
 }

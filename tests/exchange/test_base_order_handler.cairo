@@ -28,7 +28,6 @@ use satoru::swap::swap_handler::{ISwapHandlerDispatcher, ISwapHandlerDispatcherT
 use satoru::mock::referral_storage::{IReferralStorageDispatcher, IReferralStorageDispatcherTrait};
 use satoru::utils::span32::{Span32, Array32};
 use satoru::market::market::{Market, UniqueIdMarketImpl};
-use satoru::market::market_factory::{IMarketFactoryDispatcher, IMarketFactoryDispatcherTrait};
 
 use satoru::exchange::base_order_handler::BaseOrderHandler;
 use satoru::exchange::base_order_handler::{IBaseOrderHandlerDispatcher, IBaseOrderHandlerDispatcherTrait};
@@ -49,7 +48,6 @@ fn given_already_intialized_state_when_initialize_then_fails() {
         referral_storage,
         oracle,
         mut base_order_handler_state,
-        _,
         increase_order_class,
         decrease_order_class,
         swap_order_class,
@@ -85,7 +83,6 @@ fn given_normal_conditions_when_get_execute_order_params_then_works() {
         swap_handler,
         referral_storage,
         mut base_order_handler_state,
-        market_factory,
         _,
         _,
         _,
@@ -126,7 +123,7 @@ fn given_normal_conditions_when_get_execute_order_params_then_works() {
     assert(execute_order_params.secondary_order_type == secondary_order_type, 'wrong secondary_order_type');
 
     // teardown
-    tests_lib::teardown(data_store, market_factory);
+    tests_lib::teardown();
 }
 
 #[test]
@@ -134,14 +131,13 @@ fn given_non_found_order_when_get_execute_order_params_then_returns_empty_order(
     let (
         caller_address,
         _role_store,
-        data_store,
+        _data_store,
         _event_emitter,
         _order_vault,
         _oracle,
         _swap_handler,
         _referral_storage,
         mut base_order_handler_state,
-        market_factory,
         _,
         _,
         _,
@@ -160,7 +156,7 @@ fn given_non_found_order_when_get_execute_order_params_then_returns_empty_order(
 
     assert(execute_order_params.order.account.is_zero(), 'order shouldnt exists');
 
-    tests_lib::teardown(data_store, market_factory);
+    tests_lib::teardown();
 }
 
 // TODO: more tests when all the functions are implemented (order utils ; oracle ...)
@@ -274,7 +270,6 @@ fn setup_contracts() -> (
     ISwapHandlerDispatcher,
     IReferralStorageDispatcher,
     BaseOrderHandler::ContractState,
-    IMarketFactoryDispatcher,
     ContractClass,
     ContractClass,
     ContractClass,
@@ -287,7 +282,7 @@ fn setup_contracts() -> (
         decrease_order_class,
         swap_order_class,
         order_utils_class,
-        market_factory,
+        _market_factory,
         role_store,
         data_store,
         event_emitter,
@@ -335,7 +330,6 @@ fn setup_contracts() -> (
         swap_handler,
         referral_storage,
         base_order_handler_state,
-        market_factory,
         increase_order_class,
         decrease_order_class,
         swap_order_class,

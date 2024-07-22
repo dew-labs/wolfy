@@ -1,4 +1,4 @@
-Tests: 490 passed, 38 failed, 0 skipped, 0 ignored, 0 filtered out
+Tests: 497 passed, 31 failed, 0 skipped, 0 ignored, 0 filtered out
 
 Failures:
     tests::position::test_decrease_position_collateral_utils::given_good_params_when_process_collateral_then_succeed
@@ -53,9 +53,11 @@ Failures:
     tests::exchange::test_withdrawal_handler::given_normal_conditions_when_cancel_withdrawal_then_works
 
     // empty market
-    tests::exchange::test_liquidation_handler::given_unauthorized_access_when_create_execute_liquidation_then_fails
     tests::exchange::test_deposit_handler::given_normal_conditions_when_create_cancel_deposit_then_works
     tests::exchange::test_deposit_handler::given_normal_conditions_when_create_execute_deposit_then_works
+
+    // empty market
+    tests::exchange::test_liquidation_handler::given_unauthorized_access_when_create_execute_liquidation_then_fails
     tests::exchange::test_liquidation_handler::given_empty_price_feed_multiplier_when_create_execute_liquidation_then_fails
 
     // empty primary price

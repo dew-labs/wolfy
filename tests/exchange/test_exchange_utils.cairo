@@ -8,14 +8,13 @@ use snforge_std::{
 
 use satoru::data::keys;
 use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
-use satoru::market::market_factory::{IMarketFactoryDispatcher, IMarketFactoryDispatcherTrait};
 use satoru::exchange::exchange_utils::validate_request_cancellation;
 use satoru::test_utils::tests_lib;
 
 #[test]
 fn given_exchange_utils_when_validate_request_cancellation_then_success() {
     // Setup
-    let (data_store, market_factory) = setup();
+    let data_store = setup();
     let _contract_address = contract_address_const::<0>();
 
     // Test
@@ -31,14 +30,14 @@ fn given_exchange_utils_when_validate_request_cancellation_then_success() {
     validate_request_cancellation(data_store, created_at_block, 'SOME_REQUEST_TYPE');
 
     // Teardown
-    tests_lib::teardown(data_store, market_factory);
+    tests_lib::teardown();
 }
 
 #[test]
 #[should_panic(expected: ('request_not_yet_cancellable', 'SOME_REQUEST_TYPE'))]
 fn given_exchange_utils_when_validate_request_cancellation_then_fails() {
     // Setup
-    let (data_store, _) = setup();
+    let data_store = setup();
     let _contract_address = contract_address_const::<0>();
 
     // Test
@@ -51,7 +50,7 @@ fn given_exchange_utils_when_validate_request_cancellation_then_fails() {
     validate_request_cancellation(data_store, created_at_block, 'SOME_REQUEST_TYPE');
 }
 
-fn setup() -> (IDataStoreDispatcher, IMarketFactoryDispatcher) {
+fn setup() -> IDataStoreDispatcher {
     let (
         _caller_address,
         _market_token_class,
@@ -59,7 +58,7 @@ fn setup() -> (IDataStoreDispatcher, IMarketFactoryDispatcher) {
         _decrease_order_class,
         _swap_order_class,
         _order_utils_class,
-        market_factory,
+        _market_factory,
         _role_store,
         data_store,
         _event_emitter,
@@ -80,5 +79,5 @@ fn setup() -> (IDataStoreDispatcher, IMarketFactoryDispatcher) {
         _,
     ) = tests_lib::setup();
 
-    (data_store, market_factory)
+    data_store
 }

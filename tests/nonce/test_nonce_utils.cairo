@@ -54,5 +54,5 @@ fn given_normal_conditions_when_nonce_utils_functions_then_works() {
     // *********************************************************************************************
     // *                              TEARDOWN                                                     *
     // *********************************************************************************************
-    tests_lib::teardown(data_store, market_factory);
+    tests_lib::teardown();
 }

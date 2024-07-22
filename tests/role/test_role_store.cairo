@@ -167,7 +167,7 @@ fn given_normal_conditions_when_get_role_members_then_works() {
 }
 
 fn admin() -> ContractAddress {
-    contract_address_const::<'caller'>()
+    tests_lib::get_c4ller_address()
 }
 
 fn account_1() -> ContractAddress {

@@ -5,7 +5,6 @@ use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
 use satoru::mock::referral_storage::{IReferralStorageDispatcher, IReferralStorageDispatcherTrait};
 use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
 use satoru::mock::governable::{IGovernableDispatcher, IGovernableDispatcherTrait};
-use satoru::market::market_factory::{IMarketFactoryDispatcher, IMarketFactoryDispatcherTrait};
 
 use satoru::role::role;
 use satoru::deposit::deposit::Deposit;
@@ -17,7 +16,7 @@ use snforge_std::{declare, start_cheat_caller_address, ContractClassTrait};
 
 fn deploy_governable(event_emitter_address: ContractAddress) -> ContractAddress {
     let contract = declare("Governable").unwrap();
-    let caller_address: ContractAddress = contract_address_const::<'caller'>();
+    let caller_address: ContractAddress = tests_lib::get_c4ller_address();
     let deployed_contract_address = contract_address_const::<'governable'>();
     start_cheat_caller_address(deployed_contract_address, caller_address);
     let constructor_calldata = array![event_emitter_address.into()];
@@ -32,30 +31,29 @@ fn setup() -> (
     IEventEmitterDispatcher,
     IReferralStorageDispatcher,
     IGovernableDispatcher,
-    IMarketFactoryDispatcher
 ) {
     let (
         caller_address,
-        market_token_class,
+        _market_token_class,
         _increase_order_class,
         _decrease_order_class,
         _swap_order_class,
         _order_utils_class,
-        market_factory,
+        _market_factory,
         role_store,
         data_store,
         event_emitter,
-        exchange_router,
-        deposit_handler,
-        deposit_vault,
-        oracle,
-        order_handler,
-        order_vault,
-        reader,
+        _exchange_router,
+        _deposit_handler,
+        _deposit_vault,
+        _oracle,
+        _order_handler,
+        _order_vault,
+        _reader,
         referral_storage,
-        withdrawal_handler,
-        withdrawal_vault,
-        liquidation_handler,
+        _withdrawal_handler,
+        _withdrawal_vault,
+        _liquidation_handler,
         _,
         _,
         _,
@@ -71,7 +69,7 @@ fn setup() -> (
     start_cheat_caller_address(referral_storage.contract_address, caller_address);
     start_cheat_caller_address(governable_address, caller_address);
 
-    (caller_address, role_store, data_store, event_emitter, referral_storage, governable, market_factory)
+    (caller_address, role_store, data_store, event_emitter, referral_storage, governable)
 }
 
 fn setup_with_other_address() -> (
@@ -81,32 +79,31 @@ fn setup_with_other_address() -> (
     IEventEmitterDispatcher,
     IReferralStorageDispatcher,
     IGovernableDispatcher,
-    IMarketFactoryDispatcher,
 ) {
     let caller_address: ContractAddress = 0x102.try_into().unwrap();
 
     let (
         _caller_address,
-        market_token_class,
+        _market_token_class,
         _increase_order_class,
         _decrease_order_class,
         _swap_order_class,
         _order_utils_class,
-        market_factory,
+        _market_factory,
         role_store,
         data_store,
         event_emitter,
-        exchange_router,
-        deposit_handler,
-        deposit_vault,
-        oracle,
-        order_handler,
-        order_vault,
-        reader,
+        _exchange_router,
+        _deposit_handler,
+        _deposit_vault,
+        _oracle,
+        _order_handler,
+        _order_vault,
+        _reader,
         referral_storage,
-        withdrawal_handler,
-        withdrawal_vault,
-        liquidation_handler,
+        _withdrawal_handler,
+        _withdrawal_vault,
+        _liquidation_handler,
         _,
         _,
         _,
@@ -122,7 +119,7 @@ fn setup_with_other_address() -> (
     start_cheat_caller_address(referral_storage.contract_address, caller_address);
     start_cheat_caller_address(governable_address, caller_address);
 
-    (caller_address, role_store, data_store, event_emitter, referral_storage, governable, market_factory)
+    (caller_address, role_store, data_store, event_emitter, referral_storage, governable)
 }
 
 //TODO add more tests
@@ -132,9 +129,9 @@ fn setup_with_other_address() -> (
 // The test expects the call to succeed without any errors.
 #[test]
 fn given_normal_conditions_when_only_gov_then_works() {
-    let (caller_address, role_store, data_store, event_emitter, referral_storage, governable, market_factory) = setup();
+    let (caller_address, role_store, data_store, event_emitter, referral_storage, governable) = setup();
     governable.only_gov();
-    tests_lib::teardown(data_store, market_factory);
+    tests_lib::teardown();
 }
 
 // This test checks the `only_gov` function when the governance condition is not met.
@@ -143,10 +140,9 @@ fn given_normal_conditions_when_only_gov_then_works() {
 #[test]
 #[should_panic(expected: ('Unauthorized gov caller',))]
 fn given_forbidden_when_only_gov_then_fails() {
-    let (caller_address, role_store, data_store, event_emitter, referral_storage, governable, market_factory) =
-        setup_with_other_address();
+    let (caller_address, role_store, data_store, event_emitter, referral_storage, governable) = setup_with_other_address();
     governable.only_gov();
-    tests_lib::teardown(data_store, market_factory);
+    tests_lib::teardown();
 }
 
 // This test checks the `transfer_ownership` function under normal conditions.
@@ -155,10 +151,10 @@ fn given_forbidden_when_only_gov_then_fails() {
 // The test expects the call to succeed and the ownership to be transferred without any errors.
 #[test]
 fn given_normal_conditions_when_transfer_ownership_then_works() {
-    let (caller_address, role_store, data_store, event_emitter, referral_storage, governable, market_factory) = setup();
+    let (caller_address, role_store, data_store, event_emitter, referral_storage, governable) = setup();
     let new_caller_address: ContractAddress = 0x102.try_into().unwrap();
     governable.transfer_ownership(new_caller_address);
-    tests_lib::teardown(data_store, market_factory);
+    tests_lib::teardown();
 }
 
 /// This test case verifies the `transfer_ownership` function behavior when called by an unauthorized address.
@@ -168,13 +164,12 @@ fn given_normal_conditions_when_transfer_ownership_then_works() {
 #[should_panic(expected: ('Unauthorized gov caller',))]
 fn given_unauthorized_caller_when_transfer_ownership_then_fails() {
     // Setup the environment with a different caller address.
-    let (caller_address, role_store, data_store, event_emitter, referral_storage, governable, market_factory) =
-        setup_with_other_address();
+    let (caller_address, role_store, data_store, event_emitter, referral_storage, governable) = setup_with_other_address();
 
     // Try to transfer ownership to a new address.
     let new_uncaller_address: ContractAddress = 0x102.try_into().unwrap();
     governable.transfer_ownership(new_uncaller_address);
-    tests_lib::teardown(data_store, market_factory);
+    tests_lib::teardown();
 }
 
 /// This test checks the `accept_ownership` function under normal conditions.
@@ -183,7 +178,7 @@ fn given_unauthorized_caller_when_transfer_ownership_then_fails() {
 /// The test expects the call to succeed and the ownership to be accepted without any errors.
 #[test]
 fn given_normal_conditions_when_accept_ownership_then_works() {
-    let (caller_address, role_store, data_store, event_emitter, referral_storage, governable, market_factory) = setup();
+    let (caller_address, role_store, data_store, event_emitter, referral_storage, governable) = setup();
     let new_caller_address: ContractAddress = 0x102.try_into().unwrap();
 
     // Transfer the ownership to the new address.
@@ -194,7 +189,7 @@ fn given_normal_conditions_when_accept_ownership_then_works() {
 
     // Now call accept_ownership from the new governance address.
     governable.accept_ownership();
-    tests_lib::teardown(data_store, market_factory);
+    tests_lib::teardown();
 }
 
 /// This test checks the `accept_ownership` function under abnormal conditions.
@@ -204,7 +199,7 @@ fn given_normal_conditions_when_accept_ownership_then_works() {
 #[test]
 #[should_panic(expected: ('Unauthorized pending_gov caller',))]
 fn given_abnormal_conditions_when_accept_ownership_then_fails() {
-    let (caller_address, role_store, data_store, event_emitter, referral_storage, governable, market_factory) = setup();
+    let (caller_address, role_store, data_store, event_emitter, referral_storage, governable) = setup();
     let new_caller_address: ContractAddress = 0x102.try_into().unwrap();
     let unauthorized_address: ContractAddress = 0x103.try_into().unwrap();
 
@@ -216,14 +211,14 @@ fn given_abnormal_conditions_when_accept_ownership_then_fails() {
 
     // Now call accept_ownership from the unauthorized address.
     governable.accept_ownership();
-    tests_lib::teardown(data_store, market_factory);
+    tests_lib::teardown();
 }
 
 #[test]
 #[should_panic(expected: ('already_initialized',))]
 fn given_already_initialized_when_initialize_then_fails() {
     // Setup the environment.
-    let (caller_address, role_store, data_store, event_emitter, referral_storage, governable, market_factory) = setup();
+    let (caller_address, role_store, data_store, event_emitter, referral_storage, governable) = setup();
 
     // Assume that the contract has been initialized during setup.
     // Try to initialize it again with the same event emitter address.
@@ -231,5 +226,5 @@ fn given_already_initialized_when_initialize_then_fails() {
 
     // This call should panic with the error 'already_initialized'.
     governable.initialize(event_emitter_address);
-    tests_lib::teardown(data_store, market_factory);
+    tests_lib::teardown();
 }

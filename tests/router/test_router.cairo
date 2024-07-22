@@ -91,7 +91,7 @@ fn setup(
     IRouterDispatcher, // Interface to interact with the `Router` contract.
     IERC20Dispatcher,
 ) {
-    let caller_address: ContractAddress = contract_address_const::<'caller'>();
+    let caller_address: ContractAddress = tests_lib::get_c4ller_address();
     let minter_address: ContractAddress = 0x102.try_into().unwrap();
 
     // Deploy the test token.

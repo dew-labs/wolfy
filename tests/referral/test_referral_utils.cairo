@@ -18,12 +18,11 @@ use satoru::utils::precision;
 use satoru::market::market_token::{IMarketTokenDispatcher, IMarketTokenDispatcherTrait};
 use satoru::token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
 use satoru::test_utils::tests_lib;
-use satoru::market::market_factory::{IMarketFactoryDispatcher, IMarketFactoryDispatcherTrait};
 
 #[test]
 fn given_normal_conditions_when_trader_referral_codes_then_works() {
     // Setup
-    let (caller_address, role_store, data_store, event_emitter, referral_storage, governable, market_token, market_factory) = setup();
+    let (caller_address, role_store, data_store, event_emitter, referral_storage, governable, market_token) = setup();
 
     // Test
 
@@ -50,7 +49,7 @@ fn given_normal_conditions_when_trader_referral_codes_then_works() {
     let retrieved_code3 = referral_storage.trader_referral_codes(account);
     assert(retrieved_code3 == referral_code3, 'invalid referral code3');
 
-    tests_lib::teardown(data_store, market_factory);
+    tests_lib::teardown();
 }
 
 
@@ -58,7 +57,7 @@ fn given_normal_conditions_when_trader_referral_codes_then_works() {
 #[should_panic(expected: ('forbidden',))]
 fn given_forbidden_when_trader_referral_codes_then_fails() {
     // Setup
-    let (caller_address, role_store, data_store, event_emitter, referral_storage, governable, market_token, market_factory) = setup();
+    let (caller_address, role_store, data_store, event_emitter, referral_storage, governable, market_token) = setup();
 
     //forbidden access
     let account: ContractAddress = contract_address_const::<111>();
@@ -69,14 +68,14 @@ fn given_forbidden_when_trader_referral_codes_then_fails() {
     referral_utils::set_trader_referral_code(referral_storage, account, referral_code);
     let retrieved_code = referral_storage.trader_referral_codes(account);
     assert(retrieved_code == referral_code, 'invalid referral code');
-    tests_lib::teardown(data_store, market_factory);
+    tests_lib::teardown();
 }
 
 
 #[test]
 fn given_normal_conditions_when_increment_affiliate_reward_then_works() {
     // Setup
-    let (caller_address, role_store, data_store, event_emitter, referral_storage, governable, market_token, market_factory) = setup();
+    let (caller_address, role_store, data_store, event_emitter, referral_storage, governable, market_token) = setup();
 
     let mut spy = spy_events();
     role_store.grant_role(caller_address, role::CONTROLLER);
@@ -126,14 +125,14 @@ fn given_normal_conditions_when_increment_affiliate_reward_then_works() {
             ]
         );
 
-    tests_lib::teardown(data_store, market_factory);
+    tests_lib::teardown();
 }
 
 
 #[test]
 fn given_no_code_when_get_referral_info_then_works() {
     // Setup
-    let (caller_address, role_store, data_store, event_emitter, referral_storage, governable, market_token, market_factory) = setup();
+    let (caller_address, role_store, data_store, event_emitter, referral_storage, governable, market_token) = setup();
 
     let (code, affiliate, total_rebate, discount_share) = referral_utils::get_referral_info(
         referral_storage, caller_address
@@ -144,13 +143,13 @@ fn given_no_code_when_get_referral_info_then_works() {
     assert(total_rebate == 0, 'invalid total_rebate');
     assert(discount_share == 0, 'invalid discount_share');
 
-    tests_lib::teardown(data_store, market_factory);
+    tests_lib::teardown();
 }
 
 #[test]
 fn given_normal_conditions_when_get_referral_info_then_works() {
     // Setup
-    let (caller_address, role_store, data_store, event_emitter, referral_storage, governable, market_token, market_factory) = setup();
+    let (caller_address, role_store, data_store, event_emitter, referral_storage, governable, market_token) = setup();
 
     let owner: ContractAddress = 'owner'.try_into().unwrap();
     let tier_level = 100;
@@ -183,14 +182,14 @@ fn given_normal_conditions_when_get_referral_info_then_works() {
     assert(total_rebate == precision::basis_points_to_float(rebate), 'invalid total_rebate');
     assert(discount_share == precision::basis_points_to_float(discount), 'invalid discount_share');
 
-    tests_lib::teardown(data_store, market_factory);
+    tests_lib::teardown();
 }
 
 
 #[test]
 fn given_refferal_discountshare_when_get_referral_info_then_works() {
     // Setup
-    let (caller_address, role_store, data_store, event_emitter, referral_storage, governable, market_token, market_factory) = setup();
+    let (caller_address, role_store, data_store, event_emitter, referral_storage, governable, market_token) = setup();
 
     let tier_level = 200;
     let rebate = 300;
@@ -222,14 +221,14 @@ fn given_refferal_discountshare_when_get_referral_info_then_works() {
     assert(total_rebate == precision::basis_points_to_float(rebate), 'invalid total_rebate');
     assert(discount_share == precision::basis_points_to_float(ref_discount_share), 'invalid discount_share');
 
-    tests_lib::teardown(data_store, market_factory);
+    tests_lib::teardown();
 }
 
 
 #[test]
 fn given_normal_conditions_when_claim_affiliate_reward_then_works() {
     // Setup
-    let (caller_address, role_store, data_store, event_emitter, referral_storage, governable, market_token, market_factory) = setup();
+    let (caller_address, role_store, data_store, event_emitter, referral_storage, governable, market_token) = setup();
     let (token_address, token_dispatcher) = setup_mock_token(caller_address, market_token.contract_address);
     let mut spy = spy_events();
 
@@ -292,7 +291,7 @@ fn given_normal_conditions_when_claim_affiliate_reward_then_works() {
     //         ]
     //     );
 
-    tests_lib::teardown(data_store, market_factory);
+    tests_lib::teardown();
 }
 
 /// Utility function to deploy a mock token contract
@@ -320,7 +319,7 @@ fn deploy_market_token(contract: ContractClass, caller_address: ContractAddress,
 
 fn deploy_governable(event_emitter_address: ContractAddress) -> ContractAddress {
     let contract = declare("Governable").unwrap();
-    let caller_address: ContractAddress = contract_address_const::<'caller'>();
+    let caller_address: ContractAddress = tests_lib::get_c4ller_address();
     let deployed_contract_address = contract_address_const::<'governable'>();
     start_cheat_caller_address(deployed_contract_address, caller_address);
     let constructor_calldata = array![event_emitter_address.into()];
@@ -337,7 +336,6 @@ fn setup() -> (
     IReferralStorageDispatcher,
     IGovernableDispatcher,
     IMarketTokenDispatcher,
-    IMarketFactoryDispatcher,
 ) {
     let (
         caller_address,
@@ -346,7 +344,7 @@ fn setup() -> (
         _decrease_order_class,
         _swap_order_class,
         _order_utils_class,
-        market_factory,
+        _market_factory,
         role_store,
         data_store,
         event_emitter,
@@ -373,5 +371,5 @@ fn setup() -> (
     let governable_address = deploy_governable(event_emitter.contract_address);
     let governable = IGovernableDispatcher { contract_address: governable_address };
 
-    (caller_address, role_store, data_store, event_emitter, referral_storage, governable, market_token, market_factory)
+    (caller_address, role_store, data_store, event_emitter, referral_storage, governable, market_token)
 }

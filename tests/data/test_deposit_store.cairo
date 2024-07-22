@@ -2,7 +2,6 @@ use starknet::{ContractAddress, contract_address_const};
 
 use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
 use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
-use satoru::market::market_factory::{IMarketFactoryDispatcher, IMarketFactoryDispatcherTrait};
 use satoru::role::role;
 use satoru::deposit::deposit::Deposit;
 use satoru::test_utils::tests_lib;
@@ -17,7 +16,7 @@ use snforge_std::{declare, start_cheat_caller_address, ContractClassTrait};
 /// * `ContractAddress` - The address of the caller.
 /// * `IDataStoreDispatcher` - The data store dispatcher.
 /// * `IRoleStoreDispatcher` - The role store dispatcher.
-fn setup() -> (ContractAddress, IRoleStoreDispatcher, IDataStoreDispatcher, IMarketFactoryDispatcher) {
+fn setup() -> (ContractAddress, IRoleStoreDispatcher, IDataStoreDispatcher) {
     let (
         caller_address,
         _market_token_class,
@@ -25,7 +24,7 @@ fn setup() -> (ContractAddress, IRoleStoreDispatcher, IDataStoreDispatcher, IMar
         _decrease_order_class,
         _swap_order_class,
         _order_utils_class,
-        market_factory,
+        _market_factory,
         role_store,
         data_store,
         _event_emitter,
@@ -46,12 +45,12 @@ fn setup() -> (ContractAddress, IRoleStoreDispatcher, IDataStoreDispatcher, IMar
         _,
     ) = tests_lib::setup();
 
-    (caller_address, role_store, data_store, market_factory)
+    (caller_address, role_store, data_store)
 }
 
 #[test]
 fn given_normal_conditions_when_set_and_override_new_deposit_then_works() {
-    let (_caller_address, _role_store, data_store, market_factory) = setup();
+    let (_caller_address, _role_store, data_store) = setup();
 
     let key: felt252 = 123456789;
     let account = 'account'.try_into().unwrap();
@@ -93,14 +92,14 @@ fn given_normal_conditions_when_set_and_override_new_deposit_then_works() {
     let account_deposit_keys = data_store.get_account_deposit_keys(account, 0, 10);
     assert(account_deposit_keys.len() == 1, 'Acc deposit # should be 1');
 
-    tests_lib::teardown(data_store, market_factory);
+    tests_lib::teardown();
 }
 
 #[test]
 #[should_panic(expected: ('deposit account cant be 0',))]
 fn given_deposit_account_0_when_set_deposit_then_fails() {
     // Setup
-    let (_caller_address, _role_store, data_store, market_factory) = setup();
+    let (_caller_address, _role_store, data_store) = setup();
 
     let key: felt252 = 123456789;
     let mut deposit: Deposit = create_new_deposit(
@@ -116,14 +115,14 @@ fn given_deposit_account_0_when_set_deposit_then_fails() {
     // Test set_deposit function with account 0
     data_store.set_deposit(key, deposit);
 
-    tests_lib::teardown(data_store, market_factory);
+    tests_lib::teardown();
 }
 
 #[test]
 #[should_panic(expected: ('unauthorized_access',))]
 fn given_caller_not_controller_when_set_deposit_then_fails() {
     // Setup
-    let (caller_address, role_store, data_store, market_factory) = setup();
+    let (caller_address, role_store, data_store) = setup();
     role_store.revoke_role(caller_address, role::CONTROLLER);
 
     let key: felt252 = 123456789;
@@ -137,12 +136,12 @@ fn given_caller_not_controller_when_set_deposit_then_fails() {
     // Test set_deposit function without permission
     data_store.set_deposit(key, deposit);
 
-    tests_lib::teardown(data_store, market_factory);
+    tests_lib::teardown();
 }
 
 #[test]
 fn given_normal_conditions_when_get_deposit_keys_then_works() {
-    let (_caller_address, _role_store, data_store, market_factory) = setup();
+    let (_caller_address, _role_store, data_store) = setup();
     let key: felt252 = 123456789;
     let account = 'account'.try_into().unwrap();
     let mut deposit: Deposit = create_new_deposit(
@@ -165,14 +164,14 @@ fn given_normal_conditions_when_get_deposit_keys_then_works() {
     let account_deposit_keys = data_store.get_account_deposit_keys(account, 0, 10);
     assert(account_deposit_keys.len() == 0, 'Acc withdraw # not empty');
 
-    tests_lib::teardown(data_store, market_factory);
+    tests_lib::teardown();
 }
 
 
 #[test]
 fn given_normal_conditions_when_remove_one_deposit_then_works() {
     // Setup
-    let (_caller_address, _role_store, data_store, market_factory) = setup();
+    let (_caller_address, _role_store, data_store) = setup();
     let key: felt252 = 123456789;
     let account = 'account'.try_into().unwrap();
     let mut deposit: Deposit = create_new_deposit(
@@ -197,14 +196,14 @@ fn given_normal_conditions_when_remove_one_deposit_then_works() {
     let account_deposit_keys = data_store.get_account_deposit_keys(account, 0, 10);
     assert(account_deposit_keys.len() == 0, 'Acc withdraw # not empty');
 
-    tests_lib::teardown(data_store, market_factory);
+    tests_lib::teardown();
 }
 
 
 #[test]
 fn given_normal_conditions_when_remove_1_of_n_deposit_then_works() {
     // Setup
-    let (_caller_address, _role_store, data_store, market_factory) = setup();
+    let (_caller_address, _role_store, data_store) = setup();
     let key_1: felt252 = 123456789;
     let account = 'account'.try_into().unwrap();
     let mut deposit_1: Deposit = create_new_deposit(
@@ -244,13 +243,13 @@ fn given_normal_conditions_when_remove_1_of_n_deposit_then_works() {
     let account_deposit_keys = data_store.get_account_deposit_keys(account, 0, 10);
     assert(account_deposit_keys.len() == 1, 'Acc withdraw # not 1');
 
-    tests_lib::teardown(data_store, market_factory);
+    tests_lib::teardown();
 }
 
 #[test]
 fn given_normal_conditions_when_remove_last_deposit_then_works() {
     // Setup
-    let (_caller_address, _role_store, data_store, market_factory) = setup();
+    let (_caller_address, _role_store, data_store) = setup();
     let key_1: felt252 = 123456789;
     let account = 'account'.try_into().unwrap();
     let mut deposit_1: Deposit = create_new_deposit(
@@ -290,7 +289,7 @@ fn given_normal_conditions_when_remove_last_deposit_then_works() {
     let account_deposit_keys = data_store.get_account_deposit_keys(account, 0, 10);
     assert(account_deposit_keys.len() == 1, 'Acc withdraw # not 1');
 
-    tests_lib::teardown(data_store, market_factory);
+    tests_lib::teardown();
 }
 
 
@@ -298,7 +297,7 @@ fn given_normal_conditions_when_remove_last_deposit_then_works() {
 #[should_panic(expected: ('unauthorized_access',))]
 fn given_caller_not_controller_when_remove_deposit_then_fails() {
     // Setup
-    let (caller_address, role_store, data_store, market_factory) = setup();
+    let (caller_address, role_store, data_store) = setup();
     role_store.revoke_role(caller_address, role::CONTROLLER);
     let key: felt252 = 123456789;
     let account = 'account'.try_into().unwrap();
@@ -319,13 +318,13 @@ fn given_caller_not_controller_when_remove_deposit_then_fails() {
     let account_deposit_keys = data_store.get_account_deposit_keys(account, 0, 10);
     assert(account_deposit_keys.len() == 0, 'Acc withdraw # not empty');
 
-    tests_lib::teardown(data_store, market_factory);
+    tests_lib::teardown();
 }
 
 #[test]
 fn given_normal_conditions_when_multiple_get_account_deposit_keys_then_works() {
     // Setup
-    let (_caller_address, _role_store, data_store, market_factory) = setup();
+    let (_caller_address, _role_store, data_store) = setup();
     let key_1: felt252 = 123456789;
     let account = 'account'.try_into().unwrap();
     let mut deposit_1: Deposit = create_new_deposit(
@@ -391,7 +390,7 @@ fn given_normal_conditions_when_multiple_get_account_deposit_keys_then_works() {
     // Given
     data_store.remove_deposit(key_1, account);
 
-    tests_lib::teardown(data_store, market_factory);
+    tests_lib::teardown();
 }
 
 /// Utility function to create new Deposit struct

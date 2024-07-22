@@ -2,7 +2,6 @@ use starknet::ContractAddress;
 use snforge_std::{declare, start_cheat_caller_address, stop_cheat_caller_address, ContractClassTrait};
 
 use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
-use satoru::market::market_factory::{IMarketFactoryDispatcher, IMarketFactoryDispatcherTrait};
 use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
 use satoru::data::keys;
 use satoru::deposit::deposit::Deposit;
@@ -15,28 +14,28 @@ use satoru::test_utils::tests_lib;
 
 #[test]
 fn given_normal_conditions_when_validate_callback_gas_limit_then_works() {
-    let (data_store, _, market_factory) = setup();
+    let (data_store, _) = setup();
     data_store.set_u256(keys::max_callback_gas_limit(), 100);
 
     validate_callback_gas_limit(data_store, 100);
 
-    tests_lib::teardown(data_store, market_factory);
+    tests_lib::teardown();
 }
 
 #[test]
 #[should_panic(expected: ('max_callback_gas_limit_exceeded', 101, 100))]
 fn given_callback_gas_limit_exceeded_when_validate_callback_gas_limit_then_fails() {
-    let (data_store, _, market_factory) = setup();
+    let (data_store, _) = setup();
     data_store.set_u256(keys::max_callback_gas_limit(), 100);
 
     validate_callback_gas_limit(data_store, 101);
 
-    tests_lib::teardown(data_store, market_factory);
+    tests_lib::teardown();
 }
 
 #[test]
 fn given_normal_conditions_when_saved_callback_then_works() {
-    let (data_store, _, market_factory) = setup();
+    let (data_store, _) = setup();
     let account: ContractAddress = 42.try_into().unwrap();
     let market: ContractAddress = 69.try_into().unwrap();
     let callback: ContractAddress = 123.try_into().unwrap();
@@ -49,12 +48,12 @@ fn given_normal_conditions_when_saved_callback_then_works() {
     let result = get_saved_callback_contract(data_store, account, market);
     assert(result == callback, 'should be ok');
 
-    tests_lib::teardown(data_store, market_factory);
+    tests_lib::teardown();
 }
 // TODO bad syscall_ptr
 #[test]
 fn given_normal_conditions_when_callback_contract_functions_then_works() {
-    let (_data_store, _event_emitter, _) = setup();
+    let (_data_store, _event_emitter) = setup();
 
     let mut deposit: Deposit = Default::default();
     let mut log_data: LogData = Default::default();
@@ -67,7 +66,7 @@ fn given_normal_conditions_when_callback_contract_functions_then_works() {
     assert(callback_mock.get_counter() == 2, 'should be 2');
 }
 
-fn setup() -> (IDataStoreDispatcher, IEventEmitterDispatcher, IMarketFactoryDispatcher) {
+fn setup() -> (IDataStoreDispatcher, IEventEmitterDispatcher) {
     let (
         _caller_address,
         _market_token_class,
@@ -75,7 +74,7 @@ fn setup() -> (IDataStoreDispatcher, IEventEmitterDispatcher, IMarketFactoryDisp
         _decrease_order_class,
         _swap_order_class,
         _order_utils_class,
-        market_factory,
+        _market_factory,
         _role_store,
         data_store,
         event_emitter,
@@ -96,5 +95,5 @@ fn setup() -> (IDataStoreDispatcher, IEventEmitterDispatcher, IMarketFactoryDisp
         _,
     ) = tests_lib::setup();
 
-    (data_store, event_emitter, market_factory)
+    (data_store, event_emitter)
 }

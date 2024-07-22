@@ -18,7 +18,6 @@ use snforge_std::{
 use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
 use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
 use satoru::order::order_utils::{IOrderUtilsDispatcher, IOrderUtilsDispatcherTrait};
-use satoru::market::market_factory::{IMarketFactoryDispatcher, IMarketFactoryDispatcherTrait};
 use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
 use satoru::deposit::deposit_vault::{IDepositVaultDispatcher, IDepositVaultDispatcherTrait};
 use satoru::deposit::deposit::Deposit;
@@ -56,7 +55,7 @@ use satoru::oracle::oracle_store::{IOracleStoreDispatcher, IOracleStoreDispatche
 use satoru::swap::swap_handler::{ISwapHandlerDispatcher, ISwapHandlerDispatcherTrait};
 use satoru::market::{market::{UniqueIdMarketImpl},};
 use satoru::exchange::order_handler::{OrderHandler, IOrderHandlerDispatcher, IOrderHandlerDispatcherTrait};
-use satoru::test_utils::{tests_lib::{setup, create_market, teardown}, deposit_setup::deposit_setup};
+use satoru::test_utils::deposit_setup::deposit_setup;
 const INITIAL_TOKENS_MINTED: felt252 = 1000;
 
 #[test]
@@ -64,7 +63,7 @@ fn test_swap_market() {
     let (
         caller_address,
         _market_token_class,
-        market_factory,
+        _market_factory,
         role_store,
         data_store,
         _event_emitter,
@@ -249,5 +248,5 @@ fn test_swap_market() {
     // *********************************************************************************************
     // *                              TEARDOWN                                                     *
     // *********************************************************************************************
-    teardown(data_store, market_factory);
+    tests_lib::teardown();
 }

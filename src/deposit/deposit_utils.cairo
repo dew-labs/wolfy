@@ -19,7 +19,6 @@ use satoru::utils::{
 use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
 use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
 use satoru::deposit::deposit_vault::{IDepositVaultDispatcher, IDepositVaultDispatcherTrait};
-use satoru::chain::chain::{IChainDispatcher, IChainDispatcherTrait};
 use satoru::deposit::{deposit::Deposit, error::DepositError};
 use satoru::market::market_utils;
 use satoru::gas::{error::GasError, gas_utils};

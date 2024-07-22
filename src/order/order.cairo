@@ -9,7 +9,6 @@ use array::ArrayTrait;
 
 // Local imports.
 use satoru::utils::store_arrays::StoreContractAddressArray;
-use satoru::chain::chain::{IChainDispatcher, IChainDispatcherTrait};
 use satoru::utils::span32::{Span32, Array32Trait};
 
 /// Struct for orders.

@@ -44,19 +44,13 @@ fn deploy_fee_handler(
     role_store_address: ContractAddress, data_store_address: ContractAddress, event_emitter_address: ContractAddress
 ) -> ContractAddress {
     let contract = declare("FeeHandler").unwrap();
-    let caller_address: ContractAddress = contract_address_const::<'caller'>();
+    let caller_address: ContractAddress = tests_lib::get_c4ller_address();
     let deployed_contract_address = contract_address_const::<'fee_handler'>();
     start_cheat_caller_address(deployed_contract_address, caller_address);
     let constructor_calldata = array![
         data_store_address.into(), role_store_address.into(), event_emitter_address.into()
     ];
     let (contract_address, _) = contract.deploy_at(@constructor_calldata, deployed_contract_address).unwrap();
-    contract_address
-}
-
-fn deploy_account() -> ContractAddress {
-    let contract = declare("MockAccount").unwrap();
-    let (contract_address, _) = contract.deploy(@array![]).unwrap();
     contract_address
 }
 
@@ -92,7 +86,7 @@ fn setup() -> (ContractAddress, IDataStoreDispatcher, IEventEmitterDispatcher, I
     let fee_handler_address = deploy_fee_handler(role_store.contract_address, data_store.contract_address, event_emitter.contract_address);
     let fee_handler = IFeeHandlerDispatcher { contract_address: fee_handler_address };
 
-    let account = deploy_account();
+    let account = tests_lib::deploy_mock_account();
     data_store.set_address(keys::fee_receiver(), account);
 
     (caller_address, data_store, event_emitter, fee_handler)

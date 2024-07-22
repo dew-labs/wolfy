@@ -246,7 +246,7 @@ fn setup_contracts() -> (
     // Create a safe dispatcher to interact with the contract.
     let config = IConfigDispatcher { contract_address: config_address };
 
-    (contract_address_const::<'caller'>(), config, role_store, data_store, event_emitter)
+    (tests_lib::get_c4ller_address(), config, role_store, data_store, event_emitter)
 }
 
 /// Utility function to deploy a market factory contract and return its address.
@@ -254,7 +254,7 @@ fn deploy_config(
     data_store_address: ContractAddress, role_store_address: ContractAddress, event_emitter_address: ContractAddress,
 ) -> ContractAddress {
     let contract = declare("Config").unwrap();
-    let caller_address = contract_address_const::<'caller'>();
+    let caller_address = tests_lib::get_c4ller_address();
     let config_address = contract_address_const::<'config'>();
     start_cheat_caller_address(config_address, caller_address);
     let mut constructor_calldata = array![];

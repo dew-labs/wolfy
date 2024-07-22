@@ -117,18 +117,18 @@ fn given_unauthorized_access_role_when_swap_to_pnl_token_then_fails() {
 
 //     assert(decrease_position_values.output.output_token == (0.try_into().unwrap()), 'Error');
 
-//     tests_lib::teardown(role_store, market_factory);
+//     tests_lib::teardown();
 // }
 
 /// Utility function to create new UpdatePositionParams struct
 fn create_new_update_position_params(
     decrease_position_swap_type: DecreasePositionSwapType, swap_handler: ISwapHandlerDispatcher
 ) -> UpdatePositionParams {
-    let data_store = contract_address_const::<'data_store'>();
-    let event_emitter = contract_address_const::<'event_emitter'>();
-    let order_vault = contract_address_const::<'order_vault'>();
-    let oracle = contract_address_const::<'oracle'>();
-    let referral_storage = contract_address_const::<'referral_storage'>();
+    let data_store = tests_lib::get_data_store_address();
+    let event_emitter = tests_lib::get_event_emitter_address();
+    let order_vault = tests_lib::get_order_vault_address() ;
+    let oracle = tests_lib::get_oracle_address();
+    let referral_storage = tests_lib::get_referral_storage_address() ;
 
     let contracts = ExecuteOrderParamsContracts {
         data_store: IDataStoreDispatcher { contract_address: data_store },

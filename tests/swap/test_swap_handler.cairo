@@ -26,7 +26,7 @@ use debug::PrintTrait;
 
 fn deploy_tokens() -> (ContractAddress, ContractAddress, ContractAddress) {
     let contract = declare("ERC20").unwrap();
-    let caller_address: ContractAddress = contract_address_const::<'caller'>();
+    let caller_address: ContractAddress = tests_lib::get_c4ller_address();
     let constructor_calldata = array!['satoru_index', 'STU', 4000, 0, caller_address.into()];
     let constructor_calldata1 = array!['satoru_long', 'STU', 4000, 0, caller_address.into()];
     let constructor_calldata2 = array!['satoru_short', 'STU', 4000, 0, caller_address.into()];
@@ -68,7 +68,7 @@ fn setup() -> (
 ) {
     let (
         caller_address,
-        market_token_class,
+        _market_token_class,
         _increase_order_class,
         _decrease_order_class,
         _swap_order_class,
@@ -134,10 +134,10 @@ fn given_caller_not_controller_when_swap_then_fails() {
         bank,
         role_store,
         swap_handler,
-        market_factory,
-        index_token_handler,
-        long_token_handler,
-        short_token_handler
+        _market_factory,
+        _index_token_handler,
+        _long_token_handler,
+        _short_token_handler
     ) =
         setup();
 
@@ -166,7 +166,7 @@ fn given_caller_not_controller_when_swap_then_fails() {
     };
 
     swap_handler.swap(swap);
-    tests_lib::teardown(data_store, market_factory);
+    tests_lib::teardown();
 }
 
 
@@ -174,17 +174,17 @@ fn given_caller_not_controller_when_swap_then_fails() {
 fn given_amount_in_is_zero_then_works() {
     //Change that when swap_handler has been implemented
     let (
-        caller_address,
+        _caller_address,
         data_store,
         event_emitter,
         oracle,
         bank,
-        role_store,
+        _role_store,
         swap_handler,
-        market_factory,
-        index_token_handler,
-        long_token_handler,
-        short_token_handler
+        _market_factory,
+        _index_token_handler,
+        _long_token_handler,
+        _short_token_handler
     ) =
         setup();
 
@@ -213,7 +213,7 @@ fn given_amount_in_is_zero_then_works() {
 
     assert(swap_result == (contract_address_const::<'token_in'>(), 0), 'Error');
 
-    tests_lib::teardown(data_store, market_factory);
+    tests_lib::teardown();
 }
 
 
@@ -222,17 +222,17 @@ fn given_amount_in_is_zero_then_works() {
 fn given_insufficient_output_then_fails() {
     //Change that when swap_handler has been implemented
     let (
-        caller_address,
+        _caller_address,
         data_store,
         event_emitter,
         oracle,
         bank,
-        role_store,
+        _role_store,
         swap_handler,
-        market_factory,
-        index_token_handler,
-        long_token_handler,
-        short_token_handler
+        _market_factory,
+        _index_token_handler,
+        _long_token_handler,
+        _short_token_handler
     ) =
         setup();
 
@@ -261,24 +261,24 @@ fn given_insufficient_output_then_fails() {
 
     assert(swap_result == (contract_address_const::<'token_in'>(), 1), 'Error');
 
-    tests_lib::teardown(data_store, market_factory);
+    tests_lib::teardown();
 }
 
 #[test]
 fn given_normal_conditions_swap_then_works() {
     //Change that when swap_handler has been implemented
     let (
-        caller_address,
+        _caller_address,
         data_store,
         event_emitter,
         oracle,
         bank,
-        role_store,
+        _role_store,
         swap_handler,
-        market_factory,
-        index_token_handler,
+        _market_factory,
+        _index_token_handler,
         long_token_handler,
-        short_token_handler
+        _short_token_handler
     ) =
         setup();
 
@@ -307,19 +307,19 @@ fn given_normal_conditions_swap_then_works() {
 
     assert(swap_result == (long_token_handler.contract_address, 2), 'Error');
 
-    tests_lib::teardown(data_store, market_factory);
+    tests_lib::teardown();
 }
 
 
 #[test]
 fn given_swap_path_market_then_works() {
     let (
-        caller_address,
+        _caller_address,
         data_store,
         event_emitter,
         oracle,
         bank,
-        role_store,
+        _role_store,
         swap_handler,
         market_factory,
         index_token_handler,
@@ -380,6 +380,6 @@ fn given_swap_path_market_then_works() {
     let swap_result = swap_handler.swap(swap);
     assert(swap_result == (short_token, 20000000000000000), 'Error');
 
-    tests_lib::teardown(data_store, market_factory);
+    tests_lib::teardown();
 }
 // TODO add more tested when swap_handler has been implemented

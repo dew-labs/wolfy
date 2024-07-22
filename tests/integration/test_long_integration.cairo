@@ -18,7 +18,6 @@ use snforge_std::{
 use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
 use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
 use satoru::order::order_utils::{IOrderUtilsDispatcher, IOrderUtilsDispatcherTrait};
-use satoru::market::market_factory::{IMarketFactoryDispatcher, IMarketFactoryDispatcherTrait};
 use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
 use satoru::deposit::deposit_vault::{IDepositVaultDispatcher, IDepositVaultDispatcherTrait};
 use satoru::deposit::deposit::Deposit;
@@ -56,7 +55,7 @@ use satoru::oracle::oracle_store::{IOracleStoreDispatcher, IOracleStoreDispatche
 use satoru::swap::swap_handler::{ISwapHandlerDispatcher, ISwapHandlerDispatcherTrait};
 use satoru::market::{market::{UniqueIdMarketImpl},};
 use satoru::exchange::order_handler::{OrderHandler, IOrderHandlerDispatcher, IOrderHandlerDispatcherTrait};
-use satoru::test_utils::{tests_lib::{setup, create_market, teardown}, deposit_setup::{deposit_setup}};
+use satoru::test_utils::deposit_setup::{deposit_setup};
 
 #[test]
 fn test_long_increase_decrease_close() {
@@ -65,22 +64,22 @@ fn test_long_increase_decrease_close() {
     // *********************************************************************************************
     let (
         caller_address,
-        market_token_class,
-        market_factory,
+        _market_token_class,
+        _market_factory,
         role_store,
         data_store,
-        event_emitter,
+        _event_emitter,
         exchange_router,
-        deposit_handler,
-        deposit_vault,
-        oracle,
+        _deposit_handler,
+        _deposit_vault,
+        _oracle,
         order_handler,
         order_vault,
         reader,
         referal_storage,
-        withdrawal_handler,
-        withdrawal_vault,
-        liquidation_handler,
+        _withdrawal_handler,
+        _withdrawal_vault,
+        _liquidation_handler,
         market,
     ) =
         deposit_setup(
@@ -152,11 +151,11 @@ fn test_long_increase_decrease_close() {
     start_cheat_caller_address(exchange_router.contract_address, caller_address);
     let key_long = exchange_router.create_order(order_params_long);
     'long created'.print();
-    let got_order_long = data_store.get_order(key_long);
+    let _got_order_long = data_store.get_order(key_long);
 
     // Execute the swap order.
 
-    let signatures: Span<felt252> = array![0].span();
+    let _signatures: Span<felt252> = array![0].span();
     let set_price_params = SetPricesParams {
         signer_info: 0,
         tokens: array![contract_address_const::<'ETH'>(), contract_address_const::<'USDC'>()],
@@ -479,7 +478,7 @@ fn test_long_increase_decrease_close() {
     // *********************************************************************************************
     // *                              TEARDOWN                                                     *
     // *********************************************************************************************
-    teardown(data_store, market_factory);
+    tests_lib::teardown();
 }
 
 #[test]
@@ -489,22 +488,22 @@ fn test_takeprofit_long() {
     // *********************************************************************************************
     let (
         caller_address,
-        market_token_class,
-        market_factory,
+        _market_token_class,
+        _market_factory,
         role_store,
         data_store,
-        event_emitter,
+        _event_emitter,
         exchange_router,
-        deposit_handler,
-        deposit_vault,
-        oracle,
+        _deposit_handler,
+        _deposit_vault,
+        _oracle,
         order_handler,
         order_vault,
         reader,
         referal_storage,
-        withdrawal_handler,
-        withdrawal_vault,
-        liquidation_handler,
+        _withdrawal_handler,
+        _withdrawal_vault,
+        _liquidation_handler,
         market,
     ) =
         deposit_setup(
@@ -576,11 +575,11 @@ fn test_takeprofit_long() {
     start_cheat_caller_address(exchange_router.contract_address, caller_address);
     let key_long = exchange_router.create_order(order_params_long);
     'long created'.print();
-    let got_order_long = data_store.get_order(key_long);
+    let _got_order_long = data_store.get_order(key_long);
 
     // Execute the swap order.
 
-    let signatures: Span<felt252> = array![0].span();
+    let _signatures: Span<felt252> = array![0].span();
     let set_price_params = SetPricesParams {
         signer_info: 0,
         tokens: array![contract_address_const::<'ETH'>(), contract_address_const::<'USDC'>()],
@@ -752,7 +751,7 @@ fn test_takeprofit_long() {
     start_cheat_caller_address(exchange_router.contract_address, caller_address);
     let key_long_dec = exchange_router.create_order(order_params_long_dec);
     'long decrease created'.print();
-    let got_order_long_dec = data_store.get_order(key_long_dec);
+    let _got_order_long_dec = data_store.get_order(key_long_dec);
 
     // Execute the swap order.
     let set_price_params_dec = SetPricesParams {
@@ -857,7 +856,7 @@ fn test_takeprofit_long() {
     start_cheat_caller_address(exchange_router.contract_address, caller_address);
     let key_long_dec_2 = exchange_router.create_order(order_params_long_dec_2);
     'long decrease created'.print();
-    let got_order_long_dec = data_store.get_order(key_long_dec_2);
+    let _got_order_long_dec = data_store.get_order(key_long_dec_2);
     // Execute the swap order.
 
     let keeper_address = contract_address_const::<'keeper'>();
@@ -906,7 +905,7 @@ fn test_takeprofit_long() {
     // *********************************************************************************************
     // *                              TEARDOWN                                                     *
     // *********************************************************************************************
-    teardown(data_store, market_factory);
+    tests_lib::teardown();
 }
 
 #[test]
@@ -917,22 +916,22 @@ fn test_takeprofit_long_increase_fails() {
     // *********************************************************************************************
     let (
         caller_address,
-        market_token_class,
-        market_factory,
+        _market_token_class,
+        _market_factory,
         role_store,
         data_store,
-        event_emitter,
+        _event_emitter,
         exchange_router,
-        deposit_handler,
-        deposit_vault,
-        oracle,
+        _deposit_handler,
+        _deposit_vault,
+        _oracle,
         order_handler,
         order_vault,
         reader,
         referal_storage,
-        withdrawal_handler,
-        withdrawal_vault,
-        liquidation_handler,
+        _withdrawal_handler,
+        _withdrawal_vault,
+        _liquidation_handler,
         market,
     ) =
         deposit_setup(
@@ -1334,7 +1333,7 @@ fn test_takeprofit_long_increase_fails() {
     // *********************************************************************************************
     // *                              TEARDOWN                                                     *
     // *********************************************************************************************
-    teardown(data_store, market_factory);
+    tests_lib::teardown();
 }
 
 #[test]
@@ -1345,22 +1344,22 @@ fn test_takeprofit_long_decrease_fails() {
     // *********************************************************************************************
     let (
         caller_address,
-        market_token_class,
-        market_factory,
+        _market_token_class,
+        _market_factory,
         role_store,
         data_store,
-        event_emitter,
+        _event_emitter,
         exchange_router,
-        deposit_handler,
-        deposit_vault,
-        oracle,
+        _deposit_handler,
+        _deposit_vault,
+        _oracle,
         order_handler,
         order_vault,
         reader,
         referal_storage,
-        withdrawal_handler,
-        withdrawal_vault,
-        liquidation_handler,
+        _withdrawal_handler,
+        _withdrawal_vault,
+        _liquidation_handler,
         market,
     ) =
         deposit_setup(
@@ -1762,7 +1761,7 @@ fn test_takeprofit_long_decrease_fails() {
     // *********************************************************************************************
     // *                              TEARDOWN                                                     *
     // *********************************************************************************************
-    teardown(data_store, market_factory);
+    tests_lib::teardown();
 }
 
 #[test]
@@ -1773,22 +1772,22 @@ fn test_takeprofit_long_close_fails() {
     // *********************************************************************************************
     let (
         caller_address,
-        market_token_class,
-        market_factory,
+        _market_token_class,
+        _market_factory,
         role_store,
         data_store,
-        event_emitter,
+        _event_emitter,
         exchange_router,
-        deposit_handler,
-        deposit_vault,
-        oracle,
+        _deposit_handler,
+        _deposit_vault,
+        _oracle,
         order_handler,
         order_vault,
         reader,
         referal_storage,
-        withdrawal_handler,
-        withdrawal_vault,
-        liquidation_handler,
+        _withdrawal_handler,
+        _withdrawal_vault,
+        _liquidation_handler,
         market,
     ) =
         deposit_setup(
@@ -2190,7 +2189,7 @@ fn test_takeprofit_long_close_fails() {
     // *********************************************************************************************
     // *                              TEARDOWN                                                     *
     // *********************************************************************************************
-    teardown(data_store, market_factory);
+    tests_lib::teardown();
 }
 
 #[test]
@@ -2200,21 +2199,21 @@ fn test_long_liquidation() {
     // *********************************************************************************************
     let (
         caller_address,
-        market_token_class,
-        market_factory,
+        _market_token_class,
+        _market_factory,
         role_store,
         data_store,
-        event_emitter,
+        _event_emitter,
         exchange_router,
-        deposit_handler,
-        deposit_vault,
-        oracle,
+        _deposit_handler,
+        _deposit_vault,
+        _oracle,
         order_handler,
         order_vault,
         reader,
         referal_storage,
-        withdrawal_handler,
-        withdrawal_vault,
+        _withdrawal_handler,
+        _withdrawal_vault,
         liquidation_handler,
         market,
     ) =
@@ -2448,7 +2447,7 @@ fn test_long_liquidation() {
     // *********************************************************************************************
     // *                              TEARDOWN                                                     *
     // *********************************************************************************************
-    teardown(data_store, market_factory);
+    tests_lib::teardown();
 }
 
 #[test]
@@ -2458,22 +2457,22 @@ fn test_long_leverage_positif_close() {
     // *********************************************************************************************
     let (
         caller_address,
-        market_token_class,
-        market_factory,
+        _market_token_class,
+        _market_factory,
         role_store,
         data_store,
-        event_emitter,
+        _event_emitter,
         exchange_router,
-        deposit_handler,
-        deposit_vault,
-        oracle,
+        _deposit_handler,
+        _deposit_vault,
+        _oracle,
         order_handler,
         order_vault,
         reader,
         referal_storage,
-        withdrawal_handler,
-        withdrawal_vault,
-        liquidation_handler,
+        _withdrawal_handler,
+        _withdrawal_vault,
+        _liquidation_handler,
         market,
     ) =
         deposit_setup(
@@ -2690,7 +2689,7 @@ fn test_long_leverage_positif_close() {
     // *********************************************************************************************
     // *                              TEARDOWN                                                     *
     // *********************************************************************************************
-    teardown(data_store, market_factory);
+    tests_lib::teardown();
 }
 
 #[test]
@@ -2701,7 +2700,7 @@ fn test_long_leverage_liquidation() {
     let (
         caller_address,
         _market_token_class,
-        market_factory,
+        _market_factory,
         role_store,
         data_store,
         _event_emitter,
@@ -2935,5 +2934,5 @@ fn test_long_leverage_liquidation() {
     // *********************************************************************************************
     // *                              TEARDOWN                                                     *
     // *********************************************************************************************
-    teardown(data_store, market_factory);
+    tests_lib::teardown();
 }

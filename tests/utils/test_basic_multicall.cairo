@@ -7,7 +7,6 @@ use snforge_std::{declare, start_cheat_caller_address, stop_cheat_caller_address
 use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
 use satoru::role::{role, role_store::IRoleStoreDispatcher, role_store::IRoleStoreDispatcherTrait};
 use satoru::test_utils::tests_lib;
-use satoru::market::market_factory::{IMarketFactoryDispatcher, IMarketFactoryDispatcherTrait};
 
 
 #[test]
@@ -15,7 +14,7 @@ fn given_normal_conditions_when_simple_multicall_then_works() {
     // *********************************************************************************************
     // *                              SETUP                                                        *
     // *********************************************************************************************
-    let (_, data_store, market_factory) = setup();
+    let (_, data_store) = setup();
 
     // *********************************************************************************************
     // *                              TEST LOGIC                                                   *
@@ -38,7 +37,7 @@ fn given_normal_conditions_when_simple_multicall_then_works() {
     // *********************************************************************************************
     // *                              TEARDOWN                                                     *
     // *********************************************************************************************
-    tests_lib::teardown(data_store, market_factory);
+    tests_lib::teardown();
 }
 
 
@@ -47,7 +46,7 @@ fn given_normal_conditions_when_multicall_then_works() {
     // *********************************************************************************************
     // *                              SETUP                                                        *
     // *********************************************************************************************
-    let (role_store, data_store, market_factory) = setup();
+    let (role_store, data_store) = setup();
 
     // *********************************************************************************************
     // *                              TEST LOGIC                                                   *
@@ -87,7 +86,7 @@ fn given_normal_conditions_when_multicall_then_works() {
     // *********************************************************************************************
     // *                              TEARDOWN                                                     *
     // *********************************************************************************************
-    tests_lib::teardown(data_store, market_factory);
+    tests_lib::teardown();
 }
 
 #[test]
@@ -96,7 +95,7 @@ fn given_no_data_when_multicall_then_fails() {
     // *********************************************************************************************
     // *                              SETUP                                                        *
     // *********************************************************************************************
-    let (_role_store, data_store, market_factory) = setup();
+    let (_role_store, data_store) = setup();
 
     // *********************************************************************************************
     // *                              TEST LOGIC                                                   *
@@ -119,10 +118,10 @@ fn given_no_data_when_multicall_then_fails() {
     // *********************************************************************************************
     // *                              TEARDOWN                                                     *
     // *********************************************************************************************
-    tests_lib::teardown(data_store, market_factory);
+    tests_lib::teardown();
 }
 
-fn setup() -> (IRoleStoreDispatcher, IDataStoreDispatcher, IMarketFactoryDispatcher) {
+fn setup() -> (IRoleStoreDispatcher, IDataStoreDispatcher) {
     let (
         _caller_address,
         _market_token_class,
@@ -130,7 +129,7 @@ fn setup() -> (IRoleStoreDispatcher, IDataStoreDispatcher, IMarketFactoryDispatc
         _decrease_order_class,
         _swap_order_class,
         _order_utils_class,
-        market_factory,
+        _market_factory,
         role_store,
         data_store,
         _event_emitter,
@@ -150,5 +149,5 @@ fn setup() -> (IRoleStoreDispatcher, IDataStoreDispatcher, IMarketFactoryDispatc
         _,
         _,
     ) = tests_lib::setup();
-    (role_store, data_store, market_factory)
+    (role_store, data_store)
 }

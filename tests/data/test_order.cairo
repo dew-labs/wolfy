@@ -2,7 +2,6 @@ use starknet::{ContractAddress, contract_address_const};
 
 use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
 use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
-use satoru::market::market_factory::{IMarketFactoryDispatcher, IMarketFactoryDispatcherTrait};
 use satoru::role::role;
 use satoru::order::order::{Order, OrderType, OrderTrait, DecreasePositionSwapType};
 use satoru::test_utils::tests_lib;
@@ -13,7 +12,7 @@ use snforge_std::{declare, start_cheat_caller_address, stop_cheat_caller_address
 #[test]
 fn given_normal_conditions_when_set_order_new_and_override_then_works() {
     // Setup
-    let (_caller_address, _role_store, data_store, market_factory) = setup();
+    let (_caller_address, _role_store, data_store) = setup();
 
     let key: felt252 = 123456789;
     let account = 'account'.try_into().unwrap();
@@ -63,7 +62,7 @@ fn given_normal_conditions_when_set_order_new_and_override_then_works() {
     let account_order_keys = data_store.get_account_order_keys(account, 0, 10);
     assert(account_order_keys.len() == 1, 'Acc order # should be 1');
 
-    tests_lib::teardown(data_store, market_factory);
+    tests_lib::teardown();
 }
 
 
@@ -71,7 +70,7 @@ fn given_normal_conditions_when_set_order_new_and_override_then_works() {
 #[should_panic(expected: ('order account cant be 0',))]
 fn given_order_account_0_when_set_order_then_fails() {
     // Setup
-    let (_caller_address, _role_store, data_store, market_factory) = setup();
+    let (_caller_address, _role_store, data_store) = setup();
 
     let key: felt252 = 123456789;
     let account = contract_address_const::<0>();
@@ -91,14 +90,14 @@ fn given_order_account_0_when_set_order_then_fails() {
     // Test set_order function with account 0
     data_store.set_order(key, order);
 
-    tests_lib::teardown(data_store, market_factory);
+    tests_lib::teardown();
 }
 
 #[test]
 #[should_panic(expected: ('unauthorized_access',))]
 fn given_caller_not_controller_when_set_order_then_fails() {
     // Setup
-    let (caller_address, role_store, data_store, market_factory) = setup();
+    let (caller_address, role_store, data_store) = setup();
     role_store.revoke_role(caller_address, role::CONTROLLER);
 
     let key: felt252 = 123456789;
@@ -119,14 +118,14 @@ fn given_caller_not_controller_when_set_order_then_fails() {
     // Test set_order function without permission
     data_store.set_order(key, order);
 
-    tests_lib::teardown(data_store, market_factory);
+    tests_lib::teardown();
 }
 
 
 #[test]
 #[should_panic(expected: ('unauthorized_access',))]
 fn given_caller_not_controller_when_get_order_keys_then_fails() {
-    let (caller_address, role_store, data_store, market_factory) = setup();
+    let (caller_address, role_store, data_store) = setup();
     role_store.revoke_role(caller_address, role::CONTROLLER);
     let key: felt252 = 123456789;
     let account = 'account'.try_into().unwrap();
@@ -157,14 +156,14 @@ fn given_caller_not_controller_when_get_order_keys_then_fails() {
     let account_order_keys = data_store.get_account_order_keys(account, 0, 10);
     assert(account_order_keys.len() == 0, 'Acc withdraw # not empty');
 
-    tests_lib::teardown(data_store, market_factory);
+    tests_lib::teardown();
 }
 
 
 #[test]
 fn given_normal_conditions_when_remove_only_order_then_works() {
     // Setup
-    let (_caller_address, _role_store, data_store, market_factory) = setup();
+    let (_caller_address, _role_store, data_store) = setup();
     let key: felt252 = 123456789;
     let account = 'account'.try_into().unwrap();
     let mut order: Order = create_new_order(
@@ -196,14 +195,14 @@ fn given_normal_conditions_when_remove_only_order_then_works() {
     let account_order_keys = data_store.get_account_order_keys(account, 0, 10);
     assert(account_order_keys.len() == 0, 'Acc withdraw # not empty');
 
-    tests_lib::teardown(data_store, market_factory);
+    tests_lib::teardown();
 }
 
 
 #[test]
 fn given_normal_conditions_when_remove_1_of_n_order_then_works() {
     // Setup
-    let (_caller_address, _role_store, data_store, market_factory) = setup();
+    let (_caller_address, _role_store, data_store) = setup();
     let key_1: felt252 = 123456789;
     let account = 'account'.try_into().unwrap();
     let mut order_1: Order = create_new_order(
@@ -257,13 +256,13 @@ fn given_normal_conditions_when_remove_1_of_n_order_then_works() {
     let account_order_keys = data_store.get_account_order_keys(account, 0, 10);
     assert(account_order_keys.len() == 1, 'Acc withdraw # not 1');
 
-    tests_lib::teardown(data_store, market_factory);
+    tests_lib::teardown();
 }
 
 #[test]
 fn given_normal_conditions_when_remove_last_order_then_works() {
     // Setup
-    let (_caller_address, _role_store, data_store, market_factory) = setup();
+    let (_caller_address, _role_store, data_store) = setup();
     let key_1: felt252 = 123456789;
     let account = 'account'.try_into().unwrap();
     let mut order_1: Order = create_new_order(
@@ -317,7 +316,7 @@ fn given_normal_conditions_when_remove_last_order_then_works() {
     let account_order_keys = data_store.get_account_order_keys(account, 0, 10);
     assert(account_order_keys.len() == 1, 'Acc withdraw # not 1');
 
-    tests_lib::teardown(data_store, market_factory);
+    tests_lib::teardown();
 }
 
 
@@ -325,7 +324,7 @@ fn given_normal_conditions_when_remove_last_order_then_works() {
 #[should_panic(expected: ('unauthorized_access',))]
 fn given_caller_not_controller_when_remove_order_then_fails() {
     // Setup
-    let (caller_address, role_store, data_store, market_factory) = setup();
+    let (caller_address, role_store, data_store) = setup();
     role_store.revoke_role(caller_address, role::CONTROLLER);
     let key: felt252 = 123456789;
     let account = 'account'.try_into().unwrap();
@@ -353,14 +352,14 @@ fn given_caller_not_controller_when_remove_order_then_fails() {
     let account_order_keys = data_store.get_account_order_keys(account, 0, 10);
     assert(account_order_keys.len() == 0, 'Acc withdraw # not empty');
 
-    tests_lib::teardown(data_store, market_factory);
+    tests_lib::teardown();
 }
 
 
 #[test]
 fn given_normal_conditions_when_multiple_account_keys_then_works() {
     // Setup
-    let (_caller_address, _role_store, data_store, market_factory) = setup();
+    let (_caller_address, _role_store, data_store) = setup();
     let key_1: felt252 = 123456789;
     let account = 'account'.try_into().unwrap();
     let mut order_1: Order = create_new_order(
@@ -454,7 +453,7 @@ fn given_normal_conditions_when_multiple_account_keys_then_works() {
     // Given
     data_store.remove_order(key_1, account);
 
-    tests_lib::teardown(data_store, market_factory);
+    tests_lib::teardown();
 }
 
 /// Utility function to create new Order  struct
@@ -521,7 +520,7 @@ fn create_new_order(
     }
 }
 
-fn setup() -> (ContractAddress, IRoleStoreDispatcher, IDataStoreDispatcher, IMarketFactoryDispatcher) {
+fn setup() -> (ContractAddress, IRoleStoreDispatcher, IDataStoreDispatcher) {
     let (
         caller_address,
         _market_token_class,
@@ -529,7 +528,7 @@ fn setup() -> (ContractAddress, IRoleStoreDispatcher, IDataStoreDispatcher, IMar
         _decrease_order_class,
         _swap_order_class,
         _order_utils_class,
-        market_factory,
+        _market_factory,
         role_store,
         data_store,
         _event_emitter,
@@ -550,5 +549,5 @@ fn setup() -> (ContractAddress, IRoleStoreDispatcher, IDataStoreDispatcher, IMar
         _,
     ) = tests_lib::setup();
 
-    (caller_address, role_store, data_store, market_factory)
+    (caller_address, role_store, data_store)
 }

@@ -7,9 +7,7 @@ use starknet::{ContractAddress, get_caller_address, get_block_timestamp, contrac
 use satoru::utils::calc::roundup_magnitude_division;
 use satoru::bank::bank::{IBankDispatcher, IBankDispatcherTrait};
 use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
-use satoru::chain::chain::{IChainDispatcher, IChainDispatcherTrait};
 use satoru::token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
-use satoru::chain::chain::Chain;
 use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
 use satoru::data::keys;
 use satoru::event::event_emitter;
@@ -433,7 +431,6 @@ fn get_max_open_interest(data_store: IDataStoreDispatcher, market_address: Contr
 /// Increment the claimable collateral amount.
 /// # Arguments
 /// * `data_store` - The data store to use.
-/// * `chain` - The interface to interact with `Chain` library contract.
 /// * `event_emitter` - The interface to interact with `EventEmitter` contract.
 /// * `market_address` - The market to increment.
 /// * `token` - The claimable token.

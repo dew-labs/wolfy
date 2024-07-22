@@ -23,11 +23,10 @@ use satoru::swap::swap_handler::ISwapHandlerDispatcher;
 use satoru::test_utils::tests_lib;
 use satoru::utils::span32::{Span32, Array32Trait};
 use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
-use satoru::market::market_factory::{IMarketFactoryDispatcher, IMarketFactoryDispatcherTrait};
 
 use debug::PrintTrait;
 
-fn setup() -> (ContractAddress, IRoleStoreDispatcher, IDataStoreDispatcher, IEventEmitterDispatcher, IReferralStorageDispatcher, ISwapHandlerDispatcher, IMarketFactoryDispatcher) {
+fn setup() -> (ContractAddress, IRoleStoreDispatcher, IDataStoreDispatcher, IEventEmitterDispatcher, IReferralStorageDispatcher, ISwapHandlerDispatcher) {
     let (
         caller_address,
         _market_token_class,
@@ -35,7 +34,7 @@ fn setup() -> (ContractAddress, IRoleStoreDispatcher, IDataStoreDispatcher, IEve
         _decrease_order_class,
         _swap_order_class,
         _order_utils_class,
-        market_factory,
+        _market_factory,
         role_store,
         data_store,
         event_emitter,
@@ -56,7 +55,7 @@ fn setup() -> (ContractAddress, IRoleStoreDispatcher, IDataStoreDispatcher, IEve
         _,
     ) = tests_lib::setup();
 
-    (caller_address, role_store, data_store, event_emitter, referral_storage, swap_handler, market_factory)
+    (caller_address, role_store, data_store, event_emitter, referral_storage, swap_handler)
 }
 
 fn deploy_token() -> ContractAddress {
@@ -71,7 +70,7 @@ fn given_good_params_when_process_collateral_then_succeed() {
     //
     // Setup
     //
-    let (caller_address, role_store, data_store, event_emitter, referral_storage, swap_handler, market_factory) = setup();
+    let (caller_address, role_store, data_store, event_emitter, referral_storage, swap_handler) = setup();
     let long_token_address = deploy_token();
 
     // setting open_interest to 10_000 to allow decreasing position.
@@ -106,7 +105,7 @@ fn given_good_params_get_execution_price_then_succeed() {
     //
     // Setup
     //
-    let (caller_address, role_store, data_store, event_emitter, referral_storage, swap_handler, market_factory) = setup();
+    let (caller_address, role_store, data_store, event_emitter, referral_storage, swap_handler) = setup();
     let long_token_address = deploy_token();
 
     // setting open_interest to 10_000 to allow decreasing position.
@@ -134,7 +133,7 @@ fn given_good_params_get_execution_price_then_succeed() {
     // Checks
     //
     assert(execution_price > 0, 'no execution price');
-    tests_lib::teardown(data_store, market_factory);
+    tests_lib::teardown();
 }
 
 /// Utility function to create new UpdatePositionParams struct
@@ -146,8 +145,8 @@ fn create_new_update_position_params(
     referral_storage_address: ContractAddress,
     long_token_address: ContractAddress
 ) -> UpdatePositionParams {
-    let order_vault = contract_address_const::<'order_vault'>();
-    let oracle = contract_address_const::<'oracle'>();
+    let order_vault = tests_lib::get_order_vault_address() ;
+    let oracle = tests_lib::get_oracle_address();
     let contracts = ExecuteOrderParamsContracts {
         data_store: IDataStoreDispatcher { contract_address: data_store_address },
         event_emitter: IEventEmitterDispatcher { contract_address: event_emitter_address },
