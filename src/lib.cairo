@@ -130,7 +130,6 @@ mod price {
 mod utils {
     mod account_utils;
     mod arrays;
-    mod basic_multicall;
     mod bits;
     mod calc;
     mod enumerable_set;

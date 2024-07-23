@@ -14,7 +14,8 @@
         "mainnet:action:createDeposit": "dotenvx run -f .env.mainnet -- pnpm run action:createDeposit",
         "get-abis": "jiti ./scripts/app/getAbis.ts",
         "get-class-hashes": "jiti ./scripts/app/getClassHashes.ts",
-        "typecheck": "tsc --noEmit"
+        "typecheck": "tsc --noEmit",
+        "test": "jiti ./scripts/test.ts"
     },
     "type": "module",
     "dependencies": {

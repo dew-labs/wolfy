@@ -69,6 +69,14 @@ fn deploy_mock_account_at(mock_account_contract: ContractClass, address: Contrac
 }
 
 // Not used in setup
+fn deploy_erc20_token(deposit_vault_address: ContractAddress) -> ContractAddress {
+    let erc20_contract = declare("ERC20").unwrap();
+    let constructor_calldata3 = array!['satoru', 'STU', INITIAL_TOKENS_MINTED, 0, deposit_vault_address.into()];
+    let (contract_address, _) = erc20_contract.deploy(@constructor_calldata3).unwrap();
+    contract_address
+}
+
+// Not used in setup
 fn deploy_tokens() -> (ContractAddress, ContractAddress) {
     let caller_address: ContractAddress = get_c4ller_address();
     let contract = declare("ERC20").unwrap();
@@ -83,14 +91,6 @@ fn deploy_tokens() -> (ContractAddress, ContractAddress) {
     // let constructor_calldata = array!['usdc', 'USDC', 100000000000000000000000, 0, caller_address.into()];
     contract.deploy_at(@constructor_calldata, usdc_address).unwrap();
     (eth_address, usdc_address)
-}
-
-// Not used in setup
-fn deploy_erc20_token(deposit_vault_address: ContractAddress) -> ContractAddress {
-    let erc20_contract = declare("ERC20").unwrap();
-    let constructor_calldata3 = array!['satoru', 'STU', INITIAL_TOKENS_MINTED, 0, deposit_vault_address.into()];
-    let (contract_address, _) = erc20_contract.deploy(@constructor_calldata3).unwrap();
-    contract_address
 }
 
 // Not used in setup
@@ -288,7 +288,7 @@ fn setup_contracts() -> (
 
     // Deploy the market factory.
     let market_factory_address = deploy_market_factory(
-        data_store_address, role_store_address, event_emitter_address, market_token_class
+        data_store_address, role_store_address, event_emitter_address, market_token_class.class_hash
     );
     let market_factory = IMarketFactoryDispatcher { contract_address: market_factory_address };
 
@@ -419,7 +419,7 @@ fn deploy_market_factory(
     data_store_address: ContractAddress,
     role_store_address: ContractAddress,
     event_emitter_address: ContractAddress,
-    market_token_class: ContractClass,
+    market_token_class_hash: ClassHash,
 ) -> ContractAddress {
     let contract = declare("MarketFactory").unwrap();
     let caller_address: ContractAddress = get_c4ller_address();
@@ -429,7 +429,7 @@ fn deploy_market_factory(
     constructor_calldata.append(data_store_address.into());
     constructor_calldata.append(role_store_address.into());
     constructor_calldata.append(event_emitter_address.into());
-    constructor_calldata.append(market_token_class.class_hash.into());
+    constructor_calldata.append(market_token_class_hash.into());
     let (contract_address, _) = contract.deploy_at(@constructor_calldata, deployed_contract_address).unwrap();
     contract_address
 }

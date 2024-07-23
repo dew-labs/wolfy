@@ -136,12 +136,13 @@ fn deposit_setup(
     // Long setups
 
     let factor_for_deposits: felt252 = keys::max_pnl_factor_for_deposits();
+    let factor_for_withdrawal: felt252 = keys::max_pnl_factor_for_withdrawals();
+
     data_store
         .set_u256(
             keys::max_pnl_factor_key(factor_for_deposits, market.market_token, true),
             50000000000000000000000000000000000000000000000
         );
-    let factor_for_withdrawal: felt252 = keys::max_pnl_factor_for_withdrawals();
     data_store
         .set_u256(
             keys::max_pnl_factor_key(factor_for_withdrawal, market.market_token, true),
@@ -151,14 +152,11 @@ fn deposit_setup(
     data_store.set_u256(keys::open_interest_reserve_factor_key(market.market_token, true), 1000000000000000000);
 
     // Short setup
-
-    let factor_for_deposits: felt252 = keys::max_pnl_factor_for_deposits();
     data_store
         .set_u256(
             keys::max_pnl_factor_key(factor_for_deposits, market.market_token, false),
             50000000000000000000000000000000000000000000000
         );
-    let factor_for_withdrawal: felt252 = keys::max_pnl_factor_for_withdrawals();
     data_store
         .set_u256(
             keys::max_pnl_factor_key(factor_for_withdrawal, market.market_token, false),
@@ -175,7 +173,7 @@ fn deposit_setup(
         .mint(market.market_token, 50000000000000000000000000000000000000); // 5 ETH
     IERC20Dispatcher { contract_address: market.short_token }
         .mint(market.market_token, 25000000000000000000000000000000000000000); // 25000 USDC
-    'filled pool 1'.print();
+    'filled pool'.print();
 
     IERC20Dispatcher { contract_address: market.long_token }.mint(caller_address, 9999999999999000000); // 9.999 ETH
     IERC20Dispatcher { contract_address: market.short_token }
@@ -197,14 +195,15 @@ fn deposit_setup(
     // Send token to deposit in the deposit vault (this should be in a multi call with create_deposit)
     start_cheat_caller_address(market.long_token, caller_address);
     start_cheat_caller_address(market.short_token, caller_address);
+
     IERC20Dispatcher { contract_address: market.long_token }.approve(caller_address, long_token_amount);
     IERC20Dispatcher { contract_address: market.short_token }.approve(caller_address, short_token_amount);
 
     IERC20Dispatcher { contract_address: market.long_token }.mint(caller_address, long_token_amount); // 20 ETH
     IERC20Dispatcher { contract_address: market.short_token }.mint(caller_address, short_token_amount); // 100 000 USDC
 
-    role_store.grant_role(exchange_router.contract_address, role::ROUTER_PLUGIN);
     role_store.grant_role(caller_address, role::ROUTER_PLUGIN);
+    role_store.grant_role(exchange_router.contract_address, role::ROUTER_PLUGIN);
 
     role_store.grant_role(order_handler.contract_address, role::CONTROLLER); // for tests::integration::swap_test::test_swap_market
 
@@ -262,10 +261,10 @@ fn deposit_setup(
 
     start_cheat_caller_address(role_store.contract_address, caller_address);
 
-    role_store.grant_role(caller_address, role::ORDER_KEEPER);
     role_store.grant_role(caller_address, role::ROLE_ADMIN);
-    role_store.grant_role(exchange_router.contract_address, role::CONTROLLER);
+    role_store.grant_role(caller_address, role::ORDER_KEEPER);
     role_store.grant_role(caller_address, role::MARKET_KEEPER);
+    role_store.grant_role(exchange_router.contract_address, role::CONTROLLER);
 
     'execute deposit'.print();
 

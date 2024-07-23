@@ -101,7 +101,6 @@ mod swap {
 mod utils {
     mod test_account_utils;
     mod test_arrays;
-    mod test_basic_multicall;
     mod test_calc;
     mod test_enumerable_set;
     mod test_i256;
