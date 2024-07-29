@@ -199,6 +199,7 @@ fn grant_roles() {
 
     role_store.grant_role(caller_address, role::CONTROLLER);
     role_store.grant_role(caller_address, role::MARKET_KEEPER);
+    role_store.grant_role(caller_address, role::ROLE_ADMIN);
 }
 
 /// Utility function to teardown the test environment.
@@ -296,8 +297,11 @@ fn setup_contracts() -> (
     let oracle_store_address = deploy_oracle_store(role_store_address, event_emitter_address);
     let oracle_store = IOracleStoreDispatcher { contract_address: oracle_store_address };
 
+    // Deploy mock data feed
+    let pragma_address = deploy_price_feed();
+
     // Deploy the oracle
-    let oracle_address = deploy_oracle(role_store_address, oracle_store_address, get_pragma_address());
+    let oracle_address = deploy_oracle(role_store_address, oracle_store_address, pragma_address);
     let oracle = IOracleDispatcher { contract_address: oracle_address };
 
     // Deploy the deposit vault
@@ -746,6 +750,15 @@ fn deploy_reader() -> ContractAddress {
     let mut constructor_calldata = array![];
     start_cheat_caller_address(reader_address, caller_address);
     let (contract_address, _) = contract.deploy_at(@constructor_calldata, reader_address).unwrap();
+    contract_address
+}
+
+fn deploy_price_feed() -> ContractAddress {
+    let caller_address: ContractAddress = get_c4ller_address();
+    let contract = declare("PriceFeed").unwrap();
+    let deployed_contract_address: ContractAddress = get_pragma_address();
+    start_cheat_caller_address(deployed_contract_address, caller_address);
+    let (contract_address, _) = contract.deploy_at(@array![], deployed_contract_address).unwrap();
     contract_address
 }
 

@@ -1,65 +1,63 @@
-Tests: 497 passed, 31 failed, 0 skipped, 0 ignored, 0 filtered out
+// (0x756e65787065637465645f626f72726f77696e675f666163746f72 ('unexpected_borrowing_factor'), 0x1, 0x0 (''))
+tests::position::test_decrease_position_collateral_utils::given_good_params_when_process_collateral_then_succeed
 
-Failures:
-    tests::position::test_decrease_position_collateral_utils::given_good_params_when_process_collateral_then_succeed
+// u256_sub Overflow
+tests::bank::test_strict_bank::given_normal_conditions_when_record_transfer_in_works
+tests::bank::test_strict_bank::given_caller_has_no_controller_role_when_sync_token_balance_then_fails
+tests::bank::test_strict_bank::given_normal_conditions_when_sync_token_balance_passes
 
-    // u256_sub Overflow
-    tests::bank::test_strict_bank::given_normal_conditions_when_record_transfer_in_works
-    tests::bank::test_strict_bank::given_caller_has_no_controller_role_when_sync_token_balance_then_fails
-    tests::bank::test_strict_bank::given_normal_conditions_when_sync_token_balance_passes
+// u256_sub Overflow
+tests::swap::test_swap_handler::given_normal_conditions_swap_then_works
+tests::swap::test_swap_handler::given_swap_path_market_then_works
 
-    // u256_sub Overflow
-    tests::swap::test_swap_handler::given_normal_conditions_swap_then_works
-    tests::swap::test_swap_handler::given_swap_path_market_then_works
+// need real market deployed
+tests::fee::test_fee_handler::given_normal_conditions_when_fee_handler_then_works
 
-    // need real market deployed
-    tests::fee::test_fee_handler::given_normal_conditions_when_fee_handler_then_works
+// empty market
+tests::deposit::test_deposit_utils::given_normal_conditions_when_deposit_then_works
+tests::deposit::test_deposit_utils::given_normal_conditions_when_cancel_deposit_then_works
 
-    // empty market
-    tests::deposit::test_deposit_utils::given_normal_conditions_when_deposit_then_works
-    tests::deposit::test_deposit_utils::given_normal_conditions_when_cancel_deposit_then_works
+// incorrect received amount
+tests::deposit::test_deposit_vault::given_more_balance_when_2nd_record_transfer_in_then_works
 
-    // incorrect received amount
-    tests::deposit::test_deposit_vault::given_more_balance_when_2nd_record_transfer_in_then_works
+// Expected to panic but didn't
+tests::deposit::test_deposit_vault::given_less_balance_when_2nd_record_transfer_in_then_fails
 
-    // Expected to panic but didn't
-    tests::deposit::test_deposit_vault::given_less_balance_when_2nd_record_transfer_in_then_fails
+// incorrect received amount
+tests::withdrawal::test_withdrawal_vault::given_more_balance_when_2nd_record_transfer_in_then_works
 
-    // incorrect received amount
-    tests::withdrawal::test_withdrawal_vault::given_more_balance_when_2nd_record_transfer_in_then_works
+// Expected to panic but didn't
+tests::withdrawal::test_withdrawal_vault::given_less_balance_when_2nd_record_transfer_in_then_fails
 
-    // Expected to panic but didn't
-    tests::withdrawal::test_withdrawal_vault::given_less_balance_when_2nd_record_transfer_in_then_fails
+// incorrect next balance
+tests::withdrawal::test_withdrawal_vault::given_more_balance_when_sync_token_balance_then_works
+tests::withdrawal::test_withdrawal_vault::given_less_balance_when_sync_token_balance_then_works
 
-    // incorrect next balance
-    tests::withdrawal::test_withdrawal_vault::given_more_balance_when_sync_token_balance_then_works
-    tests::withdrawal::test_withdrawal_vault::given_less_balance_when_sync_token_balance_then_works
+// The test panic right, but somehow the test runner could catch it
+// (0x696e76616c69645f6f726465725f7072696365 ('invalid_order_price'), 0x4c696d69744465637265617365 ('LimitDecrease'))
+tests::integration::test_long_integration::test_takeprofit_long_decrease_fails
+tests::integration::test_long_integration::test_takeprofit_long_close_fails
+tests::integration::test_long_integration::test_takeprofit_long_increase_fails
 
-    // The test panic right, but somehow the test runner could catch it
-    // (0x696e76616c69645f6f726465725f7072696365 ('invalid_order_price'), 0x4c696d69744465637265617365 ('LimitDecrease'))
-    tests::integration::test_long_integration::test_takeprofit_long_decrease_fails
-    tests::integration::test_long_integration::test_takeprofit_long_close_fails
-    tests::integration::test_long_integration::test_takeprofit_long_increase_fails
+// u256_sub Overflow
+tests::integration::test_create_and_execute_swap::given_right_swap_order_params_when_execute_order_then_success
 
-    // u256_sub Overflow
-    tests::integration::test_create_and_execute_swap::given_right_swap_order_params_when_execute_order_then_success
+// contract not deployed: need to deploy market token
+tests::exchange::test_withdrawal_handler::given_normal_conditions_when_create_withdrawal_then_works
+tests::exchange::test_withdrawal_handler::given_market_token_equals_zero_when_cancel_withdrawal_then_fails
+tests::exchange::test_withdrawal_handler::given_market_token_amount_equal_zero_when_create_withdrawal_then_fails
+tests::exchange::test_withdrawal_handler::given_fee_token_lower_than_execution_fee_conditions_when_create_withdrawal_then_fails
+tests::exchange::test_withdrawal_handler::given_account_address_zero_when_cancel_withdrawal_then_fails
+tests::exchange::test_withdrawal_handler::given_normal_conditions_when_cancel_withdrawal_then_works
 
-    // contract not deployed: need to deploy market token
-    tests::exchange::test_withdrawal_handler::given_normal_conditions_when_create_withdrawal_then_works
-    tests::exchange::test_withdrawal_handler::given_market_token_equals_zero_when_cancel_withdrawal_then_fails
-    tests::exchange::test_withdrawal_handler::given_market_token_amount_equal_zero_when_create_withdrawal_then_fails
-    tests::exchange::test_withdrawal_handler::given_fee_token_lower_than_execution_fee_conditions_when_create_withdrawal_then_fails
-    tests::exchange::test_withdrawal_handler::given_account_address_zero_when_cancel_withdrawal_then_fails
-    tests::exchange::test_withdrawal_handler::given_normal_conditions_when_cancel_withdrawal_then_works
+// empty market
+tests::exchange::test_deposit_handler::given_normal_conditions_when_create_cancel_deposit_then_works
+tests::exchange::test_deposit_handler::given_normal_conditions_when_create_execute_deposit_then_works
 
-    // empty market
-    tests::exchange::test_deposit_handler::given_normal_conditions_when_create_cancel_deposit_then_works
-    tests::exchange::test_deposit_handler::given_normal_conditions_when_create_execute_deposit_then_works
+// empty market
+tests::exchange::test_liquidation_handler::given_unauthorized_access_when_create_execute_liquidation_then_fails
+tests::exchange::test_liquidation_handler::given_empty_price_feed_multiplier_when_create_execute_liquidation_then_fails
 
-    // empty market
-    tests::exchange::test_liquidation_handler::given_unauthorized_access_when_create_execute_liquidation_then_fails
-    tests::exchange::test_liquidation_handler::given_empty_price_feed_multiplier_when_create_execute_liquidation_then_fails
-
-    // empty primary price
-    tests::exchange::test_liquidation_handler::given_negative_open_interest_when_create_execute_liquidation_then_fails
-    tests::exchange::test_liquidation_handler::given_normal_conditions_when_create_execute_liquidation_then_works
+// empty primary price
+tests::exchange::test_liquidation_handler::given_negative_open_interest_when_create_execute_liquidation_then_fails
+tests::exchange::test_liquidation_handler::given_normal_conditions_when_create_execute_liquidation_then_works

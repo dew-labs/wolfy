@@ -41,7 +41,6 @@ use satoru::test_utils::tests_lib;
 
 const max_u256: u256 = 340282366920938463463374607431768211455;
 
-
 #[test]
 #[should_panic(expected: ('unauthorized_access',))]
 fn given_unauthorized_access_when_create_execute_liquidation_then_fails() {
@@ -144,8 +143,7 @@ fn given_disabled_feature_when_create_execute_liquidation_then_fails() {
     stop_cheat_caller_address(role_store.contract_address);
     start_cheat_caller_address(liquidation_handler_address, liquidation_keeper);
 
-    let collateral_token: ContractAddress = contract_address_const::<'USDC'>();
-    let token1 = contract_address_const::<'ETH'>();
+    let (collateral_token, token1, fee_token) = setup_tokens();
     let token2 = contract_address_const::<'BTC'>();
 
     // Use mock account to match keys

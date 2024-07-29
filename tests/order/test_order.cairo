@@ -6,7 +6,7 @@
 use result::ResultTrait;
 use traits::{TryInto, Into};
 use starknet::{ContractAddress, get_caller_address, Felt252TryIntoContractAddress, contract_address_const, ClassHash,};
-use snforge_std::{declare, ContractClassTrait, cheat_block_number_global, stop_cheat_block_number_global};
+use snforge_std::{declare, ContractClassTrait, start_cheat_block_number_global, stop_cheat_block_number_global};
 
 // Local imports.
 use satoru::order::order::{Order, OrderType, OrderTrait, DecreasePositionSwapType};
@@ -28,7 +28,7 @@ fn given_normal_conditions_when_touch_then_expected_results() {
     let mut order = create_dummy_order();
 
     // Set current block to 42000.
-    cheat_block_number_global(42000);
+    start_cheat_block_number_global(42000);
 
     order.touch();
 

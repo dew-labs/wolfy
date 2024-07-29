@@ -5,7 +5,7 @@
 Requirement:
 
 - Scarb 2.6.0
-- Starknet Foundry 0.26.0
+- Starknet Foundry 0.27.0
 - NodeJS 20.15.0
 
 IDE Integration:
