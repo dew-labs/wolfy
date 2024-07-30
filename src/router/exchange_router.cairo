@@ -201,11 +201,21 @@ mod ExchangeRouter {
     use satoru::fee::fee_utils;
     use debug::PrintTrait;
 
+    use openzeppelin::security::ReentrancyGuardComponent;
+
+    component!(
+        path: ReentrancyGuardComponent, storage: reentrancy_guard, event: ReentrancyGuardEvent
+    );
+
+    impl InternalImpl = ReentrancyGuardComponent::InternalImpl<ContractState>;
+
     // *************************************************************************
     //                              STORAGE
     // *************************************************************************
     #[storage]
     struct Storage {
+        #[substorage(v0)]
+        reentrancy_guard: ReentrancyGuardComponent::Storage,
         /// Interface to interact with the `Router` contract.
         router: IRouterDispatcher,
         /// Interface to interact with the `DataStore` contract.
@@ -220,6 +230,16 @@ mod ExchangeRouter {
         withdrawal_handler: IWithdrawalHandlerDispatcher,
         /// Interface to interact with the `OrderHandler` contract.
         order_handler: IOrderHandlerDispatcher
+    }
+
+    // *************************************************************************
+    //                              Event
+    // *************************************************************************
+    #[event]
+    #[derive(Drop, starknet::Event)]
+    enum Event {
+        #[flat]
+        ReentrancyGuardEvent: ReentrancyGuardComponent::Event
     }
 
     // *************************************************************************
@@ -267,14 +287,13 @@ mod ExchangeRouter {
         }
 
         fn create_deposit(ref self: ContractState, params: CreateDepositParams) -> felt252 {
-            // let data_store = self.data_store.read();
-            // global_reentrancy_guard::non_reentrant_before(data_store);
+            self.reentrancy_guard.start();
 
             let account = get_caller_address();
 
             let key = self.deposit_handler.read().create_deposit(account, params);
 
-            // global_reentrancy_guard::non_reentrant_after(data_store);
+            self.reentrancy_guard.end();
 
             key
         }
@@ -327,14 +346,13 @@ mod ExchangeRouter {
         }
 
         fn create_order(ref self: ContractState, params: CreateOrderParams) -> felt252 {
-            // let data_store = self.data_store.read();
-            // global_reentrancy_guard::non_reentrant_before(data_store);
+            self.reentrancy_guard.start();
 
             let account = get_caller_address();
 
             let key = self.order_handler.read().create_order(account, params);
 
-            // global_reentrancy_guard::non_reentrant_after(data_store);
+            self.reentrancy_guard.end();
 
             key
         }

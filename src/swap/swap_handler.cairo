@@ -36,7 +36,14 @@ mod SwapHandler {
     use satoru::role::role_module::{RoleModule, IRoleModule};
     use satoru::utils::i256::i256;
     use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
-    use satoru::utils::global_reentrancy_guard;
+
+    use openzeppelin::security::ReentrancyGuardComponent;
+
+    component!(
+        path: ReentrancyGuardComponent, storage: reentrancy_guard, event: ReentrancyGuardEvent
+    );
+
+    impl InternalImpl = ReentrancyGuardComponent::InternalImpl<ContractState>;
 
 
     // *************************************************************************
@@ -44,8 +51,21 @@ mod SwapHandler {
     // *************************************************************************
     #[storage]
     struct Storage {
+        #[substorage(v0)]
+        reentrancy_guard: ReentrancyGuardComponent::Storage,
         /// Interface to interact with the `DataStore` contract.
         data_store: IDataStoreDispatcher
+    }
+
+    // *************************************************************************
+    //                              EVENT
+    // *************************************************************************
+
+    #[event]
+    #[derive(Drop, starknet::Event)]
+    enum Event {
+        #[flat]
+        ReentrancyGuardEvent: ReentrancyGuardComponent::Event
     }
 
     // *************************************************************************
@@ -69,13 +89,11 @@ mod SwapHandler {
             let mut role_module: RoleModule::ContractState = RoleModule::unsafe_new_contract_state();
             role_module.only_controller();
 
-            // TODO replace global reentrancy guard with simple one
-            // let data_store = self.data_store.read();
-            // global_reentrancy_guard::non_reentrant_before(data_store);
+            self.reentrancy_guard.start();
 
             let (token_out, swap_output_amount) = swap_utils::swap(@params);
 
-            // global_reentrancy_guard::non_reentrant_after(data_store);
+            self.reentrancy_guard.end();
 
             (token_out, swap_output_amount)
         }

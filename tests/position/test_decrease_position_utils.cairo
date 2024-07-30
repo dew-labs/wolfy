@@ -93,12 +93,8 @@ fn setup() -> (ContractAddress, ISwapHandlerDispatcher) {
     let caller_address: ContractAddress = tests_lib::get_c4ller_address();
 
     let role_store_address = tests_lib::deploy_role_store();
-    let role_store = IRoleStoreDispatcher { contract_address: role_store_address };
 
-    let data_store_address = tests_lib::deploy_data_store(role_store_address);
-    let data_store = IDataStoreDispatcher { contract_address: data_store_address };
-
-    let swap_handler_address = tests_lib::deploy_swap_handler(role_store_address, data_store_address);
+    let swap_handler_address = tests_lib::deploy_swap_handler(role_store_address);
     let swap_handler = ISwapHandlerDispatcher { contract_address: swap_handler_address };
 
     start_cheat_caller_address(role_store_address, caller_address);
