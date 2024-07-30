@@ -18,6 +18,7 @@ use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatc
 use satoru::market::market::{Market, UniqueIdMarket};
 use satoru::market::market_token::{IMarketTokenDispatcher, IMarketTokenDispatcherTrait};
 use satoru::role::role;
+use satoru::test_utils::tests_lib;
 
 #[test]
 fn given_normal_conditions_when_create_market_then_market_is_created() {
@@ -25,15 +26,15 @@ fn given_normal_conditions_when_create_market_then_market_is_created() {
     // *                              SETUP                                                        *
     // *********************************************************************************************
     let (
-        caller_address,
-        market_factory_address,
-        role_store_address,
-        data_store_address,
-        market_token_class_hash,
+        _caller_address,
+        _market_factory_address,
+        _role_store_address,
+        _data_store_address,
+        _market_token_class,
         market_factory,
-        role_store,
+        _role_store,
         data_store,
-        event_emitter,
+        _event_emitter,
     ) =
         setup();
 
@@ -77,15 +78,15 @@ fn given_bad_params_when_create_market_then_fail() {
     // *                              SETUP                                                        *
     // *********************************************************************************************
     let (
-        caller_address,
-        market_factory_address,
-        role_store_address,
-        data_store_address,
-        market_token_class_hash,
+        _caller_address,
+        _market_factory_address,
+        _role_store_address,
+        _data_store_address,
+        _market_token_class,
         market_factory,
-        role_store,
+        _role_store,
         data_store,
-        event_emitter,
+        _event_emitter,
     ) =
         setup();
 
@@ -99,9 +100,9 @@ fn given_bad_params_when_create_market_then_fail() {
     let index_token = contract_address_const::<0>();
     let long_token = contract_address_const::<'long_token'>();
     let short_token = contract_address_const::<'short_token'>();
-    let market_type = 'market_type';
+    let _market_type = 'market_type';
 
-    let new_market = Market { market_token, index_token, long_token, short_token, };
+    let _new_market = Market { market_token, index_token, long_token, short_token, };
 
     // Try to create a market.
     // This must fail because the index token is invalid.
@@ -144,10 +145,10 @@ fn setup() -> (
 ) {
     let (
         caller_address,
-        market_factory_address,
+        _market_factory_address,
         role_store_address,
         data_store_address,
-        market_token_class_hash,
+        market_token_class,
         market_factory,
         role_store,
         data_store,
@@ -160,7 +161,7 @@ fn setup() -> (
         market_factory.contract_address,
         role_store_address,
         data_store_address,
-        market_token_class_hash,
+        market_token_class,
         market_factory,
         role_store,
         data_store,
@@ -228,91 +229,44 @@ fn setup_contracts() -> (
     // Interface to interact with the `EventEmitter` contract.
     IEventEmitterDispatcher,
 ) {
-    // Deploy the role store contract.
-    let role_store_address = deploy_role_store();
 
-    // Create a role store dispatcher.
-    let role_store = IRoleStoreDispatcher { contract_address: role_store_address };
-
-    // Deploy the contract.
-    let data_store_address = deploy_data_store(role_store_address);
-    // Create a safe dispatcher to interact with the contract.
-    let data_store = IDataStoreDispatcher { contract_address: data_store_address };
-
-    // Declare the `MarketToken` contract.
-    let market_token_class_hash = declare_market_token();
-
-    // Deploy the event emitter contract.
-    let event_emitter_address = deploy_event_emitter();
-    // Create a safe dispatcher to interact with the contract.
-    let event_emitter = IEventEmitterDispatcher { contract_address: event_emitter_address };
-
-    // Deploy the market factory.
-    let market_factory_address = deploy_market_factory(
-        data_store_address, role_store_address, event_emitter_address, market_token_class_hash
-    );
-    // Create a safe dispatcher to interact with the contract.
-    let market_factory = IMarketFactoryDispatcher { contract_address: market_factory_address };
+    let (
+        caller_address,
+        market_token_class,
+        _increase_order_class,
+        _decrease_order_class,
+        _swap_order_class,
+        _order_utils_class,
+        market_factory,
+        role_store,
+        data_store,
+        event_emitter,
+        _exchange_router,
+        _deposit_handler,
+        _deposit_vault,
+        _oracle,
+        _order_handler,
+        _order_vault,
+        _reader,
+        _referral_storage,
+        _withdrawal_handler,
+        _withdrawal_vault,
+        _liquidation_handler,
+        _,
+        _,
+        _,
+        _,
+    ) = tests_lib::setup();
 
     (
-        contract_address_const::<'caller'>(),
-        market_factory_address,
-        role_store_address,
-        data_store_address,
-        market_token_class_hash,
+        caller_address,
+        market_factory.contract_address,
+        role_store.contract_address,
+        data_store.contract_address,
+        market_token_class,
         market_factory,
         role_store,
         data_store,
         event_emitter,
     )
-}
-
-/// Utility function to declare a `MarketToken` contract.
-fn declare_market_token() -> ContractClass {
-    declare("MarketToken").unwrap()
-}
-
-/// Utility function to deploy a market factory contract and return its address.
-fn deploy_market_factory(
-    data_store_address: ContractAddress,
-    role_store_address: ContractAddress,
-    event_emitter_address: ContractAddress,
-    market_token_class_hash: ContractClass,
-) -> ContractAddress {
-    let contract = declare("MarketFactory").unwrap();
-    let caller_address: ContractAddress = contract_address_const::<'caller'>();
-    let deployed_contract_address = contract_address_const::<'market_factory'>();
-    start_cheat_caller_address(deployed_contract_address, caller_address);
-    let mut constructor_calldata = array![];
-    constructor_calldata.append(data_store_address.into());
-    constructor_calldata.append(role_store_address.into());
-    constructor_calldata.append(event_emitter_address.into());
-    constructor_calldata.append(market_token_class_hash.class_hash.into());
-    contract.deploy_at(@constructor_calldata, deployed_contract_address).unwrap()
-}
-
-
-fn deploy_data_store(role_store_address: ContractAddress) -> ContractAddress {
-    let contract = declare("DataStore").unwrap();
-    let caller_address: ContractAddress = contract_address_const::<'caller'>();
-    let deployed_contract_address = contract_address_const::<'data_store'>();
-    start_cheat_caller_address(deployed_contract_address, caller_address);
-    let constructor_calldata = array![role_store_address.into()];
-    contract.deploy_at(@constructor_calldata, deployed_contract_address).unwrap()
-}
-
-fn deploy_role_store() -> ContractAddress {
-    let contract = declare("RoleStore").unwrap();
-    let caller_address: ContractAddress = contract_address_const::<'caller'>();
-    let deployed_contract_address = contract_address_const::<'role_store'>();
-    start_cheat_caller_address(deployed_contract_address, caller_address);
-    contract.deploy_at(@array![caller_address.into()], deployed_contract_address).unwrap()
-}
-
-fn deploy_event_emitter() -> ContractAddress {
-    let contract = declare("EventEmitter").unwrap();
-    let caller_address: ContractAddress = contract_address_const::<'caller'>();
-    let deployed_contract_address = contract_address_const::<'event_emitter'>();
-    start_cheat_caller_address(deployed_contract_address, caller_address);
-    contract.deploy_at(@array![], deployed_contract_address).unwrap()
 }

@@ -7,138 +7,17 @@ use satoru::event::event_emitter::{EventEmitter, IEventEmitterDispatcher, IEvent
 use satoru::event::event_emitter::EventEmitter::{AffiliateRewardUpdated, AffiliateRewardClaimed};
 use satoru::mock::governable::{IGovernableDispatcher, IGovernableDispatcherTrait};
 use snforge_std::{
-    declare, ContractClassTrait, spy_events, SpyOn, EventSpy, EventFetcher, event_name_hash, Event, EventAssertions,
-    start_cheat_caller_address, stop_cheat_caller_address
+    declare, ContractClass, ContractClassTrait, spy_events, EventSpy, Event, start_cheat_caller_address, stop_cheat_caller_address, EventSpyAssertionsTrait, EventSpyTrait
 };
 use satoru::role::role;
 use satoru::deposit::deposit::Deposit;
-use satoru::tests_lib::teardown;
 use satoru::utils::span32::{Span32, Array32Trait};
 use satoru::referral::referral_utils;
 use satoru::data::keys;
 use satoru::utils::precision;
 use satoru::market::market_token::{IMarketTokenDispatcher, IMarketTokenDispatcherTrait};
 use satoru::token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
-
-
-fn deploy_data_store(role_store_address: ContractAddress) -> ContractAddress {
-    let contract = declare("DataStore").unwrap();
-    let caller_address: ContractAddress = contract_address_const::<'caller'>();
-    let deployed_contract_address = contract_address_const::<'data_store'>();
-    start_cheat_caller_address(deployed_contract_address, caller_address);
-    let constructor_calldata = array![role_store_address.into()];
-    contract.deploy_at(@constructor_calldata, deployed_contract_address).unwrap()
-}
-
-fn deploy_role_store() -> ContractAddress {
-    let contract = declare("RoleStore").unwrap();
-    let caller_address: ContractAddress = contract_address_const::<'caller'>();
-    let deployed_contract_address = contract_address_const::<'role_store'>();
-    start_cheat_caller_address(deployed_contract_address, caller_address);
-    contract.deploy_at(@array![caller_address.into()], deployed_contract_address).unwrap()
-}
-
-fn deploy_event_emitter() -> ContractAddress {
-    let contract = declare("EventEmitter").unwrap();
-    let caller_address: ContractAddress = contract_address_const::<'caller'>();
-    let deployed_contract_address = contract_address_const::<'event_emitter'>();
-    start_cheat_caller_address(deployed_contract_address, caller_address);
-    contract.deploy_at(@array![], deployed_contract_address).unwrap()
-}
-
-fn deploy_referral_storage(event_emitter_address: ContractAddress) -> ContractAddress {
-    let contract = declare("ReferralStorage").unwrap();
-    let caller_address: ContractAddress = contract_address_const::<'caller'>();
-    let deployed_contract_address = contract_address_const::<'referral_storage'>();
-    start_cheat_caller_address(deployed_contract_address, caller_address);
-    let constructor_calldata = array![event_emitter_address.into()];
-    contract.deploy_at(@constructor_calldata, deployed_contract_address).unwrap()
-}
-
-fn deploy_governable(event_emitter_address: ContractAddress) -> ContractAddress {
-    let contract = declare("Governable").unwrap();
-    let caller_address: ContractAddress = contract_address_const::<'caller'>();
-    let deployed_contract_address = contract_address_const::<'governable'>();
-    start_cheat_caller_address(deployed_contract_address, caller_address);
-    let constructor_calldata = array![event_emitter_address.into()];
-    contract.deploy_at(@constructor_calldata, deployed_contract_address).unwrap()
-}
-
-/// Utility function to deploy a `MarketToken` contract and return its dispatcher.
-fn deploy_market_token(role_store_address: ContractAddress, data_store_address: ContractAddress) -> ContractAddress {
-    let contract = declare("MarketToken").unwrap();
-    let caller_address: ContractAddress = contract_address_const::<'caller'>();
-    let deployed_contract_address = contract_address_const::<'market_token'>();
-    start_cheat_caller_address(deployed_contract_address, caller_address);
-    let constructor_calldata = array![role_store_address.into(), data_store_address.into()];
-    contract.deploy_at(@constructor_calldata, deployed_contract_address).unwrap()
-}
-
-/// Utility function to deploy a mock token contract
-fn setup_mock_token(recipient: ContractAddress, market_token: ContractAddress) -> (ContractAddress, IERC20Dispatcher) {
-    let contract = declare("ERC20").unwrap();
-    let constructor_calldata = array![11, 11, 10000000000000000000000, 0, recipient.into()];
-    let token_address = contract.deploy(@constructor_calldata).unwrap();
-
-    let token_contract = IERC20Dispatcher { contract_address: token_address };
-
-    start_cheat_caller_address(token_address, recipient);
-    token_contract.transfer(market_token, 10000000000000000000000);
-    stop_cheat_caller_address(token_address);
-    (token_address, token_contract)
-}
-
-
-/// Utility function to setup the test environment.
-///
-/// # Returns
-///
-/// * `ContractAddress` - The address of the caller.
-/// * `IRoleStoreDispatcher` - The role store dispatcher.
-/// * `IDataStoreDispatcher` - The data store dispatcher.
-/// * `IEventEmitterDispatcher` - The event emitter dispatcher.
-/// * `IReferralStorageDispatcher` - The referral store dispatcher.
-/// * `IGovernableDispatcher` - The governanace dispatcher.
-/// * `IMarketTokenDispatcher` - The market token distpatcher.
-
-fn setup() -> (
-    ContractAddress,
-    IRoleStoreDispatcher,
-    IDataStoreDispatcher,
-    IEventEmitterDispatcher,
-    IReferralStorageDispatcher,
-    IGovernableDispatcher,
-    IMarketTokenDispatcher
-) {
-    let caller_address: ContractAddress = contract_address_const::<'caller'>();
-
-    let role_store_address = deploy_role_store();
-    let role_store = IRoleStoreDispatcher { contract_address: role_store_address };
-
-    let event_emitter_address = deploy_event_emitter();
-    let event_emitter = IEventEmitterDispatcher { contract_address: event_emitter_address };
-
-    let data_store_address = deploy_data_store(role_store_address);
-    let data_store = IDataStoreDispatcher { contract_address: data_store_address };
-
-    let referral_storage_address = deploy_referral_storage(event_emitter_address);
-    let referral_storage = IReferralStorageDispatcher { contract_address: referral_storage_address };
-
-    let market_token_address = deploy_market_token(role_store_address, data_store_address);
-    let market_token = IMarketTokenDispatcher { contract_address: market_token_address };
-
-    let governable_address = deploy_governable(event_emitter_address);
-    let governable = IGovernableDispatcher { contract_address: governable_address };
-
-    start_cheat_caller_address(role_store_address, caller_address);
-    start_cheat_caller_address(event_emitter_address, caller_address);
-    start_cheat_caller_address(data_store_address, caller_address);
-    start_cheat_caller_address(referral_storage_address, caller_address);
-    start_cheat_caller_address(governable_address, caller_address);
-    start_cheat_caller_address(market_token_address, caller_address);
-
-    (caller_address, role_store, data_store, event_emitter, referral_storage, governable, market_token)
-}
+use satoru::test_utils::tests_lib;
 
 #[test]
 fn given_normal_conditions_when_trader_referral_codes_then_works() {
@@ -170,7 +49,7 @@ fn given_normal_conditions_when_trader_referral_codes_then_works() {
     let retrieved_code3 = referral_storage.trader_referral_codes(account);
     assert(retrieved_code3 == referral_code3, 'invalid referral code3');
 
-    teardown(data_store.contract_address);
+    tests_lib::teardown();
 }
 
 
@@ -189,7 +68,7 @@ fn given_forbidden_when_trader_referral_codes_then_fails() {
     referral_utils::set_trader_referral_code(referral_storage, account, referral_code);
     let retrieved_code = referral_storage.trader_referral_codes(account);
     assert(retrieved_code == referral_code, 'invalid referral code');
-    teardown(data_store.contract_address);
+    tests_lib::teardown();
 }
 
 
@@ -198,7 +77,7 @@ fn given_normal_conditions_when_increment_affiliate_reward_then_works() {
     // Setup
     let (caller_address, role_store, data_store, event_emitter, referral_storage, governable, market_token) = setup();
 
-    let mut spy = spy_events(SpyOn::One(event_emitter.contract_address));
+    let mut spy = spy_events();
     role_store.grant_role(caller_address, role::CONTROLLER);
 
     let init_value: u256 = 10000;
@@ -246,7 +125,7 @@ fn given_normal_conditions_when_increment_affiliate_reward_then_works() {
             ]
         );
 
-    teardown(data_store.contract_address);
+    tests_lib::teardown();
 }
 
 
@@ -264,7 +143,7 @@ fn given_no_code_when_get_referral_info_then_works() {
     assert(total_rebate == 0, 'invalid total_rebate');
     assert(discount_share == 0, 'invalid discount_share');
 
-    teardown(data_store.contract_address);
+    tests_lib::teardown();
 }
 
 #[test]
@@ -303,7 +182,7 @@ fn given_normal_conditions_when_get_referral_info_then_works() {
     assert(total_rebate == precision::basis_points_to_float(rebate), 'invalid total_rebate');
     assert(discount_share == precision::basis_points_to_float(discount), 'invalid discount_share');
 
-    teardown(data_store.contract_address);
+    tests_lib::teardown();
 }
 
 
@@ -342,7 +221,7 @@ fn given_refferal_discountshare_when_get_referral_info_then_works() {
     assert(total_rebate == precision::basis_points_to_float(rebate), 'invalid total_rebate');
     assert(discount_share == precision::basis_points_to_float(ref_discount_share), 'invalid discount_share');
 
-    teardown(data_store.contract_address);
+    tests_lib::teardown();
 }
 
 
@@ -351,7 +230,7 @@ fn given_normal_conditions_when_claim_affiliate_reward_then_works() {
     // Setup
     let (caller_address, role_store, data_store, event_emitter, referral_storage, governable, market_token) = setup();
     let (token_address, token_dispatcher) = setup_mock_token(caller_address, market_token.contract_address);
-    let mut spy = spy_events(SpyOn::One(event_emitter.contract_address));
+    let mut spy = spy_events();
 
     role_store.grant_role(caller_address, role::CONTROLLER);
 
@@ -412,5 +291,85 @@ fn given_normal_conditions_when_claim_affiliate_reward_then_works() {
     //         ]
     //     );
 
-    teardown(data_store.contract_address);
+    tests_lib::teardown();
+}
+
+/// Utility function to deploy a mock token contract
+fn setup_mock_token(recipient: ContractAddress, market_token: ContractAddress) -> (ContractAddress, IERC20Dispatcher) {
+    let contract = declare("ERC20").unwrap();
+    let constructor_calldata = array![11, 11, 10000000000000000000000, 0, recipient.into()];
+    let (token_address, _) = contract.deploy(@constructor_calldata).unwrap();
+
+    let token_contract = IERC20Dispatcher { contract_address: token_address };
+
+    start_cheat_caller_address(token_address, recipient);
+    token_contract.transfer(market_token, 10000000000000000000000);
+    stop_cheat_caller_address(token_address);
+    (token_address, token_contract)
+}
+
+
+fn deploy_market_token(contract: ContractClass, caller_address: ContractAddress, role_store_address: ContractAddress, data_store_address: ContractAddress) -> ContractAddress {
+    let deployed_contract_address = contract_address_const::<'market_token'>();
+    start_cheat_caller_address(deployed_contract_address, caller_address);
+    let constructor_calldata = array![role_store_address.into(), data_store_address.into()];
+    let (contract_address, _) = contract.deploy_at(@constructor_calldata, deployed_contract_address).unwrap();
+    contract_address
+}
+
+fn deploy_governable(event_emitter_address: ContractAddress) -> ContractAddress {
+    let contract = declare("Governable").unwrap();
+    let caller_address: ContractAddress = tests_lib::get_c4ller_address();
+    let deployed_contract_address = contract_address_const::<'governable'>();
+    start_cheat_caller_address(deployed_contract_address, caller_address);
+    let constructor_calldata = array![event_emitter_address.into()];
+    let (contract_address, _) = contract.deploy_at(@constructor_calldata, deployed_contract_address).unwrap();
+    contract_address
+}
+
+
+fn setup() -> (
+    ContractAddress,
+    IRoleStoreDispatcher,
+    IDataStoreDispatcher,
+    IEventEmitterDispatcher,
+    IReferralStorageDispatcher,
+    IGovernableDispatcher,
+    IMarketTokenDispatcher,
+) {
+    let (
+        caller_address,
+        market_token_class,
+        _increase_order_class,
+        _decrease_order_class,
+        _swap_order_class,
+        _order_utils_class,
+        _market_factory,
+        role_store,
+        data_store,
+        event_emitter,
+        _exchange_router,
+        _deposit_handler,
+        _deposit_vault,
+        _oracle,
+        _order_handler,
+        _order_vault,
+        _reader,
+        referral_storage,
+        _withdrawal_handler,
+        _withdrawal_vault,
+        _liquidation_handler,
+        _,
+        _,
+        _,
+        _,
+    ) = tests_lib::setup();
+
+    let market_token_address = deploy_market_token(market_token_class, caller_address, role_store.contract_address, data_store.contract_address);
+    let market_token = IMarketTokenDispatcher { contract_address: market_token_address };
+
+    let governable_address = deploy_governable(event_emitter.contract_address);
+    let governable = IGovernableDispatcher { contract_address: governable_address };
+
+    (caller_address, role_store, data_store, event_emitter, referral_storage, governable, market_token)
 }

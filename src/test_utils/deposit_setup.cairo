@@ -56,34 +56,18 @@ use satoru::oracle::oracle_store::{IOracleStoreDispatcher, IOracleStoreDispatche
 use satoru::swap::swap_handler::{ISwapHandlerDispatcher, ISwapHandlerDispatcherTrait};
 use satoru::market::{market::{UniqueIdMarketImpl},};
 use satoru::exchange::order_handler::{OrderHandler, IOrderHandlerDispatcher, IOrderHandlerDispatcherTrait};
-use satoru::test_utils::tests_lib::{setup, create_market, teardown};
 
 fn deposit_setup(
     long_token_amount: u256, short_token_amount: u256
 ) -> (
-    // This caller address will be used with `start_cheat_caller_address` cheatcode to mock the caller address.,
     ContractAddress,
-    // Address of the `MarketFactory` contract.
-    ContractAddress,
-    // Address of the `RoleStore` contract.
-    ContractAddress,
-    // Address of the `DataStore` contract.
-    ContractAddress,
-    // The `MarketToken` class hash for the factory.
     ContractClass,
-    // Interface to interact with the `MarketFactory` contract.
     IMarketFactoryDispatcher,
-    // Interface to interact with the `RoleStore` contract.
     IRoleStoreDispatcher,
-    // Interface to interact with the `DataStore` contract.
     IDataStoreDispatcher,
-    // Interface to interact with the `EventEmitter` contract.
     IEventEmitterDispatcher,
-    // Interface to interact with the `ExchangeRouter` contract.
     IExchangeRouterDispatcher,
-    // Interface to interact with the `DepositHandler` contract.
     IDepositHandlerDispatcher,
-    // Interface to interact with the `DepositHandler` contract.
     IDepositVaultDispatcher,
     IOracleDispatcher,
     IOrderHandlerDispatcher,
@@ -100,10 +84,11 @@ fn deposit_setup(
     // *********************************************************************************************
     let (
         caller_address,
-        market_factory_address,
-        role_store_address,
-        data_store_address,
-        market_token_class_hash,
+        market_token_class,
+        _increase_order_class,
+        _decrease_order_class,
+        _swap_order_class,
+        _order_utils_class,
         market_factory,
         role_store,
         data_store,
@@ -119,15 +104,18 @@ fn deposit_setup(
         withdrawal_handler,
         withdrawal_vault,
         liquidation_handler,
-    ) =
-        setup();
+        _,
+        _,
+        _,
+        _,
+    ) = tests_lib::setup();
 
     // *********************************************************************************************
     // *                              TEST LOGIC                                                   *
     // *********************************************************************************************
 
     // Create a market.
-    let market = data_store.get_market(create_market(market_factory));
+    let market = data_store.get_market(tests_lib::create_market(market_factory));
 
     // Set params in data_store
     data_store.set_address(keys::fee_token(), market.index_token);
@@ -137,23 +125,24 @@ fn deposit_setup(
     data_store
         .set_u256(
             keys::max_pool_amount_key(market.market_token, market.long_token),
-            5000000000000000000000000000000000000000000 //500 000 ETH
+            5000000000000000000000000000000000000000000 // 500 000 ETH
         );
     data_store
         .set_u256(
             keys::max_pool_amount_key(market.market_token, market.short_token),
-            2500000000000000000000000000000000000000000000 //250 000 000 USDC
+            2500000000000000000000000000000000000000000000 // 250 000 000 USDC
         );
 
     // Long setups
 
     let factor_for_deposits: felt252 = keys::max_pnl_factor_for_deposits();
+    let factor_for_withdrawal: felt252 = keys::max_pnl_factor_for_withdrawals();
+
     data_store
         .set_u256(
             keys::max_pnl_factor_key(factor_for_deposits, market.market_token, true),
             50000000000000000000000000000000000000000000000
         );
-    let factor_for_withdrawal: felt252 = keys::max_pnl_factor_for_withdrawals();
     data_store
         .set_u256(
             keys::max_pnl_factor_key(factor_for_withdrawal, market.market_token, true),
@@ -163,14 +152,11 @@ fn deposit_setup(
     data_store.set_u256(keys::open_interest_reserve_factor_key(market.market_token, true), 1000000000000000000);
 
     // Short setup
-
-    let factor_for_deposits: felt252 = keys::max_pnl_factor_for_deposits();
     data_store
         .set_u256(
             keys::max_pnl_factor_key(factor_for_deposits, market.market_token, false),
             50000000000000000000000000000000000000000000000
         );
-    let factor_for_withdrawal: felt252 = keys::max_pnl_factor_for_withdrawals();
     data_store
         .set_u256(
             keys::max_pnl_factor_key(factor_for_withdrawal, market.market_token, false),
@@ -179,7 +165,7 @@ fn deposit_setup(
     data_store.set_u256(keys::reserve_factor_key(market.market_token, false), 1000000000000000000);
     data_store.set_u256(keys::open_interest_reserve_factor_key(market.market_token, false), 1000000000000000000);
 
-    data_store.set_bool('REENTRANCY_GUARD_STATUS', false);
+    // data_store.set_bool('REENTRANCY_GUARD_STATUS', false);
 
     'fill the pool'.print();
     // Fill the pool.
@@ -187,8 +173,9 @@ fn deposit_setup(
         .mint(market.market_token, 50000000000000000000000000000000000000); // 5 ETH
     IERC20Dispatcher { contract_address: market.short_token }
         .mint(market.market_token, 25000000000000000000000000000000000000000); // 25000 USDC
-    'filled pool 1'.print();
+    'filled pool'.print();
 
+    // Fill the account
     IERC20Dispatcher { contract_address: market.long_token }.mint(caller_address, 9999999999999000000); // 9.999 ETH
     IERC20Dispatcher { contract_address: market.short_token }
         .mint(caller_address, 49999999999999999000000); // 49.999 UDC
@@ -209,14 +196,17 @@ fn deposit_setup(
     // Send token to deposit in the deposit vault (this should be in a multi call with create_deposit)
     start_cheat_caller_address(market.long_token, caller_address);
     start_cheat_caller_address(market.short_token, caller_address);
+
     IERC20Dispatcher { contract_address: market.long_token }.approve(caller_address, long_token_amount);
     IERC20Dispatcher { contract_address: market.short_token }.approve(caller_address, short_token_amount);
 
     IERC20Dispatcher { contract_address: market.long_token }.mint(caller_address, long_token_amount); // 20 ETH
     IERC20Dispatcher { contract_address: market.short_token }.mint(caller_address, short_token_amount); // 100 000 USDC
 
-    // role_store.grant_role(exchange_router.contract_address, role::ROUTER_PLUGIN);
-    // role_store.grant_role(caller_address, role::ROUTER_PLUGIN);
+    role_store.grant_role(caller_address, role::ROUTER_PLUGIN);
+    role_store.grant_role(exchange_router.contract_address, role::ROUTER_PLUGIN);
+
+    role_store.grant_role(order_handler.contract_address, role::CONTROLLER); // for tests::integration::swap_test::test_swap_market
 
     exchange_router.send_tokens(market.long_token, deposit_vault.contract_address, long_token_amount);
     exchange_router.send_tokens(market.short_token, deposit_vault.contract_address, short_token_amount);
@@ -255,6 +245,8 @@ fn deposit_setup(
     assert(first_deposit.initial_long_token_amount == long_token_amount, 'Wrong initial long token amount');
     assert(first_deposit.initial_short_token_amount == short_token_amount, 'Wrong init short token amount');
 
+    'execute deposit'.print();
+
     let price_params = SetPricesParams {
         signer_info: 0,
         tokens: array![contract_address_const::<'ETH'>(), contract_address_const::<'USDC'>()],
@@ -273,13 +265,9 @@ fn deposit_setup(
     start_cheat_caller_address(role_store.contract_address, caller_address);
 
     role_store.grant_role(caller_address, role::ORDER_KEEPER);
-    role_store.grant_role(caller_address, role::ROLE_ADMIN);
+    role_store.grant_role(deposit_handler.contract_address, role::CONTROLLER);
     role_store.grant_role(exchange_router.contract_address, role::CONTROLLER);
-    role_store.grant_role(caller_address, role::MARKET_KEEPER);
 
-    'execute deposit'.print();
-
-    // Execute Deposit
     start_cheat_block_number(deposit_handler.contract_address, 1915);
     deposit_handler.execute_deposit(key, price_params);
 
@@ -313,10 +301,7 @@ fn deposit_setup(
 
     (
         caller_address,
-        market_factory_address,
-        role_store_address,
-        data_store_address,
-        market_token_class_hash,
+        market_token_class,
         market_factory,
         role_store,
         data_store,
@@ -334,4 +319,41 @@ fn deposit_setup(
         liquidation_handler,
         market
     )
+}
+
+fn exec_order(
+    order_handler: IOrderHandlerDispatcher,
+    role_store: IRoleStoreDispatcher,
+    key: felt252,
+    long_token_price: u256,
+    short_token_price: u256
+) -> () {
+    let signatures: Span<felt252> = array![0].span();
+    let set_price_params = SetPricesParams {
+        signer_info: 0,
+        tokens: array![contract_address_const::<'ETH'>(), contract_address_const::<'USDC'>()],
+        compacted_min_oracle_block_numbers: array![1910, 1910],
+        compacted_max_oracle_block_numbers: array![1920, 1920],
+        compacted_oracle_timestamps: array![9999, 9999],
+        compacted_decimals: array![1, 1],
+        compacted_min_prices: array![2147483648010000], // 500000, 10000 compacted
+        compacted_min_prices_indexes: array![0],
+        compacted_max_prices: array![
+            long_token_price, short_token_price
+        ], // 500000, 10000 compacted
+        compacted_max_prices_indexes: array![0],
+        signatures: array![
+            array!['signatures1', 'signatures2'].span(), array!['signatures1', 'signatures2'].span()
+        ],
+        price_feed_tokens: array![]
+    };
+
+    let keeper_address = contract_address_const::<'keeper'>();
+    role_store.grant_role(keeper_address, role::ORDER_KEEPER);
+
+    stop_cheat_caller_address(order_handler.contract_address);
+    start_cheat_caller_address(order_handler.contract_address, keeper_address);
+
+    // TODO add real signatures check on Oracle Account
+    order_handler.execute_order(key, set_price_params);
 }

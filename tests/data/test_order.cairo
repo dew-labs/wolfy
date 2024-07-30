@@ -4,7 +4,7 @@ use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
 use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
 use satoru::role::role;
 use satoru::order::order::{Order, OrderType, OrderTrait, DecreasePositionSwapType};
-use satoru::tests_lib::{setup, teardown};
+use satoru::test_utils::tests_lib;
 use satoru::utils::span32::{Span32, Array32Trait};
 
 use snforge_std::{declare, start_cheat_caller_address, stop_cheat_caller_address, ContractClassTrait};
@@ -12,7 +12,7 @@ use snforge_std::{declare, start_cheat_caller_address, stop_cheat_caller_address
 #[test]
 fn given_normal_conditions_when_set_order_new_and_override_then_works() {
     // Setup
-    let (caller_address, role_store, data_store) = setup();
+    let (_caller_address, _role_store, data_store) = setup();
 
     let key: felt252 = 123456789;
     let account = 'account'.try_into().unwrap();
@@ -62,7 +62,7 @@ fn given_normal_conditions_when_set_order_new_and_override_then_works() {
     let account_order_keys = data_store.get_account_order_keys(account, 0, 10);
     assert(account_order_keys.len() == 1, 'Acc order # should be 1');
 
-    teardown(data_store.contract_address);
+    tests_lib::teardown();
 }
 
 
@@ -70,7 +70,7 @@ fn given_normal_conditions_when_set_order_new_and_override_then_works() {
 #[should_panic(expected: ('order account cant be 0',))]
 fn given_order_account_0_when_set_order_then_fails() {
     // Setup
-    let (caller_address, role_store, data_store) = setup();
+    let (_caller_address, _role_store, data_store) = setup();
 
     let key: felt252 = 123456789;
     let account = contract_address_const::<0>();
@@ -90,7 +90,7 @@ fn given_order_account_0_when_set_order_then_fails() {
     // Test set_order function with account 0
     data_store.set_order(key, order);
 
-    teardown(data_store.contract_address);
+    tests_lib::teardown();
 }
 
 #[test]
@@ -118,7 +118,7 @@ fn given_caller_not_controller_when_set_order_then_fails() {
     // Test set_order function without permission
     data_store.set_order(key, order);
 
-    teardown(data_store.contract_address);
+    tests_lib::teardown();
 }
 
 
@@ -156,14 +156,14 @@ fn given_caller_not_controller_when_get_order_keys_then_fails() {
     let account_order_keys = data_store.get_account_order_keys(account, 0, 10);
     assert(account_order_keys.len() == 0, 'Acc withdraw # not empty');
 
-    teardown(data_store.contract_address);
+    tests_lib::teardown();
 }
 
 
 #[test]
 fn given_normal_conditions_when_remove_only_order_then_works() {
     // Setup
-    let (caller_address, role_store, data_store) = setup();
+    let (_caller_address, _role_store, data_store) = setup();
     let key: felt252 = 123456789;
     let account = 'account'.try_into().unwrap();
     let mut order: Order = create_new_order(
@@ -195,14 +195,14 @@ fn given_normal_conditions_when_remove_only_order_then_works() {
     let account_order_keys = data_store.get_account_order_keys(account, 0, 10);
     assert(account_order_keys.len() == 0, 'Acc withdraw # not empty');
 
-    teardown(data_store.contract_address);
+    tests_lib::teardown();
 }
 
 
 #[test]
 fn given_normal_conditions_when_remove_1_of_n_order_then_works() {
     // Setup
-    let (caller_address, role_store, data_store) = setup();
+    let (_caller_address, _role_store, data_store) = setup();
     let key_1: felt252 = 123456789;
     let account = 'account'.try_into().unwrap();
     let mut order_1: Order = create_new_order(
@@ -256,13 +256,13 @@ fn given_normal_conditions_when_remove_1_of_n_order_then_works() {
     let account_order_keys = data_store.get_account_order_keys(account, 0, 10);
     assert(account_order_keys.len() == 1, 'Acc withdraw # not 1');
 
-    teardown(data_store.contract_address);
+    tests_lib::teardown();
 }
 
 #[test]
 fn given_normal_conditions_when_remove_last_order_then_works() {
     // Setup
-    let (caller_address, role_store, data_store) = setup();
+    let (_caller_address, _role_store, data_store) = setup();
     let key_1: felt252 = 123456789;
     let account = 'account'.try_into().unwrap();
     let mut order_1: Order = create_new_order(
@@ -316,7 +316,7 @@ fn given_normal_conditions_when_remove_last_order_then_works() {
     let account_order_keys = data_store.get_account_order_keys(account, 0, 10);
     assert(account_order_keys.len() == 1, 'Acc withdraw # not 1');
 
-    teardown(data_store.contract_address);
+    tests_lib::teardown();
 }
 
 
@@ -352,15 +352,14 @@ fn given_caller_not_controller_when_remove_order_then_fails() {
     let account_order_keys = data_store.get_account_order_keys(account, 0, 10);
     assert(account_order_keys.len() == 0, 'Acc withdraw # not empty');
 
-    teardown(data_store.contract_address);
+    tests_lib::teardown();
 }
 
 
 #[test]
 fn given_normal_conditions_when_multiple_account_keys_then_works() {
     // Setup
-
-    let (caller_address, role_store, data_store) = setup();
+    let (_caller_address, _role_store, data_store) = setup();
     let key_1: felt252 = 123456789;
     let account = 'account'.try_into().unwrap();
     let mut order_1: Order = create_new_order(
@@ -454,7 +453,7 @@ fn given_normal_conditions_when_multiple_account_keys_then_works() {
     // Given
     data_store.remove_order(key_1, account);
 
-    teardown(data_store.contract_address);
+    tests_lib::teardown();
 }
 
 /// Utility function to create new Order  struct
@@ -519,4 +518,36 @@ fn create_new_order(
         is_long,
         is_frozen,
     }
+}
+
+fn setup() -> (ContractAddress, IRoleStoreDispatcher, IDataStoreDispatcher) {
+    let (
+        caller_address,
+        _market_token_class,
+        _increase_order_class,
+        _decrease_order_class,
+        _swap_order_class,
+        _order_utils_class,
+        _market_factory,
+        role_store,
+        data_store,
+        _event_emitter,
+        _exchange_router,
+        _deposit_handler,
+        _deposit_vault,
+        _oracle,
+        _order_handler,
+        _order_vault,
+        _reader,
+        _referal_storage,
+        _withdrawal_handler,
+        _withdrawal_vault,
+        _liquidation_handler,
+        _,
+        _,
+        _,
+        _,
+    ) = tests_lib::setup();
+
+    (caller_address, role_store, data_store)
 }

@@ -162,7 +162,7 @@ fn swap(params: @SwapParams) -> (ContractAddress, u256) {
     };
 
     // let balance_ETH_after = IERC20Dispatcher { contract_address: contract_address_const::<'ETH'>() }
-    //     .balance_of(contract_address_const::<'caller'>());
+    //     .balance_of(get_caller_address());
 
     i = 0;
     loop {

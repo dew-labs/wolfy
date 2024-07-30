@@ -29,9 +29,9 @@ trait IMarketFactory<TContractState> {
 
     /// Update the class hash of the `MarketToken` contract to deploy when creating a new market.
     /// # Arguments
-    /// * `market_token_class_hash` - The class hash of the `MarketToken` contract to
+    /// * `market_token_class` - The class hash of the `MarketToken` contract to
     /// deploy when creating a new market.
-    fn update_market_token_class_hash(ref self: TContractState, market_token_class_hash: ClassHash,);
+    fn update_market_token_class(ref self: TContractState, market_token_class: ClassHash,);
 }
 
 #[starknet::contract]
@@ -78,7 +78,7 @@ mod MarketFactory {
     /// * `data_store_address` - The address of the data store contract.
     /// * `role_store_address` - The address of the role store contract.
     /// * `event_emitter_address` - The address of the event emitter contract.
-    /// * `market_token_class_hash` - The class hash of the `MarketToken` contract to
+    /// * `market_token_class` - The class hash of the `MarketToken` contract to
     /// deploy when creating a new market.
     #[constructor]
     fn constructor(
@@ -143,23 +143,23 @@ mod MarketFactory {
             market_token_deployed_address
         }
 
-        fn update_market_token_class_hash(ref self: ContractState, market_token_class_hash: ClassHash,) {
+        fn update_market_token_class(ref self: ContractState, market_token_class: ClassHash,) {
             // Get the caller address.
             let caller_address = get_caller_address();
             // Check that the caller has the `MARKET_KEEPER` role.
             self.role_store.read().assert_only_role(caller_address, role::MARKET_KEEPER);
 
-            let old_market_token_class_hash = self.market_token_class_hash.read();
+            let old_market_token_class = self.market_token_class_hash.read();
 
             // Update the class hash.
-            self.market_token_class_hash.write(market_token_class_hash);
+            self.market_token_class_hash.write(market_token_class);
 
             // Emit the event.
             self
                 .event_emitter
                 .read()
-                .emit_market_token_class_hash_updated(
-                    caller_address, old_market_token_class_hash, market_token_class_hash,
+                .emit_market_token_class_updated(
+                    caller_address, old_market_token_class, market_token_class,
                 );
         }
     }

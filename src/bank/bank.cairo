@@ -98,10 +98,6 @@ mod Bank {
             receiver: ContractAddress,
             amount: u256,
         ) {
-            // assert that caller is a controller
-            // let mut role_module: RoleModule::ContractState =
-            //     RoleModule::unsafe_new_contract_state();
-            // role_module.only_controller();
             self.transfer_out_internal(sender, token, receiver, amount);
         }
     }
@@ -122,6 +118,11 @@ mod Bank {
         ) {
             // check that receiver is not this contract
             assert(receiver != get_contract_address(), BankError::SELF_TRANSFER_NOT_SUPPORTED);
+
+            // assert that caller is a controller
+            let mut role_module: RoleModule::ContractState = RoleModule::unsafe_new_contract_state();
+            role_module.only_controller();
+
             // transfer(self.data_store.read(), token, receiver, amount); // TODO check double send
             IERC20Dispatcher { contract_address: token }.transfer_from(sender, receiver, amount);
         }

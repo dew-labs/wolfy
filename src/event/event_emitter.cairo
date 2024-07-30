@@ -69,7 +69,7 @@ trait IEventEmitter<TContractState> {
     );
 
     /// Emits the `MarketTokenClassHashUpdated` event.
-    fn emit_market_token_class_hash_updated(
+    fn emit_market_token_class_updated(
         ref self: TContractState, updated_by: ContractAddress, previous_value: ClassHash, new_value: ClassHash,
     );
 
@@ -1514,7 +1514,7 @@ mod EventEmitter {
         }
 
         /// Emits the `MarketTokenClassHashUpdated` event.
-        fn emit_market_token_class_hash_updated(
+        fn emit_market_token_class_updated(
             ref self: ContractState, updated_by: ContractAddress, previous_value: ClassHash, new_value: ClassHash,
         ) {
             self.emit(MarketTokenClassHashUpdated { updated_by, previous_value, new_value, });

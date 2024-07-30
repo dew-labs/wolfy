@@ -198,7 +198,8 @@ mod OrderHandler {
         fn create_order(ref self: ContractState, account: ContractAddress, params: CreateOrderParams) -> felt252 {
             // Check only controller.
             let role_module_state = RoleModule::unsafe_new_contract_state();
-            role_module_state.only_controller();
+            role_module_state.only_order_keeper();
+
             // Fetch data store.
             let base_order_handler_state = BaseOrderHandler::unsafe_new_contract_state();
             let data_store = base_order_handler_state.data_store.read();
@@ -232,7 +233,7 @@ mod OrderHandler {
             // Fetch data store.
             let base_order_handler_state = BaseOrderHandler::unsafe_new_contract_state();
             let data_store = base_order_handler_state.data_store.read();
-            // non_reentrant_before(data_store);
+            non_reentrant_before(data_store);
             oracle_modules::with_oracle_prices_before(
                 base_order_handler_state.oracle.read(),
                 data_store,
@@ -242,7 +243,7 @@ mod OrderHandler {
             // TODO: Did not implement starting gas and try / catch logic as not available in Cairo
             self._execute_order(key, oracle_params, get_contract_address());
             oracle_modules::with_oracle_prices_after(base_order_handler_state.oracle.read());
-        // non_reentrant_after(data_store);
+            non_reentrant_after(data_store);
         }
 
         fn execute_order_keeper(
@@ -285,10 +286,6 @@ mod OrderHandler {
         /// * `keeper` - The keeper executing the order.
         fn _execute_order(self: @ContractState, key: felt252, oracle_params: SetPricesParams, keeper: ContractAddress) {
             let starting_gas: u256 = 100000; // TODO: Get starting gas from Cairo.
-
-            // Check only self.
-            let _role_module_state = RoleModule::unsafe_new_contract_state();
-            //role_module_state.only_self();
 
             let mut base_order_handler_state = BaseOrderHandler::unsafe_new_contract_state();
             let params = base_order_handler_state

@@ -43,7 +43,7 @@ trait IStrictBank<TContractState> {
     /// this can be used to update the tokenBalances in case of token burns
     /// or similar balance changes
     /// the prevBalance is not validated to be more than the nextBalance as this
-    /// could allow someone to block this call by transferring into the contract    
+    /// could allow someone to block this call by transferring into the contract
     /// # Arguments
     /// * `token` - The token to record the burn for
     /// # Return

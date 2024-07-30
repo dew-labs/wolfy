@@ -336,7 +336,7 @@ mod TestInteger256 {
         // Test to ensure that the results do not produce invalid 'negative' zeros
         #[test]
         fn test_denominator_gt_numerator_result_should_be_zero() {
-            // -65 / 256 = 0   
+            // -65 / 256 = 0
             let a = IntegerTrait::<i256>::new(65, true);
             let b = IntegerTrait::<i256>::new(256, false);
             let (q, r) = a.div_rem(b);
@@ -354,7 +354,7 @@ mod TestInteger256 {
         // Test to evaluate rounding behavior and zeros
         #[test]
         fn test_division_round_with_negative_result() {
-            // -10/ 3 = 0   
+            // -10/ 3 = 0
             let a = IntegerTrait::<i256>::new(10, true);
             let b = IntegerTrait::<i256>::new(3, false);
             let (q, r) = a.div_rem(b);
@@ -464,7 +464,7 @@ mod TestInteger256 {
         // Two's complement expected is achieved by:
         // Step 1: starting with the equivalent positive number.
         // Step 2: inverting (or flipping) all bits – changing every 0 to 1, and every 1 to 0;
-        // Step 3: adding 1 to the entire inverted number, ignoring any overflow. Accounting 
+        // Step 3: adding 1 to the entire inverted number, ignoring any overflow. Accounting
         // for overflow will produce the wrong value for the result.
 
         #[test]

@@ -20,7 +20,7 @@ use satoru::oracle::{
     error::OracleError,
 };
 use satoru::price::price::Price;
-use pragma_lib::types::{AggregationMode, DataType, PragmaPricesResponse};
+use pragma_lib::types::{DataType, PragmaPricesResponse};
 
 
 // *************************************************************************
@@ -221,10 +221,9 @@ mod Oracle {
     use satoru::utils::u256_mask::{Mask, MaskTrait, validate_unique_and_set_index};
 
     use pragma_lib::abi::{IPragmaABIDispatcher, IPragmaABIDispatcherTrait};
-    use pragma_lib::types::{AggregationMode, DataType, PragmaPricesResponse};
+    use pragma_lib::types::{DataType, PragmaPricesResponse};
 
     use super::{IOracle, SetPricesCache, SetPricesInnerCache, ValidatedPrice};
-
 
     // *************************************************************************
     //                              CONSTANTS
@@ -347,7 +346,7 @@ mod Oracle {
         }
 
         fn get_asset_price_median(self: @ContractState, asset: DataType) -> PragmaPricesResponse {
-            self.price_feed.read().get_data(asset, AggregationMode::Median(()))
+            self.price_feed.read().get_data_median(asset)
         }
         //USAGE/
         // let KEY :felt252 = 18669995996566340; // felt252 conversion of "BTC/USD", can also write const KEY : felt252 = 'BTC/USD';

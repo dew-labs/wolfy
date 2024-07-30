@@ -21,6 +21,7 @@ const CONTRACTS = [
     ["Reader", "./target/dev/satoru_Reader.contract_class.json"],
     ["Router", "./target/dev/satoru_Router.contract_class.json"],
     ["ExchangeRouter", "./target/dev/satoru_ExchangeRouter.contract_class.json"],
+    ["ERC20", "./target/dev/satoru_ERC20.contract_class.json"],
 ];
 
 function getAbis() {

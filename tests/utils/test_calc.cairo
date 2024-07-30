@@ -35,7 +35,7 @@ fn given_normal_conditions_when_roundup_division_then_works() {
 }
 
 #[test]
-#[should_panic(expected: ('u256 is 0',))]
+#[should_panic(expected: ('Division by 0',))]
 fn given_division_by_0_when_roundup_division_then_fails() {
     roundup_division(4, 0);
 }

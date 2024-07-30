@@ -5,7 +5,7 @@ use core::traits::Into;
 use starknet::{get_caller_address, ContractAddress, contract_address_const,};
 
 // Local imports.
-use satoru::tests_lib::{teardown};
+use satoru::test_utils::tests_lib;
 use satoru::swap::swap_handler::{ISwapHandlerDispatcher, ISwapHandlerDispatcherTrait};
 use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
 use satoru::data::{data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait}, keys};
@@ -18,99 +18,29 @@ use satoru::role::role;
 use satoru::market::market::Market;
 use satoru::market::market_token::{IMarketTokenDispatcher, IMarketTokenDispatcherTrait};
 use satoru::price::price::{Price, PriceTrait};
-use satoru::tests_lib::{deploy_oracle_store, deploy_oracle};
 use satoru::market::market_factory::{IMarketFactoryDispatcher, IMarketFactoryDispatcherTrait};
 use debug::PrintTrait;
 
 
 //TODO Tests need to be added after implementation of swap_utils
 
-fn deploy_data_store(role_store_address: ContractAddress) -> ContractAddress {
-    let contract = declare("DataStore").unwrap();
-    let caller_address: ContractAddress = contract_address_const::<'caller'>();
-    let deployed_contract_address = contract_address_const::<'data_store'>();
-    start_cheat_caller_address(deployed_contract_address, caller_address);
-    let constructor_calldata = array![role_store_address.into()];
-    contract.deploy_at(@constructor_calldata, deployed_contract_address).unwrap()
-}
-
-fn deploy_event_emitter() -> ContractAddress {
-    let contract = declare("EventEmitter").unwrap();
-    let caller_address: ContractAddress = contract_address_const::<'caller'>();
-    let deployed_contract_address = contract_address_const::<'event_emitter'>();
-    start_cheat_caller_address(deployed_contract_address, caller_address);
-    contract.deploy_at(@array![], deployed_contract_address).unwrap()
-}
-
-/// Utility function to deploy a `Bank` contract and return its dispatcher.
-fn deploy_bank_address(data_store_address: ContractAddress, role_store_address: ContractAddress) -> ContractAddress {
-    let contract = declare("Bank").unwrap();
-    let caller_address: ContractAddress = contract_address_const::<'caller'>();
-    let deployed_contract_address = contract_address_const::<'bank'>();
-    start_cheat_caller_address(deployed_contract_address, caller_address);
-    let mut constructor_calldata = array![];
-    constructor_calldata.append(data_store_address.into());
-    constructor_calldata.append(role_store_address.into());
-    contract.deploy_at(@constructor_calldata, deployed_contract_address).unwrap()
-}
-
-
-/// Utility function to deploy a `SwapHandler` contract and return its dispatcher.
-fn deploy_swap_handler_address(
-    role_store_address: ContractAddress, data_store_address: ContractAddress
-) -> ContractAddress {
-    let contract = declare("SwapHandler").unwrap();
-    let caller_address: ContractAddress = contract_address_const::<'caller'>();
-    let deployed_contract_address = contract_address_const::<'swap_handler'>();
-    start_cheat_caller_address(deployed_contract_address, caller_address);
-    let constructor_calldata = array![role_store_address.into()];
-    contract.deploy(@constructor_calldata).unwrap()
-}
-
-fn deploy_role_store() -> ContractAddress {
-    let contract = declare("RoleStore").unwrap();
-    let caller_address: ContractAddress = contract_address_const::<'caller'>();
-    let deployed_contract_address = contract_address_const::<'role_store'>();
-    start_cheat_caller_address(deployed_contract_address, caller_address);
-    contract.deploy_at(@array![caller_address.into()], deployed_contract_address).unwrap()
-}
-
 fn deploy_tokens() -> (ContractAddress, ContractAddress, ContractAddress) {
     let contract = declare("ERC20").unwrap();
-    let caller_address: ContractAddress = contract_address_const::<'caller'>();
+    let caller_address: ContractAddress = tests_lib::get_c4ller_address();
     let constructor_calldata = array!['satoru_index', 'STU', 4000, 0, caller_address.into()];
     let constructor_calldata1 = array!['satoru_long', 'STU', 4000, 0, caller_address.into()];
     let constructor_calldata2 = array!['satoru_short', 'STU', 4000, 0, caller_address.into()];
 
+    let (contract_address1, _) = contract.deploy(@constructor_calldata).unwrap();
+    let (contract_address2, _) = contract.deploy(@constructor_calldata1).unwrap();
+    let (contract_address3, _) = contract.deploy(@constructor_calldata2).unwrap();
+
     (
-        contract.deploy(@constructor_calldata).unwrap(),
-        contract.deploy(@constructor_calldata1).unwrap(),
-        contract.deploy(@constructor_calldata2).unwrap()
+        contract_address1,
+        contract_address2,
+        contract_address3
     )
 }
-
-fn deploy_market_factory(
-    data_store_address: ContractAddress,
-    role_store_address: ContractAddress,
-    event_emitter_address: ContractAddress,
-    market_token_class_hash: ContractClass,
-) -> ContractAddress {
-    let contract = declare("MarketFactory").unwrap();
-    let caller_address: ContractAddress = contract_address_const::<'caller'>();
-    let deployed_contract_address = contract_address_const::<'market_factory'>();
-    start_cheat_caller_address(deployed_contract_address, caller_address);
-    let mut constructor_calldata = array![];
-    constructor_calldata.append(data_store_address.into());
-    constructor_calldata.append(role_store_address.into());
-    constructor_calldata.append(event_emitter_address.into());
-    constructor_calldata.append(market_token_class_hash.class_hash.into());
-    contract.deploy_at(@constructor_calldata, deployed_contract_address).unwrap()
-}
-
-fn declare_market_token() -> ContractClass {
-    declare("MarketToken").unwrap()
-}
-
 
 /// Utility function to setup the test environment.
 ///
@@ -136,55 +66,42 @@ fn setup() -> (
     IERC20Dispatcher,
     IERC20Dispatcher
 ) {
-    let caller_address: ContractAddress = contract_address_const::<'caller'>();
-
-    let role_store_address = deploy_role_store();
-    let role_store = IRoleStoreDispatcher { contract_address: role_store_address };
-
-    let data_store_address = deploy_data_store(role_store_address);
-    let data_store = IDataStoreDispatcher { contract_address: data_store_address };
-
-    let event_emitter_address = deploy_event_emitter();
-    let event_emitter = IEventEmitterDispatcher { contract_address: event_emitter_address };
-
-    let oracle_store_address = deploy_oracle_store(role_store_address, event_emitter_address);
-
-    let oracle_address = deploy_oracle(role_store_address, oracle_store_address, contract_address_const::<'pragma'>());
-    let oracle = IOracleDispatcher { contract_address: oracle_address };
-
-    let bank_address = deploy_bank_address(data_store_address, role_store_address);
-    let bank = IBankDispatcher { contract_address: bank_address };
-
-    let swap_handler_address = deploy_swap_handler_address(role_store_address, data_store_address);
-    let swap_handler = ISwapHandlerDispatcher { contract_address: swap_handler_address };
+    let (
+        caller_address,
+        _market_token_class,
+        _increase_order_class,
+        _decrease_order_class,
+        _swap_order_class,
+        _order_utils_class,
+        market_factory,
+        role_store,
+        data_store,
+        event_emitter,
+        _exchange_router,
+        _deposit_handler,
+        _deposit_vault,
+        oracle,
+        _order_handler,
+        _order_vault,
+        _reader,
+        _referral_storage,
+        _withdrawal_handler,
+        _withdrawal_vault,
+        _liquidation_handler,
+        swap_handler,
+        bank,
+        _,
+        _,
+    ) = tests_lib::setup();
 
     let (index_token_address, long_token_address, short_token_address) = deploy_tokens();
     let index_token_handler = IERC20Dispatcher { contract_address: index_token_address };
     let long_token_handler = IERC20Dispatcher { contract_address: long_token_address };
     let short_token_handler = IERC20Dispatcher { contract_address: short_token_address };
 
-    let market_token_class_hash = declare_market_token();
-
-    let market_factory_address = deploy_market_factory(
-        data_store_address, role_store_address, event_emitter_address, market_token_class_hash
-    );
-    let market_factory = IMarketFactoryDispatcher { contract_address: market_factory_address };
-
-    start_cheat_caller_address(role_store_address, caller_address);
-    start_cheat_caller_address(data_store_address, caller_address);
-    start_cheat_caller_address(event_emitter_address, caller_address);
-    start_cheat_caller_address(oracle_address, caller_address);
-    start_cheat_caller_address(bank_address, caller_address);
-    start_cheat_caller_address(swap_handler_address, caller_address);
     start_cheat_caller_address(index_token_address, caller_address);
     start_cheat_caller_address(long_token_address, caller_address);
     start_cheat_caller_address(short_token_address, caller_address);
-    // start_cheat_caller_address(market_token_address, caller_address);
-    start_cheat_caller_address(market_factory_address, caller_address);
-
-    // Grant the caller the `CONTROLLER` role.
-    role_store.grant_role(caller_address, role::CONTROLLER);
-    role_store.grant_role(caller_address, role::MARKET_KEEPER);
 
     index_token_handler.mint(caller_address, 2000000000000000000);
     long_token_handler.mint(caller_address, 2000000000000000000);
@@ -217,10 +134,10 @@ fn given_caller_not_controller_when_swap_then_fails() {
         bank,
         role_store,
         swap_handler,
-        market_factory,
-        index_token_handler,
-        long_token_handler,
-        short_token_handler
+        _market_factory,
+        _index_token_handler,
+        _long_token_handler,
+        _short_token_handler
     ) =
         setup();
 
@@ -249,7 +166,7 @@ fn given_caller_not_controller_when_swap_then_fails() {
     };
 
     swap_handler.swap(swap);
-    teardown(data_store.contract_address);
+    tests_lib::teardown();
 }
 
 
@@ -257,17 +174,17 @@ fn given_caller_not_controller_when_swap_then_fails() {
 fn given_amount_in_is_zero_then_works() {
     //Change that when swap_handler has been implemented
     let (
-        caller_address,
+        _caller_address,
         data_store,
         event_emitter,
         oracle,
         bank,
-        role_store,
+        _role_store,
         swap_handler,
-        market_factory,
-        index_token_handler,
-        long_token_handler,
-        short_token_handler
+        _market_factory,
+        _index_token_handler,
+        _long_token_handler,
+        _short_token_handler
     ) =
         setup();
 
@@ -296,7 +213,7 @@ fn given_amount_in_is_zero_then_works() {
 
     assert(swap_result == (contract_address_const::<'token_in'>(), 0), 'Error');
 
-    teardown(role_store.contract_address);
+    tests_lib::teardown();
 }
 
 
@@ -305,17 +222,17 @@ fn given_amount_in_is_zero_then_works() {
 fn given_insufficient_output_then_fails() {
     //Change that when swap_handler has been implemented
     let (
-        caller_address,
+        _caller_address,
         data_store,
         event_emitter,
         oracle,
         bank,
-        role_store,
+        _role_store,
         swap_handler,
-        market_factory,
-        index_token_handler,
-        long_token_handler,
-        short_token_handler
+        _market_factory,
+        _index_token_handler,
+        _long_token_handler,
+        _short_token_handler
     ) =
         setup();
 
@@ -344,24 +261,24 @@ fn given_insufficient_output_then_fails() {
 
     assert(swap_result == (contract_address_const::<'token_in'>(), 1), 'Error');
 
-    teardown(role_store.contract_address);
+    tests_lib::teardown();
 }
 
 #[test]
 fn given_normal_conditions_swap_then_works() {
     //Change that when swap_handler has been implemented
     let (
-        caller_address,
+        _caller_address,
         data_store,
         event_emitter,
         oracle,
         bank,
-        role_store,
+        _role_store,
         swap_handler,
-        market_factory,
-        index_token_handler,
+        _market_factory,
+        _index_token_handler,
         long_token_handler,
-        short_token_handler
+        _short_token_handler
     ) =
         setup();
 
@@ -390,19 +307,19 @@ fn given_normal_conditions_swap_then_works() {
 
     assert(swap_result == (long_token_handler.contract_address, 2), 'Error');
 
-    teardown(role_store.contract_address);
+    tests_lib::teardown();
 }
 
 
 #[test]
 fn given_swap_path_market_then_works() {
     let (
-        caller_address,
+        _caller_address,
         data_store,
         event_emitter,
         oracle,
         bank,
-        role_store,
+        _role_store,
         swap_handler,
         market_factory,
         index_token_handler,
@@ -463,8 +380,6 @@ fn given_swap_path_market_then_works() {
     let swap_result = swap_handler.swap(swap);
     assert(swap_result == (short_token, 20000000000000000), 'Error');
 
-    teardown(role_store.contract_address);
+    tests_lib::teardown();
 }
-//TODO add more tested when swap_handler has been implemented
-
-
+// TODO add more tested when swap_handler has been implemented

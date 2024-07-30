@@ -6,13 +6,13 @@
 // Core lib imports.
 use starknet::{ContractAddress, get_caller_address, Felt252TryIntoContractAddress, contract_address_const};
 use snforge_std::{
-    declare, start_cheat_caller_address, stop_cheat_caller_address, start_mock_call, test_address, ContractClassTrait
+    declare, start_cheat_caller_address, stop_cheat_caller_address, start_mock_call, test_address, ContractClass, ContractClassTrait
 };
 use traits::Default;
 use poseidon::poseidon_hash_span;
 // Local imports.
 use satoru::role::role;
-use satoru::tests_lib;
+use satoru::test_utils::tests_lib;
 
 use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
 use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
@@ -39,7 +39,7 @@ use satoru::exchange::base_order_handler::{IBaseOrderHandlerDispatcher, IBaseOrd
 #[should_panic(expected: ('already_initialized',))]
 fn given_already_intialized_state_when_initialize_then_fails() {
     let (
-        caller_address,
+        _caller_address,
         role_store,
         data_store,
         event_emitter,
@@ -47,9 +47,13 @@ fn given_already_intialized_state_when_initialize_then_fails() {
         swap_handler,
         referral_storage,
         oracle,
-        mut base_order_handler_state
-    ) =
-        setup_contracts();
+        mut base_order_handler_state,
+        increase_order_class,
+        decrease_order_class,
+        swap_order_class,
+        order_utils_class,
+    ) = setup_contracts();
+
     BaseOrderHandler::BaseOrderHandlerImpl::initialize(
         ref base_order_handler_state,
         data_store.contract_address,
@@ -59,6 +63,10 @@ fn given_already_intialized_state_when_initialize_then_fails() {
         oracle.contract_address,
         swap_handler.contract_address,
         referral_storage.contract_address,
+        order_utils_class.class_hash,
+        increase_order_class.class_hash,
+        decrease_order_class.class_hash,
+        swap_order_class.class_hash,
     );
 }
 
@@ -67,14 +75,18 @@ fn given_normal_conditions_when_get_execute_order_params_then_works() {
     // Setup
     let (
         caller_address,
-        role_store,
+        _role_store,
         data_store,
         event_emitter,
         order_vault,
         oracle,
         swap_handler,
         referral_storage,
-        mut base_order_handler_state
+        mut base_order_handler_state,
+        _,
+        _,
+        _,
+        _,
     ) =
         setup_contracts();
 
@@ -111,21 +123,25 @@ fn given_normal_conditions_when_get_execute_order_params_then_works() {
     assert(execute_order_params.secondary_order_type == secondary_order_type, 'wrong secondary_order_type');
 
     // teardown
-    tests_lib::teardown(data_store.contract_address);
+    tests_lib::teardown();
 }
 
 #[test]
 fn given_non_found_order_when_get_execute_order_params_then_returns_empty_order() {
     let (
         caller_address,
-        role_store,
-        data_store,
-        event_emitter,
-        order_vault,
-        oracle,
-        swap_handler,
-        referral_storage,
-        mut base_order_handler_state
+        _role_store,
+        _data_store,
+        _event_emitter,
+        _order_vault,
+        _oracle,
+        _swap_handler,
+        _referral_storage,
+        mut base_order_handler_state,
+        _,
+        _,
+        _,
+        _,
     ) =
         setup_contracts();
 
@@ -140,7 +156,7 @@ fn given_non_found_order_when_get_execute_order_params_then_returns_empty_order(
 
     assert(execute_order_params.order.account.is_zero(), 'order shouldnt exists');
 
-    tests_lib::teardown(data_store.contract_address);
+    tests_lib::teardown();
 }
 
 // TODO: more tests when all the functions are implemented (order utils ; oracle ...)
@@ -253,30 +269,56 @@ fn setup_contracts() -> (
     IOracleDispatcher,
     ISwapHandlerDispatcher,
     IReferralStorageDispatcher,
-    BaseOrderHandler::ContractState
+    BaseOrderHandler::ContractState,
+    ContractClass,
+    ContractClass,
+    ContractClass,
+    ContractClass,
 ) {
-    let (caller_address, role_store, data_store, event_emitter, oracle) = tests_lib::setup_oracle_and_store();
+    let (
+        caller_address,
+        _market_token_class,
+        increase_order_class,
+        decrease_order_class,
+        swap_order_class,
+        order_utils_class,
+        _market_factory,
+        role_store,
+        data_store,
+        event_emitter,
+        _exchange_router,
+        _deposit_handler,
+        _deposit_vault,
+        oracle,
+        _order_handler,
+        order_vault,
+        _reader,
+        referral_storage,
+        _withdrawal_handler,
+        _withdrawal_vault,
+        _liquidation_handler,
+        swap_handler,
+        _,
+        _,
+        _,
+    ) = tests_lib::setup();
 
-    let order_vault_address = deploy_order_vault(data_store.contract_address, role_store.contract_address);
-    let order_vault = IOrderVaultDispatcher { contract_address: order_vault_address };
+    let mut base_order_handler_state = BaseOrderHandler::contract_state_for_testing();
 
-    let swap_handler_address = deploy_swap_handler(role_store.contract_address);
-    let swap_handler = ISwapHandlerDispatcher { contract_address: swap_handler_address };
-
-    let referral_storage_address = deploy_referral_storage(event_emitter.contract_address);
-    let referral_storage = IReferralStorageDispatcher { contract_address: referral_storage_address };
-
-    let base_order_handler_state = setup_base_order_handler_state(
+    BaseOrderHandler::BaseOrderHandlerImpl::initialize(
+        ref base_order_handler_state,
         data_store.contract_address,
         role_store.contract_address,
         event_emitter.contract_address,
-        order_vault_address,
+        order_vault.contract_address,
         oracle.contract_address,
-        swap_handler_address,
-        referral_storage_address
+        swap_handler.contract_address,
+        referral_storage.contract_address,
+        order_utils_class.class_hash,
+        increase_order_class.class_hash,
+        decrease_order_class.class_hash,
+        swap_order_class.class_hash,
     );
-
-    role_store.grant_role(caller_address, role::MARKET_KEEPER);
 
     return (
         caller_address,
@@ -287,54 +329,10 @@ fn setup_contracts() -> (
         oracle,
         swap_handler,
         referral_storage,
-        base_order_handler_state
+        base_order_handler_state,
+        increase_order_class,
+        decrease_order_class,
+        swap_order_class,
+        order_utils_class,
     );
-}
-
-/// Utility function to deploy a `BaseOrderhandler` contract and return its address.
-fn setup_base_order_handler_state(
-    data_store_address: ContractAddress,
-    role_store_address: ContractAddress,
-    event_emitter_address: ContractAddress,
-    order_vault_address: ContractAddress,
-    oracle_address: ContractAddress,
-    swap_handler_address: ContractAddress,
-    referral_storage_address: ContractAddress
-) -> BaseOrderHandler::ContractState {
-    let mut base_order_handler_state = BaseOrderHandler::contract_state_for_testing();
-
-    BaseOrderHandler::BaseOrderHandlerImpl::initialize(
-        ref base_order_handler_state,
-        data_store_address,
-        role_store_address,
-        event_emitter_address,
-        order_vault_address,
-        oracle_address,
-        swap_handler_address,
-        referral_storage_address,
-    );
-    return base_order_handler_state;
-}
-
-/// Utility function to deploy an `OrderVault` contract and return its address.
-fn deploy_order_vault(data_store_address: ContractAddress, role_store_address: ContractAddress,) -> ContractAddress {
-    let contract = declare("OrderVault").unwrap();
-    let mut constructor_calldata = array![];
-    constructor_calldata.append(data_store_address.into());
-    constructor_calldata.append(role_store_address.into());
-    tests_lib::deploy_mock_contract(contract, @constructor_calldata)
-}
-
-/// Utility function to deploy a `SwapHandler` contract and return its address.
-fn deploy_swap_handler(role_store_address: ContractAddress) -> ContractAddress {
-    let contract = declare("SwapHandler").unwrap();
-    let constructor_calldata = array![role_store_address.into()];
-    tests_lib::deploy_mock_contract(contract, @constructor_calldata)
-}
-
-/// Utility function to deploy a `ReferralStorage` contract and return its address.
-fn deploy_referral_storage(event_emitter_address: ContractAddress) -> ContractAddress {
-    let contract = declare("ReferralStorage").unwrap();
-    let constructor_calldata = array![event_emitter_address.into()];
-    tests_lib::deploy_mock_contract(contract, @constructor_calldata)
 }

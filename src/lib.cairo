@@ -29,11 +29,6 @@ mod callback {
     }
 }
 
-// `chain` is a module that contains utility function for interacting with the chain and getting information.
-mod chain {
-    mod chain;
-}
-
 // `config` is a module that contains the configuration for the system.
 mod config {
     mod config;
@@ -135,7 +130,6 @@ mod price {
 mod utils {
     mod account_utils;
     mod arrays;
-    mod basic_multicall;
     mod bits;
     mod calc;
     mod enumerable_set;

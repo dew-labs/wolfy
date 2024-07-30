@@ -6,7 +6,7 @@ use satoru::router::router::{IRouterDispatcher, IRouterDispatcherTrait};
 use satoru::token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
 use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
 use satoru::role::role;
-
+use satoru::test_utils::tests_lib;
 
 #[test]
 fn given_normal_conditions_when_transfer_then_expected_results() {
@@ -15,7 +15,7 @@ fn given_normal_conditions_when_transfer_then_expected_results() {
     // *********************************************************************************************
     let mint_amount = 10000;
     let transfer_amount: u256 = 100;
-    let receiver_address: ContractAddress = 0x103.try_into().unwrap();
+    let receiver_address = contract_address_const::<'dummy_receiver'>();
     let (sender_address, caller_address, router, test_token) = setup(mint_amount);
 
     let sender_initial_balance = test_token.balance_of(sender_address);
@@ -54,7 +54,7 @@ fn given_bad_caller_when_transfer_then_fail() {
     // *********************************************************************************************
     let mint_amount = 10000;
     let transfer_amount: u256 = 100;
-    let receiver_address: ContractAddress = 0x103.try_into().unwrap();
+    let receiver_address = contract_address_const::<'dummy_receiver'>();
     let (sender_address, _, router, test_token) = setup(mint_amount);
 
     // *********************************************************************************************
@@ -91,7 +91,7 @@ fn setup(
     IRouterDispatcher, // Interface to interact with the `Router` contract.
     IERC20Dispatcher,
 ) {
-    let caller_address: ContractAddress = contract_address_const::<'caller'>();
+    let caller_address: ContractAddress = tests_lib::get_c4ller_address();
     let minter_address: ContractAddress = 0x102.try_into().unwrap();
 
     // Deploy the test token.
@@ -100,7 +100,7 @@ fn setup(
     let test_token = IERC20Dispatcher { contract_address: test_token_address };
 
     // Deploy the role store contract.
-    let role_store_address = deploy_role_store();
+    let role_store_address = tests_lib::deploy_role_store();
     // Grant the caller the `ROUTER_PLUGIN` role.
     let role_store = IRoleStoreDispatcher { contract_address: role_store_address };
     start_cheat_caller_address(role_store_address, caller_address);
@@ -108,7 +108,7 @@ fn setup(
     stop_cheat_caller_address(role_store_address);
 
     // Deploy the router contract.
-    let router_address = deploy_router(role_store_address);
+    let router_address = tests_lib::deploy_router(role_store_address);
     // Create a dispatcher to interact with the contract.
     let router = IRouterDispatcher { contract_address: router_address };
 
@@ -140,28 +140,6 @@ fn deploy_mock_token(minter_address: ContractAddress, initial_amount: u256) -> C
     constructor_calldata.append(initial_amount.low.into());
     constructor_calldata.append(initial_amount.high.into());
     constructor_calldata.append(minter_address.into());
-    contract.deploy(@constructor_calldata).unwrap()
-}
-
-/// Utility function to deploy the `Router` contract and return its address.
-///
-/// # Arguments
-///
-/// * `role_store_address` - The address of the `RoleStore` contract associated with the `Router`.
-fn deploy_router(role_store_address: ContractAddress) -> ContractAddress {
-    let contract = declare("Router").unwrap();
-    let caller_address: ContractAddress = contract_address_const::<'caller'>();
-    let deployed_contract_address = contract_address_const::<'router'>();
-    start_cheat_caller_address(deployed_contract_address, caller_address);
-    let mut constructor_calldata: Array::<felt252> = array![];
-    constructor_calldata.append(role_store_address.into());
-    contract.deploy_at(@constructor_calldata, deployed_contract_address).unwrap()
-}
-
-fn deploy_role_store() -> ContractAddress {
-    let contract = declare("RoleStore").unwrap();
-    let caller_address: ContractAddress = contract_address_const::<'caller'>();
-    let deployed_contract_address = contract_address_const::<'role_store'>();
-    start_cheat_caller_address(deployed_contract_address, caller_address);
-    contract.deploy_at(@array![caller_address.into()], deployed_contract_address).unwrap()
+    let (contract_address, _) = contract.deploy(@constructor_calldata).unwrap();
+    contract_address
 }

@@ -3,7 +3,7 @@ use core::array::ArrayTrait;
 use core::traits::Into;
 
 use snforge_std::{declare, ContractClassTrait, start_cheat_caller_address};
-use satoru::tests_lib::{teardown, deploy_role_store, deploy_swap_handler_address, deploy_data_store};
+use satoru::test_utils::tests_lib;
 use satoru::utils::span32::{Span32, Array32Trait};
 
 use satoru::swap::swap_handler::{ISwapHandlerDispatcher, ISwapHandlerDispatcherTrait};
@@ -90,15 +90,11 @@ fn given_position_should_be_liquidated_when_decrease_position_then_fails() {
 /// * `IRoleStoreDispatcher` - The role store dispatcher.
 /// * `ISwapHandlerDispatcher` - The swap handler dispatcher.
 fn setup() -> (ContractAddress, ISwapHandlerDispatcher) {
-    let caller_address: ContractAddress = contract_address_const::<'caller'>();
+    let caller_address: ContractAddress = tests_lib::get_c4ller_address();
 
-    let role_store_address = deploy_role_store();
-    let role_store = IRoleStoreDispatcher { contract_address: role_store_address };
+    let role_store_address = tests_lib::deploy_role_store();
 
-    let data_store_address = deploy_data_store(role_store_address);
-    let data_store = IDataStoreDispatcher { contract_address: data_store_address };
-
-    let swap_handler_address = deploy_swap_handler_address(role_store_address, data_store_address);
+    let swap_handler_address = tests_lib::deploy_swap_handler(role_store_address);
     let swap_handler = ISwapHandlerDispatcher { contract_address: swap_handler_address };
 
     start_cheat_caller_address(role_store_address, caller_address);
@@ -112,11 +108,11 @@ fn setup() -> (ContractAddress, ISwapHandlerDispatcher) {
 fn create_new_update_position_params(
     order_type: OrderType, swap_handler: ISwapHandlerDispatcher
 ) -> UpdatePositionParams {
-    let data_store = contract_address_const::<'data_store'>();
-    let event_emitter = contract_address_const::<'event_emitter'>();
-    let order_vault = contract_address_const::<'order_vault'>();
-    let oracle = contract_address_const::<'oracle'>();
-    let referral_storage = contract_address_const::<'referral_storage'>();
+    let data_store = tests_lib::get_data_store_address();
+    let event_emitter = tests_lib::get_event_emitter_address();
+    let order_vault = tests_lib::get_order_vault_address() ;
+    let oracle = tests_lib::get_oracle_address();
+    let referral_storage = tests_lib::get_referral_storage_address() ;
 
     let contracts = ExecuteOrderParamsContracts {
         data_store: IDataStoreDispatcher { contract_address: data_store },

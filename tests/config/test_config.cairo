@@ -16,13 +16,14 @@ use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
 use satoru::role::role;
 use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
 use satoru::config::config::{IConfigDispatcher, IConfigDispatcherTrait};
+use satoru::test_utils::tests_lib;
 
 #[test]
 fn given_normal_conditions_when_set_bool_then_works() {
     // *********************************************************************************************
     // *                              SETUP                                                        *
     // *********************************************************************************************
-    let (caller_address, config, role_store, data_store, event_emitter) = setup();
+    let (_caller_address, config, _role_store, data_store, _event_emitter) = setup();
 
     // *********************************************************************************************
     // *                              TEST LOGIC                                                   *
@@ -56,7 +57,7 @@ fn given_normal_conditions_when_set_address_then_works() {
     // *********************************************************************************************
     // *                              SETUP                                                        *
     // *********************************************************************************************
-    let (caller_address, config, role_store, data_store, event_emitter) = setup();
+    let (_caller_address, config, _role_store, data_store, _event_emitter) = setup();
 
     // *********************************************************************************************
     // *                              TEST LOGIC                                                   *
@@ -92,19 +93,19 @@ fn given_not_allowed_key_when_set_address_then_fails() {
     // *********************************************************************************************
     // *                              SETUP                                                        *
     // *********************************************************************************************
-    let (caller_address, config, role_store, data_store, event_emitter) = setup();
+    let (_caller_address, config, _role_store, data_store, _event_emitter) = setup();
 
     // *********************************************************************************************
     // *                              TEST LOGIC                                                   *
     // *********************************************************************************************
 
     // Define variables to be used in the test.
-    let not_allowed_key = 'not_allowed_key';
+    let _not_allowed_key = 'not_allowed_key';
     let mut data = array![];
     data.append('data_1');
     data.append('data_2');
     data.append('data_3');
-    let value = contract_address_const::<1>();
+    let _value = contract_address_const::<1>();
 
     // *********************************************************************************************
     // *                              TEARDOWN                                                     *
@@ -117,7 +118,7 @@ fn given_normal_conditions_when_set_felt252_then_works() {
     // *********************************************************************************************
     // *                              SETUP                                                        *
     // *********************************************************************************************
-    let (caller_address, config, role_store, data_store, event_emitter) = setup();
+    let (_caller_address, config, _role_store, data_store, _event_emitter) = setup();
 
     // *********************************************************************************************
     // *                              TEST LOGIC                                                   *
@@ -198,7 +199,7 @@ fn setup() -> (
     // Grant roles and prank the caller address.
     grant_roles_and_prank(caller_address, role_store, data_store, config);
     // Return the contracts.
-    return (caller_address, config, role_store, data_store, event_emitter);
+    (caller_address, config, role_store, data_store, event_emitter)
 }
 
 
@@ -211,29 +212,41 @@ fn setup_contracts() -> (
     IDataStoreDispatcher, // Interface to interact with the `EventEmitter` contract.
     IEventEmitterDispatcher,
 ) {
-    // Deploy the role store contract.
-    let role_store_address = deploy_role_store();
-
-    // Create a role store dispatcher.
-    let role_store = IRoleStoreDispatcher { contract_address: role_store_address };
-
-    // Deploy the contract.
-    let data_store_address = deploy_data_store(role_store_address);
-    // Create a safe dispatcher to interact with the contract.
-    let data_store = IDataStoreDispatcher { contract_address: data_store_address };
-
-    // Deploy the `EventEmitter` contract.
-    let event_emitter_address = deploy_event_emitter();
-    // Create a safe dispatcher to interact with the contract.
-    let event_emitter = IEventEmitterDispatcher { contract_address: event_emitter_address };
+    let (
+        _caller_address,
+        _market_token_class,
+        _increase_order_class,
+        _decrease_order_class,
+        _swap_order_class,
+        _order_utils_class,
+        _market_factory,
+        role_store,
+        data_store,
+        event_emitter,
+        _exchange_router,
+        _deposit_handler,
+        _deposit_vault,
+        _oracle,
+        _order_handler,
+        _order_vault,
+        _reader,
+        _referal_storage,
+        _withdrawal_handler,
+        _withdrawal_vault,
+        _liquidation_handler,
+        _,
+        _,
+        _,
+        _,
+    ) = tests_lib::setup();
 
     // Deploy the `Config` contract.
-    let config_address = deploy_config(data_store_address, role_store_address, event_emitter_address);
+    let config_address = deploy_config(data_store.contract_address, role_store.contract_address, event_emitter.contract_address);
 
     // Create a safe dispatcher to interact with the contract.
     let config = IConfigDispatcher { contract_address: config_address };
 
-    (contract_address_const::<'caller'>(), config, role_store, data_store, event_emitter)
+    (tests_lib::get_c4ller_address(), config, role_store, data_store, event_emitter)
 }
 
 /// Utility function to deploy a market factory contract and return its address.
@@ -241,46 +254,13 @@ fn deploy_config(
     data_store_address: ContractAddress, role_store_address: ContractAddress, event_emitter_address: ContractAddress,
 ) -> ContractAddress {
     let contract = declare("Config").unwrap();
-    let caller_address = contract_address_const::<'caller'>();
+    let caller_address = tests_lib::get_c4ller_address();
     let config_address = contract_address_const::<'config'>();
     start_cheat_caller_address(config_address, caller_address);
     let mut constructor_calldata = array![];
     constructor_calldata.append(role_store_address.into());
     constructor_calldata.append(data_store_address.into());
     constructor_calldata.append(event_emitter_address.into());
-    contract.deploy_at(@constructor_calldata, config_address).unwrap()
-}
-
-
-/// Utility function to deploy a data store contract and return its address.
-fn deploy_data_store(role_store_address: ContractAddress) -> ContractAddress {
-    let contract = declare("DataStore").unwrap();
-    let caller_address = contract_address_const::<'caller'>();
-    let data_store_address = contract_address_const::<'data_store'>();
-    start_cheat_caller_address(data_store_address, caller_address);
-    let mut constructor_calldata = array![];
-    constructor_calldata.append(role_store_address.into());
-    contract.deploy_at(@constructor_calldata, data_store_address).unwrap()
-}
-
-/// Utility function to deploy a data store contract and return its address.
-/// Copied from `tests/role/test_role_store.rs`.
-/// TODO: Find a way to share this code.
-fn deploy_role_store() -> ContractAddress {
-    let contract = declare("RoleStore").unwrap();
-    let caller_address = contract_address_const::<'caller'>();
-    let role_store_address = contract_address_const::<'role_store'>();
-    start_cheat_caller_address(role_store_address, caller_address);
-    let constructor_arguments: @Array::<felt252> = @array![caller_address.into()];
-    contract.deploy_at(constructor_arguments, role_store_address).unwrap()
-}
-
-/// Utility function to deploy a `EventEmitter` contract and return its address.
-fn deploy_event_emitter() -> ContractAddress {
-    let contract = declare("EventEmitter").unwrap();
-    let caller_address = contract_address_const::<'caller'>();
-    let event_emitter_address = contract_address_const::<'event_emitter'>();
-    start_cheat_caller_address(event_emitter_address, caller_address);
-    let constructor_arguments: @Array::<felt252> = @ArrayTrait::new();
-    contract.deploy_at(constructor_arguments, event_emitter_address).unwrap()
+    let (contract_addresss, _) = contract.deploy_at(@constructor_calldata, config_address).unwrap();
+    contract_addresss
 }

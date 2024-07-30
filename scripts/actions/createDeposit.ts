@@ -1,83 +1,83 @@
 import { Contract, uint256 } from "starknet";
-import { ensureDeployed, getCompiledSierra, getContracts, settingUp } from "../utils";
+import {
+    ensureDeployed,
+    ensureRole,
+    executeAndWait,
+    getCompiledSierra,
+    getContracts,
+    newContract,
+    settingUp,
+} from "../utils";
+import ERC20ABI from "../../artifacts/ERC20ABI";
+import RoleStoreABI from "../../artifacts/RoleStoreABI";
+import ExchangeRouterABI from "../../artifacts/ExchangeRouterABI";
+import DepositHandlerABI from "../../artifacts/DepositHandlerABI";
+import { log } from "console";
 
 async function create_deposit() {
     const { account } = await settingUp();
     const contracts = getContracts();
 
-    const compiledERC20SierraAbi = getCompiledSierra("ERC20").abi;
+    const longTokenAmount = 50000000000000000000000000000;
+    const shortTokenAmount = 50000000000000000000000000000;
 
-    const usdc = await ensureDeployed(account, contracts.USDC, "ERC20", {
-        name: "USDC",
-        symbol: "USDC",
-        initial_supply: "10000000000000000000",
-        recipient: account.address,
-    });
-
+    // index token, long token
     const zEth = await ensureDeployed(account, contracts.zETH, "ERC20", {
         name: "zEthereum",
         symbol: "zETH",
-        initial_supply: "50000000000000000000000",
+        initial_supply: 1000000,
         recipient: account.address,
     });
 
-    const usdcContract = new Contract(compiledERC20SierraAbi, usdc.address, account);
-    const zEthContract = new Contract(compiledERC20SierraAbi, zEth.address, account);
+    // short token
+    const usdc = await ensureDeployed(account, contracts.USDC, "ERC20", {
+        name: "USDC",
+        symbol: "USDC",
+        initial_supply: 1000000,
+        recipient: account.address,
+    });
 
-    // Mint zETH to deposit vault, can comment if already minted
-    console.log("Mint zETH to deposit vault");
-    const transferCall = zEthContract.populate("mint", [
-        contracts.DEPOSIT_VAULT,
-        uint256.bnToUint256(50000000000000000000000000000n),
-    ]);
-    const transferTx = await zEthContract.mint(transferCall.calldata);
-    await account.waitForTransaction(transferTx.transaction_hash);
+    const usdcContract = newContract(ERC20ABI, usdc.address, account);
+    const zEthContract = newContract(ERC20ABI, zEth.address, account);
 
-    // Mint USDC to deposit vault, can comment if already minted
-    console.log("Mint USDC to deposit vault");
-    const transferUSDCCall2 = usdcContract.populate("mint", [
-        contracts.DEPOSIT_VAULT,
-        uint256.bnToUint256(50000000000000000000000000000n),
-    ]);
-    const transferUSDCTx2 = await usdcContract.mint(transferUSDCCall2.calldata);
-    await account.waitForTransaction(transferUSDCTx2.transaction_hash);
+    const roleStoreContract = newContract(RoleStoreABI, contracts.ROLE_STORE, account);
+    const exchangeRouter = newContract(ExchangeRouterABI, contracts.EXCHANGE_ROUTER, account);
 
-    // const oracleContract = new Contract(getCompiledSierra("Oracle").abi, contracts.ORACLE, account);
+    console.log("Granting roles...");
+    await ensureRole(roleStoreContract, "ExchangeRouter", exchangeRouter.address, "ROUTER_PLUGIN");
+    await ensureRole(roleStoreContract, "Account0", account.address, "ROUTER_PLUGIN");
 
-    // // Set primary price of zETH in oracle
-    // console.log("Set primary price of zETH in oracle");
-    // const setPrimaryPriceCall1 = oracleContract.populate("set_primary_price", [
-    //     zEthContract.address,
-    //     {
-    //         min: uint256.bnToUint256(5000n),
-    //         max: uint256.bnToUint256(5000n),
-    //     },
-    // ]);
-    // const setPrimaryPriceTx1 = await oracleContract.set_primary_price(
-    //     setPrimaryPriceCall1.calldata
-    // );
-    // await account.waitForTransaction(setPrimaryPriceTx1.transaction_hash);
+    console.log("Approve, mint and sending tokens to the deposit vault..."); // The mint step is to make sure account have enough balance
+    await executeAndWait(
+        [
+            zEthContract.populate("approve", [
+                account.address,
+                uint256.bnToUint256(longTokenAmount),
+            ]),
+            zEthContract.populate("mint", [account.address, uint256.bnToUint256(longTokenAmount)]),
+            exchangeRouter.populate("send_tokens", [
+                zEth.address,
+                contracts.DEPOSIT_VAULT,
+                uint256.bnToUint256(longTokenAmount),
+            ]),
+            usdcContract.populate("approve", [
+                account.address,
+                uint256.bnToUint256(shortTokenAmount),
+            ]),
+            usdcContract.populate("mint", [account.address, uint256.bnToUint256(shortTokenAmount)]),
+            exchangeRouter.populate("send_tokens", [
+                usdc.address,
+                contracts.DEPOSIT_VAULT,
+                uint256.bnToUint256(shortTokenAmount),
+            ]),
+        ],
+        account
+    );
 
-    // // Set primary price of USDC in oracle
-    // console.log("Set primary price of USDC in oracle");
-    // const setPrimaryPriceCall2 = oracleContract.populate("set_primary_price", [
-    //     usdcContract.address,
-    //     {
-    //         min: uint256.bnToUint256(1n),
-    //         max: uint256.bnToUint256(1n),
-    //     },
-    // ]);
-    // const setPrimaryPriceTx2 = await oracleContract.set_primary_price(
-    //     setPrimaryPriceCall2.calldata
-    // );
-    // await account.waitForTransaction(setPrimaryPriceTx2.transaction_hash);
-
-    // console.log("Primary prices set.");
-    console.log("Sending tokens to the deposit vault...");
     console.log("Creating Deposit...");
 
-    const depositHandlerContract = new Contract(
-        getCompiledSierra("DepositHandler").abi,
+    const depositHandlerContract = newContract(
+        DepositHandlerABI,
         contracts.DEPOSIT_HANDLER as string,
         account
     );
@@ -95,14 +95,21 @@ async function create_deposit() {
         execution_fee: uint256.bnToUint256(0),
         callback_gas_limit: uint256.bnToUint256(0),
     };
-    const createOrderCall = depositHandlerContract.populate("create_deposit", [
-        account.address,
-        createDepositParams,
-    ]);
-    const createOrderTx = await depositHandlerContract.create_deposit(createOrderCall.calldata);
-    await account.waitForTransaction(createOrderTx.transaction_hash);
 
-    console.log("Deposit created.");
+    const createDepositReceipt = await executeAndWait(
+        depositHandlerContract.populate("create_deposit", [account.address, createDepositParams]),
+        account
+    );
+
+    if (createDepositReceipt.isSuccess()) {
+        const depositKey = createDepositReceipt.events[0].data[0];
+
+        console.log("Deposit created.");
+        console.log(depositKey);
+        return;
+    }
+
+    throw new Error("Deposit creation failed");
 }
 
 create_deposit();

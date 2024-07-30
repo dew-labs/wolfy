@@ -4,30 +4,10 @@ use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
 use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
 use satoru::role::role;
 use satoru::deposit::deposit::Deposit;
-use satoru::tests_lib::teardown;
+use satoru::test_utils::tests_lib;
 use satoru::utils::span32::{Span32, Array32Trait};
 
 use snforge_std::{declare, start_cheat_caller_address, ContractClassTrait};
-
-/// Utility function to deploy a `DataStore` contract and return its dispatcher.
-fn deploy_data_store(role_store_address: ContractAddress) -> ContractAddress {
-    let contract = declare("DataStore").unwrap();
-    let caller_address: ContractAddress = contract_address_const::<'caller'>();
-    let deployed_contract_address: ContractAddress = contract_address_const::<'data_store'>();
-    start_cheat_caller_address(deployed_contract_address, caller_address);
-    let constructor_calldata = array![role_store_address.into()];
-    contract.deploy_at(@constructor_calldata, deployed_contract_address).unwrap()
-}
-
-/// Utility function to deploy a `RoleStore` contract and return its dispatcher.
-fn deploy_role_store() -> ContractAddress {
-    let contract = declare("RoleStore").unwrap();
-    let caller_address: ContractAddress = contract_address_const::<'caller'>();
-    let deployed_contract_address: ContractAddress = contract_address_const::<'role_store'>();
-    start_cheat_caller_address(deployed_contract_address, caller_address);
-    contract.deploy_at(@array![caller_address.into()], deployed_contract_address).unwrap()
-}
-
 
 /// Utility function to setup the test environment.
 ///
@@ -37,21 +17,40 @@ fn deploy_role_store() -> ContractAddress {
 /// * `IDataStoreDispatcher` - The data store dispatcher.
 /// * `IRoleStoreDispatcher` - The role store dispatcher.
 fn setup() -> (ContractAddress, IRoleStoreDispatcher, IDataStoreDispatcher) {
-    let caller_address: ContractAddress = contract_address_const::<'caller'>();
-    let role_store_address = deploy_role_store();
-    let role_store = IRoleStoreDispatcher { contract_address: role_store_address };
-    let data_store_address = deploy_data_store(role_store_address);
-    let data_store = IDataStoreDispatcher { contract_address: data_store_address };
-    start_cheat_caller_address(role_store_address, caller_address);
-    role_store.grant_role(caller_address, role::CONTROLLER);
-    start_cheat_caller_address(data_store_address, caller_address);
+    let (
+        caller_address,
+        _market_token_class,
+        _increase_order_class,
+        _decrease_order_class,
+        _swap_order_class,
+        _order_utils_class,
+        _market_factory,
+        role_store,
+        data_store,
+        _event_emitter,
+        _exchange_router,
+        _deposit_handler,
+        _deposit_vault,
+        _oracle,
+        _order_handler,
+        _order_vault,
+        _reader,
+        _referal_storage,
+        _withdrawal_handler,
+        _withdrawal_vault,
+        _liquidation_handler,
+        _,
+        _,
+        _,
+        _,
+    ) = tests_lib::setup();
+
     (caller_address, role_store, data_store)
 }
 
 #[test]
 fn given_normal_conditions_when_set_and_override_new_deposit_then_works() {
-    // Setup
-    let (caller_address, role_store, data_store) = setup();
+    let (_caller_address, _role_store, data_store) = setup();
 
     let key: felt252 = 123456789;
     let account = 'account'.try_into().unwrap();
@@ -93,14 +92,14 @@ fn given_normal_conditions_when_set_and_override_new_deposit_then_works() {
     let account_deposit_keys = data_store.get_account_deposit_keys(account, 0, 10);
     assert(account_deposit_keys.len() == 1, 'Acc deposit # should be 1');
 
-    teardown(data_store.contract_address);
+    tests_lib::teardown();
 }
 
 #[test]
 #[should_panic(expected: ('deposit account cant be 0',))]
 fn given_deposit_account_0_when_set_deposit_then_fails() {
     // Setup
-    let (caller_address, role_store, data_store) = setup();
+    let (_caller_address, _role_store, data_store) = setup();
 
     let key: felt252 = 123456789;
     let mut deposit: Deposit = create_new_deposit(
@@ -116,7 +115,7 @@ fn given_deposit_account_0_when_set_deposit_then_fails() {
     // Test set_deposit function with account 0
     data_store.set_deposit(key, deposit);
 
-    teardown(data_store.contract_address);
+    tests_lib::teardown();
 }
 
 #[test]
@@ -137,12 +136,12 @@ fn given_caller_not_controller_when_set_deposit_then_fails() {
     // Test set_deposit function without permission
     data_store.set_deposit(key, deposit);
 
-    teardown(data_store.contract_address);
+    tests_lib::teardown();
 }
 
 #[test]
 fn given_normal_conditions_when_get_deposit_keys_then_works() {
-    let (caller_address, role_store, data_store) = setup();
+    let (_caller_address, _role_store, data_store) = setup();
     let key: felt252 = 123456789;
     let account = 'account'.try_into().unwrap();
     let mut deposit: Deposit = create_new_deposit(
@@ -165,14 +164,14 @@ fn given_normal_conditions_when_get_deposit_keys_then_works() {
     let account_deposit_keys = data_store.get_account_deposit_keys(account, 0, 10);
     assert(account_deposit_keys.len() == 0, 'Acc withdraw # not empty');
 
-    teardown(data_store.contract_address);
+    tests_lib::teardown();
 }
 
 
 #[test]
 fn given_normal_conditions_when_remove_one_deposit_then_works() {
     // Setup
-    let (caller_address, role_store, data_store) = setup();
+    let (_caller_address, _role_store, data_store) = setup();
     let key: felt252 = 123456789;
     let account = 'account'.try_into().unwrap();
     let mut deposit: Deposit = create_new_deposit(
@@ -197,14 +196,14 @@ fn given_normal_conditions_when_remove_one_deposit_then_works() {
     let account_deposit_keys = data_store.get_account_deposit_keys(account, 0, 10);
     assert(account_deposit_keys.len() == 0, 'Acc withdraw # not empty');
 
-    teardown(data_store.contract_address);
+    tests_lib::teardown();
 }
 
 
 #[test]
 fn given_normal_conditions_when_remove_1_of_n_deposit_then_works() {
     // Setup
-    let (caller_address, role_store, data_store) = setup();
+    let (_caller_address, _role_store, data_store) = setup();
     let key_1: felt252 = 123456789;
     let account = 'account'.try_into().unwrap();
     let mut deposit_1: Deposit = create_new_deposit(
@@ -244,13 +243,13 @@ fn given_normal_conditions_when_remove_1_of_n_deposit_then_works() {
     let account_deposit_keys = data_store.get_account_deposit_keys(account, 0, 10);
     assert(account_deposit_keys.len() == 1, 'Acc withdraw # not 1');
 
-    teardown(data_store.contract_address);
+    tests_lib::teardown();
 }
 
 #[test]
 fn given_normal_conditions_when_remove_last_deposit_then_works() {
     // Setup
-    let (caller_address, role_store, data_store) = setup();
+    let (_caller_address, _role_store, data_store) = setup();
     let key_1: felt252 = 123456789;
     let account = 'account'.try_into().unwrap();
     let mut deposit_1: Deposit = create_new_deposit(
@@ -290,7 +289,7 @@ fn given_normal_conditions_when_remove_last_deposit_then_works() {
     let account_deposit_keys = data_store.get_account_deposit_keys(account, 0, 10);
     assert(account_deposit_keys.len() == 1, 'Acc withdraw # not 1');
 
-    teardown(data_store.contract_address);
+    tests_lib::teardown();
 }
 
 
@@ -319,13 +318,13 @@ fn given_caller_not_controller_when_remove_deposit_then_fails() {
     let account_deposit_keys = data_store.get_account_deposit_keys(account, 0, 10);
     assert(account_deposit_keys.len() == 0, 'Acc withdraw # not empty');
 
-    teardown(data_store.contract_address);
+    tests_lib::teardown();
 }
 
 #[test]
 fn given_normal_conditions_when_multiple_get_account_deposit_keys_then_works() {
     // Setup
-    let (caller_address, role_store, data_store) = setup();
+    let (_caller_address, _role_store, data_store) = setup();
     let key_1: felt252 = 123456789;
     let account = 'account'.try_into().unwrap();
     let mut deposit_1: Deposit = create_new_deposit(
@@ -391,7 +390,7 @@ fn given_normal_conditions_when_multiple_get_account_deposit_keys_then_works() {
     // Given
     data_store.remove_deposit(key_1, account);
 
-    teardown(data_store.contract_address);
+    tests_lib::teardown();
 }
 
 /// Utility function to create new Deposit struct

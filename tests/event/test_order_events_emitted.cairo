@@ -1,6 +1,6 @@
 use starknet::{ContractAddress, contract_address_const};
 use snforge_std::{
-    declare, ContractClassTrait, spy_events, SpyOn, EventSpy, EventFetcher, event_name_hash, Event, EventAssertions
+    declare, ContractClassTrait, spy_events, EventSpy, EventSpyTrait, Event, EventSpyAssertionsTrait
 };
 
 use satoru::event::event_emitter::{EventEmitter, IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
@@ -12,7 +12,7 @@ use satoru::event::event_emitter::EventEmitter::{
 
 
 use satoru::order::order::{Order, OrderType, SecondaryOrderType, DecreasePositionSwapType};
-use satoru::tests_lib::setup_event_emitter;
+use satoru::test_utils::tests_lib::deploy_event_emitter;
 use satoru::utils::span32::{Span32, Array32Trait};
 
 #[test]
@@ -21,7 +21,7 @@ fn given_normal_conditions_when_emit_order_created_then_works() {
     // *                              SETUP                                                        *
     // *********************************************************************************************
     let (contract_address, event_emitter) = setup();
-    let mut spy = spy_events(SpyOn::One(contract_address));
+    let mut spy = spy_events();
 
     // *********************************************************************************************
     // *                              TEST LOGIC                                                   *
@@ -40,7 +40,7 @@ fn given_normal_conditions_when_emit_order_created_then_works() {
             @array![(contract_address, EventEmitter::Event::OrderCreated(OrderCreated { key: key, order: order }))]
         );
     // Assert there are no more events.
-    assert(spy.events.len() == 0, 'There should be no events');
+    assert(spy.get_events().events.len() == 1, 'There should be no events');
 }
 
 #[test]
@@ -49,7 +49,7 @@ fn given_normal_conditions_when_emit_order_executed_then_works() {
     // *                              SETUP                                                        *
     // *********************************************************************************************
     let (contract_address, event_emitter) = setup();
-    let mut spy = spy_events(SpyOn::One(contract_address));
+    let mut spy = spy_events();
 
     // *********************************************************************************************
     // *                              TEST LOGIC                                                   *
@@ -75,7 +75,7 @@ fn given_normal_conditions_when_emit_order_executed_then_works() {
             ]
         );
     // Assert there are no more events.
-    assert(spy.events.len() == 0, 'There should be no events');
+    assert(spy.get_events().events.len() == 1, 'There should be no events');
 }
 
 #[test]
@@ -84,7 +84,7 @@ fn given_normal_conditions_when_emit_order_updated_then_works() {
     // *                              SETUP                                                        *
     // *********************************************************************************************
     let (contract_address, event_emitter) = setup();
-    let mut spy = spy_events(SpyOn::One(contract_address));
+    let mut spy = spy_events();
 
     // *********************************************************************************************
     // *                              TEST LOGIC                                                   *
@@ -119,7 +119,7 @@ fn given_normal_conditions_when_emit_order_updated_then_works() {
             ]
         );
     // Assert there are no more events.
-    assert(spy.events.len() == 0, 'There should be no events');
+    assert(spy.get_events().events.len() == 1, 'There should be no events');
 }
 
 #[test]
@@ -128,7 +128,7 @@ fn given_normal_conditions_when_emit_order_size_delta_auto_updated_then_works() 
     // *                              SETUP                                                        *
     // *********************************************************************************************
     let (contract_address, event_emitter) = setup();
-    let mut spy = spy_events(SpyOn::One(contract_address));
+    let mut spy = spy_events();
 
     // *********************************************************************************************
     // *                              TEST LOGIC                                                   *
@@ -157,7 +157,7 @@ fn given_normal_conditions_when_emit_order_size_delta_auto_updated_then_works() 
             ]
         );
     // Assert there are no more events.
-    assert(spy.events.len() == 0, 'There should be no events');
+    assert(spy.get_events().events.len() == 1, 'There should be no events');
 }
 
 #[test]
@@ -166,7 +166,7 @@ fn given_normal_conditions_when_emit_order_collateral_delta_amount_auto_updated_
     // *                              SETUP                                                        *
     // *********************************************************************************************
     let (contract_address, event_emitter) = setup();
-    let mut spy = spy_events(SpyOn::One(contract_address));
+    let mut spy = spy_events();
 
     // *********************************************************************************************
     // *                              TEST LOGIC                                                   *
@@ -198,7 +198,7 @@ fn given_normal_conditions_when_emit_order_collateral_delta_amount_auto_updated_
             ]
         );
     // Assert there are no more events.
-    assert(spy.events.len() == 0, 'There should be no events');
+    assert(spy.get_events().events.len() == 1, 'There should be no events');
 }
 
 #[test]
@@ -207,7 +207,7 @@ fn given_normal_conditions_when_emit_order_cancelled_then_works() {
     // *                              SETUP                                                        *
     // *********************************************************************************************
     let (contract_address, event_emitter) = setup();
-    let mut spy = spy_events(SpyOn::One(contract_address));
+    let mut spy = spy_events();
 
     // *********************************************************************************************
     // *                              TEST LOGIC                                                   *
@@ -234,7 +234,7 @@ fn given_normal_conditions_when_emit_order_cancelled_then_works() {
             ]
         );
     // Assert there are no more events.
-    assert(spy.events.len() == 0, 'There should be no events');
+    assert(spy.get_events().events.len() == 1, 'There should be no events');
 }
 
 #[test]
@@ -243,7 +243,7 @@ fn given_normal_conditions_when_emit_order_frozen_then_works() {
     // *                              SETUP                                                        *
     // *********************************************************************************************
     let (contract_address, event_emitter) = setup();
-    let mut spy = spy_events(SpyOn::One(contract_address));
+    let mut spy = spy_events();
 
     // *********************************************************************************************
     // *                              TEST LOGIC                                                   *
@@ -270,7 +270,7 @@ fn given_normal_conditions_when_emit_order_frozen_then_works() {
             ]
         );
     // Assert there are no more events.
-    assert(spy.events.len() == 0, 'There should be no events');
+    assert(spy.get_events().events.len() == 1, 'There should be no events');
 }
 
 
@@ -282,7 +282,7 @@ fn given_normal_conditions_when_emit_order_frozen_then_works() {
 /// * `IEventEmitterDispatcher` - The event emitter store dispatcher.
 fn setup() -> (ContractAddress, IEventEmitterDispatcher) {
     let contract = declare("EventEmitter").unwrap();
-    let contract_address = contract.deploy(@array![]).unwrap();
+    let (contract_address, _) = contract.deploy(@array![]).unwrap();
     let event_emitter = IEventEmitterDispatcher { contract_address };
     return (contract_address, event_emitter);
 }

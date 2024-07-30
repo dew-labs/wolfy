@@ -9,13 +9,13 @@ use snforge_std::{
 use satoru::data::keys;
 use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
 use satoru::exchange::exchange_utils::validate_request_cancellation;
-use satoru::tests_lib::{setup, teardown};
+use satoru::test_utils::tests_lib;
 
 #[test]
 fn given_exchange_utils_when_validate_request_cancellation_then_success() {
     // Setup
-    let (_, _, data_store) = setup();
-    let contract_address = contract_address_const::<0>();
+    let data_store = setup();
+    let _contract_address = contract_address_const::<0>();
 
     // Test
     let expiration_age = 5;
@@ -30,15 +30,15 @@ fn given_exchange_utils_when_validate_request_cancellation_then_success() {
     validate_request_cancellation(data_store, created_at_block, 'SOME_REQUEST_TYPE');
 
     // Teardown
-    teardown(data_store.contract_address);
+    tests_lib::teardown();
 }
 
 #[test]
 #[should_panic(expected: ('request_not_yet_cancellable', 'SOME_REQUEST_TYPE'))]
 fn given_exchange_utils_when_validate_request_cancellation_then_fails() {
     // Setup
-    let (_, _, data_store) = setup();
-    let contract_address = contract_address_const::<0>();
+    let data_store = setup();
+    let _contract_address = contract_address_const::<0>();
 
     // Test
     let expiration_age = 5;
@@ -48,4 +48,36 @@ fn given_exchange_utils_when_validate_request_cancellation_then_fails() {
     let created_at_block = block_number - 4;
 
     validate_request_cancellation(data_store, created_at_block, 'SOME_REQUEST_TYPE');
+}
+
+fn setup() -> IDataStoreDispatcher {
+    let (
+        _caller_address,
+        _market_token_class,
+        _increase_order_class,
+        _decrease_order_class,
+        _swap_order_class,
+        _order_utils_class,
+        _market_factory,
+        _role_store,
+        data_store,
+        _event_emitter,
+        _exchange_router,
+        _deposit_handler,
+        _deposit_vault,
+        _oracle,
+        _order_handler,
+        _order_vault,
+        _reader,
+        _referal_storage,
+        _withdrawal_handler,
+        _withdrawal_vault,
+        _liquidation_handler,
+        _,
+        _,
+        _,
+        _,
+    ) = tests_lib::setup();
+
+    data_store
 }

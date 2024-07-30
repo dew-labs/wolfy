@@ -65,7 +65,6 @@ mod AdlHandler {
     use super::IAdlHandler;
     use satoru::adl::adl_utils;
     use satoru::exchange::base_order_handler::{IBaseOrderHandlerDispatcher, IBaseOrderHandlerDispatcherTrait};
-    use satoru::chain::chain::{IChainDispatcher, IChainDispatcherTrait};
     use satoru::data::{keys, data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait}};
     use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
     use satoru::exchange::base_order_handler::{IBaseOrderHandler, BaseOrderHandler};
@@ -83,7 +82,7 @@ mod AdlHandler {
     use satoru::oracle::oracle_utils::SetPricesParams;
     use satoru::order::{
         order::{SecondaryOrderType, OrderType, Order}, order_vault::{IOrderVaultDispatcher, IOrderVaultDispatcherTrait},
-        base_order_utils::{ExecuteOrderParams, ExecuteOrderParamsContracts}, order_utils::{IOrderUtilsDispatcher}
+        base_order_utils::{ExecuteOrderParams}, order_utils::{IOrderUtilsDispatcher}
     };
     use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
     use satoru::swap::swap_handler::{ISwapHandlerDispatcher, ISwapHandlerDispatcherTrait};

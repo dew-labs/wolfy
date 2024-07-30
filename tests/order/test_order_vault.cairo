@@ -17,8 +17,3 @@ use satoru::utils::span32::{Span32, Array32Trait};
 fn given_normal_conditions_when_transfer_out_then_expect_balance_change() { // TODO
 }
 
-/// Utility function to setup the test environment.
-fn setup() -> (ContractAddress, IChainDispatcher,) {}
-
-/// Utility function to teardown the test environment.
-fn teardown() {}

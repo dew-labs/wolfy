@@ -1,19 +1,19 @@
-use satoru::data::data_store::IDataStoreDispatcherTrait;
 use satoru::data::keys;
 use satoru::pricing::swap_pricing_utils::{
     GetPriceImpactUsdParams, get_price_impact_usd_, get_price_impact_usd, get_next_pool_amount_usd, get_swap_fees
 };
 use satoru::market::market::Market;
 use satoru::utils::calc;
-use satoru::tests_lib::{setup, teardown};
+use satoru::test_utils::tests_lib;
 use satoru::utils::i256::{i256, i256_new};
+use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
 
 #[test]
 fn given_normal_conditions_when_swap_pricing_utils_functions_then_works() {
     // *********************************************************************************************
     // *                              SETUP                                                        *
     // *********************************************************************************************
-    let (_, _, data_store) = setup();
+    let data_store = setup();
 
     let market_token = 'market_token'.try_into().unwrap();
     let index_token = 'index_token'.try_into().unwrap();
@@ -45,7 +45,7 @@ fn given_normal_conditions_when_swap_pricing_utils_functions_then_works() {
     // *********************************************************************************************
     // *                              TEARDOWN                                                     *
     // *********************************************************************************************
-    teardown(data_store.contract_address);
+    tests_lib::teardown();
 }
 
 #[test]
@@ -53,7 +53,7 @@ fn given_normal_conditions_when_get_next_pool_amount_usd_then_works() {
     // *********************************************************************************************
     // *                              SETUP                                                        *
     // *********************************************************************************************
-    let (_, _, data_store) = setup();
+    let data_store = setup();
 
     let market_token = 'market_token'.try_into().unwrap();
     let index_token = 'index_token'.try_into().unwrap();
@@ -90,7 +90,7 @@ fn given_normal_conditions_when_get_next_pool_amount_usd_then_works() {
     // *********************************************************************************************
     // *                              TEARDOWN                                                     *
     // *********************************************************************************************
-    teardown(data_store.contract_address);
+    tests_lib::teardown();
 }
 
 #[test]
@@ -98,7 +98,7 @@ fn given_normal_conditions_when_get_swap_fees_then_works() {
     // *********************************************************************************************
     // *                              SETUP                                                        *
     // *********************************************************************************************
-    let (_, _, data_store) = setup();
+    let data_store = setup();
 
     let market_token = 'market_token'.try_into().unwrap();
     let ui_fee_receiver = 'ui_fee_receiver'.try_into().unwrap();
@@ -125,5 +125,37 @@ fn given_normal_conditions_when_get_swap_fees_then_works() {
     // *********************************************************************************************
     // *                              TEARDOWN                                                     *
     // *********************************************************************************************
-    teardown(data_store.contract_address);
+    tests_lib::teardown();
+}
+
+fn setup() -> IDataStoreDispatcher {
+    let (
+        _caller_address,
+        _market_token_class,
+        _increase_order_class,
+        _decrease_order_class,
+        _swap_order_class,
+        _order_utils_class,
+        _market_factory,
+        _role_store,
+        data_store,
+        _event_emitter,
+        _exchange_router,
+        _deposit_handler,
+        _deposit_vault,
+        _oracle,
+        _order_handler,
+        _order_vault,
+        _reader,
+        _referral_storage,
+        _withdrawal_handler,
+        _withdrawal_vault,
+        _liquidation_handler,
+        _,
+        _,
+        _,
+        _,
+    ) = tests_lib::setup();
+
+    data_store
 }

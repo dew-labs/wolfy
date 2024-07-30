@@ -7,7 +7,6 @@ use starknet::{ContractAddress, contract_address_const};
 
 // Local imports.
 use satoru::utils::store_arrays::StoreContractAddressArray;
-use satoru::chain::chain::{IChainDispatcher, IChainDispatcherTrait};
 use alexandria_storage::list::List;
 use satoru::utils::arrays::StoreContractAddressSpan;
 use satoru::utils::span32::{Span32, DefaultSpan32};

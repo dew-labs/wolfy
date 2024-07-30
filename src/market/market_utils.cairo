@@ -7,9 +7,7 @@ use starknet::{ContractAddress, get_caller_address, get_block_timestamp, contrac
 use satoru::utils::calc::roundup_magnitude_division;
 use satoru::bank::bank::{IBankDispatcher, IBankDispatcherTrait};
 use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
-use satoru::chain::chain::{IChainDispatcher, IChainDispatcherTrait};
 use satoru::token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
-use satoru::chain::chain::Chain;
 use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
 use satoru::data::keys;
 use satoru::event::event_emitter;
@@ -31,6 +29,7 @@ use satoru::position::position::Position;
 use satoru::utils::{i256::{i256, i256_neg}, error_utils};
 use satoru::utils::precision::{apply_exponent_factor, float_to_wei, mul_div};
 use satoru::data::keys::{skip_borrowing_fee_for_smaller_side, max_swap_path_length};
+use debug::PrintTrait;
 
 /// Struct to store the prices of tokens of a market.
 /// # Params
@@ -432,7 +431,6 @@ fn get_max_open_interest(data_store: IDataStoreDispatcher, market_address: Contr
 /// Increment the claimable collateral amount.
 /// # Arguments
 /// * `data_store` - The data store to use.
-/// * `chain` - The interface to interact with `Chain` library contract.
 /// * `event_emitter` - The interface to interact with `EventEmitter` contract.
 /// * `market_address` - The market to increment.
 /// * `token` - The claimable token.
@@ -1331,8 +1329,6 @@ fn validate_pool_amount(data_store: @IDataStoreDispatcher, market: @Market, toke
         MarketError::MAX_POOL_AMOUNT_EXCEEDED(pool_amount, max_pool_amount);
     }
 }
-
-use debug::PrintTrait;
 
 /// Validates that the amount of tokens required to be reserved is below the configured threshold.
 /// # Arguments

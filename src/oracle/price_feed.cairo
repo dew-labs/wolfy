@@ -1,25 +1,4 @@
-/// Data Types
-/// The value is the `pair_id` of the data
-/// For future option, pair_id and expiration timestamp
-///
-/// * `Spot` - Spot price
-/// * `Future` - Future price
-/// * `Option` - Option price
-#[derive(Drop, Copy, Serde)]
-enum DataType {
-    SpotEntry: felt252,
-    FutureEntry: (felt252, u64),
-    GenericEntry: felt252,
-}
-
-#[derive(Serde, Drop, Copy)]
-struct PragmaPricesResponse {
-    price: u256,
-    decimals: u32,
-    last_updated_timestamp: u64,
-    num_sources_aggregated: u32,
-    expiration_timestamp: Option<u64>,
-}
+use pragma_lib::types::{DataType, PragmaPricesResponse};
 
 #[starknet::interface]
 trait IPriceFeed<TContractState> {
@@ -30,7 +9,7 @@ trait IPriceFeed<TContractState> {
 // NOTE: mock for testing.
 #[starknet::contract]
 mod PriceFeed {
-    use super::{DataType, PragmaPricesResponse};
+    use pragma_lib::types::{DataType, PragmaPricesResponse};
 
     #[storage]
     struct Storage {}

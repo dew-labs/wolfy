@@ -1,17 +1,22 @@
 import {
     Account,
     CallData,
+    Contract,
     hash,
     json,
     shortString,
     type Abi,
     type Calldata,
-    type Contract,
     type RawArgs,
     type CompiledSierra,
     type CairoAssembly,
     type CompiledContract,
     RpcProvider,
+    type Call,
+    type AccountInterface,
+    type ProviderInterface,
+    type TypedContractV2,
+    ec,
 } from "starknet";
 import fs from "node:fs";
 
@@ -200,6 +205,7 @@ export function getContracts() {
         DATA_STORE: string;
         EVENT_EMITTER: string;
         ORACLE_STORE: string;
+        PRAGMA: string;
         ORACLE: string;
         ORDER_VAULT: string;
         SWAP_HANDLER: string;
@@ -221,4 +227,22 @@ export function getContracts() {
         zETH: string;
         MARKET_TOKEN: string;
     };
+}
+
+export function newContract<T extends Abi>(
+    abi: T,
+    address: string,
+    providerOrAccount: ProviderInterface
+): TypedContractV2<T> {
+    return new Contract(abi, address, providerOrAccount).typedv2(abi);
+}
+
+export async function executeAndWait(call: Call | Call[], provider: AccountInterface) {
+    const res = await provider.execute(call);
+    const rec = await provider.waitForTransaction(res.transaction_hash);
+    return rec;
+}
+
+export function getKey(str: string) {
+    return ec.starkCurve.poseidonHashMany([BigInt(shortString.encodeShortString(str))]);
 }

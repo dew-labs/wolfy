@@ -3,24 +3,22 @@
 // *************************************************************************
 
 // Core lib imports.
-
 use result::ResultTrait;
 use traits::{TryInto, Into};
 use starknet::{ContractAddress, get_caller_address, Felt252TryIntoContractAddress, contract_address_const, ClassHash,};
-use snforge_std::{declare, ContractClassTrait, start_cheat_block_number};
-
+use snforge_std::{declare, ContractClassTrait, start_cheat_block_number_global, stop_cheat_block_number_global};
 
 // Local imports.
-use satoru::chain::chain::{IChainDispatcher, IChainDispatcherTrait};
 use satoru::order::order::{Order, OrderType, OrderTrait, DecreasePositionSwapType};
 use satoru::utils::span32::{Span32, Array32Trait};
+use satoru::test_utils::tests_lib;
 
 #[test]
 fn given_normal_conditions_when_touch_then_expected_results() {
     // *********************************************************************************************
     // *                              SETUP                                                        *
     // *********************************************************************************************
-    let (caller_address, chain) = setup();
+    let caller_address = setup();
 
     // *********************************************************************************************
     // *                              TEST LOGIC                                                   *
@@ -30,19 +28,13 @@ fn given_normal_conditions_when_touch_then_expected_results() {
     let mut order = create_dummy_order();
 
     // Set current block to 42000.
-    start_cheat_block_number(chain.contract_address, 42000);
+    start_cheat_block_number_global(42000);
 
-    // Call the `touch` function.
-    // order.touch(chain);
-    // TODO remove comments when block number syscall will be available in foundry
-    //order.touch();
+    order.touch();
 
-    //assert(order.updated_at_block == 42000, 'bad value');
+    assert(order.updated_at_block == 42000, 'bad value');
 
-    // *********************************************************************************************
-    // *                              TEARDOWN                                                     *
-    // *********************************************************************************************
-    teardown();
+    stop_cheat_block_number_global()
 }
 
 fn create_dummy_order() -> Order {
@@ -75,22 +67,11 @@ fn create_dummy_order() -> Order {
 }
 
 /// Utility function to setup the test environment.
-fn setup() -> ( // This caller address will be used with `start_cheat_caller_address` cheatcode to mock the caller address.,
-    ContractAddress, // An interface to interact with `Chain` contract.
-     IChainDispatcher,
-) {
+fn setup() -> ContractAddress {
     // Create a fake caller address.
-    let caller_address = contract_address_const::<'caller'>();
-    // Deploy the `Chain` contract.
+    let caller_address = tests_lib::get_c4ller_address();
 
-    let contract = declare("Chain").unwrap();
-    let constructor_arguments: @Array::<felt252> = @ArrayTrait::new();
-    let contract_address_chain = contract.deploy(constructor_arguments).unwrap();
-
-    let chain = IChainDispatcher { contract_address: contract_address_chain };
     // Return the test environment.
-    (caller_address, chain)
+    caller_address
 }
 
-/// Utility function to teardown the test environment.
-fn teardown() {}

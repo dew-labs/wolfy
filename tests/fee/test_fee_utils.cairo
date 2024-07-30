@@ -9,10 +9,11 @@ use satoru::data::keys::{
 use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
 use satoru::role::role;
 use satoru::fee::fee_utils::{increment_claimable_fee_amount, increment_claimable_ui_fee_amount};
+use satoru::test_utils::tests_lib;
 
 #[test]
 fn given_normal_conditions_when_increment_claimable_fee_amount_then_works() {
-    let (caller_address, data_store, event_emitter) = setup();
+    let (data_store, event_emitter) = setup();
 
     let market: ContractAddress = 0x555.try_into().unwrap();
     let token: ContractAddress = 0x666.try_into().unwrap();
@@ -36,7 +37,7 @@ fn given_normal_conditions_when_increment_claimable_fee_amount_then_works() {
 
 #[test]
 fn given_normal_conditions_when_increment_claimable_ui_fee_amount_then_works() {
-    let (caller_address, data_store, event_emitter) = setup();
+    let (data_store, event_emitter) = setup();
 
     let market: ContractAddress = 0x555.try_into().unwrap();
     let token: ContractAddress = 0x666.try_into().unwrap();
@@ -63,31 +64,6 @@ fn given_normal_conditions_when_increment_claimable_ui_fee_amount_then_works() {
     assert(final_pool_value == delta, 'Final pool value wrong');
 }
 
-fn deploy_data_store(role_store_address: ContractAddress) -> ContractAddress {
-    let contract = declare("DataStore").unwrap();
-    let caller_address: ContractAddress = contract_address_const::<'caller'>();
-    let deployed_contract_address = contract_address_const::<'data_store'>();
-    start_cheat_caller_address(deployed_contract_address, caller_address);
-    let constructor_calldata = array![role_store_address.into()];
-    contract.deploy_at(@constructor_calldata, deployed_contract_address).unwrap()
-}
-
-fn deploy_role_store() -> ContractAddress {
-    let contract = declare("RoleStore").unwrap();
-    let caller_address: ContractAddress = contract_address_const::<'caller'>();
-    let deployed_contract_address = contract_address_const::<'role_store'>();
-    start_cheat_caller_address(deployed_contract_address, caller_address);
-    contract.deploy_at(@array![caller_address.into()], deployed_contract_address).unwrap()
-}
-
-fn deploy_event_emitter() -> ContractAddress {
-    let contract = declare("EventEmitter").unwrap();
-    let caller_address: ContractAddress = contract_address_const::<'caller'>();
-    let deployed_contract_address = contract_address_const::<'event_emitter'>();
-    start_cheat_caller_address(deployed_contract_address, caller_address);
-    contract.deploy_at(@array![], deployed_contract_address).unwrap()
-}
-
 /// Utility function to setup the test environment.
 ///
 /// # Returns
@@ -95,16 +71,34 @@ fn deploy_event_emitter() -> ContractAddress {
 /// * `ContractAddress` - The address of the caller.
 /// * `IRoleStoreDispatcher` - The role store dispatcher.
 /// * `IDataStoreDispatcher` - The data store dispatcher.
-fn setup() -> (ContractAddress, IDataStoreDispatcher, IEventEmitterDispatcher) {
-    let caller_address: ContractAddress = contract_address_const::<'caller'>();
-    let role_store_address = deploy_role_store();
-    let role_store = IRoleStoreDispatcher { contract_address: role_store_address };
-    let data_store_address = deploy_data_store(role_store_address);
-    let data_store = IDataStoreDispatcher { contract_address: data_store_address };
-    let event_emitter_address = deploy_event_emitter();
-    let event_emitter = IEventEmitterDispatcher { contract_address: event_emitter_address };
-    start_cheat_caller_address(role_store_address, caller_address);
-    role_store.grant_role(caller_address, role::CONTROLLER);
-    start_cheat_caller_address(data_store_address, caller_address);
-    (caller_address, data_store, event_emitter)
+fn setup() -> (IDataStoreDispatcher, IEventEmitterDispatcher) {
+    let (
+        _caller_address,
+        _market_token_class,
+        _increase_order_class,
+        _decrease_order_class,
+        _swap_order_class,
+        _order_utils_class,
+        _market_factory,
+        _role_store,
+        data_store,
+        event_emitter,
+        _exchange_router,
+        _deposit_handler,
+        _deposit_vault,
+        _oracle,
+        _order_handler,
+        _order_vault,
+        _reader,
+        _referal_storage,
+        _withdrawal_handler,
+        _withdrawal_vault,
+        _liquidation_handler,
+        _,
+        _,
+        _,
+        _,
+    ) = tests_lib::setup();
+
+    (data_store, event_emitter)
 }

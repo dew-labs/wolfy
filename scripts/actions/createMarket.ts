@@ -1,235 +1,257 @@
-import { Contract, shortString, uint256, ec } from "starknet";
-import { ensureDeployed, ensureRole, getCompiledSierra, getContracts, settingUp } from "../utils";
+import { shortString, uint256, ec } from "starknet";
+import {
+    ensureDeployed,
+    ensureRole,
+    executeAndWait,
+    getContracts,
+    getKey,
+    newContract,
+    settingUp,
+} from "../utils";
+
+import MarketFactoryABI from "../../artifacts/MarketFactoryABI";
+import DataStoreABI from "../../artifacts/DataStoreABI";
+import RoleStoreABI from "../../artifacts/RoleStoreABI";
+import ERC20ABI from "../../artifacts/ERC20ABI";
 
 async function create_market() {
-    const { account, feeToken } = await settingUp();
+    const { account } = await settingUp();
     const contracts = getContracts();
 
-    const dataStoreContract = new Contract(
-        getCompiledSierra("DataStore").abi,
-        contracts.DATA_STORE,
-        account
-    );
-
-    const dataCall = dataStoreContract.populate("set_address", [
-        ec.starkCurve.poseidonHashMany([BigInt(shortString.encodeShortString("FEE_TOKEN"))]),
-        feeToken,
-    ]);
-    const setAddressTx = await dataStoreContract.set_address(dataCall.calldata);
-    await account.waitForTransaction(setAddressTx.transaction_hash);
-
-    const dataCall2 = dataStoreContract.populate("set_u256", [
-        ec.starkCurve.poseidonHashMany([
-            BigInt(shortString.encodeShortString("MAX_SWAP_PATH_LENGTH")),
-        ]),
-        5n,
-    ]);
-    const setAddressTx2 = await dataStoreContract.set_u256(dataCall2.calldata);
-    await account.waitForTransaction(setAddressTx2.transaction_hash);
-
-    const dataCall3 = dataStoreContract.populate("set_u256", [
-        ec.starkCurve.poseidonHashMany([
-            BigInt(shortString.encodeShortString("MAX_ORACLE_PRICE_AGE")),
-        ]),
-        1000000000000n,
-    ]);
-    const setAddressTx3 = await dataStoreContract.set_u256(dataCall3.calldata);
-    await account.waitForTransaction(setAddressTx3.transaction_hash);
-
-    const usdc = await ensureDeployed(account, contracts.USDC, "ERC20", {
-        name: "USDC",
-        symbol: "USDC",
-        initial_supply: "10000000000000000000",
-        recipient: account.address,
-    });
-
-    const zEth = await ensureDeployed(account, contracts.zETH, "ERC20", {
-        name: "zEthereum",
-        symbol: "zETH",
-        initial_supply: "50000000000000000000000",
-        recipient: account.address,
-    });
-
-    const roleStoreContract = new Contract(
-        getCompiledSierra("RoleStore").abi,
-        contracts.ROLE_STORE,
-        account
-    );
-
-    await ensureRole(roleStoreContract, "MarketFactory", contracts.MARKET_FACTORY, "CONTROLLER");
-
-    const marketFactoryContract = new Contract(
-        getCompiledSierra("MarketFactory").abi,
-        contracts.MARKET_FACTORY,
-        account
-    );
-
-    console.log("Connected to MarketFactory: " + contracts.MARKET_FACTORY);
+    const roleStoreContract = newContract(RoleStoreABI, contracts.ROLE_STORE, account);
 
     console.log("Granting roles...");
 
+    await ensureRole(roleStoreContract, "MarketFactory", contracts.MARKET_FACTORY, "CONTROLLER");
+
     await ensureRole(roleStoreContract, "MarketFactory", contracts.MARKET_FACTORY, "MARKET_KEEPER");
 
-    await ensureRole(roleStoreContract, "DepositHandler", contracts.DEPOSIT_HANDLER!, "CONTROLLER");
+    await ensureRole(roleStoreContract, "DepositHandler", contracts.DEPOSIT_HANDLER, "CONTROLLER");
 
-    await ensureRole(roleStoreContract, "OrderHandler", contracts.ORDER_HANDLER!, "CONTROLLER");
+    await ensureRole(roleStoreContract, "OrderHandler", contracts.ORDER_HANDLER, "CONTROLLER");
 
     console.log("Roles granted. Creating Market...");
 
-    const compiledERC20Sierra = getCompiledSierra("ERC20");
+    // BEGIN deploy tokens
 
-    const usdcContract = new Contract(compiledERC20Sierra.abi, usdc.address, account);
-    const zEthContract = new Contract(compiledERC20Sierra.abi, zEth.address, account);
+    // deploy index token, long token
+    const zEth = await ensureDeployed(account, contracts.zETH, "ERC20", {
+        name: "zEthereum",
+        symbol: "zETH",
+        initial_supply: 1000000,
+        recipient: account.address,
+    });
 
-    try {
-        const myCall = marketFactoryContract.populate("create_market", [
-            zEth.address,
-            zEth.address,
-            usdc.address,
-            "market_type",
-        ]);
-        const res = await marketFactoryContract.create_market(myCall.calldata);
-        const marketTokenAddress = ((await account.waitForTransaction(res.transaction_hash)) as any)
-            .events[0].data[1];
-        console.log("MARKET_TOKEN=" + marketTokenAddress);
+    // deploy short token
+    const usdc = await ensureDeployed(account, contracts.USDC, "ERC20", {
+        name: "USDC",
+        symbol: "USDC",
+        initial_supply: 1000000,
+        recipient: account.address,
+    });
 
-        // Set constants for trade
-        const dataCall5 = dataStoreContract.populate("set_u256", [
-            await dataStoreContract.get_max_pool_amount_key(marketTokenAddress, zEth.address),
-            2500000000000000000000000000000000000000000000n,
-        ]);
-        const setAddressTx5 = await dataStoreContract.set_u256(dataCall5.calldata);
-        await account.waitForTransaction(setAddressTx5.transaction_hash);
+    const usdcContract = newContract(ERC20ABI, usdc.address, account);
+    const zEthContract = newContract(ERC20ABI, zEth.address, account);
 
-        const dataCall6 = dataStoreContract.populate("set_u256", [
-            await dataStoreContract.get_max_pool_amount_key(marketTokenAddress, usdc.address),
-            2500000000000000000000000000000000000000000000n,
-        ]);
-        const setAddressTx6 = await dataStoreContract.set_u256(dataCall6.calldata);
-        await account.waitForTransaction(setAddressTx6.transaction_hash);
+    // END deploy tokens
 
-        // Set Constants for long
-        const dataCall7 = dataStoreContract.populate("set_u256", [
-            await dataStoreContract.get_max_pnl_factor_key(
-                "0x4896bc14d7c67b49131baf26724d3f29032ddd7539a3a8d88324140ea2de9b4",
-                marketTokenAddress,
-                true
-            ),
-            50000000000000000000000000000000000000000000000n,
-        ]);
-        const setAddressTx7 = await dataStoreContract.set_u256(dataCall7.calldata);
-        await account.waitForTransaction(setAddressTx7.transaction_hash);
+    const marketFactoryContract = newContract(MarketFactoryABI, contracts.MARKET_FACTORY, account);
 
-        const dataCall9 = dataStoreContract.populate("set_u256", [
-            await dataStoreContract.get_max_pnl_factor_key(
-                "0x425655404757d831905ce0c7aeb290f47c630d959038f3d087a009ba1236dbe",
-                marketTokenAddress,
-                true
-            ),
-            50000000000000000000000000000000000000000000000n,
-        ]);
-        const setAddressTx9 = await dataStoreContract.set_u256(dataCall9.calldata);
-        await account.waitForTransaction(setAddressTx9.transaction_hash);
+    // BEGIN create market
 
-        const dataCall10 = dataStoreContract.populate("set_u256", [
-            await dataStoreContract.get_reserve_factor_key(marketTokenAddress, true),
-            1000000000000000000n,
-        ]);
-        const setAddressTx10 = await dataStoreContract.set_u256(dataCall10.calldata);
-        await account.waitForTransaction(setAddressTx10.transaction_hash);
+    let marketTokenAddress = contracts.MARKET_TOKEN;
 
-        const dataCall11 = dataStoreContract.populate("set_u256", [
-            await dataStoreContract.get_open_interest_reserve_factor_key(marketTokenAddress, true),
-            1000000000000000000n,
-        ]);
-        const setAddressTx11 = await dataStoreContract.set_u256(dataCall11.calldata);
-        await account.waitForTransaction(setAddressTx11.transaction_hash);
+    if (!marketTokenAddress) {
+        try {
+            // create market
+            const rec = await executeAndWait(
+                marketFactoryContract.populate("create_market", [
+                    zEth.address,
+                    zEth.address,
+                    usdc.address,
+                    "market_type",
+                ]),
+                account
+            );
 
-        const dataCall12 = dataStoreContract.populate("set_u256", [
-            await dataStoreContract.get_open_interest_key(marketTokenAddress, zEth.address, true),
-            1n,
-        ]);
-        const setAddressTx12 = await dataStoreContract.set_u256(dataCall12.calldata);
-        await account.waitForTransaction(setAddressTx12.transaction_hash);
-
-        const dataCall8 = dataStoreContract.populate("set_u256", [
-            await dataStoreContract.get_max_open_interest_key(marketTokenAddress, true),
-            1000000000000000000000000000000000000000000000000000n,
-        ]);
-        const setAddressTx8 = await dataStoreContract.set_u256(dataCall8.calldata);
-        await account.waitForTransaction(setAddressTx8.transaction_hash);
-
-        // Set constants for short
-        const dataCall13 = dataStoreContract.populate("set_u256", [
-            await dataStoreContract.get_max_pnl_factor_key(
-                "0x4896bc14d7c67b49131baf26724d3f29032ddd7539a3a8d88324140ea2de9b4",
-                marketTokenAddress,
-                false
-            ),
-            50000000000000000000000000000000000000000000000n,
-        ]);
-        const setAddressTx13 = await dataStoreContract.set_u256(dataCall13.calldata);
-        await account.waitForTransaction(setAddressTx13.transaction_hash);
-
-        const dataCall14 = dataStoreContract.populate("set_u256", [
-            await dataStoreContract.get_max_pnl_factor_key(
-                "0x425655404757d831905ce0c7aeb290f47c630d959038f3d087a009ba1236dbe",
-                marketTokenAddress,
-                false
-            ),
-            50000000000000000000000000000000000000000000000n,
-        ]);
-        const setAddressTx14 = await dataStoreContract.set_u256(dataCall14.calldata);
-        await account.waitForTransaction(setAddressTx14.transaction_hash);
-
-        const dataCall15 = dataStoreContract.populate("set_u256", [
-            await dataStoreContract.get_reserve_factor_key(marketTokenAddress, false),
-            1000000000000000000n,
-        ]);
-        const setAddressTx15 = await dataStoreContract.set_u256(dataCall15.calldata);
-        await account.waitForTransaction(setAddressTx15.transaction_hash);
-
-        const dataCall16 = dataStoreContract.populate("set_u256", [
-            await dataStoreContract.get_open_interest_reserve_factor_key(marketTokenAddress, false),
-            1000000000000000000n,
-        ]);
-        const setAddressTx16 = await dataStoreContract.set_u256(dataCall16.calldata);
-        await account.waitForTransaction(setAddressTx16.transaction_hash);
-
-        const dataCall17 = dataStoreContract.populate("set_u256", [
-            await dataStoreContract.get_open_interest_key(marketTokenAddress, usdc.address, false),
-            1n,
-        ]);
-        const setAddressTx17 = await dataStoreContract.set_u256(dataCall17.calldata);
-        await account.waitForTransaction(setAddressTx17.transaction_hash);
-
-        const dataCall18 = dataStoreContract.populate("set_u256", [
-            await dataStoreContract.get_max_open_interest_key(marketTokenAddress, false),
-            1000000000000000000000000000000000000000000000000000n,
-        ]);
-        const setAddressTx18 = await dataStoreContract.set_u256(dataCall18.calldata);
-        await account.waitForTransaction(setAddressTx18.transaction_hash);
-
-        // Mint zETH to the market token
-        const transferCall2 = zEthContract.populate("mint", [
-            marketTokenAddress,
-            uint256.bnToUint256(50000000000000000000000000000000000000n),
-        ]);
-        const transferTx2 = await zEthContract.mint(transferCall2.calldata);
-        await account.waitForTransaction(transferTx2.transaction_hash);
-
-        // Mint USDC to the market token
-        const transferUSDCCall = usdcContract.populate("mint", [
-            marketTokenAddress,
-            uint256.bnToUint256(25000000000000000000000000000000000000000n),
-        ]);
-        const transferUSDCTx = await usdcContract.mint(transferUSDCCall.calldata);
-        await account.waitForTransaction(transferUSDCTx.transaction_hash);
-
-        console.log("All pre-settings done.");
-    } catch (e) {
-        console.log("Market already settled or error occurred:", e);
+            if (rec.isSuccess()) {
+                marketTokenAddress = rec.events[0].data[1];
+                console.log("MARKET_TOKEN=" + marketTokenAddress);
+            } else {
+                throw new Error("Failed to create market");
+            }
+        } catch (error) {
+            console.log("Market already settled or error occurred:", error);
+        }
     }
+
+    // END create market
+
+    const dataStoreContract = newContract(DataStoreABI, contracts.DATA_STORE, account);
+
+    // set fee token
+    await executeAndWait(
+        dataStoreContract.populate("set_address", [getKey("FEE_TOKEN"), zEth.address]),
+        account
+    );
+
+    // set max swap path length
+    await executeAndWait(
+        dataStoreContract.populate("set_u256", [getKey("MAX_SWAP_PATH_LENGTH"), 5]),
+        account
+    );
+
+    // Set constants for trade
+    // set max pool for long token
+    await executeAndWait(
+        dataStoreContract.populate("set_u256", [
+            await dataStoreContract.get_max_pool_amount_key(marketTokenAddress, zEth.address),
+            uint256.bnToUint256(5000000000000000000000000000000000000000000),
+        ]),
+        account
+    );
+
+    // set max pool for short token
+    await executeAndWait(
+        dataStoreContract.populate("set_u256", [
+            await dataStoreContract.get_max_pool_amount_key(marketTokenAddress, usdc.address),
+            uint256.bnToUint256(2500000000000000000000000000000000000000000000),
+        ]),
+        account
+    );
+
+    // Set Constants for long
+
+    const factorForDeposits = getKey("MAX_PNL_FACTOR_FOR_DEPOSITS");
+    const factorForWithdrawals = getKey("MAX_PNL_FACT_FOR_WITHDRAWALS");
+
+    // MAX_PNL_FACTOR_FOR_DEPOSITS for long token
+    await executeAndWait(
+        dataStoreContract.populate("set_u256", [
+            await dataStoreContract.get_max_pnl_factor_key(
+                factorForDeposits,
+                marketTokenAddress,
+                true
+            ),
+            uint256.bnToUint256(50000000000000000000000000000000000000000000000),
+        ]),
+        account
+    );
+
+    // MAX_PNL_FACT_FOR_WITHDRAWALS for long token
+    await executeAndWait(
+        dataStoreContract.populate("set_u256", [
+            await dataStoreContract.get_max_pnl_factor_key(
+                factorForWithdrawals,
+                marketTokenAddress,
+                true
+            ),
+            uint256.bnToUint256(50000000000000000000000000000000000000000000000),
+        ]),
+        account
+    );
+
+    // reserve factor for long token
+    await executeAndWait(
+        dataStoreContract.populate("set_u256", [
+            await dataStoreContract.get_reserve_factor_key(marketTokenAddress, true),
+            uint256.bnToUint256(1000000000000000000),
+        ]),
+        account
+    );
+
+    // open interest reserve factor for long token
+    await executeAndWait(
+        dataStoreContract.populate("set_u256", [
+            await dataStoreContract.get_open_interest_reserve_factor_key(marketTokenAddress, true),
+            uint256.bnToUint256(1000000000000000000),
+        ]),
+        account
+    );
+
+    // Set constants for short
+    // MAX_PNL_FACTOR_FOR_DEPOSITS for short token
+    await executeAndWait(
+        dataStoreContract.populate("set_u256", [
+            await dataStoreContract.get_max_pnl_factor_key(
+                factorForDeposits,
+                marketTokenAddress,
+                false
+            ),
+            uint256.bnToUint256(50000000000000000000000000000000000000000000000),
+        ]),
+        account
+    );
+
+    // MAX_PNL_FACT_FOR_WITHDRAWALS for short token
+    await executeAndWait(
+        dataStoreContract.populate("set_u256", [
+            await dataStoreContract.get_max_pnl_factor_key(
+                factorForWithdrawals,
+                marketTokenAddress,
+                false
+            ),
+            uint256.bnToUint256(50000000000000000000000000000000000000000000000),
+        ]),
+        account
+    );
+
+    // reserve factor for short token
+    await executeAndWait(
+        dataStoreContract.populate("set_u256", [
+            await dataStoreContract.get_reserve_factor_key(marketTokenAddress, false),
+            uint256.bnToUint256(1000000000000000000),
+        ]),
+        account
+    );
+
+    // open interest reserve factor for short token
+    await executeAndWait(
+        dataStoreContract.populate("set_u256", [
+            await dataStoreContract.get_open_interest_reserve_factor_key(marketTokenAddress, false),
+            uint256.bnToUint256(1000000000000000000),
+        ]),
+        account
+    );
+
+    // BEGIN Fill the pool, this is the initial amount that depositors will put in the pool
+    // Mint zETH to the market token
+    await executeAndWait(
+        zEthContract.populate("mint", [
+            marketTokenAddress,
+            uint256.bnToUint256(50000000000000000000000000000000000000),
+        ]),
+        account
+    );
+
+    // Mint USDC to the market token
+    await executeAndWait(
+        usdcContract.populate("mint", [
+            marketTokenAddress,
+            uint256.bnToUint256(25000000000000000000000000000000000000000),
+        ]),
+        account
+    );
+    // END Fill the pool
+
+    // BEGIN Fill the account, this help our account have a initial balance
+    // Mint zETH to account
+    await executeAndWait(
+        zEthContract.populate("mint", [account.address, uint256.bnToUint256(9999999999999000000)]),
+        account
+    );
+
+    // Mint USDC to account
+    await executeAndWait(
+        usdcContract.populate("mint", [
+            account.address,
+            uint256.bnToUint256(49999999999999999000000),
+        ]),
+        account
+    );
+    // EMD Fill the account
+
+    console.log("All pre-settings done.");
 }
 
 create_market();

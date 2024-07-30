@@ -8,14 +8,13 @@ use result::ResultTrait;
 use traits::{TryInto, Into};
 use starknet::{ContractAddress, get_caller_address, Felt252TryIntoContractAddress, contract_address_const, ClassHash,};
 use snforge_std::{
-    declare, start_cheat_caller_address, stop_cheat_caller_address, start_warp, ContractClassTrait, ContractClass
+    declare, start_cheat_caller_address, stop_cheat_caller_address, start_cheat_block_timestamp, ContractClassTrait, ContractClass
 };
 
 
 // Local imports.
 use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
 use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
-use satoru::chain::chain::{IChainDispatcher, IChainDispatcherTrait};
 use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
 use satoru::market::market_factory::{IMarketFactoryDispatcher, IMarketFactoryDispatcherTrait};
 use satoru::market::market::{Market, UniqueIdMarket, IntoMarketToken};
@@ -25,6 +24,7 @@ use satoru::data::keys;
 use satoru::role::role;
 use satoru::price::price::{Price, PriceTrait};
 use satoru::utils::i256::{i256, i256_new};
+use satoru::test_utils::tests_lib;
 
 #[test]
 fn given_normal_conditions_when_get_open_interest_then_works() {
@@ -36,11 +36,10 @@ fn given_normal_conditions_when_get_open_interest_then_works() {
         market_factory_address,
         role_store_address,
         data_store_address,
-        market_token_class_hash,
+        market_token_class,
         market_factory,
         role_store,
         data_store,
-        chain,
         event_emitter,
     ) =
         setup();
@@ -100,11 +99,10 @@ fn given_normal_conditions_when_get_open_interest_in_tokens_then_works() {
         market_factory_address,
         role_store_address,
         data_store_address,
-        market_token_class_hash,
+        market_token_class,
         market_factory,
         role_store,
         data_store,
-        chain,
         event_emitter,
     ) =
         setup();
@@ -143,11 +141,10 @@ fn given_normal_conditions_when_get_open_interest_in_tokens_for_market_then_work
         market_factory_address,
         role_store_address,
         data_store_address,
-        market_token_class_hash,
+        market_token_class,
         market_factory,
         role_store,
         data_store,
-        chain,
         event_emitter,
     ) =
         setup();
@@ -207,11 +204,10 @@ fn given_normal_conditions_when_get_pool_amount_then_works() {
         market_factory_address,
         role_store_address,
         data_store_address,
-        market_token_class_hash,
+        market_token_class,
         market_factory,
         role_store,
         data_store,
-        chain,
         event_emitter,
     ) =
         setup();
@@ -271,11 +267,10 @@ fn given_normal_conditions_when_get_max_pool_amount_then_works() {
         market_factory_address,
         role_store_address,
         data_store_address,
-        market_token_class_hash,
+        market_token_class,
         market_factory,
         role_store,
         data_store,
-        chain,
         event_emitter,
     ) =
         setup();
@@ -317,11 +312,10 @@ fn given_normal_conditions_when_get_max_open_interest_then_works() {
         market_factory_address,
         role_store_address,
         data_store_address,
-        market_token_class_hash,
+        market_token_class,
         market_factory,
         role_store,
         data_store,
-        chain,
         event_emitter,
     ) =
         setup();
@@ -365,11 +359,10 @@ fn given_normal_conditions_when_increment_claimable_collateral_amount_then_works
         market_factory_address,
         role_store_address,
         data_store_address,
-        market_token_class_hash,
+        market_token_class,
         market_factory,
         role_store,
         data_store,
-        chain,
         event_emitter,
     ) =
         setup();
@@ -392,9 +385,6 @@ fn given_normal_conditions_when_increment_claimable_collateral_amount_then_works
     let claimable_collateral_amount_key = 0x7af284cf9ac7ef4a7bb96ad1004a1fb2b9d3c545ea9600edca47d4b033f9b85;
 
     // Setup pre conditions.
-
-    // Mock the timestamp.
-    start_warp(chain.contract_address, current_timestamp);
 
     // Fill required data store keys.
     data_store.set_u256(keys::claimable_collateral_time_divisor(), 1);
@@ -432,11 +422,10 @@ fn given_normal_conditions_when_increment_claimable_funding_amount_then_works() 
         market_factory_address,
         role_store_address,
         data_store_address,
-        market_token_class_hash,
+        market_token_class,
         market_factory,
         role_store,
         data_store,
-        chain,
         event_emitter,
     ) =
         setup();
@@ -499,11 +488,10 @@ fn given_normal_conditions_when_get_pnl_then_works() {
         market_factory_address,
         role_store_address,
         data_store_address,
-        market_token_class_hash,
+        market_token_class,
         market_factory,
         role_store,
         data_store,
-        chain,
         event_emitter,
     ) =
         setup();
@@ -567,11 +555,10 @@ fn given_zero_open_interest_when_get_pnl_then_returns_zero_pnl() {
         market_factory_address,
         role_store_address,
         data_store_address,
-        market_token_class_hash,
+        market_token_class,
         market_factory,
         role_store,
         data_store,
-        chain,
         event_emitter,
     ) =
         setup();
@@ -635,11 +622,10 @@ fn given_zero_open_interest_in_tokens_when_get_pnl_then_returns_zero_pnl() {
         market_factory_address,
         role_store_address,
         data_store_address,
-        market_token_class_hash,
+        market_token_class,
         market_factory,
         role_store,
         data_store,
-        chain,
         event_emitter,
     ) =
         setup();
@@ -703,11 +689,10 @@ fn given_normal_conditions_when_get_position_impact_pool_amount_then_works() {
         market_factory_address,
         role_store_address,
         data_store_address,
-        market_token_class_hash,
+        market_token_class,
         market_factory,
         role_store,
         data_store,
-        chain,
         event_emitter,
     ) =
         setup();
@@ -748,11 +733,10 @@ fn given_normal_conditions_when_get_swap_impact_pool_amount_then_works() {
         market_factory_address,
         role_store_address,
         data_store_address,
-        market_token_class_hash,
+        market_token_class,
         market_factory,
         role_store,
         data_store,
-        chain,
         event_emitter,
     ) =
         setup();
@@ -794,11 +778,10 @@ fn given_normal_conditions_when_apply_delta_to_position_impact_pool_then_works()
         market_factory_address,
         role_store_address,
         data_store_address,
-        market_token_class_hash,
+        market_token_class,
         market_factory,
         role_store,
         data_store,
-        chain,
         event_emitter,
     ) =
         setup();
@@ -842,11 +825,10 @@ fn given_normal_conditions_when_apply_delta_to_swap_impact_pool_then_works() {
         market_factory_address,
         role_store_address,
         data_store_address,
-        market_token_class_hash,
+        market_token_class,
         market_factory,
         role_store,
         data_store,
-        chain,
         event_emitter,
     ) =
         setup();
@@ -884,41 +866,43 @@ fn given_normal_conditions_when_apply_delta_to_swap_impact_pool_then_works() {
 
 /// Utility function to setup the test environment.
 fn setup() -> (
-    // This caller address will be used with `start_cheat_caller_address` cheatcode to mock the caller address.,
     ContractAddress,
-    // Address of the `MarketFactory` contract.
     ContractAddress,
-    // Address of the `RoleStore` contract.
     ContractAddress,
-    // Address of the `DataStore` contract.
     ContractAddress,
-    // The `MarketToken` class hash for the factory.
     ContractClass,
-    // Interface to interact with the `MarketFactory` contract.
     IMarketFactoryDispatcher,
-    // Interface to interact with the `RoleStore` contract.
     IRoleStoreDispatcher,
-    // Interface to interact with the `DataStore` contract.
     IDataStoreDispatcher,
-    // Interface to interact with the `Chain` library contract.
-    IChainDispatcher,
-    // Interface to interact with the `EventEmitter` contract.
     IEventEmitterDispatcher,
 ) {
-    // Setup required contracts.
     let (
         caller_address,
-        market_factory_address,
-        role_store_address,
-        data_store_address,
-        market_token_class_hash,
+        market_token_class,
+        _increase_order_class,
+        _decrease_order_class,
+        _swap_order_class,
+        _order_utils_class,
         market_factory,
         role_store,
         data_store,
-        chain,
         event_emitter,
-    ) =
-        setup_contracts();
+        _exchange_router,
+        _deposit_handler,
+        _deposit_vault,
+        _oracle,
+        _order_handler,
+        _order_vault,
+        _reader,
+        _referral_storage,
+        _withdrawal_handler,
+        _withdrawal_vault,
+        _liquidation_handler,
+        _,
+        _,
+        _,
+        _,
+    ) = tests_lib::setup();
 
     // Grant roles and prank the caller address.
     grant_roles_and_prank(caller_address, role_store, data_store, market_factory);
@@ -926,14 +910,13 @@ fn setup() -> (
     // Return the setup variables.
     (
         caller_address,
-        market_factory_address,
-        role_store_address,
-        data_store_address,
-        market_token_class_hash,
+        market_factory.contract_address,
+        role_store.contract_address,
+        data_store.contract_address,
+        market_token_class,
         market_factory,
         role_store,
         data_store,
-        chain,
         event_emitter,
     )
 }
@@ -979,124 +962,3 @@ fn teardown(data_store: IDataStoreDispatcher, market_factory: IMarketFactoryDisp
     stop_cheat_caller_address(data_store.contract_address);
     stop_cheat_caller_address(market_factory.contract_address);
 }
-
-/// Setup required contracts.
-fn setup_contracts() -> (
-    // This caller address will be used with `start_cheat_caller_address` cheatcode to mock the caller address.,
-    ContractAddress,
-    // Address of the `MarketFactory` contract.
-    ContractAddress,
-    // Address of the `RoleStore` contract.
-    ContractAddress,
-    // Address of the `DataStore` contract.
-    ContractAddress,
-    // The `MarketToken` class hash for the factory.
-    ContractClass,
-    // Interface to interact with the `MarketFactory` contract.
-    IMarketFactoryDispatcher,
-    // Interface to interact with the `RoleStore` contract.
-    IRoleStoreDispatcher,
-    // Interface to interact with the `DataStore` contract.
-    IDataStoreDispatcher,
-    // Interface to interact with the `Chain` library contract.
-    IChainDispatcher,
-    // Interface to interact with the `EventEmitter` contract.
-    IEventEmitterDispatcher,
-) {
-    // Deploy the role store contract.
-    let role_store_address = deploy_role_store();
-
-    // Create a role store dispatcher.
-    let role_store = IRoleStoreDispatcher { contract_address: role_store_address };
-
-    // Deploy the contract.
-    let data_store_address = deploy_data_store(role_store_address);
-    // Create a safe dispatcher to interact with the contract.
-    let data_store = IDataStoreDispatcher { contract_address: data_store_address };
-
-    // Declare the `MarketToken` contract.
-    let market_token_class_hash = declare("MarketToken").unwrap();
-
-    // Declare the `Chain` library contract.
-    let chain_address = deploy_chain();
-    // Create a safe dispatcher to interact with the contract.
-    let chain = IChainDispatcher { contract_address: chain_address };
-
-    // Deploy the `EventEmitter` contract.
-    let event_emitter_address = deploy_event_emitter();
-    // Create a safe dispatcher to interact with the contract.
-    let event_emitter = IEventEmitterDispatcher { contract_address: event_emitter_address };
-
-    // Deploy the market factory.
-    let market_factory_address = deploy_market_factory(
-        data_store_address, role_store_address, event_emitter_address, market_token_class_hash
-    );
-    // Create a safe dispatcher to interact with the contract.
-    let market_factory = IMarketFactoryDispatcher { contract_address: market_factory_address };
-
-    (
-        contract_address_const::<'caller'>(),
-        market_factory_address,
-        role_store_address,
-        data_store_address,
-        market_token_class_hash,
-        market_factory,
-        role_store,
-        data_store,
-        chain,
-        event_emitter,
-    )
-}
-
-/// Utility function to deploy a market factory contract and return its address.
-fn deploy_market_factory(
-    data_store_address: ContractAddress,
-    role_store_address: ContractAddress,
-    event_emitter_address: ContractAddress,
-    market_token_class_hash: ContractClass,
-) -> ContractAddress {
-    let contract = declare("MarketFactory").unwrap();
-    let caller_address: ContractAddress = contract_address_const::<'caller'>();
-    let deployed_contract_address = contract_address_const::<'market_factory'>();
-    start_cheat_caller_address(deployed_contract_address, caller_address);
-    let mut constructor_calldata = array![];
-    constructor_calldata.append(data_store_address.into());
-    constructor_calldata.append(role_store_address.into());
-    constructor_calldata.append(event_emitter_address.into());
-    constructor_calldata.append(market_token_class_hash.class_hash.into());
-    contract.deploy_at(@constructor_calldata, deployed_contract_address).unwrap()
-}
-
-
-fn deploy_data_store(role_store_address: ContractAddress) -> ContractAddress {
-    let contract = declare("DataStore").unwrap();
-    let caller_address: ContractAddress = contract_address_const::<'caller'>();
-    let deployed_contract_address = contract_address_const::<'data_store'>();
-    start_cheat_caller_address(deployed_contract_address, caller_address);
-    let constructor_calldata = array![role_store_address.into()];
-    contract.deploy_at(@constructor_calldata, deployed_contract_address).unwrap()
-}
-
-fn deploy_role_store() -> ContractAddress {
-    let contract = declare("RoleStore").unwrap();
-    let caller_address: ContractAddress = contract_address_const::<'caller'>();
-    let deployed_contract_address = contract_address_const::<'role_store'>();
-    start_cheat_caller_address(deployed_contract_address, caller_address);
-    contract.deploy_at(@array![caller_address.into()], deployed_contract_address).unwrap()
-}
-
-fn deploy_event_emitter() -> ContractAddress {
-    let contract = declare("EventEmitter").unwrap();
-    let caller_address: ContractAddress = contract_address_const::<'caller'>();
-    let deployed_contract_address = contract_address_const::<'event_emitter'>();
-    start_cheat_caller_address(deployed_contract_address, caller_address);
-    contract.deploy_at(@array![], deployed_contract_address).unwrap()
-}
-
-/// Utility function to deploy a `Chain` contract and return its address.
-fn deploy_chain() -> ContractAddress {
-    let contract = declare("Chain").unwrap();
-    let constructor_arguments: @Array::<felt252> = @ArrayTrait::new();
-    contract.deploy(constructor_arguments).unwrap()
-}
-

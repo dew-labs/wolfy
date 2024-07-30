@@ -3,7 +3,7 @@ use traits::TryInto;
 use starknet::{ContractAddress, contract_address_const};
 use starknet::Felt252TryIntoContractAddress;
 use snforge_std::{declare, start_cheat_caller_address, ContractClassTrait};
-//use array::ArrayTrait;
+use satoru::test_utils::tests_lib;
 
 use satoru::role::role::ROLE_ADMIN;
 use satoru::role::role::CONTROLLER;
@@ -167,7 +167,7 @@ fn given_normal_conditions_when_get_role_members_then_works() {
 }
 
 fn admin() -> ContractAddress {
-    contract_address_const::<'caller'>()
+    tests_lib::get_c4ller_address()
 }
 
 fn account_1() -> ContractAddress {
@@ -184,14 +184,6 @@ fn account_3() -> ContractAddress {
 
 /// Utility function to setup the test environment.
 fn setup() -> IRoleStoreDispatcher {
-    IRoleStoreDispatcher { contract_address: deploy_role_store() }
-}
-
-fn deploy_role_store() -> ContractAddress {
-    let contract = declare("RoleStore").unwrap();
-    let caller_address: ContractAddress = contract_address_const::<'caller'>();
-    let deployed_contract_address = contract_address_const::<'role_store'>();
-    start_cheat_caller_address(deployed_contract_address, caller_address);
-    contract.deploy_at(@array![caller_address.into()], deployed_contract_address).unwrap()
+    IRoleStoreDispatcher { contract_address: tests_lib::deploy_role_store() }
 }
 
