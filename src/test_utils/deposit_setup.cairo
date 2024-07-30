@@ -165,7 +165,7 @@ fn deposit_setup(
     data_store.set_u256(keys::reserve_factor_key(market.market_token, false), 1000000000000000000);
     data_store.set_u256(keys::open_interest_reserve_factor_key(market.market_token, false), 1000000000000000000);
 
-    data_store.set_bool('REENTRANCY_GUARD_STATUS', false);
+    // data_store.set_bool('REENTRANCY_GUARD_STATUS', false);
 
     'fill the pool'.print();
     // Fill the pool.
@@ -175,6 +175,7 @@ fn deposit_setup(
         .mint(market.market_token, 25000000000000000000000000000000000000000); // 25000 USDC
     'filled pool'.print();
 
+    // Fill the account
     IERC20Dispatcher { contract_address: market.long_token }.mint(caller_address, 9999999999999000000); // 9.999 ETH
     IERC20Dispatcher { contract_address: market.short_token }
         .mint(caller_address, 49999999999999999000000); // 49.999 UDC
@@ -244,6 +245,8 @@ fn deposit_setup(
     assert(first_deposit.initial_long_token_amount == long_token_amount, 'Wrong initial long token amount');
     assert(first_deposit.initial_short_token_amount == short_token_amount, 'Wrong init short token amount');
 
+    'execute deposit'.print();
+
     let price_params = SetPricesParams {
         signer_info: 0,
         tokens: array![contract_address_const::<'ETH'>(), contract_address_const::<'USDC'>()],
@@ -262,11 +265,9 @@ fn deposit_setup(
     start_cheat_caller_address(role_store.contract_address, caller_address);
 
     role_store.grant_role(caller_address, role::ORDER_KEEPER);
+    role_store.grant_role(deposit_handler.contract_address, role::CONTROLLER);
     role_store.grant_role(exchange_router.contract_address, role::CONTROLLER);
 
-    'execute deposit'.print();
-
-    // Execute Deposit
     start_cheat_block_number(deposit_handler.contract_address, 1915);
     deposit_handler.execute_deposit(key, price_params);
 

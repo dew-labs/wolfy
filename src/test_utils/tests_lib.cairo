@@ -329,7 +329,7 @@ fn setup_contracts() -> (
     let order_vault = IOrderVaultDispatcher { contract_address: order_vault_address };
 
     // Deploy te swap handler
-    let swap_handler_address = deploy_swap_handler(role_store_address, data_store_address);
+    let swap_handler_address = deploy_swap_handler(role_store_address);
     let swap_handler = ISwapHandlerDispatcher { contract_address: swap_handler_address };
 
     // Deploy the referral storage
@@ -645,7 +645,7 @@ fn deploy_liquidation_handler(
 }
 
 fn deploy_swap_handler(
-    role_store_address: ContractAddress, data_store_address: ContractAddress
+    role_store_address: ContractAddress
 ) -> ContractAddress {
     let contract = declare("SwapHandler").unwrap();
     let caller_address: ContractAddress = get_c4ller_address();

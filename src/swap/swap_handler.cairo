@@ -27,7 +27,7 @@ mod SwapHandler {
     // *************************************************************************
     //                               IMPORTS
     // *************************************************************************
-    // Core lib imports    
+    // Core lib imports
     use starknet::ContractAddress;
 
     // Local imports.

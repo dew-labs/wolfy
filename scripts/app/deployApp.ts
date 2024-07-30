@@ -1,12 +1,13 @@
-import { Contract } from "starknet";
 import {
     ensureDeclared,
     ensureDeployed,
     ensureRole,
     getContracts,
     getPragmaContract,
+    newContract,
     settingUp,
 } from "../utils";
+import RoleStoreABI from "../../artifacts/RoleStoreABI";
 
 async function deploy() {
     const { account } = await settingUp();
@@ -31,7 +32,7 @@ async function deploy() {
 
     // -------------------------------------------------------------------------
 
-    const roleStoreContract = new Contract(roleStore.abi, roleStore.address, account);
+    const roleStoreContract = newContract(RoleStoreABI, roleStore.address, account);
 
     await ensureRole(roleStoreContract, "Account0", account.address, "CONTROLLER");
 
@@ -48,10 +49,16 @@ async function deploy() {
 
     // -------------------------------------------------------------------------
 
+    // Mock pragma for testing
+    const pragmaAddress = (await ensureDeployed(account, contracts.PRAGMA, "PriceFeed", {}))
+        .address;
+    // const pragmaAddress = getPragmaContract();
+
+    // Oracle change will lead to OrderHandler, DepositHandler, WithdrawalHandler, and ExchangeRouter change
     const oracle = await ensureDeployed(account, contracts.ORACLE, "Oracle", {
         role_store_address: roleStore.address,
         oracle_store_address: oracleStore.address,
-        pragma_address: getPragmaContract(),
+        pragma_address: pragmaAddress,
     });
 
     // -------------------------------------------------------------------------
@@ -193,16 +200,12 @@ async function deploy() {
 
     // -------------------------------------------------------------------------
 
-    await ensureDeployed(account, contracts.MARKET_FACTORY, "MarketFactory", {
+    const marketFactory = await ensureDeployed(account, contracts.MARKET_FACTORY, "MarketFactory", {
         data_store_address: dataStore.address,
         role_store_address: roleStore.address,
         event_emitter_address: eventEmitter.address,
         market_token_class_hash: marketTokenClassHash,
     });
-
-    // -------------------------------------------------------------------------
-
-    await ensureDeployed(account, contracts.READER, "Reader", {});
 
     // -------------------------------------------------------------------------
 
@@ -229,9 +232,18 @@ async function deploy() {
 
     // -------------------------------------------------------------------------
 
-    await ensureRole(roleStoreContract, "Account0", account.address, "MARKET_KEEPER");
+    const reader = await ensureDeployed(account, contracts.READER, "Reader", {});
+
+    // -------------------------------------------------------------------------
+
+    // Grant roles to Account0 (deployment account)
+    await ensureRole(roleStoreContract, "Account0", account.address, "ROLE_ADMIN");
     await ensureRole(roleStoreContract, "Account0", account.address, "ORDER_KEEPER");
-    await ensureRole(roleStoreContract, "OrderHandler", orderHandler.address, "CONTROLLER");
+    await ensureRole(roleStoreContract, "Account0", account.address, "MARKET_KEEPER");
+
+    // -------------------------------------------------------------------------
+
+    // Grant roles to utils
     await ensureRole(
         roleStoreContract,
         "IncreaseOrderUtils",
@@ -245,6 +257,11 @@ async function deploy() {
         "CONTROLLER"
     );
     await ensureRole(roleStoreContract, "SwapOrderUtils", swapOrderUtils.address, "CONTROLLER");
+    // orderUtils?
+
+    // -------------------------------------------------------------------------
+
+    // Grant roles to handlers
     await ensureRole(roleStoreContract, "DepositHandler", depositHandler.address, "CONTROLLER");
     await ensureRole(
         roleStoreContract,
@@ -253,9 +270,45 @@ async function deploy() {
         "CONTROLLER"
     );
     await ensureRole(roleStoreContract, "SwapHandler", swapHandler.address, "CONTROLLER");
+    await ensureRole(roleStoreContract, "OrderHandler", orderHandler.address, "CONTROLLER");
+
+    // -------------------------------------------------------------------------
+
+    // Grant roles to exchange router
     await ensureRole(roleStoreContract, "ExchangeRouter", exchangeRouter.address, "CONTROLLER");
+    await ensureRole(roleStoreContract, "ExchangeRouter", exchangeRouter.address, "ORDER_KEEPER");
+
+    // -------------------------------------------------------------------------
 
     console.log("All roles granted");
+    console.log({
+        ROLE_STORE: roleStore.address,
+        DATA_STORE: dataStore.address,
+        EVENT_EMITTER: eventEmitter.address,
+        ORACLE_STORE: oracleStore.address,
+        PRAGMA: pragmaAddress,
+        ORACLE: oracle.address,
+        ORDER_VAULT: orderVault.address,
+        SWAP_HANDLER: swapHandler.address,
+        REFERRAL_STORAGE: referralStorage.address,
+        INCREASE_ORDER_UTILS: increaseOrderUtils.address,
+        DECREASE_ORDER_UTILS: decreaseOrderUtils.address,
+        SWAP_ORDER_UTILS: swapOrderUtils.address,
+        ORDER_UTILS: orderUtils.address,
+        ORDER_HANDLER: orderHandler.address,
+        DEPOSIT_VAULT: depositVault.address,
+        DEPOSIT_HANDLER: depositHandler.address,
+        WITHDRAWAL_VAULT: withdrawalVault.address,
+        WITHDRAWAL_HANDLER: withdrawalHandler.address,
+        MARKET_FACTORY: marketFactory.address,
+        READER: reader.address,
+        ROUTER: router.address,
+        EXCHANGE_ROUTER: exchangeRouter.address,
+        // Keep them unchanged
+        zETH: contracts.zETH,
+        USDC: contracts.USDC,
+        MARKET_TOKEN: contracts.MARKET_TOKEN,
+    });
 }
 
 deploy();

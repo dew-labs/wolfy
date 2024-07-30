@@ -1,82 +1,68 @@
-import { getCompiledSierra, getContracts, settingUp } from "../../utils";
-import {
-    Account,
-    Contract,
-    json,
-    Calldata,
-    CallData,
-    RpcProvider,
-    shortString,
-    uint256,
-    CairoCustomEnum,
-    ec,
-} from "starknet";
+import { executeAndWait, getContracts, newContract, settingUp } from "../../utils";
+import { uint256, CairoCustomEnum } from "starknet";
+import ERC20ABI from "../../../artifacts/ERC20ABI";
+import ExchangeRouterABI from "../../../artifacts/ExchangeRouterABI";
 
 async function create_market() {
     const { account } = await settingUp();
     const contracts = getContracts();
 
-    const marketTokenAddress = "0x69cfad927e7e4ef53261ad9a4630631ff8404746720ce3c73368de8291c4c4d";
-    const eth: string = "0x376bbceb1a044263cba28211fdcaee4e234ebf0c012521e1b258684bbc44949";
-    const usdc: string = "0x42a9a03ceb10ca07d3f598a627c414fe218b1138a78e3da6ce1675680cf95f2";
+    const marketTokenAddress = contracts.MARKET_TOKEN;
+    const zEthAddress: string = contracts.zETH;
 
-    const compiledOrderHandlerSierra = getCompiledSierra("OrderHandler");
+    const longAmount = 1000000000000000000; // 1ETH
+    const size = 3500000000000000000000; // $3500
+    const acceptablePrice = 3501;
 
-    const orderHandlerContract = new Contract(
-        compiledOrderHandlerSierra.abi,
-        contracts.ORDER_HANDLER as string,
-        account
-    );
-    const compiledERC20Sierra = getCompiledSierra("ERC20");
-
-    const ethContract = new Contract(compiledERC20Sierra.abi, eth as string, account);
-    const transferCall = ethContract.populate("transfer", [
-        contracts.ORDER_VAULT as string,
-        uint256.bnToUint256(1000000000000000000n),
-    ]);
-    const transferTx = await ethContract.transfer(transferCall.calldata);
-    await account.waitForTransaction(transferTx.transaction_hash);
-
-    const compiledRoleStoreSierra = getCompiledSierra("RoleStore");
-    const roleStoreContract = new Contract(
-        compiledRoleStoreSierra.abi,
-        contracts.ROLE_STORE as string,
+    const zEthContract = newContract(ERC20ABI, zEthAddress, account);
+    const exchangeRouterContract = newContract(
+        ExchangeRouterABI,
+        contracts.EXCHANGE_ROUTER,
         account
     );
 
-    const roleCall4 = roleStoreContract.populate("grant_role", [
-        contracts.ORDER_UTILS as string,
-        shortString.encodeShortString("CONTROLLER"),
-    ]);
-    const grant_role_tx4 = await roleStoreContract.grant_role(roleCall4.calldata);
-    await account.waitForTransaction(grant_role_tx4.transaction_hash);
+    const zEthBalanceResponse = await zEthContract.call("balance_of", [account.address]);
+    console.log("zETH balance", String(zEthBalanceResponse));
 
     const createOrderParams = {
         receiver: account.address,
         callback_contract: 0,
         ui_fee_receiver: 0,
         market: marketTokenAddress,
-        initial_collateral_token: eth,
+        initial_collateral_token: zEthAddress,
         swap_path: [],
-        size_delta_usd: uint256.bnToUint256(10000000000000000000000n),
-        initial_collateral_delta_amount: uint256.bnToUint256(2000000000000000000n),
-        trigger_price: uint256.bnToUint256(5000),
-        acceptable_price: uint256.bnToUint256(5500),
+        size_delta_usd: uint256.bnToUint256(size),
+        initial_collateral_delta_amount: uint256.bnToUint256(longAmount),
+        trigger_price: uint256.bnToUint256(0),
+        acceptable_price: uint256.bnToUint256(acceptablePrice),
         execution_fee: uint256.bnToUint256(0),
         callback_gas_limit: uint256.bnToUint256(0),
         min_output_amount: uint256.bnToUint256(0),
         order_type: new CairoCustomEnum({ MarketIncrease: {} }),
         decrease_position_swap_type: new CairoCustomEnum({ NoSwap: {} }),
-        is_long: 1,
+        is_long: true,
         referral_code: 0,
     };
-    const createOrderCall = orderHandlerContract.populate("create_order", [
-        account.address,
-        createOrderParams,
-    ]);
-    const createOrderTx = await orderHandlerContract.create_order(createOrderCall.calldata);
-    await account.waitForTransaction(createOrderTx.transaction_hash);
-    console.log("Order created.");
+
+    const transferAndCreateOrderReceipt = await executeAndWait(
+        [
+            zEthContract.populate("transfer", [
+                contracts.ORDER_VAULT,
+                uint256.bnToUint256(longAmount),
+            ]),
+            exchangeRouterContract.populate("create_order", [createOrderParams]),
+        ],
+        account
+    );
+
+    if (transferAndCreateOrderReceipt.isSuccess()) {
+        console.log("Order created.");
+        const orderKey = transferAndCreateOrderReceipt.events[1].data[0];
+        console.log(orderKey);
+        return;
+    }
+
+    throw new Error("Order creation failed");
 }
 
 create_market();
