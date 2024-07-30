@@ -185,9 +185,6 @@ fn test_swap_market_integration() {
     start_cheat_caller_address(role_store.contract_address, caller_address);
 
     role_store.grant_role(caller_address, role::ORDER_KEEPER);
-    role_store.grant_role(caller_address, role::ROLE_ADMIN);
-    role_store.grant_role(caller_address, role::CONTROLLER);
-    role_store.grant_role(caller_address, role::MARKET_KEEPER);
 
     // Execute Deposit
     start_cheat_block_number(deposit_handler.contract_address, 1915);

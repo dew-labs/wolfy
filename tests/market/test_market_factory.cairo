@@ -69,7 +69,7 @@ fn given_normal_conditions_when_create_market_then_market_is_created() {
     // *********************************************************************************************
     // *                              TEARDOWN                                                     *
     // *********************************************************************************************
-    teardown(data_store, market_factory);
+    tests_lib::teardown();
 }
 
 #[test]
@@ -83,9 +83,9 @@ fn given_bad_params_when_create_market_then_fail() {
         _role_store_address,
         _data_store_address,
         _market_token_class,
-        market_factory,
+        _market_factory,
         _role_store,
-        data_store,
+        _data_store,
         _event_emitter,
     ) =
         setup();
@@ -119,7 +119,7 @@ fn given_bad_params_when_create_market_then_fail() {
     // *********************************************************************************************
     // *                              TEARDOWN                                                     *
     // *********************************************************************************************
-    teardown(data_store, market_factory);
+    tests_lib::teardown();
 }
 
 /// Utility function to setup the test environment.
@@ -143,93 +143,6 @@ fn setup() -> (
     // Interface to interact with the `EventEmitter` contract.
     IEventEmitterDispatcher,
 ) {
-    let (
-        caller_address,
-        _market_factory_address,
-        role_store_address,
-        data_store_address,
-        market_token_class,
-        market_factory,
-        role_store,
-        data_store,
-        event_emitter,
-    ) =
-        setup_contracts();
-    grant_roles_and_prank(caller_address, role_store, data_store, market_factory);
-    (
-        caller_address,
-        market_factory.contract_address,
-        role_store_address,
-        data_store_address,
-        market_token_class,
-        market_factory,
-        role_store,
-        data_store,
-        event_emitter,
-    )
-}
-
-// Utility function to grant roles and prank the caller address.
-/// Grants roles and pranks the caller address.
-///
-/// # Arguments
-///
-/// * `caller_address` - The address of the caller.
-/// * `role_store` - The interface to interact with the `RoleStore` contract.
-/// * `data_store` - The interface to interact with the `DataStore` contract.
-/// * `market_factory` - The interface to interact with the `MarketFactory` contract.
-fn grant_roles_and_prank(
-    caller_address: ContractAddress,
-    role_store: IRoleStoreDispatcher,
-    data_store: IDataStoreDispatcher,
-    market_factory: IMarketFactoryDispatcher,
-) {
-    start_cheat_caller_address(role_store.contract_address, caller_address);
-
-    // Grant the caller the `CONTROLLER` role.
-    role_store.grant_role(caller_address, role::CONTROLLER);
-
-    // Grant the call the `MARKET_KEEPER` role.
-    // This role is required to create a market.
-    role_store.grant_role(caller_address, role::MARKET_KEEPER);
-
-    // Prank the caller address for calls to `DataStore` contract.
-    // We need this so that the caller has the CONTROLLER role.
-    start_cheat_caller_address(data_store.contract_address, caller_address);
-
-    // Start pranking the `MarketFactory` contract. This is necessary to mock the behavior of the contract
-    // for testing purposes.
-    start_cheat_caller_address(market_factory.contract_address, caller_address);
-}
-
-/// Utility function to teardown the test environment.
-fn teardown(data_store: IDataStoreDispatcher, market_factory: IMarketFactoryDispatcher) {
-    stop_cheat_caller_address(data_store.contract_address);
-    stop_cheat_caller_address(market_factory.contract_address);
-}
-
-/// Setup required contracts.
-fn setup_contracts() -> (
-    // This caller address will be used with `start_cheat_caller_address` cheatcode to mock the caller address.,
-    ContractAddress,
-    // Address of the `MarketFactory` contract.
-    ContractAddress,
-    // Address of the `RoleStore` contract.
-    ContractAddress,
-    // Address of the `DataStore` contract.
-    ContractAddress,
-    // The `MarketToken` class hash for the factory.
-    ContractClass,
-    // Interface to interact with the `MarketFactory` contract.
-    IMarketFactoryDispatcher,
-    // Interface to interact with the `RoleStore` contract.
-    IRoleStoreDispatcher,
-    // Interface to interact with the `DataStore` contract.
-    IDataStoreDispatcher,
-    // Interface to interact with the `EventEmitter` contract.
-    IEventEmitterDispatcher,
-) {
-
     let (
         caller_address,
         market_token_class,

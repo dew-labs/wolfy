@@ -78,7 +78,6 @@ fn given_normal_conditions_when_increment_affiliate_reward_then_works() {
     let (caller_address, role_store, data_store, event_emitter, referral_storage, governable, market_token) = setup();
 
     let mut spy = spy_events();
-    role_store.grant_role(caller_address, role::CONTROLLER);
 
     let init_value: u256 = 10000;
     let init_next_pool: u256 = 20000;
@@ -232,12 +231,9 @@ fn given_normal_conditions_when_claim_affiliate_reward_then_works() {
     let (token_address, token_dispatcher) = setup_mock_token(caller_address, market_token.contract_address);
     let mut spy = spy_events();
 
-    role_store.grant_role(caller_address, role::CONTROLLER);
-
     //Get the referral information for a specified trader
     let market: ContractAddress = market_token.contract_address;
     let account: ContractAddress = contract_address_const::<'account'>();
-    role_store.grant_role(caller_address, role::CONTROLLER);
 
     let reward_amount = 300000000;
     let pool_value = 1000000000;

@@ -23,7 +23,7 @@ fn given_normal_conditions_when_set_bool_then_works() {
     // *********************************************************************************************
     // *                              SETUP                                                        *
     // *********************************************************************************************
-    let (_caller_address, config, _role_store, data_store, _event_emitter) = setup();
+    let (_caller_address, config, _role_store, _data_store, _event_emitter) = setup();
 
     // *********************************************************************************************
     // *                              TEST LOGIC                                                   *
@@ -49,7 +49,7 @@ fn given_normal_conditions_when_set_bool_then_works() {
     // *********************************************************************************************
     // *                              TEARDOWN                                                     *
     // *********************************************************************************************
-    teardown(data_store, config);
+    teardown(config);
 }
 
 #[test]
@@ -85,7 +85,7 @@ fn given_normal_conditions_when_set_address_then_works() {
     // *********************************************************************************************
     // *                              TEARDOWN                                                     *
     // *********************************************************************************************
-    teardown(data_store, config);
+    teardown(config);
 }
 
 #[test]
@@ -93,7 +93,7 @@ fn given_not_allowed_key_when_set_address_then_fails() {
     // *********************************************************************************************
     // *                              SETUP                                                        *
     // *********************************************************************************************
-    let (_caller_address, config, _role_store, data_store, _event_emitter) = setup();
+    let (_caller_address, config, _role_store, _data_store, _event_emitter) = setup();
 
     // *********************************************************************************************
     // *                              TEST LOGIC                                                   *
@@ -110,7 +110,7 @@ fn given_not_allowed_key_when_set_address_then_fails() {
     // *********************************************************************************************
     // *                              TEARDOWN                                                     *
     // *********************************************************************************************
-    teardown(data_store, config);
+    teardown(config);
 }
 
 #[test]
@@ -146,65 +146,16 @@ fn given_normal_conditions_when_set_felt252_then_works() {
     // *********************************************************************************************
     // *                              TEARDOWN                                                     *
     // *********************************************************************************************
-    teardown(data_store, config);
-}
-
-// Utility function to grant roles and prank the caller address.
-/// Grants roles and pranks the caller address.
-///
-/// # Arguments
-///
-/// * `caller_address` - The address of the caller.
-/// * `role_store` - The role store dispatcher.
-/// * `data_store` - The data store dispatcher.
-/// * `config` - The config dispatcher.
-fn grant_roles_and_prank(
-    caller_address: ContractAddress,
-    role_store: IRoleStoreDispatcher,
-    data_store: IDataStoreDispatcher,
-    config: IConfigDispatcher
-) {
-    start_cheat_caller_address(role_store.contract_address, caller_address);
-
-    // Grant the caller the CONTROLLER role. This is necessary for the caller to have the permissions
-    // to perform certain actions in the tests.
-    role_store.grant_role(caller_address, role::CONTROLLER);
-
-    // Grant the caller the CONFIG_KEEPER role. This is necessary for the caller to have the permissions
-    // to perform certain actions in the tests.
-    role_store.grant_role(caller_address, role::CONFIG_KEEPER);
-
-    // Start pranking the data store contract. This is necessary to mock the behavior of the contract
-    // for testing purposes.
-    start_cheat_caller_address(data_store.contract_address, caller_address);
-
-    // Start pranking the config contract. This is necessary to mock the behavior of the contract
-    // for testing purposes.
-    start_cheat_caller_address(config.contract_address, caller_address);
+    teardown(config);
 }
 
 /// Utility function to teardown the test environment.
-fn teardown(data_store: IDataStoreDispatcher, config: IConfigDispatcher) {
-    // Stop pranking contracts.
-    stop_cheat_caller_address(data_store.contract_address);
+fn teardown(config: IConfigDispatcher) {
+    tests_lib::teardown();
     stop_cheat_caller_address(config.contract_address);
 }
 
-/// Utility function to setup the test environment.
 fn setup() -> (
-    ContractAddress, IConfigDispatcher, IRoleStoreDispatcher, IDataStoreDispatcher, IEventEmitterDispatcher
-) {
-    // Setup contracts.
-    let (caller_address, config, role_store, data_store, event_emitter) = setup_contracts();
-    // Grant roles and prank the caller address.
-    grant_roles_and_prank(caller_address, role_store, data_store, config);
-    // Return the contracts.
-    (caller_address, config, role_store, data_store, event_emitter)
-}
-
-
-/// Setup required contracts.
-fn setup_contracts() -> (
     // This caller address will be used with `start_cheat_caller_address` cheatcode to mock the caller address.,
     ContractAddress, // Interface to interact with the `Config` contract.
     IConfigDispatcher, // Interface to interact with the `RoleStore` contract.
@@ -213,7 +164,7 @@ fn setup_contracts() -> (
     IEventEmitterDispatcher,
 ) {
     let (
-        _caller_address,
+        caller_address,
         _market_token_class,
         _increase_order_class,
         _decrease_order_class,
@@ -240,13 +191,17 @@ fn setup_contracts() -> (
         _,
     ) = tests_lib::setup();
 
+    role_store.grant_role(caller_address, role::CONFIG_KEEPER);
+
     // Deploy the `Config` contract.
     let config_address = deploy_config(data_store.contract_address, role_store.contract_address, event_emitter.contract_address);
 
     // Create a safe dispatcher to interact with the contract.
     let config = IConfigDispatcher { contract_address: config_address };
 
-    (tests_lib::get_c4ller_address(), config, role_store, data_store, event_emitter)
+    start_cheat_caller_address(config.contract_address, caller_address);
+
+    (caller_address, config, role_store, data_store, event_emitter)
 }
 
 /// Utility function to deploy a market factory contract and return its address.

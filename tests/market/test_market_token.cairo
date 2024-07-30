@@ -78,15 +78,6 @@ fn setup() -> (
     // Create a safe dispatcher to interact with the contract.
     let market_token = IMarketTokenDispatcher { contract_address: market_token_address };
 
-    start_cheat_caller_address(role_store.contract_address, caller_address);
-
-    // Grant the caller the CONTROLLER role.
-    // We use the same account to deploy data_store and role_store, so we can grant the role
-    // because the caller is the owner of role_store contract.
-    role_store.grant_role(caller_address, role::CONTROLLER);
-
-    // Prank the caller address for calls to data_store contract.
-    // We need this so that the caller has the CONTROLLER role.
     start_cheat_caller_address(market_token_address, caller_address);
 
     (caller_address, role_store, market_token)
@@ -99,6 +90,7 @@ fn setup() -> (
 /// * `market_token_address` - The address of the `MarketToken` contract.
 fn teardown(market_token_address: ContractAddress) {
     stop_cheat_caller_address(market_token_address);
+    tests_lib::teardown();
 }
 
 fn deploy_only_market_token(contract: ContractClass, role_store_address: ContractAddress, data_store_address: ContractAddress) -> ContractAddress {

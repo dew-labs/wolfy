@@ -85,7 +85,7 @@ fn given_normal_conditions_when_get_open_interest_then_works() {
     // *********************************************************************************************
     // *                              TEARDOWN                                                     *
     // *********************************************************************************************
-    teardown(data_store, market_factory);
+    tests_lib::teardown();
 }
 
 
@@ -128,7 +128,7 @@ fn given_normal_conditions_when_get_open_interest_in_tokens_then_works() {
     // *********************************************************************************************
     // *                              TEARDOWN                                                     *
     // *********************************************************************************************
-    teardown(data_store, market_factory);
+    tests_lib::teardown();
 }
 
 #[test]
@@ -190,7 +190,7 @@ fn given_normal_conditions_when_get_open_interest_in_tokens_for_market_then_work
     // *********************************************************************************************
     // *                              TEARDOWN                                                     *
     // *********************************************************************************************
-    teardown(data_store, market_factory);
+    tests_lib::teardown();
 }
 
 
@@ -254,7 +254,7 @@ fn given_normal_conditions_when_get_pool_amount_then_works() {
     // *********************************************************************************************
     // *                              TEARDOWN                                                     *
     // *********************************************************************************************
-    teardown(data_store, market_factory);
+    tests_lib::teardown();
 }
 
 #[test]
@@ -299,7 +299,7 @@ fn given_normal_conditions_when_get_max_pool_amount_then_works() {
     // *********************************************************************************************
     // *                              TEARDOWN                                                     *
     // *********************************************************************************************
-    teardown(data_store, market_factory);
+    tests_lib::teardown();
 }
 
 #[test]
@@ -346,7 +346,7 @@ fn given_normal_conditions_when_get_max_open_interest_then_works() {
     // *********************************************************************************************
     // *                              TEARDOWN                                                     *
     // *********************************************************************************************
-    teardown(data_store, market_factory);
+    tests_lib::teardown();
 }
 
 #[test]
@@ -409,7 +409,7 @@ fn given_normal_conditions_when_increment_claimable_collateral_amount_then_works
     // *********************************************************************************************
     // *                              TEARDOWN                                                     *
     // *********************************************************************************************
-    teardown(data_store, market_factory);
+    tests_lib::teardown();
 }
 
 #[test]
@@ -461,7 +461,7 @@ fn given_normal_conditions_when_increment_claimable_funding_amount_then_works() 
     // *********************************************************************************************
     // *                              TEARDOWN                                                     *
     // *********************************************************************************************
-    teardown(data_store, market_factory);
+    tests_lib::teardown();
 }
 
 #[test]
@@ -542,7 +542,7 @@ fn given_normal_conditions_when_get_pnl_then_works() {
     // *********************************************************************************************
     // *                              TEARDOWN                                                     *
     // *********************************************************************************************
-    teardown(data_store, market_factory);
+    tests_lib::teardown();
 }
 
 #[test]
@@ -609,7 +609,7 @@ fn given_zero_open_interest_when_get_pnl_then_returns_zero_pnl() {
     // *********************************************************************************************
     // *                              TEARDOWN                                                     *
     // *********************************************************************************************
-    teardown(data_store, market_factory);
+    tests_lib::teardown();
 }
 
 #[test]
@@ -676,7 +676,7 @@ fn given_zero_open_interest_in_tokens_when_get_pnl_then_returns_zero_pnl() {
     // *********************************************************************************************
     // *                              TEARDOWN                                                     *
     // *********************************************************************************************
-    teardown(data_store, market_factory);
+    tests_lib::teardown();
 }
 
 #[test]
@@ -720,7 +720,7 @@ fn given_normal_conditions_when_get_position_impact_pool_amount_then_works() {
     // *********************************************************************************************
     // *                              TEARDOWN                                                     *
     // *********************************************************************************************
-    teardown(data_store, market_factory);
+    tests_lib::teardown();
 }
 
 #[test]
@@ -765,7 +765,7 @@ fn given_normal_conditions_when_get_swap_impact_pool_amount_then_works() {
     // *********************************************************************************************
     // *                              TEARDOWN                                                     *
     // *********************************************************************************************
-    teardown(data_store, market_factory);
+    tests_lib::teardown();
 }
 
 #[test]
@@ -812,7 +812,7 @@ fn given_normal_conditions_when_apply_delta_to_position_impact_pool_then_works()
     // *********************************************************************************************
     // *                              TEARDOWN                                                     *
     // *********************************************************************************************
-    teardown(data_store, market_factory);
+    tests_lib::teardown();
 }
 
 #[test]
@@ -860,7 +860,7 @@ fn given_normal_conditions_when_apply_delta_to_swap_impact_pool_then_works() {
     // *********************************************************************************************
     // *                              TEARDOWN                                                     *
     // *********************************************************************************************
-    teardown(data_store, market_factory);
+    tests_lib::teardown();
 }
 
 
@@ -904,10 +904,6 @@ fn setup() -> (
         _,
     ) = tests_lib::setup();
 
-    // Grant roles and prank the caller address.
-    grant_roles_and_prank(caller_address, role_store, data_store, market_factory);
-
-    // Return the setup variables.
     (
         caller_address,
         market_factory.contract_address,
@@ -919,46 +915,4 @@ fn setup() -> (
         data_store,
         event_emitter,
     )
-}
-
-// Utility function to grant roles and prank the caller address.
-/// Grants roles and pranks the caller address.
-///
-/// # Arguments
-///
-/// * `caller_address` - The address of the caller.
-/// * `role_store` - The interface to interact with the `RoleStore` contract.
-/// * `data_store` - The interface to interact with the `DataStore` contract.
-/// * `market_factory` - The interface to interact with the `MarketFactory` contract.
-fn grant_roles_and_prank(
-    caller_address: ContractAddress,
-    role_store: IRoleStoreDispatcher,
-    data_store: IDataStoreDispatcher,
-    market_factory: IMarketFactoryDispatcher,
-) {
-    start_cheat_caller_address(role_store.contract_address, caller_address);
-
-    // Grant the caller the `CONTROLLER` role.
-    // We use the same account to deploy data_store and role_store, so we can grant the role
-    // because the caller is the owner of role_store contract.
-    role_store.grant_role(caller_address, role::CONTROLLER);
-
-    // Grant the call the `MARKET_KEEPER` role.
-    // This role is required to create a market.
-    role_store.grant_role(caller_address, role::MARKET_KEEPER);
-
-    // Prank the caller address for calls to data_store contract.
-    // We need this so that the caller has the CONTROLLER role.
-    start_cheat_caller_address(data_store.contract_address, caller_address);
-
-    // Prank the caller address for calls to market_factory contract.
-    // We need this so that the caller has the MARKET_KEEPER role.
-    start_cheat_caller_address(market_factory.contract_address, caller_address);
-}
-
-/// Utility function to teardown the test environment.
-fn teardown(data_store: IDataStoreDispatcher, market_factory: IMarketFactoryDispatcher) {
-    // Stop pranking the caller address.
-    stop_cheat_caller_address(data_store.contract_address);
-    stop_cheat_caller_address(market_factory.contract_address);
 }

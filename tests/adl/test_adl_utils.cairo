@@ -257,7 +257,6 @@ fn given_normal_conditions_when_update_adl_state_then_works() {
     };
 
     start_cheat_caller_address(role_store.contract_address, caller_address);
-    role_store.grant_role(caller_address, role::MARKET_KEEPER);
 
     let price = Price { min: 1, max: 200 };
 

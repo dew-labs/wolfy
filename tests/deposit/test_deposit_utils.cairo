@@ -144,7 +144,6 @@ fn create_dummy_deposit_param_market(
     // Test logic
     // Test set_market function without permission
     start_cheat_caller_address(role_store.contract_address, caller_address);
-    role_store.grant_role(caller_address, role::MARKET_KEEPER);
     start_cheat_caller_address(data_store.contract_address, caller_address);
     data_store.set_market(key, 0, market);
 

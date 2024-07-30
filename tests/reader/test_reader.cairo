@@ -43,9 +43,6 @@ fn given_normal_conditions_when_get_market_then_works() {
         long_token: 22222.try_into().unwrap(),
         short_token: 33333.try_into().unwrap(),
     };
-    start_cheat_caller_address(role_store.contract_address, caller_address);
-    role_store.grant_role(caller_address, role::MARKET_KEEPER);
-    stop_cheat_caller_address(role_store.contract_address);
 
     // Test logic
 
@@ -79,10 +76,6 @@ fn given_normal_conditions_when_get_market_by_salt_then_works() {
         long_token: 56678.try_into().unwrap(),
         short_token: 8901234.try_into().unwrap(),
     };
-
-    start_cheat_caller_address(role_store.contract_address, caller_address);
-    role_store.grant_role(caller_address, role::MARKET_KEEPER);
-    stop_cheat_caller_address(role_store.contract_address);
 
     let salt: felt252 = 'satoru_market';
     let salt2: felt252 = 'satoru_market2';
@@ -239,10 +232,6 @@ fn given_normal_conditions_when_get_position_pnl_usd_then_works() {
     position.is_long = true;
     position.size_in_tokens = 10000;
 
-    start_cheat_caller_address(role_store.contract_address, caller_address);
-    role_store.grant_role(caller_address, role::MARKET_KEEPER);
-    stop_cheat_caller_address(role_store.contract_address);
-
     //test logic
 
     data_store.set_market(key, 1, market);
@@ -341,9 +330,6 @@ fn given_normal_conditions_when_get_account_positions_then_works() {
 //     let prices = MarketPrices {
 //         index_token_price: price1, long_token_price: price2, short_token_price: price3
 //     };
-//     start_cheat_caller_address(role_store.contract_address, caller_address);
-//     role_store.grant_role(caller_address, role::MARKET_KEEPER);
-//     stop_cheat_caller_address(role_store.contract_address);
 
 //     data_store.set_market(key, 1, market);
 //     data_store.set_position(key_4, position);
@@ -426,10 +412,6 @@ fn given_normal_conditions_when_get_account_positions_then_works() {
 //     let prices_3 = MarketPrices {
 //         index_token_price: price2, long_token_price: price1, short_token_price: price3
 //     };
-
-//     start_cheat_caller_address(role_store.contract_address, caller_address);
-//     role_store.grant_role(caller_address, role::MARKET_KEEPER);
-//     stop_cheat_caller_address(role_store.contract_address);
 
 //     data_store.set_market(market_key_1, 1, market_1);
 //     data_store.set_market(market_key_2, 2, market_2);
@@ -541,10 +523,6 @@ fn given_normal_conditions_when_get_markets_then_works() {
     market4.market_token = key_4;
     market4.index_token = 'index4'.try_into().unwrap();
 
-    start_cheat_caller_address(role_store.contract_address, caller_address);
-    role_store.grant_role(caller_address, role::MARKET_KEEPER);
-    stop_cheat_caller_address(role_store.contract_address);
-
     // Test logic
 
     data_store.set_market(key_1, 1, market1);
@@ -582,10 +560,6 @@ fn given_normal_conditions_when_get_market_info_then_works() {
     let price3 = Price { min: 1, max: 400 };
     //create random prices
     let prices = MarketPrices { index_token_price: price1, long_token_price: price2, short_token_price: price3 };
-
-    start_cheat_caller_address(role_store.contract_address, caller_address);
-    role_store.grant_role(caller_address, role::MARKET_KEEPER);
-    stop_cheat_caller_address(role_store.contract_address);
 
     data_store.set_market(key, 1, market);
     data_store.set_bool(keys::is_market_disabled_key(key), true);
@@ -630,10 +604,6 @@ fn given_normal_conditions_when_get_market_info_list_then_works() {
 
     let prices_3 = MarketPrices { index_token_price: price2, long_token_price: price1, short_token_price: price3 };
 
-    start_cheat_caller_address(role_store.contract_address, caller_address);
-    role_store.grant_role(caller_address, role::MARKET_KEEPER);
-    stop_cheat_caller_address(role_store.contract_address);
-
     data_store.set_market(market_key_1, 0, market_1);
     data_store.set_market(market_key_2, 1, market_2);
     data_store.set_market(market_key_3, 2, market_3);
@@ -673,9 +643,6 @@ fn given_normal_conditions_when_get_market_token_price_then_works() {
     let index_prices_three = Price { min: 1, max: 400 };
 
     let pnl_factor = 10000;
-    start_cheat_caller_address(role_store.contract_address, caller_address);
-    role_store.grant_role(caller_address, role::MARKET_KEEPER);
-    stop_cheat_caller_address(role_store.contract_address);
 
     // Test logic
 
@@ -727,10 +694,6 @@ fn given_normal_conditions_when_get_net_pnl_then_works() {
     let _open_interest_in_tokens_key_for_short = keys::open_interest_in_tokens_key(
         market_token_address, market.short_token, is_long
     );
-
-    start_cheat_caller_address(role_store.contract_address, caller_address);
-    role_store.grant_role(caller_address, role::MARKET_KEEPER);
-    stop_cheat_caller_address(role_store.contract_address);
 
     data_store.set_market(market_token_address, 0, market);
     let net_pnl: i256 = reader.get_net_pnl(data_store, market, price, maximize);
@@ -869,10 +832,6 @@ fn given_normal_conditions_when_get_open_interest_with_pnl_then_works() {
 //     let is_long = true;
 //     let maximize = true;
 
-//     start_cheat_caller_address(role_store.contract_address, caller_address);
-//     role_store.grant_role(caller_address, role::MARKET_KEEPER);
-//     stop_cheat_caller_address(role_store.contract_address);
-
 //     data_store.set_market(market_token_address, 0, market);
 //     data_store.set_position(key_1, position);
 
@@ -916,10 +875,6 @@ fn given_normal_conditions_when_get_open_interest_with_pnl_then_works() {
 //         short_token_price: price3
 //     };
 
-//     start_cheat_caller_address(role_store.contract_address, caller_address);
-//     role_store.grant_role(caller_address, role::MARKET_KEEPER);
-//     stop_cheat_caller_address(role_store.contract_address);
-
 //     data_store.set_market(market_token_address, 0, market);
 //     let amount_in : u256 = 20000;
 //     // reader.get_swap_amount_out(data_store,market,prices,token_,amount_in,ui_fee_receiver);
@@ -939,9 +894,6 @@ fn given_normal_conditions_when_get_open_interest_with_pnl_then_works() {
 //         long_token: contract_address_const::<'long_token'>(),
 //         short_token: contract_address_const::<'short_token'>(),
 //     };
-//     start_cheat_caller_address(role_store.contract_address, caller_address);
-//     role_store.grant_role(caller_address, role::MARKET_KEEPER);
-//     stop_cheat_caller_address(role_store.contract_address);
 
 //     data_store.set_market(market_token_address, 0, market);
 //     let virtual_inventory : VirtualInventory = reader.get_virtual_inventory(data_store, market);
@@ -971,10 +923,6 @@ fn given_normal_conditions_when_get_execution_price_then_works() {
 
     let size: i256 = 20000.into();
     let is_long = true;
-
-    start_cheat_caller_address(role_store.contract_address, caller_address);
-    role_store.grant_role(caller_address, role::MARKET_KEEPER);
-    stop_cheat_caller_address(role_store.contract_address);
 
     data_store.set_market(market_key_1, 1, market_1);
     data_store.set_position(key_2, position2);
@@ -1012,10 +960,6 @@ fn given_normal_conditions_when_get_execution_price_then_works() {
 //     let amount_in = 3000;
 //     let token_in : ContractAddress = contract_address_const::<'token_in'>();
 //     let token_out : ContractAddress = contract_address_const::<'token_out'>();
-
-//     start_cheat_caller_address(role_store.contract_address, caller_address);
-//     role_store.grant_role(caller_address, role::MARKET_KEEPER);
-//     stop_cheat_caller_address(role_store.contract_address);
 
 //     data_store.set_market(market_key_1, 1, market_1);
 //     let (data1, data2) = reader.get_swap_price_impact(data_store,market_key_1,token_in,token_out,amount_in,price1,price2);
@@ -1055,9 +999,6 @@ fn given_normal_conditions_when_get_execution_price_then_works() {
 //         long_token_price: price2,
 //         short_token_price: price3
 //     };
-//     start_cheat_caller_address(role_store.contract_address, caller_address);
-//     role_store.grant_role(caller_address, role::MARKET_KEEPER);
-//     stop_cheat_caller_address(role_store.contract_address);
 
 //     data_store.set_market(market_token_address, 0, market);
 //     let (data1, data2, data3, data4) = reader.get_adl_state(data_store,market_token_address,true,prices);

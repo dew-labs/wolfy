@@ -199,7 +199,6 @@ fn grant_roles() {
 
     role_store.grant_role(caller_address, role::CONTROLLER);
     role_store.grant_role(caller_address, role::MARKET_KEEPER);
-    role_store.grant_role(caller_address, role::ROLE_ADMIN);
 }
 
 /// Utility function to teardown the test environment.

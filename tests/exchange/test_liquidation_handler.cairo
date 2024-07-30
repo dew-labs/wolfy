@@ -485,8 +485,6 @@ fn _setup() -> (
 
     start_cheat_caller_address(role_store.contract_address, admin());
     role_store.grant_role(liquidation_handler.contract_address, role::CONTROLLER);
-    role_store.grant_role(admin(), role::MARKET_KEEPER);
-    role_store.grant_role(admin(), role::CONTROLLER);
     stop_cheat_caller_address(role_store.contract_address);
 
     start_cheat_caller_address(data_store.contract_address, admin());
