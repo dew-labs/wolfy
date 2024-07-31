@@ -166,7 +166,10 @@ export function getClassHashFromCasm(compiledContract: CompiledContract | string
 export async function settingUp() {
     // Connect to provider
     const providerUrl = process.env.PROVIDER_URL;
-    const provider = new RpcProvider({ nodeUrl: providerUrl! });
+    const provider = new RpcProvider({
+        nodeUrl: providerUrl!,
+        batch: 0,
+    });
 
     // Connect to account
     const privateKey0: string = process.env.ACCOUNT_PRIVATE as string;

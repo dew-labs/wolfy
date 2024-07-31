@@ -15,8 +15,8 @@ importers:
         specifier: ^1.21.6
         version: 1.21.6
       starknet:
-        specifier: ^7.0.0
-        version: 7.0.0
+        specifier: ^6.12.1
+        version: 6.12.1
       typescript:
         specifier: ^5.5.3
         version: 5.5.3
@@ -433,8 +433,8 @@ packages:
   stack-trace@0.0.10:
     resolution: {integrity: sha512-KGzahc7puUKkzyMt+IqAep+TVNbKP+k2Lmwhub39m1AsTSkaDutx56aDCo+HLDzf/D26BIHTJWNiTG1KAJiQCg==}
 
-  starknet@7.0.0:
-    resolution: {integrity: sha512-TF4OhkouJuTvSniATB+rxjsiuaicjb5IPPwc2NhcYfIVM6FA+eNnacE9o54IFUNh7CAvltjfDqyvEXM99VIBpA==}
+  starknet@6.12.1:
+    resolution: {integrity: sha512-LLjabmmkRsBOgg0UaJtkSBBEpqeM49vULWqk06xbdm2kefcTqPLeHN4uYcZ5EqMwoqibv8rGf3a2w6IwXexeSg==}
 
   string-width@4.2.3:
     resolution: {integrity: sha512-wKyQRQpjJ0sIp62ErSZdGsjMJWsap5oRNihHhu6G7JVO/9jIB6UyevL+tXuOqrng8j/cxKTWyWUwvSTriiZz/g==}
@@ -917,7 +917,7 @@ snapshots:
 
   stack-trace@0.0.10: {}
 
-  starknet@7.0.0:
+  starknet@6.12.1:
     dependencies:
       '@noble/curves': 1.4.2
       '@noble/hashes': 1.4.0
