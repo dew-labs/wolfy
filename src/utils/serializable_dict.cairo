@@ -137,7 +137,7 @@ impl SerializableFelt252DictTraitImpl<
 
     fn insert_single(ref self: SerializableFelt252Dict<T>, key: felt252, value: T) {
         let value = Item::Single(value);
-        if !self.keys.contains(@key) {
+        if !self.keys.contains(key) {
             self.keys.append(key);
         }
         self.values.insert(key, nullable_from_box(BoxTrait::new(value)));
@@ -145,7 +145,7 @@ impl SerializableFelt252DictTraitImpl<
 
     fn insert_span(ref self: SerializableFelt252Dict<T>, key: felt252, values: Span<T>) {
         let values = Item::Span(values);
-        if !self.keys.contains(@key) {
+        if !self.keys.contains(key) {
             self.keys.append(key);
         }
         self.values.insert(key, nullable_from_box(BoxTrait::new(values)));

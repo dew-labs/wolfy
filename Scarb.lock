@@ -2,18 +2,9 @@
 version = 1
 
 [[package]]
-name = "alexandria_bytes"
-version = "0.1.0"
-source = "git+https://github.com/keep-starknet-strange/alexandria.git#bcdca70afdf59c9976148e95cebad5cf63d75a7f"
-dependencies = [
- "alexandria_data_structures",
- "alexandria_math",
-]
-
-[[package]]
 name = "alexandria_data_structures"
 version = "0.2.0"
-source = "git+https://github.com/keep-starknet-strange/alexandria.git#bcdca70afdf59c9976148e95cebad5cf63d75a7f"
+source = "git+https://github.com/keep-starknet-strange/alexandria.git?tag=cairo-v2.6.0#946e6e2f9d390ad9f345882a352c0dd6f02ef3ad"
 dependencies = [
  "alexandria_encoding",
 ]
@@ -21,9 +12,8 @@ dependencies = [
 [[package]]
 name = "alexandria_encoding"
 version = "0.1.0"
-source = "git+https://github.com/keep-starknet-strange/alexandria.git#bcdca70afdf59c9976148e95cebad5cf63d75a7f"
+source = "git+https://github.com/keep-starknet-strange/alexandria.git?tag=cairo-v2.6.0#946e6e2f9d390ad9f345882a352c0dd6f02ef3ad"
 dependencies = [
- "alexandria_bytes",
  "alexandria_math",
  "alexandria_numeric",
 ]
@@ -31,7 +21,7 @@ dependencies = [
 [[package]]
 name = "alexandria_math"
 version = "0.2.0"
-source = "git+https://github.com/keep-starknet-strange/alexandria.git#bcdca70afdf59c9976148e95cebad5cf63d75a7f"
+source = "git+https://github.com/keep-starknet-strange/alexandria.git?tag=cairo-v2.6.0#946e6e2f9d390ad9f345882a352c0dd6f02ef3ad"
 dependencies = [
  "alexandria_data_structures",
 ]
@@ -39,24 +29,15 @@ dependencies = [
 [[package]]
 name = "alexandria_numeric"
 version = "0.1.0"
-source = "git+https://github.com/keep-starknet-strange/alexandria.git#bcdca70afdf59c9976148e95cebad5cf63d75a7f"
+source = "git+https://github.com/keep-starknet-strange/alexandria.git?tag=cairo-v2.6.0#946e6e2f9d390ad9f345882a352c0dd6f02ef3ad"
 dependencies = [
  "alexandria_math",
- "alexandria_searching",
-]
-
-[[package]]
-name = "alexandria_searching"
-version = "0.1.0"
-source = "git+https://github.com/keep-starknet-strange/alexandria.git#bcdca70afdf59c9976148e95cebad5cf63d75a7f"
-dependencies = [
- "alexandria_data_structures",
 ]
 
 [[package]]
 name = "alexandria_sorting"
 version = "0.1.0"
-source = "git+https://github.com/keep-starknet-strange/alexandria.git#bcdca70afdf59c9976148e95cebad5cf63d75a7f"
+source = "git+https://github.com/keep-starknet-strange/alexandria.git?tag=cairo-v2.6.0#946e6e2f9d390ad9f345882a352c0dd6f02ef3ad"
 dependencies = [
  "alexandria_data_structures",
 ]
@@ -64,12 +45,12 @@ dependencies = [
 [[package]]
 name = "alexandria_storage"
 version = "0.3.0"
-source = "git+https://github.com/keep-starknet-strange/alexandria.git#bcdca70afdf59c9976148e95cebad5cf63d75a7f"
+source = "git+https://github.com/keep-starknet-strange/alexandria.git?tag=cairo-v2.6.0#946e6e2f9d390ad9f345882a352c0dd6f02ef3ad"
 
 [[package]]
 name = "openzeppelin"
-version = "0.13.0"
-source = "git+https://github.com/OpenZeppelin/cairo-contracts.git?tag=v0.13.0#978b4e75209da355667d8954d2450e32bd71fe49"
+version = "0.10.0"
+source = "git+https://github.com/OpenZeppelin/cairo-contracts.git?tag=v0.10.0#d77082732daab2690ba50742ea41080eb23299d3"
 
 [[package]]
 name = "pragma_lib"

@@ -1406,7 +1406,7 @@ mod DataStore {
         }
 
         fn get_deposit_count(self: @ContractState) -> u32 {
-            self.deposits.read().len()
+            self.deposits.read().len
         }
 
         fn get_account_deposit_count(self: @ContractState, account: ContractAddress) -> u32 {

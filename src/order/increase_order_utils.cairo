@@ -13,7 +13,9 @@ use satoru::market::market_utils;
 use satoru::swap::swap_utils;
 use satoru::bank::bank::{IBankDispatcher, IBankDispatcherTrait};
 use satoru::position::{position_utils, error::PositionError, increase_position_utils};
-use alexandria_data_structures::span_ext::SpanTraitExt;
+
+// External imports.
+use alexandria_data_structures::array_ext::SpanTraitExt;
 
 // *************************************************************************
 //                  Interface of the `OrderUtils` contract.
@@ -57,26 +59,6 @@ mod IncreaseOrderUtils {
     use satoru::swap::swap_utils;
     use satoru::bank::bank::{IBankDispatcher, IBankDispatcherTrait};
     use satoru::position::{position_utils, error::PositionError, increase_position_utils};
-    use alexandria_data_structures::span_ext::SpanTraitExt;
-    use core::integer::U64PartialOrd;
-
-    impl PartialOrdImpl of PartialOrd<@u64> {
-        fn lt(lhs: @u64, rhs: @u64) -> bool {
-            *lhs < *rhs
-        }
-
-        fn le(lhs: @u64, rhs: @u64) -> bool {
-            *lhs <= *rhs
-        }
-
-        fn gt(lhs: @u64, rhs: @u64) -> bool {
-            *lhs > *rhs
-        }
-
-        fn ge(lhs: @u64, rhs: @u64) -> bool {
-            *lhs >= *rhs
-        }
-    }
 
     fn validate_oracle_block_numbers(
         min_oracle_block_numbers: Span<u64>,
@@ -99,7 +81,9 @@ mod IncreaseOrderUtils {
             // for this case, when the limit order price is reached, the order should be frozen
             // the frozen order keepers should only execute frozen orders if the latest prices
             // fulfill the limit price
-            let min_oracle_block_number = min_oracle_block_numbers.min().expect(OracleError::EMPTY_ORACLE_BLOCK_NUMBERS);
+            let min_oracle_block_number = min_oracle_block_numbers
+                .min()
+                .expect(OracleError::EMPTY_ORACLE_BLOCK_NUMBERS);
             if min_oracle_block_number < order_updated_at_block {
                 OracleError::ORACLE_BLOCK_NUMBERS_ARE_SMALLER_THAN_REQUIRED(
                     min_oracle_block_numbers, order_updated_at_block
@@ -110,6 +94,9 @@ mod IncreaseOrderUtils {
 
         panic(array![OrderError::UNSUPPORTED_ORDER_TYPE]);
     }
+
+    // External imports.
+    use alexandria_data_structures::array_ext::SpanTraitExt;
 
     #[storage]
     struct Storage {}
