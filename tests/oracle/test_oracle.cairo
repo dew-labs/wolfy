@@ -14,9 +14,9 @@ use satoru::role::role;
 use satoru::utils::precision;
 use satoru::test_utils::tests_lib;
 
-fn setup() -> (ContractAddress, IDataStoreDispatcher, IOracleDispatcher) {
+fn setup() -> (IDataStoreDispatcher, IOracleDispatcher) {
     let (
-        caller_address,
+        _caller_address,
         _market_token_class,
         _increase_order_class,
         _decrease_order_class,
@@ -43,17 +43,16 @@ fn setup() -> (ContractAddress, IDataStoreDispatcher, IOracleDispatcher) {
         _,
     ) = tests_lib::setup();
 
-    (caller_address, data_store, oracle)
+    (data_store, oracle)
 }
 
 #[test]
 fn given_normal_conditions_when_set_primary_price_then_works() {
-    let (caller_address, data_store, oracle) = setup();
+    let (_data_store, oracle) = setup();
 
     let token = contract_address_const::<111>();
     let price = Price { min: 10, max: 11 };
 
-    start_cheat_caller_address(oracle.contract_address, caller_address);
     oracle.set_primary_price(token, price);
 
     let price_from_view = oracle.get_primary_price(token);
@@ -64,14 +63,13 @@ fn given_normal_conditions_when_set_primary_price_then_works() {
 
 #[test]
 fn given_normal_conditions_when_clear_all_prices_then_works() {
-    let (caller_address, data_store, oracle) = setup();
+    let (_data_store, oracle) = setup();
 
     let token1 = contract_address_const::<111>();
     let price1 = Price { min: 10, max: 11 };
     let token2 = contract_address_const::<222>();
     let price2 = Price { min: 20, max: 22 };
 
-    start_cheat_caller_address(oracle.contract_address, caller_address);
     oracle.set_primary_price(token1, price1);
     oracle.set_primary_price(token2, price2);
     assert(oracle.get_tokens_with_prices_count() == 2, 'wrong tokens count');
@@ -84,7 +82,7 @@ fn given_normal_conditions_when_clear_all_prices_then_works() {
 
 #[test]
 fn given_normal_conditions_when_tokens_with_prices_count_then_works() {
-    let (caller_address, data_store, oracle) = setup();
+    let (_data_store, oracle) = setup();
     let token1 = contract_address_const::<111>();
     let price1 = Price { min: 10, max: 11 };
     let token2 = contract_address_const::<222>();
@@ -94,7 +92,6 @@ fn given_normal_conditions_when_tokens_with_prices_count_then_works() {
 
     assert(oracle.get_tokens_with_prices_count() == 0, 'wrong tokens count');
 
-    start_cheat_caller_address(oracle.contract_address, caller_address);
     oracle.set_primary_price(token1, price1);
     oracle.set_primary_price(token2, price2);
     oracle.set_primary_price(token3, price3);
@@ -106,7 +103,7 @@ fn given_normal_conditions_when_tokens_with_prices_count_then_works() {
 
 #[test]
 fn given_normal_conditions_when_get_tokens_with_prices_then_works() {
-    let (caller_address, data_store, oracle) = setup();
+    let (_data_store, oracle) = setup();
 
     let prices = oracle.get_tokens_with_prices(0, 5);
     assert(prices == array![], 'wrong prices array');
@@ -118,7 +115,6 @@ fn given_normal_conditions_when_get_tokens_with_prices_then_works() {
     let token3 = contract_address_const::<333>();
     let price3 = Price { min: 30, max: 33 };
 
-    start_cheat_caller_address(oracle.contract_address, caller_address);
     oracle.set_primary_price(token1, price1);
     oracle.set_primary_price(token2, price2);
     oracle.set_primary_price(token3, price3);
@@ -147,7 +143,7 @@ fn given_normal_conditions_when_get_tokens_with_prices_then_works() {
 
 #[test]
 fn given_normal_conditions_when_get_primary_price_then_works() {
-    let (caller_address, data_store, oracle) = setup();
+    let (_data_store, oracle) = setup();
 
     let token1 = contract_address_const::<'ETH'>();
     let price1 = Price { min: 10, max: 11 };
@@ -156,7 +152,6 @@ fn given_normal_conditions_when_get_primary_price_then_works() {
     let token3 = contract_address_const::<'DAI'>();
     let price3 = Price { min: 30, max: 33 };
 
-    start_cheat_caller_address(oracle.contract_address, caller_address);
     oracle.set_primary_price(token1, price1);
     oracle.set_primary_price(token2, price2);
     oracle.set_primary_price(token3, price3);
@@ -169,7 +164,7 @@ fn given_normal_conditions_when_get_primary_price_then_works() {
 
 #[test]
 fn given_normal_conditions_when_price_feed_multiplier_then_works() {
-    let (caller_address, data_store, oracle) = setup();
+    let (data_store, oracle) = setup();
 
     let token = contract_address_const::<'ETH'>();
     data_store.set_u256(keys::price_feed_multiplier_key(token), precision::FLOAT_PRECISION);
@@ -178,82 +173,6 @@ fn given_normal_conditions_when_price_feed_multiplier_then_works() {
     // teardown
     tests_lib::teardown();
 }
-
-// TODO for two next tests:
-//  Implement with a real signer that simulate keepers and signs Price Data
-
-// #[test]
-// fn given_normal_conditions_when_validate_prices_then_works() {
-//     let (
-//         caller_address,
-//         _market_factory__address,
-//         _role_store_address,
-//         _data_store_address,
-//         _market_token_class,
-//         market_factory,
-//         _role_store,
-//         data_store,
-//         _event_emitter,
-//         _exchange_router,
-//         _deposit_handler,
-//         _deposit_vault,
-//         oracle,
-//         _order_handler,
-//         _order_vault,
-//         _reader,
-//         _referal_storage,
-//         _withdrawal_handler,
-//         _withdrawal_vault,
-//         _liquidation_handler
-//     ) = setup();
-//     let params: SetPricesParams = mock_set_prices_params();
-//     let token1 = contract_address_const::<'ETH'>();
-//     let price1 = Price { min: 1700, max: 1701 };
-//     let token2 = contract_address_const::<'USDC'>();
-//     let price2 = Price { min: 20, max: 22 };
-//     let token3 = contract_address_const::<'DAI'>();
-//     let price3 = Price { min: 30, max: 33 };
-
-//     start_cheat_caller_address(oracle.contract_address, caller_address);
-//     oracle.set_primary_price(token1, price1);
-//     oracle.set_primary_price(token2, price2);
-//     oracle.set_primary_price(token3, price3);
-//     let validated_prices = oracle.validate_prices(data_store, params);
-//     // teardown
-//     tests_lib::teardown();
-// }
-
-// #[test]
-// fn given_normal_conditions_when_set_prices_then_works() {
-//     let (
-//         caller_address,
-//         _market_factory__address,
-//         _role_store_address,
-//         _data_store_address,
-//         _market_token_class,
-//         market_factory,
-//         _role_store,
-//         data_store,
-//         _event_emitter,
-//         _exchange_router,
-//         _deposit_handler,
-//         _deposit_vault,
-//         oracle,
-//         _order_handler,
-//         _order_vault,
-//         _reader,
-//         _referal_storage,
-//         _withdrawal_handler,
-//         _withdrawal_vault,
-//         _liquidation_handler
-//     ) = setup();
-//     let params = mock_set_prices_params();
-
-//     start_cheat_caller_address(oracle.contract_address, caller_address);
-//     oracle.set_prices(data_store, event_emitter, params);
-//     // teardown
-//     tests_lib::teardown();
-// }
 
 fn mock_set_prices_params() -> SetPricesParams {
     SetPricesParams {

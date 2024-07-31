@@ -34,7 +34,7 @@ fn given_normal_conditions_when_get_market_then_works() {
     //
     // Setup
     //
-    let (caller_address, role_store, data_store, _market_token_class, reader) = setup();
+    let (_caller_address, _role_store, data_store, _market_token_class, reader, _referral_storage) = setup();
 
     let key: ContractAddress = 123456789.try_into().unwrap();
     let mut market = Market {
@@ -59,7 +59,7 @@ fn given_normal_conditions_when_get_market_by_salt_then_works() {
     //
     // Setup
     //
-    let (caller_address, role_store, data_store, _market_token_class, reader) = setup();
+    let (_caller_address, _role_store, data_store, _market_token_class, reader, _referral_storage) = setup();
 
     let key: ContractAddress = 123456789.try_into().unwrap();
     let mut market = Market {
@@ -100,7 +100,7 @@ fn given_normal_conditions_when_get_deposit_then_works() {
     //
     // Setup
     //
-    let (caller_address, role_store, data_store, _market_token_class, reader) = setup();
+    let (_caller_address, _role_store, data_store, _market_token_class, reader, _referral_storage) = setup();
 
     let key = 123456789;
     // Create random deposit
@@ -127,7 +127,7 @@ fn given_normal_conditions_when_get_withdrawal_then_works() {
     //
     // Setup
     //
-    let (caller_address, role_store, data_store, _market_token_class, reader) = setup();
+    let (_caller_address, _role_store, data_store, _market_token_class, reader, _referral_storage) = setup();
 
     let key = 123456789;
     // Create random withdrawal
@@ -154,7 +154,7 @@ fn given_normal_conditions_when_get_position_then_works() {
     //
     // Setup
     //
-    let (caller_address, role_store, data_store, _market_token_class, reader) = setup();
+    let (_caller_address, _role_store, data_store, _market_token_class, reader, _referral_storage) = setup();
     let key = 123456789;
     // Create random position
     let mut position: Position = Default::default();
@@ -180,7 +180,7 @@ fn given_normal_conditions_when_get_order_then_works() {
     //
     // Setup
     //
-    let (caller_address, role_store, data_store, _market_token_class, reader) = setup();
+    let (_caller_address, _role_store, data_store, _market_token_class, reader, _referral_storage) = setup();
 
     let key = 123456789;
     // Create random order
@@ -207,7 +207,7 @@ fn given_normal_conditions_when_get_position_pnl_usd_then_works() {
     //
     // Setup
     //
-    let (caller_address, role_store, data_store, _market_token_class, reader) = setup();
+    let (_caller_address, _role_store, data_store, _market_token_class, reader, _referral_storage) = setup();
 
     let key: ContractAddress = 123456789.try_into().unwrap();
     let account = 'account'.try_into().unwrap();
@@ -250,7 +250,7 @@ fn given_normal_conditions_when_get_account_positions_then_works() {
     //
     // Setup
     //
-    let (caller_address, role_store, data_store, _market_token_class, reader) = setup();
+    let (_caller_address, _role_store, data_store, _market_token_class, reader, _referral_storage) = setup();
 
     let key_1 = 1111111111;
     let account = 'account'.try_into().unwrap();
@@ -299,153 +299,150 @@ fn given_normal_conditions_when_get_account_positions_then_works() {
     tests_lib::teardown();
 }
 
-// error `Option::unwrap()` on a `None` value
-// #[test]
-// fn given_normal_conditions_when_get_position_info_then_works() {
-//     let (caller_address, role_store, data_store, _market_token_class) = setup();
-//     let (reader_address, reader) = setup_reader();
-//     let (referral_storage_address, referral) = setup_referral_storage();
-//     //create random position
-//     let key_4: felt252 = 44444444444;
-//     let mut position: Position = Default::default();
-//     position.key = key_4;
-//     position.market = 'market4'.try_into().unwrap();
-//     position.size_in_usd = 4000000;
-//     position.account = 'account'.try_into().unwrap();
-//     position.is_long = true;
-//     position.size_in_tokens = 10000;
 
-//     let key: ContractAddress = 123456789.try_into().unwrap();
-//     let ui_fee_receiver: ContractAddress = 5746789.try_into().unwrap();
-//     let market = Market {
-//         market_token: key,
-//         index_token: 12345.try_into().unwrap(),
-//         long_token: 56678.try_into().unwrap(),
-//         short_token: 8901234.try_into().unwrap(),
-//     };
-//     let price1 = Price { min: 1, max: 200 };
-//     let price2 = Price { min: 1, max: 300 };
-//     let price3 = Price { min: 1, max: 400 };
-//     //create random prices
-//     let prices = MarketPrices {
-//         index_token_price: price1, long_token_price: price2, short_token_price: price3
-//     };
+#[test]
+fn given_normal_conditions_when_get_position_info_then_works() {
+    let (_caller_address, _role_store, data_store, _market_token_class, reader, referral_storage) = setup();
 
-//     data_store.set_market(key, 1, market);
-//     data_store.set_position(key_4, position);
+    //create random position
+    let key_4: felt252 = 44444444444;
+    let mut position: Position = Default::default();
+    position.key = key_4;
+    position.market = 'market4'.try_into().unwrap();
+    position.size_in_usd = 4000000;
+    position.account = 'account'.try_into().unwrap();
+    position.is_long = true;
+    position.size_in_tokens = 10000;
 
-//     let size_delta: u256 = 1000000;
-//     let res: PositionInfo = reader
-//         .get_position_info(data_store, referral, key_4, prices, size_delta, ui_fee_receiver, true);
-//     // assert(res.position.key == 44444444444, 'wrong_key');
-//     tests_lib::teardown();
-// }
+    let key: ContractAddress = 123456789.try_into().unwrap();
+    let ui_fee_receiver: ContractAddress = 5746789.try_into().unwrap();
+    let market = Market {
+        market_token: key,
+        index_token: 12345.try_into().unwrap(),
+        long_token: 56678.try_into().unwrap(),
+        short_token: 8901234.try_into().unwrap(),
+    };
+    let price1 = Price { min: 1, max: 200 };
+    let price2 = Price { min: 1, max: 300 };
+    let price3 = Price { min: 1, max: 400 };
+    //create random prices
+    let prices = MarketPrices {
+        index_token_price: price1, long_token_price: price2, short_token_price: price3
+    };
 
-// error `Option::unwrap()` on a `None` value
-// #[test]
-// fn given_normal_conditions_when_get_account_position_info_list_then_works() {
-//     let (caller_address, role_store, data_store, _market_token_class) = setup();
-//     let (reader_address, reader) = setup_reader();
-//     let (referral_storage_address, referral) = setup_referral_storage();
-//     //create random position
-//     let key_1: felt252 = 44444444444;
-//     let mut position1: Position = Default::default();
-//     position1.key = key_1;
-//     position1.market = 'market1'.try_into().unwrap();
-//     position1.size_in_usd = 4000000;
-//     position1.account = 'account1'.try_into().unwrap();
-//     position1.is_long = true;
-//     position1.size_in_tokens = 10000;
+    data_store.set_market(key, 1, market);
+    data_store.set_position(key_4, position);
 
-//     let key_2: felt252 = 3333333333;
-//     let mut position2: Position = Default::default();
-//     position2.key = key_2;
-//     position2.market = 'market2'.try_into().unwrap();
-//     position2.size_in_usd = 3000000;
-//     position2.account = 'account2'.try_into().unwrap();
-//     position2.is_long = true;
-//     position2.size_in_tokens = 10000;
+    let size_delta: u256 = 1000000;
+    let res: PositionInfo = reader
+        .get_position_info(data_store, referral_storage, key_4, prices, size_delta, ui_fee_receiver, true);
+    assert(res.position.key == 44444444444, 'wrong_key');
+    tests_lib::teardown();
+}
 
-//     let key_3: felt252 = 2222222222;
-//     let mut position3: Position = Default::default();
-//     position3.key = key_3;
-//     position3.market = 'market3'.try_into().unwrap();
-//     position3.size_in_usd = 3000000;
-//     position3.account = 'account3'.try_into().unwrap();
-//     position3.is_long = true;
-//     position3.size_in_tokens = 10000;
+#[test]
+fn given_normal_conditions_when_get_account_position_info_list_then_works() {
+    let (_caller_address, _role_store, data_store, _market_token_class, reader, referral_storage) = setup();
 
-//     let ui_fee_receiver: ContractAddress = 5746789.try_into().unwrap();
-//     let market_key_1: ContractAddress = 123456789.try_into().unwrap();
-//     let market_1 = Market {
-//         market_token: market_key_1,
-//         index_token: 12345.try_into().unwrap(),
-//         long_token: 56678.try_into().unwrap(),
-//         short_token: 8901234.try_into().unwrap(),
-//     };
-//     let market_key_2: ContractAddress = 67545356789.try_into().unwrap();
-//     let market_2 = Market {
-//         market_token: market_key_2,
-//         index_token: 122145.try_into().unwrap(),
-//         long_token: 236678.try_into().unwrap(),
-//         short_token: 34201234.try_into().unwrap(),
-//     };
-//     let market_key_3: ContractAddress = 67545356789.try_into().unwrap();
-//     let market_3 = Market {
-//         market_token: market_key_3,
-//         index_token: 222145.try_into().unwrap(),
-//         long_token: 536678.try_into().unwrap(),
-//         short_token: 671234.try_into().unwrap(),
-//     };
+    //create random position
+    let key_1: felt252 = 44444444444;
+    let mut position1: Position = Default::default();
+    position1.key = key_1;
+    position1.market = 'market1'.try_into().unwrap();
+    position1.size_in_usd = 4000000;
+    position1.account = 'account1'.try_into().unwrap();
+    position1.is_long = true;
+    position1.size_in_tokens = 10000;
 
-//     let price1 = Price { min: 1, max: 200 };
-//     let price2 = Price { min: 1, max: 300 };
-//     let price3 = Price { min: 1, max: 400 };
-//     //create random prices
-//     let prices_1 = MarketPrices {
-//         index_token_price: price1, long_token_price: price2, short_token_price: price3
-//     };
-//     let prices_2 = MarketPrices {
-//         index_token_price: price3, long_token_price: price2, short_token_price: price1
-//     };
+    let key_2: felt252 = 3333333333;
+    let mut position2: Position = Default::default();
+    position2.key = key_2;
+    position2.market = 'market2'.try_into().unwrap();
+    position2.size_in_usd = 3000000;
+    position2.account = 'account2'.try_into().unwrap();
+    position2.is_long = true;
+    position2.size_in_tokens = 10000;
 
-//     let prices_3 = MarketPrices {
-//         index_token_price: price2, long_token_price: price1, short_token_price: price3
-//     };
+    let key_3: felt252 = 2222222222;
+    let mut position3: Position = Default::default();
+    position3.key = key_3;
+    position3.market = 'market3'.try_into().unwrap();
+    position3.size_in_usd = 3000000;
+    position3.account = 'account3'.try_into().unwrap();
+    position3.is_long = true;
+    position3.size_in_tokens = 10000;
 
-//     data_store.set_market(market_key_1, 1, market_1);
-//     data_store.set_market(market_key_2, 2, market_2);
-//     data_store.set_market(market_key_3, 3, market_3);
+    let ui_fee_receiver: ContractAddress = 5746789.try_into().unwrap();
+    let market_key_1: ContractAddress = 123456789.try_into().unwrap();
+    let market_1 = Market {
+        market_token: market_key_1,
+        index_token: 12345.try_into().unwrap(),
+        long_token: 56678.try_into().unwrap(),
+        short_token: 8901234.try_into().unwrap(),
+    };
+    let market_key_2: ContractAddress = 67545356789.try_into().unwrap();
+    let market_2 = Market {
+        market_token: market_key_2,
+        index_token: 122145.try_into().unwrap(),
+        long_token: 236678.try_into().unwrap(),
+        short_token: 34201234.try_into().unwrap(),
+    };
+    let market_key_3: ContractAddress = 67545356789.try_into().unwrap();
+    let market_3 = Market {
+        market_token: market_key_3,
+        index_token: 222145.try_into().unwrap(),
+        long_token: 536678.try_into().unwrap(),
+        short_token: 671234.try_into().unwrap(),
+    };
 
-//     data_store.set_position(key_1, position1);
-//     data_store.set_position(key_2, position2);
-//     data_store.set_position(key_3, position3);
+    let price1 = Price { min: 1, max: 200 };
+    let price2 = Price { min: 1, max: 300 };
+    let price3 = Price { min: 1, max: 400 };
+    //create random prices
+    let prices_1 = MarketPrices {
+        index_token_price: price1, long_token_price: price2, short_token_price: price3
+    };
+    let prices_2 = MarketPrices {
+        index_token_price: price3, long_token_price: price2, short_token_price: price1
+    };
 
-//     let mut position_key_arr = ArrayTrait::<felt252>::new();
-//     position_key_arr.append(key_1);
-//     position_key_arr.append(key_2);
-//     position_key_arr.append(key_3);
+    let prices_3 = MarketPrices {
+        index_token_price: price2, long_token_price: price1, short_token_price: price3
+    };
 
-//     let mut prices_arr = ArrayTrait::<MarketPrices>::new();
-//     prices_arr.append(prices_1);
-//     prices_arr.append(prices_2);
-//     prices_arr.append(prices_3);
+    data_store.set_market(market_key_1, 1, market_1);
+    data_store.set_market(market_key_2, 2, market_2);
+    data_store.set_market(market_key_3, 3, market_3);
 
-//     let mut res_arr: Array<PositionInfo> = reader
-//         .get_account_position_info_list(
-//             data_store, referral, position_key_arr, prices_arr, ui_fee_receiver
-//         );
-//     assert(*res_arr.at(0).position.key == key_1, 'invalid_key');
-//     assert(*res_arr.at(1).position.key == key_2, 'invalid_key');
-//     assert(*res_arr.at(2).position.key == key_3, 'invalid_key');
-// }
+    data_store.set_position(key_1, position1);
+    data_store.set_position(key_2, position2);
+    data_store.set_position(key_3, position3);
+
+    let mut position_key_arr = ArrayTrait::<felt252>::new();
+    position_key_arr.append(key_1);
+    position_key_arr.append(key_2);
+    position_key_arr.append(key_3);
+
+    let mut prices_arr = ArrayTrait::<MarketPrices>::new();
+    prices_arr.append(prices_1);
+    prices_arr.append(prices_2);
+    prices_arr.append(prices_3);
+
+    let mut res_arr: Array<PositionInfo> = reader
+        .get_account_position_info_list(
+            data_store, referral_storage, position_key_arr, prices_arr, ui_fee_receiver
+        );
+    assert(*res_arr.at(0).position.key == key_1, 'invalid_key');
+    assert(*res_arr.at(1).position.key == key_2, 'invalid_key');
+    assert(*res_arr.at(2).position.key == key_3, 'invalid_key');
+}
 
 #[test]
 fn given_normal_conditions_when_get_account_orders_then_works() {
     //
     // Setup
     //
-    let (caller_address, role_store, data_store, _market_token_class, reader) = setup();
+    let (_caller_address, _role_store, data_store, _market_token_class, reader, _referral_storage) = setup();
 
     let key_1 = 1111111111;
     let account = 'account'.try_into().unwrap();
@@ -500,7 +497,7 @@ fn given_normal_conditions_when_get_markets_then_works() {
     //
     // Setup
     //
-    let (caller_address, role_store, data_store, _market_token_class, reader) = setup();
+    let (_caller_address, _role_store, data_store, _market_token_class, reader, _referral_storage) = setup();
 
     let key_1: ContractAddress = 1111111111.try_into().unwrap();
     let key_2: ContractAddress = 22222222222.try_into().unwrap();
@@ -545,7 +542,7 @@ fn given_normal_conditions_when_get_market_info_then_works() {
     //
     // Setup
     //
-    let (caller_address, role_store, data_store, _market_token_class, reader) = setup();
+    let (_caller_address, _role_store, data_store, _market_token_class, reader, _referral_storage) = setup();
 
     let key: ContractAddress = 123456789.try_into().unwrap();
 
@@ -571,7 +568,7 @@ fn given_normal_conditions_when_get_market_info_then_works() {
 
 #[test]
 fn given_normal_conditions_when_get_market_info_list_then_works() {
-    let (caller_address, role_store, data_store, _market_token_class, reader) = setup();
+    let (_caller_address, _role_store, data_store, _market_token_class, reader, _referral_storage) = setup();
 
     let market_key_1: ContractAddress = 123456789.try_into().unwrap();
     let market_1 = Market {
@@ -627,7 +624,7 @@ fn given_normal_conditions_when_get_market_info_list_then_works() {
 
 #[test]
 fn given_normal_conditions_when_get_market_token_price_then_works() {
-    let (caller_address, role_store, data_store, market_token_class, reader) = setup();
+    let (caller_address, role_store, data_store, market_token_class, reader, _referral_storage) = setup();
     let market_address = deploy_market_token(market_token_class, role_store.contract_address, data_store.contract_address, caller_address);
 
     let key: ContractAddress = market_address;
@@ -664,7 +661,7 @@ fn given_normal_conditions_when_get_net_pnl_then_works() {
     //
     // Setup
     //
-    let (caller_address, role_store, data_store, _market_token_class, reader) = setup();
+    let (_caller_address, _role_store, data_store, _market_token_class, reader, _referral_storage) = setup();
 
     let market_token_address: ContractAddress = 123456789.try_into().unwrap();
     let mut market = Market {
@@ -707,7 +704,7 @@ fn given_normal_conditions_when_get_pnl_then_works() {
     //
     // Setup
     //
-    let (caller_address, role_store, data_store, _market_token_class, reader) = setup();
+    let (_caller_address, _role_store, data_store, _market_token_class, reader, _referral_storage) = setup();
 
     let market_token_address = contract_address_const::<'market_token'>();
     let market = Market {
@@ -752,7 +749,7 @@ fn given_normal_conditions_when_get_pnl_then_works() {
 // TODO missing libraries  'market_utils::get_open_interest_with_pnl' not implemented
 #[test]
 fn given_normal_conditions_when_get_open_interest_with_pnl_then_works() {
-    let (caller_address, role_store, data_store, _market_token_class, reader) = setup();
+    let (_caller_address, _role_store, data_store, _market_token_class, reader, _referral_storage) = setup();
 
     let market_token_address = contract_address_const::<'market_token'>();
     let market = Market {
@@ -791,119 +788,116 @@ fn given_normal_conditions_when_get_open_interest_with_pnl_then_works() {
 }
 // audit, return value is 0x0
 // TODO missing libraries  'market_utils::get_pnl_to_pool_factor' not implemented
-// #[test]
-// fn given_normal_conditions_when_get_pnl_to_pool_factor_then_works() {
-//     let (reader_address, reader) = setup_reader();
-//     let (caller_address, role_store, data_store, event_emitter, oracle) = setup_oracle_and_store();
+#[test]
+fn given_normal_conditions_when_get_pnl_to_pool_factor_then_works() {
+    let (_caller_address, _role_store, data_store, _market_token_class, reader, _referral_storage) = setup();
 
-//     let market_token_address = contract_address_const::<'market_token'>();
-//     let market = Market {
-//         market_token: market_token_address,
-//         index_token: contract_address_const::<'index_token'>(),
-//         long_token: contract_address_const::<'long_token'>(),
-//         short_token: contract_address_const::<'short_token'>(),
-//     };
-//     let price1 = Price {
-//             min: 1,
-//             max: 200
-//     };
-//     let price2 = Price {
-//             min: 1,
-//             max: 300
-//     };
-//      let price3 = Price {
-//             min: 1,
-//             max: 400
-//     };
-//         //create random prices
-//     let prices = MarketPrices {
-//         index_token_price: price1,
-//         long_token_price: price2,
-//         short_token_price: price3
-//     };
-//     let key_1 = 1234311;
-//     let mut position: Position = Default::default();
-//     position.key = 1234311;
-//     position.market = 'market'.try_into().unwrap();
-//     position.size_in_usd = 1000000;
-//     position.account = 'account'.try_into().unwrap();
-//     position.is_long = true;
-//     position.size_in_tokens = 10000;
-//     let is_long = true;
-//     let maximize = true;
+    let market_token_address = contract_address_const::<'market_token'>();
+    let market = Market {
+        market_token: market_token_address,
+        index_token: contract_address_const::<'index_token'>(),
+        long_token: contract_address_const::<'long_token'>(),
+        short_token: contract_address_const::<'short_token'>(),
+    };
+    let price1 = Price {
+            min: 1,
+            max: 200
+    };
+    let price2 = Price {
+            min: 1,
+            max: 300
+    };
+     let price3 = Price {
+            min: 1,
+            max: 400
+    };
+        //create random prices
+    let prices = MarketPrices {
+        index_token_price: price1,
+        long_token_price: price2,
+        short_token_price: price3
+    };
+    let key_1 = 1234311;
+    let mut position: Position = Default::default();
+    position.key = 1234311;
+    position.market = 'market'.try_into().unwrap();
+    position.size_in_usd = 1000000;
+    position.account = 'account'.try_into().unwrap();
+    position.is_long = true;
+    position.size_in_tokens = 10000;
+    let is_long = true;
+    let maximize = true;
 
-//     data_store.set_market(market_token_address, 0, market);
-//     data_store.set_position(key_1, position);
+    data_store.set_market(market_token_address, 0, market);
+    data_store.set_position(key_1, position);
 
-//     let res : i256 = reader.get_pnl_to_pool_factor(data_store,market_token_address,prices,is_long,maximize);
-//     let resfelt : felt252 = res.into();
-//     resfelt.print();
-//     tests_lib::teardown();
-// }
+    let res : i256 = reader.get_pnl_to_pool_factor(data_store,market_token_address,prices,is_long,maximize);
+    let resfelt : felt252 = res.into();
+    resfelt.print();
+    tests_lib::teardown();
+}
 
 // audit //panic error, unwrap failed
 // TODO missing libraries reader_pricing_utils::get_swap_amount_out  use not implemented functions
-// #[test]
-// fn given_normal_conditions_when_get_swap_amount_out_then_works() {
-//     let (caller_address, role_store, data_store, _market_token_class) = setup();
-//     let (reader_address, reader) = setup_reader();
-//     let market_token_address = contract_address_const::<'market_token'>();
-//     let token_ = contract_address_const::<'_token'>();
-//     let ui_fee_receiver : ContractAddress = 5746789.try_into().unwrap();
-//     let market = Market {
-//         market_token: market_token_address,
-//         index_token: contract_address_const::<'index_token'>(),
-//         long_token: token_,
-//         short_token: token_,
-//     };
-//     let price1 = Price {
-//             min: 1,
-//             max: 200
-//     };
-//     let price2 = Price {
-//             min: 1,
-//             max: 300
-//     };
-//      let price3 = Price {
-//             min: 1,
-//             max: 400
-//     };
-//         //create random prices
-//     let prices = MarketPrices {
-//         index_token_price: price1,
-//         long_token_price: price2,
-//         short_token_price: price3
-//     };
+#[test]
+fn given_normal_conditions_when_get_swap_amount_out_then_works() {
+    let (_caller_address, _role_store, data_store, _market_token_class, reader, _referral_storage) = setup();
+    let market_token_address = contract_address_const::<'market_token'>();
+    let token_ = contract_address_const::<'_token'>();
+    let ui_fee_receiver : ContractAddress = 5746789.try_into().unwrap();
+    let market = Market {
+        market_token: market_token_address,
+        index_token: contract_address_const::<'index_token'>(),
+        long_token: token_,
+        short_token: token_,
+    };
+    let price1 = Price {
+            min: 1,
+            max: 200
+    };
+    let price2 = Price {
+            min: 1,
+            max: 300
+    };
+    let price3 = Price {
+            min: 1,
+            max: 400
+    };
+        //create random prices
+    let prices = MarketPrices {
+        index_token_price: price1,
+        long_token_price: price2,
+        short_token_price: price3
+    };
 
-//     data_store.set_market(market_token_address, 0, market);
-//     let amount_in : u256 = 20000;
-//     // reader.get_swap_amount_out(data_store,market,prices,token_,amount_in,ui_fee_receiver);
-//     tests_lib::teardown();
-// }
+    data_store.set_market(market_token_address, 0, market);
+    let amount_in : u256 = 20000;
+    reader.get_swap_amount_out(data_store,market,prices,token_,amount_in,ui_fee_receiver);
+    tests_lib::teardown();
+}
 
 // // audit, function call returns 0x0
 // TODO missing libraries 'market_utils::get_virtual_inventory_for_swaps' and 'market_utils::get_virtual_inventory_for_positions' not implemented
-// #[test]
-// fn given_normal_conditions_when_get_virtual_inventory_then_works() {
-//     let (caller_address, role_store, data_store, _market_token_class) = setup();
-//     let (reader_address, reader) = setup_reader();
-//     let market_token_address = contract_address_const::<'market_token'>();
-//     let market = Market {
-//         market_token: market_token_address,
-//         index_token: contract_address_const::<'index_token'>(),
-//         long_token: contract_address_const::<'long_token'>(),
-//         short_token: contract_address_const::<'short_token'>(),
-//     };
+#[test]
+fn given_normal_conditions_when_get_virtual_inventory_then_works() {
+    let (_caller_address, _role_store, data_store, _market_token_class, reader, _referral_storage) = setup();
+    let market_token_address = contract_address_const::<'market_token'>();
+    let market = Market {
+        market_token: market_token_address,
+        index_token: contract_address_const::<'index_token'>(),
+        long_token: contract_address_const::<'long_token'>(),
+        short_token: contract_address_const::<'short_token'>(),
+    };
 
-//     data_store.set_market(market_token_address, 0, market);
-//     let virtual_inventory : VirtualInventory = reader.get_virtual_inventory(data_store, market);
-//     virtual_inventory.virtual_pool_amount_for_long_token.print();
-//     tests_lib::teardown();
-// }
+    data_store.set_market(market_token_address, 0, market);
+    let virtual_inventory : VirtualInventory = reader.get_virtual_inventory(data_store, market);
+    virtual_inventory.virtual_pool_amount_for_long_token.print();
+    tests_lib::teardown();
+}
 
 #[test]
 fn given_normal_conditions_when_get_execution_price_then_works() {
-    let (caller_address, role_store, data_store, _market_token_class, reader) = setup();
+    let (_caller_address, _role_store, data_store, _market_token_class, reader, _referral_storage) = setup();
     let market_key_1: ContractAddress = 123456789.try_into().unwrap();
     let market_1 = Market {
         market_token: market_key_1,
@@ -937,73 +931,71 @@ fn given_normal_conditions_when_get_execution_price_then_works() {
 
 //audit, returns a panicked crates error
 // TODO missing libraries 'swap_pricing_utils::get_price_impact_usd' and 'market_utils::get_swap_impact_amount_with_cap' not implemented
-// #[test]
-// fn given_normal_conditions_when_get_swap_price_impact_then_works() {
-//     let (caller_address, role_store, data_store, _market_token_class) = setup();
-//     let (reader_address, reader) = setup_reader();
+#[test]
+fn given_normal_conditions_when_get_swap_price_impact_then_works() {
+    let (_caller_address, _role_store, data_store, _market_token_class, reader, _referral_storage) = setup();
 
-//     let market_key_1: ContractAddress = 123456789.try_into().unwrap();
-//     let market_1 = Market {
-//         market_token: market_key_1,
-//         index_token: 12345.try_into().unwrap(),
-//         long_token: 56678.try_into().unwrap(),
-//         short_token: 8901234.try_into().unwrap(),
-//     };
-//      let price1 = Price {
-//             min: 1,
-//             max: 200
-//     };
-//     let price2 = Price {
-//             min: 1,
-//             max: 400
-//     };
-//     let amount_in = 3000;
-//     let token_in : ContractAddress = contract_address_const::<'token_in'>();
-//     let token_out : ContractAddress = contract_address_const::<'token_out'>();
+    let market_key_1: ContractAddress = 123456789.try_into().unwrap();
+    let market_1 = Market {
+        market_token: market_key_1,
+        index_token: 12345.try_into().unwrap(),
+        long_token: 56678.try_into().unwrap(),
+        short_token: 8901234.try_into().unwrap(),
+    };
+    let price1 = Price {
+            min: 1,
+            max: 200
+    };
+    let price2 = Price {
+            min: 1,
+            max: 400
+    };
+    let amount_in = 3000;
+    let token_in : ContractAddress = contract_address_const::<'token_in'>();
+    let token_out : ContractAddress = contract_address_const::<'token_out'>();
 
-//     data_store.set_market(market_key_1, 1, market_1);
-//     let (data1, data2) = reader.get_swap_price_impact(data_store,market_key_1,token_in,token_out,amount_in,price1,price2);
-//     let datafel : felt252 = data1.into();
-//     datafel.print();
-//     tests_lib::teardown();
-// }
+    data_store.set_market(market_key_1, 1, market_1);
+    let (data1, _data2) = reader.get_swap_price_impact(data_store,market_key_1,token_in,token_out,amount_in,price1,price2);
+    let datafel : felt252 = data1.into();
+    datafel.print();
+    tests_lib::teardown();
+}
 
 //audit, returns an unwrap failed error
 // TODO missing libraries 'market_utils::is_pnl_factor_exceeded_direct' and 'market_utils::get_enabled_market' not implemented
-// #[test]
-// fn given_normal_conditions_when_get_adl_state_then_works() {
-//      let (caller_address, role_store, data_store, _market_token_class) = setup();
-//     let (reader_address, reader) = setup_reader();
-//     let market_token_address = contract_address_const::<'market_token'>();
-//     let market = Market {
-//         market_token: market_token_address,
-//         index_token: contract_address_const::<'index_token'>(),
-//         long_token: contract_address_const::<'long_token'>(),
-//         short_token: contract_address_const::<'short_token'>(),
-//     };
-//         let price1 = Price {
-//             min: 1,
-//             max: 200
-//     };
-//     let price2 = Price {
-//             min: 1,
-//             max: 300
-//     };
-//      let price3 = Price {
-//             min: 1,
-//             max: 400
-//     };
-//         //create random prices
-//     let prices = MarketPrices {
-//         index_token_price: price1,
-//         long_token_price: price2,
-//         short_token_price: price3
-//     };
+#[test]
+fn given_normal_conditions_when_get_adl_state_then_works() {
+    let (_caller_address, _role_store, data_store, _market_token_class, reader, _referral_storage) = setup();
+    let market_token_address = contract_address_const::<'market_token'>();
+    let market = Market {
+        market_token: market_token_address,
+        index_token: contract_address_const::<'index_token'>(),
+        long_token: contract_address_const::<'long_token'>(),
+        short_token: contract_address_const::<'short_token'>(),
+    };
+        let price1 = Price {
+            min: 1,
+            max: 200
+    };
+    let price2 = Price {
+            min: 1,
+            max: 300
+    };
+    let price3 = Price {
+            min: 1,
+            max: 400
+    };
+        //create random prices
+    let prices = MarketPrices {
+        index_token_price: price1,
+        long_token_price: price2,
+        short_token_price: price3
+    };
 
-//     data_store.set_market(market_token_address, 0, market);
-//     let (data1, data2, data3, data4) = reader.get_adl_state(data_store,market_token_address,true,prices);
-//     tests_lib::teardown();
-// }
+    data_store.set_market(market_token_address, 0, market);
+    reader.get_adl_state(data_store,market_token_address,true,prices);
+    tests_lib::teardown();
+}
 
 // *************************************************************************
 //                          SETUP READER
@@ -1016,7 +1008,7 @@ fn deploy_market_token(contract: ContractClass, role_store: ContractAddress, dat
     contract_address
 }
 
-fn setup() -> (ContractAddress, IRoleStoreDispatcher, IDataStoreDispatcher, ContractClass, IReaderDispatcher) {
+fn setup() -> (ContractAddress, IRoleStoreDispatcher, IDataStoreDispatcher, ContractClass, IReaderDispatcher, IReferralStorageDispatcher) {
     let (
         caller_address,
         market_token_class,
@@ -1035,7 +1027,7 @@ fn setup() -> (ContractAddress, IRoleStoreDispatcher, IDataStoreDispatcher, Cont
         _order_handler,
         _order_vault,
         reader,
-        _referal_storage,
+        referal_storage,
         _withdrawal_handler,
         _withdrawal_vault,
         _liquidation_handler,
@@ -1045,5 +1037,5 @@ fn setup() -> (ContractAddress, IRoleStoreDispatcher, IDataStoreDispatcher, Cont
         _,
     ) = tests_lib::setup();
 
-    (caller_address, role_store, data_store, market_token_class, reader)
+    (caller_address, role_store, data_store, market_token_class, reader, referal_storage)
 }

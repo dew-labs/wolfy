@@ -20,85 +20,93 @@ use satoru::mock::referral_storage::{IReferralStorageDispatcher, IReferralStorag
 
 use satoru::position::{position::Position, decrease_position_utils, position_utils::UpdatePositionParams};
 
+// TODO: implement them
 
 #[test]
 fn given_normal_conditions_when_partially_decrease_position() {
-    let (caller_address, swap_handler) = setup();
+    let (_caller_address, swap_handler) = setup();
 
     let mut params = create_new_update_position_params(OrderType::LimitSwap, swap_handler);
     params.order.size_delta_usd = 800;
-    // TODO: implement update params to not be
-    //decrease_position_utils::decrease_position(ref params);
+
+    decrease_position_utils::decrease_position(params);
     assert(true, 'Not implemented yet');
 }
 
 #[test]
 fn given_normal_conditions_when_totally_decrease_position() {
-    let (caller_address, swap_handler) = setup();
+    let (_caller_address, swap_handler) = setup();
 
     let mut params = create_new_update_position_params(OrderType::LimitSwap, swap_handler);
 
-    // TODO: implement update params to not be
-    //decrease_position_utils::decrease_position(ref params);
+    decrease_position_utils::decrease_position(params);
     assert(true, 'Not implemented yet');
 }
 #[test]
 #[should_panic]
 fn given_invalid_decrease_order_size_when_decrease_position_then_fails() {
-    let (caller_address, swap_handler) = setup();
+    let (_caller_address, swap_handler) = setup();
 
     let mut params = create_new_update_position_params(OrderType::LimitSwap, swap_handler);
     params.order.size_delta_usd = 1500;
 
-    // TODO: implement update params to not be
-    //decrease_position_utils::decrease_position(ref params);
+    decrease_position_utils::decrease_position(params);
     panic(array!['Not implemented yet']);
 }
 
 #[test]
 #[should_panic]
 fn given_unable_to_withdraw_collateral_when_decrease_position_then_fails() {
-    let (caller_address, swap_handler) = setup();
+    let (_caller_address, swap_handler) = setup();
 
     let mut params = create_new_update_position_params(OrderType::LimitDecrease, swap_handler);
     params.order.size_delta_usd = 1000;
     params.position.collateral_amount = 1000;
-    // TODO: implement update params to not be
-    //decrease_position_utils::decrease_position(ref params);
+
+    decrease_position_utils::decrease_position(params);
     panic(array!['Not implemented yet']);
 }
 
 #[test]
 #[should_panic]
 fn given_position_should_be_liquidated_when_decrease_position_then_fails() {
-    let (caller_address, swap_handler) = setup();
+    let (_caller_address, swap_handler) = setup();
 
     let mut params = create_new_update_position_params(OrderType::Liquidation, swap_handler);
     params.order.size_delta_usd = 800;
 
-    // TODO: implement update params to not be
-    //decrease_position_utils::decrease_position(ref params);
+    decrease_position_utils::decrease_position(params);
     panic(array!['Not implemented yet']);
 }
 
-
-/// Utility function to setup the test environment.
-///
-/// # Returns
-///
-/// * `ContractAddress` - The address of the caller.
-/// * `IRoleStoreDispatcher` - The role store dispatcher.
-/// * `ISwapHandlerDispatcher` - The swap handler dispatcher.
 fn setup() -> (ContractAddress, ISwapHandlerDispatcher) {
-    let caller_address: ContractAddress = tests_lib::get_c4ller_address();
-
-    let role_store_address = tests_lib::deploy_role_store();
-
-    let swap_handler_address = tests_lib::deploy_swap_handler(role_store_address);
-    let swap_handler = ISwapHandlerDispatcher { contract_address: swap_handler_address };
-
-    start_cheat_caller_address(role_store_address, caller_address);
-    start_cheat_caller_address(swap_handler_address, caller_address);
+    let (
+        caller_address,
+        _market_token_class,
+        _increase_order_class,
+        _decrease_order_class,
+        _swap_order_class,
+        _order_utils_class,
+        _market_factory,
+        _role_store,
+        _data_store,
+        _event_emitter,
+        _exchange_router,
+        _deposit_handler,
+        _deposit_vault,
+        _oracle,
+        _order_handler,
+        _order_vault,
+        _reader,
+        _referral_storage,
+        _withdrawal_handler,
+        _withdrawal_vault,
+        _liquidation_handler,
+        swap_handler,
+        _bank,
+        _strict_bank,
+        _oracle_store,
+    ) = tests_lib::setup();
 
     (caller_address, swap_handler)
 }

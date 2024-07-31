@@ -143,7 +143,7 @@ fn given_disabled_feature_when_create_execute_liquidation_then_fails() {
     stop_cheat_caller_address(role_store.contract_address);
     start_cheat_caller_address(liquidation_handler_address, liquidation_keeper);
 
-    let (collateral_token, token1, fee_token) = setup_tokens();
+    let (collateral_token, token1, _fee_token) = setup_tokens();
     let token2 = contract_address_const::<'BTC'>();
 
     // Use mock account to match keys

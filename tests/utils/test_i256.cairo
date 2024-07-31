@@ -93,7 +93,7 @@ mod TestInteger256 {
             let i256_max = BoundedInt::max();
             let a = IntegerTrait::<i256>::new(i256_max - 1, false);
             let b = IntegerTrait::<i256>::new(1, false);
-            let result = a + b;
+            let _result = a + b;
         }
     }
 
@@ -199,7 +199,7 @@ mod TestInteger256 {
             let i256_max = BoundedInt::max();
             let a = IntegerTrait::<i256>::new(i256_max, true);
             let b = IntegerTrait::<i256>::new(1, false);
-            let result = a - b;
+            let _result = a - b;
         }
     }
 
@@ -265,7 +265,7 @@ mod TestInteger256 {
             let i256_max = BoundedInt::max();
             let a = IntegerTrait::<i256>::new(i256_max - 1, false);
             let b = IntegerTrait::<i256>::new(2, false);
-            let result = a * b;
+            let _result = a * b;
         }
     }
 
@@ -330,7 +330,7 @@ mod TestInteger256 {
         fn test_rem_by_zero() {
             let a = IntegerTrait::<i256>::new(1, false);
             let b = IntegerTrait::<i256>::new(0, false);
-            let (q, r) = a.div_rem(b);
+            let (_q, _r) = a.div_rem(b);
         }
 
         // Test to ensure that the results do not produce invalid 'negative' zeros
@@ -450,7 +450,7 @@ mod TestInteger256 {
         #[should_panic(expected: ('The sign must be positive',))]
         fn test_negative_conversion() {
             let val = IntegerTrait::<i256>::new(200, true);
-            let result: u256 = val.try_into().unwrap();
+            let _result: u256 = val.try_into().unwrap();
         }
     }
 

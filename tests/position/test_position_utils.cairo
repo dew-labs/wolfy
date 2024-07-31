@@ -93,7 +93,7 @@ fn given_normal_conditions_when_validate_non_empty_position_then_works() {
 #[test]
 #[should_panic(expected: ('invalid_position_size_values',))]
 fn given_invalid_position_size_when_validate_position_then_fails() {
-    let (data_store, referral_storage, event_emitter) = setup();
+    let (data_store, _referral_storage, _event_emitter) = setup();
     let referral_storage = IReferralStorageDispatcher { contract_address: contract_address_const::<'12345'>() };
 
     let position: Position = Default::default();
@@ -110,7 +110,7 @@ fn given_invalid_position_size_when_validate_position_then_fails() {
 #[test]
 #[should_panic(expected: ('empty_market',))]
 fn given_empty_market_when_validate_position_then_fails() {
-    let (data_store, referral_storage, event_emitter) = setup();
+    let (data_store, _referral_storage, _event_emitter) = setup();
 
     let referral_storage = IReferralStorageDispatcher { contract_address: contract_address_const::<'12345'>() };
 
@@ -135,7 +135,7 @@ fn given_empty_market_when_validate_position_then_fails() {
 #[test]
 #[should_panic(expected: ('minimum_position_size',))]
 fn given_minimum_position_size_when_validate_position_then_fails() {
-    let (data_store, referral_storage, event_emitter) = setup();
+    let (data_store, _referral_storage, _event_emitter) = setup();
 
     let referral_storage = IReferralStorageDispatcher { contract_address: contract_address_const::<'12345'>() };
     let token: ContractAddress = contract_address_const::<'token'>();
@@ -175,7 +175,7 @@ fn given_minimum_position_size_when_validate_position_then_fails() {
 
 #[test]
 fn given_normal_conditions_when_increment_claimable_funding_amount_then_works() {
-    let (data_store, referral_storage, event_emitter) = setup();
+    let (data_store, _referral_storage, event_emitter) = setup();
 
     let market_token: ContractAddress = contract_address_const::<'market_token'>();
     let long_token: ContractAddress = contract_address_const::<'long_token'>();
@@ -237,7 +237,7 @@ fn given_normal_conditions_when_increment_claimable_funding_amount_then_works() 
 
 #[test]
 fn given_negative_remaining_collateral_usd_when_checking_liquidatability_then_invalid_position() {
-    let (data_store, referral_storage, event_emitter) = setup();
+    let (data_store, referral_storage, _event_emitter) = setup();
 
     let market_token: ContractAddress = contract_address_const::<'market_token'>();
     let long_token: ContractAddress = contract_address_const::<'long_token'>();
@@ -286,7 +286,7 @@ fn given_negative_remaining_collateral_usd_when_checking_liquidatability_then_in
 
 #[test]
 fn given_below_minimum_collateral_when_checking_liquidatability_then_invalid_position() {
-    let (data_store, referral_storage, event_emitter) = setup();
+    let (data_store, referral_storage, _event_emitter) = setup();
 
     let market_token: ContractAddress = contract_address_const::<'market_token'>();
     let long_token: ContractAddress = contract_address_const::<'long_token'>();
@@ -334,7 +334,7 @@ fn given_below_minimum_collateral_when_checking_liquidatability_then_invalid_pos
 
 #[test]
 fn given_valid_position_when_checking_liquidatability_then_valid_position() {
-    let (data_store, referral_storage, event_emitter) = setup();
+    let (data_store, referral_storage, _event_emitter) = setup();
 
     let market_token: ContractAddress = contract_address_const::<'market_token'>();
     let long_token: ContractAddress = contract_address_const::<'long_token'>();
@@ -382,7 +382,7 @@ fn given_valid_position_when_checking_liquidatability_then_valid_position() {
 
 #[test]
 fn given_below_min_collateral_leverage_when_checking_liquidatability_then_invalid_position() {
-    let (data_store, referral_storage, event_emitter) = setup();
+    let (data_store, referral_storage, _event_emitter) = setup();
 
     let market_token: ContractAddress = contract_address_const::<'market_token'>();
     let long_token: ContractAddress = contract_address_const::<'long_token'>();
@@ -435,7 +435,7 @@ fn given_below_min_collateral_leverage_when_checking_liquidatability_then_invali
 
 #[test]
 fn given_initial_total_borrowing_when_updating_then_correct_total_borrowing() {
-    let (data_store, referral_storage, event_emitter) = setup();
+    let (data_store, _referral_storage, event_emitter) = setup();
 
     let market_token: ContractAddress = contract_address_const::<'market_token'>();
     let long_token: ContractAddress = contract_address_const::<'long_token'>();
@@ -476,7 +476,7 @@ fn given_initial_total_borrowing_when_updating_then_correct_total_borrowing() {
 
 #[test]
 fn given_initial_open_interest_when_updating_then_correct_open_interest() {
-    let (data_store, referral_storage, event_emitter) = setup();
+    let (data_store, _referral_storage, event_emitter) = setup();
 
     let market_token: ContractAddress = contract_address_const::<'market_token'>();
     let long_token: ContractAddress = contract_address_const::<'long_token'>();
@@ -526,7 +526,7 @@ fn given_initial_open_interest_when_updating_then_correct_open_interest() {
 
 #[test]
 fn given_valid_referral_when_handling_then_referral_successfully_processed() {
-    let (data_store, referral_storage, event_emitter) = setup();
+    let (data_store, _referral_storage, event_emitter) = setup();
 
     let market_token: ContractAddress = contract_address_const::<'market_token'>();
     let long_token: ContractAddress = contract_address_const::<'long_token'>();
@@ -577,7 +577,7 @@ fn given_valid_referral_when_handling_then_referral_successfully_processed() {
 
 #[test]
 fn test_will_position_collateral_be_sufficient() {
-    let (data_store, referral_storage, event_emitter) = setup();
+    let (data_store, _referral_storage, _event_emitter) = setup();
 
     let market_token: ContractAddress = contract_address_const::<'market_token'>();
     let long_token: ContractAddress = contract_address_const::<'long_token'>();
@@ -629,10 +629,11 @@ fn test_will_position_collateral_be_sufficient() {
     assert(!will_be_sufficient, 'collateral should insufficient');
     assert(remaining_collateral_usd == i256_new(90, false), 'eq 90');
 }
+
 //TODO
 // #[test]
-// fn test_update_funding_and_borrowing_state() {
-// }
+fn test_update_funding_and_borrowing_state() {
+}
 
 
 fn setup() -> (IDataStoreDispatcher, IReferralStorageDispatcher, IEventEmitterDispatcher) {

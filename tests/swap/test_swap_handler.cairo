@@ -266,7 +266,7 @@ fn given_insufficient_output_then_fails() {
 
 #[test]
 fn given_normal_conditions_swap_then_works() {
-    //Change that when swap_handler has been implemented
+    // Change that when swap_handler has been implemented
     let (
         _caller_address,
         data_store,
@@ -382,4 +382,5 @@ fn given_swap_path_market_then_works() {
 
     tests_lib::teardown();
 }
+
 // TODO add more tested when swap_handler has been implemented

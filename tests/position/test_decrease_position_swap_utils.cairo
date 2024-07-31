@@ -92,33 +92,32 @@ fn given_unauthorized_access_role_when_swap_to_pnl_token_then_fails() {
     decrease_position_swap_utils::swap_withdrawn_collateral_to_pnl_token(params, values);
 }
 
-// TODO: uncomment after implementation of i256 and all function required by swap()
-// #[test]
-// fn given_normal_conditions_when_swap_to_pnl_token_then_works() {
-//     let (caller_address, role_store, swap_handler) = setup();
+#[test]
+fn given_normal_conditions_when_swap_to_pnl_token_then_works() {
+    let (_caller_address, _role_store, swap_handler) = setup();
 
-//     let params = create_new_update_position_params(
-//         DecreasePositionSwapType::SwapCollateralTokenToPnlToken, swap_handler
-//     );
+    let params = create_new_update_position_params(
+        DecreasePositionSwapType::SwapCollateralTokenToPnlToken, swap_handler
+    );
 
-//     let output = DecreasePositionCollateralValuesOutput {
-//         output_token: contract_address_const::<'output_token'>(),
-//         output_amount: 10,
-//         secondary_output_token: 0.try_into().unwrap(),
-//         secondary_output_amount: 5
-//     };
+    let output = DecreasePositionCollateralValuesOutput {
+        output_token: contract_address_const::<'output_token'>(),
+        output_amount: 10,
+        secondary_output_token: 0.try_into().unwrap(),
+        secondary_output_amount: 5
+    };
 
-//     let values = create_new_decrease_position_collateral_values(output);
+    let values = create_new_decrease_position_collateral_values(output);
 
-//     let decrease_position_values =
-//         decrease_position_swap_utils::swap_withdrawn_collateral_to_pnl_token(
-//         params, values
-//     );
+    let decrease_position_values =
+        decrease_position_swap_utils::swap_withdrawn_collateral_to_pnl_token(
+        params, values
+    );
 
-//     assert(decrease_position_values.output.output_token == (0.try_into().unwrap()), 'Error');
+    assert(decrease_position_values.output.output_token == (0.try_into().unwrap()), 'Error');
 
-//     tests_lib::teardown();
-// }
+    tests_lib::teardown();
+}
 
 /// Utility function to create new UpdatePositionParams struct
 fn create_new_update_position_params(
@@ -126,9 +125,9 @@ fn create_new_update_position_params(
 ) -> UpdatePositionParams {
     let data_store = tests_lib::get_data_store_address();
     let event_emitter = tests_lib::get_event_emitter_address();
-    let order_vault = tests_lib::get_order_vault_address() ;
+    let order_vault = tests_lib::get_order_vault_address();
     let oracle = tests_lib::get_oracle_address();
-    let referral_storage = tests_lib::get_referral_storage_address() ;
+    let referral_storage = tests_lib::get_referral_storage_address();
 
     let contracts = ExecuteOrderParamsContracts {
         data_store: IDataStoreDispatcher { contract_address: data_store },

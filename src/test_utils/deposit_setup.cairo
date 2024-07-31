@@ -328,7 +328,7 @@ fn exec_order(
     long_token_price: u256,
     short_token_price: u256
 ) -> () {
-    let signatures: Span<felt252> = array![0].span();
+    let _signatures: Span<felt252> = array![0].span();
     let set_price_params = SetPricesParams {
         signer_info: 0,
         tokens: array![contract_address_const::<'ETH'>(), contract_address_const::<'USDC'>()],

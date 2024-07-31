@@ -24,7 +24,7 @@ fn setup() -> (ContractAddress, IRoleStoreDispatcher, IDataStoreDispatcher) {
         _decrease_order_class,
         _swap_order_class,
         _order_utils_class,
-        market_factory,
+        _market_factory,
         role_store,
         data_store,
         _event_emitter,

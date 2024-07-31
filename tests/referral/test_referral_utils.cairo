@@ -22,11 +22,11 @@ use satoru::test_utils::tests_lib;
 #[test]
 fn given_normal_conditions_when_trader_referral_codes_then_works() {
     // Setup
-    let (caller_address, role_store, data_store, event_emitter, referral_storage, governable, market_token) = setup();
+    let (caller_address, _role_store, _data_store, _event_emitter, referral_storage, _governable, _market_token) = setup();
 
     // Test
 
-    //Set the referral code for a trader and getting it from the storage.
+    // Set the referral code for a trader and getting it from the storage.
     referral_storage.set_handler(caller_address, true);
     let account: ContractAddress = contract_address_const::<111>();
     let referral_code: felt252 = 'QWERTY';
@@ -57,9 +57,9 @@ fn given_normal_conditions_when_trader_referral_codes_then_works() {
 #[should_panic(expected: ('forbidden',))]
 fn given_forbidden_when_trader_referral_codes_then_fails() {
     // Setup
-    let (caller_address, role_store, data_store, event_emitter, referral_storage, governable, market_token) = setup();
+    let (_caller_address, _role_store, _data_store, _event_emitter, referral_storage, _governable, _market_token) = setup();
 
-    //forbidden access
+    // forbidden access
     let account: ContractAddress = contract_address_const::<111>();
     let referral_code: felt252 = 'QWERTY';
 
@@ -75,7 +75,7 @@ fn given_forbidden_when_trader_referral_codes_then_fails() {
 #[test]
 fn given_normal_conditions_when_increment_affiliate_reward_then_works() {
     // Setup
-    let (caller_address, role_store, data_store, event_emitter, referral_storage, governable, market_token) = setup();
+    let (_caller_address, _role_store, data_store, event_emitter, _referral_storage, _governable, _market_token) = setup();
 
     let mut spy = spy_events();
 
@@ -131,7 +131,7 @@ fn given_normal_conditions_when_increment_affiliate_reward_then_works() {
 #[test]
 fn given_no_code_when_get_referral_info_then_works() {
     // Setup
-    let (caller_address, role_store, data_store, event_emitter, referral_storage, governable, market_token) = setup();
+    let (caller_address, _role_store, _data_store, _event_emitter, referral_storage, _governable, _market_token) = setup();
 
     let (code, affiliate, total_rebate, discount_share) = referral_utils::get_referral_info(
         referral_storage, caller_address
@@ -148,7 +148,7 @@ fn given_no_code_when_get_referral_info_then_works() {
 #[test]
 fn given_normal_conditions_when_get_referral_info_then_works() {
     // Setup
-    let (caller_address, role_store, data_store, event_emitter, referral_storage, governable, market_token) = setup();
+    let (caller_address, _role_store, _data_store, _event_emitter, referral_storage, _governable, _market_token) = setup();
 
     let owner: ContractAddress = 'owner'.try_into().unwrap();
     let tier_level = 100;
@@ -188,7 +188,7 @@ fn given_normal_conditions_when_get_referral_info_then_works() {
 #[test]
 fn given_refferal_discountshare_when_get_referral_info_then_works() {
     // Setup
-    let (caller_address, role_store, data_store, event_emitter, referral_storage, governable, market_token) = setup();
+    let (caller_address, _role_store, _data_store, _event_emitter, referral_storage, _governable, _market_token) = setup();
 
     let tier_level = 200;
     let rebate = 300;
@@ -227,7 +227,7 @@ fn given_refferal_discountshare_when_get_referral_info_then_works() {
 #[test]
 fn given_normal_conditions_when_claim_affiliate_reward_then_works() {
     // Setup
-    let (caller_address, role_store, data_store, event_emitter, referral_storage, governable, market_token) = setup();
+    let (caller_address, _role_store, data_store, event_emitter, _referral_storage, _governable, market_token) = setup();
     let (token_address, token_dispatcher) = setup_mock_token(caller_address, market_token.contract_address);
     let mut spy = spy_events();
 
@@ -249,43 +249,41 @@ fn given_normal_conditions_when_claim_affiliate_reward_then_works() {
     let caller_balance = token_dispatcher.balance_of(caller_address);
     assert(caller_balance == 0, 'invalid init balance');
 
-    // let retrieved_amount: u256 = referral_utils::claim_affiliate_reward(
-    //     data_store, event_emitter, market, token_address, account, caller_address
-    // );
-    let retrieved_amount: u256 =
-        reward_amount; //TODO fix referral_utils::claim_affiliate_reward function and delete this line
+    let retrieved_amount: u256 = referral_utils::claim_affiliate_reward(
+        data_store, event_emitter, market, token_address, account, caller_address
+    );
 
     assert(retrieved_amount == reward_amount, 'invalid retrieved_amount');
 
     // Check balance incresed as reward amounts
     let caller_balance_after = token_dispatcher.balance_of(caller_address);
-    //assert(caller_balance_after == reward_amount.into(), 'invalid after balance');//TODO fix referral_utils::claim_affiliate_reward function and delete this line
+    assert(caller_balance_after == reward_amount.into(), 'invalid after balance');
 
     let retrived_value = data_store.get_u256(key_1);
-    //assert(retrived_value == 0, 'invalid value'); //TODO fix referral_utils::claim_affiliate_reward function and delete this line
+    assert(retrived_value == 0, 'invalid value');
 
     let retrived_value2 = data_store.get_u256(key_2);
-    //assert(retrived_value2 == pool_value - reward_amount, 'invalid value'); //TODO fix referral_utils::claim_affiliate_reward function and delete this line
+    assert(retrived_value2 == pool_value - reward_amount, 'invalid value');
 
     // Check event
-    // spy //TODO fix referral_utils::claim_affiliate_reward function and delete this line
-    //     .assert_emitted(
-    //         @array![
-    //             (
-    //                 event_emitter.contract_address,
-    //                 EventEmitter::Event::AffiliateRewardClaimed(
-    //                     AffiliateRewardClaimed {
-    //                         market: market,
-    //                         token: token_address,
-    //                         affiliate: account,
-    //                         receiver: caller_address,
-    //                         amount: reward_amount,
-    //                         next_pool_value: retrived_value2,
-    //                     }
-    //                 )
-    //             )
-    //         ]
-    //     );
+    spy
+        .assert_emitted(
+            @array![
+                (
+                    event_emitter.contract_address,
+                    EventEmitter::Event::AffiliateRewardClaimed(
+                        AffiliateRewardClaimed {
+                            market: market,
+                            token: token_address,
+                            affiliate: account,
+                            receiver: caller_address,
+                            amount: reward_amount,
+                            next_pool_value: retrived_value2,
+                        }
+                    )
+                )
+            ]
+        );
 
     tests_lib::teardown();
 }

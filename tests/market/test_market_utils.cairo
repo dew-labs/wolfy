@@ -8,7 +8,7 @@ use result::ResultTrait;
 use traits::{TryInto, Into};
 use starknet::{ContractAddress, get_caller_address, Felt252TryIntoContractAddress, contract_address_const, ClassHash,};
 use snforge_std::{
-    declare, start_cheat_caller_address, stop_cheat_caller_address, start_cheat_block_timestamp, ContractClassTrait, ContractClass
+    declare, start_cheat_caller_address, stop_cheat_caller_address, start_cheat_block_timestamp_global, stop_cheat_block_timestamp_global, ContractClassTrait, ContractClass
 };
 
 
@@ -32,15 +32,15 @@ fn given_normal_conditions_when_get_open_interest_then_works() {
     // *                              SETUP                                                        *
     // *********************************************************************************************
     let (
-        caller_address,
-        market_factory_address,
-        role_store_address,
-        data_store_address,
-        market_token_class,
+        _caller_address,
+        _market_factory_address,
+        _role_store_address,
+        _data_store_address,
+        _market_token_class,
         market_factory,
-        role_store,
+        _role_store,
         data_store,
-        event_emitter,
+        _event_emitter,
     ) =
         setup();
 
@@ -95,15 +95,15 @@ fn given_normal_conditions_when_get_open_interest_in_tokens_then_works() {
     // *                              SETUP                                                        *
     // *********************************************************************************************
     let (
-        caller_address,
-        market_factory_address,
-        role_store_address,
-        data_store_address,
-        market_token_class,
-        market_factory,
-        role_store,
+        _caller_address,
+        _market_factory_address,
+        _role_store_address,
+        _data_store_address,
+        _market_token_class,
+        _market_factory,
+        _role_store,
         data_store,
-        event_emitter,
+        _event_emitter,
     ) =
         setup();
 
@@ -137,15 +137,15 @@ fn given_normal_conditions_when_get_open_interest_in_tokens_for_market_then_work
     // *                              SETUP                                                        *
     // *********************************************************************************************
     let (
-        caller_address,
-        market_factory_address,
-        role_store_address,
-        data_store_address,
-        market_token_class,
-        market_factory,
-        role_store,
+        _caller_address,
+        _market_factory_address,
+        _role_store_address,
+        _data_store_address,
+        _market_token_class,
+        _market_factory,
+        _role_store,
         data_store,
-        event_emitter,
+        _event_emitter,
     ) =
         setup();
 
@@ -200,15 +200,15 @@ fn given_normal_conditions_when_get_pool_amount_then_works() {
     // *                              SETUP                                                        *
     // *********************************************************************************************
     let (
-        caller_address,
-        market_factory_address,
-        role_store_address,
-        data_store_address,
-        market_token_class,
-        market_factory,
-        role_store,
+        _caller_address,
+        _market_factory_address,
+        _role_store_address,
+        _data_store_address,
+        _market_token_class,
+        _market_factory,
+        _role_store,
         data_store,
-        event_emitter,
+        _event_emitter,
     ) =
         setup();
 
@@ -263,15 +263,15 @@ fn given_normal_conditions_when_get_max_pool_amount_then_works() {
     // *                              SETUP                                                        *
     // *********************************************************************************************
     let (
-        caller_address,
-        market_factory_address,
-        role_store_address,
-        data_store_address,
-        market_token_class,
-        market_factory,
-        role_store,
+        _caller_address,
+        _market_factory_address,
+        _role_store_address,
+        _data_store_address,
+        _market_token_class,
+        _market_factory,
+        _role_store,
         data_store,
-        event_emitter,
+        _event_emitter,
     ) =
         setup();
 
@@ -308,15 +308,15 @@ fn given_normal_conditions_when_get_max_open_interest_then_works() {
     // *                              SETUP                                                        *
     // *********************************************************************************************
     let (
-        caller_address,
-        market_factory_address,
-        role_store_address,
-        data_store_address,
-        market_token_class,
-        market_factory,
-        role_store,
+        _caller_address,
+        _market_factory_address,
+        _role_store_address,
+        _data_store_address,
+        _market_token_class,
+        _market_factory,
+        _role_store,
         data_store,
-        event_emitter,
+        _event_emitter,
     ) =
         setup();
 
@@ -355,13 +355,13 @@ fn given_normal_conditions_when_increment_claimable_collateral_amount_then_works
     // *                              SETUP                                                        *
     // *********************************************************************************************
     let (
-        caller_address,
-        market_factory_address,
-        role_store_address,
-        data_store_address,
-        market_token_class,
-        market_factory,
-        role_store,
+        _caller_address,
+        _market_factory_address,
+        _role_store_address,
+        _data_store_address,
+        _market_token_class,
+        _market_factory,
+        _role_store,
         data_store,
         event_emitter,
     ) =
@@ -376,7 +376,7 @@ fn given_normal_conditions_when_increment_claimable_collateral_amount_then_works
     let market_address = contract_address_const::<'market_address'>();
     let token = contract_address_const::<'token'>();
     let account = contract_address_const::<'account'>();
-    let delta = i256_new(50, false);
+    let delta = 50;
     // The key for the claimable collateral amount for the account.
     // This is the key that will be used to assert the result.
     let claimable_collatoral_amount_for_account_key = 0x11df62b70ad974a354ae7d38b9e985489300785772473d224995d4dd6ac2d81;
@@ -390,21 +390,18 @@ fn given_normal_conditions_when_increment_claimable_collateral_amount_then_works
     data_store.set_u256(keys::claimable_collateral_time_divisor(), 1);
 
     // Actual test case.
-    // TODO uncomment below when we can use get_block_timestamp() with foundry
-    // market_utils::increment_claimable_collateral_amount(
-    //     data_store, event_emitter, market_address, token, account, delta
-    // );
+    start_cheat_block_timestamp_global(current_timestamp);
+    market_utils::increment_claimable_collateral_amount(
+        data_store, event_emitter, market_address, token, account, delta
+    );
+    stop_cheat_block_timestamp_global();
 
     // Perform assertions.
 
     // The value of the claimable collateral amount for the account should now be 50.
     // Read the value from the data store using the hardcoded key and assert it.
-    // TODO uncomment below when we can use get_block_timestamp() with foundry
-    //assert(data_store.get_u256(claimable_collatoral_amount_for_account_key) == 50, 'wrong value');
-    // The value of the claimable collateral amount for the market should now be 50.
-    // Read the value from the data store using the hardcoded key and assert it.
-    // TODO uncomment below when we can use get_block_timestamp() with foundry
-    //assert(data_store.get_u256(claimable_collateral_amount_key) == 50, 'wrong value');
+    assert(data_store.get_u256(claimable_collatoral_amount_for_account_key) == 50, 'wrong value');
+    assert(data_store.get_u256(claimable_collateral_amount_key) == 50, 'wrong value');
 
     // *********************************************************************************************
     // *                              TEARDOWN                                                     *
@@ -418,13 +415,13 @@ fn given_normal_conditions_when_increment_claimable_funding_amount_then_works() 
     // *                              SETUP                                                        *
     // *********************************************************************************************
     let (
-        caller_address,
-        market_factory_address,
-        role_store_address,
-        data_store_address,
-        market_token_class,
-        market_factory,
-        role_store,
+        _caller_address,
+        _market_factory_address,
+        _role_store_address,
+        _data_store_address,
+        _market_token_class,
+        _market_factory,
+        _role_store,
         data_store,
         event_emitter,
     ) =
@@ -484,15 +481,15 @@ fn given_normal_conditions_when_get_pnl_then_works() {
     // *                              SETUP                                                        *
     // *********************************************************************************************
     let (
-        caller_address,
-        market_factory_address,
-        role_store_address,
-        data_store_address,
-        market_token_class,
-        market_factory,
-        role_store,
+        _caller_address,
+        _market_factory_address,
+        _role_store_address,
+        _data_store_address,
+        _market_token_class,
+        _market_factory,
+        _role_store,
         data_store,
-        event_emitter,
+        _event_emitter,
     ) =
         setup();
 
@@ -551,15 +548,15 @@ fn given_zero_open_interest_when_get_pnl_then_returns_zero_pnl() {
     // *                              SETUP                                                        *
     // *********************************************************************************************
     let (
-        caller_address,
-        market_factory_address,
-        role_store_address,
-        data_store_address,
-        market_token_class,
-        market_factory,
-        role_store,
+        _caller_address,
+        _market_factory_address,
+        _role_store_address,
+        _data_store_address,
+        _market_token_class,
+        _market_factory,
+        _role_store,
         data_store,
-        event_emitter,
+        _event_emitter,
     ) =
         setup();
 
@@ -618,15 +615,15 @@ fn given_zero_open_interest_in_tokens_when_get_pnl_then_returns_zero_pnl() {
     // *                              SETUP                                                        *
     // *********************************************************************************************
     let (
-        caller_address,
-        market_factory_address,
-        role_store_address,
-        data_store_address,
-        market_token_class,
-        market_factory,
-        role_store,
+        _caller_address,
+        _market_factory_address,
+        _role_store_address,
+        _data_store_address,
+        _market_token_class,
+        _market_factory,
+        _role_store,
         data_store,
-        event_emitter,
+        _event_emitter,
     ) =
         setup();
 
@@ -685,15 +682,15 @@ fn given_normal_conditions_when_get_position_impact_pool_amount_then_works() {
     // *                              SETUP                                                        *
     // *********************************************************************************************
     let (
-        caller_address,
-        market_factory_address,
-        role_store_address,
-        data_store_address,
-        market_token_class,
-        market_factory,
-        role_store,
+        _caller_address,
+        _market_factory_address,
+        _role_store_address,
+        _data_store_address,
+        _market_token_class,
+        _market_factory,
+        _role_store,
         data_store,
-        event_emitter,
+        _event_emitter,
     ) =
         setup();
 
@@ -729,15 +726,15 @@ fn given_normal_conditions_when_get_swap_impact_pool_amount_then_works() {
     // *                              SETUP                                                        *
     // *********************************************************************************************
     let (
-        caller_address,
-        market_factory_address,
-        role_store_address,
-        data_store_address,
-        market_token_class,
-        market_factory,
-        role_store,
+        _caller_address,
+        _market_factory_address,
+        _role_store_address,
+        _data_store_address,
+        _market_token_class,
+        _market_factory,
+        _role_store,
         data_store,
-        event_emitter,
+        _event_emitter,
     ) =
         setup();
 
@@ -774,13 +771,13 @@ fn given_normal_conditions_when_apply_delta_to_position_impact_pool_then_works()
     // *                              SETUP                                                        *
     // *********************************************************************************************
     let (
-        caller_address,
-        market_factory_address,
-        role_store_address,
-        data_store_address,
-        market_token_class,
-        market_factory,
-        role_store,
+        _caller_address,
+        _market_factory_address,
+        _role_store_address,
+        _data_store_address,
+        _market_token_class,
+        _market_factory,
+        _role_store,
         data_store,
         event_emitter,
     ) =
@@ -821,13 +818,13 @@ fn given_normal_conditions_when_apply_delta_to_swap_impact_pool_then_works() {
     // *                              SETUP                                                        *
     // *********************************************************************************************
     let (
-        caller_address,
-        market_factory_address,
-        role_store_address,
-        data_store_address,
-        market_token_class,
-        market_factory,
-        role_store,
+        _caller_address,
+        _market_factory_address,
+        _role_store_address,
+        _data_store_address,
+        _market_token_class,
+        _market_factory,
+        _role_store,
         data_store,
         event_emitter,
     ) =

@@ -180,7 +180,7 @@ fn given_normal_conditions_when_get_execution_price_for_increase_then_works() {
 #[test]
 #[should_panic(expected: ('order_unfulfillable_at_price', 500, 10))]
 fn given_order_not_fullfillable_when_get_execution_price_for_increase_then_fails() {
-    let price = get_execution_price_for_increase(
+    get_execution_price_for_increase(
         size_delta_usd: 5000, size_delta_in_tokens: 10, acceptable_price: 10, is_long: true,
     );
 }
@@ -230,7 +230,7 @@ fn given_normal_conditions_when_get_execution_price_for_decrease_then_works() {
     )
 )]
 fn given_price_impact_larger_than_order_when_get_execution_price_for_decrease_then_fails() {
-    let price = get_execution_price_for_decrease(
+    get_execution_price_for_decrease(
         index_token_price: Price { min: 1000, max: 1100 },
         position_size_in_usd: 200000000,
         position_size_in_tokens: 30000,
@@ -253,7 +253,7 @@ fn given_price_impact_larger_than_order_when_get_execution_price_for_decrease_th
     )
 )]
 fn given_negative_execution_price_than_order_when_get_execution_price_for_decrease_then_fails() {
-    let price = get_execution_price_for_decrease(
+    get_execution_price_for_decrease(
         index_token_price: Price { min: 1, max: 1 },
         position_size_in_usd: 200000000,
         position_size_in_tokens: 30000,
@@ -268,7 +268,7 @@ fn given_negative_execution_price_than_order_when_get_execution_price_for_decrea
 #[test]
 #[should_panic(expected: ('order_unfulfillable_at_price', 1002, 10000,))]
 fn given_not_acceptable_price_when_get_execution_price_for_decrease_then_fails() {
-    let price = get_execution_price_for_decrease(
+    get_execution_price_for_decrease(
         index_token_price: Price { min: 1000, max: 1100 },
         position_size_in_usd: 200000000,
         position_size_in_tokens: 30000,

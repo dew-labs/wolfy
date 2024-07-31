@@ -14,7 +14,7 @@ fn given_normal_conditions_when_nonce_utils_functions_then_works() {
         _decrease_order_class,
         _swap_order_class,
         _order_utils_class,
-        market_factory,
+        _market_factory,
         _role_store,
         data_store,
         _event_emitter,

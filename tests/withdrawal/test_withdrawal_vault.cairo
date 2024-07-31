@@ -88,7 +88,7 @@ fn given_caller_has_no_controller_role_when_transfer_out_then_fails() {
 #[test]
 #[should_panic(expected: ('self_transfer_not_supported',))]
 fn given_receiver_is_contract_when_transfer_out_then_fails() {
-    let (caller_address, receiver_address, _, data_store, withdrawal_vault, erc20, market_factory) = setup();
+    let (_caller_address, _receiver_address, _, data_store, withdrawal_vault, erc20, market_factory) = setup();
 
     withdrawal_vault.transfer_out(withdrawal_vault.contract_address, erc20.contract_address, withdrawal_vault.contract_address, 100_u256);
 

@@ -1,4 +1,4 @@
-Tests: 497 passed, 25 failed, 0 skipped, 3 ignored, 0 filtered out
+Tests: 498 passed, 35 failed, 0 skipped, 3 ignored, 0 filtered out
 
 // (0x756e65787065637465645f626f72726f77696e675f666163746f72 ('unexpected_borrowing_factor'), 0x1, 0x0 (''))
 tests::position::test_decrease_position_collateral_utils::given_good_params_when_process_collateral_then_succeed
@@ -63,3 +63,23 @@ tests::exchange::test_liquidation_handler::given_normal_conditions_when_create_e
 tests::integration::test_long_integration::test_takeprofit_long_decrease_fails
 tests::integration::test_long_integration::test_takeprofit_long_close_fails
 tests::integration::test_long_integration::test_takeprofit_long_increase_fails
+
+// (0x696e76616c696420746f6b656e20696e ('invalid token in'), 0x636f6c6c61746572616c5f746f6b656e ('collateral_token'), 0x6c6f6e675f746f6b656e ('long_token'))
+tests::position::test_decrease_position_swap_utils::given_normal_conditions_when_swap_to_pnl_token_then_works
+
+// Not implemented
+tests::position::test_decrease_position_utils::given_normal_conditions_when_partially_decrease_position
+tests::position::test_decrease_position_utils::given_normal_conditions_when_totally_decrease_position
+
+// (0x7573642064656c74612065786365656473206c6f6e6720696e746572657374 ('usd delta exceeds long interest'), 0x800000000000010ffffffffffffffffffffffffffffffffffffffffffc2f701, 0x0 (''))
+tests::reader::test_reader::given_normal_conditions_when_get_position_info_then_works
+tests::reader::test_reader::given_normal_conditions_when_get_account_position_info_list_then_works
+
+// (0x696e76616c69645f737761705f6d61726b6574 ('invalid_swap_market'), 0x6d61726b65745f746f6b656e ('market_token'))
+tests::reader::test_reader::given_normal_conditions_when_get_swap_amount_out_then_works
+
+// (0x7573645f64656c74615f657863656564735f706f6f6c5f76616c7565 ('usd_delta_exceeds_pool_value'), 0x0 (''))
+tests::reader::test_reader::given_normal_conditions_when_get_swap_price_impact_then_works
+
+// 0x656d7074795f6d61726b6574 ('empty_market')
+tests::referral::test_referral_utils::given_normal_conditions_when_claim_affiliate_reward_then_works

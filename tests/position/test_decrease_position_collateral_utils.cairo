@@ -70,7 +70,7 @@ fn given_good_params_when_process_collateral_then_succeed() {
     //
     // Setup
     //
-    let (caller_address, role_store, data_store, event_emitter, referral_storage, swap_handler) = setup();
+    let (_caller_address, _role_store, data_store, event_emitter, referral_storage, swap_handler) = setup();
     let long_token_address = deploy_token();
 
     // setting open_interest to 10_000 to allow decreasing position.
@@ -93,11 +93,10 @@ fn given_good_params_when_process_collateral_then_succeed() {
     //
     // Execution
     //
-    let result = decrease_position_collateral_utils::process_collateral(params, values);
+    decrease_position_collateral_utils::process_collateral(params, values);
 
     // Checks
-    let open_interest = data_store
-        .get_u256(keys::open_interest_key(contract_address_const::<'market_token'>(), long_token_address, true),);
+    data_store.get_u256(keys::open_interest_key(contract_address_const::<'market_token'>(), long_token_address, true),);
 }
 
 #[test]
@@ -105,7 +104,7 @@ fn given_good_params_get_execution_price_then_succeed() {
     //
     // Setup
     //
-    let (caller_address, role_store, data_store, event_emitter, referral_storage, swap_handler) = setup();
+    let (_caller_address, _role_store, data_store, event_emitter, referral_storage, swap_handler) = setup();
     let long_token_address = deploy_token();
 
     // setting open_interest to 10_000 to allow decreasing position.

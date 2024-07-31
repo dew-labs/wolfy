@@ -177,10 +177,10 @@ fn test_swap_market() {
     let key = order_handler.create_order(caller_address, order_params);
     'Created'.print();
 
-    let got_order = data_store.get_order(key);
+    let _got_order = data_store.get_order(key);
 
     // Execute the swap order.
-    let signatures: Span<felt252> = array![0].span();
+    let _signatures: Span<felt252> = array![0].span();
     let set_price_params = SetPricesParams {
         signer_info: 0,
         tokens: array![contract_address_const::<'ETH'>(), contract_address_const::<'USDC'>()],

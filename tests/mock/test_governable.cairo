@@ -25,23 +25,19 @@ fn deploy_governable(event_emitter_address: ContractAddress) -> ContractAddress 
 }
 
 fn setup() -> (
-    ContractAddress,
-    IRoleStoreDispatcher,
-    IDataStoreDispatcher,
     IEventEmitterDispatcher,
-    IReferralStorageDispatcher,
     IGovernableDispatcher,
 ) {
     let (
-        caller_address,
+        _caller_address,
         _market_token_class,
         _increase_order_class,
         _decrease_order_class,
         _swap_order_class,
         _order_utils_class,
         _market_factory,
-        role_store,
-        data_store,
+        _role_store,
+        _data_store,
         event_emitter,
         _exchange_router,
         _deposit_handler,
@@ -50,7 +46,7 @@ fn setup() -> (
         _order_handler,
         _order_vault,
         _reader,
-        referral_storage,
+        _referral_storage,
         _withdrawal_handler,
         _withdrawal_vault,
         _liquidation_handler,
@@ -63,25 +59,13 @@ fn setup() -> (
     let governable_address = deploy_governable(event_emitter.contract_address);
     let governable = IGovernableDispatcher { contract_address: governable_address };
 
-    start_cheat_caller_address(role_store.contract_address, caller_address);
-    start_cheat_caller_address(event_emitter.contract_address, caller_address);
-    start_cheat_caller_address(data_store.contract_address, caller_address);
-    start_cheat_caller_address(referral_storage.contract_address, caller_address);
-    start_cheat_caller_address(governable_address, caller_address);
-
-    (caller_address, role_store, data_store, event_emitter, referral_storage, governable)
+    (event_emitter, governable)
 }
 
 fn setup_with_other_address() -> (
-    ContractAddress,
-    IRoleStoreDispatcher,
-    IDataStoreDispatcher,
     IEventEmitterDispatcher,
-    IReferralStorageDispatcher,
     IGovernableDispatcher,
 ) {
-    let caller_address: ContractAddress = 0x102.try_into().unwrap();
-
     let (
         _caller_address,
         _market_token_class,
@@ -110,6 +94,8 @@ fn setup_with_other_address() -> (
         _,
     ) = tests_lib::setup();
 
+    let caller_address: ContractAddress = 0x102.try_into().unwrap();
+
     let governable_address = deploy_governable(event_emitter.contract_address);
     let governable = IGovernableDispatcher { contract_address: governable_address };
 
@@ -119,7 +105,7 @@ fn setup_with_other_address() -> (
     start_cheat_caller_address(referral_storage.contract_address, caller_address);
     start_cheat_caller_address(governable_address, caller_address);
 
-    (caller_address, role_store, data_store, event_emitter, referral_storage, governable)
+    (event_emitter, governable)
 }
 
 //TODO add more tests
@@ -129,7 +115,7 @@ fn setup_with_other_address() -> (
 // The test expects the call to succeed without any errors.
 #[test]
 fn given_normal_conditions_when_only_gov_then_works() {
-    let (caller_address, role_store, data_store, event_emitter, referral_storage, governable) = setup();
+    let (_event_emitter, governable) = setup();
     governable.only_gov();
     tests_lib::teardown();
 }
@@ -140,7 +126,7 @@ fn given_normal_conditions_when_only_gov_then_works() {
 #[test]
 #[should_panic(expected: ('Unauthorized gov caller',))]
 fn given_forbidden_when_only_gov_then_fails() {
-    let (caller_address, role_store, data_store, event_emitter, referral_storage, governable) = setup_with_other_address();
+    let (_event_emitter, governable) = setup_with_other_address();
     governable.only_gov();
     tests_lib::teardown();
 }
@@ -151,7 +137,7 @@ fn given_forbidden_when_only_gov_then_fails() {
 // The test expects the call to succeed and the ownership to be transferred without any errors.
 #[test]
 fn given_normal_conditions_when_transfer_ownership_then_works() {
-    let (caller_address, role_store, data_store, event_emitter, referral_storage, governable) = setup();
+    let (_event_emitter, governable) = setup();
     let new_caller_address: ContractAddress = 0x102.try_into().unwrap();
     governable.transfer_ownership(new_caller_address);
     tests_lib::teardown();
@@ -164,7 +150,7 @@ fn given_normal_conditions_when_transfer_ownership_then_works() {
 #[should_panic(expected: ('Unauthorized gov caller',))]
 fn given_unauthorized_caller_when_transfer_ownership_then_fails() {
     // Setup the environment with a different caller address.
-    let (caller_address, role_store, data_store, event_emitter, referral_storage, governable) = setup_with_other_address();
+    let (_event_emitter, governable) = setup_with_other_address();
 
     // Try to transfer ownership to a new address.
     let new_uncaller_address: ContractAddress = 0x102.try_into().unwrap();
@@ -178,7 +164,7 @@ fn given_unauthorized_caller_when_transfer_ownership_then_fails() {
 /// The test expects the call to succeed and the ownership to be accepted without any errors.
 #[test]
 fn given_normal_conditions_when_accept_ownership_then_works() {
-    let (caller_address, role_store, data_store, event_emitter, referral_storage, governable) = setup();
+    let (_event_emitter, governable) = setup();
     let new_caller_address: ContractAddress = 0x102.try_into().unwrap();
 
     // Transfer the ownership to the new address.
@@ -199,7 +185,7 @@ fn given_normal_conditions_when_accept_ownership_then_works() {
 #[test]
 #[should_panic(expected: ('Unauthorized pending_gov caller',))]
 fn given_abnormal_conditions_when_accept_ownership_then_fails() {
-    let (caller_address, role_store, data_store, event_emitter, referral_storage, governable) = setup();
+    let (_event_emitter, governable) = setup();
     let new_caller_address: ContractAddress = 0x102.try_into().unwrap();
     let unauthorized_address: ContractAddress = 0x103.try_into().unwrap();
 
@@ -218,7 +204,7 @@ fn given_abnormal_conditions_when_accept_ownership_then_fails() {
 #[should_panic(expected: ('already_initialized',))]
 fn given_already_initialized_when_initialize_then_fails() {
     // Setup the environment.
-    let (caller_address, role_store, data_store, event_emitter, referral_storage, governable) = setup();
+    let (event_emitter, governable) = setup();
 
     // Assume that the contract has been initialized during setup.
     // Try to initialize it again with the same event emitter address.

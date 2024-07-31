@@ -28,26 +28,25 @@ fn given_normal_conditions_when_deposit_then_works() {
     );
 }
 
-//TODO : Use this test when get_market function is implemented
-// #[test]
-// #[should_panic(expected: ('insufficient_execution_fee',))]
-// fn given_unsufficient_fee_token_amount_for_deposit_then_fails() {
-//     let (_caller_address, data_store, role_store, event_emitter, deposit_vault) = setup();
-//     let account = tests_lib::deploy_mock_account();
-//     let deposit_param = create_dummy_deposit_param_market(data_store, role_store);
-//     let key = create_deposit(data_store, event_emitter, deposit_vault, account, deposit_param);
-// }
+#[test]
+#[should_panic(expected: ('insufficient_execution_fee',))]
+fn given_unsufficient_fee_token_amount_for_deposit_then_fails() {
+    let (_caller_address, data_store, role_store, event_emitter, deposit_vault) = setup();
+    let account = tests_lib::deploy_mock_account();
+    let deposit_param = create_dummy_deposit_param_market(data_store, role_store);
+    let _key = create_deposit(data_store, event_emitter, deposit_vault, account, deposit_param);
+}
 
-// #[test]
-// #[should_panic(expected: ('empty_deposit_amounts',))]
-// fn given_empty_deposit_amount_then_fails() {
-//     let (_caller_address, data_store, _role_store, event_emitter, deposit_vault) = setup();
-//     let account = tests_lib::deploy_mock_account();
-//     let deposit_param = create_dummy_deposit_param();
-//     let key = create_deposit(
-//         data_store, event_emitter, deposit_vault, account, deposit_param
-//     );
-// }
+#[test]
+#[should_panic(expected: ('empty_deposit_amounts',))]
+fn given_empty_deposit_amount_then_fails() {
+    let (_caller_address, data_store, _role_store, event_emitter, deposit_vault) = setup();
+    let account = tests_lib::deploy_mock_account();
+    let deposit_param = create_dummy_deposit_param();
+    let _key = create_deposit(
+        data_store, event_emitter, deposit_vault, account, deposit_param
+    );
+}
 
 #[test]
 fn given_normal_conditions_when_cancel_deposit_then_works() {

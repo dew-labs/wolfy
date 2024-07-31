@@ -181,7 +181,7 @@ fn test_serializable_dict_serialize() {
 
     assert(dict.contains('test'), 'key should be in dict');
     let retrieved_item: Item<u256> = dict.get('test').expect('key should be in dict');
-    let out_value: u256 = retrieved_item.unwrap_single();
+    let _out_value: u256 = retrieved_item.unwrap_single();
 
     assert(dict.contains('test_span'), 'key should be in dict');
     let retrieved_item: Item<u256> = deserialized_dict.get('test_span').expect('key should be in dict');
@@ -201,7 +201,7 @@ fn test_error_deserialize_value() {
     let mut span_serialized: Span<felt252> = serialized_dict.span();
 
     match SerializableFelt252DictTrait::<u256>::deserialize(ref span_serialized) {
-        Option::Some(d) => panic_with_felt252('should have panicked'),
+        Option::Some(_d) => panic_with_felt252('should have panicked'),
         Option::None => ()
     };
 }
@@ -213,7 +213,7 @@ fn test_error_deserialize_size() {
     let mut span_serialized: Span<felt252> = serialized_dict.span();
 
     match SerializableFelt252DictTrait::<u256>::deserialize(ref span_serialized) {
-        Option::Some(d) => panic_with_felt252('should have panicked'),
+        Option::Some(_d) => panic_with_felt252('should have panicked'),
         Option::None => ()
     };
 }

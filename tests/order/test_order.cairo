@@ -16,11 +16,6 @@ use satoru::test_utils::tests_lib;
 #[test]
 fn given_normal_conditions_when_touch_then_expected_results() {
     // *********************************************************************************************
-    // *                              SETUP                                                        *
-    // *********************************************************************************************
-    let caller_address = setup();
-
-    // *********************************************************************************************
     // *                              TEST LOGIC                                                   *
     // *********************************************************************************************
 
@@ -65,13 +60,3 @@ fn create_dummy_order() -> Order {
         is_frozen: false,
     }
 }
-
-/// Utility function to setup the test environment.
-fn setup() -> ContractAddress {
-    // Create a fake caller address.
-    let caller_address = tests_lib::get_c4ller_address();
-
-    // Return the test environment.
-    caller_address
-}
-

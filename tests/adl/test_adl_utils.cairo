@@ -134,7 +134,7 @@ fn given_normal_conditions_when_validate_adl_then_works() {
 #[test]
 fn given_normal_conditions_when_emit_adl_state_updated_then_works() {
     // Setup
-    let (caller_address, _role_store, data_store, event_emitter, _) = setup();
+    let (caller_address, _role_store, _data_store, event_emitter, _) = setup();
     let mut spy = spy_events();
     let market: ContractAddress = 'market'.try_into().unwrap();
     let is_long = true;

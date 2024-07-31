@@ -24,14 +24,14 @@ use satoru::test_utils::tests_lib;
 #[test]
 #[should_panic(expected: ('already_initialized',))]
 fn given_initialize_when_already_intialized_then_fails() {
-    let (_, _, data_store, event_emitter, referral_storage, _) = setup();
+    let (_, _, event_emitter, referral_storage, _) = setup();
     referral_storage.initialize(event_emitter.contract_address);
     tests_lib::teardown();
 }
 
 #[test]
 fn given_normal_conditions_when_setting_handler_from_storage_than_work() {
-    let (caller_address, _, data_store, _, referral_storage, _) = setup();
+    let (caller_address, _, _, referral_storage, _) = setup();
 
     referral_storage.set_handler(caller_address, true);
     referral_storage.only_handler();
@@ -42,7 +42,7 @@ fn given_normal_conditions_when_setting_handler_from_storage_than_work() {
 #[test]
 #[should_panic(expected: ('Unauthorized gov caller',))]
 fn given_caller_has_no_gov_role_then_fails() {
-    let (caller_address, _, data_store, _, referral_storage, _) = setup();
+    let (caller_address, _, _, referral_storage, _) = setup();
     stop_cheat_caller_address(referral_storage.contract_address);
 
     let dummy_address: ContractAddress = contract_address_const::<'dummy'>();
@@ -54,7 +54,7 @@ fn given_caller_has_no_gov_role_then_fails() {
 #[test]
 #[should_panic(expected: ('forbidden',))]
 fn given_handler_not_set_than_fails() {
-    let (_, _, data_store, _, referral_storage, _) = setup();
+    let (_, _, _, referral_storage, _) = setup();
 
     referral_storage.only_handler();
 
@@ -63,7 +63,7 @@ fn given_handler_not_set_than_fails() {
 
 #[test]
 fn given_normal_conditions_when_fetching_code_owner_from_storage_before_setting_then_works() {
-    let (_, _, data_store, _, referral_storage, _) = setup();
+    let (_, _, _, referral_storage, _) = setup();
 
     let code: felt252 = 'EBDW';
 
@@ -75,7 +75,7 @@ fn given_normal_conditions_when_fetching_code_owner_from_storage_before_setting_
 
 #[test]
 fn given_normal_conditions_when_setting_and_fetching_tier_from_storage_then_works() {
-    let (_, _, data_store, _, referral_storage, _) = setup();
+    let (_, _, _, referral_storage, _) = setup();
 
     let tier_id: u256 = 3;
     let total_rebate: u256 = 10;
@@ -92,7 +92,7 @@ fn given_normal_conditions_when_setting_and_fetching_tier_from_storage_then_work
 #[test]
 #[should_panic(expected: ('invalid total_rebate',))]
 fn given_total_rebate_too_high_when_setting_tier_from_storage_then_fails() {
-    let (_, _, data_store, _, referral_storage, _) = setup();
+    let (_, _, _, referral_storage, _) = setup();
 
     let tier_id: u256 = 3;
     let total_rebate: u256 = 10001;
@@ -105,7 +105,7 @@ fn given_total_rebate_too_high_when_setting_tier_from_storage_then_fails() {
 #[test]
 #[should_panic(expected: ('invalid discount_share',))]
 fn given_discount_share_too_high_when_setting_tier_from_storage_then_fails() {
-    let (_, _, data_store, _, referral_storage, _) = setup();
+    let (_, _, _, referral_storage, _) = setup();
 
     let tier_id: u256 = 3;
     let total_rebate: u256 = 10;
@@ -117,7 +117,7 @@ fn given_discount_share_too_high_when_setting_tier_from_storage_then_fails() {
 
 #[test]
 fn given_normal_conditions_when_setting_and_fetching_referrer_tiers_from_storage_then_works() {
-    let (caller_address, _, data_store, _, referral_storage, _) = setup();
+    let (caller_address, _, _, referral_storage, _) = setup();
 
     let tier_id: u256 = 3;
     referral_storage.set_referrer_tier(caller_address, tier_id);
@@ -130,9 +130,9 @@ fn given_normal_conditions_when_setting_and_fetching_referrer_tiers_from_storage
 
 #[test]
 fn given_normal_conditions_when_fetching_referrer_tiers_from_storage_before_setting_then_works() {
-    let (caller_address, _, data_store, _, referral_storage, _) = setup();
+    let (caller_address, _, _, referral_storage, _) = setup();
 
-    let tier_id: u256 = 3;
+    let _tier_id: u256 = 3;
 
     let out: u256 = referral_storage.referrer_tiers(caller_address);
     assert(out == 0, 'out tier_id is wrong');
@@ -142,7 +142,7 @@ fn given_normal_conditions_when_fetching_referrer_tiers_from_storage_before_sett
 
 #[test]
 fn given_normal_conditions_when_setting_and_fetching_referrer_discount_share_from_storage_then_works() {
-    let (caller_address, _, data_store, _, referral_storage, _) = setup();
+    let (caller_address, _, _, referral_storage, _) = setup();
 
     let discount_share: u256 = 1000;
     referral_storage.set_referrer_discount_share(discount_share);
@@ -156,7 +156,7 @@ fn given_normal_conditions_when_setting_and_fetching_referrer_discount_share_fro
 #[test]
 #[should_panic(expected: ('invalid discount_share',))]
 fn given_discount_share_too_high_when_setting_referrer_discount_share_from_storage_then_fails() {
-    let (_, _, data_store, _, referral_storage, _) = setup();
+    let (_, _, _, referral_storage, _) = setup();
 
     let discount_share: u256 = 10001;
     referral_storage.set_referrer_discount_share(discount_share);
@@ -166,7 +166,7 @@ fn given_discount_share_too_high_when_setting_referrer_discount_share_from_stora
 
 #[test]
 fn given_normal_conditions_when_setting_and_fetching_referrer_referral_code_from_storage_then_works() {
-    let (caller_address, _, data_store, _, referral_storage, _) = setup();
+    let (caller_address, _, _, referral_storage, _) = setup();
 
     referral_storage.set_handler(caller_address, true);
 
@@ -182,7 +182,7 @@ fn given_normal_conditions_when_setting_and_fetching_referrer_referral_code_from
 #[test]
 #[should_panic(expected: ('forbidden',))]
 fn given_not_handler_when_setting_referrer_referral_code_from_storage_then_fails() {
-    let (caller_address, _, data_store, _, referral_storage, _) = setup();
+    let (caller_address, _, _, referral_storage, _) = setup();
 
     let code: felt252 = 'EBDW';
     referral_storage.set_trader_referral_code(caller_address, code);
@@ -192,7 +192,7 @@ fn given_not_handler_when_setting_referrer_referral_code_from_storage_then_fails
 
 #[test]
 fn given_normal_conditions_when_setting_and_fetching_referrer_referral_code_by_user_from_storage_then_works() {
-    let (caller_address, _, data_store, _, referral_storage, _) = setup();
+    let (caller_address, _, _, referral_storage, _) = setup();
 
     let code: felt252 = 'EBDW';
     referral_storage.set_trader_referral_code_by_user(code);
@@ -205,7 +205,7 @@ fn given_normal_conditions_when_setting_and_fetching_referrer_referral_code_by_u
 
 #[test]
 fn given_normal_conditions_when_registering_code_and_fetching_address_from_storage_then_works() {
-    let (caller_address, _, data_store, _, referral_storage, _) = setup();
+    let (caller_address, _, _, referral_storage, _) = setup();
 
     let code: felt252 = 'EBDW';
     referral_storage.register_code(code);
@@ -219,7 +219,7 @@ fn given_normal_conditions_when_registering_code_and_fetching_address_from_stora
 #[test]
 #[should_panic(expected: ('invalid code',))]
 fn given_invalid_code_when_registering_code_from_storage_then_fails() {
-    let (caller_address, _, data_store, _, referral_storage, _) = setup();
+    let (_caller_address, _, _, referral_storage, _) = setup();
 
     let code: felt252 = 0;
     referral_storage.register_code(code);
@@ -230,7 +230,7 @@ fn given_invalid_code_when_registering_code_from_storage_then_fails() {
 #[test]
 #[should_panic(expected: ('code already exists',))]
 fn given_code_already_registered_when_registering_code_from_storage_then_fails() {
-    let (caller_address, _, data_store, _, referral_storage, _) = setup();
+    let (_caller_address, _, _, referral_storage, _) = setup();
 
     let code: felt252 = 'EBDW';
     referral_storage.register_code(code);
@@ -241,7 +241,7 @@ fn given_code_already_registered_when_registering_code_from_storage_then_fails()
 
 #[test]
 fn given_normal_conditions_when_gov_setting_and_fetching_code_owner_from_storage_then_works() {
-    let (caller_address, _, data_store, _, referral_storage, _) = setup();
+    let (caller_address, _, _, referral_storage, _) = setup();
 
     let code: felt252 = 'EBDW';
     referral_storage.gov_set_code_owner(code, caller_address);
@@ -255,7 +255,7 @@ fn given_normal_conditions_when_gov_setting_and_fetching_code_owner_from_storage
 #[test]
 #[should_panic(expected: ('invalid code',))]
 fn given_invalid_code_when_gov_setting_code_owner_from_storage_then_fails() {
-    let (caller_address, _, data_store, _, referral_storage, _) = setup();
+    let (caller_address, _, _, referral_storage, _) = setup();
 
     let code: felt252 = 0;
     referral_storage.gov_set_code_owner(code, caller_address);
@@ -265,7 +265,7 @@ fn given_invalid_code_when_gov_setting_code_owner_from_storage_then_fails() {
 
 #[test]
 fn given_normal_conditions_when_setting_and_fetching_new_code_owner_from_storage_then_works() {
-    let (caller_address, _, data_store, _, referral_storage, _) = setup();
+    let (caller_address, _, _, referral_storage, _) = setup();
 
     let new_owner: ContractAddress = contract_address_const::<'new owner'>();
     let code: felt252 = 'EBDW';
@@ -281,7 +281,7 @@ fn given_normal_conditions_when_setting_and_fetching_new_code_owner_from_storage
 #[test]
 #[should_panic(expected: ('forbidden',))]
 fn given_not_allowed_when_setting_new_code_owner_from_storage_then_fails() {
-    let (caller_address, _, data_store, _, referral_storage, _) = setup();
+    let (caller_address, _, _, referral_storage, _) = setup();
 
     let new_owner: ContractAddress = contract_address_const::<'new owner'>();
     let code: felt252 = 'EBDW';
@@ -296,7 +296,7 @@ fn given_not_allowed_when_setting_new_code_owner_from_storage_then_fails() {
 #[test]
 #[should_panic(expected: ('invalid code',))]
 fn given_invalid_code_when_setting_new_code_owner_from_storage_then_fails() {
-    let (caller_address, _, data_store, _, referral_storage, _) = setup();
+    let (caller_address, _, _, referral_storage, _) = setup();
 
     let new_owner: ContractAddress = contract_address_const::<'new owner'>();
     let code: felt252 = 0;
@@ -308,7 +308,7 @@ fn given_invalid_code_when_setting_new_code_owner_from_storage_then_fails() {
 
 #[test]
 fn given_normal_conditions_when_fetching_trader_referral_info_from_storage_then_works() {
-    let (caller_address, _, data_store, _, referral_storage, _) = setup();
+    let (caller_address, _, _, referral_storage, _) = setup();
 
     let code: felt252 = 'EBDW';
     referral_storage.register_code(code);
@@ -323,7 +323,7 @@ fn given_normal_conditions_when_fetching_trader_referral_info_from_storage_then_
 
 #[test]
 fn given_code_owner_not_set_when_fetching_trader_referral_info_from_storage_then_works() {
-    let (caller_address, _, data_store, _, referral_storage, _) = setup();
+    let (caller_address, _, _, referral_storage, _) = setup();
 
     let (out_code, out_referrer) = referral_storage.get_trader_referral_info(caller_address);
     assert(out_referrer == contract_address_const::<0>(), 'code owner should not be set');
@@ -339,7 +339,6 @@ fn given_code_owner_not_set_when_fetching_trader_referral_info_from_storage_then
 fn setup() -> (
     ContractAddress,
     IRoleStoreDispatcher,
-    IDataStoreDispatcher,
     IEventEmitterDispatcher,
     IReferralStorageDispatcher,
     IGovernableDispatcher
@@ -353,7 +352,7 @@ fn setup() -> (
         _order_utils_class,
         _market_factory,
         role_store,
-        data_store,
+        _data_store,
         event_emitter,
         _exchange_router,
         _deposit_handler,
@@ -375,13 +374,7 @@ fn setup() -> (
     let governable_address = deploy_governable(event_emitter.contract_address);
     let governable = IGovernableDispatcher { contract_address: governable_address };
 
-    start_cheat_caller_address(role_store.contract_address, caller_address);
-    start_cheat_caller_address(event_emitter.contract_address, caller_address);
-    start_cheat_caller_address(data_store.contract_address, caller_address);
-    start_cheat_caller_address(referral_storage.contract_address, caller_address);
-    start_cheat_caller_address(governable_address, caller_address);
-
-    return (caller_address, role_store, data_store, event_emitter, referral_storage, governable);
+    return (caller_address, role_store, event_emitter, referral_storage, governable);
 }
 
 fn deploy_governable(event_emitter_address: ContractAddress) -> ContractAddress {

@@ -24,7 +24,7 @@ use satoru::test_utils::tests_lib;
 // The test expects the call to succeed without error
 #[test]
 fn given_normal_conditions_when_create_withdrawal_then_works() {
-    let (caller_address, data_store, _event_emitter, withdrawal_handler, withdrawal_vault_address) = setup();
+    let (caller_address, data_store, _event_emitter, withdrawal_handler, withdrawal_vault, _) = setup();
     start_cheat_caller_address(withdrawal_handler.contract_address, caller_address);
 
     let account = contract_address_const::<'account'>();
@@ -38,7 +38,7 @@ fn given_normal_conditions_when_create_withdrawal_then_works() {
     };
 
     data_store.set_market(market_token, 0, market);
-    start_mock_call(withdrawal_vault_address, 'record_transfer_in', 1_u256);
+    start_mock_call(withdrawal_vault.contract_address, 'record_transfer_in', 1_u256);
     let key = withdrawal_handler.create_withdrawal(account, params);
 
     //check withdrawal datas created
@@ -53,7 +53,7 @@ fn given_normal_conditions_when_create_withdrawal_then_works() {
 #[test]
 #[should_panic(expected: ('empty withdrawal amount',))]
 fn given_market_token_amount_equal_zero_when_create_withdrawal_then_fails() {
-    let (caller_address, _data_store, _event_emitter, withdrawal_handler, _withdrawal_vault_address) = setup();
+    let (caller_address, _data_store, _event_emitter, withdrawal_handler, _withdrawal_vault, _) = setup();
     start_cheat_caller_address(withdrawal_handler.contract_address, caller_address);
 
     let account = contract_address_const::<'account'>();
@@ -69,7 +69,7 @@ fn given_market_token_amount_equal_zero_when_create_withdrawal_then_fails() {
 #[test]
 #[should_panic(expected: ('insufficient fee token amout', 0, 1))]
 fn given_fee_token_lower_than_execution_fee_conditions_when_create_withdrawal_then_fails() {
-    let (caller_address, _data_store, _event_emitter, withdrawal_handler, _) = setup();
+    let (caller_address, _data_store, _event_emitter, withdrawal_handler, _, _) = setup();
     start_cheat_caller_address(withdrawal_handler.contract_address, caller_address);
 
     let account = contract_address_const::<'account'>();
@@ -87,7 +87,7 @@ fn given_fee_token_lower_than_execution_fee_conditions_when_create_withdrawal_th
 #[should_panic(expected: ('unauthorized_access',))]
 fn given_caller_not_controller_when_create_withdrawal_then_fails() {
     // Should revert, call from anyone else then controller.
-    let (_caller_address, _data_store, _event_emitter, withdrawal_handler, _) = setup();
+    let (_caller_address, _data_store, _event_emitter, withdrawal_handler, _, _) = setup();
     let caller: ContractAddress = 0x847.try_into().unwrap();
     start_cheat_caller_address(withdrawal_handler.contract_address, caller);
 
@@ -103,7 +103,7 @@ fn given_caller_not_controller_when_create_withdrawal_then_fails() {
 // The test expects the call to succeed without error
 #[test]
 fn given_normal_conditions_when_cancel_withdrawal_then_works() {
-    let (caller_address, data_store, _event_emitter, withdrawal_handler, withdrawal_vault_address) = setup();
+    let (caller_address, data_store, _event_emitter, withdrawal_handler, withdrawal_vault, _) = setup();
     start_cheat_caller_address(withdrawal_handler.contract_address, caller_address);
 
     let account = contract_address_const::<'account'>();
@@ -119,12 +119,12 @@ fn given_normal_conditions_when_cancel_withdrawal_then_works() {
     data_store.set_market(key, 0, market);
 
     let params = create_withrawal_params(key);
-    start_mock_call(withdrawal_vault_address, 'record_transfer_in', 1_u256);
+    start_mock_call(withdrawal_vault.contract_address, 'record_transfer_in', 1_u256);
 
     let withdrawal_key = withdrawal_handler.create_withdrawal(account, params);
 
     start_mock_call(
-        withdrawal_vault_address,
+        withdrawal_vault.contract_address,
         'transfer_out',
         array![contract_address_const::<'market_token'>().into(), account.into(), '1']
     );
@@ -156,7 +156,7 @@ fn given_normal_conditions_when_cancel_withdrawal_then_works() {
 #[test]
 #[should_panic(expected: ('empty withdrawal',))]
 fn given_unexisting_key_when_cancel_withdrawal_then_fails() {
-    let (caller_address, _data_store, _event_emitter, withdrawal_handler, _) = setup();
+    let (caller_address, _data_store, _event_emitter, withdrawal_handler, _, _) = setup();
     start_cheat_caller_address(withdrawal_handler.contract_address, caller_address);
 
     let withdrawal_key = 'SAMPLE_WITHDRAW';
@@ -188,7 +188,7 @@ fn given_account_address_zero_when_cancel_withdrawal_then_fails() {
         callback_gas_limit: 0,
     };
 
-    let (caller_address, data_store, _event_emitter, withdrawal_handler, withdrawal_vault_address) = setup();
+    let (caller_address, data_store, _event_emitter, withdrawal_handler, withdrawal_vault, _) = setup();
     start_cheat_caller_address(withdrawal_handler.contract_address, caller_address);
 
     let account = contract_address_const::<'account'>();
@@ -204,7 +204,7 @@ fn given_account_address_zero_when_cancel_withdrawal_then_fails() {
 
     data_store.set_market(key, 0, market);
 
-    start_mock_call(withdrawal_vault_address, 'record_transfer_in', 1_u256);
+    start_mock_call(withdrawal_vault.contract_address, 'record_transfer_in', 1_u256);
 
     let withdrawal_key = withdrawal_handler.create_withdrawal(account, params);
 
@@ -238,7 +238,7 @@ fn given_market_token_equals_zero_when_cancel_withdrawal_then_fails() {
         callback_gas_limit: 0,
     };
 
-    let (caller_address, data_store, _event_emitter, withdrawal_handler, withdrawal_vault_address) = setup();
+    let (caller_address, data_store, _event_emitter, withdrawal_handler, withdrawal_vault, _) = setup();
     start_cheat_caller_address(withdrawal_handler.contract_address, caller_address);
 
     let account = contract_address_const::<'account'>();
@@ -254,11 +254,11 @@ fn given_market_token_equals_zero_when_cancel_withdrawal_then_fails() {
 
     data_store.set_market(key, 0, market);
 
-    start_mock_call(withdrawal_vault_address, 'record_transfer_in', 1_u256);
+    start_mock_call(withdrawal_vault.contract_address, 'record_transfer_in', 1_u256);
 
     let withdrawal_key = withdrawal_handler.create_withdrawal(account, params);
 
-    stop_mock_call(withdrawal_vault_address, 'record_transfer_in');
+    stop_mock_call(withdrawal_vault.contract_address, 'record_transfer_in');
     start_mock_call(data_store.contract_address, 'get_withdrawal', withdrawal);
 
     // Key cleaning should be done in withdrawal_utils. We only check call here.
@@ -286,40 +286,42 @@ fn given_caller_not_keeper_when_execute_withdrawal_then_fails() {
         price_feed_tokens: Default::default(),
     };
 
-    let (_caller_address, _data_store, _event_emitter, withdrawal_handler, _) = setup();
+    let (_caller_address, _data_store, _event_emitter, withdrawal_handler, _, _) = setup();
 
     let withdrawal_key = 'SAMPLE_WITHDRAW';
 
     withdrawal_handler.execute_withdrawal(withdrawal_key, oracle_params);
 }
 
-// TODO crashes because of gas_left function.
-// #[test]
-// #[should_panic(expected: ('invalid withdrawal key', 'SAMPLE_WITHDRAW'))]
-// fn given_invalid_withdrawal_key_when_execute_withdrawal_then_fails() {
-//     let oracle_params = SetPricesParams {
-//         signer_info: Default::default(),
-//         tokens: Default::default(),
-//         compacted_min_oracle_block_numbers: Default::default(),
-//         compacted_max_oracle_block_numbers: Default::default(),
-//         compacted_oracle_timestamps: Default::default(),
-//         compacted_decimals: Default::default(),
-//         compacted_min_prices: Default::default(),
-//         compacted_min_prices_indexes: Default::default(),
-//         compacted_max_prices: Default::default(),
-//         compacted_max_prices_indexes: Default::default(),
-//         signatures: Default::default(),
-//         price_feed_tokens: Default::default(),
-//     };
+#[test]
+#[should_panic(expected: ('withdrawal not found',))]
+fn given_invalid_withdrawal_key_when_execute_withdrawal_then_fails() {
+    let oracle_params = SetPricesParams {
+        signer_info: Default::default(),
+        tokens: Default::default(),
+        compacted_min_oracle_block_numbers: Default::default(),
+        compacted_max_oracle_block_numbers: Default::default(),
+        compacted_oracle_timestamps: Default::default(),
+        compacted_decimals: Default::default(),
+        compacted_min_prices: Default::default(),
+        compacted_min_prices_indexes: Default::default(),
+        compacted_max_prices: Default::default(),
+        compacted_max_prices_indexes: Default::default(),
+        signatures: Default::default(),
+        price_feed_tokens: Default::default(),
+    };
 
-//     let (caller_address, data_store, event_emitter, withdrawal_handler,_) = setup();
-//     let order_keeper = contract_address_const::<0x2233>();
-//     start_cheat_caller_address(withdrawal_handler.contract_address, order_keeper);
+    let (_caller_address, _data_store, _event_emitter, withdrawal_handler, _, role_store) = setup();
 
-//     let withdrawal_key = 'SAMPLE_WITHDRAW';
+    let keeper_address = contract_address_const::<'keeper'>();
 
-//     withdrawal_handler.execute_withdrawal(withdrawal_key, oracle_params);
-// }
+    role_store.grant_role(keeper_address, role::ORDER_KEEPER);
+    start_cheat_caller_address(withdrawal_handler.contract_address, keeper_address);
+
+    let withdrawal_key = 'SAMPLE_WITHDRAW';
+
+    withdrawal_handler.execute_withdrawal(withdrawal_key, oracle_params);
+}
 
 // This tests check withdrawal simulation when when caller address doesn't meet controller role
 // It calls withdrawal_handler.simulate_execute_withdrawal
@@ -327,7 +329,7 @@ fn given_caller_not_keeper_when_execute_withdrawal_then_fails() {
 #[test]
 #[should_panic(expected: ('unauthorized_access',))]
 fn given_caller_not_controller_when_simulate_execute_withdrawal_then_fails() {
-    let (_caller_address, _data_store, _event_emitter, withdrawal_handler, _) = setup();
+    let (_caller_address, _data_store, _event_emitter, withdrawal_handler, _, _) = setup();
     let caller: ContractAddress = contract_address_const::<0x847>();
     start_cheat_caller_address(withdrawal_handler.contract_address, caller);
 
@@ -346,7 +348,7 @@ fn given_caller_not_controller_when_simulate_execute_withdrawal_then_fails() {
 #[test]
 #[should_panic(expected: ('withdrawal not found',))]
 fn given_invalid_withdrawal_key_when_simulate_execute_withdrawal_then_fails() {
-    let (caller_address, _data_store, _event_emitter, withdrawal_handler, _) = setup();
+    let (caller_address, _data_store, _event_emitter, withdrawal_handler, _, _) = setup();
     let oracle_params = SimulatePricesParams {
         primary_tokens: Default::default(), primary_prices: Default::default(),
     };
@@ -374,7 +376,7 @@ fn create_withrawal_params(market: ContractAddress) -> CreateWithdrawalParams {
 }
 
 fn setup() -> (
-    ContractAddress, IDataStoreDispatcher, IEventEmitterDispatcher, IWithdrawalHandlerDispatcher, ContractAddress
+    ContractAddress, IDataStoreDispatcher, IEventEmitterDispatcher, IWithdrawalHandlerDispatcher, IWithdrawalVaultDispatcher, IRoleStoreDispatcher
 ) {
 let (
         caller_address,
@@ -384,7 +386,7 @@ let (
         _swap_order_class,
         _order_utils_class,
         _market_factory,
-        _role_store,
+        role_store,
         data_store,
         event_emitter,
         _exchange_router,
@@ -404,5 +406,5 @@ let (
         _,
     ) = tests_lib::setup();
 
-    (caller_address, data_store, event_emitter, withdrawal_handler, withdrawal_vault.contract_address)
+    (caller_address, data_store, event_emitter, withdrawal_handler, withdrawal_vault, role_store)
 }
