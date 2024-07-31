@@ -130,7 +130,6 @@ mod OracleStore {
             let last_signer = signers.get(last_signer_index).expect('failed to get last signer').unwrap();
             signers.set(signer_to_remove_index, last_signer);
             self.signers_indexes.write(last_signer, signer_to_remove_index);
-            signers.len = signers.len() - 1;
         }
 
         fn get_signer_count(self: @ContractState) -> u256 {

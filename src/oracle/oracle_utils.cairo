@@ -24,7 +24,7 @@ use satoru::utils::{
 };
 
 // External imports.
-use alexandria_data_structures::array_ext::SpanTraitExt;
+use alexandria_data_structures::span_ext::SpanTraitExt;
 
 
 /// SetPricesParams struct for values required in Oracle.set_prices.
