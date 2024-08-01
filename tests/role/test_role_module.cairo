@@ -10,7 +10,7 @@ use satoru::role::{
     role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait},
     role::{
         ROLE_ADMIN, TIMELOCK_ADMIN, TIMELOCK_MULTISIG, CONFIG_KEEPER, CONTROLLER, ROUTER_PLUGIN, MARKET_KEEPER,
-        FEE_KEEPER, ORDER_KEEPER, FROZEN_ORDER_KEEPER, PRICING_KEEPER, LIQUIDATION_KEEPER, ADL_KEEPER
+        FEE_KEEPER, ORDER_KEEPER, FROZEN_ORDER_KEEPER, LIQUIDATION_KEEPER, ADL_KEEPER
     }
 };
 
@@ -371,45 +371,6 @@ fn given_not_order_keeper_when_only_order_keeper_then_fails() {
 
     // Check that the account address has the order_keeper role, expect to fail.
     role_module.only_order_keeper();
-}
-
-#[test]
-fn given_normal_conditions_when_only_pricing_keeper_then_works() {
-    // *********************************************************************************************
-    // *                              SETUP                                                        *
-    // *********************************************************************************************
-    let (role_store, role_module) = setup();
-    // *********************************************************************************************
-    // *                              TEST LOGIC                                                   *
-    // *********************************************************************************************
-
-    let caller_address: ContractAddress = tests_lib::get_c4ller_address();
-    start_cheat_caller_address(role_store.contract_address, caller_address);
-    start_cheat_caller_address(role_module.contract_address, caller_address);
-
-    // Grant pricing_keeper role to account address.
-    role_store.grant_role(caller_address, PRICING_KEEPER);
-    // Check that the account address has the pricing_keeper role.
-    role_module.only_pricing_keeper();
-}
-
-#[test]
-#[should_panic]
-fn given_not_pricing_keeper_when_only_pricing_keeper_then_fails() {
-    // *********************************************************************************************
-    // *                              SETUP                                                        *
-    // *********************************************************************************************
-    let (role_store, role_module) = setup();
-    // *********************************************************************************************
-    // *                              TEST LOGIC                                                   *
-    // *********************************************************************************************
-
-    let caller_address: ContractAddress = tests_lib::get_c4ller_address();
-    start_cheat_caller_address(role_store.contract_address, caller_address);
-    start_cheat_caller_address(role_module.contract_address, caller_address);
-
-    // Check that the account address has the pricing_keeper role, expect to fail.
-    role_module.only_pricing_keeper();
 }
 
 #[test]

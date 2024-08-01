@@ -22,7 +22,6 @@ trait IRoleModule<TContractState> {
     fn only_market_keeper(self: @TContractState);
     fn only_fee_keeper(self: @TContractState);
     fn only_order_keeper(self: @TContractState);
-    fn only_pricing_keeper(self: @TContractState);
     fn only_liquidation_keeper(self: @TContractState);
     fn only_adl_keeper(self: @TContractState);
 }
@@ -87,9 +86,6 @@ mod RoleModule {
         }
         fn only_order_keeper(self: @ContractState) {
             self._validate_role(role::ORDER_KEEPER);
-        }
-        fn only_pricing_keeper(self: @ContractState) {
-            self._validate_role(role::PRICING_KEEPER);
         }
         fn only_liquidation_keeper(self: @ContractState) {
             self._validate_role(role::LIQUIDATION_KEEPER);
