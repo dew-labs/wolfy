@@ -44,6 +44,7 @@ mod FeeHandler {
 
 
     // Local imports.
+    use satoru::role::role;
     use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
     use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
     use satoru::data::keys;
@@ -109,6 +110,10 @@ mod FeeHandler {
         /// * `markets` - The market to claim fees from.
         /// * `tokens` - The fee tokens.
         fn claim_fees(ref self: ContractState, market: Array<ContractAddress>, tokens: Array<ContractAddress>) {
+
+            // Only the fee keeper can claim fees
+            self.role_store.read().assert_only_role(get_caller_address(), role::FEE_KEEPER);
+
             assert(market.len() == tokens.len(), FeeError::INVALID_CLAIM_FEES_INPUT);
 
             let data_store = self.data_store.read();
