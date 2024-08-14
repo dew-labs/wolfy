@@ -59,14 +59,10 @@ async function create_long_order() {
         referral_code: 0,
     };
 
-    const transferAndCreateOrderReceipt = await executeAndWait(
-        chainId,
-        [
-            createCall(zEthContract, "transfer", [orderVaultAddress, new CairoUint256(longAmount)]),
-            createCall(exchangeRouterContract, "create_order", [createOrderParams]),
-        ],
-        account
-    );
+    const transferAndCreateOrderReceipt = await executeAndWait(account, [
+        createCall(zEthContract, "transfer", [orderVaultAddress, new CairoUint256(longAmount)]),
+        createCall(exchangeRouterContract, "create_order", [createOrderParams]),
+    ]);
 
     if (transferAndCreateOrderReceipt.isSuccess()) {
         console.log("Order created.");

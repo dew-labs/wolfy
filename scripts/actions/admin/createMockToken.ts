@@ -1,48 +1,61 @@
 import { createCall, createTokenContract, executeAndWait } from "satoru-sdk";
-import { ensureDeployed, getContracts, settingUp } from "../../utils";
+import { createAsker, ensureDeployed, settingUp } from "../../utils";
 import { CairoUint256 } from "starknet";
+import fs from "node:fs";
 
 async function createMockToken() {
-    const { account, chainId } = await settingUp();
-    const contracts = getContracts();
+    const { account, net, chainId } = await settingUp();
 
-    // deploy index token, long token
-    const zEth = await ensureDeployed(account, contracts.zETH, "ERC20", {
-        name: "zEthereum",
-        symbol: "zETH",
-        initial_supply: 1000000,
+    const { ask, doneAsking } = createAsker();
+
+    const tokenName = await ask("Token name");
+    if (!tokenName) throw new Error("Token name is required");
+
+    const tokenSymbol = await ask("Token symbol");
+    if (!tokenSymbol) throw new Error("Token symbol is required");
+
+    const initialSupply = (await ask("Initial supply (default 1000000)")) ?? 1000000;
+    const mintAmount =
+        (await ask("Amount to mint (default 9999999999999000000)")) ?? 9999999999999000000n;
+
+    // deploy token
+    const token = await ensureDeployed(account, undefined, "ERC20", {
+        name: tokenName,
+        symbol: tokenSymbol,
+        initial_supply: initialSupply,
         recipient: account.address,
     });
 
-    // deploy short token
-    const usdc = await ensureDeployed(account, contracts.USDC, "ERC20", {
-        name: "USDC",
-        symbol: "USDC",
-        initial_supply: 1000000,
-        recipient: account.address,
+    const tokenContract = createTokenContract(chainId, token.address, account);
+
+    // Fill the account, this help our account have a initial balance
+    await executeAndWait(
+        account,
+        createCall(tokenContract, "mint", [account.address, new CairoUint256(mintAmount)])
+    );
+
+    let tokens = [];
+
+    try {
+        tokens = JSON.parse(fs.readFileSync(`./tokens.${net}.json`).toString("ascii"));
+    } catch {}
+
+    if (!Array.isArray(tokens)) tokens = [];
+
+    tokens.push({
+        address: token.address,
+        name: tokenName,
+        symbol: tokenSymbol,
+        owner: account.address,
     });
 
-    const usdcContract = createTokenContract(chainId, usdc.address, account);
-    const zEthContract = createTokenContract(chainId, zEth.address, account);
+    fs.writeFileSync(`./tokens.${net}.json`, JSON.stringify(tokens, null, 4), {
+        flag: "w",
+    });
 
-    // BEGIN Fill the account, this help our account have a initial balance
-    // Mint zETH to account
-    await executeAndWait(
-        chainId,
-        createCall(zEthContract, "mint", [account.address, new CairoUint256(9999999999999000000)]),
-        account
-    );
+    console.log(`Written deployed tokens to tokens.${net}.json`);
 
-    // Mint USDC to account
-    await executeAndWait(
-        chainId,
-        createCall(usdcContract, "mint", [
-            account.address,
-            new CairoUint256(49999999999999999000000),
-        ]),
-        account
-    );
-    // EMD Fill the account
+    doneAsking();
 }
 
 createMockToken();

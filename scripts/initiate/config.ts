@@ -15,17 +15,17 @@ async function config() {
 
     // set fee token
     await executeAndWait(
-        chainId,
-        createCall(dataStoreContract, "set_address", [getKey("FEE_TOKEN"), feeToken]),
-        account
+        account,
+        createCall(dataStoreContract, "set_address", [getKey("FEE_TOKEN"), feeToken])
     );
 
     // set max swap path length
     await executeAndWait(
-        chainId,
-        createCall(dataStoreContract, "set_u256", [getKey("MAX_SWAP_PATH_LENGTH"), 5]),
-        account
+        account,
+        createCall(dataStoreContract, "set_u256", [getKey("MAX_SWAP_PATH_LENGTH"), 5])
     );
+
+    console.log("Done config");
 }
 
 config();

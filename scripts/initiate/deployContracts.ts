@@ -245,22 +245,14 @@ async function deploy() {
         Reader: reader.address,
         Router: router.address,
         ExchangeRouter: exchangeRouter.address,
-        // Keep them unchanged
-        zETH: contracts.zETH,
-        USDC: contracts.USDC,
-        MarketToken: contracts.MarketToken,
     };
 
     console.log("Deployed contracts:");
     console.log(deployedContracts);
 
-    fs.writeFileSync(
-        `${__dirname}/../../contracts.${net}.json`,
-        JSON.stringify(deployedContracts, null, 4),
-        {
-            flag: "w",
-        }
-    );
+    fs.writeFileSync(`./contracts.${net}.json`, JSON.stringify(deployedContracts, null, 4), {
+        flag: "w",
+    });
 
     console.log(`Written deployed contracts to contracts.${net}.json`);
 }

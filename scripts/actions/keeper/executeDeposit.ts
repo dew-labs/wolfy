@@ -6,9 +6,11 @@ import {
     executeAndWait,
     SatoruContract,
 } from "satoru-sdk";
-import { settingUp, ask, doneAsking } from "../../utils";
+import { createAsker, settingUp } from "../../utils";
 
 async function executeDeposit() {
+    const { ask, doneAsking } = createAsker();
+
     // Get deposit key from DataStore.get_deposit_keys
     const depositKey = await ask("Enter deposit key");
 
@@ -53,9 +55,8 @@ async function executeDeposit() {
     };
 
     const executeDepositReceipt = await executeAndWait(
-        chainId,
-        createCall(depositHandlerContract, "execute_deposit", [depositKey, setPricesParams]),
-        account
+        account,
+        createCall(depositHandlerContract, "execute_deposit", [depositKey, setPricesParams])
     );
 
     if (executeDepositReceipt.isSuccess()) {

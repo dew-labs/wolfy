@@ -1,9 +1,11 @@
-import { ask, doneAsking, settingUp } from "../../utils";
+import { createAsker, settingUp } from "../../utils";
 import DataStoreABI from "../../../artifacts/DataStoreABI";
 import OrderHandlerABI from "../../../artifacts/OrderHandlerABI";
 import { createCall, createSatoruContract, executeAndWait, SatoruContract } from "satoru-sdk";
 
 async function create_market() {
+    const { ask, doneAsking } = createAsker();
+
     // get order key from DataStore.get_account_order_keys
     const longOrderKey = await ask("Enter long order key");
 
@@ -22,24 +24,20 @@ async function create_market() {
     const marketTokenAddress = order.market;
     const collateralTokenAddress = order.initial_collateral_token;
 
-    await executeAndWait(
-        chainId,
-        [
-            createCall(dataStoreContract, "set_u256", [
-                await dataStoreContract.get_open_interest_key(
-                    marketTokenAddress,
-                    collateralTokenAddress,
-                    true
-                ),
-                1,
-            ]),
-            createCall(dataStoreContract, "set_u256", [
-                await dataStoreContract.get_max_open_interest_key(marketTokenAddress, true),
-                1000000000000000000000000000000000000000000000000000,
-            ]),
-        ],
-        account
-    );
+    await executeAndWait(account, [
+        createCall(dataStoreContract, "set_u256", [
+            await dataStoreContract.get_open_interest_key(
+                marketTokenAddress,
+                collateralTokenAddress,
+                true
+            ),
+            1,
+        ]),
+        createCall(dataStoreContract, "set_u256", [
+            await dataStoreContract.get_max_open_interest_key(marketTokenAddress, true),
+            1000000000000000000000000000000000000000000000000000,
+        ]),
+    ]);
 
     const setPricesParams = {
         signer_info: 1,
@@ -67,9 +65,8 @@ async function create_market() {
     );
 
     const executeOrderReceipt = await executeAndWait(
-        chainId,
-        createCall(orderHandlerContract, "execute_order", [longOrderKey, setPricesParams]),
-        account
+        account,
+        createCall(orderHandlerContract, "execute_order", [longOrderKey, setPricesParams])
     );
 
     if (executeOrderReceipt.isSuccess()) {

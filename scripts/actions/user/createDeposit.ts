@@ -1,5 +1,5 @@
 import { num, CairoUint256 } from "starknet";
-import { getContracts, settingUp, ask, doneAsking } from "../../utils";
+import { createAsker, expandDecimals, getContracts, settingUp } from "../../utils";
 import {
     createCall,
     createSatoruContract,
@@ -15,6 +15,8 @@ async function create_deposit() {
     const depositVaultAddress = contracts.DepositVault;
 
     if (!depositVaultAddress) throw new Error("DEPOSIT_VAULT not set");
+
+    const { ask, doneAsking } = createAsker();
 
     const marketToken = await ask("Enter market token");
 
@@ -38,17 +40,22 @@ async function create_deposit() {
     console.log("Long token:", longTokenAddress);
     console.log("Short token:", shortTokenAddress);
 
-    const longTokenAmount =
-        (await ask("Enter long amount (default 50000000000000000000000000000)")) ||
-        50000000000000000000000000000n;
-
-    const shortTokenAmount =
-        (await ask("Enter short amount (default 50000000000000000000000000000)")) ||
-        50000000000000000000000000000n;
-
+    const longTokenContract = createTokenContract(chainId, longTokenAddress);
     const shortTokenContract = createTokenContract(chainId, shortTokenAddress);
 
-    const longTokenContract = createTokenContract(chainId, longTokenAddress);
+    const longTokenDecimals = await longTokenContract.decimals();
+    const shortTokenDecimals = await shortTokenContract.decimals();
+
+    const longTokenAmount = expandDecimals(
+        (await ask("Enter long amount (default 50000000000)")) || 50000000000,
+        longTokenDecimals
+    );
+
+    const shortTokenAmount = expandDecimals(
+        (await ask("Enter short amount (default 50000000000)")) || 50000000000,
+        shortTokenDecimals
+    );
+
     const exchangeRouterContract = createSatoruContract(
         chainId,
         SatoruContract.ExchangeRouter,
@@ -56,38 +63,31 @@ async function create_deposit() {
     );
 
     console.log("Approve, mint and sending tokens to the deposit vault..."); // The mint step is to make sure account have enough balance
-    await executeAndWait(
-        chainId,
-        [
-            createCall(longTokenContract, "approve", [
-                account.address,
-                new CairoUint256(longTokenAmount),
-            ]),
-            createCall(longTokenContract, "mint", [
-                account.address,
-                new CairoUint256(longTokenAmount),
-            ]),
-            createCall(exchangeRouterContract, "send_tokens", [
-                longTokenAddress,
-                depositVaultAddress,
-                new CairoUint256(longTokenAmount),
-            ]),
-            createCall(shortTokenContract, "approve", [
-                account.address,
-                new CairoUint256(shortTokenAmount),
-            ]),
-            createCall(shortTokenContract, "mint", [
-                account.address,
-                new CairoUint256(shortTokenAmount),
-            ]),
-            createCall(exchangeRouterContract, "send_tokens", [
-                shortTokenAddress,
-                depositVaultAddress,
-                new CairoUint256(shortTokenAmount),
-            ]),
-        ],
-        account
-    );
+    await executeAndWait(account, [
+        createCall(longTokenContract, "approve", [
+            account.address,
+            new CairoUint256(longTokenAmount),
+        ]),
+        createCall(longTokenContract, "mint", [account.address, new CairoUint256(longTokenAmount)]),
+        createCall(exchangeRouterContract, "send_tokens", [
+            longTokenAddress,
+            depositVaultAddress,
+            new CairoUint256(longTokenAmount),
+        ]),
+        createCall(shortTokenContract, "approve", [
+            account.address,
+            new CairoUint256(shortTokenAmount),
+        ]),
+        createCall(shortTokenContract, "mint", [
+            account.address,
+            new CairoUint256(shortTokenAmount),
+        ]),
+        createCall(exchangeRouterContract, "send_tokens", [
+            shortTokenAddress,
+            depositVaultAddress,
+            new CairoUint256(shortTokenAmount),
+        ]),
+    ]);
 
     console.log("Creating Deposit...");
 
@@ -106,9 +106,8 @@ async function create_deposit() {
     };
 
     const createDepositReceipt = await executeAndWait(
-        chainId,
-        createCall(exchangeRouterContract, "create_deposit", [createDepositParams]),
-        account
+        account,
+        createCall(exchangeRouterContract, "create_deposit", [createDepositParams])
     );
 
     if (createDepositReceipt.isSuccess()) {

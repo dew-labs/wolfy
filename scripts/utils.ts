@@ -15,9 +15,11 @@ import {
     type Call,
     type AccountInterface,
     ec,
+    num,
+    type BigNumberish,
 } from "starknet";
 import fs from "node:fs";
-import { StarknetChainId } from "satoru-sdk";
+import { getProvider, ProviderType, StarknetChainId } from "satoru-sdk";
 import setup from "./setup";
 import readline from "node:readline";
 
@@ -164,19 +166,16 @@ export async function settingUp() {
 
     const { net, chainId } = getNetAndChainId();
 
-    // Connect to provider
-    const providerUrl = process.env.PROVIDER_URL;
-    const provider = new RpcProvider({
-        nodeUrl: providerUrl!,
-        batch: 0,
-    });
+    const provider = getProvider(ProviderType.HTTP, chainId);
 
     // Connect to account
     const privateKey0: string = process.env.ACCOUNT_PRIVATE as string;
     const account0Address: string = process.env.ACCOUNT_PUBLIC as string;
     const account0 = new Account(provider, account0Address!, privateKey0!);
 
-    console.log(`Interacting with Account: ${account0Address} via provider: ${providerUrl}`);
+    console.log(
+        `Interacting with Account: ${account0Address} via provider: ${provider.channel.nodeUrl}`
+    );
 
     const resp = await account0.getSpecVersion();
     console.log("rpc version =", resp);
@@ -224,9 +223,6 @@ export interface Contracts {
     Reader: string | undefined;
     Router: string | undefined;
     ExchangeRouter: string | undefined;
-    USDC: string | undefined;
-    zETH: string | undefined;
-    MarketToken: string | undefined;
 }
 
 export function getContracts(): Contracts {
@@ -241,23 +237,48 @@ export function getContracts(): Contracts {
     }
 }
 
-export function getKey(str: string | string[]) {
-    const strs = Array.isArray(str) ? str : [str];
+export function createAsker() {
+    const rl = readline.createInterface({ input: process.stdin, output: process.stdout });
+
+    async function ask(question: string): Promise<string> {
+        return new Promise((resolve) => {
+            rl.question(`${question}: `, async (answer) => {
+                resolve(answer);
+            });
+        });
+    }
+
+    function doneAsking() {
+        rl.close();
+    }
+
+    return {
+        ask,
+        doneAsking,
+    };
+}
+
+export type Hashable = string | bigint | boolean | number;
+
+export function getKey(v: Hashable | Hashable[]) {
+    const values = Array.isArray(v) ? v : [v];
     return ec.starkCurve.poseidonHashMany(
-        strs.map((str) => BigInt(shortString.encodeShortString(str)))
+        values.map((value) => {
+            if (typeof value === "boolean") return BigInt(value ? 1 : 0);
+            if (typeof value === "string") {
+                if (num.isHex(value)) return num.toBigInt(value);
+                return BigInt(shortString.encodeShortString(value));
+            }
+            if (typeof value === "number") return BigInt(value);
+            return value;
+        })
     );
 }
 
-const rl = readline.createInterface({ input: process.stdin, output: process.stdout });
-
-export async function ask(question: string): Promise<string> {
-    return new Promise((resolve, reject) => {
-        rl.question(`${question}: `, async (answer) => {
-            resolve(answer);
-        });
-    });
+export function expandDecimals(n: BigNumberish, decimals: number | bigint): bigint {
+    return BigInt(n) * 10n ** BigInt(decimals);
 }
 
-export function doneAsking() {
-    rl.close();
+export function decimalToFloat(value: any, decimals = 0) {
+    return expandDecimals(value, 30 - decimals);
 }
