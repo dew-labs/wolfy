@@ -24,6 +24,9 @@ importers:
       '@types/node':
         specifier: ^20.14.11
         version: 20.14.11
+      abi-wan-kanabi:
+        specifier: ^2.2.2
+        version: 2.2.2
 
 packages:
 

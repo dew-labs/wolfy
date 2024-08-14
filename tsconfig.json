@@ -5,6 +5,7 @@
         "experimentalDecorators": true,
         "module": "esnext",
         "moduleResolution": "bundler",
+        "moduleDetection": "force",
         "resolveJsonModule": true,
         "allowImportingTsExtensions": true,
         "lib": ["ESNext", "DOM", "DOM.Iterable", "WebWorker"],
@@ -15,15 +16,16 @@
         "esModuleInterop": true,
         "forceConsistentCasingInFileNames": true,
         "allowSyntheticDefaultImports": true,
+        "verbatimModuleSyntax": true,
         // END Interop constraints
         // Type checking
         "strict": true,
         "strictNullChecks": true,
         "noImplicitOverride": true,
         "noFallthroughCasesInSwitch": true,
+        "noUncheckedIndexedAccess": true,
+        "exactOptionalPropertyTypes": true,
         // "noImplicitReturns": true, // Way too strict and not worth it?
-        // "noUncheckedIndexedAccess": true, // Way too strict and not worth it?
-        // "exactOptionalPropertyTypes": true, // Way too strict and not worth it?
         // END Type checking
         // Handled in eslint: disable them to prevent error duplication
         "allowUnreachableCode": true, // rule name: no-unreachable
@@ -31,12 +33,12 @@
         "noUnusedLocals": false, // rule name: no-unused-vars, @typescript-eslint/no-unused-vars
         "noUnusedParameters": false, // rule name: no-unused-vars, @typescript-eslint/no-unused-vars: in `args` option
         // END Handled in eslint
-        "jsx": "react-jsx", // React
+        "jsx": "preserve", // React
         "skipLibCheck": true,
         "noEmit": true,
         "incremental": true,
-        "composite": true,
-        "declaration": true,
+        "composite": false,
+        "declaration": false,
         "sourceMap": true,
         "sourceRoot": "/",
         "noEmitHelpers": true,
@@ -46,14 +48,11 @@
         // because the full non-relative path would be longer.
         "baseUrl": ".",
         "paths": {
-            "@/*": ["./src/*"]
+            "@/*": ["./src/*"],
+            "/*": ["./public/*"]
         },
         "types": ["node"]
     },
-    "exclude": [
-        "node_modules/*"
-    ],
-    "include": [
-        "**/*"
-    ],
+    "exclude": [],
+    "include": ["scripts/**/*", "src/**/*", "*"]
 }

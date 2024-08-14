@@ -1,68 +1,81 @@
-import { executeAndWait, getContracts, newContract, settingUp } from "../../utils";
-import { uint256, CairoCustomEnum } from "starknet";
-import ERC20ABI from "../../../artifacts/ERC20ABI";
+import { getContracts, settingUp } from "../../utils";
+import { CairoUint256 } from "starknet";
 import ExchangeRouterABI from "../../../artifacts/ExchangeRouterABI";
+import {
+    createCall,
+    createSatoruContract,
+    createTokenContract,
+    DecreasePositionSwapType,
+    executeAndWait,
+    OrderType,
+    SatoruContract,
+    toCairoCustomEnum,
+} from "satoru-sdk";
 
-async function create_market() {
-    const { account } = await settingUp();
+async function create_long_order() {
+    const { account, chainId } = await settingUp();
     const contracts = getContracts();
 
-    const marketTokenAddress = contracts.MARKET_TOKEN;
-    const zEthAddress: string = contracts.zETH;
+    const orderVaultAddress = contracts.OrderVault;
+    const marketTokenAddress = contracts.MarketToken;
+    const zEthAddress = contracts.zETH;
+
+    if (!orderVaultAddress || !marketTokenAddress || !zEthAddress) {
+        throw new Error("Contracts not found");
+    }
 
     const longAmount = 1000000000000000000; // 1ETH
     const size = 3500000000000000000000; // $3500
     const acceptablePrice = 3501;
 
-    const zEthContract = newContract(ERC20ABI, zEthAddress, account);
-    const exchangeRouterContract = newContract(
+    const zEthContract = createTokenContract(chainId, zEthAddress, account);
+    const exchangeRouterContract = createSatoruContract(
+        chainId,
+        SatoruContract.ExchangeRouter,
         ExchangeRouterABI,
-        contracts.EXCHANGE_ROUTER,
         account
     );
 
-    const zEthBalanceResponse = await zEthContract.call("balance_of", [account.address]);
+    const zEthBalanceResponse = await zEthContract.balance_of(account.address);
     console.log("zETH balance", String(zEthBalanceResponse));
 
     const createOrderParams = {
         receiver: account.address,
-        callback_contract: 0,
-        ui_fee_receiver: 0,
+        callback_contract: "0x0",
+        ui_fee_receiver: "0x0",
         market: marketTokenAddress,
         initial_collateral_token: zEthAddress,
-        swap_path: [],
-        size_delta_usd: uint256.bnToUint256(size),
-        initial_collateral_delta_amount: uint256.bnToUint256(longAmount),
-        trigger_price: uint256.bnToUint256(0),
-        acceptable_price: uint256.bnToUint256(acceptablePrice),
-        execution_fee: uint256.bnToUint256(0),
-        callback_gas_limit: uint256.bnToUint256(0),
-        min_output_amount: uint256.bnToUint256(0),
-        order_type: new CairoCustomEnum({ MarketIncrease: {} }),
-        decrease_position_swap_type: new CairoCustomEnum({ NoSwap: {} }),
+        swap_path: { snapshot: [] },
+        size_delta_usd: new CairoUint256(size),
+        initial_collateral_delta_amount: new CairoUint256(longAmount),
+        trigger_price: new CairoUint256(0),
+        acceptable_price: new CairoUint256(acceptablePrice),
+        execution_fee: new CairoUint256(0),
+        callback_gas_limit: new CairoUint256(0),
+        min_output_amount: new CairoUint256(0),
+        order_type: toCairoCustomEnum(OrderType.MarketIncrease),
+        decrease_position_swap_type: toCairoCustomEnum(DecreasePositionSwapType.NoSwap),
         is_long: true,
         referral_code: 0,
     };
 
     const transferAndCreateOrderReceipt = await executeAndWait(
+        chainId,
         [
-            zEthContract.populate("transfer", [
-                contracts.ORDER_VAULT,
-                uint256.bnToUint256(longAmount),
-            ]),
-            exchangeRouterContract.populate("create_order", [createOrderParams]),
+            createCall(zEthContract, "transfer", [orderVaultAddress, new CairoUint256(longAmount)]),
+            createCall(exchangeRouterContract, "create_order", [createOrderParams]),
         ],
         account
     );
 
     if (transferAndCreateOrderReceipt.isSuccess()) {
         console.log("Order created.");
-        const orderKey = transferAndCreateOrderReceipt.events[1].data[0];
-        console.log(orderKey);
+        const orderKey = transferAndCreateOrderReceipt.events[1]?.data[0];
+        console.log("Order key:", orderKey);
         return;
     }
 
     throw new Error("Order creation failed");
 }
 
-create_market();
+create_long_order();

@@ -1,4 +1,4 @@
-import { json } from "starknet"
+import { json } from "starknet";
 import fs from "node:fs";
 
 const CONTRACTS = [
@@ -21,17 +21,20 @@ const CONTRACTS = [
     ["Reader", "./target/dev/satoru_Reader.contract_class.json"],
     ["Router", "./target/dev/satoru_Router.contract_class.json"],
     ["ExchangeRouter", "./target/dev/satoru_ExchangeRouter.contract_class.json"],
+    ["ReferralStorage", "./target/dev/satoru_ReferralStorage.contract_class.json"],
     ["ERC20", "./target/dev/satoru_ERC20.contract_class.json"],
-];
+] as const;
 
-function getAbis() {
+function genAbis() {
     CONTRACTS.forEach(([name, path]) => {
         const compiledSierra = json.parse(fs.readFileSync(path).toString("ascii"));
         const abiContent = JSON.stringify(compiledSierra.abi);
         fs.writeFileSync(`${__dirname}/../../artifacts/${name}Abi.json`, abiContent, { flag: "w" });
         const tsContent = `const ${name}ABI=${abiContent} as const;export default ${name}ABI`;
-        fs.writeFileSync(`${__dirname}/../../artifacts/${name}ABI.ts`, tsContent, { flag: "w" });
+        fs.writeFileSync(`${__dirname}/../../artifacts/${name}ABI.ts`, tsContent, {
+            flag: "w",
+        });
     });
 }
 
-getAbis()
+genAbis();

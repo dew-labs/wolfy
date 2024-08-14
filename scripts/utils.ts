@@ -14,18 +14,12 @@ import {
     RpcProvider,
     type Call,
     type AccountInterface,
-    type ProviderInterface,
-    type TypedContractV2,
     ec,
 } from "starknet";
 import fs from "node:fs";
-
-export function pascalToUpperSnakeCase(pascalStr: string): string {
-    return pascalStr
-        .replace(/([A-Z])/g, "_$1")
-        .toUpperCase()
-        .slice(1);
-}
+import { StarknetChainId } from "satoru-sdk";
+import setup from "./setup";
+import readline from "node:readline";
 
 export function getCompiledSierra(contractPath: string) {
     return json.parse(
@@ -39,6 +33,25 @@ export function getCompiledCasm(contractPath: string) {
             .readFileSync(`./target/dev/satoru_${contractPath}.compiled_contract_class.json`)
             .toString("ascii")
     ) as CairoAssembly;
+}
+
+export function getClassHashFromSierra(compiledSierra: CompiledSierra) {
+    return hash.computeSierraContractClassHash(compiledSierra);
+}
+
+export function getClassHash(path: string) {
+    return hash.computeSierraContractClassHash(getCompiledSierra(path));
+}
+
+export function getClassHashFromCasm(compiledContract: CompiledContract | string) {
+    return hash.computeContractClassHash(compiledContract);
+}
+
+export function pascalToUpperSnakeCase(pascalStr: string): string {
+    return pascalStr
+        .replace(/([A-Z])/g, "_$1")
+        .toUpperCase()
+        .slice(1);
 }
 
 export async function ensureDeployed(
@@ -82,15 +95,22 @@ export async function ensureDeployed(
             casm: compiledCasm,
             constructorCalldata: constructor,
         });
-        await account.waitForTransaction(deployResponse.deploy.transaction_hash);
-        console.log(
-            `${pascalToUpperSnakeCase(contractPath)}=${deployResponse.deploy.contract_address}`
+        const deployReceipt = await account.waitForTransaction(
+            deployResponse.deploy.transaction_hash
         );
-        return {
-            abi: compiledSierra.abi,
-            address: deployResponse.deploy.contract_address,
-            classHash: deployResponse.deploy.classHash,
-        };
+        if (deployReceipt.isSuccess()) {
+            console.log(
+                `${pascalToUpperSnakeCase(contractPath)}=${deployResponse.deploy.contract_address}`
+            );
+
+            return {
+                abi: compiledSierra.abi,
+                address: deployResponse.deploy.contract_address,
+                classHash: deployResponse.deploy.classHash,
+            };
+        } else {
+            throw new Error(`Failed to deploy ${pascalToUpperSnakeCase(contractPath)}`);
+        }
     } else {
         return {
             address: contractAddress,
@@ -102,39 +122,6 @@ export async function ensureDeployed(
     }
 }
 
-export async function hasRole(
-    roleStoreContract: Contract,
-    address: string,
-    role: string
-): Promise<boolean> {
-    return (await roleStoreContract.call("has_role", [
-        address,
-        shortString.encodeShortString(role),
-    ])) as boolean;
-}
-
-export async function ensureRole(
-    roleStoreContract: Contract,
-    entityName: string,
-    address: string,
-    role: string
-): Promise<void> {
-    const alreadyHasRole = await hasRole(roleStoreContract, address, role);
-    if (!alreadyHasRole) {
-        const roleCall = roleStoreContract.populate("grant_role", [
-            address,
-            shortString.encodeShortString(role),
-        ]);
-        const grant_role_tx = await roleStoreContract.grant_role(roleCall.calldata);
-        await roleStoreContract.providerOrAccount.waitForTransaction(
-            grant_role_tx.transaction_hash
-        );
-        console.log(`${role} role granted to ${entityName}.`);
-    } else {
-        console.log(`${role} role already granted to ${entityName}.`);
-    }
-}
-
 export async function ensureDeclared(account: Account, contractPath: string): Promise<string> {
     const compiledCasm = getCompiledCasm(contractPath);
     const compiledSierra = getCompiledSierra(contractPath);
@@ -143,27 +130,40 @@ export async function ensureDeclared(account: Account, contractPath: string): Pr
             contract: compiledSierra,
             casm: compiledCasm,
         });
-        await account.waitForTransaction(declareResponse.transaction_hash);
-        console.log(`${contractPath} declared.`);
+        const declareReceipt = await account.waitForTransaction(declareResponse.transaction_hash);
+        if (declareReceipt.isSuccess()) {
+            console.log(`${contractPath} declared.`);
+        } else {
+            throw new Error(`Failed to declare ${contractPath}.`);
+        }
     } catch (error) {
         console.log(`${contractPath} already declared.`);
     }
     return getClassHashFromSierra(compiledSierra);
 }
 
-export function getClassHashFromSierra(compiledSierra: CompiledSierra) {
-    return hash.computeSierraContractClassHash(compiledSierra);
-}
+export function getNetAndChainId() {
+    const net = process.env.NET!;
 
-export function getClassHash(path: string) {
-    return hash.computeSierraContractClassHash(getCompiledSierra(path));
-}
+    const chainId = (function () {
+        switch (net) {
+            case "main":
+                return StarknetChainId.SN_MAIN;
+            case "sepolia":
+                return StarknetChainId.SN_SEPOLIA;
+            default:
+                return StarknetChainId.SN_SEPOLIA;
+        }
+    })();
 
-export function getClassHashFromCasm(compiledContract: CompiledContract | string) {
-    return hash.computeContractClassHash(compiledContract);
+    return { net, chainId };
 }
 
 export async function settingUp() {
+    setup();
+
+    const { net, chainId } = getNetAndChainId();
+
     // Connect to provider
     const providerUrl = process.env.PROVIDER_URL;
     const provider = new RpcProvider({
@@ -182,6 +182,8 @@ export async function settingUp() {
     console.log("rpc version =", resp);
 
     return {
+        net,
+        chainId,
         account: account0,
         feeToken: process.env.FEE_TOKEN as string,
     };
@@ -190,7 +192,7 @@ export async function settingUp() {
 export function getPragmaContract() {
     const net = process.env.NET;
     switch (net) {
-        case "mainnet":
+        case "main":
             return "0x2a85bd616f912537c50a49a4076db02c00b29b2cdc8a197ce92ed1837fa875b";
         case "sepolia":
             return "0x36031daa264c24520b11d93af622c848b2499b66b41d611bac95e13cfca131a";
@@ -199,53 +201,63 @@ export function getPragmaContract() {
     }
 }
 
-export function getContracts() {
+export interface Contracts {
+    RoleStore: string | undefined;
+    DataStore: string | undefined;
+    EventEmitter: string | undefined;
+    OracleStore: string | undefined;
+    Pragma: string | undefined;
+    Oracle: string | undefined;
+    OrderVault: string | undefined;
+    SwapHandler: string | undefined;
+    ReferralStorage: string | undefined;
+    IncreaseOrderUtils: string | undefined;
+    DecreaseOrderUtils: string | undefined;
+    SwapOrderUtils: string | undefined;
+    OrderUtils: string | undefined;
+    OrderHandler: string | undefined;
+    DepositVault: string | undefined;
+    DepositHandler: string | undefined;
+    WithdrawalVault: string | undefined;
+    WithdrawalHandler: string | undefined;
+    MarketFactory: string | undefined;
+    Reader: string | undefined;
+    Router: string | undefined;
+    ExchangeRouter: string | undefined;
+    USDC: string | undefined;
+    zETH: string | undefined;
+    MarketToken: string | undefined;
+}
+
+export function getContracts(): Contracts {
     const net = process.env.NET;
-    const contracts = JSON.parse(fs.readFileSync(`./contracts.${net}.json`).toString("ascii"));
+    try {
+        const contracts = JSON.parse(fs.readFileSync(`./contracts.${net}.json`).toString("ascii"));
 
-    return contracts as {
-        ROLE_STORE: string;
-        DATA_STORE: string;
-        EVENT_EMITTER: string;
-        ORACLE_STORE: string;
-        PRAGMA: string;
-        ORACLE: string;
-        ORDER_VAULT: string;
-        SWAP_HANDLER: string;
-        REFERRAL_STORAGE: string;
-        INCREASE_ORDER_UTILS: string;
-        DECREASE_ORDER_UTILS: string;
-        SWAP_ORDER_UTILS: string;
-        ORDER_UTILS: string;
-        ORDER_HANDLER: string;
-        DEPOSIT_VAULT: string;
-        DEPOSIT_HANDLER: string;
-        WITHDRAWAL_VAULT: string;
-        WITHDRAWAL_HANDLER: string;
-        MARKET_FACTORY: string;
-        READER: string;
-        ROUTER: string;
-        EXCHANGE_ROUTER: string;
-        USDC: string;
-        zETH: string;
-        MARKET_TOKEN: string;
-    };
+        if (!contracts || typeof contracts !== "object") return {} as Contracts;
+        return contracts as Contracts;
+    } catch {
+        return {} as Contracts;
+    }
 }
 
-export function newContract<T extends Abi>(
-    abi: T,
-    address: string,
-    providerOrAccount: ProviderInterface
-): TypedContractV2<T> {
-    return new Contract(abi, address, providerOrAccount).typedv2(abi);
+export function getKey(str: string | string[]) {
+    const strs = Array.isArray(str) ? str : [str];
+    return ec.starkCurve.poseidonHashMany(
+        strs.map((str) => BigInt(shortString.encodeShortString(str)))
+    );
 }
 
-export async function executeAndWait(call: Call | Call[], provider: AccountInterface) {
-    const res = await provider.execute(call);
-    const rec = await provider.waitForTransaction(res.transaction_hash);
-    return rec;
+const rl = readline.createInterface({ input: process.stdin, output: process.stdout });
+
+export async function ask(question: string): Promise<string> {
+    return new Promise((resolve, reject) => {
+        rl.question(`${question}: `, async (answer) => {
+            resolve(answer);
+        });
+    });
 }
 
-export function getKey(str: string) {
-    return ec.starkCurve.poseidonHashMany([BigInt(shortString.encodeShortString(str))]);
+export function doneAsking() {
+    rl.close();
 }

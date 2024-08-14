@@ -1,59 +1,70 @@
 import {
+    createCall,
+    createSatoruContract,
+    DataStoreABI,
+    DepositHandlerABI,
     executeAndWait,
-    getCompiledSierra,
-    getContracts,
-    newContract,
-    settingUp,
-} from "../../utils";
-import readline from "readline";
+    SatoruContract,
+} from "satoru-sdk";
+import { settingUp, ask, doneAsking } from "../../utils";
 
-async function deploy() {
-    const rl = readline.createInterface({ input: process.stdin, output: process.stdout });
-
+async function executeDeposit() {
     // Get deposit key from DataStore.get_deposit_keys
-    rl.question("Enter deposit key: ", async (depositKey) => {
-        const { account } = await settingUp();
-        const contracts = getContracts();
+    const depositKey = await ask("Enter deposit key");
 
-        const depositHandlerContract = newContract(
-            getCompiledSierra("DepositHandler").abi,
-            contracts.DEPOSIT_HANDLER,
-            account
-        );
+    if (!depositKey) throw new Error("Invalid deposit key");
 
-        const setPricesParams = {
-            signer_info: 0,
-            tokens: [contracts.zETH, contracts.USDC],
-            compacted_min_oracle_block_numbers: [63970, 63970],
-            compacted_max_oracle_block_numbers: [100000, 100000],
-            compacted_oracle_timestamps: [171119803, 10],
-            compacted_decimals: [1, 1],
-            compacted_min_prices: [2147483648010000], // 500000, 10000 compacted
-            compacted_min_prices_indexes: [0],
-            compacted_max_prices: [4000, 1], // 500000, 10000 compacted
-            compacted_max_prices_indexes: [0],
-            signatures: [
-                ["signatures1", "signatures2"],
-                ["signatures1", "signatures2"],
-            ],
-            price_feed_tokens: [],
-        };
+    const { account, chainId } = await settingUp();
 
-        const executeDepositReceipt = await executeAndWait(
-            depositHandlerContract.populate("execute_deposit", [depositKey, setPricesParams]),
-            account
-        );
+    const dataStoreContract = createSatoruContract(
+        chainId,
+        SatoruContract.DataStore,
+        DataStoreABI,
+        account
+    );
+    const deposit = await dataStoreContract.get_deposit(depositKey);
 
-        if (executeDepositReceipt.isSuccess()) {
-            console.log("Deposit executed");
-        } else {
-            console.log("Deposit execution failed");
-        }
+    const longToken = deposit.initial_long_token;
+    const shortToken = deposit.initial_short_token;
 
-        rl.close();
-    });
+    const depositHandlerContract = createSatoruContract(
+        chainId,
+        SatoruContract.DepositHandler,
+        DepositHandlerABI,
+        account
+    );
 
-    rl.prompt();
+    const setPricesParams = {
+        signer_info: 1,
+        tokens: [longToken, shortToken],
+        compacted_min_oracle_block_numbers: [63970, 63970],
+        compacted_max_oracle_block_numbers: [1000000, 1000000],
+        compacted_oracle_timestamps: [171119803, 10],
+        compacted_decimals: [1, 1],
+        compacted_min_prices: [2147483648010000], // 500000, 10000 compacted
+        compacted_min_prices_indexes: [0],
+        compacted_max_prices: [4000, 1], // 500000, 10000 compacted
+        compacted_max_prices_indexes: [0],
+        signatures: [
+            ["signatures1", "signatures2"],
+            ["signatures1", "signatures2"],
+        ],
+        price_feed_tokens: [],
+    };
+
+    const executeDepositReceipt = await executeAndWait(
+        chainId,
+        createCall(depositHandlerContract, "execute_deposit", [depositKey, setPricesParams]),
+        account
+    );
+
+    if (executeDepositReceipt.isSuccess()) {
+        console.log("Deposit executed");
+    } else {
+        throw new Error("Deposit execution failed");
+    }
+
+    doneAsking();
 }
 
-deploy();
+executeDeposit();
