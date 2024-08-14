@@ -14,9 +14,9 @@ async function createMockToken() {
     const tokenSymbol = await ask("Token symbol");
     if (!tokenSymbol) throw new Error("Token symbol is required");
 
-    const initialSupply = (await ask("Initial supply (default 1000000)")) ?? 1000000;
+    const initialSupply = Number(await ask("Initial supply (default 1000000)")) || 1000000;
     const mintAmount =
-        (await ask("Amount to mint (default 9999999999999000000)")) ?? 9999999999999000000n;
+        BigInt(await ask("Amount to mint (default 9999999999999000000)")) || 9999999999999000000n;
 
     // deploy token
     const token = await ensureDeployed(account, undefined, "ERC20", {

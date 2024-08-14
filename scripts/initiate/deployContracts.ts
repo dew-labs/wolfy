@@ -258,3 +258,142 @@ async function deploy() {
 }
 
 deploy();
+
+
+// // -------------------------------------------------------------------------
+
+// const [
+//     marketTokenClassHash,
+//     roleStore,
+//     increaseOrderUtils,
+//     decreaseOrderUtils,
+//     swapOrderUtils,
+//     reader,
+//     eventEmitter,
+//     pragma,
+// ] = await Promise.all([
+//     ensureDeclared(account, "MarketToken"),
+//     ensureDeployed(account, contracts.RoleStore, "RoleStore", { admin: account.address }, true),
+//     ensureDeployed(account, contracts.IncreaseOrderUtils, "IncreaseOrderUtils", {}, true),
+//     ensureDeployed(account, contracts.DecreaseOrderUtils, "DecreaseOrderUtils", {}, true),
+//     ensureDeployed(account, contracts.SwapOrderUtils, "SwapOrderUtils", {}, true),
+//     ensureDeployed(account, contracts.Reader, "Reader", {}),
+//     ensureDeployed(account, contracts.EventEmitter, "EventEmitter", {}),
+//     // Mock pragma for testing
+//     ensureDeployed(account, contracts.Pragma, "PriceFeed", {}),
+// ]);
+
+// // or const pragma = {address: getPragmaContract()};
+
+// // -------------------------------------------------------------------------
+
+// const [dataStore, orderUtils, router, swapHandler, oracleStore, referralStorage] =
+//     await Promise.all([
+//         ensureDeployed(account, contracts.DataStore, "DataStore", {
+//             role_store_address: roleStore.address,
+//         }),
+//         ensureDeployed(
+//             account,
+//             contracts.OrderUtils,
+//             "OrderUtils",
+//             {
+//                 increase_order_class_hash: increaseOrderUtils.address,
+//                 decrease_order_class_hash: decreaseOrderUtils.classHash,
+//                 swap_order_class_hash: swapOrderUtils.classHash,
+//             },
+//             true
+//         ),
+//         ensureDeployed(account, contracts.Router, "Router", {
+//             role_store_address: roleStore.address,
+//         }),
+//         ensureDeployed(account, contracts.SwapHandler, "SwapHandler", {
+//             role_store_address: roleStore.address,
+//         }),
+//         ensureDeployed(account, contracts.OracleStore, "OracleStore", {
+//             role_store_address: roleStore.address,
+//             event_emitter_address: eventEmitter.address,
+//         }),
+//         ensureDeployed(account, contracts.ReferralStorage, "ReferralStorage", {
+//             event_emitter_address: eventEmitter.address,
+//         }),
+//     ]);
+
+// // -------------------------------------------------------------------------
+
+// const [depositVault, withdrawalVault, marketFactory, orderVault, oracle] = await Promise.all([
+//     ensureDeployed(account, contracts.DepositVault, "DepositVault", {
+//         data_store_address: dataStore.address,
+//         role_store_address: roleStore.address,
+//     }),
+//     ensureDeployed(account, contracts.WithdrawalVault, "WithdrawalVault", {
+//         data_store_address: dataStore.address,
+//         role_store_address: roleStore.address,
+//     }),
+//     ensureDeployed(account, contracts.MarketFactory, "MarketFactory", {
+//         data_store_address: dataStore.address,
+//         role_store_address: roleStore.address,
+//         event_emitter_address: eventEmitter.address,
+//         market_token_class_hash: marketTokenClassHash,
+//     }),
+//     ensureDeployed(account, contracts.OrderVault, "OrderVault", {
+//         data_store_address: dataStore.address,
+//         role_store_address: roleStore.address,
+//     }),
+//     // Oracle change will lead to OrderHandler, DepositHandler, WithdrawalHandler, and ExchangeRouter change
+//     ensureDeployed(account, contracts.Oracle, "Oracle", {
+//         role_store_address: roleStore.address,
+//         oracle_store_address: oracleStore.address,
+//         pragma_address: pragma.address,
+//     }),
+// ]);
+
+// // -------------------------------------------------------------------------
+
+// const [orderHandler, depositHandler, withdrawalHandler] = await Promise.all([
+//     ensureDeployed(account, contracts.OrderHandler, "OrderHandler", {
+//         data_store_address: dataStore.address,
+//         role_store_address: roleStore.address,
+//         event_emitter_address: eventEmitter.address,
+//         order_vault_address: orderVault.address,
+//         oracle_address: oracle.address,
+//         swap_handler_address: swapHandler.address,
+//         referral_storage_address: referralStorage.address,
+//         order_utils_class_hash: orderUtils.classHash,
+//         increase_order_utils_class_hash: increaseOrderUtils.classHash,
+//         decrease_order_utils_class_hash: decreaseOrderUtils.classHash,
+//         swap_order_utils_class_hash: swapOrderUtils.classHash,
+//     }),
+//     ensureDeployed(account, contracts.DepositHandler, "DepositHandler", {
+//         data_store_address: dataStore.address,
+//         role_store_address: roleStore.address,
+//         event_emitter_address: eventEmitter.address,
+//         deposit_vault_address: depositVault.address,
+//         oracle_address: oracle.address,
+//     }),
+//     ensureDeployed(account, contracts.WithdrawalHandler, "WithdrawalHandler", {
+//         data_store_address: dataStore.address,
+//         role_store_address: roleStore.address,
+//         event_emitter_address: eventEmitter.address,
+//         withdrawal_vault_address: withdrawalVault.address,
+//         oracle_address: oracle.address,
+//     }),
+// ]);
+
+// // -------------------------------------------------------------------------
+
+// const exchangeRouter = await ensureDeployed(
+//     account,
+//     contracts.ExchangeRouter,
+//     "ExchangeRouter",
+//     {
+//         router_address: router.address,
+//         data_store_address: dataStore.address,
+//         role_store_address: roleStore.address,
+//         event_emitter_address: eventEmitter.address,
+//         deposit_handler_address: depositHandler.address,
+//         withdrawal_handler_address: withdrawalHandler.address,
+//         order_handler_address: orderHandler.address,
+//     }
+// );
+
+// // -------------------------------------------------------------------------

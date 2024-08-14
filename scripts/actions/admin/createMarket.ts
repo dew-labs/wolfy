@@ -78,43 +78,43 @@ async function configOriginal(
     await executeAndWait(account, [
         createCall(dataStoreContract, "set_u256", [
             maxPoolAmountLongKey,
-            new CairoUint256(5000000000000000000000000000000000000000000),
+            new CairoUint256(5000000000000000000000000000000000000000000n),
         ]),
         createCall(dataStoreContract, "set_u256", [
             maxPoolAmountShortKey,
-            new CairoUint256(2500000000000000000000000000000000000000000000),
+            new CairoUint256(2500000000000000000000000000000000000000000000n),
         ]),
         createCall(dataStoreContract, "set_u256", [
             maxPnlFactorForDepositsLongKey,
-            new CairoUint256(50000000000000000000000000000000000000000000000),
+            new CairoUint256(50000000000000000000000000000000000000000000000n),
         ]),
         createCall(dataStoreContract, "set_u256", [
             maxPnlFactorForDepositsShortKey,
-            new CairoUint256(50000000000000000000000000000000000000000000000),
+            new CairoUint256(50000000000000000000000000000000000000000000000n),
         ]),
         createCall(dataStoreContract, "set_u256", [
             maxPnlFactorForWithdrawalsLongKey,
-            new CairoUint256(50000000000000000000000000000000000000000000000),
+            new CairoUint256(50000000000000000000000000000000000000000000000n),
         ]),
         createCall(dataStoreContract, "set_u256", [
             maxPnlFactorForWithdrawalsShortKey,
-            new CairoUint256(50000000000000000000000000000000000000000000000),
+            new CairoUint256(50000000000000000000000000000000000000000000000n),
         ]),
         createCall(dataStoreContract, "set_u256", [
             reserveFactorLongKey,
-            new CairoUint256(1000000000000000000),
+            new CairoUint256(1000000000000000000n),
         ]),
         createCall(dataStoreContract, "set_u256", [
             reserveFactorShortKey,
-            new CairoUint256(1000000000000000000),
+            new CairoUint256(1000000000000000000n),
         ]),
         createCall(dataStoreContract, "set_u256", [
             openInterestReserveFactorLongKey,
-            new CairoUint256(1000000000000000000),
+            new CairoUint256(1000000000000000000n),
         ]),
         createCall(dataStoreContract, "set_u256", [
             openInterestReserveFactorShortKey,
-            new CairoUint256(1000000000000000000),
+            new CairoUint256(1000000000000000000n),
         ]),
     ]);
 }

@@ -1,0 +1,14 @@
+[
+    {
+        "address": "0x16d2a3ab3c84f49e71497d3545211853ce4d3dc6dd6e1f37d97589c60695887",
+        "name": "Wolfy Ethereum",
+        "symbol": "wfETH",
+        "owner": "0x01cf633c2dee3c6ec9813bdead7ba3ea5be69fe3fe652a7a51f592f6af869e80"
+    },
+    {
+        "address": "0x6dc647f679cd30fe8ddd25f667bf2258bb80beb8486718bc65f6de244376b15",
+        "name": "Wolfy USD",
+        "symbol": "wfUSD",
+        "owner": "0x01cf633c2dee3c6ec9813bdead7ba3ea5be69fe3fe652a7a51f592f6af869e80"
+    }
+]

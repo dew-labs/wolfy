@@ -49,13 +49,6 @@ export function getClassHashFromCasm(compiledContract: CompiledContract | string
     return hash.computeContractClassHash(compiledContract);
 }
 
-export function pascalToUpperSnakeCase(pascalStr: string): string {
-    return pascalStr
-        .replace(/([A-Z])/g, "_$1")
-        .toUpperCase()
-        .slice(1);
-}
-
 export async function ensureDeployed(
     account: Account,
     contractAddress: string | undefined,
@@ -101,9 +94,7 @@ export async function ensureDeployed(
             deployResponse.deploy.transaction_hash
         );
         if (deployReceipt.isSuccess()) {
-            console.log(
-                `${pascalToUpperSnakeCase(contractPath)}=${deployResponse.deploy.contract_address}`
-            );
+            console.log(`${contractPath}=${deployResponse.deploy.contract_address}`);
 
             return {
                 abi: compiledSierra.abi,
@@ -111,7 +102,7 @@ export async function ensureDeployed(
                 classHash: deployResponse.deploy.classHash,
             };
         } else {
-            throw new Error(`Failed to deploy ${pascalToUpperSnakeCase(contractPath)}`);
+            throw new Error(`Failed to deploy ${contractPath}`);
         }
     } else {
         return {

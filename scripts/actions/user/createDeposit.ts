@@ -5,6 +5,7 @@ import {
     createSatoruContract,
     createTokenContract,
     DataStoreABI,
+    DepositHandlerABI,
     ExchangeRouterABI,
     executeAndWait,
     SatoruContract,
