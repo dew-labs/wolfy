@@ -1,75 +1,94 @@
-import { executeAndWait, getContracts, newContract, settingUp } from "../../utils";
-import DataStoreABI from "../../../artifacts/DataStoreABI";
-import readline from "readline";
-import OrderHandlerABI from "../../../artifacts/OrderHandlerABI";
+import {
+    createCall,
+    createSatoruContract,
+    DataStoreABI,
+    executeAndWait,
+    OrderHandlerABI,
+    SatoruContract,
+    toStarknetHexString,
+} from "satoru-sdk";
+import { createAsker, decimalToFloat, settingUp } from "../../utils";
 
 async function create_market() {
-    const rl = readline.createInterface({ input: process.stdin, output: process.stdout });
-
     // get order key from DataStore.get_account_order_keys
-    rl.question("Enter long order key: ", async (longOrderKey) => {
-        const { account } = await settingUp();
-        const contracts = getContracts();
+    const { ask, doneAsking } = createAsker();
 
-        const marketTokenAddress = contracts.MARKET_TOKEN;
-        const zEthAddress = contracts.zETH;
-        const usdcAddress = contracts.USDC;
+    const { account, chainId } = await settingUp();
 
-        const dataStoreContract = newContract(DataStoreABI, contracts.DATA_STORE, account);
+    const dataStoreContract = createSatoruContract(
+        chainId,
+        SatoruContract.DataStore,
+        DataStoreABI,
+        account
+    );
 
-        await executeAndWait(
-            [
-                dataStoreContract.populate("set_u256", [
-                    await dataStoreContract.get_open_interest_key(
-                        marketTokenAddress,
-                        zEthAddress,
-                        true
-                    ),
-                    1,
-                ]),
-                dataStoreContract.populate("set_u256", [
-                    await dataStoreContract.get_max_open_interest_key(marketTokenAddress, true),
-                    1000000000000000000000000000000000000000000000000000,
-                ]),
-            ],
-            account
-        );
+    let orderKey = await ask("Enter order key (default to lastest order");
 
-        const setPricesParams = {
-            signer_info: true,
-            tokens: [zEthAddress, usdcAddress],
-            compacted_min_oracle_block_numbers: [63970, 63970],
-            compacted_max_oracle_block_numbers: [64901, 64901],
-            compacted_oracle_timestamps: [171119803, 10],
-            compacted_decimals: [1, 1],
-            compacted_min_prices: [2147483648010000], // 500000, 10000 compacted
-            compacted_min_prices_indexes: [0],
-            compacted_max_prices: [3500, 1],
-            compacted_max_prices_indexes: [0],
-            signatures: [
-                ["signatures1", "signatures2"],
-                ["signatures1", "signatures2"],
-            ],
-            price_feed_tokens: [],
-        };
+    if (!orderKey) {
+        const orderCount = BigInt(await dataStoreContract.get_order_count());
+        if (orderCount === 0n) throw new Error("No order available");
 
-        const orderHandlerContract = newContract(OrderHandlerABI, contracts.ORDER_HANDLER, account);
+        const lastOrder = (await dataStoreContract.get_order_keys(orderCount - 1n, orderCount))[0];
+        if (!lastOrder) throw new Error("Invalid order");
 
-        const executeOrderReceipt = await executeAndWait(
-            orderHandlerContract.populate("execute_order", [longOrderKey, setPricesParams]),
-            account
-        );
+        orderKey = toStarknetHexString(lastOrder);
+        console.log("Order:", orderKey);
+    }
 
-        if (executeOrderReceipt.isSuccess()) {
-            console.log("Order executed");
-        } else {
-            console.log("Order execution failed");
-        }
+    const order = await dataStoreContract.get_order(orderKey);
+    const market = await dataStoreContract.get_market(order.market);
 
-        rl.close();
-    });
+    const longTokenAddress = market.long_token;
+    const shortTokenAddress = market.short_token;
 
-    rl.prompt();
+    // await executeAndWait(account, [
+    //     dataStoreContract.populate("set_u256", [
+    //         await dataStoreContract.get_open_interest_key(
+    //             marketTokenAddress,
+    //             longTokenAddress,
+    //             true
+    //         ),
+    //         1,
+    //     ]),
+    // ]);
+
+    const setPricesParams = {
+        signer_info: 1,
+        tokens: [longTokenAddress, shortTokenAddress],
+        compacted_min_oracle_block_numbers: [63970, 63970],
+        compacted_max_oracle_block_numbers: [1000000, 1000000],
+        compacted_oracle_timestamps: [171119803, 10],
+        compacted_decimals: [1, 1],
+        compacted_min_prices: [2147483648010000], // 500000, 10000 compacted
+        compacted_min_prices_indexes: [0],
+        compacted_max_prices: [3500, 1],
+        compacted_max_prices_indexes: [0],
+        signatures: [
+            ["signatures1", "signatures2"],
+            ["signatures1", "signatures2"],
+        ],
+        price_feed_tokens: [],
+    };
+
+    const orderHandlerContract = createSatoruContract(
+        chainId,
+        SatoruContract.OrderHandler,
+        OrderHandlerABI,
+        account
+    );
+
+    const executeOrderReceipt = await executeAndWait(
+        account,
+        createCall(orderHandlerContract, "execute_order", [orderKey, setPricesParams])
+    );
+
+    if (executeOrderReceipt.isSuccess()) {
+        console.log("Order executed");
+    } else {
+        throw new Error("Order execution failed");
+    }
+
+    doneAsking();
 }
 
 create_market();

@@ -11,6 +11,9 @@ importers:
       '@dotenvx/dotenvx':
         specifier: ^1.6.4
         version: 1.6.4
+      abi-wan-kanabi:
+        specifier: ^2.2.2
+        version: 2.2.2
       jiti:
         specifier: ^1.21.6
         version: 1.21.6

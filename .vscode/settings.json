@@ -1,5 +1,6 @@
 {
     "typescript.tsdk": "node_modules/typescript/lib",
     "eslint.enable": false,
-    "cSpell.words": ["dotenvx", "jiti", "sepolia"]
+    "cSpell.words": ["dotenvx", "jiti", "sepolia"],
+    "svg.preview.background": "dark-transparent"
 }
