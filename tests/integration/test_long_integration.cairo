@@ -2408,3 +2408,115 @@ fn test_long_leverage_liquidation() {
     // *********************************************************************************************
     tests_lib::teardown();
 }
+
+#[test]
+fn test_long_increase_then_cancel() {
+    // *********************************************************************************************
+    // *                              SETUP                                                        *
+    // *********************************************************************************************
+    let (
+        caller_address,
+        _market_token_class,
+        _market_factory,
+        role_store,
+        data_store,
+        _event_emitter,
+        exchange_router,
+        _deposit_handler,
+        _deposit_vault,
+        _oracle,
+        order_handler,
+        order_vault,
+        reader,
+        referal_storage,
+        _withdrawal_handler,
+        _withdrawal_vault,
+        _liquidation_handler,
+        market,
+    ) =
+        deposit_setup(
+        50000000000000000000000000000, 50000000000000000000000000000
+    );
+
+    let balance_caller_ETH = IERC20Dispatcher { contract_address: market.long_token }.balance_of(caller_address);
+    let balance_caller_USDC = IERC20Dispatcher { contract_address: market.short_token }.balance_of(caller_address);
+
+    assert(balance_caller_ETH == 10000000000000000000, 'balanc ETH should be 10 ETH');
+    assert(balance_caller_USDC == 50000000000000000000000, 'USDC be 50 000 USDC');
+
+    // let pool_value_info = market_utils::get_pool_value_info(
+    //     data_store,
+    //     market,
+    //     Price { min: 5000, max: 5000, },
+    //     Price { min: 5000, max: 5000, },
+    //     Price { min: 1, max: 1, },
+    //     keys::max_pnl_factor_for_deposits(),
+    //     true,
+    // );
+
+    // pool_value_info.pool_value.mag.print(); // 10000 000000000000000000
+    // pool_value_info.long_token_amount.print(); // 5 000000000000000000
+    // pool_value_info.short_token_amount.print(); // 25000 000000000000000000
+
+    // ************************************* TEST LONG *********************************************
+
+    'Begining of LONG TEST'.print();
+
+    // Send token to order_vault in multicall with create_order
+    start_cheat_caller_address(contract_address_const::<'ETH'>(), caller_address);
+    IERC20Dispatcher { contract_address: contract_address_const::<'ETH'>() }
+        .transfer(order_vault.contract_address, 1000000000000000000); // 1ETH
+
+    'transfer made'.print();
+
+    // Create order_params Struct
+    let contract_address = contract_address_const::<0>();
+
+    start_cheat_caller_address(market.market_token, caller_address);
+    start_cheat_caller_address(market.long_token, caller_address);
+
+    let order_params_long = CreateOrderParams {
+        receiver: caller_address,
+        callback_contract: contract_address,
+        ui_fee_receiver: contract_address,
+        market: market.market_token,
+        initial_collateral_token: market.long_token,
+        swap_path: Array32Trait::<ContractAddress>::span32(@array![]),
+        size_delta_usd: 3500000000000000000000,
+        initial_collateral_delta_amount: 1000000000000000000, // 10^18
+        trigger_price: 0,
+        acceptable_price: 3501,
+        execution_fee: 0,
+        callback_gas_limit: 0,
+        min_output_amount: 0,
+        order_type: OrderType::MarketIncrease(()),
+        decrease_position_swap_type: DecreasePositionSwapType::NoSwap(()),
+        is_long: true,
+        referral_code: 0
+    };
+
+    // Create the long order.
+
+    'try to create prder'.print();
+
+    start_cheat_block_number(exchange_router.contract_address, 1930);
+    start_cheat_caller_address(exchange_router.contract_address, caller_address);
+
+    let key_long = exchange_router.create_order(order_params_long);
+    'long created'.print();
+
+    // cancel the long order.
+
+    start_cheat_block_number(order_handler.contract_address, 2001);
+    start_cheat_caller_address(order_handler.contract_address, caller_address);
+
+    order_handler.cancel_order(key_long);
+
+
+    'long position CANCELLED'.print();
+
+    // *********************************************************************************************
+    // *                              TEARDOWN                                                     *
+    // *********************************************************************************************
+    tests_lib::teardown();
+}

@@ -371,7 +371,6 @@ mod OrderUtils {
             base_order_utils::validate_non_empty_order(@order);
 
             data_store.remove_order(key, order.account);
-
             if (base_order_utils::is_increase_order(order.order_type)
                 || base_order_utils::is_swap_order(order.order_type)) {
                 if (order.initial_collateral_delta_amount > 0) {
@@ -390,9 +389,10 @@ mod OrderUtils {
             // let mut event_data: LogData = Default::default();
             // callback_utils::after_order_cancellation(key, order, event_data);
 
-            gas_utils::pay_execution_fee_order(
-                data_store, event_emitter, order_vault, order.execution_fee, starting_gas, keeper, order.account
-            );
+            // TODO: enable when gas utils is ready
+            // gas_utils::pay_execution_fee_order(
+            //     data_store, event_emitter, order_vault, order.execution_fee, starting_gas, keeper, order.account
+            // );
         }
 
         /// Freezes an order.
@@ -438,9 +438,10 @@ mod OrderUtils {
             // let mut event_data: LogData = Default::default();
             // callback_utils::after_order_frozen(key, order, event_data);
 
-            gas_utils::pay_execution_fee_order(
-                data_store, event_emitter, order_vault, execution_fee, starting_gas, keeper, order.account
-            );
+            // TODO: enable when gas utils is ready
+            // gas_utils::pay_execution_fee_order(
+            //     data_store, event_emitter, order_vault, execution_fee, starting_gas, keeper, order.account
+            // );
         }
     }
 }

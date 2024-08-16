@@ -89,6 +89,7 @@ import { getKey, type Hashable } from "./utils";
 // }
 
 
+export const REQUEST_EXPIRATION_BLOCK_AGE = getKey("REQ_EXPIR_BLOCK_AGE");
 export const MAX_ORAC_REF_PRICE_DEV_FACTOR = getKey("MAX_ORAC_REF_PRICE_DEV_FACTOR");
 export const STABLE_PRICE = getKey("STABLE_PRICE");
 export const POSITION_IMPACT_FACTOR_KEY = getKey("POSITION_IMPACT_FACTOR");

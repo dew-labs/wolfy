@@ -163,6 +163,8 @@ async function config() {
 
     console.log("Begin config...");
 
+    const calls: Call[] = [];
+
     // -----------------------------------------------------------------------------------------------------------------
 
     // const virtualTokenCalls = [];
@@ -186,7 +188,11 @@ async function config() {
 
     // -----------------------------------------------------------------------------------------------------------------
 
-    const calls: Call[] = [];
+    calls.push(
+        createCall(dataStoreContract, "set_u256", [dataStoreKeys.REQUEST_EXPIRATION_BLOCK_AGE, 0])
+    );
+
+    // -----------------------------------------------------------------------------------------------------------------
 
     // maxLongTokenPoolAmount
     const maxLongTokenPoolAmountKey = dataStoreKeys.maxPoolAmountKey(
