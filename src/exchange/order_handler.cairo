@@ -48,15 +48,15 @@ trait IOrderHandler<TContractState> {
     /// * `order` - The order to update that will be stored.
     /// # Returns
     /// The updated order.
-    // fn update_order(
-    //     ref self: TContractState,
-    //     key: felt252,
-    //     size_delta_usd: u256,
-    //     acceptable_price: u256,
-    //     trigger_price: u256,
-    //     min_output_amount: u256,
-    //     order: Order
-    // ) -> Order;
+    fn update_order(
+        ref self: TContractState,
+        key: felt252,
+        size_delta_usd: u256,
+        acceptable_price: u256,
+        trigger_price: u256,
+        min_output_amount: u256,
+        order: Order
+    ) -> Order;
 
     /// Cancels the given order. The `cancelOrder()` feature must be enabled for the given order
     /// type. The caller must be the owner of the order. The order is cancelled by calling the `cancelOrder()`
@@ -64,7 +64,7 @@ trait IOrderHandler<TContractState> {
     /// reason for cancellation, which is passed to the `cancelOrder()` function.
     /// # Arguments
     /// * `key` - The unique ID of the order to cancel.
-    // fn cancel_order(ref self: TContractState, key: felt252);
+    fn cancel_order(ref self: TContractState, key: felt252);
 
     /// Executes an order.
     /// # Arguments
@@ -114,11 +114,12 @@ mod OrderHandler {
         order::{Order, OrderTrait, OrderType, SecondaryOrderType},
         order_vault::{IOrderVaultDispatcher, IOrderVaultDispatcherTrait}
     };
+    use satoru::order::base_order_utils;
     // use satoru::market::error::MarketError;
     // use satoru::position::error::PositionError;
     // use satoru::feature::error::FeatureError;
     use satoru::order::error::OrderError;
-    // use satoru::exchange::exchange_utils;
+    use satoru::exchange::exchange_utils;
     use satoru::exchange::base_order_handler::{IBaseOrderHandler, BaseOrderHandler};
     use satoru::exchange::base_order_handler::BaseOrderHandler::{
         role_storeContractMemberStateTrait, data_storeContractMemberStateTrait, event_emitterContractMemberStateTrait,
@@ -129,13 +130,14 @@ mod OrderHandler {
     use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
     use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
     use satoru::data::keys::{create_order_feature_disabled_key, execute_order_feature_disabled_key};
+    use satoru::data::keys;
     use satoru::role::role::FROZEN_ORDER_KEEPER;
     use satoru::role::role_module::{RoleModule, IRoleModule};
     use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
-    // use satoru::token::token_utils;
-    // use satoru::gas::gas_utils;
+    use satoru::token::token_utils;
+    use satoru::gas::gas_utils;
     use satoru::utils::global_reentrancy_guard::{non_reentrant_before, non_reentrant_after};
-    // use satoru::utils::error_utils;
+    use satoru::utils::error_utils;
     use satoru::token::erc20::interface::{IERC20, IERC20Dispatcher, IERC20DispatcherTrait};
     use starknet::contract_address_const;
 
@@ -224,6 +226,172 @@ mod OrderHandler {
 
             key
         }
+
+        fn update_order(
+            ref self: ContractState,
+            key: felt252,
+            size_delta_usd: u256,
+            acceptable_price: u256,
+            trigger_price: u256,
+            min_output_amount: u256,
+            order: Order
+        ) -> Order {
+            // Check only controller.
+            let role_module_state = RoleModule::unsafe_new_contract_state();
+            role_module_state.only_controller();
+
+            // Fetch data store.
+            let base_order_handler_state = BaseOrderHandler::unsafe_new_contract_state();
+            let data_store = base_order_handler_state.data_store.read();
+            let event_emitter = base_order_handler_state.event_emitter.read();
+
+            non_reentrant_before(data_store);
+
+            // Validate feature.
+            validate_feature(
+                data_store,
+                keys::update_order_feature_disabled_key(get_contract_address(), order.order_type)
+            );
+
+            assert(base_order_utils::is_market_order(order.order_type), 'OrderNotUpdatable');
+
+            let mut updated_order = order.clone();
+            updated_order.size_delta_usd = size_delta_usd;
+            updated_order.trigger_price = trigger_price;
+            updated_order.acceptable_price = acceptable_price;
+            updated_order.min_output_amount = min_output_amount;
+            updated_order.is_frozen = false;
+
+            // Allow topping up of execution fee as frozen orders will have execution fee reduced.
+            let fee_token = token_utils::fee_token(data_store);
+            let order_vault = base_order_handler_state.order_vault.read();
+            let received_fee_token = order_vault.record_transfer_in(fee_token);
+            updated_order.execution_fee = received_fee_token;
+
+            let estimated_gas_limit = gas_utils::estimate_execute_order_gas_limit(
+                data_store, @updated_order
+            );
+            gas_utils::validate_execution_fee(
+                data_store, estimated_gas_limit, updated_order.execution_fee
+            );
+
+            updated_order.touch();
+
+            base_order_utils::validate_non_empty_order(@updated_order);
+
+            data_store.set_order(key, updated_order);
+            event_emitter
+                .emit_order_updated(
+                    key, size_delta_usd, acceptable_price, trigger_price, min_output_amount
+                );
+
+            non_reentrant_after(data_store);
+
+            updated_order
+        }
+
+        fn cancel_order(ref self: ContractState, key: felt252) {
+            let starting_gas: u256 = 0; // TODO: Get starting gas from Cairo.
+
+            // Check only controller.
+            let role_module_state = RoleModule::unsafe_new_contract_state();
+            role_module_state.only_controller();
+
+            // Fetch data store.
+            let base_order_handler_state = BaseOrderHandler::unsafe_new_contract_state();
+            let data_store = base_order_handler_state.data_store.read();
+
+            non_reentrant_before(data_store);
+
+            let order = data_store.get_order(key);
+
+            // Validate feature.
+            validate_feature(
+                data_store,
+                keys::cancel_order_feature_disabled_key(get_contract_address(), order.order_type)
+            );
+
+            if base_order_utils::is_market_order(order.order_type) {
+                exchange_utils::validate_request_cancellation(
+                    data_store, order.updated_at_block, 'Order'
+                )
+            }
+
+            base_order_handler_state
+                .order_utils_lib
+                .read()
+                .cancel_order(
+                data_store,
+                base_order_handler_state.event_emitter.read(),
+                base_order_handler_state.order_vault.read(),
+                key,
+                order.account,
+                starting_gas,
+                keys::user_initiated_cancel(),
+                ArrayTrait::<felt252>::new(),
+            );
+
+            non_reentrant_after(data_store);
+        }
+
+
+        /// Handles error from order.
+        /// # Arguments
+        /// * `key` - The key of the deposit to handle error for.
+        /// * `starting_gas` - The starting gas of the transaction.
+        /// * `reason` - The reason of the error.
+        // fn handle_order_error(
+        //     self: @ContractState, key: felt252, starting_gas: u256, reason_bytes: Array<felt252>
+        // ) {
+        //     let error_selector = error_utils::get_error_selector_from_data(reason_bytes.span());
+
+        //     let mut base_order_handler_state = BaseOrderHandler::unsafe_new_contract_state();
+        //     let data_store = base_order_handler_state.data_store.read();
+
+        //     let order = data_store.get_order(key);
+        //     // let is_market_order = base_order_utils::is_market_order(order.order_type);
+
+        //     if (oracle_utils::is_oracle_error(error_selector)
+        //         || order.is_frozen
+        //         // || (!is_market_order && error_selector == PositionError::EMPTY_POSITION)
+        //         || error_selector == OrderError::EMPTY_ORDER
+        //         || error_selector == FeatureError::DISABLED_FEATURE
+        //         || error_selector == OrderError::INVALID_KEEPER_FOR_FROZEN_ORDER
+        //         || error_selector == OrderError::UNSUPPORTED_ORDER_TYPE
+        //         || error_selector == OrderError::INVALID_ORDER_PRICES) {
+        //         assert(false, error_utils::revert_with_custom_error(reason_bytes.span()))
+        //     }
+
+        //     let reason = error_utils::get_revert_message(reason_bytes.span());
+
+        //     if (is_market_order
+        //         || error_selector == MarketError::INVALID_POSITION_MARKET
+        //         || error_selector == MarketError::INVALID_COLLATERAL_TOKEN_FOR_MARKET
+        //         || error_selector == PositionError::INVALID_POSITION_SIZE_VALUES) {
+        //         order_utils::cancel_order(
+        //             data_store,
+        //             base_order_handler_state.event_emitter.read(),
+        //             base_order_handler_state.order_vault.read(),
+        //             key,
+        //             order.account,
+        //             starting_gas,
+        //             reason,
+        //             reason_bytes,
+        //         );
+        //         return ();
+        //     }
+
+        //     order_utils::freeze_order(
+        //         data_store,
+        //         base_order_handler_state.event_emitter.read(),
+        //         base_order_handler_state.order_vault.read(),
+        //         key,
+        //         get_caller_address(),
+        //         starting_gas,
+        //         reason,
+        //         reason_bytes
+        //     );
+        // }
 
 
         fn execute_order(ref self: ContractState, key: felt252, oracle_params: SetPricesParams) {
