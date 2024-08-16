@@ -55,8 +55,8 @@ async function createOrder() {
 
     const collateralTokenAddress = toStarknetHexString(market.long_token); // ETH
 
-    const collateralAmount = expandDecimals(1n, 18); // 1ETH
-    const size = expandDecimals(3500n, 18); // $3500
+    const collateralAmount = expandDecimals(1n, 18); // 1ETH = 1000000000000000000
+    const size = expandDecimals(3500n, 18); // $3500 = 3500000000000000000000
     const acceptablePrice = 3501; // TODO: should expand decimal too?
 
     const zEthContract = createTokenContract(chainId, collateralTokenAddress, account);

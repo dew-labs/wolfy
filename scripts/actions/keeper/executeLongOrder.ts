@@ -44,7 +44,7 @@ async function create_market() {
     // await executeAndWait(account, [
     //     dataStoreContract.populate("set_u256", [
     //         await dataStoreContract.get_open_interest_key(
-    //             marketTokenAddress,
+    //             market.market_token,
     //             longTokenAddress,
     //             true
     //         ),
