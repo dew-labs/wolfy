@@ -104,45 +104,31 @@ async function createMarket() {
 
     // END create market
 
-    // BEGIN Fill the pool, this is the initial amount that depositors will put in the pool
-    // Mint zETH to the market token
-    await executeAndWait(
-        account,
+    await executeAndWait(account, [
+        // BEGIN Fill the pool, this is the initial amount that depositors will put in the pool
+        // Mint zETH to the market token
         createCall(longTokenContract, "mint", [
             marketTokenAddress,
             new CairoUint256(50000000000000000000000000000000000000),
-        ])
-    );
-
-    // Mint USDC to the market token
-    await executeAndWait(
-        account,
+        ]),
+        // Mint USDC to the market token
         createCall(shortTokenContract, "mint", [
             marketTokenAddress,
             new CairoUint256(25000000000000000000000000000000000000000),
-        ])
-    );
-    // END Fill the pool
-
-    // BEGIN Fill the account, this help our account have a initial balance
-    // Mint zETH to account
-    await executeAndWait(
-        account,
+        ]),
+        // END Fill the pool
+        // BEGIN Fill the account, this help our account have a initial balance
+        // Mint zETH to account
         createCall(longTokenContract, "mint", [
             account.address,
             new CairoUint256(9999999999999000000),
-        ])
-    );
-
-    // Mint USDC to account
-    await executeAndWait(
-        account,
+        ]),
+        // Mint USDC to account
         createCall(shortTokenContract, "mint", [
             account.address,
             new CairoUint256(49999999999999999000000),
-        ])
-    );
-    // EMD Fill the account
+        ]),
+    ]);
 
     console.log("All mint done.");
 }

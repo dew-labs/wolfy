@@ -1,19 +1,21 @@
 import { createAsker, expandDecimals, getContracts, settingUp } from "../../utils";
-import { ExchangeRouterABI, toCairoCustomEnum } from "satoru-sdk";
+import { toCairoCustomEnum } from "satoru-sdk";
 import {
     createCall,
-    createSatoruContract,
     createTokenContract,
-    DataStoreABI,
     DecreasePositionSwapType,
-    executeAndWait,
     OrderType,
-    SatoruContract,
     toStarknetHexString,
 } from "satoru-sdk";
+import {
+    askOrLatestMarketToken,
+    executeAndGetResult,
+    getDataStoreContract,
+    getExchangeRouterContract,
+} from "../../helpers";
 import { CairoUint256 } from "starknet";
 
-async function createOrder() {
+async function createLongOrder() {
     const contracts = getContracts();
 
     const orderVaultAddress = contracts.OrderVault;
@@ -21,37 +23,13 @@ async function createOrder() {
 
     const { account, chainId } = await settingUp();
 
-    const dataStoreContract = createSatoruContract(
-        chainId,
-        SatoruContract.DataStore,
-        DataStoreABI,
-        account
-    );
+    const dataStoreContract = getDataStoreContract(chainId, account);
 
     const { ask, doneAsking } = createAsker();
 
-    let marketToken = await ask("Enter market token (default to last market)");
-
-    if (!marketToken) {
-        const marketCount = BigInt(await dataStoreContract.get_market_count());
-        if (marketCount === 0n) throw new Error("No market available");
-        const lastMarket = (
-            await dataStoreContract.get_market_keys(marketCount - 1n, marketCount)
-        )[0];
-        if (!lastMarket) throw new Error("Invalid market");
-        marketToken = toStarknetHexString(lastMarket);
-        console.log("Market:", marketToken);
-    }
+    const marketToken = await askOrLatestMarketToken(ask, chainId);
 
     const market = await dataStoreContract.get_market(marketToken);
-
-    const indexTokenAddress = toStarknetHexString(market.index_token);
-    const longTokenAddress = toStarknetHexString(market.long_token);
-    const shortTokenAddress = toStarknetHexString(market.short_token);
-
-    console.log("Index token:", indexTokenAddress);
-    console.log("Long token:", longTokenAddress);
-    console.log("Short token:", shortTokenAddress);
 
     const collateralTokenAddress = toStarknetHexString(market.long_token); // ETH
 
@@ -59,15 +37,11 @@ async function createOrder() {
     const size = expandDecimals(3500n, 18); // $3500 = 3500000000000000000000
     const acceptablePrice = 3501; // TODO: should expand decimal too?
 
-    const zEthContract = createTokenContract(chainId, collateralTokenAddress, account);
-    const exchangeRouterContract = createSatoruContract(
-        chainId,
-        SatoruContract.ExchangeRouter,
-        ExchangeRouterABI
-    );
+    const collateralTokenContract = createTokenContract(chainId, collateralTokenAddress, account);
+    const exchangeRouterContract = getExchangeRouterContract(chainId, account);
 
-    const zEthBalanceResponse = await zEthContract.call("balance_of", [account.address]);
-    console.log("zETH balance", String(zEthBalanceResponse));
+    const zEthBalanceResponse = await collateralTokenContract.balance_of(account.address);
+    console.log("Collateral balance", String(zEthBalanceResponse));
 
     const createOrderParams = {
         receiver: account.address,
@@ -89,23 +63,24 @@ async function createOrder() {
         referral_code: 0,
     };
 
-    const transferAndCreateOrderReceipt = await executeAndWait(account, [
-        createCall(zEthContract, "transfer", [
-            orderVaultAddress,
-            new CairoUint256(collateralAmount),
-        ]),
-        createCall(exchangeRouterContract, "create_order", [createOrderParams]),
-    ]);
-
-    if (transferAndCreateOrderReceipt.isSuccess()) {
-        console.log("Order created.");
-        const orderKey = transferAndCreateOrderReceipt.events[1]?.data[0];
-        console.log(orderKey);
-    } else {
-        throw new Error("Order creation failed");
-    }
+    await executeAndGetResult(
+        account,
+        [
+            createCall(collateralTokenContract, "transfer", [
+                orderVaultAddress,
+                new CairoUint256(collateralAmount),
+            ]),
+            createCall(exchangeRouterContract, "create_order", [createOrderParams]),
+        ],
+        (receipt) => {
+            console.log("Long order created.");
+            const orderKey = receipt.events[1]?.data[0];
+            console.log(orderKey);
+        },
+        "Long order creation failed"
+    );
 
     doneAsking();
 }
 
-createOrder();
+createLongOrder();

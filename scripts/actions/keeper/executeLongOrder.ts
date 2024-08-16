@@ -1,26 +1,21 @@
 import {
     createCall,
     createSatoruContract,
-    DataStoreABI,
     executeAndWait,
     OrderHandlerABI,
     SatoruContract,
     toStarknetHexString,
 } from "satoru-sdk";
-import { createAsker, decimalToFloat, settingUp } from "../../utils";
+import { createAsker, settingUp } from "../../utils";
+import { getDataStoreContract } from "../../helpers";
 
-async function create_market() {
+async function executeLongOrder() {
     // get order key from DataStore.get_account_order_keys
     const { ask, doneAsking } = createAsker();
 
     const { account, chainId } = await settingUp();
 
-    const dataStoreContract = createSatoruContract(
-        chainId,
-        SatoruContract.DataStore,
-        DataStoreABI,
-        account
-    );
+    const dataStoreContract = getDataStoreContract(chainId, account);
 
     let orderKey = await ask("Enter order key (default to lastest order");
 
@@ -83,12 +78,12 @@ async function create_market() {
     );
 
     if (executeOrderReceipt.isSuccess()) {
-        console.log("Order executed");
+        console.log("Long order executed");
     } else {
-        throw new Error("Order execution failed");
+        throw new Error("Long order execution failed");
     }
 
     doneAsking();
 }
 
-create_market();
+executeLongOrder();

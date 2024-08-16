@@ -1,25 +1,19 @@
 import {
     createCall,
     createSatoruContract,
-    DataStoreABI,
     DepositHandlerABI,
-    executeAndWait,
     SatoruContract,
     toStarknetHexString,
 } from "satoru-sdk";
 import { createAsker, settingUp } from "../../utils";
+import { executeAndGetResult, getDataStoreContract } from "../../helpers";
 
 async function executeDeposit() {
     const { ask, doneAsking } = createAsker();
 
     const { account, chainId } = await settingUp();
 
-    const dataStoreContract = createSatoruContract(
-        chainId,
-        SatoruContract.DataStore,
-        DataStoreABI,
-        account
-    );
+    const dataStoreContract = getDataStoreContract(chainId, account);
 
     // Get deposit key from DataStore.get_deposit_keys
     let depositKey = await ask("Enter deposit key (default to latest deposit)");
@@ -68,16 +62,14 @@ async function executeDeposit() {
         price_feed_tokens: [],
     };
 
-    const executeDepositReceipt = await executeAndWait(
+    await executeAndGetResult(
         account,
-        createCall(depositHandlerContract, "execute_deposit", [depositKey, setPricesParams])
+        createCall(depositHandlerContract, "execute_deposit", [depositKey, setPricesParams]),
+        () => {
+            console.log("Deposit executed");
+        },
+        "Deposit execution failed"
     );
-
-    if (executeDepositReceipt.isSuccess()) {
-        console.log("Deposit executed");
-    } else {
-        throw new Error("Deposit execution failed");
-    }
 
     doneAsking();
 }
