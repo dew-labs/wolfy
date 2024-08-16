@@ -346,131 +346,131 @@ async function config() {
 
     // -----------------------------------------------------------------------------------------------------------------
 
-    // borrowingFactorForLongs
-    const borrowingFactorForLongsKey = dataStoreKeys.borrowingFactorKey(marketTokenAddress, true);
-    calls.push(
-        createCall(dataStoreContract, "set_u256", [
-            borrowingFactorForLongsKey,
-            configData.borrowingFactorForLongs,
-        ])
-    );
+    // // borrowingFactorForLongs
+    // const borrowingFactorForLongsKey = dataStoreKeys.borrowingFactorKey(marketTokenAddress, true);
+    // calls.push(
+    //     createCall(dataStoreContract, "set_u256", [
+    //         borrowingFactorForLongsKey,
+    //         configData.borrowingFactorForLongs,
+    //     ])
+    // );
 
-    // borrowingFactorForShorts
-    const borrowingFactorForShortsKey = dataStoreKeys.borrowingFactorKey(marketTokenAddress, false);
-    calls.push(
-        createCall(dataStoreContract, "set_u256", [
-            borrowingFactorForShortsKey,
-            configData.borrowingFactorForShorts,
-        ])
-    );
-
-    // -----------------------------------------------------------------------------------------------------------------
-
-    // borrowingExponentFactorForLongs
-    const borrowingExponentFactorForLongsKey = dataStoreKeys.borrowingExponentFactorKey(
-        marketTokenAddress,
-        true
-    );
-    calls.push(
-        createCall(dataStoreContract, "set_u256", [
-            borrowingExponentFactorForLongsKey,
-            configData.borrowingExponentFactorForLongs,
-        ])
-    );
-
-    // borrowingExponentFactorForShorts
-    const borrowingExponentFactorForShortsKey = dataStoreKeys.borrowingExponentFactorKey(
-        marketTokenAddress,
-        false
-    );
-    calls.push(
-        createCall(dataStoreContract, "set_u256", [
-            borrowingExponentFactorForShortsKey,
-            configData.borrowingExponentFactorForShorts,
-        ])
-    );
+    // // borrowingFactorForShorts
+    // const borrowingFactorForShortsKey = dataStoreKeys.borrowingFactorKey(marketTokenAddress, false);
+    // calls.push(
+    //     createCall(dataStoreContract, "set_u256", [
+    //         borrowingFactorForShortsKey,
+    //         configData.borrowingFactorForShorts,
+    //     ])
+    // );
 
     // -----------------------------------------------------------------------------------------------------------------
 
-    // maxPnlFactorForTradersLongs
-    const maxPnlFactorForTradersLongsKey = dataStoreKeys.maxPnlFactorKey(
-        dataStoreKeys.MAX_PNL_FACTOR_FOR_TRADERS_KEY,
-        marketTokenAddress,
-        true
-    );
-    calls.push(
-        createCall(dataStoreContract, "set_u256", [
-            maxPnlFactorForTradersLongsKey,
-            configData.maxPnlFactorForTradersLongs,
-        ])
-    );
+    // // borrowingExponentFactorForLongs
+    // const borrowingExponentFactorForLongsKey = dataStoreKeys.borrowingExponentFactorKey(
+    //     marketTokenAddress,
+    //     true
+    // );
+    // calls.push(
+    //     createCall(dataStoreContract, "set_u256", [
+    //         borrowingExponentFactorForLongsKey,
+    //         configData.borrowingExponentFactorForLongs,
+    //     ])
+    // );
 
-    // maxPnlFactorForTradersShorts
-    const maxPnlFactorForTradersShortsKey = dataStoreKeys.maxPnlFactorKey(
-        dataStoreKeys.MAX_PNL_FACTOR_FOR_TRADERS_KEY,
-        marketTokenAddress,
-        false
-    );
-    calls.push(
-        createCall(dataStoreContract, "set_u256", [
-            maxPnlFactorForTradersShortsKey,
-            configData.maxPnlFactorForTradersShorts,
-        ])
-    );
+    // // borrowingExponentFactorForShorts
+    // const borrowingExponentFactorForShortsKey = dataStoreKeys.borrowingExponentFactorKey(
+    //     marketTokenAddress,
+    //     false
+    // );
+    // calls.push(
+    //     createCall(dataStoreContract, "set_u256", [
+    //         borrowingExponentFactorForShortsKey,
+    //         configData.borrowingExponentFactorForShorts,
+    //     ])
+    // );
 
     // -----------------------------------------------------------------------------------------------------------------
 
-    // maxPnlFactorForAdlLongs
-    const maxPnlFactorForAdlLongsKey = dataStoreKeys.maxPnlFactorKey(
-        dataStoreKeys.MAX_PNL_FACTOR_FOR_ADL,
-        marketTokenAddress,
-        true
-    );
-    calls.push(
-        createCall(dataStoreContract, "set_u256", [
-            maxPnlFactorForAdlLongsKey,
-            configData.maxPnlFactorForAdlLongs,
-        ])
-    );
+    // // maxPnlFactorForTradersLongs
+    // const maxPnlFactorForTradersLongsKey = dataStoreKeys.maxPnlFactorKey(
+    //     dataStoreKeys.MAX_PNL_FACTOR_FOR_TRADERS_KEY,
+    //     marketTokenAddress,
+    //     true
+    // );
+    // calls.push(
+    //     createCall(dataStoreContract, "set_u256", [
+    //         maxPnlFactorForTradersLongsKey,
+    //         configData.maxPnlFactorForTradersLongs,
+    //     ])
+    // );
 
-    // maxPnlFactorForAdlShorts
-    const maxPnlFactorForAdlShortsKey = dataStoreKeys.maxPnlFactorKey(
-        dataStoreKeys.MAX_PNL_FACTOR_FOR_ADL,
-        marketTokenAddress,
-        false
-    );
-    calls.push(
-        createCall(dataStoreContract, "set_u256", [
-            maxPnlFactorForAdlShortsKey,
-            configData.maxPnlFactorForAdlShorts,
-        ])
-    );
+    // // maxPnlFactorForTradersShorts
+    // const maxPnlFactorForTradersShortsKey = dataStoreKeys.maxPnlFactorKey(
+    //     dataStoreKeys.MAX_PNL_FACTOR_FOR_TRADERS_KEY,
+    //     marketTokenAddress,
+    //     false
+    // );
+    // calls.push(
+    //     createCall(dataStoreContract, "set_u256", [
+    //         maxPnlFactorForTradersShortsKey,
+    //         configData.maxPnlFactorForTradersShorts,
+    //     ])
+    // );
 
     // -----------------------------------------------------------------------------------------------------------------
 
-    // minPnlFactorAfterAdlLongs
-    const minPnlFactorAfterAdlLongsKey = dataStoreKeys.minPnlFactorAfterAdl(
-        marketTokenAddress,
-        true
-    );
-    calls.push(
-        createCall(dataStoreContract, "set_u256", [
-            minPnlFactorAfterAdlLongsKey,
-            configData.minPnlFactorAfterAdlLongs,
-        ])
-    );
+    // // maxPnlFactorForAdlLongs
+    // const maxPnlFactorForAdlLongsKey = dataStoreKeys.maxPnlFactorKey(
+    //     dataStoreKeys.MAX_PNL_FACTOR_FOR_ADL,
+    //     marketTokenAddress,
+    //     true
+    // );
+    // calls.push(
+    //     createCall(dataStoreContract, "set_u256", [
+    //         maxPnlFactorForAdlLongsKey,
+    //         configData.maxPnlFactorForAdlLongs,
+    //     ])
+    // );
 
-    // minPnlFactorAfterAdlShorts
-    const minPnlFactorAfterAdlShortsKey = dataStoreKeys.minPnlFactorAfterAdl(
-        marketTokenAddress,
-        false
-    );
-    calls.push(
-        createCall(dataStoreContract, "set_u256", [
-            minPnlFactorAfterAdlShortsKey,
-            configData.minPnlFactorAfterAdlShorts,
-        ])
-    );
+    // // maxPnlFactorForAdlShorts
+    // const maxPnlFactorForAdlShortsKey = dataStoreKeys.maxPnlFactorKey(
+    //     dataStoreKeys.MAX_PNL_FACTOR_FOR_ADL,
+    //     marketTokenAddress,
+    //     false
+    // );
+    // calls.push(
+    //     createCall(dataStoreContract, "set_u256", [
+    //         maxPnlFactorForAdlShortsKey,
+    //         configData.maxPnlFactorForAdlShorts,
+    //     ])
+    // );
+
+    // -----------------------------------------------------------------------------------------------------------------
+
+    // // minPnlFactorAfterAdlLongs
+    // const minPnlFactorAfterAdlLongsKey = dataStoreKeys.minPnlFactorAfterAdl(
+    //     marketTokenAddress,
+    //     true
+    // );
+    // calls.push(
+    //     createCall(dataStoreContract, "set_u256", [
+    //         minPnlFactorAfterAdlLongsKey,
+    //         configData.minPnlFactorAfterAdlLongs,
+    //     ])
+    // );
+
+    // // minPnlFactorAfterAdlShorts
+    // const minPnlFactorAfterAdlShortsKey = dataStoreKeys.minPnlFactorAfterAdl(
+    //     marketTokenAddress,
+    //     false
+    // );
+    // calls.push(
+    //     createCall(dataStoreContract, "set_u256", [
+    //         minPnlFactorAfterAdlShortsKey,
+    //         configData.minPnlFactorAfterAdlShorts,
+    //     ])
+    // );
 
     // -----------------------------------------------------------------------------------------------------------------
 
@@ -497,26 +497,26 @@ async function config() {
 
     // -----------------------------------------------------------------------------------------------------------------
 
-    // negativeSwapImpactFactor
-    const negativeSwapImpactFactorKey = dataStoreKeys.swapImpactFactorKey(
-        marketTokenAddress,
-        false
-    );
-    calls.push(
-        createCall(dataStoreContract, "set_u256", [
-            negativeSwapImpactFactorKey,
-            configData.negativeSwapImpactFactor,
-        ])
-    );
+    // // negativeSwapImpactFactor
+    // const negativeSwapImpactFactorKey = dataStoreKeys.swapImpactFactorKey(
+    //     marketTokenAddress,
+    //     false
+    // );
+    // calls.push(
+    //     createCall(dataStoreContract, "set_u256", [
+    //         negativeSwapImpactFactorKey,
+    //         configData.negativeSwapImpactFactor,
+    //     ])
+    // );
 
-    // positiveSwapImpactFactor
-    const positiveSwapImpactFactorKey = dataStoreKeys.swapImpactFactorKey(marketTokenAddress, true);
-    calls.push(
-        createCall(dataStoreContract, "set_u256", [
-            positiveSwapImpactFactorKey,
-            configData.positiveSwapImpactFactor,
-        ])
-    );
+    // // positiveSwapImpactFactor
+    // const positiveSwapImpactFactorKey = dataStoreKeys.swapImpactFactorKey(marketTokenAddress, true);
+    // calls.push(
+    //     createCall(dataStoreContract, "set_u256", [
+    //         positiveSwapImpactFactorKey,
+    //         configData.positiveSwapImpactFactor,
+    //     ])
+    // );
 
     // -----------------------------------------------------------------------------------------------------------------
 
@@ -547,29 +547,29 @@ async function config() {
 
     // -----------------------------------------------------------------------------------------------------------------
 
-    // positiveMaxPositionImpactFactor
-    const positiveMaxPositionImpactFactorKey = dataStoreKeys.maxPositionImpactFactorKey(
-        marketTokenAddress,
-        true
-    );
-    calls.push(
-        createCall(dataStoreContract, "set_u256", [
-            positiveMaxPositionImpactFactorKey,
-            configData.positiveMaxPositionImpactFactor,
-        ])
-    );
+    // // positiveMaxPositionImpactFactor
+    // const positiveMaxPositionImpactFactorKey = dataStoreKeys.maxPositionImpactFactorKey(
+    //     marketTokenAddress,
+    //     true
+    // );
+    // calls.push(
+    //     createCall(dataStoreContract, "set_u256", [
+    //         positiveMaxPositionImpactFactorKey,
+    //         configData.positiveMaxPositionImpactFactor,
+    //     ])
+    // );
 
-    // negativeMaxPositionImpactFactor
-    const negativeMaxPositionImpactFactorKey = dataStoreKeys.maxPositionImpactFactorKey(
-        marketTokenAddress,
-        false
-    );
-    calls.push(
-        createCall(dataStoreContract, "set_u256", [
-            negativeMaxPositionImpactFactorKey,
-            configData.negativeMaxPositionImpactFactor,
-        ])
-    );
+    // // negativeMaxPositionImpactFactor
+    // const negativeMaxPositionImpactFactorKey = dataStoreKeys.maxPositionImpactFactorKey(
+    //     marketTokenAddress,
+    //     false
+    // );
+    // calls.push(
+    //     createCall(dataStoreContract, "set_u256", [
+    //         negativeMaxPositionImpactFactorKey,
+    //         configData.negativeMaxPositionImpactFactor,
+    //     ])
+    // );
 
     // -----------------------------------------------------------------------------------------------------------------
 

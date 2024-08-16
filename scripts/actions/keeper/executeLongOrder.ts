@@ -36,17 +36,6 @@ async function executeLongOrder() {
     const longTokenAddress = market.long_token;
     const shortTokenAddress = market.short_token;
 
-    // await executeAndWait(account, [
-    //     dataStoreContract.populate("set_u256", [
-    //         await dataStoreContract.get_open_interest_key(
-    //             market.market_token,
-    //             longTokenAddress,
-    //             true
-    //         ),
-    //         1,
-    //     ]),
-    // ]);
-
     const setPricesParams = {
         signer_info: 1,
         tokens: [longTokenAddress, shortTokenAddress],
