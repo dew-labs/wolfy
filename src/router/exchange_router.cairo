@@ -428,8 +428,9 @@ mod ExchangeRouter {
         }
 
         fn cancel_order(ref self: ContractState, key: felt252) {
+            self.reentrancy_guard.start();
+
             let data_store = self.data_store.read();
-            global_reentrancy_guard::non_reentrant_before(data_store);
 
             let order = data_store.get_order(key);
 
@@ -438,7 +439,7 @@ mod ExchangeRouter {
             }
             self.order_handler.read().cancel_order(key);
 
-            global_reentrancy_guard::non_reentrant_after(data_store);
+            self.reentrancy_guard.end();
         }
 
         fn claim_funding_fees(
