@@ -141,15 +141,22 @@ async function createOrder() {
 
     console.log(createOrderParams);
 
-    await executeAndGetResult(
-        account,
-        [
+    const calls = [];
+
+    if (increaseOrDecrease === "i") {
+        calls.push(
             createCall(collateralTokenContract, "transfer", [
                 orderVaultAddress,
                 new CairoUint256(collateralAmount),
-            ]),
-            createCall(exchangeRouterContract, "create_order", [createOrderParams]),
-        ],
+            ])
+        );
+    }
+
+    calls.push(createCall(exchangeRouterContract, "create_order", [createOrderParams]));
+
+    await executeAndGetResult(
+        account,
+        calls,
         (receipt) => {
             console.log("Order created.");
             const orderKey = receipt.events[1]?.data[0];
