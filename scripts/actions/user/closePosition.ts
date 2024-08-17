@@ -15,7 +15,7 @@ import {
 } from "../../helpers";
 import { CairoUint256 } from "starknet";
 
-async function createLongOrder() {
+async function closePosition() {
     const contracts = getContracts();
 
     const orderVaultAddress = contracts.OrderVault;
@@ -57,7 +57,7 @@ async function createLongOrder() {
         execution_fee: new CairoUint256(0),
         callback_gas_limit: new CairoUint256(0),
         min_output_amount: new CairoUint256(0),
-        order_type: toCairoCustomEnum(OrderType.MarketIncrease),
+        order_type: toCairoCustomEnum(OrderType.MarketDecrease),
         decrease_position_swap_type: toCairoCustomEnum(DecreasePositionSwapType.NoSwap),
         is_long: true,
         referral_code: 0,
@@ -83,4 +83,4 @@ async function createLongOrder() {
     doneAsking();
 }
 
-createLongOrder();
+closePosition();
