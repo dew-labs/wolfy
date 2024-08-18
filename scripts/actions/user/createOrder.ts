@@ -130,9 +130,9 @@ async function createOrder() {
         initial_collateral_delta_amount: new CairoUint256(collateralAmount),
         trigger_price: new CairoUint256(triggerPrice),
         acceptable_price: new CairoUint256(acceptablePrice),
-        execution_fee: new CairoUint256(0),
+        execution_fee: new CairoUint256(0), // Fee to the keeper to execute the order
         callback_gas_limit: new CairoUint256(0),
-        min_output_amount: new CairoUint256(0),
+        min_output_amount: new CairoUint256(0), // The minimum output amount for decrease orders and swaps
         order_type: toCairoCustomEnum(orderType),
         decrease_position_swap_type: toCairoCustomEnum(DecreasePositionSwapType.NoSwap),
         is_long: true,
