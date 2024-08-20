@@ -17,10 +17,10 @@ function registerHttpProviders() {
 }
 
 function registerWssProviders() {
-    // const { chainId } = getNetAndChainId();
-    // const providerUrl = process.env.WSS_PROVIDER_URL;
-    // if (!providerUrl) throw new Error("Missing WSS_PROVIDER_URL environment variable");
-    // registerProvider(ProviderType.WSS, chainId as StarknetChainId, providerUrl);
+    const { chainId } = getNetAndChainId();
+    const providerUrl = process.env.WSS_PROVIDER_URL;
+    if (!providerUrl) throw new Error("Missing WSS_PROVIDER_URL environment variable");
+    registerProvider(ProviderType.WSS, chainId as StarknetChainId, providerUrl);
 }
 
 function registerContractAddresses() {
@@ -39,5 +39,5 @@ function registerContractAddresses() {
 export default function setup() {
     registerContractAddresses();
     registerHttpProviders();
-    registerWssProviders();
+    // registerWssProviders();
 }

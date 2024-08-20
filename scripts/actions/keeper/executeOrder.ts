@@ -9,7 +9,7 @@ import {
     SatoruContract,
     toStarknetHexString,
 } from "satoru-sdk";
-import { createAsker, settingUp } from "../../utils";
+import { createAsker, expandDecimals, settingUp } from "../../utils";
 import { getDataStoreContract } from "../../helpers";
 
 async function executeOrder() {
@@ -45,7 +45,7 @@ async function executeOrder() {
     console.log("Order type:", longOrShort, orderType);
 
     let executionPriceForLongToken = BigInt(
-        await ask("Execution price for long token (default to trigger price for limit)")
+        await ask("Execution price for long token (usd)(default to trigger price for limit)")
     );
 
     if (!executionPriceForLongToken) {
@@ -58,14 +58,18 @@ async function executeOrder() {
         }
         executionPriceForLongToken = cairoIntToBigInt(order.trigger_price);
         console.log("Execute at", order.trigger_price);
+    } else {
+        executionPriceForLongToken = expandDecimals(executionPriceForLongToken, 18);
     }
 
     let executionPriceForShortToken = BigInt(
-        await ask("Execution price for short token (default to 1)")
+        await ask("Execution price for short token (usd)(default to 1)")
     );
 
     if (!executionPriceForShortToken) {
-        executionPriceForShortToken = 1n;
+        executionPriceForShortToken = expandDecimals(1, 18);
+    } else {
+        executionPriceForShortToken = expandDecimals(executionPriceForShortToken, 18);
     }
 
     const longTokenAddress = market.long_token;

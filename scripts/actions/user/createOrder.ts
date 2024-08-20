@@ -92,11 +92,12 @@ async function createOrder() {
     if (!increaseOrDecrease || !["i", "d"].includes(increaseOrDecrease.toLowerCase()))
         increaseOrDecrease = "i";
 
-    let triggerPrice = 0;
+    let triggerPrice: bigint | number = 0n;
 
     if (marketOrLimit === "l") {
         // Market order doesn't need trigger price
-        triggerPrice = Number(await ask("Trigger price (default to 3500)")) || 3500;
+        triggerPrice = Number(await ask("Trigger price (usd)(default to 3500)")) || 3500;
+        triggerPrice = expandDecimals(triggerPrice, 18);
     }
 
     const orderType = (() => {

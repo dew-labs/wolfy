@@ -18,11 +18,13 @@ async function deployToken(
     account: Account,
     name: string,
     symbol: string,
-    initialSupply: 1000000n
+    decimals = 18,
+    initialSupply = 1000000n
 ) {
     const token = await ensureDeployed(account, undefined, "ERC20", {
         name: name,
         symbol: symbol,
+        decimals: decimals,
         initial_supply: initialSupply,
         recipient: account.address,
     });
@@ -39,6 +41,7 @@ async function deployToken(
         address: toStarknetHexString(token.address),
         name: name,
         symbol: symbol,
+        decimals: decimals,
         owner: toStarknetHexString(account.address),
     });
 
@@ -58,8 +61,23 @@ async function createMarket() {
 
     // BEGIN deploy tokens
 
-    const longTokenContract = await deployToken(net, account, "Wolfy Ethereum", "wfETH", 1000000n);
-    const shortTokenContract = await deployToken(net, account, "Wolfy USD", "wfUSD", 1000000n);
+    // const longTokenContract = createTokenContract(
+    //     chainId,
+    //     "0x0161304979f98530f4c3d6659e0a43cad96ceb71531482c7aaba90e07f150315"
+    // );
+    const longTokenContract = await deployToken(
+        net,
+        account,
+        "Wolfy Ethereum",
+        "wfETH",
+        18,
+        1000000n
+    );
+    // const shortTokenContract = createTokenContract(
+    //     chainId,
+    //     "0x0585593986c67a9802555dab7c7728270b603da6721ed6f754063eb8fd51f0aa"
+    // );
+    const shortTokenContract = await deployToken(net, account, "WUSD", "WUSD", 18, 1000000n);
 
     // END deploy tokens
 
