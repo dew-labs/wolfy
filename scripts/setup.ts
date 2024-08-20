@@ -39,5 +39,5 @@ function registerContractAddresses() {
 export default function setup() {
     registerContractAddresses();
     registerHttpProviders();
-    // registerWssProviders();
+    registerWssProviders();
 }
