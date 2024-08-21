@@ -34,9 +34,9 @@
     "dependencies": {
         "@dotenvx/dotenvx": "^1.6.4",
         "abi-wan-kanabi": "^2.2.2",
-        "chalk": "^5.3.0",
         "jiti": "^1.21.6",
         "satoru-sdk": "^1.0.4",
+        "picocolors": "^1.0.1",
         "starknet": "^6.12.1",
         "typescript": "^5.5.3"
     },

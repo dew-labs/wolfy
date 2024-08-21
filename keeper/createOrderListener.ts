@@ -19,7 +19,7 @@ import { Account } from "starknet";
 import { expandDecimals, settingUp } from "../scripts/utils";
 import { getDataStoreContract } from "../scripts/helpers";
 import { USD_DECIMALS } from "../scripts/config";
-import chalk from "chalk";
+import pc from "picocolors";
 import setup from "../scripts/setup";
 
 async function createOrderListener(): Promise<void> {
@@ -108,7 +108,7 @@ async function setPriceParams(
 }
 
 async function executeOrder(orderHandlerContract, account, orderKey, params): Promise<void> {
-    console.info(chalk.blue("Executing", chalk.bold("Order"), "... 💨"));
+    console.info(pc.blue("Executing Order ... 💨"));
 
     const executeOrderReceipt = await executeAndWait(
         account,
@@ -116,8 +116,8 @@ async function executeOrder(orderHandlerContract, account, orderKey, params): Pr
     );
 
     if (executeOrderReceipt.isSuccess()) {
-        console.info(chalk.green("Execute", chalk.bold("Order"), "Successfully 🚀"));
-        console.info(chalk.green(`with Transaction Hash: ${executeOrderReceipt.transaction_hash}`));
+        console.info(pc.green("Execute Successfully 🚀"));
+        console.info(pc.green(`with Transaction Hash: ${executeOrderReceipt.transaction_hash}`));
     } else {
         // TODO: retry here
     }
