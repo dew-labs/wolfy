@@ -1,4 +1,5 @@
 import {
+    cairoIntToBigInt,
     createCall,
     createSatoruContract,
     createTokenContract,
@@ -41,8 +42,8 @@ async function createOrderListener(): Promise<void> {
             key: rawOrderKey,
             order_type: rawOrderType,
             market: rawMarketKey,
-            trigger_price: triggerPrice,
-        } = event["satoru::event::event_emitter::EventEmitter::OrderCreated"].order;
+            trigger_price: rawTriggerPrice,
+        } = event.order;
 
         // init data
         const orderKey: string = toStarknetHexString(rawOrderKey);
@@ -51,6 +52,7 @@ async function createOrderListener(): Promise<void> {
         const indexTokenAddress: string = toStarknetHexString(market.index_token);
         const indexToken = createTokenContract(chainId, indexTokenAddress);
         const indexTokenDecimals: number | bigint = await indexToken.decimals();
+        const triggerPrice: bigint = cairoIntToBigInt(rawTriggerPrice);
 
         // calculate execution price
         const executionPrice: bigint =
