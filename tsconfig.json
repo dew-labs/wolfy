@@ -53,5 +53,5 @@
         "types": ["node"]
     },
     "exclude": [],
-    "include": ["scripts/**/*"]
+    "include": ["scripts/**/*", "keeper/**/*"]
 }

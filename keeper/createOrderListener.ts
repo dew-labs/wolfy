@@ -9,16 +9,17 @@ import {
     parseOrderType,
     ProviderType,
     SatoruContract,
+    type SatoruContractAbi,
     SatoruEvent,
-    SatoruEventHandler,
-    SatoruWebSocketProvider,
+    type SatoruEventHandler,
+    type SatoruWebSocketProvider,
     toStarknetHexString,
 } from "satoru-sdk";
 
-import { Account } from "starknet";
+import { Account, type TypedContractV2 } from "starknet";
 import { expandDecimals, settingUp } from "../scripts/utils";
 import { getDataStoreContract } from "../scripts/helpers";
-import { USD_DECIMALS } from "../scripts/config";
+import { EXECUTION_ORDER_METHOD, USD_DECIMALS } from "../scripts/config";
 import pc from "picocolors";
 import setup from "../scripts/setup";
 
@@ -28,13 +29,11 @@ async function createOrderListener(): Promise<void> {
     const { account, chainId } = await settingUp();
 
     // setup contract
-    const dataStoreContract = getDataStoreContract(chainId, account);
-    const orderHandlerContract = createSatoruContract(
-        chainId,
-        SatoruContract.OrderHandler,
-        OrderHandlerABI,
-        account
-    );
+    const dataStoreContract: TypedContractV2<SatoruContractAbi<SatoruContract.DataStore>> =
+        getDataStoreContract(chainId, account);
+    const orderHandlerContract: TypedContractV2<SatoruContractAbi<SatoruContract.OrderHandler>> =
+        createSatoruContract(chainId, SatoruContract.OrderHandler, OrderHandlerABI, account);
+
     const wssProvider: SatoruWebSocketProvider = getProvider(ProviderType.WSS, chainId);
 
     const eventHandler: SatoruEventHandler<SatoruEvent.OrderCreated> = async (event) => {
@@ -107,12 +106,17 @@ async function setPriceParams(
     };
 }
 
-async function executeOrder(orderHandlerContract, account, orderKey, params): Promise<void> {
+async function executeOrder(
+    orderHandlerContract: TypedContractV2<SatoruContractAbi<SatoruContract.OrderHandler>>,
+    account: Account,
+    orderKey: string,
+    params: any
+): Promise<void> {
     console.info(pc.blue("Executing Order ... 💨"));
 
     const executeOrderReceipt = await executeAndWait(
         account,
-        createCall(orderHandlerContract, "execute_order", [orderKey, params])
+        createCall(orderHandlerContract, EXECUTION_ORDER_METHOD, [orderKey, params])
     );
 
     if (executeOrderReceipt.isSuccess()) {
