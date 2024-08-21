@@ -2,6 +2,7 @@ import {
     cairoIntToBigInt,
     createCall,
     createSatoruContract,
+    createTokenContract,
     executeAndWait,
     getProvider,
     OrderHandlerABI,
@@ -11,6 +12,7 @@ import {
     SatoruContract,
     SatoruEvent,
     SatoruEventHandler,
+    SatoruWebSocketProvider,
     StarknetChainId,
     toStarknetHexString,
 } from "satoru-sdk";
@@ -19,12 +21,13 @@ import setup from "../scripts/setup";
 import { expandDecimals, settingUp } from "../scripts/utils";
 import { getDataStoreContract } from "../scripts/helpers";
 import { Account } from "starknet";
+import { USD_DECIMALS } from "../scripts/config";
 
 async function createOrderListener() {
     setup();
 
     const { account, chainId } = await settingUp();
-    const wssProvider = getProvider(ProviderType.WSS, chainId);
+    const wssProvider: SatoruWebSocketProvider = getProvider(ProviderType.WSS, chainId);
 
     const eventHandler: SatoruEventHandler<SatoruEvent.OrderCreated> = (event) => {
         const orderData = event["satoru::event::event_emitter::EventEmitter::OrderCreated"].order;
@@ -49,13 +52,15 @@ async function executeOrder(account: Account, chainId: StarknetChainId, orderDat
     ) {
         throw new Error("Market order must have a execution price");
     }
-    const executionPriceForLongToken = orderData.trigger_price;
-    const executionPriceForShortToken = expandDecimals(BigInt(1), 18);
-
     const marketKey = toStarknetHexString(orderData.market);
     const market = await dataStoreContract.get_market(marketKey);
-    const longTokenAddress = market.long_token;
-    const shortTokenAddress = market.short_token;
+    const indexTokenAddress = toStarknetHexString(market.index_token);
+    const indexToken = createTokenContract(chainId, indexTokenAddress);
+    const indexTokenDecimals = await indexToken.decimals();
+
+    const executionPrice =
+        expandDecimals(orderData.trigger_price, USD_DECIMALS) /
+        expandDecimals(1, indexTokenDecimals);
 
     const currentBlockNum = await account.getBlockNumber();
     const currentBlock = await account.getBlock();
@@ -65,7 +70,7 @@ async function executeOrder(account: Account, chainId: StarknetChainId, orderDat
 
     const setPricesParams = {
         signer_info: 1,
-        tokens: [longTokenAddress, shortTokenAddress],
+        tokens: [indexTokenAddress],
         compacted_min_oracle_block_numbers: [block0, block0],
         compacted_max_oracle_block_numbers: [block1, block1],
         compacted_oracle_timestamps: [currentBlock.timestamp, currentBlock.timestamp], // not in use
@@ -73,7 +78,7 @@ async function executeOrder(account: Account, chainId: StarknetChainId, orderDat
         compacted_min_prices_indexes: [0], // not in use
         compacted_max_prices_indexes: [0], // not in use
         compacted_min_prices: [2147483648010000], // doesn't matter
-        compacted_max_prices: [executionPriceForLongToken, executionPriceForShortToken], // this is the price where order executed
+        compacted_max_prices: [executionPrice], // this is the price where order executed
         signatures: [
             ["signatures1", "signatures2"],
             ["signatures1", "signatures2"],
