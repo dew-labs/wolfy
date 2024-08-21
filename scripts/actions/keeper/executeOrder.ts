@@ -2,6 +2,7 @@ import {
     cairoIntToBigInt,
     createCall,
     createSatoruContract,
+    createTokenContract,
     executeAndWait,
     OrderHandlerABI,
     OrderType,
@@ -11,6 +12,7 @@ import {
 } from "satoru-sdk";
 import { createAsker, expandDecimals, settingUp } from "../../utils";
 import { getDataStoreContract } from "../../helpers";
+import { USD_DECIMALS } from "../../config";
 
 async function executeOrder() {
     // get order key from DataStore.get_account_order_keys
@@ -39,16 +41,19 @@ async function executeOrder() {
     // TODO: shouldn't execute the order if fee is lowwer than configured
 
     const market = await dataStoreContract.get_market(order.market);
+    const indexTokenAddress = toStarknetHexString(market.index_token);
+    const indexToken = createTokenContract(chainId, indexTokenAddress);
+    const indexTokenDecimals = await indexToken.decimals();
 
     const orderType = parseOrderType(order.order_type);
     const longOrShort = order.is_long ? "Long" : "Short";
     console.log("Order type:", longOrShort, orderType);
 
-    let executionPriceForLongToken = BigInt(
-        await ask("Execution price for long token (usd)(default to trigger price for limit)")
+    let executionPrice = BigInt(
+        await ask("Execution price (usd) (default to trigger price for limit)")
     );
 
-    if (!executionPriceForLongToken) {
+    if (!executionPrice) {
         if (
             [OrderType.MarketDecrease, OrderType.MarketIncrease, OrderType.MarketSwap].includes(
                 orderType
@@ -56,24 +61,12 @@ async function executeOrder() {
         ) {
             throw new Error("Market order must have a execution price");
         }
-        executionPriceForLongToken = cairoIntToBigInt(order.trigger_price);
+        executionPrice = cairoIntToBigInt(order.trigger_price);
         console.log("Execute at", order.trigger_price);
     } else {
-        executionPriceForLongToken = expandDecimals(executionPriceForLongToken, 18);
+        executionPrice =
+            expandDecimals(executionPrice, USD_DECIMALS) / expandDecimals(1, indexTokenDecimals);
     }
-
-    let executionPriceForShortToken = BigInt(
-        await ask("Execution price for short token (usd)(default to 1)")
-    );
-
-    if (!executionPriceForShortToken) {
-        executionPriceForShortToken = expandDecimals(1, 18);
-    } else {
-        executionPriceForShortToken = expandDecimals(executionPriceForShortToken, 18);
-    }
-
-    const longTokenAddress = market.long_token;
-    const shortTokenAddress = market.short_token;
 
     const currentBlockNum = await account.getBlockNumber();
     const currentBlock = await account.getBlock();
@@ -83,7 +76,7 @@ async function executeOrder() {
 
     const setPricesParams = {
         signer_info: 1,
-        tokens: [longTokenAddress, shortTokenAddress],
+        tokens: [indexTokenAddress],
         compacted_min_oracle_block_numbers: [block0, block0],
         compacted_max_oracle_block_numbers: [block1, block1],
         compacted_oracle_timestamps: [currentBlock.timestamp, currentBlock.timestamp], // not in use
@@ -91,7 +84,7 @@ async function executeOrder() {
         compacted_min_prices_indexes: [0], // not in use
         compacted_max_prices_indexes: [0], // not in use
         compacted_min_prices: [2147483648010000], // doesn't matter
-        compacted_max_prices: [executionPriceForLongToken, executionPriceForShortToken], // this is the price where order executed
+        compacted_max_prices: [executionPrice], // this is the price where order executed
         signatures: [
             ["signatures1", "signatures2"],
             ["signatures1", "signatures2"],

@@ -14,6 +14,7 @@ import {
     getExchangeRouterContract,
 } from "../../helpers";
 import { CairoUint256, shortString } from "starknet";
+import { USD_DECIMALS } from "../../config";
 
 async function createOrder() {
     const contracts = getContracts();
@@ -43,6 +44,9 @@ async function createOrder() {
 
     const longToken = createTokenContract(chainId, toStarknetHexString(market.long_token));
     const shortToken = createTokenContract(chainId, toStarknetHexString(market.short_token));
+    const indexToken = createTokenContract(chainId, toStarknetHexString(market.index_token));
+
+    const indexTokenDecimals = await indexToken.decimals();
 
     console.log("Long:", shortString.decodeShortString(String(await longToken.symbol())));
     console.log("Short", shortString.decodeShortString(String(await shortToken.symbol())));
@@ -96,8 +100,9 @@ async function createOrder() {
 
     if (marketOrLimit === "l") {
         // Market order doesn't need trigger price
-        triggerPrice = Number(await ask("Trigger price (usd)(default to 3500)")) || 3500;
-        triggerPrice = expandDecimals(triggerPrice, 18);
+        triggerPrice = Number(await ask("Trigger price (usd) (default to 3500)")) || 3500;
+        triggerPrice =
+            expandDecimals(triggerPrice, USD_DECIMALS) / expandDecimals(1, indexTokenDecimals);
     }
 
     const orderType = (() => {
