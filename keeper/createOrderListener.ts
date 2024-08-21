@@ -1,5 +1,4 @@
 import {
-    cairoIntToBigInt,
     createCall,
     createSatoruContract,
     createTokenContract,
@@ -13,38 +12,63 @@ import {
     SatoruEvent,
     SatoruEventHandler,
     SatoruWebSocketProvider,
-    StarknetChainId,
     toStarknetHexString,
 } from "satoru-sdk";
 
-import setup from "../scripts/setup";
+import { Account } from "starknet";
 import { expandDecimals, settingUp } from "../scripts/utils";
 import { getDataStoreContract } from "../scripts/helpers";
-import { Account } from "starknet";
 import { USD_DECIMALS } from "../scripts/config";
+import chalk from "chalk";
+import setup from "../scripts/setup";
 
-async function createOrderListener() {
+async function createOrderListener(): Promise<void> {
     setup();
 
     const { account, chainId } = await settingUp();
+
+    // setup contract
+    const dataStoreContract = getDataStoreContract(chainId, account);
+    const orderHandlerContract = createSatoruContract(
+        chainId,
+        SatoruContract.OrderHandler,
+        OrderHandlerABI,
+        account
+    );
     const wssProvider: SatoruWebSocketProvider = getProvider(ProviderType.WSS, chainId);
 
-    const eventHandler: SatoruEventHandler<SatoruEvent.OrderCreated> = (event) => {
-        const orderData = event["satoru::event::event_emitter::EventEmitter::OrderCreated"].order;
-        executeOrder(account, chainId, orderData);
+    const eventHandler: SatoruEventHandler<SatoruEvent.OrderCreated> = async (event) => {
+        const {
+            key: rawOrderKey,
+            order_type: rawOrderType,
+            market: rawMarketKey,
+            trigger_price: triggerPrice,
+        } = event["satoru::event::event_emitter::EventEmitter::OrderCreated"].order;
+
+        // init data
+        const orderKey: string = toStarknetHexString(rawOrderKey);
+        const orderType: OrderType = parseOrderType(rawOrderType);
+        const market = await dataStoreContract.get_market(rawMarketKey);
+        const indexTokenAddress: string = toStarknetHexString(market.index_token);
+        const indexToken = createTokenContract(chainId, indexTokenAddress);
+        const indexTokenDecimals: number | bigint = await indexToken.decimals();
+
+        // calculate execution price
+        const executionPrice: bigint =
+            expandDecimals(triggerPrice, USD_DECIMALS) / expandDecimals(1, indexTokenDecimals);
+
+        // validate order type
+        validateOrderType(orderType);
+
+        // execute order
+        const params: Object = await setPriceParams(account, indexTokenAddress, executionPrice);
+        await executeOrder(orderHandlerContract, account, orderKey, params);
     };
 
     await wssProvider.subscribeToEvent(SatoruEvent.OrderCreated, eventHandler);
 }
 
-async function executeOrder(account: Account, chainId: StarknetChainId, orderData) {
-    const dataStoreContract = getDataStoreContract(chainId, account);
-
-    const orderKey = toStarknetHexString(orderData.key);
-
-    // TODO: shouldn't execute the order if fee is lower than configured
-
-    const orderType = parseOrderType(orderData.order_type);
+function validateOrderType(orderType: OrderType): void {
     if (
         [OrderType.MarketDecrease, OrderType.MarketIncrease, OrderType.MarketSwap].includes(
             orderType
@@ -52,23 +76,19 @@ async function executeOrder(account: Account, chainId: StarknetChainId, orderDat
     ) {
         throw new Error("Market order must have a execution price");
     }
-    const marketKey = toStarknetHexString(orderData.market);
-    const market = await dataStoreContract.get_market(marketKey);
-    const indexTokenAddress = toStarknetHexString(market.index_token);
-    const indexToken = createTokenContract(chainId, indexTokenAddress);
-    const indexTokenDecimals = await indexToken.decimals();
+}
 
-    const executionPrice =
-        expandDecimals(orderData.trigger_price, USD_DECIMALS) /
-        expandDecimals(1, indexTokenDecimals);
-
+async function setPriceParams(
+    account: Account,
+    indexTokenAddress: string,
+    executionPrice: BigInt
+): Promise<Object> {
     const currentBlockNum = await account.getBlockNumber();
     const currentBlock = await account.getBlock();
-
     const block0 = 0;
     const block1 = currentBlockNum;
 
-    const setPricesParams = {
+    return {
         signer_info: 1,
         tokens: [indexTokenAddress],
         compacted_min_oracle_block_numbers: [block0, block0],
@@ -85,21 +105,19 @@ async function executeOrder(account: Account, chainId: StarknetChainId, orderDat
         ],
         price_feed_tokens: [],
     };
+}
 
-    const orderHandlerContract = createSatoruContract(
-        chainId,
-        SatoruContract.OrderHandler,
-        OrderHandlerABI,
-        account
-    );
+async function executeOrder(orderHandlerContract, account, orderKey, params): Promise<void> {
+    console.info(chalk.blue("Executing", chalk.bold("Order"), "... 💨"));
 
     const executeOrderReceipt = await executeAndWait(
         account,
-        createCall(orderHandlerContract, "execute_order", [orderKey, setPricesParams])
+        createCall(orderHandlerContract, "execute_order", [orderKey, params])
     );
 
     if (executeOrderReceipt.isSuccess()) {
-        console.info("🚀 EXECUTE ORDER SUCCESSFULLY 🚀");
+        console.info(chalk.green("Execute", chalk.bold("Order"), "Successfully 🚀"));
+        console.info(chalk.green(`with Transaction Hash: ${executeOrderReceipt.transaction_hash}`));
     } else {
         // TODO: retry here
     }
