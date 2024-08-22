@@ -5,9 +5,10 @@ import {
     SatoruContract,
     toStarknetHexString,
 } from "satoru-sdk";
-import { createAsker, settingUp } from "../../utils";
+import { createAsker, expandDecimals, settingUp } from "../../utils";
 import { executeAndGetResult, getDataStoreContract } from "../../helpers";
-import { CairoUint256 } from "starknet";
+import { USD_DECIMALS } from "../../config";
+import { createTokenContract } from "satoru-sdk";
 
 async function executeDeposit() {
     const { ask, doneAsking } = createAsker();
@@ -32,8 +33,14 @@ async function executeDeposit() {
 
     const deposit = await dataStoreContract.get_deposit(depositKey);
 
-    const longToken = deposit.initial_long_token;
-    const shortToken = deposit.initial_short_token;
+    const longToken = toStarknetHexString(deposit.initial_long_token);
+    const shortToken = toStarknetHexString(deposit.initial_short_token);
+
+    const longTokenContract = createTokenContract(chainId, longToken);
+    const longTokenDecimals = await longTokenContract.decimals();
+
+    const shortTokenContract = createTokenContract(chainId, shortToken);
+    const shortTokenDecimals = await shortTokenContract.decimals();
 
     const depositHandlerContract = createSatoruContract(
         chainId,
@@ -48,6 +55,17 @@ async function executeDeposit() {
     const block0 = 0;
     const block1 = currentBlockNum;
 
+    const longTokenPriceReadable = (await ask("Long token price (usd) (default to 3500)")) || 3500;
+
+    const shortTokenPriceReadable = (await ask("Short token price (usd) (default to 1)")) || 1;
+
+    const longTokenPrice =
+        expandDecimals(longTokenPriceReadable, USD_DECIMALS) / expandDecimals(1, longTokenDecimals);
+
+    const shortTokenPrice =
+        expandDecimals(shortTokenPriceReadable, USD_DECIMALS) /
+        expandDecimals(1, shortTokenDecimals);
+
     const setPricesParams = {
         signer_info: 0,
         tokens: [longToken, shortToken],
@@ -58,7 +76,7 @@ async function executeDeposit() {
         compacted_min_prices_indexes: [0], // not in use
         compacted_max_prices_indexes: [0], // not in use
         compacted_min_prices: [2147483648010000], // doesn't matter
-        compacted_max_prices: [4000, 1],
+        compacted_max_prices: [longTokenPrice, shortTokenPrice],
         signatures: [
             ["signatures1", "signatures2"],
             ["signatures1", "signatures2"],
