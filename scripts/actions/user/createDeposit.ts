@@ -23,7 +23,6 @@ async function createDeposit() {
 
     const market = await dataStoreContract.get_market(marketToken);
 
-    // const indexTokenAddress = toStarknetHexString(market.index_token);
     const longTokenAddress = toStarknetHexString(market.long_token);
     const shortTokenAddress = toStarknetHexString(market.short_token);
 
@@ -45,23 +44,24 @@ async function createDeposit() {
 
     const exchangeRouterContract = getExchangeRouterContract(chainId, account);
 
-    console.log("Approve, mint and sending tokens to the deposit vault..."); // The mint step is to make sure account have enough balance
+    console.log("Mint, approve and sending tokens to the deposit vault..."); // The mint step is to make sure account have enough balance
+
     await executeAndWait(account, [
+        createCall(longTokenContract, "mint", [account.address, new CairoUint256(longTokenAmount)]),
         createCall(longTokenContract, "approve", [
             account.address,
             new CairoUint256(longTokenAmount),
         ]),
-        createCall(longTokenContract, "mint", [account.address, new CairoUint256(longTokenAmount)]),
         createCall(exchangeRouterContract, "send_tokens", [
             longTokenAddress,
             depositVaultAddress,
             new CairoUint256(longTokenAmount),
         ]),
-        createCall(shortTokenContract, "approve", [
+        createCall(shortTokenContract, "mint", [
             account.address,
             new CairoUint256(shortTokenAmount),
         ]),
-        createCall(shortTokenContract, "mint", [
+        createCall(shortTokenContract, "approve", [
             account.address,
             new CairoUint256(shortTokenAmount),
         ]),

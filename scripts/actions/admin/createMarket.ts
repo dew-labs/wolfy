@@ -61,23 +61,23 @@ async function createMarket() {
 
     // BEGIN deploy tokens
 
-    // const longTokenContract = createTokenContract(
-    //     chainId,
-    //     "0x0161304979f98530f4c3d6659e0a43cad96ceb71531482c7aaba90e07f150315"
-    // );
-    const longTokenContract = await deployToken(
-        net,
-        account,
-        "Wolfy Ethereum",
-        "wfETH",
-        18,
-        1000000n
+    const longTokenContract = createTokenContract(
+        chainId,
+        "0x07e3b6dce9c3b052e96a63d63f26aa129a1c5342343a7bb9a20754812bf4e614"
     );
-    // const shortTokenContract = createTokenContract(
-    //     chainId,
-    //     "0x0585593986c67a9802555dab7c7728270b603da6721ed6f754063eb8fd51f0aa"
+    // const longTokenContract = await deployToken(
+    //     net,
+    //     account,
+    //     "Wolfy Ethereum",
+    //     "wfETH",
+    //     18,
+    //     1000000n
     // );
-    const shortTokenContract = await deployToken(net, account, "WUSD", "WUSD", 18, 1000000n);
+    const shortTokenContract = createTokenContract(
+        chainId,
+        "0x0585593986c67a9802555dab7c7728270b603da6721ed6f754063eb8fd51f0aa"
+    );
+    // const shortTokenContract = await deployToken(net, account, "Dew USD", "DUSD", 18, 1000000n);
 
     // END deploy tokens
 

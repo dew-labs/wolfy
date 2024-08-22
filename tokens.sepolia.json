@@ -1,14 +1,37 @@
 [
     {
-        "address": "0x0161304979f98530f4c3d6659e0a43cad96ceb71531482c7aaba90e07f150315",
-        "name": "Wolfy Ethereum",
-        "symbol": "wfETH",
-        "owner": "0x01cf633c2dee3c6ec9813bdead7ba3ea5be69fe3fe652a7a51f592f6af869e80"
-    },
-    {
         "address": "0x0585593986c67a9802555dab7c7728270b603da6721ed6f754063eb8fd51f0aa",
         "name": "Wolfy USD",
         "symbol": "wfUSD",
+        "decimals": 18,
+        "owner": "0x01cf633c2dee3c6ec9813bdead7ba3ea5be69fe3fe652a7a51f592f6af869e80"
+    },
+    {
+        "address": "0x07d2da5ff2548727ecdc1c2ec8c9c3b552cbe7a9800abc1f69579e75c01b90a5",
+        "name": "Dew USD",
+        "symbol": "DUSD",
+        "decimals": 18,
+        "owner": "0x01cf633c2dee3c6ec9813bdead7ba3ea5be69fe3fe652a7a51f592f6af869e80"
+    },
+    {
+        "address": "0x0161304979f98530f4c3d6659e0a43cad96ceb71531482c7aaba90e07f150315",
+        "name": "Wolfy Ethereum",
+        "symbol": "wfETH",
+        "decimals": 18,
+        "owner": "0x01cf633c2dee3c6ec9813bdead7ba3ea5be69fe3fe652a7a51f592f6af869e80"
+    },
+    {
+        "address": "0x0257f31f11fa095874ded95a8ad6c8dca9fb851557df83e7cd384bde65c4d1c4",
+        "name": "Wolfy Starknet",
+        "symbol": "wfSTRK",
+        "decimals": 18,
+        "owner": "0x01cf633c2dee3c6ec9813bdead7ba3ea5be69fe3fe652a7a51f592f6af869e80"
+    },
+    {
+        "address": "0x07e3b6dce9c3b052e96a63d63f26aa129a1c5342343a7bb9a20754812bf4e614",
+        "name": "Wolfy Bitcoin",
+        "symbol": "wfBTC",
+        "decimals": 8,
         "owner": "0x01cf633c2dee3c6ec9813bdead7ba3ea5be69fe3fe652a7a51f592f6af869e80"
     }
 ]
