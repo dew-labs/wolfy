@@ -49,9 +49,11 @@ async function executeOrder() {
     const longOrShort = order.is_long ? "Long" : "Short";
     console.log("Order type:", longOrShort, orderType);
 
-    let executionPrice = BigInt(
-        await ask("Execution price (usd) (default to trigger price for limit)")
-    );
+    console.log(order);
+
+    let executionPrice = await ask("Execution price (usd) (default to trigger price for limit)");
+
+    let executionContractPrice = 0n;
 
     if (!executionPrice) {
         if (
@@ -61,10 +63,10 @@ async function executeOrder() {
         ) {
             throw new Error("Market order must have a execution price");
         }
-        executionPrice = cairoIntToBigInt(order.trigger_price);
+        executionContractPrice = cairoIntToBigInt(order.trigger_price);
         console.log("Execute at", order.trigger_price);
     } else {
-        executionPrice =
+        executionContractPrice =
             expandDecimals(executionPrice, USD_DECIMALS) / expandDecimals(1, indexTokenDecimals);
     }
 
@@ -84,7 +86,7 @@ async function executeOrder() {
         compacted_min_prices_indexes: [0], // not in use
         compacted_max_prices_indexes: [0], // not in use
         compacted_min_prices: [2147483648010000], // doesn't matter
-        compacted_max_prices: [executionPrice], // this is the price where order executed
+        compacted_max_prices: [executionContractPrice], // this is the price where order executed
         signatures: [
             ["signatures1", "signatures2"],
             ["signatures1", "signatures2"],
