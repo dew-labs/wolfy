@@ -18,11 +18,11 @@ import {
 } from "satoru-sdk";
 
 import { Account, type TypedContractV2 } from "starknet";
-import { expandDecimals, settingUp } from "../scripts/utils";
-import { getDataStoreContract } from "../scripts/helpers";
-import { EXECUTION_ORDER_METHOD, USD_DECIMALS } from "../scripts/config";
+import { expandDecimals, settingUp } from "./utils";
+import { getDataStoreContract } from "./helpers";
+import { EXECUTION_ORDER_METHOD, USD_DECIMALS } from "./config";
 import pc from "picocolors";
-import setup from "../scripts/setup";
+import setup from "./setup";
 
 async function runOrderKeeper(): Promise<void> {
     setup();
@@ -50,19 +50,17 @@ async function runOrderKeeper(): Promise<void> {
         const orderType: OrderType = parseOrderType(rawOrderType);
         const market = await dataStoreContract.get_market(rawMarketKey);
         const indexTokenAddress: string = toStarknetHexString(market.index_token);
-        const indexToken = createTokenContract(chainId, indexTokenAddress);
-        const indexTokenDecimals: number | bigint = await indexToken.decimals();
-        const triggerPrice: bigint = cairoIntToBigInt(rawTriggerPrice);
-
-        // calculate execution price
-        const executionPrice: bigint =
-            expandDecimals(triggerPrice, USD_DECIMALS) / expandDecimals(1, indexTokenDecimals);
+        const executionContractPrice: bigint = cairoIntToBigInt(rawTriggerPrice);
 
         // validate order type
         validateOrderType(orderType);
 
         // execute order
-        const params: Object = await setPriceParams(account, indexTokenAddress, executionPrice);
+        const params: Object = await setPriceParams(
+            account,
+            indexTokenAddress,
+            executionContractPrice
+        );
         await executeOrder(orderHandlerContract, account, orderKey, params);
     };
 
@@ -82,7 +80,7 @@ function validateOrderType(orderType: OrderType): void {
 async function setPriceParams(
     account: Account,
     indexTokenAddress: string,
-    executionPrice: BigInt
+    executionContractPrice: bigint
 ): Promise<Object> {
     const currentBlockNum = await account.getBlockNumber();
     const currentBlock = await account.getBlock();
@@ -99,7 +97,7 @@ async function setPriceParams(
         compacted_min_prices_indexes: [0], // not in use
         compacted_max_prices_indexes: [0], // not in use
         compacted_min_prices: [2147483648010000], // doesn't matter
-        compacted_max_prices: [executionPrice], // this is the price where order executed
+        compacted_max_prices: [executionContractPrice], // this is the price where order executed
         signatures: [
             ["signatures1", "signatures2"],
             ["signatures1", "signatures2"],
