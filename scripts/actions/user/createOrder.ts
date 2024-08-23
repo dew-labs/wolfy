@@ -78,7 +78,7 @@ async function createOrder() {
     const collateralAmount = expandDecimals(collateralAmountInput, collateralDecimals);
 
     let sizeInput = Number(await ask("Order size (usd) (default to 3500)")) || 3500;
-    const size = expandDecimals(sizeInput, 18); // USD decimals = 18
+    const size = expandDecimals(sizeInput, USD_DECIMALS);
 
     // "MarketSwap"; // care later
     // "LimitSwap"; // care later
