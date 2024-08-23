@@ -58,8 +58,7 @@ mod AdlHandler {
     // *************************************************************************
 
     // Core lib imports.
-    use starknet::{ContractAddress, get_caller_address, get_contract_address, SyscallResultTrait};
-
+    use starknet::{ContractAddress, get_caller_address, get_contract_address, SyscallResultTrait, ClassHash};
 
     // Local imports.
     use super::IAdlHandler;
@@ -69,7 +68,7 @@ mod AdlHandler {
     use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
     use satoru::exchange::base_order_handler::{IBaseOrderHandler, BaseOrderHandler};
     use satoru::exchange::base_order_handler::BaseOrderHandler::{
-        data_storeContractMemberStateTrait, event_emitterContractMemberStateTrait, order_utilsContractMemberStateTrait,
+        data_storeContractMemberStateTrait, event_emitterContractMemberStateTrait, order_utils_libContractMemberStateTrait,
         oracleContractMemberStateTrait, InternalTrait as BaseOrderHandleInternalTrait,
     };
     use satoru::feature::feature_utils;
@@ -82,7 +81,7 @@ mod AdlHandler {
     use satoru::oracle::oracle_utils::SetPricesParams;
     use satoru::order::{
         order::{SecondaryOrderType, OrderType, Order}, order_vault::{IOrderVaultDispatcher, IOrderVaultDispatcherTrait},
-        base_order_utils::{ExecuteOrderParams}, order_utils::{IOrderUtilsDispatcher}
+        base_order_utils::{ExecuteOrderParams}, order_utils::{IOrderUtilsDispatcher, IOrderUtilsDispatcherTrait}
     };
     use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
     use satoru::swap::swap_handler::{ISwapHandlerDispatcher, ISwapHandlerDispatcherTrait};
@@ -142,7 +141,10 @@ mod AdlHandler {
         oracle_address: ContractAddress,
         swap_handler_address: ContractAddress,
         referral_storage_address: ContractAddress,
-        order_utils_address: ContractAddress
+        order_utils_class_hash: ClassHash,
+        increase_order_utils_class_hash: ClassHash,
+        decrease_order_utils_class_hash: ClassHash,
+        swap_order_utils_class_hash: ClassHash,
     ) {
         let mut state: BaseOrderHandler::ContractState = BaseOrderHandler::unsafe_new_contract_state();
         IBaseOrderHandler::initialize(
@@ -154,9 +156,11 @@ mod AdlHandler {
             oracle_address,
             swap_handler_address,
             referral_storage_address,
-            order_utils_address
+            order_utils_class_hash,
+            increase_order_utils_class_hash,
+            decrease_order_utils_class_hash,
+            swap_order_utils_class_hash
         );
-        self.order_utils.write(IOrderUtilsDispatcher { contract_address: order_utils_address });
     }
 
     // *************************************************************************
@@ -263,7 +267,7 @@ mod AdlHandler {
                 keys::execute_adl_feature_disabled_key(get_contract_address(), params.order.order_type.into())
             );
 
-            base_order_handler_state.order_utils.read().execute_order_utils(params);
+            base_order_handler_state.order_utils_lib.read().execute_order_utils(params);
 
             // validate that the ratio of pending pnl to pool value was decreased
             cache

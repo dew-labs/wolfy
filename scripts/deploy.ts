@@ -25,30 +25,7 @@ async function deploy() {
 
     // -------------------------------------------------------------------------
 
-    const roleStore = await ensureDeployed(
-        account,
-        contracts.RoleStore,
-        "RoleStore",
-        { admin: account.address },
-        true
-    );
-
-    // -------------------------------------------------------------------------
-
-    const dataStore = await ensureDeployed(account, contracts.DataStore, "DataStore", {
-        role_store_address: roleStore.address,
-    });
-
-    // -------------------------------------------------------------------------
-
-    const eventEmitter = await ensureDeployed(account, contracts.EventEmitter, "EventEmitter", {});
-
-    // -------------------------------------------------------------------------
-
-    const oracleStore = await ensureDeployed(account, contracts.OracleStore, "OracleStore", {
-        role_store_address: roleStore.address,
-        event_emitter_address: eventEmitter.address,
-    });
+    const marketTokenClassHash = await ensureDeclared(account, "MarketToken");
 
     // -------------------------------------------------------------------------
 
@@ -57,35 +34,18 @@ async function deploy() {
         .address;
     // const pragmaAddress = getPragmaContract();
 
-    // Oracle change will lead to OrderHandler, DepositHandler, WithdrawalHandler, and ExchangeRouter change
-    const oracle = await ensureDeployed(account, contracts.Oracle, "Oracle", {
-        role_store_address: roleStore.address,
-        oracle_store_address: oracleStore.address,
-        pragma_address: pragmaAddress,
-    });
+    // -------------------------------------------------------------------------
+
+    const reader = await ensureDeployed(account, contracts.Reader, "Reader", {});
 
     // -------------------------------------------------------------------------
 
-    const orderVault = await ensureDeployed(account, contracts.OrderVault, "OrderVault", {
-        data_store_address: dataStore.address,
-        role_store_address: roleStore.address,
-    });
-
-    // -------------------------------------------------------------------------
-
-    const swapHandler = await ensureDeployed(account, contracts.SwapHandler, "SwapHandler", {
-        role_store_address: roleStore.address,
-    });
-
-    // -------------------------------------------------------------------------
-
-    const referralStorage = await ensureDeployed(
+    const roleStore = await ensureDeployed(
         account,
-        contracts.ReferralStorage,
-        "ReferralStorage",
-        {
-            event_emitter_address: eventEmitter.address,
-        }
+        contracts.RoleStore,
+        "RoleStore",
+        { admin: account.address },
+        true
     );
 
     // -------------------------------------------------------------------------
@@ -134,6 +94,90 @@ async function deploy() {
 
     // -------------------------------------------------------------------------
 
+    const eventEmitter = await ensureDeployed(account, contracts.EventEmitter, "EventEmitter", {});
+
+    // -------------------------------------------------------------------------
+
+    const router = await ensureDeployed(account, contracts.Router, "Router", {
+        role_store_address: roleStore.address,
+    });
+
+    // -------------------------------------------------------------------------
+
+    const referralStorage = await ensureDeployed(
+        account,
+        contracts.ReferralStorage,
+        "ReferralStorage",
+        {
+            event_emitter_address: eventEmitter.address,
+        }
+    );
+
+    // -------------------------------------------------------------------------
+
+    const dataStore = await ensureDeployed(account, contracts.DataStore, "DataStore", {
+        role_store_address: roleStore.address,
+    });
+
+    // -------------------------------------------------------------------------
+
+    const oracleStore = await ensureDeployed(account, contracts.OracleStore, "OracleStore", {
+        role_store_address: roleStore.address,
+        event_emitter_address: eventEmitter.address,
+    });
+
+    // -------------------------------------------------------------------------
+
+    const swapHandler = await ensureDeployed(account, contracts.SwapHandler, "SwapHandler", {
+        role_store_address: roleStore.address,
+    });
+
+    // -------------------------------------------------------------------------
+
+    const marketFactory = await ensureDeployed(account, contracts.MarketFactory, "MarketFactory", {
+        data_store_address: dataStore.address,
+        role_store_address: roleStore.address,
+        event_emitter_address: eventEmitter.address,
+        market_token_class_hash: marketTokenClassHash,
+    });
+
+    // -------------------------------------------------------------------------
+
+    const orderVault = await ensureDeployed(account, contracts.OrderVault, "OrderVault", {
+        data_store_address: dataStore.address,
+        role_store_address: roleStore.address,
+    });
+
+    // -------------------------------------------------------------------------
+
+    const depositVault = await ensureDeployed(account, contracts.DepositVault, "DepositVault", {
+        data_store_address: dataStore.address,
+        role_store_address: roleStore.address,
+    });
+
+    // -------------------------------------------------------------------------
+
+    const withdrawalVault = await ensureDeployed(
+        account,
+        contracts.WithdrawalVault,
+        "WithdrawalVault",
+        {
+            data_store_address: dataStore.address,
+            role_store_address: roleStore.address,
+        }
+    );
+
+    // -------------------------------------------------------------------------
+
+    // Oracle change will lead to OrderHandler, DepositHandler, WithdrawalHandler, and ExchangeRouter change
+    const oracle = await ensureDeployed(account, contracts.Oracle, "Oracle", {
+        role_store_address: roleStore.address,
+        oracle_store_address: oracleStore.address,
+        pragma_address: pragmaAddress,
+    });
+
+    // -------------------------------------------------------------------------
+
     const orderHandler = await ensureDeployed(account, contracts.OrderHandler, "OrderHandler", {
         data_store_address: dataStore.address,
         role_store_address: roleStore.address,
@@ -150,13 +194,6 @@ async function deploy() {
 
     // -------------------------------------------------------------------------
 
-    const depositVault = await ensureDeployed(account, contracts.DepositVault, "DepositVault", {
-        data_store_address: dataStore.address,
-        role_store_address: roleStore.address,
-    });
-
-    // -------------------------------------------------------------------------
-
     const depositHandler = await ensureDeployed(
         account,
         contracts.DepositHandler,
@@ -167,18 +204,6 @@ async function deploy() {
             event_emitter_address: eventEmitter.address,
             deposit_vault_address: depositVault.address,
             oracle_address: oracle.address,
-        }
-    );
-
-    // -------------------------------------------------------------------------
-
-    const withdrawalVault = await ensureDeployed(
-        account,
-        contracts.WithdrawalVault,
-        "WithdrawalVault",
-        {
-            data_store_address: dataStore.address,
-            role_store_address: roleStore.address,
         }
     );
 
@@ -199,21 +224,39 @@ async function deploy() {
 
     // -------------------------------------------------------------------------
 
-    const marketTokenClassHash = await ensureDeclared(account, "MarketToken");
+    const liquidationHandler = await ensureDeployed(
+        account,
+        contracts.LiquidationHandler,
+        "LiquidationHandler",
+        {
+            data_store_address: dataStore.address,
+            role_store_address: roleStore.address,
+            event_emitter_address: eventEmitter.address,
+            order_vault_address: orderVault.address,
+            oracle_address: oracle.address,
+            swap_handler_address: swapHandler.address,
+            referral_storage_address: referralStorage.address,
+            order_utils_class_hash: orderUtils.classHash,
+            increase_order_utils_class_hash: increaseOrderUtils.classHash,
+            decrease_order_utils_class_hash: decreaseOrderUtils.classHash,
+            swap_order_utils_class_hash: swapOrderUtils.classHash,
+        }
+    );
 
     // -------------------------------------------------------------------------
 
-    const marketFactory = await ensureDeployed(account, contracts.MarketFactory, "MarketFactory", {
+    const adlHandler = await ensureDeployed(account, contracts.AdlHandler, "AdlHandler", {
         data_store_address: dataStore.address,
         role_store_address: roleStore.address,
         event_emitter_address: eventEmitter.address,
-        market_token_class_hash: marketTokenClassHash,
-    });
-
-    // -------------------------------------------------------------------------
-
-    const router = await ensureDeployed(account, contracts.Router, "Router", {
-        role_store_address: roleStore.address,
+        order_vault_address: orderVault.address,
+        oracle_address: oracle.address,
+        swap_handler_address: swapHandler.address,
+        referral_storage_address: referralStorage.address,
+        order_utils_class_hash: orderUtils.classHash,
+        increase_order_utils_class_hash: increaseOrderUtils.classHash,
+        decrease_order_utils_class_hash: decreaseOrderUtils.classHash,
+        swap_order_utils_class_hash: swapOrderUtils.classHash,
     });
 
     // -------------------------------------------------------------------------
@@ -235,32 +278,33 @@ async function deploy() {
 
     // -------------------------------------------------------------------------
 
-    const reader = await ensureDeployed(account, contracts.Reader, "Reader", {});
-
-    // -------------------------------------------------------------------------
-
     const deployedContracts: Contracts = {
-        RoleStore: roleStore.address,
-        DataStore: dataStore.address,
-        EventEmitter: eventEmitter.address,
-        OracleStore: oracleStore.address,
         Pragma: pragmaAddress,
-        Oracle: oracle.address,
-        OrderVault: orderVault.address,
-        SwapHandler: swapHandler.address,
-        ReferralStorage: referralStorage.address,
+        Reader: reader.address,
+        RoleStore: roleStore.address,
         IncreaseOrderUtils: increaseOrderUtils.address,
         DecreaseOrderUtils: decreaseOrderUtils.address,
         SwapOrderUtils: swapOrderUtils.address,
         OrderUtils: orderUtils.address,
+        EventEmitter: eventEmitter.address,
+        //-------------------------------------------------
+        Router: router.address, // depends on roleStore
+        ReferralStorage: referralStorage.address, // depends on eventEmitter
+        DataStore: dataStore.address, // depends on roleStore
+        OracleStore: oracleStore.address, // depends on roleStore and EventEmitter
+        SwapHandler: swapHandler.address, // depends on roleStore
+        //-------------------------------------------------
+        MarketFactory: marketFactory.address, // depends on dataStore, eventEmitter
+        OrderVault: orderVault.address, // depends on dataStore
+        DepositVault: depositVault.address, // depends on dataStore
+        WithdrawalVault: withdrawalVault.address, // depends on dataStore
+        Oracle: oracle.address, // depends on oracleStore and pragma
+        //-------------------------------------------------
         OrderHandler: orderHandler.address,
-        DepositVault: depositVault.address,
-        DepositHandler: depositHandler.address,
-        WithdrawalVault: withdrawalVault.address,
         WithdrawalHandler: withdrawalHandler.address,
-        MarketFactory: marketFactory.address,
-        Reader: reader.address,
-        Router: router.address,
+        DepositHandler: depositHandler.address,
+        LiquidationHandler: liquidationHandler.address,
+        AdlHandler: adlHandler.address,
         ExchangeRouter: exchangeRouter.address,
     };
 
@@ -285,6 +329,8 @@ async function grantRoles() {
     const orderUtilsAddress = contracts.OrderUtils;
     const depositHandlerAddress = contracts.DepositHandler;
     const withdrawalHandlerAddress = contracts.WithdrawalHandler;
+    const liquidationHandlerAddress = contracts.LiquidationHandler;
+    const adlHandlerAddress = contracts.AdlHandler;
     const orderHandlerAddress = contracts.OrderHandler;
     const swapHandlerAddress = contracts.SwapHandler;
     const exchangeRouterAddress = contracts.ExchangeRouter;
@@ -297,6 +343,8 @@ async function grantRoles() {
         !orderUtilsAddress ||
         !depositHandlerAddress ||
         !withdrawalHandlerAddress ||
+        !liquidationHandlerAddress ||
+        !adlHandlerAddress ||
         !orderHandlerAddress ||
         !swapHandlerAddress ||
         !exchangeRouterAddress ||
@@ -368,6 +416,14 @@ async function grantRoles() {
         "WithdrawalHandler"
     );
     await grantRole(chainId, account, swapHandlerAddress, SatoruRole.CONTROLLER, "SwapHandler");
+    await grantRole(
+        chainId,
+        account,
+        liquidationHandlerAddress,
+        SatoruRole.CONTROLLER,
+        "LiquidationHandler"
+    );
+    await grantRole(chainId, account, adlHandlerAddress, SatoruRole.CONTROLLER, "AdlHandler");
     await grantRole(
         chainId,
         account,

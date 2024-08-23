@@ -17,6 +17,8 @@ const CONTRACTS = [
     ["DepositHandler", "./target/dev/satoru_DepositHandler.contract_class.json"],
     ["WithdrawalVault", "./target/dev/satoru_WithdrawalVault.contract_class.json"],
     ["WithdrawalHandler", "./target/dev/satoru_WithdrawalHandler.contract_class.json"],
+    ["LiquidationHandler", "./target/dev/satoru_LiquidationHandler.contract_class.json"],
+    ["AdlHandler", "./target/dev/satoru_AdlHandler.contract_class.json"],
     ["MarketFactory", "./target/dev/satoru_MarketFactory.contract_class.json"],
     ["Reader", "./target/dev/satoru_Reader.contract_class.json"],
     ["Router", "./target/dev/satoru_Router.contract_class.json"],

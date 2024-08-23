@@ -210,6 +210,8 @@ export interface Contracts {
     DepositHandler: string | undefined;
     WithdrawalVault: string | undefined;
     WithdrawalHandler: string | undefined;
+    LiquidationHandler: string | undefined;
+    AdlHandler: string | undefined;
     MarketFactory: string | undefined;
     Reader: string | undefined;
     Router: string | undefined;

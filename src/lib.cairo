@@ -60,7 +60,7 @@ mod deposit {
 
 // `exchange` contains main satoru handlers to create and execute actions.
 mod exchange {
-    // mod adl_handler;
+    mod adl_handler;
     mod base_order_handler;
     mod deposit_handler;
     mod error;

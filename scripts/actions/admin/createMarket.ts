@@ -2,6 +2,7 @@ import { CairoUint256, type Account } from "starknet";
 import { ensureDeployed, settingUp } from "../../utils";
 
 import fs from "node:fs";
+import { StarknetChainId } from "satoru-sdk";
 
 import {
     createCall,
@@ -56,30 +57,13 @@ async function deployToken(
     return createTokenContract(chainId, token.address, account);
 }
 
-async function createMarket() {
-    const { account, chainId, net } = await settingUp();
-
-    // BEGIN deploy tokens
-
-    const longTokenContract = createTokenContract(
-        chainId,
-        "0x07e3b6dce9c3b052e96a63d63f26aa129a1c5342343a7bb9a20754812bf4e614"
-    );
-    // const longTokenContract = await deployToken(
-    //     net,
-    //     account,
-    //     "Wolfy Ethereum",
-    //     "wfETH",
-    //     18,
-    //     1000000n
-    // );
-    const shortTokenContract = createTokenContract(
-        chainId,
-        "0x0585593986c67a9802555dab7c7728270b603da6721ed6f754063eb8fd51f0aa"
-    );
-    // const shortTokenContract = await deployToken(net, account, "Dew USD", "DUSD", 18, 1000000n);
-
-    // END deploy tokens
+async function createMarket(
+    account: Account,
+    indexTokenAddress: string,
+    longTokenAddress: string,
+    shortTokenAddress: string
+) {
+    const chainId = await account.getChainId();
 
     const marketFactoryContract = createSatoruContract(
         chainId,
@@ -88,9 +72,8 @@ async function createMarket() {
         account
     );
 
-    const indexTokenAddress = longTokenContract.address;
-    const longTokenAddress = longTokenContract.address;
-    const shortTokenAddress = shortTokenContract.address;
+    const longTokenContract = createTokenContract(chainId, longTokenAddress);
+    const shortTokenContract = createTokenContract(chainId, shortTokenAddress);
 
     // BEGIN create market
 
@@ -151,4 +134,42 @@ async function createMarket() {
     console.log("All mint done.");
 }
 
-createMarket();
+async function deployTokenThenCreateMarket() {
+    const { account, net } = await settingUp();
+
+    // BEGIN deploy tokens
+
+    const longTokenContract = await deployToken(
+        net,
+        account,
+        "Wolfy Ethereum",
+        "wfETH",
+        18,
+        1000000n
+    );
+    const shortTokenContract = await deployToken(net, account, "Dew USD", "DUSD", 18, 1000000n);
+
+    const indexTokenAddress = longTokenContract.address;
+    const longTokenAddress = indexTokenAddress;
+    const shortTokenAddress = shortTokenContract.address;
+
+    // END deploy tokens
+
+    createMarket(account, indexTokenAddress, longTokenAddress, shortTokenAddress);
+}
+
+// deployTokenThenCreateMarket();
+
+// Or if you want to reuse tokens
+
+async function createMarketWithReusedTokens() {
+    const { account } = await settingUp();
+
+    const indexTokenAddress = "0x0161304979f98530f4c3d6659e0a43cad96ceb71531482c7aaba90e07f150315";
+    const longTokenAddress = indexTokenAddress;
+    const shortTokenAddress = "0x0585593986c67a9802555dab7c7728270b603da6721ed6f754063eb8fd51f0aa";
+
+    createMarket(account, indexTokenAddress, longTokenAddress, shortTokenAddress);
+}
+
+createMarketWithReusedTokens();

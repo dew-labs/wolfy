@@ -78,7 +78,7 @@ async function createOrder() {
     const collateralAmount = expandDecimals(collateralAmountInput, collateralDecimals);
 
     let sizeInput = Number(await ask("Order size (usd) (default to 3500)")) || 3500;
-    const size = expandDecimals(sizeInput, 18); // USD decimals = 18
+    const size = expandDecimals(sizeInput, USD_DECIMALS);
 
     // "MarketSwap"; // care later
     // "LimitSwap"; // care later
@@ -97,12 +97,16 @@ async function createOrder() {
         increaseOrDecrease = "i";
 
     let triggerPrice: bigint | number = 0n;
+    let acceptablePrice;
 
     if (marketOrLimit === "l") {
         // Market order doesn't need trigger price
         triggerPrice = Number(await ask("Trigger price (usd) (default to 3500)")) || 3500;
         triggerPrice =
             expandDecimals(triggerPrice, USD_DECIMALS) / expandDecimals(1, indexTokenDecimals);
+        acceptablePrice = triggerPrice; // TODO: Apply sippage
+    } else {
+        triggerPrice = Number(await ask("Acceptable price (usd) (default to 3500)")) || 3500;
     }
 
     const orderType = (() => {
@@ -120,8 +124,6 @@ async function createOrder() {
             }
         }
     })();
-
-    const acceptablePrice = triggerPrice; // Apply sippage later
 
     const exchangeRouterContract = getExchangeRouterContract(chainId, account);
 
