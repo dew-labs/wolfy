@@ -27,9 +27,9 @@ use debug::PrintTrait;
 fn deploy_tokens() -> (ContractAddress, ContractAddress, ContractAddress) {
     let contract = declare("ERC20").unwrap();
     let caller_address: ContractAddress = tests_lib::get_c4ller_address();
-    let constructor_calldata = array!['satoru_index', 'STU', 4000, 0, caller_address.into()];
-    let constructor_calldata1 = array!['satoru_long', 'STU', 4000, 0, caller_address.into()];
-    let constructor_calldata2 = array!['satoru_short', 'STU', 4000, 0, caller_address.into()];
+    let constructor_calldata = array!['satoru_index', 'STU', 18, 4000, 0, caller_address.into()];
+    let constructor_calldata1 = array!['satoru_long', 'STU', 18, 4000, 0, caller_address.into()];
+    let constructor_calldata2 = array!['satoru_short', 'STU', 18, 4000, 0, caller_address.into()];
 
     let (contract_address1, _) = contract.deploy(@constructor_calldata).unwrap();
     let (contract_address2, _) = contract.deploy(@constructor_calldata1).unwrap();

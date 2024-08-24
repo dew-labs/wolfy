@@ -299,7 +299,7 @@ fn given_normal_conditions_when_claim_affiliate_reward_then_works() {
 /// Utility function to deploy a mock token contract
 fn setup_mock_token(recipient: ContractAddress, market_token: ContractAddress) -> (ContractAddress, IERC20Dispatcher) {
     let contract = declare("ERC20").unwrap();
-    let constructor_calldata = array![11, 11, 10000000000000000000000, 0, recipient.into()];
+    let constructor_calldata = array![11, 11, 18, 10000000000000000000000, 0, recipient.into()];
     let (token_address, _) = contract.deploy(@constructor_calldata).unwrap();
 
     let token_contract = IERC20Dispatcher { contract_address: token_address };

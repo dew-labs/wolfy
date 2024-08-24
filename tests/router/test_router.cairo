@@ -137,6 +137,7 @@ fn deploy_mock_token(minter_address: ContractAddress, initial_amount: u256) -> C
     let mut constructor_calldata: Array::<felt252> = array![];
     constructor_calldata.append('TestToken');
     constructor_calldata.append('TST');
+    constructor_calldata.append(18);
     constructor_calldata.append(initial_amount.low.into());
     constructor_calldata.append(initial_amount.high.into());
     constructor_calldata.append(minter_address.into());
