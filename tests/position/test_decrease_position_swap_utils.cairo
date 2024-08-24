@@ -62,7 +62,8 @@ fn setup() -> (ContractAddress, IRoleStoreDispatcher, ISwapHandlerDispatcher) {
         _,
         _,
         _,
-    ) = tests_lib::setup();
+    ) =
+        tests_lib::setup();
 
     (caller_address, role_store, swap_handler)
 }
@@ -109,10 +110,7 @@ fn given_normal_conditions_when_swap_to_pnl_token_then_works() {
 
     let values = create_new_decrease_position_collateral_values(output);
 
-    let decrease_position_values =
-        decrease_position_swap_utils::swap_withdrawn_collateral_to_pnl_token(
-        params, values
-    );
+    let decrease_position_values = decrease_position_swap_utils::swap_withdrawn_collateral_to_pnl_token(params, values);
 
     assert(decrease_position_values.output.output_token == (0.try_into().unwrap()), 'Error');
 

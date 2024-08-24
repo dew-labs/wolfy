@@ -376,9 +376,14 @@ fn create_withrawal_params(market: ContractAddress) -> CreateWithdrawalParams {
 }
 
 fn setup() -> (
-    ContractAddress, IDataStoreDispatcher, IEventEmitterDispatcher, IWithdrawalHandlerDispatcher, IWithdrawalVaultDispatcher, IRoleStoreDispatcher
+    ContractAddress,
+    IDataStoreDispatcher,
+    IEventEmitterDispatcher,
+    IWithdrawalHandlerDispatcher,
+    IWithdrawalVaultDispatcher,
+    IRoleStoreDispatcher
 ) {
-let (
+    let (
         caller_address,
         _market_token_class,
         _increase_order_class,
@@ -404,7 +409,8 @@ let (
         _,
         _,
         _,
-    ) = tests_lib::setup();
+    ) =
+        tests_lib::setup();
 
     (caller_address, data_store, event_emitter, withdrawal_handler, withdrawal_vault, role_store)
 }

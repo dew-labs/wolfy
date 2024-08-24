@@ -2512,7 +2512,6 @@ fn test_long_increase_then_cancel() {
 
     order_handler.cancel_order(key_long);
 
-
     'long position CANCELLED'.print();
 
     // *********************************************************************************************

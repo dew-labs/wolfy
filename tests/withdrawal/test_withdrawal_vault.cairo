@@ -45,7 +45,8 @@ fn given_normal_conditions_when_transfer_out_then_works() {
     start_cheat_caller_address(withdrawal_vault.contract_address, caller_address);
 
     let amount_to_transfer: u256 = 100;
-    withdrawal_vault.transfer_out(withdrawal_vault.contract_address, erc20.contract_address, receiver_address, amount_to_transfer);
+    withdrawal_vault
+        .transfer_out(withdrawal_vault.contract_address, erc20.contract_address, receiver_address, amount_to_transfer);
 
     // check that the contract balance reduces
     let contract_balance = erc20.balance_of(withdrawal_vault.contract_address);
@@ -68,7 +69,8 @@ fn given_not_enough_token_when_transfer_out_then_fails() {
     let (_, receiver_address, _, data_store, withdrawal_vault, erc20, market_factory) = setup();
 
     let amount_to_transfer: u256 = u256_from_felt252(INITIAL_TOKENS_MINTED + 1);
-    withdrawal_vault.transfer_out(withdrawal_vault.contract_address, erc20.contract_address, receiver_address, amount_to_transfer);
+    withdrawal_vault
+        .transfer_out(withdrawal_vault.contract_address, erc20.contract_address, receiver_address, amount_to_transfer);
 
     teardown(data_store, withdrawal_vault, market_factory);
 }
@@ -90,7 +92,10 @@ fn given_caller_has_no_controller_role_when_transfer_out_then_fails() {
 fn given_receiver_is_contract_when_transfer_out_then_fails() {
     let (_caller_address, _receiver_address, _, data_store, withdrawal_vault, erc20, market_factory) = setup();
 
-    withdrawal_vault.transfer_out(withdrawal_vault.contract_address, erc20.contract_address, withdrawal_vault.contract_address, 100_u256);
+    withdrawal_vault
+        .transfer_out(
+            withdrawal_vault.contract_address, erc20.contract_address, withdrawal_vault.contract_address, 100_u256
+        );
 
     teardown(data_store, withdrawal_vault, market_factory);
 }
@@ -246,7 +251,8 @@ fn setup() -> (
         _,
         _,
         _,
-    ) = tests_lib::setup();
+    ) =
+        tests_lib::setup();
 
     // get receiver_address
     let receiver_address = contract_address_const::<'dummy_receiver'>();
@@ -262,7 +268,11 @@ fn setup() -> (
 // *********************************************************************************************
 // *                                     TEARDOWN                                              *
 // *********************************************************************************************
-fn teardown(data_store: IDataStoreDispatcher, withdrawal_vault: IWithdrawalVaultDispatcher, market_factory: IMarketFactoryDispatcher) {
+fn teardown(
+    data_store: IDataStoreDispatcher,
+    withdrawal_vault: IWithdrawalVaultDispatcher,
+    market_factory: IMarketFactoryDispatcher
+) {
     tests_lib::teardown();
     stop_cheat_caller_address(withdrawal_vault.contract_address);
 }

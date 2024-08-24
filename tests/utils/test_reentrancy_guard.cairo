@@ -33,7 +33,8 @@ fn given_normal_conditions_when_non_reentrancy_before_and_after_then_works() {
         _,
         _,
         _,
-    ) = tests_lib::setup();
+    ) =
+        tests_lib::setup();
     // *********************************************************************************************
     // *                              TEST LOGIC                                                   *
     // *********************************************************************************************
@@ -90,7 +91,8 @@ fn given_reentrant_call_when_reentrancy_before_and_after_then_fails() {
         _,
         _,
         _,
-    ) = tests_lib::setup();
+    ) =
+        tests_lib::setup();
 
     // *********************************************************************************************
     // *                              TEST LOGIC                                                   *

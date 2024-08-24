@@ -181,7 +181,9 @@ mod IncreaseOrderUtils {
             order_type: OrderType,
             order_updated_at_block: u64
         ) {
-            validate_oracle_block_numbers(min_oracle_block_numbers, max_oracle_block_numbers, order_type, order_updated_at_block)
+            validate_oracle_block_numbers(
+                min_oracle_block_numbers, max_oracle_block_numbers, order_type, order_updated_at_block
+            )
         }
     }
 }

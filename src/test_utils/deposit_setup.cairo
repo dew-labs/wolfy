@@ -108,7 +108,8 @@ fn deposit_setup(
         _,
         _,
         _,
-    ) = tests_lib::setup();
+    ) =
+        tests_lib::setup();
 
     // *********************************************************************************************
     // *                              TEST LOGIC                                                   *
@@ -206,7 +207,10 @@ fn deposit_setup(
     role_store.grant_role(caller_address, role::ROUTER_PLUGIN);
     role_store.grant_role(exchange_router.contract_address, role::ROUTER_PLUGIN);
 
-    role_store.grant_role(order_handler.contract_address, role::CONTROLLER); // for tests::integration::swap_test::test_swap_market
+    role_store
+        .grant_role(
+            order_handler.contract_address, role::CONTROLLER
+        ); // for tests::integration::swap_test::test_swap_market
 
     exchange_router.send_tokens(market.long_token, deposit_vault.contract_address, long_token_amount);
     exchange_router.send_tokens(market.short_token, deposit_vault.contract_address, short_token_amount);
@@ -338,13 +342,9 @@ fn exec_order(
         compacted_decimals: array![1, 1],
         compacted_min_prices: array![2147483648010000], // 500000, 10000 compacted
         compacted_min_prices_indexes: array![0],
-        compacted_max_prices: array![
-            long_token_price, short_token_price
-        ], // 500000, 10000 compacted
+        compacted_max_prices: array![long_token_price, short_token_price], // 500000, 10000 compacted
         compacted_max_prices_indexes: array![0],
-        signatures: array![
-            array!['signatures1', 'signatures2'].span(), array!['signatures1', 'signatures2'].span()
-        ],
+        signatures: array![array!['signatures1', 'signatures2'].span(), array!['signatures1', 'signatures2'].span()],
         price_feed_tokens: array![]
     };
 

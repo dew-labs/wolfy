@@ -158,9 +158,7 @@ mod MarketFactory {
             self
                 .event_emitter
                 .read()
-                .emit_market_token_class_updated(
-                    caller_address, old_market_token_class, market_token_class,
-                );
+                .emit_market_token_class_updated(caller_address, old_market_token_class, market_token_class,);
         }
     }
 

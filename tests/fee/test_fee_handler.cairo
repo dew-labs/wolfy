@@ -81,9 +81,12 @@ fn setup() -> (ContractAddress, IDataStoreDispatcher, IEventEmitterDispatcher, I
         _,
         _,
         _,
-    ) = tests_lib::setup();
+    ) =
+        tests_lib::setup();
 
-    let fee_handler_address = deploy_fee_handler(role_store.contract_address, data_store.contract_address, event_emitter.contract_address);
+    let fee_handler_address = deploy_fee_handler(
+        role_store.contract_address, data_store.contract_address, event_emitter.contract_address
+    );
     let fee_handler = IFeeHandlerDispatcher { contract_address: fee_handler_address };
 
     let account = tests_lib::deploy_mock_account();

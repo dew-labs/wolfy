@@ -11,7 +11,8 @@ use satoru::test_utils::tests_lib;
 use satoru::position::position::{Position};
 
 use snforge_std::{
-    declare, start_cheat_caller_address, stop_cheat_caller_address, ContractClassTrait, spy_events, EventSpy, EventSpyAssertionsTrait, Event, EventSpyTrait, start_mock_call
+    declare, start_cheat_caller_address, stop_cheat_caller_address, ContractClassTrait, spy_events, EventSpy,
+    EventSpyAssertionsTrait, Event, EventSpyTrait, start_mock_call
 };
 use satoru::adl::adl_utils;
 use satoru::utils::i256::{i256, i256_new};
@@ -276,7 +277,9 @@ fn given_normal_conditions_when_update_adl_state_then_works() {
     tests_lib::teardown();
 }
 
-fn setup() -> (ContractAddress, IRoleStoreDispatcher, IDataStoreDispatcher, IEventEmitterDispatcher, IOracleDispatcher) {
+fn setup() -> (
+    ContractAddress, IRoleStoreDispatcher, IDataStoreDispatcher, IEventEmitterDispatcher, IOracleDispatcher
+) {
     let (
         caller_address,
         _market_token_class,
@@ -303,7 +306,8 @@ fn setup() -> (ContractAddress, IRoleStoreDispatcher, IDataStoreDispatcher, IEve
         _,
         _,
         _,
-    ) = tests_lib::setup();
+    ) =
+        tests_lib::setup();
 
     (caller_address, role_store, data_store, event_emitter, oracle)
 }

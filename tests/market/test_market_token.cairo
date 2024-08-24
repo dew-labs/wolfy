@@ -71,10 +71,13 @@ fn setup() -> (
         _,
         _,
         _,
-    ) = tests_lib::setup();
+    ) =
+        tests_lib::setup();
 
     // Deploy the contract.
-    let market_token_address = deploy_only_market_token(market_token_class, role_store.contract_address, 11111.try_into().unwrap());
+    let market_token_address = deploy_only_market_token(
+        market_token_class, role_store.contract_address, 11111.try_into().unwrap()
+    );
     // Create a safe dispatcher to interact with the contract.
     let market_token = IMarketTokenDispatcher { contract_address: market_token_address };
 
@@ -93,7 +96,9 @@ fn teardown(market_token_address: ContractAddress) {
     tests_lib::teardown();
 }
 
-fn deploy_only_market_token(contract: ContractClass, role_store_address: ContractAddress, data_store_address: ContractAddress) -> ContractAddress {
+fn deploy_only_market_token(
+    contract: ContractClass, role_store_address: ContractAddress, data_store_address: ContractAddress
+) -> ContractAddress {
     let mut constructor_calldata = array![role_store_address.into(), data_store_address.into()];
 
     let (contract_address, _) = contract.deploy(@constructor_calldata).unwrap();

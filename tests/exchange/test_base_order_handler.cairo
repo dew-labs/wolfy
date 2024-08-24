@@ -6,7 +6,8 @@
 // Core lib imports.
 use starknet::{ContractAddress, get_caller_address, Felt252TryIntoContractAddress, contract_address_const};
 use snforge_std::{
-    declare, start_cheat_caller_address, stop_cheat_caller_address, start_mock_call, test_address, ContractClass, ContractClassTrait
+    declare, start_cheat_caller_address, stop_cheat_caller_address, start_mock_call, test_address, ContractClass,
+    ContractClassTrait
 };
 use traits::Default;
 use poseidon::poseidon_hash_span;
@@ -52,7 +53,8 @@ fn given_already_intialized_state_when_initialize_then_fails() {
         decrease_order_class,
         swap_order_class,
         order_utils_class,
-    ) = setup_contracts();
+    ) =
+        setup_contracts();
 
     BaseOrderHandler::BaseOrderHandlerImpl::initialize(
         ref base_order_handler_state,
@@ -301,7 +303,8 @@ fn setup_contracts() -> (
         _,
         _,
         _,
-    ) = tests_lib::setup();
+    ) =
+        tests_lib::setup();
 
     let mut base_order_handler_state = BaseOrderHandler::contract_state_for_testing();
 

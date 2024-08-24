@@ -23,9 +23,7 @@ fn given_normal_conditions_when_deposit_then_works() {
     let (_caller_address, data_store, _role_store, event_emitter, deposit_vault) = setup();
     let account = tests_lib::deploy_mock_account();
     let deposit_param = create_dummy_deposit_param();
-    let _key = create_deposit(
-        data_store, event_emitter, deposit_vault, account, deposit_param
-    );
+    let _key = create_deposit(data_store, event_emitter, deposit_vault, account, deposit_param);
 }
 
 #[test]
@@ -43,9 +41,7 @@ fn given_empty_deposit_amount_then_fails() {
     let (_caller_address, data_store, _role_store, event_emitter, deposit_vault) = setup();
     let account = tests_lib::deploy_mock_account();
     let deposit_param = create_dummy_deposit_param();
-    let _key = create_deposit(
-        data_store, event_emitter, deposit_vault, account, deposit_param
-    );
+    let _key = create_deposit(data_store, event_emitter, deposit_vault, account, deposit_param);
 }
 
 #[test]
@@ -59,13 +55,9 @@ fn given_normal_conditions_when_cancel_deposit_then_works() {
     let reason = 'key';
     let starting_gas = 2;
     let reason_bytes = array!['reason_bytes_1', 'reason_bytes_2',];
-    let key = create_deposit(
-        data_store, event_emitter, deposit_vault, account, deposit_param
-    );
+    let key = create_deposit(data_store, event_emitter, deposit_vault, account, deposit_param);
 
-    cancel_deposit(
-        data_store, event_emitter, deposit_vault, key, keeper, starting_gas, reason, reason_bytes
-    );
+    cancel_deposit(data_store, event_emitter, deposit_vault, key, keeper, starting_gas, reason, reason_bytes);
 }
 
 
@@ -99,7 +91,8 @@ fn setup() -> (
         _,
         _,
         _,
-    ) = tests_lib::setup();
+    ) =
+        tests_lib::setup();
 
     (caller_address, data_store, role_store, event_emitter, deposit_vault)
 }

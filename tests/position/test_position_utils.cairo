@@ -9,7 +9,8 @@ use result::ResultTrait;
 use traits::{TryInto, Into};
 use starknet::{ContractAddress, get_caller_address, Felt252TryIntoContractAddress, contract_address_const, ClassHash,};
 use snforge_std::{
-    declare, start_cheat_caller_address, stop_cheat_caller_address, start_cheat_block_timestamp, ContractClassTrait, ContractClass
+    declare, start_cheat_caller_address, stop_cheat_caller_address, start_cheat_block_timestamp, ContractClassTrait,
+    ContractClass
 };
 use poseidon::poseidon_hash_span;
 use zeroable::Zeroable;
@@ -632,12 +633,10 @@ fn test_will_position_collateral_be_sufficient() {
 
 //TODO
 // #[test]
-fn test_update_funding_and_borrowing_state() {
-}
+fn test_update_funding_and_borrowing_state() {}
 
 
 fn setup() -> (IDataStoreDispatcher, IReferralStorageDispatcher, IEventEmitterDispatcher) {
-
     let (
         _caller_address,
         _market_token_class,
@@ -664,7 +663,8 @@ fn setup() -> (IDataStoreDispatcher, IReferralStorageDispatcher, IEventEmitterDi
         _,
         _,
         _,
-    ) = tests_lib::setup();
+    ) =
+        tests_lib::setup();
 
     (data_store, referral_storage, event_emitter)
 }

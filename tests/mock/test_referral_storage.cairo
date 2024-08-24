@@ -337,11 +337,7 @@ fn given_code_owner_not_set_when_fetching_trader_referral_info_from_storage_then
 // *********************************************************************************************
 /// Utility function to setup the test environment
 fn setup() -> (
-    ContractAddress,
-    IRoleStoreDispatcher,
-    IEventEmitterDispatcher,
-    IReferralStorageDispatcher,
-    IGovernableDispatcher
+    ContractAddress, IRoleStoreDispatcher, IEventEmitterDispatcher, IReferralStorageDispatcher, IGovernableDispatcher
 ) {
     let (
         caller_address,
@@ -369,7 +365,8 @@ fn setup() -> (
         _,
         _,
         _,
-    ) = tests_lib::setup();
+    ) =
+        tests_lib::setup();
 
     let governable_address = deploy_governable(event_emitter.contract_address);
     let governable = IGovernableDispatcher { contract_address: governable_address };

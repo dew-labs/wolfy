@@ -33,7 +33,8 @@ fn given_normal_conditions_when_nonce_utils_functions_then_works() {
         _,
         _,
         _,
-    ) = tests_lib::setup();
+    ) =
+        tests_lib::setup();
 
     // *********************************************************************************************
     // *                              TEST LOGIC                                                   *

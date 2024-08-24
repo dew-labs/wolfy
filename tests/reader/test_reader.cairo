@@ -326,9 +326,7 @@ fn given_normal_conditions_when_get_position_info_then_works() {
     let price2 = Price { min: 1, max: 300 };
     let price3 = Price { min: 1, max: 400 };
     //create random prices
-    let prices = MarketPrices {
-        index_token_price: price1, long_token_price: price2, short_token_price: price3
-    };
+    let prices = MarketPrices { index_token_price: price1, long_token_price: price2, short_token_price: price3 };
 
     data_store.set_market(key, 1, market);
     data_store.set_position(key_4, position);
@@ -399,16 +397,10 @@ fn given_normal_conditions_when_get_account_position_info_list_then_works() {
     let price2 = Price { min: 1, max: 300 };
     let price3 = Price { min: 1, max: 400 };
     //create random prices
-    let prices_1 = MarketPrices {
-        index_token_price: price1, long_token_price: price2, short_token_price: price3
-    };
-    let prices_2 = MarketPrices {
-        index_token_price: price3, long_token_price: price2, short_token_price: price1
-    };
+    let prices_1 = MarketPrices { index_token_price: price1, long_token_price: price2, short_token_price: price3 };
+    let prices_2 = MarketPrices { index_token_price: price3, long_token_price: price2, short_token_price: price1 };
 
-    let prices_3 = MarketPrices {
-        index_token_price: price2, long_token_price: price1, short_token_price: price3
-    };
+    let prices_3 = MarketPrices { index_token_price: price2, long_token_price: price1, short_token_price: price3 };
 
     data_store.set_market(market_key_1, 1, market_1);
     data_store.set_market(market_key_2, 2, market_2);
@@ -429,9 +421,7 @@ fn given_normal_conditions_when_get_account_position_info_list_then_works() {
     prices_arr.append(prices_3);
 
     let mut res_arr: Array<PositionInfo> = reader
-        .get_account_position_info_list(
-            data_store, referral_storage, position_key_arr, prices_arr, ui_fee_receiver
-        );
+        .get_account_position_info_list(data_store, referral_storage, position_key_arr, prices_arr, ui_fee_receiver);
     assert(*res_arr.at(0).position.key == key_1, 'invalid_key');
     assert(*res_arr.at(1).position.key == key_2, 'invalid_key');
     assert(*res_arr.at(2).position.key == key_3, 'invalid_key');
@@ -625,7 +615,9 @@ fn given_normal_conditions_when_get_market_info_list_then_works() {
 #[test]
 fn given_normal_conditions_when_get_market_token_price_then_works() {
     let (caller_address, role_store, data_store, market_token_class, reader, _referral_storage) = setup();
-    let market_address = deploy_market_token(market_token_class, role_store.contract_address, data_store.contract_address, caller_address);
+    let market_address = deploy_market_token(
+        market_token_class, role_store.contract_address, data_store.contract_address, caller_address
+    );
 
     let key: ContractAddress = market_address;
     let mut market = Market {
@@ -799,24 +791,11 @@ fn given_normal_conditions_when_get_pnl_to_pool_factor_then_works() {
         long_token: contract_address_const::<'long_token'>(),
         short_token: contract_address_const::<'short_token'>(),
     };
-    let price1 = Price {
-            min: 1,
-            max: 200
-    };
-    let price2 = Price {
-            min: 1,
-            max: 300
-    };
-     let price3 = Price {
-            min: 1,
-            max: 400
-    };
-        //create random prices
-    let prices = MarketPrices {
-        index_token_price: price1,
-        long_token_price: price2,
-        short_token_price: price3
-    };
+    let price1 = Price { min: 1, max: 200 };
+    let price2 = Price { min: 1, max: 300 };
+    let price3 = Price { min: 1, max: 400 };
+    //create random prices
+    let prices = MarketPrices { index_token_price: price1, long_token_price: price2, short_token_price: price3 };
     let key_1 = 1234311;
     let mut position: Position = Default::default();
     position.key = 1234311;
@@ -831,8 +810,8 @@ fn given_normal_conditions_when_get_pnl_to_pool_factor_then_works() {
     data_store.set_market(market_token_address, 0, market);
     data_store.set_position(key_1, position);
 
-    let res : i256 = reader.get_pnl_to_pool_factor(data_store,market_token_address,prices,is_long,maximize);
-    let resfelt : felt252 = res.into();
+    let res: i256 = reader.get_pnl_to_pool_factor(data_store, market_token_address, prices, is_long, maximize);
+    let resfelt: felt252 = res.into();
     resfelt.print();
     tests_lib::teardown();
 }
@@ -844,35 +823,22 @@ fn given_normal_conditions_when_get_swap_amount_out_then_works() {
     let (_caller_address, _role_store, data_store, _market_token_class, reader, _referral_storage) = setup();
     let market_token_address = contract_address_const::<'market_token'>();
     let token_ = contract_address_const::<'_token'>();
-    let ui_fee_receiver : ContractAddress = 5746789.try_into().unwrap();
+    let ui_fee_receiver: ContractAddress = 5746789.try_into().unwrap();
     let market = Market {
         market_token: market_token_address,
         index_token: contract_address_const::<'index_token'>(),
         long_token: token_,
         short_token: token_,
     };
-    let price1 = Price {
-            min: 1,
-            max: 200
-    };
-    let price2 = Price {
-            min: 1,
-            max: 300
-    };
-    let price3 = Price {
-            min: 1,
-            max: 400
-    };
-        //create random prices
-    let prices = MarketPrices {
-        index_token_price: price1,
-        long_token_price: price2,
-        short_token_price: price3
-    };
+    let price1 = Price { min: 1, max: 200 };
+    let price2 = Price { min: 1, max: 300 };
+    let price3 = Price { min: 1, max: 400 };
+    //create random prices
+    let prices = MarketPrices { index_token_price: price1, long_token_price: price2, short_token_price: price3 };
 
     data_store.set_market(market_token_address, 0, market);
-    let amount_in : u256 = 20000;
-    reader.get_swap_amount_out(data_store,market,prices,token_,amount_in,ui_fee_receiver);
+    let amount_in: u256 = 20000;
+    reader.get_swap_amount_out(data_store, market, prices, token_, amount_in, ui_fee_receiver);
     tests_lib::teardown();
 }
 
@@ -890,7 +856,7 @@ fn given_normal_conditions_when_get_virtual_inventory_then_works() {
     };
 
     data_store.set_market(market_token_address, 0, market);
-    let virtual_inventory : VirtualInventory = reader.get_virtual_inventory(data_store, market);
+    let virtual_inventory: VirtualInventory = reader.get_virtual_inventory(data_store, market);
     virtual_inventory.virtual_pool_amount_for_long_token.print();
     tests_lib::teardown();
 }
@@ -942,21 +908,16 @@ fn given_normal_conditions_when_get_swap_price_impact_then_works() {
         long_token: 56678.try_into().unwrap(),
         short_token: 8901234.try_into().unwrap(),
     };
-    let price1 = Price {
-            min: 1,
-            max: 200
-    };
-    let price2 = Price {
-            min: 1,
-            max: 400
-    };
+    let price1 = Price { min: 1, max: 200 };
+    let price2 = Price { min: 1, max: 400 };
     let amount_in = 3000;
-    let token_in : ContractAddress = contract_address_const::<'token_in'>();
-    let token_out : ContractAddress = contract_address_const::<'token_out'>();
+    let token_in: ContractAddress = contract_address_const::<'token_in'>();
+    let token_out: ContractAddress = contract_address_const::<'token_out'>();
 
     data_store.set_market(market_key_1, 1, market_1);
-    let (data1, _data2) = reader.get_swap_price_impact(data_store,market_key_1,token_in,token_out,amount_in,price1,price2);
-    let datafel : felt252 = data1.into();
+    let (data1, _data2) = reader
+        .get_swap_price_impact(data_store, market_key_1, token_in, token_out, amount_in, price1, price2);
+    let datafel: felt252 = data1.into();
     datafel.print();
     tests_lib::teardown();
 }
@@ -973,27 +934,14 @@ fn given_normal_conditions_when_get_adl_state_then_works() {
         long_token: contract_address_const::<'long_token'>(),
         short_token: contract_address_const::<'short_token'>(),
     };
-        let price1 = Price {
-            min: 1,
-            max: 200
-    };
-    let price2 = Price {
-            min: 1,
-            max: 300
-    };
-    let price3 = Price {
-            min: 1,
-            max: 400
-    };
-        //create random prices
-    let prices = MarketPrices {
-        index_token_price: price1,
-        long_token_price: price2,
-        short_token_price: price3
-    };
+    let price1 = Price { min: 1, max: 200 };
+    let price2 = Price { min: 1, max: 300 };
+    let price3 = Price { min: 1, max: 400 };
+    //create random prices
+    let prices = MarketPrices { index_token_price: price1, long_token_price: price2, short_token_price: price3 };
 
     data_store.set_market(market_token_address, 0, market);
-    reader.get_adl_state(data_store,market_token_address,true,prices);
+    reader.get_adl_state(data_store, market_token_address, true, prices);
     tests_lib::teardown();
 }
 
@@ -1001,14 +949,25 @@ fn given_normal_conditions_when_get_adl_state_then_works() {
 //                          SETUP READER
 // *************************************************************************
 
-fn deploy_market_token(contract: ContractClass, role_store: ContractAddress, data_store: ContractAddress, caller_address: ContractAddress) -> ContractAddress {
+fn deploy_market_token(
+    contract: ContractClass, role_store: ContractAddress, data_store: ContractAddress, caller_address: ContractAddress
+) -> ContractAddress {
     let deployed_contract_address = contract_address_const::<'market_token'>();
     start_cheat_caller_address(deployed_contract_address, caller_address);
-    let (contract_address, _) = contract.deploy_at(@array![role_store.into(), data_store.into()], deployed_contract_address).unwrap();
+    let (contract_address, _) = contract
+        .deploy_at(@array![role_store.into(), data_store.into()], deployed_contract_address)
+        .unwrap();
     contract_address
 }
 
-fn setup() -> (ContractAddress, IRoleStoreDispatcher, IDataStoreDispatcher, ContractClass, IReaderDispatcher, IReferralStorageDispatcher) {
+fn setup() -> (
+    ContractAddress,
+    IRoleStoreDispatcher,
+    IDataStoreDispatcher,
+    ContractClass,
+    IReaderDispatcher,
+    IReferralStorageDispatcher
+) {
     let (
         caller_address,
         market_token_class,
@@ -1035,7 +994,8 @@ fn setup() -> (ContractAddress, IRoleStoreDispatcher, IDataStoreDispatcher, Cont
         _,
         _,
         _,
-    ) = tests_lib::setup();
+    ) =
+        tests_lib::setup();
 
     (caller_address, role_store, data_store, market_token_class, reader, referal_storage)
 }

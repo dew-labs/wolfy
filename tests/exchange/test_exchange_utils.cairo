@@ -77,7 +77,8 @@ fn setup() -> IDataStoreDispatcher {
         _,
         _,
         _,
-    ) = tests_lib::setup();
+    ) =
+        tests_lib::setup();
 
     data_store
 }

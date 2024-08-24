@@ -29,7 +29,6 @@ fn setup_contracts() -> (
     IBankDispatcher, // Interface to interact with the `StrictBank` contract.
     IStrictBankDispatcher
 ) {
-
     let (
         caller_address,
         _market_token_class,
@@ -56,7 +55,8 @@ fn setup_contracts() -> (
         bank,
         strict_bank,
         _,
-    ) = tests_lib::setup();
+    ) =
+        tests_lib::setup();
 
     let receiver_address = contract_address_const::<'dummy_receiver'>();
 
@@ -131,7 +131,8 @@ fn given_receiver_is_contract_when_transfer_out_then_fails() {
     // deploy erc20 token. Mint to bank since we call transfer out in bank contract which restricts sending to self
     let erc20_contract_address = tests_lib::deploy_erc20_token(strict_bank.contract_address);
 
-    strict_bank.transfer_out(strict_bank.contract_address, erc20_contract_address, strict_bank.contract_address, 100_u256);
+    strict_bank
+        .transfer_out(strict_bank.contract_address, erc20_contract_address, strict_bank.contract_address, 100_u256);
 
     //teardown
     teardown(data_store, strict_bank);

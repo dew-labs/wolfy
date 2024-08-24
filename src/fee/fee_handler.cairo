@@ -110,7 +110,6 @@ mod FeeHandler {
         /// * `markets` - The market to claim fees from.
         /// * `tokens` - The fee tokens.
         fn claim_fees(ref self: ContractState, market: Array<ContractAddress>, tokens: Array<ContractAddress>) {
-
             // Only the fee keeper can claim fees
             self.role_store.read().assert_only_role(get_caller_address(), role::FEE_KEEPER);
 

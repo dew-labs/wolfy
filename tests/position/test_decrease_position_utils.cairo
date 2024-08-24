@@ -106,7 +106,8 @@ fn setup() -> (ContractAddress, ISwapHandlerDispatcher) {
         _bank,
         _strict_bank,
         _oracle_store,
-    ) = tests_lib::setup();
+    ) =
+        tests_lib::setup();
 
     (caller_address, swap_handler)
 }
@@ -118,9 +119,9 @@ fn create_new_update_position_params(
 ) -> UpdatePositionParams {
     let data_store = tests_lib::get_data_store_address();
     let event_emitter = tests_lib::get_event_emitter_address();
-    let order_vault = tests_lib::get_order_vault_address() ;
+    let order_vault = tests_lib::get_order_vault_address();
     let oracle = tests_lib::get_oracle_address();
-    let referral_storage = tests_lib::get_referral_storage_address() ;
+    let referral_storage = tests_lib::get_referral_storage_address();
 
     let contracts = ExecuteOrderParamsContracts {
         data_store: IDataStoreDispatcher { contract_address: data_store },

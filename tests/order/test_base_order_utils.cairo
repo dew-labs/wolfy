@@ -323,7 +323,8 @@ fn setup() -> (IOracleDispatcher, ContractAddress, Price) {
         _,
         _,
         _,
-    ) = tests_lib::setup();
+    ) =
+        tests_lib::setup();
 
     let index_token = contract_address_const::<'ETH'>();
     let price = Price { min: 100000, max: 200000 };

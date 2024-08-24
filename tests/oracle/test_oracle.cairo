@@ -41,7 +41,8 @@ fn setup() -> (IDataStoreDispatcher, IOracleDispatcher) {
         _,
         _,
         _,
-    ) = tests_lib::setup();
+    ) =
+        tests_lib::setup();
 
     (data_store, oracle)
 }

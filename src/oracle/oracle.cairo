@@ -319,8 +319,8 @@ mod Oracle {
                 self.set_primary_price_(token, price);
                 i += 1;
             };
-            // end for testing
-            // self.set_prices_(data_store, event_emitter, params); // TODO uncomment
+        // end for testing
+        // self.set_prices_(data_store, event_emitter, params); // TODO uncomment
         }
 
         // Set the primary price

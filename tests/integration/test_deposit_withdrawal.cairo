@@ -64,7 +64,20 @@ fn given_normal_conditions_when_create_market_and_add_liquidity_then_market_is_c
     // *********************************************************************************************
     // *                              SETUP                                                        *
     // *********************************************************************************************
-    let (caller_address, role_store, data_store, deposit_handler, deposit_vault, oracle, withdrawal_handler, withdrawal_vault, order_handler, order_vault, market_factory) = setup();
+    let (
+        caller_address,
+        role_store,
+        data_store,
+        deposit_handler,
+        deposit_vault,
+        oracle,
+        withdrawal_handler,
+        withdrawal_vault,
+        order_handler,
+        order_vault,
+        market_factory
+    ) =
+        setup();
 
     // *********************************************************************************************
     // *                              TEST LOGIC                                                   *
@@ -93,10 +106,8 @@ fn given_normal_conditions_when_create_market_and_add_liquidity_then_market_is_c
         execution_fee: 0,
         callback_gas_limit: 0,
     };
-    IERC20Dispatcher { contract_address: market.long_token }
-        .mint(deposit_vault.contract_address, 100000000000000);
-    IERC20Dispatcher { contract_address: market.short_token }
-        .mint(deposit_vault.contract_address, 50000000000);
+    IERC20Dispatcher { contract_address: market.long_token }.mint(deposit_vault.contract_address, 100000000000000);
+    IERC20Dispatcher { contract_address: market.short_token }.mint(deposit_vault.contract_address, 50000000000);
     start_cheat_block_number(deposit_handler.contract_address, 1910);
     let key = deposit_handler.create_deposit(caller_address, params);
     let first_deposit = data_store.get_deposit(key);
@@ -104,13 +115,8 @@ fn given_normal_conditions_when_create_market_and_add_liquidity_then_market_is_c
     assert(first_deposit.account == caller_address, 'Wrong account depositer');
     assert(first_deposit.receiver == user1, 'Wrong account receiver');
     assert(first_deposit.initial_long_token == market.long_token, 'Wrong initial long token');
-    assert(
-        first_deposit.initial_long_token_amount == 1000000000000000000,
-        'Wrong initial long token amount'
-    );
-    assert(
-        first_deposit.initial_short_token_amount == 50000000000, 'Wrong init short token amount'
-    );
+    assert(first_deposit.initial_long_token_amount == 1000000000000000000, 'Wrong initial long token amount');
+    assert(first_deposit.initial_short_token_amount == 50000000000, 'Wrong init short token amount');
 
     let price_params = SetPricesParams {
         signer_info: 1,
@@ -123,9 +129,7 @@ fn given_normal_conditions_when_create_market_and_add_liquidity_then_market_is_c
         compacted_min_prices_indexes: array![0],
         compacted_max_prices: array![4294967346000000], // 50000000, 1000000 compacted
         compacted_max_prices_indexes: array![0],
-        signatures: array![
-            array!['signatures1', 'signatures2'].span(), array!['signatures1', 'signatures2'].span()
-        ],
+        signatures: array![array!['signatures1', 'signatures2'].span(), array!['signatures1', 'signatures2'].span()],
         price_feed_tokens: array![]
     };
 
@@ -143,7 +147,20 @@ fn test_swap_market_integration() {
     // *********************************************************************************************
     // *                              SETUP                                                        *
     // *********************************************************************************************
-    let (caller_address, role_store, data_store, deposit_handler, deposit_vault, oracle, withdrawal_handler, withdrawal_vault, order_handler, order_vault, market_factory) = setup();
+    let (
+        caller_address,
+        role_store,
+        data_store,
+        deposit_handler,
+        deposit_vault,
+        oracle,
+        withdrawal_handler,
+        withdrawal_vault,
+        order_handler,
+        order_vault,
+        market_factory
+    ) =
+        setup();
 
     // *********************************************************************************************
     // *                              TEST LOGIC                                                   *
@@ -157,21 +174,14 @@ fn test_swap_market_integration() {
     data_store.set_u256(keys::max_swap_path_length(), 5);
 
     // Set max pool amount.
-    data_store
-        .set_u256(
-            keys::max_pool_amount_key(market.market_token, market.long_token), 500000000000000000
-        );
-    data_store
-        .set_u256(
-            keys::max_pool_amount_key(market.market_token, market.short_token), 500000000000000000
-        );
+    data_store.set_u256(keys::max_pool_amount_key(market.market_token, market.long_token), 500000000000000000);
+    data_store.set_u256(keys::max_pool_amount_key(market.market_token, market.short_token), 500000000000000000);
 
     oracle.set_price_testing_eth(5000);
 
     // Fill the pool.
     IERC20Dispatcher { contract_address: market.long_token }.mint(market.market_token, 50000000000);
-    IERC20Dispatcher { contract_address: market.short_token }
-        .mint(market.market_token, 50000000000);
+    IERC20Dispatcher { contract_address: market.short_token }.mint(market.market_token, 50000000000);
     // TODO Check why we don't need to set pool_amount_key
     // // Set pool amount in data_store.
     // let mut key = keys::pool_amount_key(market.market_token, contract_address_const::<'ETH'>());
@@ -180,10 +190,8 @@ fn test_swap_market_integration() {
     // data_store.set_u256(key, 50000000000);
 
     // Send token to deposit in the deposit vault (this should be in a multi call with create_deposit)
-    IERC20Dispatcher { contract_address: market.long_token }
-        .mint(deposit_vault.contract_address, 50000000000);
-    IERC20Dispatcher { contract_address: market.short_token }
-        .mint(deposit_vault.contract_address, 50000000000);
+    IERC20Dispatcher { contract_address: market.long_token }.mint(deposit_vault.contract_address, 50000000000);
+    IERC20Dispatcher { contract_address: market.short_token }.mint(deposit_vault.contract_address, 50000000000);
 
     let balance_deposit_vault_before = IERC20Dispatcher { contract_address: market.short_token }
         .balance_of(deposit_vault.contract_address);
@@ -215,12 +223,8 @@ fn test_swap_market_integration() {
     assert(first_deposit.account == caller_address, 'Wrong account depositer');
     assert(first_deposit.receiver == user1, 'Wrong account receiver');
     assert(first_deposit.initial_long_token == market.long_token, 'Wrong initial long token');
-    assert(
-        first_deposit.initial_long_token_amount == 50000000000, 'Wrong initial long token amount'
-    );
-    assert(
-        first_deposit.initial_short_token_amount == 50000000000, 'Wrong init short token amount'
-    );
+    assert(first_deposit.initial_long_token_amount == 50000000000, 'Wrong initial long token amount');
+    assert(first_deposit.initial_short_token_amount == 50000000000, 'Wrong init short token amount');
 
     let price_params = SetPricesParams { // TODO
         signer_info: 1,
@@ -233,9 +237,7 @@ fn test_swap_market_integration() {
         compacted_min_prices_indexes: array![0],
         compacted_max_prices: array![4294967346000000], // 50000000, 1000000 compacted
         compacted_max_prices_indexes: array![0],
-        signatures: array![
-            array!['signatures1', 'signatures2'].span(), array!['signatures1', 'signatures2'].span()
-        ],
+        signatures: array![array!['signatures1', 'signatures2'].span(), array!['signatures1', 'signatures2'].span()],
         price_feed_tokens: array![]
     };
 
@@ -352,9 +354,7 @@ fn test_swap_market_integration() {
         compacted_min_prices_indexes: array![0],
         compacted_max_prices: array![2147483648010000], // 500000, 10000 compacted
         compacted_max_prices_indexes: array![0],
-        signatures: array![
-            array!['signatures1', 'signatures2'].span(), array!['signatures1', 'signatures2'].span()
-        ],
+        signatures: array![array!['signatures1', 'signatures2'].span(), array!['signatures1', 'signatures2'].span()],
         price_feed_tokens: array![]
     };
 
@@ -393,19 +393,9 @@ fn test_swap_market_integration() {
     let first_swap_pool_value_info = market_utils::get_pool_value_info(
         data_store,
         market,
-        Price {
-            min: 5000,
-            max: 5000,
-        }
-        ,
-        Price {
-            min: 5000,
-            max: 5000,
-        },
-        Price {
-            min: 1,
-            max: 1,
-        },
+        Price { min: 5000, max: 5000, },
+        Price { min: 5000, max: 5000, },
+        Price { min: 1, max: 1, },
         keys::max_pnl_factor_for_deposits(),
         true,
     );
@@ -420,7 +410,20 @@ fn test_deposit_market_integration() {
     // *********************************************************************************************
     // *                              SETUP                                                        *
     // *********************************************************************************************
-    let (caller_address, role_store, data_store, deposit_handler, deposit_vault, oracle, withdrawal_handler, withdrawal_vault, order_handler, order_vault, market_factory) = setup();
+    let (
+        caller_address,
+        role_store,
+        data_store,
+        deposit_handler,
+        deposit_vault,
+        oracle,
+        withdrawal_handler,
+        withdrawal_vault,
+        order_handler,
+        order_vault,
+        market_factory
+    ) =
+        setup();
 
     // *********************************************************************************************
     // *                              TEST LOGIC                                                   *
@@ -560,7 +563,20 @@ fn test_deposit_withdraw_integration() {
     // *********************************************************************************************
     // *                              SETUP                                                        *
     // *********************************************************************************************
-    let (caller_address, role_store, data_store, deposit_handler, deposit_vault, oracle, withdrawal_handler, withdrawal_vault, order_handler, order_vault, market_factory) = setup();
+    let (
+        caller_address,
+        role_store,
+        data_store,
+        deposit_handler,
+        deposit_vault,
+        oracle,
+        withdrawal_handler,
+        withdrawal_vault,
+        order_handler,
+        order_vault,
+        market_factory
+    ) =
+        setup();
 
     // *********************************************************************************************
     // *                              TEST LOGIC                                                   *
@@ -797,7 +813,19 @@ fn test_deposit_withdraw_integration() {
     tests_lib::teardown();
 }
 
-fn setup() -> (ContractAddress, IRoleStoreDispatcher, IDataStoreDispatcher, IDepositHandlerDispatcher, IDepositVaultDispatcher, IOracleDispatcher, IWithdrawalHandlerDispatcher, IWithdrawalVaultDispatcher, IOrderHandlerDispatcher, IOrderVaultDispatcher, IMarketFactoryDispatcher) {
+fn setup() -> (
+    ContractAddress,
+    IRoleStoreDispatcher,
+    IDataStoreDispatcher,
+    IDepositHandlerDispatcher,
+    IDepositVaultDispatcher,
+    IOracleDispatcher,
+    IWithdrawalHandlerDispatcher,
+    IWithdrawalVaultDispatcher,
+    IOrderHandlerDispatcher,
+    IOrderVaultDispatcher,
+    IMarketFactoryDispatcher
+) {
     let (
         caller_address,
         _market_factory_address,
@@ -823,7 +851,20 @@ fn setup() -> (ContractAddress, IRoleStoreDispatcher, IDataStoreDispatcher, IDep
         _,
         _,
         _,
-    ) = tests_lib::setup();
+    ) =
+        tests_lib::setup();
 
-    (caller_address, role_store, data_store, deposit_handler, deposit_vault, oracle, withdrawal_handler, withdrawal_vault, order_handler, order_vault, market_factory)
+    (
+        caller_address,
+        role_store,
+        data_store,
+        deposit_handler,
+        deposit_vault,
+        oracle,
+        withdrawal_handler,
+        withdrawal_vault,
+        order_handler,
+        order_vault,
+        market_factory
+    )
 }

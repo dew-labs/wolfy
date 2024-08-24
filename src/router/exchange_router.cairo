@@ -203,9 +203,7 @@ mod ExchangeRouter {
 
     use openzeppelin::security::ReentrancyGuardComponent;
 
-    component!(
-        path: ReentrancyGuardComponent, storage: reentrancy_guard, event: ReentrancyGuardEvent
-    );
+    component!(path: ReentrancyGuardComponent, storage: reentrancy_guard, event: ReentrancyGuardEvent);
 
     impl InternalImpl = ReentrancyGuardComponent::InternalImpl<ContractState>;
 
@@ -420,9 +418,7 @@ mod ExchangeRouter {
             self
                 .order_handler
                 .read()
-                .update_order(
-                    key, size_delta_usd, acceptable_price, trigger_price, min_output_amout, order
-                );
+                .update_order(key, size_delta_usd, acceptable_price, trigger_price, min_output_amout, order);
 
             global_reentrancy_guard::non_reentrant_after(data_store);
         }

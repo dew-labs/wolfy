@@ -39,9 +39,7 @@ mod SwapHandler {
 
     use openzeppelin::security::ReentrancyGuardComponent;
 
-    component!(
-        path: ReentrancyGuardComponent, storage: reentrancy_guard, event: ReentrancyGuardEvent
-    );
+    component!(path: ReentrancyGuardComponent, storage: reentrancy_guard, event: ReentrancyGuardEvent);
 
     impl InternalImpl = ReentrancyGuardComponent::InternalImpl<ContractState>;
 

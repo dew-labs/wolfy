@@ -186,7 +186,8 @@ fn setup_contracts() -> (
         _,
         _,
         _,
-    ) = tests_lib::setup();
+    ) =
+        tests_lib::setup();
 
     return (
         caller_address,

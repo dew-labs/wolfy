@@ -95,6 +95,7 @@ fn setup() -> IDepositHandlerDispatcher {
         _,
         _,
         _,
-    ) = tests_lib::setup();
+    ) =
+        tests_lib::setup();
     deposit_handler
 }

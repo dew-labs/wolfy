@@ -470,7 +470,8 @@ fn _setup() -> (
         _,
         _,
         oracle_store,
-    ) = tests_lib::setup();
+    ) =
+        tests_lib::setup();
 
     let liquidation_keeper: ContractAddress = 0x2233.try_into().unwrap();
 

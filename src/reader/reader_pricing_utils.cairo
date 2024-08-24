@@ -13,8 +13,7 @@ use satoru::market::market_utils::{
 
 use satoru::order::{
     order::{SecondaryOrderType, OrderType, Order, DecreasePositionSwapType},
-    order_vault::{IOrderVaultDispatcher, IOrderVaultDispatcherTrait},
-    base_order_utils::{ExecuteOrderParams}
+    order_vault::{IOrderVaultDispatcher, IOrderVaultDispatcherTrait}, base_order_utils::{ExecuteOrderParams}
 };
 use satoru::position::{
     position::Position, position_utils::UpdatePositionParams, increase_position_utils,

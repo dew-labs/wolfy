@@ -189,12 +189,15 @@ fn setup() -> (
         _,
         _,
         _,
-    ) = tests_lib::setup();
+    ) =
+        tests_lib::setup();
 
     role_store.grant_role(caller_address, role::CONFIG_KEEPER);
 
     // Deploy the `Config` contract.
-    let config_address = deploy_config(data_store.contract_address, role_store.contract_address, event_emitter.contract_address);
+    let config_address = deploy_config(
+        data_store.contract_address, role_store.contract_address, event_emitter.contract_address
+    );
 
     // Create a safe dispatcher to interact with the contract.
     let config = IConfigDispatcher { contract_address: config_address };

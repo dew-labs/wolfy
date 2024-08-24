@@ -26,7 +26,14 @@ use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
 
 use debug::PrintTrait;
 
-fn setup() -> (ContractAddress, IRoleStoreDispatcher, IDataStoreDispatcher, IEventEmitterDispatcher, IReferralStorageDispatcher, ISwapHandlerDispatcher) {
+fn setup() -> (
+    ContractAddress,
+    IRoleStoreDispatcher,
+    IDataStoreDispatcher,
+    IEventEmitterDispatcher,
+    IReferralStorageDispatcher,
+    ISwapHandlerDispatcher
+) {
     let (
         caller_address,
         _market_token_class,
@@ -53,7 +60,8 @@ fn setup() -> (ContractAddress, IRoleStoreDispatcher, IDataStoreDispatcher, IEve
         _,
         _,
         _,
-    ) = tests_lib::setup();
+    ) =
+        tests_lib::setup();
 
     (caller_address, role_store, data_store, event_emitter, referral_storage, swap_handler)
 }
@@ -144,7 +152,7 @@ fn create_new_update_position_params(
     referral_storage_address: ContractAddress,
     long_token_address: ContractAddress
 ) -> UpdatePositionParams {
-    let order_vault = tests_lib::get_order_vault_address() ;
+    let order_vault = tests_lib::get_order_vault_address();
     let oracle = tests_lib::get_oracle_address();
     let contracts = ExecuteOrderParamsContracts {
         data_store: IDataStoreDispatcher { contract_address: data_store_address },

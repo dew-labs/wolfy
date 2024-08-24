@@ -24,10 +24,7 @@ fn deploy_governable(event_emitter_address: ContractAddress) -> ContractAddress 
     contract_address
 }
 
-fn setup() -> (
-    IEventEmitterDispatcher,
-    IGovernableDispatcher,
-) {
+fn setup() -> (IEventEmitterDispatcher, IGovernableDispatcher,) {
     let (
         _caller_address,
         _market_token_class,
@@ -54,7 +51,8 @@ fn setup() -> (
         _,
         _,
         _,
-    ) = tests_lib::setup();
+    ) =
+        tests_lib::setup();
 
     let governable_address = deploy_governable(event_emitter.contract_address);
     let governable = IGovernableDispatcher { contract_address: governable_address };
@@ -62,10 +60,7 @@ fn setup() -> (
     (event_emitter, governable)
 }
 
-fn setup_with_other_address() -> (
-    IEventEmitterDispatcher,
-    IGovernableDispatcher,
-) {
+fn setup_with_other_address() -> (IEventEmitterDispatcher, IGovernableDispatcher,) {
     let (
         _caller_address,
         _market_token_class,
@@ -92,7 +87,8 @@ fn setup_with_other_address() -> (
         _,
         _,
         _,
-    ) = tests_lib::setup();
+    ) =
+        tests_lib::setup();
 
     let caller_address: ContractAddress = 0x102.try_into().unwrap();
 

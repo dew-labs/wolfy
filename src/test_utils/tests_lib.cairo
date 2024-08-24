@@ -158,7 +158,8 @@ fn setup() -> (
         bank,
         strict_bank,
         oracle_store,
-    ) = setup_contracts();
+    ) =
+        setup_contracts();
 
     grant_roles();
 
@@ -643,9 +644,7 @@ fn deploy_liquidation_handler(
     contract_address
 }
 
-fn deploy_swap_handler(
-    role_store_address: ContractAddress
-) -> ContractAddress {
+fn deploy_swap_handler(role_store_address: ContractAddress) -> ContractAddress {
     let contract = declare("SwapHandler").unwrap();
     let caller_address: ContractAddress = get_c4ller_address();
     let deployed_contract_address = get_swap_handler_address();

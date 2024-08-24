@@ -45,18 +45,14 @@ fn setup() -> (
         bank,
         _,
         _,
-    ) = tests_lib::setup();
+    ) =
+        tests_lib::setup();
 
     let erc20 = tests_lib::deploy_erc20_token(bank.contract_address);
     let receiver_address = contract_address_const::<'dummy_receiver'>();
 
     return (
-        caller_address,
-        receiver_address,
-        role_store,
-        data_store,
-        bank,
-        IERC20Dispatcher { contract_address: erc20 }
+        caller_address, receiver_address, role_store, data_store, bank, IERC20Dispatcher { contract_address: erc20 }
     );
 }
 

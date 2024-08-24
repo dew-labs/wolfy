@@ -35,11 +35,7 @@ fn deploy_tokens() -> (ContractAddress, ContractAddress, ContractAddress) {
     let (contract_address2, _) = contract.deploy(@constructor_calldata1).unwrap();
     let (contract_address3, _) = contract.deploy(@constructor_calldata2).unwrap();
 
-    (
-        contract_address1,
-        contract_address2,
-        contract_address3
-    )
+    (contract_address1, contract_address2, contract_address3)
 }
 
 /// Utility function to setup the test environment.
@@ -92,7 +88,8 @@ fn setup() -> (
         bank,
         _,
         _,
-    ) = tests_lib::setup();
+    ) =
+        tests_lib::setup();
 
     let (index_token_address, long_token_address, short_token_address) = deploy_tokens();
     let index_token_handler = IERC20Dispatcher { contract_address: index_token_address };
@@ -382,5 +379,5 @@ fn given_swap_path_market_then_works() {
 
     tests_lib::teardown();
 }
-
 // TODO add more tested when swap_handler has been implemented
+

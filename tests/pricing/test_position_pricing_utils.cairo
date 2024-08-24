@@ -181,7 +181,8 @@ fn setup() -> (IDataStoreDispatcher, IReferralStorageDispatcher) {
         _,
         _,
         _,
-    ) = tests_lib::setup();
+    ) =
+        tests_lib::setup();
 
     (data_store, referral_storage)
 }

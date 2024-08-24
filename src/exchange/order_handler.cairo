@@ -249,8 +249,7 @@ mod OrderHandler {
 
             // Validate feature.
             validate_feature(
-                data_store,
-                keys::update_order_feature_disabled_key(get_contract_address(), order.order_type)
+                data_store, keys::update_order_feature_disabled_key(get_contract_address(), order.order_type)
             );
 
             assert(base_order_utils::is_market_order(order.order_type), 'OrderNotUpdatable');
@@ -268,22 +267,15 @@ mod OrderHandler {
             let received_fee_token = order_vault.record_transfer_in(fee_token);
             updated_order.execution_fee = received_fee_token;
 
-            let estimated_gas_limit = gas_utils::estimate_execute_order_gas_limit(
-                data_store, @updated_order
-            );
-            gas_utils::validate_execution_fee(
-                data_store, estimated_gas_limit, updated_order.execution_fee
-            );
+            let estimated_gas_limit = gas_utils::estimate_execute_order_gas_limit(data_store, @updated_order);
+            gas_utils::validate_execution_fee(data_store, estimated_gas_limit, updated_order.execution_fee);
 
             updated_order.touch();
 
             base_order_utils::validate_non_empty_order(@updated_order);
 
             data_store.set_order(key, updated_order);
-            event_emitter
-                .emit_order_updated(
-                    key, size_delta_usd, acceptable_price, trigger_price, min_output_amount
-                );
+            event_emitter.emit_order_updated(key, size_delta_usd, acceptable_price, trigger_price, min_output_amount);
 
             non_reentrant_after(data_store);
 
@@ -307,29 +299,26 @@ mod OrderHandler {
 
             // Validate feature.
             validate_feature(
-                data_store,
-                keys::cancel_order_feature_disabled_key(get_contract_address(), order.order_type)
+                data_store, keys::cancel_order_feature_disabled_key(get_contract_address(), order.order_type)
             );
 
             if base_order_utils::is_market_order(order.order_type) {
-                exchange_utils::validate_request_cancellation(
-                    data_store, order.updated_at_block, 'Order'
-                )
+                exchange_utils::validate_request_cancellation(data_store, order.updated_at_block, 'Order')
             }
 
             base_order_handler_state
                 .order_utils_lib
                 .read()
                 .cancel_order(
-                data_store,
-                base_order_handler_state.event_emitter.read(),
-                base_order_handler_state.order_vault.read(),
-                key,
-                order.account,
-                starting_gas,
-                keys::user_initiated_cancel(),
-                ArrayTrait::<felt252>::new(),
-            );
+                    data_store,
+                    base_order_handler_state.event_emitter.read(),
+                    base_order_handler_state.order_vault.read(),
+                    key,
+                    order.account,
+                    starting_gas,
+                    keys::user_initiated_cancel(),
+                    ArrayTrait::<felt252>::new(),
+                );
 
             non_reentrant_after(data_store);
         }
@@ -392,7 +381,6 @@ mod OrderHandler {
         //         reason_bytes
         //     );
         // }
-
 
         fn execute_order(ref self: ContractState, key: felt252, oracle_params: SetPricesParams) {
             // Check only order keeper.
