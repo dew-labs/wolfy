@@ -9,6 +9,7 @@ use traits::{TryInto, Into};
 use starknet::{ContractAddress, get_caller_address, contract_address_const, ClassHash,};
 use integer::u256_from_felt252;
 use snforge_std::{declare, start_cheat_caller_address, stop_cheat_caller_address, ContractClassTrait, ContractClass};
+use debug::PrintTrait;
 
 // Local imports.
 use satoru::bank::bank::{IBankDispatcherTrait, IBankDispatcher};
@@ -85,20 +86,27 @@ fn given_already_initialized_contract_when_initializing_then_fail() {
 #[test]
 fn given_normal_conditions_when_transfer_out_then_works() {
     let (_caller_address, receiver_address, _role_store, data_store, _bank, strict_bank) = setup_contracts();
+    'hehe'.print();
 
     // deploy erc20 token
     let erc20_contract_address = tests_lib::deploy_erc20_token(strict_bank.contract_address);
+    'hehe'.print();
     let erc20_dispatcher = IERC20Dispatcher { contract_address: erc20_contract_address };
+    'hehe'.print();
 
     // call the transfer_out function
     strict_bank.transfer_out(strict_bank.contract_address, erc20_contract_address, receiver_address, 100_u256);
+    'hehe'.print();
     // check that the contract balance reduces
     let contract_balance = erc20_dispatcher.balance_of(strict_bank.contract_address);
+    'hehe'.print();
     assert(contract_balance == u256_from_felt252(900), 'transfer_out failed');
     // check that the balance of the receiver increases
     let receiver_balance = erc20_dispatcher.balance_of(receiver_address);
+    'hehe'.print();
     assert(receiver_balance == u256_from_felt252(100), 'transfer_out failed');
     // teardown
+    'hehe'.print();
     teardown(data_store, strict_bank);
 }
 

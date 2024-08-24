@@ -68,7 +68,7 @@ fn setup() -> (
 
 fn deploy_token() -> ContractAddress {
     let contract = declare("ERC20").unwrap();
-    let constructor_calldata = array!['Test', 'TST', 1000000, 0, 0x101];
+    let constructor_calldata = array!['Test', 'TST', 18, 1000000, 0, 0x101];
     let (contract_address, _) = contract.deploy(@constructor_calldata).unwrap();
     contract_address
 }

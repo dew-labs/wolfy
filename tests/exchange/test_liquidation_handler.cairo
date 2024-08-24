@@ -417,16 +417,16 @@ fn deploy_signers(signer1: ContractAddress, signer2: ContractAddress) -> (Contra
 fn setup_tokens() -> (ContractAddress, ContractAddress, ContractAddress) {
     let contract = declare("ERC20").unwrap();
     let deployed_contract_address: ContractAddress = contract_address_const::<'USDC'>();
-    let mut constructor_calldata = array!['USDC', 'USDC', 10000000000000000000000000000, 0, admin().into()];
+    let mut constructor_calldata = array!['USDC', 'USDC', 18, 10000000000000000000000000000, 0, admin().into()];
 
     let (usdc_address, _) = contract.deploy_at(@constructor_calldata, deployed_contract_address).unwrap();
 
     let deployed_contract_address2: ContractAddress = contract_address_const::<'ETH'>();
-    let constructor_calldata2 = array!['ETH', 'ETH', 100000000000000000000000000000, 0, admin().into()];
+    let constructor_calldata2 = array!['ETH', 'ETH', 18, 100000000000000000000000000000, 0, admin().into()];
     let (eth_address, _) = contract.deploy_at(@constructor_calldata2, deployed_contract_address2).unwrap();
 
     let deployed_contract_address3: ContractAddress = contract_address_const::<'FEE'>();
-    let constructor_calldata3 = array!['FEE', 'FEE', 100000000000000000000000000000, 0, admin().into()];
+    let constructor_calldata3 = array!['FEE', 'FEE', 18, 100000000000000000000000000000, 0, admin().into()];
     let (fee_address, _) = contract.deploy_at(@constructor_calldata3, deployed_contract_address3).unwrap();
 
     (usdc_address, eth_address, fee_address)

@@ -71,7 +71,7 @@ fn deploy_mock_account_at(mock_account_contract: ContractClass, address: Contrac
 // Not used in setup
 fn deploy_erc20_token(deposit_vault_address: ContractAddress) -> ContractAddress {
     let erc20_contract = declare("ERC20").unwrap();
-    let constructor_calldata3 = array!['satoru', 'STU', INITIAL_TOKENS_MINTED, 0, deposit_vault_address.into()];
+    let constructor_calldata3 = array!['satoru', 'STU', 18, INITIAL_TOKENS_MINTED, 0, deposit_vault_address.into()];
     let (contract_address, _) = erc20_contract.deploy(@constructor_calldata3).unwrap();
     contract_address
 }
@@ -82,12 +82,12 @@ fn deploy_tokens() -> (ContractAddress, ContractAddress) {
     let contract = declare("ERC20").unwrap();
 
     let eth_address = get_ETH_address();
-    let constructor_calldata = array!['Ethereum', 'ETH', 1000000, 0, caller_address.into()];
+    let constructor_calldata = array!['Ethereum', 'ETH', 18, 1000000, 0, caller_address.into()];
     // let constructor_calldata = array!['Ethereum', 'ETH', 10000000000000000000, 0, caller_address.into()];
     contract.deploy_at(@constructor_calldata, eth_address).unwrap();
 
     let usdc_address = get_USDC_address();
-    let constructor_calldata = array!['usdc', 'USDC', 1000000, 0, caller_address.into()];
+    let constructor_calldata = array!['usdc', 'USDC', 18, 1000000, 0, caller_address.into()];
     // let constructor_calldata = array!['usdc', 'USDC', 100000000000000000000000, 0, caller_address.into()];
     contract.deploy_at(@constructor_calldata, usdc_address).unwrap();
     (eth_address, usdc_address)
