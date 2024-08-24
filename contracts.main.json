@@ -1,5 +1,5 @@
 {
-    "Pragma": "",
+    "Pragma": "0x0620d16d511f5732fffc6ac780352619396f42f43ee3124af4123db199f0be2e",
     "Reader": "",
     "RoleStore": "",
     "IncreaseOrderUtils": "",
@@ -12,7 +12,6 @@
     "DataStore": "",
     "OracleStore": "",
     "SwapHandler": "",
-    "FeeHandler": "",
     "MarketFactory": "",
     "OrderVault": "",
     "DepositVault": "",
