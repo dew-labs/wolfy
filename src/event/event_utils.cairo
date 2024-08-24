@@ -9,7 +9,7 @@ use satoru::utils::traits::ContractAddressDefault;
 
 use satoru::utils::serializable_dict::{SerializableFelt252Dict, SerializableFelt252DictTrait};
 
-use alexandria_data_structures::array_ext::SpanTraitExt;
+use alexandria_data_structures::span_ext::SpanTraitExt;
 
 
 //
@@ -61,7 +61,7 @@ impl ContractAddressDictValue of Felt252DictValue<ContractAddress> {
 //TODO Switch the append with a set in the functions when its available
 #[derive(Default, Serde, Destruct)]
 struct EventLogData {
-    cant_be_empty: u256, // remove 
+    cant_be_empty: u256, // remove
 // TODO
 }
 
@@ -122,7 +122,7 @@ impl LogDataImpl of LogDataTrait {
     /// Deserialize all the sub-dicts serialized into a LogData
     fn deserialize(ref serialized: Span<felt252>) -> Option<LogData> {
         // There should be the right amount of dictionaries serialized
-        if serialized.occurrences_of(END_OF_DICT) != DICTS_IN_LOGDATA {
+        if serialized.occurrences(@END_OF_DICT) != DICTS_IN_LOGDATA {
             panic_with_felt252('serialized format error');
         }
 
