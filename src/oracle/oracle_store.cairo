@@ -100,12 +100,12 @@ mod OracleStore {
 
         fn remove_signer(ref self: ContractState, account: ContractAddress) {
             let mut signers = self.signers.read();
-            let last_signer_index = signers.len();
+            let last_signer = signers.get(signers.len() -1).expect('failed to get last signer').unwrap();
             let signer_to_remove_index = self.signers_indexes.read(account);
-            let last_signer = signers.get(last_signer_index).expect('failed to get last signer').unwrap();
             signers.set(signer_to_remove_index, last_signer);
             self.signers_indexes.write(last_signer, signer_to_remove_index);
-            signers.len = signers.len() - 1;
+            self.signers_indexes.write(account, 0);
+            signers.pop_front(); // This is actually pop_back
         }
 
         fn get_signer_count(self: @ContractState) -> u256 {
