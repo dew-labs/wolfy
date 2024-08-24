@@ -202,7 +202,6 @@ mod Oracle {
     use starknet::storage_access::storage_base_address_from_felt252;
 
     use alexandria_math::BitShift;
-    use alexandria_sorting::merge_sort;
     use alexandria_storage::list::{ListTrait, List};
     use poseidon::poseidon_hash_span;
     // Local imports.
