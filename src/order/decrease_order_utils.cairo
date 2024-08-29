@@ -180,12 +180,14 @@ mod DecreaseOrderUtils {
                     .transfer_out(
                         order.market, result.secondary_output_token, order.receiver, result.secondary_output_amount
                     );
-            // return get_output_event_data(
-            //     result.output_token,
-            //     result.output_amount,
-            //     result.secondary_output_token,
-            //     result.secondary_output_amount
-            // );
+
+                return;
+                // return get_output_event_data(
+                //     result.output_token,
+                //     result.output_amount,
+                //     result.secondary_output_token,
+                //     result.secondary_output_amount
+                // );
             }
 
             let swap_param: SwapParams = SwapParams {
