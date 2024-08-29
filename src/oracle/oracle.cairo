@@ -308,7 +308,6 @@ mod Oracle {
                 return;
             }
             // only for testing
-            // TODO Find how to handle decimals, example ETH price 3453.92399931123
             let mut i = 0;
             loop {
                 if i == params.tokens.len() {
@@ -319,8 +318,8 @@ mod Oracle {
                 self.set_primary_price_(token, price);
                 i += 1;
             };
-        // end for testing
-        // self.set_prices_(data_store, event_emitter, params); // TODO uncomment
+            // end for testing
+            // self.set_prices_(data_store, event_emitter, params); // TODO uncomment
         }
 
         // Set the primary price
