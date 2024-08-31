@@ -18,16 +18,22 @@ import {
 } from "satoru-sdk";
 
 import { Account, type TypedContractV2 } from "starknet";
-import { expandDecimals, settingUp } from "./utils";
+import { expandDecimals, readJsonFile, settingUp } from "./utils";
 import { getDataStoreContract } from "./helpers";
 import { EXECUTION_ORDER_METHOD, USD_DECIMALS } from "./config";
 import pc from "picocolors";
 import setup from "./setup";
+import { HermesClient } from "@pythnetwork/hermes-client";
+import type { IToken } from "./interface/token";
+import type { IOrdersMap } from "./interface/order";
+import type { IPriceFeed } from "./interface/priceFeed";
+
+const executingOrders = new Set();
 
 async function runOrderKeeper(): Promise<void> {
     setup();
 
-    const { account, chainId } = await settingUp();
+    const { net, account, chainId, hermesUrl } = await settingUp();
 
     // setup contract
     const dataStoreContract: TypedContractV2<SatoruContractAbi<SatoruContract.DataStore>> =
@@ -35,45 +41,87 @@ async function runOrderKeeper(): Promise<void> {
     const orderHandlerContract: TypedContractV2<SatoruContractAbi<SatoruContract.OrderHandler>> =
         createSatoruContract(chainId, SatoruContract.OrderHandler, OrderHandlerABI, account);
 
-    const wssProvider: SatoruWebSocketProvider = getProvider(ProviderType.WSS, chainId);
+    const connection = new HermesClient(hermesUrl, {});
 
-    const eventHandler: SatoruEventHandler<SatoruEvent.OrderCreated> = async (event) => {
-        const {
-            key: rawOrderKey,
-            order_type: rawOrderType,
-            market: rawMarketKey,
-            trigger_price: rawTriggerPrice,
-        } = event.order;
+    // get price ids
+    let tokens: IToken[] = await readJsonFile(`./tokens.${net}.json`);
+    if (!Array.isArray(tokens)) tokens = [];
 
-        // init data
-        const orderKey: string = toStarknetHexString(rawOrderKey);
-        const orderType: OrderType = parseOrderType(rawOrderType);
-        const market = await dataStoreContract.get_market(rawMarketKey);
-        const indexTokenAddress: string = toStarknetHexString(market.index_token);
-        const executionContractPrice: bigint = cairoIntToBigInt(rawTriggerPrice);
+    const priceIds = tokens.map((token) => token.pythPriceId);
 
-        // validate order type
-        validateOrderType(orderType);
+    // Execute Limit Order Type
+    // Streaming price updates
+    const eventSource = await connection.getPriceUpdatesStream(priceIds, {
+        encoding: "hex",
+        parsed: true,
+        allowUnordered: false,
+        benchmarksOnly: true,
+    });
 
-        // execute order
-        const params: Object = await setPriceParams(
-            account,
-            indexTokenAddress,
-            executionContractPrice
-        );
-        await executeOrder(orderHandlerContract, account, orderKey, params);
+    eventSource.onmessage = async (event: any) => {
+        const priceFeeds: IPriceFeed[] = JSON.parse(event.data).parsed;
+        const storedOrders: IOrdersMap = await readJsonFile("./keeper/orders.json");
+
+        priceFeeds.forEach(async (priceFeed) => {
+            const pythPriceId: string = "0x" + priceFeed.id;
+            const indexTokenAddress: string = getTokenAddress(tokens, pythPriceId);
+
+            if (!storedOrders[indexTokenAddress]) return;
+
+            Object.entries(storedOrders[indexTokenAddress]).forEach(
+                async ([orderKey, orderData]) => {
+                    if (executingOrders.has(orderKey)) {
+                        return;
+                    }
+
+                    executingOrders.add(orderKey);
+
+                    const currentPriceDecimal = Math.abs(priceFeed.price.expo);
+
+                    const isLong: boolean = orderData.is_long;
+                    const currentPrice: bigint =
+                        expandDecimals(priceFeed.price.price, USD_DECIMALS - currentPriceDecimal) /
+                        expandDecimals(1, currentPriceDecimal);
+
+                    const acceptablePrice: bigint = orderData.acceptable_price;
+
+                    console.log("🚀 ~ currentPriceDecimal:   ", currentPriceDecimal);
+                    console.log("🚀 ~ currentPrice:          ", currentPrice);
+                    console.log("🚀 ~ acceptablePrice:       ", acceptablePrice);
+                    if (!isPriceValidToExecute(isLong, currentPrice, acceptablePrice)) return;
+
+                    // execute order
+                    const params: Object = await setPriceParams(
+                        account,
+                        indexTokenAddress,
+                        currentPrice
+                    );
+                    await executeOrder(orderHandlerContract, account, orderKey, params);
+                    executingOrders.delete(orderKey);
+                }
+            );
+        });
     };
 
-    await wssProvider.subscribeToEvent(SatoruEvent.OrderCreated, eventHandler);
+    eventSource.onerror = (error: any) => {
+        console.error(pc.red(`Hermes Client got error: ${error}`));
+        eventSource.close();
+    };
 }
 
-function validateOrderType(orderType: OrderType): void {
-    if (
-        [OrderType.MarketDecrease, OrderType.MarketIncrease, OrderType.MarketSwap].includes(
-            orderType
-        )
-    ) {
-        throw new Error("Market order must have a execution price");
+function getTokenAddress(tokens: any[], pythPriceId: string): string {
+    return tokens.find((token) => token.pythPriceId === pythPriceId).address;
+}
+
+function isPriceValidToExecute(
+    isLong: boolean,
+    currentPrice: bigint,
+    acceptablePrice: bigint
+): boolean {
+    if (isLong) {
+        return currentPrice <= acceptablePrice;
+    } else {
+        return currentPrice >= acceptablePrice;
     }
 }
 
@@ -121,7 +169,7 @@ async function executeOrder(
 
     if (executeOrderReceipt.isSuccess()) {
         console.info(pc.green("Execute Successfully 🚀"));
-        console.info(pc.green(`with Transaction Hash: ${executeOrderReceipt.transaction_hash}`));
+        console.info(pc.green(`== with Transaction Hash: ${executeOrderReceipt.transaction_hash}`));
     } else {
         // TODO: retry here
     }
