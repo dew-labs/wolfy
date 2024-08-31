@@ -18,10 +18,12 @@ import {
     num,
     type BigNumberish,
 } from "starknet";
-import fs from "node:fs";
+
 import { getProvider, ProviderType, StarknetChainId } from "satoru-sdk";
-import setup from "./setup";
+import { readFile, writeFile } from "fs/promises";
+import fs from "node:fs";
 import readline from "node:readline";
+import setup from "./setup";
 
 export function getCompiledSierra(contractPath: string) {
     return json.parse(
@@ -175,6 +177,7 @@ export async function settingUp() {
         net,
         chainId,
         account: account0,
+        hermesUrl: process.env.HERMES_URL as string,
         feeToken: process.env.FEE_TOKEN as string,
     };
 }
@@ -314,4 +317,27 @@ export function shrinkDecimals(
 
 export function decimalToFloat(value: any, decimals = 0) {
     return expandDecimals(value, 30 - decimals);
+}
+
+export async function readJsonFile<T>(filePath: string): Promise<T> {
+    const data = await readFile(filePath, "utf8");
+
+    return parseWithBigInt(data);
+}
+
+export function stringifyWithBigInt(obj: Object) {
+    return JSON.stringify(
+        obj,
+        (_, value) => (typeof value === "bigint" ? value.toString() + "n" : value),
+        4
+    );
+}
+
+export function parseWithBigInt(jsonString: string) {
+    return JSON.parse(jsonString, (_, value) => {
+        if (typeof value === "string" && /^[0-9]+n$/.test(value)) {
+            return BigInt(value.slice(0, -1));
+        }
+        return value;
+    });
 }
