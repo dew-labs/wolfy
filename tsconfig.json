@@ -53,5 +53,5 @@
         "types": ["node"]
     },
     "exclude": [],
-    "include": ["scripts/**/*", "keeper/**/*"]
+    "include": ["scripts/**/*", "keeper/**/*", "shared/logger.ts"]
 }

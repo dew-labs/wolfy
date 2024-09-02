@@ -1,4 +1,4 @@
-import { createAsker, expandDecimals, getContracts, settingUp } from "../../utils";
+import { createAsker, expandDecimals, getContracts, settingUp } from "shared/utils";
 import { toCairoCustomEnum } from "satoru-sdk";
 import {
     createCall,
@@ -12,7 +12,7 @@ import {
     executeAndGetResult,
     getDataStoreContract,
     getExchangeRouterContract,
-} from "../../helpers";
+} from "shared/helpers";
 import { CairoUint256 } from "starknet";
 
 async function closePosition() {
