@@ -1,7 +1,6 @@
 import type { Account, TypedContractV2 } from "starknet";
-import type { Order } from "../interfaces/Order";
+import type { Order } from "shared/interfaces/Order";
 
-import { logger } from "keeper/utils/logger";
 import {
     createCall,
     createSatoruContract,
@@ -12,8 +11,9 @@ import {
     type SatoruContractAbi,
     type StarknetChainId,
 } from "satoru-sdk";
-import { getDataStoreContract } from "scripts/helpers";
-import { getNetAndChainId } from "keeper/utils";
+import { getDataStoreContract } from "shared/utils/helpers";
+import { getNetAndChainId } from "shared/utils/utils";
+import { logger } from "shared/utils/logger";
 
 export class OrderExecutionEngine {
     async executeOrder(account: Account, order: Order, executionPrice: bigint): Promise<void> {

@@ -1,7 +1,7 @@
 import { parseWithBigInt, readJsonFile, stringifyWithBigInt } from "keeper/utils/json";
 import * as path from "path";
 import fs from "node:fs";
-import type { Order, OrdersMap } from "../interfaces/Order";
+import type { Order, OrdersMap } from "shared/interfaces/Order";
 
 export class OrderPersistenceService {
     private readonly filePath: string;

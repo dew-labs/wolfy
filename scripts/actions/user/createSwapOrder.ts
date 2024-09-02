@@ -6,14 +6,14 @@ import {
     toCairoCustomEnum,
     toStarknetHexString,
 } from "satoru-sdk";
-import { createAsker, getContracts, settingUp } from "shared/utils";
+import { createAsker, getContracts, settingUp } from "shared/utils/utils";
 import { CairoUint256 } from "starknet";
 import {
     askOrLatestMarketToken,
     executeAndGetResult,
     getDataStoreContract,
     getExchangeRouterContract,
-} from "shared/helpers";
+} from "shared/utils/helpers";
 
 async function createSwapOrder() {
     const contracts = getContracts();

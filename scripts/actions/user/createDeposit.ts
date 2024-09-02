@@ -1,12 +1,12 @@
 import { CairoUint256 } from "starknet";
-import { settingUp, getContracts, createAsker, expandDecimals } from "shared/utils";
+import { settingUp, getContracts, createAsker, expandDecimals } from "shared/utils/utils";
 import { createCall, createTokenContract, executeAndWait, toStarknetHexString } from "satoru-sdk";
 import {
     askOrLatestMarketToken,
     executeAndGetResult,
     getDataStoreContract,
     getExchangeRouterContract,
-} from "shared/helpers";
+} from "shared/utils/helpers";
 
 async function createDeposit() {
     const contracts = getContracts();
