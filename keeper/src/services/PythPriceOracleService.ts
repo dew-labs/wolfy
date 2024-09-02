@@ -1,5 +1,5 @@
-import type { PythPriceFeed } from "../interfaces/PythPriceFeed";
-import type { Token } from "../interfaces/Token";
+import type { PythPriceFeed } from "shared/interfaces/PythPriceFeed";
+import type { Token } from "shared/interfaces/Token";
 import { HermesClient } from "@pythnetwork/hermes-client";
 import { logger } from "keeper/utils/logger";
 import EventEmitter from "events";
