@@ -1,7 +1,6 @@
 import {
     Account,
     CallData,
-    Contract,
     hash,
     json,
     shortString,
@@ -11,17 +10,14 @@ import {
     type CompiledSierra,
     type CairoAssembly,
     type CompiledContract,
-    RpcProvider,
-    type Call,
-    type AccountInterface,
     ec,
     num,
     type BigNumberish,
 } from "starknet";
 import fs from "node:fs";
 import { getProvider, ProviderType, StarknetChainId } from "satoru-sdk";
-import setup from "./setup";
 import readline from "node:readline";
+import setup from "./setup";
 
 export function getCompiledSierra(contractPath: string) {
     return json.parse(

@@ -1,4 +1,4 @@
-import { createAsker, expandDecimals, getContracts, settingUp } from "../../utils";
+import { createAsker, expandDecimals, getContracts, settingUp } from "shared/utils";
 import { cairoIntToBigInt, toCairoCustomEnum } from "satoru-sdk";
 import {
     createCall,
@@ -12,9 +12,9 @@ import {
     executeAndGetResult,
     getDataStoreContract,
     getExchangeRouterContract,
-} from "../../helpers";
+} from "shared/helpers";
 import { CairoUint256, shortString } from "starknet";
-import { USD_DECIMALS } from "../../config";
+import { USD_DECIMALS } from "shared/config";
 
 async function createOrder() {
     const contracts = getContracts();

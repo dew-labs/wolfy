@@ -14,7 +14,7 @@ import {
     getKey,
     settingUp,
     type Contracts,
-} from "./utils";
+} from "shared/utils";
 
 import fs from "node:fs";
 

@@ -10,9 +10,9 @@ import {
     SatoruContract,
     toStarknetHexString,
 } from "satoru-sdk";
-import { createAsker, expandDecimals, settingUp } from "../../utils";
-import { getDataStoreContract } from "../../helpers";
-import { USD_DECIMALS } from "../../config";
+import { createAsker, expandDecimals, settingUp } from "shared/utils";
+import { getDataStoreContract } from "shared/helpers";
+import { USD_DECIMALS } from "shared/config";
 
 async function executeOrder() {
     // get order key from DataStore.get_account_order_keys
