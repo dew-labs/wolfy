@@ -1,7 +1,7 @@
-import { parseWithBigInt, readJsonFile, stringifyWithBigInt } from "keeper/utils/json";
 import * as path from "path";
 import fs from "node:fs";
-import type { Order, OrdersMap } from "shared/interfaces/Order";
+import type { Order, OrdersMap } from "../../../shared/interfaces/Order";
+import { json } from "starknet";
 
 export class OrderPersistenceService {
     private readonly filePath: string;
@@ -11,7 +11,7 @@ export class OrderPersistenceService {
     }
 
     async loadOrders(): Promise<OrdersMap> {
-        return readJsonFile(this.filePath);
+        return json.parse(fs.readFileSync(this.filePath).toString("ascii")) as OrdersMap;
     }
 
     saveOrder(order: Order, indexTokenAddress: string): void {
@@ -22,15 +22,38 @@ export class OrderPersistenceService {
             }
 
             try {
-                const jsonData = parseWithBigInt(data);
+                const ordersData = json.parse(data);
 
-                if (!jsonData.hasOwnProperty(indexTokenAddress)) {
-                    jsonData[indexTokenAddress] = {};
+                if (!ordersData.hasOwnProperty(indexTokenAddress)) {
+                    ordersData[indexTokenAddress] = {};
                 }
 
-                jsonData[indexTokenAddress][order.key] = order;
+                ordersData[indexTokenAddress][order.key] = order;
 
-                fs.writeFile(this.filePath, stringifyWithBigInt(jsonData), "utf8", (err) => {
+                fs.writeFile(this.filePath, json.stringify(ordersData), "utf8", (err) => {
+                    if (err) {
+                        console.error(`Error writing file to disk: ${err}`);
+                    }
+                });
+            } catch (err) {
+                console.error(`Error parsing JSON string: ${err}`);
+            }
+        });
+    }
+
+    deleteOrder(orderKey: string, indexTokenAddress: string): void {
+        fs.readFile(this.filePath, "utf8", (err: any, data: any) => {
+            if (err) {
+                console.error(`Error reading file from disk: ${err}`);
+                return;
+            }
+
+            try {
+                const orderData = json.parse(data);
+
+                delete orderData[indexTokenAddress][orderKey];
+
+                fs.writeFile(this.filePath, json.stringify(orderData), "utf8", (err) => {
                     if (err) {
                         console.error(`Error writing file to disk: ${err}`);
                     }
