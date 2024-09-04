@@ -331,6 +331,9 @@ trait IDataStore<TContractState> {
     /// * `account` - The value to set.
     fn remove_withdrawal(ref self: TContractState, key: felt252, account: ContractAddress);
 
+    /// Returns the number of withdrawals from the stored List of Withdrawals.
+    fn get_withdrawal_count(self: @TContractState) -> u32;
+
     /// Returns an array of withdrawal keys from the stored List of Withdrawals.
     ///
     /// # Arguments
@@ -1253,6 +1256,11 @@ mod DataStore {
                 }
             }
         }
+
+        fn get_withdrawal_count(self: @ContractState) -> u32 {
+            self.withdrawals.read().len()
+        }
+
         fn get_withdrawal_keys(self: @ContractState, start: usize, mut end: usize) -> Array<felt252> {
             let withdrawals = self.withdrawals.read();
             let mut keys: Array<felt252> = Default::default();
@@ -1271,6 +1279,7 @@ mod DataStore {
                 }
                 let withdrawal: Withdrawal = withdrawals[i];
                 keys.append(withdrawal.key);
+                i += 1;
             };
             keys
         }
