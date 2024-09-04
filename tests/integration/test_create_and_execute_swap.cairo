@@ -6,8 +6,7 @@
 // Core lib imports.
 use starknet::{ContractAddress, get_caller_address, Felt252TryIntoContractAddress, contract_address_const};
 use snforge_std::{
-    declare, start_cheat_caller_address, stop_cheat_caller_address, start_mock_call, test_address, ContractClassTrait,
-    ContractClass, start_cheat_block_number
+    declare, start_cheat_caller_address, stop_cheat_caller_address, start_mock_call, test_address, ContractClassTrait, DeclareResultTrait, ContractClass, start_cheat_block_number
 };
 use traits::Default;
 use poseidon::poseidon_hash_span;

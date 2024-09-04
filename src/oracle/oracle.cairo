@@ -203,8 +203,7 @@ mod Oracle {
     use satoru::role::role_module::{
         IRoleModule, RoleModule
     };
-    use satoru::role::role_store::{IRoleStoreDispatcher};
-    use satoru::role::role;
+    use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
     use satoru::role::role_module::{IRoleModuleLibraryDispatcher, IRoleModuleDispatcherTrait};
     use satoru::utils::{arrays, arrays::pow, bits, calc, precision};
     use satoru::utils::u256_mask::{Mask, MaskTrait, validate_unique_and_set_index};

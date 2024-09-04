@@ -1,5 +1,5 @@
 use starknet::ContractAddress;
-use snforge_std::{declare, ContractClassTrait};
+use snforge_std::{declare, ContractClassTrait, DeclareResultTrait};
 
 #[starknet::interface]
 trait ICallbackMock<TContractState> {
@@ -45,7 +45,7 @@ mod CallbackMock {
 }
 
 fn deploy_callback_mock() -> ICallbackMockDispatcher {
-    let contract = declare("CallbackMock").unwrap();
+    let contract = declare("CallbackMock").unwrap().contract_class();
     let (contract_address, _) = contract.deploy(@array![]).unwrap();
     ICallbackMockDispatcher { contract_address }
 }

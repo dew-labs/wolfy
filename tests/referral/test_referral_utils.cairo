@@ -7,7 +7,7 @@ use satoru::event::event_emitter::{EventEmitter, IEventEmitterDispatcher, IEvent
 use satoru::event::event_emitter::EventEmitter::{AffiliateRewardUpdated, AffiliateRewardClaimed};
 use satoru::mock::governable::{IGovernableDispatcher, IGovernableDispatcherTrait};
 use snforge_std::{
-    declare, ContractClass, ContractClassTrait, spy_events, EventSpy, Event, start_cheat_caller_address,
+    declare, ContractClass, ContractClassTrait, DeclareResultTrait, spy_events, EventSpy, Event, start_cheat_caller_address,
     stop_cheat_caller_address, EventSpyAssertionsTrait, EventSpyTrait
 };
 use satoru::role::role;
@@ -298,8 +298,8 @@ fn given_normal_conditions_when_claim_affiliate_reward_then_works() {
 
 /// Utility function to deploy a mock token contract
 fn setup_mock_token(recipient: ContractAddress, market_token: ContractAddress) -> (ContractAddress, IERC20Dispatcher) {
-    let contract = declare("ERC20").unwrap();
-    let constructor_calldata = array![11, 11, 18, 10000000000000000000000, 0, recipient.into()];
+    let contract = declare("ERC20").unwrap().contract_class();
+    let constructor_calldata: Array<felt252> = array![11, 11, 18, 10000000000000000000000, 0, recipient.into()];
     let (token_address, _) = contract.deploy(@constructor_calldata).unwrap();
 
     let token_contract = IERC20Dispatcher { contract_address: token_address };
@@ -321,7 +321,7 @@ fn deploy_market_token(
 ) -> ContractAddress {
     let deployed_contract_address = contract_address_const::<'market_token'>();
     start_cheat_caller_address(deployed_contract_address, caller_address);
-    let constructor_calldata = array![role_store_address.into(), data_store_address.into(), bank_class_hash.into(), role_module_class_hash.into()];
+    let constructor_calldata: Array<felt252> = array![role_store_address.into(), data_store_address.into(), bank_class_hash.into(), role_module_class_hash.into()];
     let (contract_address, _) = contract.deploy_at(@constructor_calldata, deployed_contract_address).unwrap();
     contract_address
 }
@@ -330,7 +330,7 @@ fn deploy_governable(contract: ContractClass, event_emitter_address: ContractAdd
     let caller_address: ContractAddress = tests_lib::get_c4ller_address();
     let deployed_contract_address = contract_address_const::<'governable'>();
     start_cheat_caller_address(deployed_contract_address, caller_address);
-    let constructor_calldata = array![];
+    let constructor_calldata: Array<felt252> = array![];
     let (contract_address, _) = contract.deploy_at(@constructor_calldata, deployed_contract_address).unwrap();
     IGovernableDispatcher { contract_address }.initialize(event_emitter_address);
     contract_address

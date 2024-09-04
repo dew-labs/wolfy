@@ -4,7 +4,7 @@
 // Core lib imports.
 use starknet::{ContractAddress, contract_address_const};
 use integer::u256_from_felt252;
-use snforge_std::{declare, start_cheat_caller_address, stop_cheat_caller_address, ContractClassTrait, ContractClass};
+use snforge_std::{declare, start_cheat_caller_address, stop_cheat_caller_address, ContractClassTrait, DeclareResultTrait, ContractClass};
 // Local imports.
 use satoru::bank::bank::{IBankDispatcherTrait, IBankDispatcher};
 use satoru::role::role_store::{IRoleStoreDispatcherTrait, IRoleStoreDispatcher};

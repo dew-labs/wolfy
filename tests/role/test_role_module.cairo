@@ -2,7 +2,7 @@ use result::ResultTrait;
 use traits::TryInto;
 use starknet::{ContractAddress, contract_address_const};
 use starknet::Felt252TryIntoContractAddress;
-use snforge_std::{declare, start_cheat_caller_address, ContractClassTrait};
+use snforge_std::{declare, start_cheat_caller_address, ContractClassTrait, DeclareResultTrait};
 use satoru::test_utils::tests_lib;
 
 use satoru::role::{
@@ -464,7 +464,7 @@ fn setup() -> ( // This caller address will be used with `start_cheat_caller_add
 
 // Utility function to deploy a role module contract and return its address.
 fn deploy_role_module(role_store_address: ContractAddress) -> ContractAddress {
-    let contract = declare("RoleModule").unwrap();
+    let contract = declare("RoleModule").unwrap().contract_class();
     let caller_address: ContractAddress = tests_lib::get_c4ller_address();
     let deployed_contract_address = contract_address_const::<'role_module'>();
     start_cheat_caller_address(deployed_contract_address, caller_address);

@@ -83,18 +83,29 @@ mod BaseOrderHandler {
     //                              STORAGE
     // *************************************************************************
     #[storage]
-    struct Storage {
-        data_store: IDataStoreDispatcher,
-        role_store: IRoleStoreDispatcher,
-        event_emitter: IEventEmitterDispatcher,
-        order_vault: IOrderVaultDispatcher,
-        swap_handler: ISwapHandlerDispatcher,
-        oracle: IOracleDispatcher,
-        referral_storage: IReferralStorageDispatcher,
-        order_utils_lib: IOrderUtilsLibraryDispatcher,
-        increase_order_utils_lib: IIncreaseOrderUtilsLibraryDispatcher,
-        decrease_order_utils_lib: IDecreaseOrderUtilsLibraryDispatcher,
-        swap_order_utils_lib: ISwapOrderUtilsLibraryDispatcher
+    pub struct Storage {
+        /// Interface to interact with the `DataStore` contract.
+        pub data_store: IDataStoreDispatcher,
+        /// Interface to interact with the `RoleStore` contract.
+        pub role_store: IRoleStoreDispatcher,
+        /// Interface to interact with the `EventEmitter` contract.
+        pub event_emitter: IEventEmitterDispatcher,
+        /// Interface to interact with the `OrderVault` contract.
+        pub order_vault: IOrderVaultDispatcher,
+        /// Interface to interact with the `SwapHandler` contract.
+        pub swap_handler: ISwapHandlerDispatcher,
+        /// Interface to interact with the `Oracle` contract.
+        pub oracle: IOracleDispatcher,
+        /// Interface to interact with the `ReferralStorage` contract.
+        pub referral_storage: IReferralStorageDispatcher,
+        /// Interface to interact with the `OrderUtils` lib.
+        pub order_utils_lib: IOrderUtilsLibraryDispatcher,
+        /// Interface to interact with the `IncreaseOrderUtils` lib.
+        pub increase_order_utils_lib: IIncreaseOrderUtilsLibraryDispatcher,
+        /// Interface to interact with the `DecreaseOrderUtils` lib.
+        pub decrease_order_utils_lib: IDecreaseOrderUtilsLibraryDispatcher,
+        /// Interface to interact with the `SwapOrderUtils` lib.
+        pub swap_order_utils_lib: ISwapOrderUtilsLibraryDispatcher
     }
 
     // *************************************************************************

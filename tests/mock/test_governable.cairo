@@ -17,7 +17,7 @@ fn deploy_governable(contract: ContractClass, event_emitter_address: ContractAdd
     let caller_address: ContractAddress = tests_lib::get_c4ller_address();
     let deployed_contract_address = contract_address_const::<'governable'>();
     start_cheat_caller_address(deployed_contract_address, caller_address);
-    let constructor_calldata = array![];
+    let constructor_calldata: Array<felt252> = array![];
     let (contract_address, _) = contract.deploy_at(@constructor_calldata, deployed_contract_address).unwrap();
     IGovernableDispatcher { contract_address }.initialize(event_emitter_address);
     contract_address

@@ -6,7 +6,7 @@
 use result::ResultTrait;
 use traits::{TryInto, Into};
 use starknet::{ContractAddress, get_caller_address, Felt252TryIntoContractAddress, contract_address_const, ClassHash,};
-use snforge_std::{declare, ContractClassTrait, start_cheat_block_number_global, stop_cheat_block_number_global};
+use snforge_std::{declare, ContractClassTrait, DeclareResultTrait, start_cheat_block_number_global, stop_cheat_block_number_global};
 
 // Local imports.
 use satoru::order::order::{Order, OrderType, OrderTrait, DecreasePositionSwapType};

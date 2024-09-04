@@ -1,4 +1,4 @@
-use snforge_std::{declare, start_cheat_caller_address, stop_cheat_caller_address, ContractClassTrait, ContractClass};
+use snforge_std::{declare, start_cheat_caller_address, stop_cheat_caller_address, ContractClassTrait, DeclareResultTrait, ContractClass};
 use starknet::{ContractAddress, contract_address_const, ClassHash, Felt252TryIntoContractAddress};
 use traits::Default;
 

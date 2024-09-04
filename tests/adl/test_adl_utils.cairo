@@ -11,7 +11,7 @@ use satoru::test_utils::tests_lib;
 use satoru::position::position::{Position};
 
 use snforge_std::{
-    declare, start_cheat_caller_address, stop_cheat_caller_address, ContractClassTrait, spy_events, EventSpy,
+    declare, start_cheat_caller_address, stop_cheat_caller_address, ContractClassTrait, DeclareResultTrait, spy_events, EventSpy,
     EventSpyAssertionsTrait, Event, EventSpyTrait, start_mock_call
 };
 use satoru::adl::adl_utils;

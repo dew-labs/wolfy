@@ -7,7 +7,7 @@ use satoru::order::order::{Order, OrderType, OrderTrait, DecreasePositionSwapTyp
 use satoru::test_utils::tests_lib;
 use satoru::utils::span32::{Span32, Array32Trait};
 
-use snforge_std::{declare, start_cheat_caller_address, stop_cheat_caller_address, ContractClassTrait};
+use snforge_std::{declare, start_cheat_caller_address, stop_cheat_caller_address, ContractClassTrait, DeclareResultTrait};
 
 #[test]
 fn given_normal_conditions_when_set_order_new_and_override_then_works() {

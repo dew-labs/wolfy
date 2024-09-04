@@ -122,7 +122,7 @@ mod MarketFactory {
 
             // Deploy the `MarketToken` contract.
             // Contructor arguments: [role_store_address, data_store_address].
-            let mut constructor_calldata = array![
+            let mut constructor_calldata: Array<felt252> = array![
                 self.role_store.read().contract_address.into(), self.data_store.read().contract_address.into(), self.bank_class_hash.read().into(), self.role_module_class_hash.read().into()
             ];
             // Deploy the contract with the `deploy_syscall`.

@@ -96,24 +96,6 @@ mod IncreaseOrderUtils {
     use alexandria_data_structures::span_ext::SpanTraitExt;
     use core::integer::U64PartialOrd;
 
-    impl PartialOrdImpl of PartialOrd<@u64> {
-        fn lt(lhs: @u64, rhs: @u64) -> bool {
-            *lhs < *rhs
-        }
-
-        fn le(lhs: @u64, rhs: @u64) -> bool {
-            *lhs <= *rhs
-        }
-
-        fn gt(lhs: @u64, rhs: @u64) -> bool {
-            *lhs > *rhs
-        }
-
-        fn ge(lhs: @u64, rhs: @u64) -> bool {
-            *lhs >= *rhs
-        }
-    }
-
     #[storage]
     struct Storage {}
 

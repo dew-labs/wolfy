@@ -1,5 +1,5 @@
 // Core lib imports.
-use snforge_std::{declare, ContractClassTrait, start_cheat_caller_address, ContractClass};
+use snforge_std::{declare, ContractClassTrait, DeclareResultTrait, start_cheat_caller_address, ContractClass};
 use array::ArrayTrait;
 use core::traits::Into;
 use starknet::{get_caller_address, ContractAddress, contract_address_const,};
@@ -25,9 +25,9 @@ use debug::PrintTrait;
 //TODO Tests need to be added after implementation of swap_utils
 
 fn deploy_tokens() -> (ContractAddress, ContractAddress, ContractAddress) {
-    let contract = declare("ERC20").unwrap();
+    let contract = declare("ERC20").unwrap().contract_class();
     let caller_address: ContractAddress = tests_lib::get_c4ller_address();
-    let constructor_calldata = array!['satoru_index', 'STU', 18, 4000, 0, caller_address.into()];
+    let constructor_calldata: Array<felt252> = array!['satoru_index', 'STU', 18, 4000, 0, caller_address.into()];
     let constructor_calldata1 = array!['satoru_long', 'STU', 18, 4000, 0, caller_address.into()];
     let constructor_calldata2 = array!['satoru_short', 'STU', 18, 4000, 0, caller_address.into()];
 

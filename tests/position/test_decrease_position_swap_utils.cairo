@@ -20,7 +20,7 @@ use satoru::order::{
 use satoru::mock::referral_storage::{IReferralStorageDispatcher, IReferralStorageDispatcherTrait};
 use satoru::utils::span32::{Span32, Array32Trait};
 
-use snforge_std::{declare, ContractClassTrait, start_cheat_caller_address};
+use snforge_std::{declare, ContractClassTrait, DeclareResultTrait, start_cheat_caller_address};
 use starknet::{get_caller_address, ContractAddress, contract_address_const};
 use array::ArrayTrait;
 use satoru::utils::i256::{i256, i256_new};

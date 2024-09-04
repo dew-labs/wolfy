@@ -1,6 +1,5 @@
 use snforge_std::{
-    declare, start_cheat_caller_address, stop_cheat_caller_address, start_cheat_block_number, ContractClassTrait,
-    ContractClass
+    declare, start_cheat_caller_address, stop_cheat_caller_address, start_cheat_block_number, ContractClassTrait, DeclareResultTrait, ContractClass
 };
 
 use satoru::exchange::liquidation_handler::{
@@ -22,7 +21,7 @@ use satoru::utils::span32::{Span32, Array32Trait};
 use satoru::position::{position::Position, position_utils::get_position_key};
 use satoru::liquidation::liquidation_utils::create_liquidation_order;
 use satoru::exchange::base_order_handler::{
-    IBaseOrderHandler, BaseOrderHandler::{event_emitterContractMemberStateTrait}
+    IBaseOrderHandler
 };
 
 use satoru::event::event_emitter::{IEventEmitterDispatcher};
@@ -409,16 +408,16 @@ fn admin() -> ContractAddress {
 fn deploy_signers(signer1: ContractAddress, signer2: ContractAddress) -> (ContractAddress, ContractAddress) {
     let mock_account_contract = tests_lib::declare_mock_account();
 
-    let contract_address = tests_lib::deploy_mock_account_at(mock_account_contract, signer1);
-    let contract_address2 = tests_lib::deploy_mock_account_at(mock_account_contract, signer2);
+    let contract_address = tests_lib::deploy_mock_account_at(*mock_account_contract, signer1);
+    let contract_address2 = tests_lib::deploy_mock_account_at(*mock_account_contract, signer2);
     (contract_address, contract_address2)
 }
 
 
 fn setup_tokens() -> (ContractAddress, ContractAddress, ContractAddress) {
-    let contract = declare("ERC20").unwrap();
+    let contract = declare("ERC20").unwrap().contract_class();
     let deployed_contract_address: ContractAddress = contract_address_const::<'USDC'>();
-    let mut constructor_calldata = array!['USDC', 'USDC', 18, 10000000000000000000000000000, 0, admin().into()];
+    let mut constructor_calldata: Array<felt252> = array!['USDC', 'USDC', 18, 10000000000000000000000000000, 0, admin().into()];
 
     let (usdc_address, _) = contract.deploy_at(@constructor_calldata, deployed_contract_address).unwrap();
 

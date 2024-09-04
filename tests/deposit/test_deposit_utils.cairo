@@ -15,7 +15,7 @@ use satoru::deposit::{
 };
 
 
-use snforge_std::{declare, start_cheat_caller_address, ContractClassTrait};
+use snforge_std::{declare, start_cheat_caller_address, ContractClassTrait, DeclareResultTrait};
 
 
 #[test]

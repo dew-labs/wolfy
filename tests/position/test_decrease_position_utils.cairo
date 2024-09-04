@@ -2,7 +2,7 @@ use starknet::{get_caller_address, ContractAddress, contract_address_const};
 use core::array::ArrayTrait;
 use core::traits::Into;
 
-use snforge_std::{declare, ContractClassTrait, start_cheat_caller_address};
+use snforge_std::{declare, ContractClassTrait, DeclareResultTrait, start_cheat_caller_address};
 use satoru::test_utils::tests_lib;
 use satoru::utils::span32::{Span32, Array32Trait};
 

@@ -1,7 +1,7 @@
 use result::ResultTrait;
 use traits::{TryInto, Into};
 use starknet::{ContractAddress, get_caller_address, contract_address_const};
-use snforge_std::{declare, start_cheat_caller_address, stop_cheat_caller_address, ContractClassTrait, ContractClass};
+use snforge_std::{declare, start_cheat_caller_address, stop_cheat_caller_address, ContractClassTrait, DeclareResultTrait, ContractClass};
 use satoru::router::router::{IRouterDispatcher, IRouterDispatcherTrait};
 use satoru::token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
 use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
@@ -135,7 +135,7 @@ fn teardown(test_token_address: ContractAddress, router_address: ContractAddress
 /// * `minter_address` - The address of the wallet who will get the initial supply.
 /// * `initial_amount` - The amount of token minted during the deployment.
 fn deploy_mock_token(minter_address: ContractAddress, initial_amount: u256) -> ContractAddress {
-    let contract = declare("ERC20").unwrap();
+    let contract = declare("ERC20").unwrap().contract_class();
     let mut constructor_calldata: Array::<felt252> = array![];
     constructor_calldata.append('TestToken');
     constructor_calldata.append('TST');

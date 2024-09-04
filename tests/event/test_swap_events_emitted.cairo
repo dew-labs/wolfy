@@ -1,5 +1,5 @@
 use starknet::{ContractAddress, contract_address_const};
-use snforge_std::{declare, ContractClassTrait, spy_events, EventSpy, EventSpyTrait, Event, EventSpyAssertionsTrait};
+use snforge_std::{declare, ContractClassTrait, DeclareResultTrait, spy_events, EventSpy, EventSpyTrait, Event, EventSpyAssertionsTrait};
 use satoru::test_utils::tests_lib::deploy_event_emitter;
 
 use satoru::pricing::position_pricing_utils::{

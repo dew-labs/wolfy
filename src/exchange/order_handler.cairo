@@ -116,6 +116,7 @@ mod OrderHandler {
     // use satoru::position::error::PositionError;
     // use satoru::feature::error::FeatureError;
     use satoru::exchange::exchange_utils;
+    use satoru::exchange::base_order_handler::{IBaseOrderHandler, BaseOrderHandler};
     use satoru::feature::feature_utils::{validate_feature};
     use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
     use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
