@@ -1,5 +1,5 @@
 use starknet::{ContractAddress, get_caller_address, Felt252TryIntoContractAddress, contract_address_const};
-use snforge_std::{declare, start_cheat_caller_address, stop_cheat_caller_address, ContractClassTrait};
+use snforge_std::{declare, start_cheat_caller_address, stop_cheat_caller_address, ContractClassTrait, DeclareResultTrait};
 
 use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
 use satoru::fee::fee_handler::{IFeeHandlerDispatcher, IFeeHandlerDispatcherTrait};
@@ -43,11 +43,11 @@ fn given_wrong_inputs_when_fee_handler_then_fails() {
 fn deploy_fee_handler(
     role_store_address: ContractAddress, data_store_address: ContractAddress, event_emitter_address: ContractAddress
 ) -> ContractAddress {
-    let contract = declare("FeeHandler").unwrap();
+    let contract = declare("FeeHandler").unwrap().contract_class();
     let caller_address: ContractAddress = tests_lib::get_c4ller_address();
     let deployed_contract_address = contract_address_const::<'fee_handler'>();
     start_cheat_caller_address(deployed_contract_address, caller_address);
-    let constructor_calldata = array![
+    let constructor_calldata: Array<felt252> = array![
         data_store_address.into(), role_store_address.into(), event_emitter_address.into()
     ];
     let (contract_address, _) = contract.deploy_at(@constructor_calldata, deployed_contract_address).unwrap();

@@ -95,7 +95,6 @@ mod OrderHandler {
     // *************************************************************************
 
     // Core lib imports.
-    use satoru::exchange::base_order_handler::BaseOrderHandler::order_utils_libContractMemberStateTrait;
     use satoru::order::order_utils::IOrderUtilsDispatcherTrait;
     use core::starknet::SyscallResultTrait;
     use core::traits::Into;
@@ -122,8 +121,6 @@ mod OrderHandler {
     use satoru::exchange::exchange_utils;
     use satoru::exchange::base_order_handler::{IBaseOrderHandler, BaseOrderHandler};
     use satoru::exchange::base_order_handler::BaseOrderHandler::{
-        role_storeContractMemberStateTrait, data_storeContractMemberStateTrait, event_emitterContractMemberStateTrait,
-        order_vaultContractMemberStateTrait, referral_storageContractMemberStateTrait, oracleContractMemberStateTrait,
         InternalTrait as BaseOrderHandleInternalTrait,
     };
     use satoru::feature::feature_utils::{validate_feature};
@@ -202,8 +199,10 @@ mod OrderHandler {
             let role_module_state = RoleModule::unsafe_new_contract_state();
             role_module_state.only_order_keeper();
 
+            self.role_store.read().assert_only_role(get_caller_address(), role::ORDER_KEEPER);
+
             // Fetch data store.
-            let base_order_handler_state = BaseOrderHandler::unsafe_new_contract_state();
+            let base_order_handler_state: @BaseOrderHandler::ContractState = @BaseOrderHandler::unsafe_new_contract_state();
             let data_store = base_order_handler_state.data_store.read();
 
             non_reentrant_before(data_store);

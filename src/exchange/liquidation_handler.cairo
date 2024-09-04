@@ -69,9 +69,9 @@ mod LiquidationHandler {
     use satoru::liquidation::liquidation_utils::create_liquidation_order;
     use satoru::feature::feature_utils::validate_feature;
     use satoru::utils::{starknet_utils, global_reentrancy_guard};
-    use satoru::exchange::base_order_handler::BaseOrderHandler::{
-        event_emitterContractMemberStateTrait, data_storeContractMemberStateTrait,
-        order_utils_libContractMemberStateTrait, oracleContractMemberStateTrait,
+    use satoru::exchange::base_order_handler::BaseOrderHandler::{};
+    starknet::storage::{
+        StorageMapReadAccess, StorageMapWriteAccess, StoragePointerReadAccess, StoragePointerWriteAccess
     };
     use satoru::order::order_utils::IOrderUtilsDispatcherTrait;
 

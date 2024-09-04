@@ -18,7 +18,7 @@ use satoru::test_utils::tests_lib;
 use satoru::utils::span32::{Span32, Array32Trait};
 use satoru::market::market::{Market};
 use satoru::market::market_pool_value_info::{MarketPoolValueInfo};
-use snforge_std::{declare, start_cheat_caller_address, stop_cheat_caller_address, ContractClass, ContractClassTrait};
+use snforge_std::{declare, start_cheat_caller_address, stop_cheat_caller_address, ContractClass, ContractClassTrait, DeclareResultTrait};
 use poseidon::poseidon_hash_span;
 use satoru::deposit::deposit::{Deposit};
 use satoru::withdrawal::withdrawal::{Withdrawal};

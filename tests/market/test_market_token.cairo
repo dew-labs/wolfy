@@ -1,7 +1,7 @@
 use result::ResultTrait;
 use traits::{TryInto, Into};
 use starknet::{ContractAddress, get_caller_address, Felt252TryIntoContractAddress, contract_address_const};
-use snforge_std::{declare, start_cheat_caller_address, stop_cheat_caller_address, ContractClass, ContractClassTrait};
+use snforge_std::{declare, start_cheat_caller_address, stop_cheat_caller_address, ContractClass, ContractClassTrait, DeclareResultTrait};
 
 
 use satoru::market::market_token::{IMarketTokenDispatcher, IMarketTokenDispatcherTrait};
@@ -99,7 +99,7 @@ fn teardown(market_token_address: ContractAddress) {
 fn deploy_only_market_token(
     contract: ContractClass, role_store_address: ContractAddress, data_store_address: ContractAddress
 ) -> ContractAddress {
-    let mut constructor_calldata = array![role_store_address.into(), data_store_address.into()];
+    let mut constructor_calldata: Array<felt252> = array![role_store_address.into(), data_store_address.into()];
 
     let (contract_address, _) = contract.deploy(@constructor_calldata).unwrap();
     contract_address

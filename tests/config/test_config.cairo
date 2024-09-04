@@ -7,7 +7,7 @@
 use result::ResultTrait;
 use traits::{TryInto, Into};
 use starknet::{ContractAddress, get_caller_address, contract_address_const, ClassHash,};
-use snforge_std::{declare, start_cheat_caller_address, stop_cheat_caller_address, ContractClassTrait};
+use snforge_std::{declare, start_cheat_caller_address, stop_cheat_caller_address, ContractClassTrait, DeclareResultTrait};
 
 // Local imports.
 use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
@@ -211,11 +211,11 @@ fn setup() -> (
 fn deploy_config(
     data_store_address: ContractAddress, role_store_address: ContractAddress, event_emitter_address: ContractAddress,
 ) -> ContractAddress {
-    let contract = declare("Config").unwrap();
+    let contract = declare("Config").unwrap().contract_class();
     let caller_address = tests_lib::get_c4ller_address();
     let config_address = contract_address_const::<'config'>();
     start_cheat_caller_address(config_address, caller_address);
-    let mut constructor_calldata = array![];
+    let mut constructor_calldata: Array<felt252> = array![];
     constructor_calldata.append(role_store_address.into());
     constructor_calldata.append(data_store_address.into());
     constructor_calldata.append(event_emitter_address.into());

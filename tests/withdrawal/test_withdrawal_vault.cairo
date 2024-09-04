@@ -7,7 +7,7 @@
 use integer::{u256_from_felt252};
 use result::ResultTrait;
 use starknet::{ContractAddress, get_caller_address, Felt252TryIntoContractAddress, contract_address_const, ClassHash,};
-use snforge_std::{declare, start_cheat_caller_address, stop_cheat_caller_address, start_mock_call, ContractClassTrait};
+use snforge_std::{declare, start_cheat_caller_address, stop_cheat_caller_address, start_mock_call, ContractClassTrait, DeclareResultTrait};
 use traits::{TryInto, Into};
 
 // Local imports.

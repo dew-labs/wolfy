@@ -12,14 +12,14 @@ use satoru::test_utils::tests_lib;
 use satoru::utils::span32::{Span32, Array32Trait};
 use satoru::referral::referral_utils;
 
-use snforge_std::{declare, start_cheat_caller_address, ContractClassTrait};
+use snforge_std::{declare, start_cheat_caller_address, ContractClassTrait, DeclareResultTrait};
 
 fn deploy_governable(event_emitter_address: ContractAddress) -> ContractAddress {
-    let contract = declare("Governable").unwrap();
+    let contract = declare("Governable").unwrap().contract_class();
     let caller_address: ContractAddress = tests_lib::get_c4ller_address();
     let deployed_contract_address = contract_address_const::<'governable'>();
     start_cheat_caller_address(deployed_contract_address, caller_address);
-    let constructor_calldata = array![event_emitter_address.into()];
+    let constructor_calldata: Array<felt252> = array![event_emitter_address.into()];
     let (contract_address, _) = contract.deploy_at(@constructor_calldata, deployed_contract_address).unwrap();
     contract_address
 }

@@ -2,7 +2,7 @@ use result::ResultTrait;
 use traits::TryInto;
 use starknet::{ContractAddress, contract_address_const};
 use starknet::Felt252TryIntoContractAddress;
-use snforge_std::{declare, start_cheat_caller_address, ContractClassTrait};
+use snforge_std::{declare, start_cheat_caller_address, ContractClassTrait, DeclareResultTrait};
 use satoru::test_utils::tests_lib;
 
 use satoru::role::role::ROLE_ADMIN;

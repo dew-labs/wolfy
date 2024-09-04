@@ -7,7 +7,7 @@ use satoru::deposit::deposit::Deposit;
 use satoru::test_utils::tests_lib;
 use satoru::utils::span32::{Span32, Array32Trait};
 
-use snforge_std::{declare, start_cheat_caller_address, ContractClassTrait};
+use snforge_std::{declare, start_cheat_caller_address, ContractClassTrait, DeclareResultTrait};
 
 /// Utility function to setup the test environment.
 ///

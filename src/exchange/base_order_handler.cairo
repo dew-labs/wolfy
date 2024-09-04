@@ -84,29 +84,29 @@ mod BaseOrderHandler {
     //                              STORAGE
     // *************************************************************************
     #[storage]
-    struct Storage {
+    pub struct Storage {
         /// Interface to interact with the `DataStore` contract.
-        data_store: IDataStoreDispatcher,
+        pub data_store: IDataStoreDispatcher,
         /// Interface to interact with the `RoleStore` contract.
-        role_store: IRoleStoreDispatcher,
+        pub role_store: IRoleStoreDispatcher,
         /// Interface to interact with the `EventEmitter` contract.
-        event_emitter: IEventEmitterDispatcher,
+        pub event_emitter: IEventEmitterDispatcher,
         /// Interface to interact with the `OrderVault` contract.
-        order_vault: IOrderVaultDispatcher,
+        pub order_vault: IOrderVaultDispatcher,
         /// Interface to interact with the `SwapHandler` contract.
-        swap_handler: ISwapHandlerDispatcher,
+        pub swap_handler: ISwapHandlerDispatcher,
         /// Interface to interact with the `Oracle` contract.
-        oracle: IOracleDispatcher,
+        pub oracle: IOracleDispatcher,
         /// Interface to interact with the `ReferralStorage` contract.
-        referral_storage: IReferralStorageDispatcher,
+        pub referral_storage: IReferralStorageDispatcher,
         /// Interface to interact with the `OrderUtils` lib.
-        order_utils_lib: IOrderUtilsLibraryDispatcher,
+        pub order_utils_lib: IOrderUtilsLibraryDispatcher,
         /// Interface to interact with the `IncreaseOrderUtils` lib.
-        increase_order_utils_lib: IIncreaseOrderUtilsLibraryDispatcher,
+        pub increase_order_utils_lib: IIncreaseOrderUtilsLibraryDispatcher,
         /// Interface to interact with the `DecreaseOrderUtils` lib.
-        decrease_order_utils_lib: IDecreaseOrderUtilsLibraryDispatcher,
+        pub decrease_order_utils_lib: IDecreaseOrderUtilsLibraryDispatcher,
         /// Interface to interact with the `SwapOrderUtils` lib.
-        swap_order_utils_lib: ISwapOrderUtilsLibraryDispatcher
+        pub swap_order_utils_lib: ISwapOrderUtilsLibraryDispatcher
     }
 
     // *************************************************************************

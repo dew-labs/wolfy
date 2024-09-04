@@ -68,8 +68,6 @@ mod AdlHandler {
     use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
     use satoru::exchange::base_order_handler::{IBaseOrderHandler, BaseOrderHandler};
     use satoru::exchange::base_order_handler::BaseOrderHandler::{
-        data_storeContractMemberStateTrait, event_emitterContractMemberStateTrait,
-        order_utils_libContractMemberStateTrait, oracleContractMemberStateTrait,
         InternalTrait as BaseOrderHandleInternalTrait,
     };
     use satoru::feature::feature_utils;

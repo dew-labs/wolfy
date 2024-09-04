@@ -9,7 +9,7 @@ use traits::{TryInto, Into};
 use starknet::{ContractAddress, get_caller_address, Felt252TryIntoContractAddress, contract_address_const, ClassHash,};
 use snforge_std::{
     declare, start_cheat_caller_address, stop_cheat_caller_address, start_cheat_block_timestamp_global,
-    stop_cheat_block_timestamp_global, ContractClassTrait, ContractClass
+    stop_cheat_block_timestamp_global, ContractClassTrait, DeclareResultTrait, ContractClass
 };
 
 

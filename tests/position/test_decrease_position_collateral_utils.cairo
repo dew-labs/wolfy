@@ -1,7 +1,7 @@
 // Core lib imports.
 use array::ArrayTrait;
 use core::traits::{Into, TryInto};
-use snforge_std::{declare, ContractClassTrait, start_cheat_caller_address};
+use snforge_std::{declare, ContractClassTrait, DeclareResultTrait, start_cheat_caller_address};
 use starknet::{ContractAddress, contract_address_const};
 
 // Local imports.
@@ -67,8 +67,8 @@ fn setup() -> (
 }
 
 fn deploy_token() -> ContractAddress {
-    let contract = declare("ERC20").unwrap();
-    let constructor_calldata = array!['Test', 'TST', 18, 1000000, 0, 0x101];
+    let contract = declare("ERC20").unwrap().contract_class();
+    let constructor_calldata: Array<felt252> = array!['Test', 'TST', 18, 1000000, 0, 0x101];
     let (contract_address, _) = contract.deploy(@constructor_calldata).unwrap();
     contract_address
 }
