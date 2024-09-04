@@ -18,9 +18,9 @@
     "WithdrawalVault": "0x300bf6441ccf1309961c93d8af91ea2e7b7c227a3a65704bc1c9f9658c3886f",
     "Oracle": "0x2bbcc96b3413904c9645019091a1d0d49b4153f66068ec2c32ce97ee8093975",
     "OrderHandler": "0x2d4269f660b8d7379d36216ade82454fd04cb517840a4adeaae8a64f9a89cc2",
-    "WithdrawalHandler": "0x3568ec9ce2d2fa19fee04397d47730a1ac169f7e244243089fa956807ac0e5f",
+    "WithdrawalHandler": "0x2c1f328a971c999eeb321e7a9ed9ecd908caffe0e7928a273405bfb89f26009",
     "DepositHandler": "0x21b42f9a7c82f3282348e623b3cf0a0d8ca5249c5f7209ada4b319147938b00",
     "LiquidationHandler": "0xa007c2c9fe092fcfba37875862f93bd18ca197eaf9f52659c73d898d50b43f",
     "AdlHandler": "0x25c88645e100078c99ad903aabab3d2d17ee0b955c9ccbcea343212a1d7bf5e",
-    "ExchangeRouter": "0x5dd9328718a26da94e057d7d184656022aac7d70c4b4aad70d0b49b4e4a2c6f"
+    "ExchangeRouter": "0x361622cf9c4a17fc85739539a979f5fe5355e9e6f2e9c11b47b137ead9648de"
 }

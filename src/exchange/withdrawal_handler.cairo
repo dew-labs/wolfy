@@ -205,20 +205,23 @@ mod WithdrawalHandler {
                 signatures: oracle_params.signatures.clone(),
                 price_feed_tokens: oracle_params.price_feed_tokens.clone(),
             };
-            // withOraclePrices
-            // oracle_modules::with_oracle_prices_before(
-            //     self.oracle.read(),
-            //     self.data_store.read(),
-            //     self.event_emitter.read(),
-            //     @oracle_params
-            // );
+
+            // withOraclePrices, only for mock
+            // TODO: comment
+            oracle_modules::with_oracle_prices_before(
+                self.oracle.read(),
+                self.data_store.read(),
+                self.event_emitter.read(),
+                @oracle_params
+            );
 
             let starting_gas = starknet_utils::sn_gasleft(array![100]);
             let _execution_gas = gas_utils::get_execution_gas(data_store, starting_gas);
 
             self.execute_withdrawal_keeper(key, oracle_params_copy, get_caller_address());
 
-            // oracle_modules::with_oracle_prices_after(self.oracle.read());
+            // TODO: comment
+            oracle_modules::with_oracle_prices_after(self.oracle.read());
 
             global_reentrancy_guard::non_reentrant_after(data_store); // Finalizes re-entrancy
         }

@@ -17,6 +17,9 @@ importers:
       jiti:
         specifier: ^1.21.6
         version: 1.21.6
+      satoru-sdk:
+        specifier: ^1.0.4
+        version: 1.0.4(abi-wan-kanabi@2.2.2)(typescript@5.5.3)
       starknet:
         specifier: ^6.12.1
         version: 6.12.1
@@ -293,6 +296,9 @@ packages:
   jsonfile@6.1.0:
     resolution: {integrity: sha512-5dgndWOriYSm5cnYaJNhalLNDKOqFwyDB/rr1E9ZsGciGvKPs8R2xYGCacuf3z6K1YKDz182fd+fY3cn3pMqXQ==}
 
+  just-random@3.2.0:
+    resolution: {integrity: sha512-RMf8vbtCfLIbAEHvIPu2FwMkpB/JudGyk/VPfqPItcRgt7k8QnV+Aa7s7kRFPo+bavQkUi8Yg1x/ooW6Ttyb9A==}
+
   kuler@2.0.0:
     resolution: {integrity: sha512-Xq9nH7KlWZmXAtodXDDRE7vs6DU1gTU8zYDHDiWLSip45Egwq3plLHzPn27NgvzL2r1LMPC1vdqh98sQxtqj4A==}
 
@@ -411,6 +417,12 @@ packages:
     resolution: {integrity: sha512-e2bDA2WJT0wxseVd4lsDP4+3ONX6HpMXQa1ZhFQ7SU+GjvORCmShbCMltrtIDfkYhVHrOcPtj+KhmDBdPdZD1g==}
     engines: {node: '>=10'}
 
+  satoru-sdk@1.0.4:
+    resolution: {integrity: sha512-klVs2duFg+1aqt8QjbPqNqpW6qRZDJrEBIw8eJsyzfU3M2oN9WEhlbCcR1kxZPXZ0za9Jo7Qcws72Wpa3ZPuLA==}
+    peerDependencies:
+      abi-wan-kanabi: ^2.2.2
+      typescript: ^5.5.4
+
   semver@7.6.3:
     resolution: {integrity: sha512-oVekP1cKtI+CTDvHWYFUcMtsK/00wmAEfyqKfNdARm8u1wNVhSgaX7A8d4UuIlUI5e84iEwOhs7ZPYRmzU9U6A==}
     engines: {node: '>=10'}
@@ -438,6 +450,12 @@ packages:
 
   starknet@6.12.1:
     resolution: {integrity: sha512-LLjabmmkRsBOgg0UaJtkSBBEpqeM49vULWqk06xbdm2kefcTqPLeHN4uYcZ5EqMwoqibv8rGf3a2w6IwXexeSg==}
+
+  starknet_multicall@1.0.0:
+    resolution: {integrity: sha512-NyUVexIMwOJZuz4lrqeXTgbtOCG6Lt6tpaxoGjWwoNY4v3cUSvXYjoorZjrt4dULJfngKCDviZg7fbSf23ouWg==}
+    peerDependencies:
+      abi-wan-kanabi: ^2.2.3
+      typescript: ^5.5.4
 
   string-width@4.2.3:
     resolution: {integrity: sha512-wKyQRQpjJ0sIp62ErSZdGsjMJWsap5oRNihHhu6G7JVO/9jIB6UyevL+tXuOqrng8j/cxKTWyWUwvSTriiZz/g==}
@@ -810,6 +828,8 @@ snapshots:
     optionalDependencies:
       graceful-fs: 4.2.11
 
+  just-random@3.2.0: {}
+
   kuler@2.0.0: {}
 
   locate-path@3.0.0:
@@ -902,6 +922,16 @@ snapshots:
 
   safe-stable-stringify@2.4.3: {}
 
+  satoru-sdk@1.0.4(abi-wan-kanabi@2.2.2)(typescript@5.5.3):
+    dependencies:
+      abi-wan-kanabi: 2.2.2
+      just-random: 3.2.0
+      starknet: 6.12.1
+      starknet_multicall: 1.0.0(abi-wan-kanabi@2.2.2)(typescript@5.5.3)
+      typescript: 5.5.3
+    transitivePeerDependencies:
+      - encoding
+
   semver@7.6.3: {}
 
   set-cookie-parser@2.6.0: {}
@@ -934,6 +964,14 @@ snapshots:
       starknet-types-07: '@starknet-io/types-js@0.7.7'
       ts-mixer: 6.0.4
       url-join: 4.0.1
+    transitivePeerDependencies:
+      - encoding
+
+  starknet_multicall@1.0.0(abi-wan-kanabi@2.2.2)(typescript@5.5.3):
+    dependencies:
+      abi-wan-kanabi: 2.2.2
+      starknet: 6.12.1
+      typescript: 5.5.3
     transitivePeerDependencies:
       - encoding
 
