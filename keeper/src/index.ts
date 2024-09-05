@@ -17,9 +17,14 @@ async function index() {
     const tokens: Token[] = json.parse(fs.readFileSync(`./tokens.${net}.json`).toString("ascii"));
 
     const priceOracleService = new PythPriceOracleService(hermesUrl, tokens);
-    priceOracleService.getPriceFromOracleStream();
+
+    // Stream Prices from Oracle
     new PriceKeeper(priceOracleService, account);
-    new OrderKeeper(priceOracleService, account, chainId);
+    priceOracleService.getPriceFromOracleStream();
+
+    // Execute new Orders
+    const orderKeeper = new OrderKeeper(priceOracleService, account, chainId);
+    orderKeeper.subcribeOrderCreatedEvent();
 }
 
 // Start the main process

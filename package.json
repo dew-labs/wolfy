@@ -38,7 +38,7 @@
         "jiti": "^1.21.6",
         "satoru-sdk": "^1.0.4",
         "picocolors": "^1.0.1",
-        "satoru-sdk": "^1.0.2",
+        "satoru-sdk": "^1.0.6",
         "starknet": "^6.12.1",
         "typescript": "^5.5.3"
     },

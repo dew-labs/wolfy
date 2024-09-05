@@ -4,13 +4,18 @@ import { HermesClient } from "@pythnetwork/hermes-client";
 import { logger } from "../../../shared/utils/logger";
 import EventEmitter from "events";
 import { json } from "starknet";
+import { expandDecimals } from "../../../shared/utils/utils";
+import { USD_DECIMALS } from "../../../shared/utils/config";
 
 export class PythPriceOracleService extends EventEmitter {
-    private readonly hermesClient;
+    private readonly hermesClient: HermesClient;
+    public readonly oraclePrices: Record<string, bigint>;
 
     constructor(private readonly hermesUrl: string, private readonly tokens: Token[]) {
         super();
         this.hermesClient = new HermesClient(this.hermesUrl, {});
+        this.oraclePrices = {};
+        tokens.forEach((token) => (this.oraclePrices[token.address] = 0n));
     }
 
     async getPriceFromOracleStream(): Promise<void> {
@@ -36,10 +41,17 @@ export class PythPriceOracleService extends EventEmitter {
         };
     }
 
-    async getPriceFromOracle(indexTokenAddress: string): Promise<any> {
-        const pythPriceId = this.getPythPriceIdByTokenAddress(indexTokenAddress);
+    private handlePriceUpdate(pythPriceFeed: PythPriceFeed): void {
+        const pythPriceId: string = "0x" + pythPriceFeed.id;
+        const indexTokenAddress: string = this.getTokenAddressByPythPriceId(pythPriceId);
 
-        return this.hermesClient.getLatestPriceUpdates([pythPriceId]);
+        const oraclePrice =
+            expandDecimals(
+                pythPriceFeed.price.price,
+                USD_DECIMALS - Math.abs(pythPriceFeed.price.expo)
+            ) / expandDecimals(1, Math.abs(pythPriceFeed.price.expo));
+        this.oraclePrices[indexTokenAddress] = oraclePrice;
+        this.emit("oraclePricesUpdate", { indexTokenAddress, oraclePrice });
     }
 
     private getPythPriceIdByTokenAddress(tokenAddress: string): string {
@@ -54,13 +66,5 @@ export class PythPriceOracleService extends EventEmitter {
         if (!token) throw new Error("Not found token address with PythPriceId");
 
         return token.address;
-    }
-
-    private handlePriceUpdate(pythPriceFeed: PythPriceFeed): void {
-        const pythPriceId: string = "0x" + pythPriceFeed.id;
-        const indexTokenAddress: string = this.getTokenAddressByPythPriceId(pythPriceId);
-        const oraclePrice: string = pythPriceFeed.price.price;
-        const exponent: number = pythPriceFeed.price.expo;
-        this.emit("oraclePricesUpdate", { indexTokenAddress, oraclePrice, exponent });
     }
 }
