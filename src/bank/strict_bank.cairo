@@ -69,9 +69,9 @@ mod StrictBank {
         token_balances: LegacyMap::<ContractAddress, u256>,
         bank: IBankLibraryDispatcher,
         // Bank storage
-        data_store: IDataStoreDispatcher,
+        // data_store: IDataStoreDispatcher,
         role_module: IRoleModuleLibraryDispatcher,
-        role_store: IRoleStoreDispatcher,
+        // role_store: IRoleStoreDispatcher,
     }
 
     // *************************************************************************

@@ -48,7 +48,7 @@ mod MarketToken {
         bank: IBankLibraryDispatcher,
         // Bank storage
         role_module: IRoleModuleLibraryDispatcher,
-        role_store: IRoleStoreDispatcher,
+        // role_store: IRoleStoreDispatcher,
     }
 
     #[event]

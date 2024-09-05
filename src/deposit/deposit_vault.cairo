@@ -70,11 +70,11 @@ mod DepositVault {
     struct Storage {
         strict_bank: IStrictBankLibraryDispatcher,
         // StrictBank storage
-        token_balances: LegacyMap::<ContractAddress, u256>,
-        bank: IBankLibraryDispatcher,
-        data_store: IDataStoreDispatcher,
-        role_module: IRoleModuleLibraryDispatcher,
-        role_store: IRoleStoreDispatcher,
+        // token_balances: LegacyMap::<ContractAddress, u256>,
+        // bank: IBankLibraryDispatcher,
+        // data_store: IDataStoreDispatcher,
+        // role_module: IRoleModuleLibraryDispatcher,
+        // role_store: IRoleStoreDispatcher,
     }
 
     // *************************************************************************

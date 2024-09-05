@@ -61,7 +61,7 @@ mod Bank {
         data_store: IDataStoreDispatcher,
         role_module: IRoleModuleLibraryDispatcher,
         // RoleModule storage
-        role_store: IRoleStoreDispatcher,
+        // role_store: IRoleStoreDispatcher,
     }
 
     // *************************************************************************
