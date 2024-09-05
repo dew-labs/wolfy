@@ -17,11 +17,9 @@ import { getDataStoreContract } from "../../../shared/utils/helpers";
 import type { Account, TypedContractV2 } from "starknet";
 import type { Order } from "../../../shared/interfaces/Order";
 import type { PythPriceOracleService } from "../services/PythPriceOracleService";
-import type { PythPriceFeed } from "../../../shared/interfaces/PythPriceFeed";
 import { OrderPersistenceService } from "../services/OrderPersistenceService";
-import { expandDecimals, executeOrder } from "../../../shared/utils/utils";
+import { executeOrder } from "../../../shared/utils/utils";
 import { logger } from "../../../shared/utils/logger";
-import { USD_DECIMALS } from "../../../shared/utils/config";
 
 export class OrderKeeper {
     private readonly dataStoreContract: TypedContractV2<
@@ -33,7 +31,7 @@ export class OrderKeeper {
     constructor(
         private priceOracleService: PythPriceOracleService,
         private account: Account,
-        private chainId: StarknetChainId
+        chainId: StarknetChainId
     ) {
         this.dataStoreContract = getDataStoreContract(chainId, account);
         this.wssProvider = getProvider(ProviderType.WSS, chainId);
@@ -48,7 +46,6 @@ export class OrderKeeper {
     }
 
     async handleOrderCreated(event: any) {
-        console.log("🚀 ~ OrderKeeper ~ handleOrderCreated ~ event:", event);
         const {
             key,
             order_type,
@@ -83,18 +80,12 @@ export class OrderKeeper {
             // Market Order
 
             // Get oracle price
-            const pythPriceFeed: PythPriceFeed = await this.priceOracleService.getPriceFromOracle(
-                indexTokenAddress
-            );
+            const executionPrice: bigint | undefined =
+                this.priceOracleService.oraclePrices[indexTokenAddress];
 
-            const oraclePrice: string = pythPriceFeed.price.price;
-            const exponent: number = pythPriceFeed.price.expo;
-            const oraclePriceDecimal = Math.abs(exponent);
-
-            const executionPrice: bigint =
-                expandDecimals(oraclePrice, USD_DECIMALS - oraclePriceDecimal) /
-                expandDecimals(1, oraclePriceDecimal);
-            console.log("🚀 ~ OrderKeeper ~ handleOrderCreated ~ executionPrice:", executionPrice);
+            if (!executionPrice) {
+                throw new Error(`Cannot find ${indexTokenAddress} token`);
+            }
 
             // Execute Market Order
             await executeOrder(this.account, order, executionPrice);
@@ -104,7 +95,7 @@ export class OrderKeeper {
             // Limit Order
 
             // Store to json
-            this.orderPersistenceService.saveOrder(order, orderKey);
+            this.orderPersistenceService.saveOrder(order, indexTokenAddress);
             logger.success("New Limit Order Created 📝");
             logger.success(`== with Order Key: ${orderKey}`);
         }

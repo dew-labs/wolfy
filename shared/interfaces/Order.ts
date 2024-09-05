@@ -8,7 +8,3 @@ export interface Order {
     trigger_price?: bigint;
     acceptable_price: bigint;
 }
-
-export interface OrdersMap {
-    [key: string]: Order;
-}

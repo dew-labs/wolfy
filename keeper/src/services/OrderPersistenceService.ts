@@ -1,6 +1,6 @@
 import * as path from "path";
 import fs from "node:fs";
-import type { Order, OrdersMap } from "../../../shared/interfaces/Order";
+import type { Order } from "../../../shared/interfaces/Order";
 import { json } from "starknet";
 
 export class OrderPersistenceService {
@@ -10,8 +10,11 @@ export class OrderPersistenceService {
         this.filePath = path.resolve(__dirname, "../../data/orders.json");
     }
 
-    async loadOrders(): Promise<OrdersMap> {
-        return json.parse(fs.readFileSync(this.filePath).toString("ascii")) as OrdersMap;
+    async loadOrders(): Promise<Record<string, Order[]>> {
+        return json.parse(fs.readFileSync(this.filePath).toString("ascii")) as Record<
+            string,
+            Order[]
+        >;
     }
 
     saveOrder(order: Order, indexTokenAddress: string): void {
@@ -22,15 +25,14 @@ export class OrderPersistenceService {
             }
 
             try {
-                const ordersData = json.parse(data);
+                const ordersData = json.parse(data) as Record<string, Order[]>;
 
                 if (!ordersData.hasOwnProperty(indexTokenAddress)) {
-                    ordersData[indexTokenAddress] = {};
+                    ordersData[indexTokenAddress] = [];
+                    ordersData[indexTokenAddress].push(order);
                 }
 
-                ordersData[indexTokenAddress][order.key] = order;
-
-                fs.writeFile(this.filePath, json.stringify(ordersData), "utf8", (err) => {
+                fs.writeFile(this.filePath, json.stringify(ordersData, null, 2), "utf8", (err) => {
                     if (err) {
                         console.error(`Error writing file to disk: ${err}`);
                     }
@@ -49,11 +51,16 @@ export class OrderPersistenceService {
             }
 
             try {
-                const orderData = json.parse(data);
+                const orderData = json.parse(data) as Record<string, Order[]>;
+                const orders: Order[] | undefined = orderData[indexTokenAddress];
 
-                delete orderData[indexTokenAddress][orderKey];
+                if (!orders) {
+                    throw new Error(`Cannot find the Order with index token ${indexTokenAddress}`);
+                }
+                const newOrders = orders.filter((order) => order.key !== orderKey);
+                orderData[indexTokenAddress] = newOrders;
 
-                fs.writeFile(this.filePath, json.stringify(orderData), "utf8", (err) => {
+                fs.writeFile(this.filePath, json.stringify(orderData, null, 2), "utf8", (err) => {
                     if (err) {
                         console.error(`Error writing file to disk: ${err}`);
                     }

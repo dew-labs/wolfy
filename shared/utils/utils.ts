@@ -22,6 +22,7 @@ import {
     executeAndWait,
     getProvider,
     OrderHandlerABI,
+    OrderType,
     ProviderType,
     SatoruContract,
     StarknetChainId,
@@ -355,8 +356,14 @@ export async function executeOrder(
         logger.success("Execute Successfully 🚀");
         logger.success(`== with Transaction Hash: ${executeOrderReceipt.transaction_hash}`);
 
-        const orderPersistenceService = new OrderPersistenceService();
-        orderPersistenceService.deleteOrder(order.key, indexTokenAddress);
+        if (
+            [OrderType.LimitIncrease, OrderType.LimitIncrease, OrderType.LimitSwap].includes(
+                order.order_type
+            )
+        ) {
+            const orderPersistenceService = new OrderPersistenceService();
+            orderPersistenceService.deleteOrder(order.key, indexTokenAddress);
+        }
     } else {
         // TODO: retry here
     }
