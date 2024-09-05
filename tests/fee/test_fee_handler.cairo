@@ -62,6 +62,8 @@ fn setup() -> (ContractAddress, IDataStoreDispatcher, IEventEmitterDispatcher, I
         _decrease_order_class,
         _swap_order_class,
         _order_utils_class,
+        _role_module_class,
+        _bank_class,
         _market_factory,
         role_store,
         data_store,
