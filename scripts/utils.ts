@@ -200,6 +200,7 @@ export interface Contracts {
     Oracle: string | undefined;
     OrderVault: string | undefined;
     SwapHandler: string | undefined;
+    FeeHandler: string | undefined;
     ReferralStorage: string | undefined;
     IncreaseOrderUtils: string | undefined;
     DecreaseOrderUtils: string | undefined;

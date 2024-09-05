@@ -134,6 +134,14 @@ async function deploy() {
 
     // -------------------------------------------------------------------------
 
+    const feeHandler = await ensureDeployed(account, contracts.FeeHandler, "FeeHandler", {
+        data_store_address: dataStore.address,
+        role_store_address: roleStore.address,
+        event_emitter_address: eventEmitter.address,
+    });
+
+    // -------------------------------------------------------------------------
+
     const marketFactory = await ensureDeployed(account, contracts.MarketFactory, "MarketFactory", {
         data_store_address: dataStore.address,
         role_store_address: roleStore.address,
@@ -294,6 +302,7 @@ async function deploy() {
         OracleStore: oracleStore.address, // depends on roleStore and EventEmitter
         SwapHandler: swapHandler.address, // depends on roleStore
         //-------------------------------------------------
+        FeeHandler: feeHandler.address, // depends on dataStore, eventEmitter
         MarketFactory: marketFactory.address, // depends on dataStore, eventEmitter
         OrderVault: orderVault.address, // depends on dataStore
         DepositVault: depositVault.address, // depends on dataStore
@@ -333,6 +342,7 @@ async function grantRoles() {
     const adlHandlerAddress = contracts.AdlHandler;
     const orderHandlerAddress = contracts.OrderHandler;
     const swapHandlerAddress = contracts.SwapHandler;
+    const feeHandlerAddress = contracts.FeeHandler;
     const exchangeRouterAddress = contracts.ExchangeRouter;
     const marketFactoryAddress = contracts.MarketFactory;
 
@@ -348,7 +358,8 @@ async function grantRoles() {
         !orderHandlerAddress ||
         !swapHandlerAddress ||
         !exchangeRouterAddress ||
-        !marketFactoryAddress
+        !marketFactoryAddress ||
+        !feeHandlerAddress
     ) {
         throw new Error("Missing required contract addresses.");
     }
@@ -366,6 +377,7 @@ async function grantRoles() {
             SatoruRole.ORDER_KEEPER,
             SatoruRole.MARKET_KEEPER,
             SatoruRole.FROZEN_ORDER_KEEPER,
+            SatoruRole.FEE_KEEPER,
             // router plugin role is sus?
             SatoruRole.ROUTER_PLUGIN,
         ],

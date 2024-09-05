@@ -33,7 +33,7 @@ mod callback {
 mod config {
     mod config;
     mod error;
-    mod timelock;
+    mod timelock; // not implemented
 }
 
 // `event` is a module event management functions.
