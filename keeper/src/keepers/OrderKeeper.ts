@@ -25,27 +25,31 @@ export class OrderKeeper {
     private readonly dataStoreContract: TypedContractV2<
         SatoruContractAbi<SatoruContract.DataStore>
     >;
-    private readonly wssProvider: SatoruWebSocketProvider;
+    private wssProvider?: SatoruWebSocketProvider;
     private readonly orderPersistenceService: OrderPersistenceService;
 
     constructor(
         private priceOracleService: PythPriceOracleService,
         private account: Account,
-        chainId: StarknetChainId
+        private chainId: StarknetChainId
     ) {
         this.dataStoreContract = getDataStoreContract(chainId, account);
-        this.wssProvider = getProvider(ProviderType.WSS, chainId);
         this.orderPersistenceService = new OrderPersistenceService();
+        this.start();
     }
 
-    async subcribeOrderCreatedEvent() {
-        const eventHandler: SatoruEventHandler<SatoruEvent.OrderCreated> = async (event) =>
-            this.handleOrderCreated(event);
-
-        await this.wssProvider.subscribeToEvent(SatoruEvent.OrderCreated, eventHandler);
+    async start() {
+        this.wssProvider = getProvider(ProviderType.WSS, this.chainId);
+        await this.wssProvider.subscribeToEvent(SatoruEvent.OrderCreated, this.handleOrderCreated);
+        this.wssProvider.onClose(this.onCloseHandler);
     }
 
-    async handleOrderCreated(event: any) {
+    onCloseHandler() {
+        console.log("restart");
+        this.start();
+    }
+
+    handleOrderCreated: SatoruEventHandler<SatoruEvent.OrderCreated> = async (event: any) => {
         const {
             key,
             order_type,
@@ -89,15 +93,16 @@ export class OrderKeeper {
 
             // Execute Market Order
             await executeOrder(this.account, order, executionPrice);
-            logger.success("New Market Order Created 📝");
+            logger.success("New Market Order Executed 📝");
             logger.success(`== with Order Key: ${orderKey}`);
         } else {
             // Limit Order
 
             // Store to json
+            // TODO: execute right away if oracle price match
             this.orderPersistenceService.saveOrder(order, indexTokenAddress);
             logger.success("New Limit Order Created 📝");
             logger.success(`== with Order Key: ${orderKey}`);
         }
-    }
+    };
 }
