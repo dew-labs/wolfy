@@ -287,6 +287,8 @@ fn setup() -> (
         _decrease_order_class,
         _swap_order_class,
         _order_utils_class,
+        _role_module_class,
+        _bank_class,
         _,
         role_store,
         data_store,

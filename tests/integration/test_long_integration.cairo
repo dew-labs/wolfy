@@ -1858,6 +1858,10 @@ fn test_long_liquidation() {
     exec_order(order_handler, role_store, key_long, 3500, 1);
     'long position SUCCEEDED'.print();
 
+    let balance_ETH = IERC20Dispatcher { contract_address: contract_address_const::<'ETH'>() }
+        .balance_of(caller_address);
+    balance_ETH.print();
+
     let position_key = data_store.get_account_position_keys(caller_address, 0, 10);
     let position_key_1: felt252 = *position_key.at(0);
     let first_position = data_store.get_position(position_key_1);
@@ -1882,6 +1886,7 @@ fn test_long_liquidation() {
 
     let balance_ETH = IERC20Dispatcher { contract_address: contract_address_const::<'ETH'>() }
         .balance_of(caller_address);
+    balance_ETH.print();
 
     assert(balance_USDC == 50000000000000000000000, 'balance USDC 50 000$');
     assert(balance_ETH == 9000000000000000000, 'balance ETH 9');

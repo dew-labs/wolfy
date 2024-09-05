@@ -304,6 +304,8 @@ fn setup() -> (IOracleDispatcher, ContractAddress, Price) {
         _decrease_order_class,
         _swap_order_class,
         _order_utils_class,
+        _role_module_class,
+        _bank_class,
         _market_factory,
         _role_store,
         _data_store,
