@@ -1,6 +1,11 @@
-import { createAsker, decimalToFloat, expandDecimals, settingUp } from "shared/utils/utils";
+import {
+    createAsker,
+    decimalToFloat,
+    expandDecimals,
+    settingUp,
+} from "../../../shared/utils/utils";
 
-import * as dataStoreKeys from "shared/utils/dataStore";
+import * as dataStoreKeys from "../../../shared/utils/dataStore";
 import {
     createCall,
     createSatoruContract,

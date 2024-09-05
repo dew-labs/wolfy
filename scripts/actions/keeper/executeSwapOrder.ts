@@ -6,8 +6,8 @@ import {
     SatoruContract,
     toStarknetHexString,
 } from "satoru-sdk";
-import { createAsker, settingUp } from "shared/utils/utils";
-import { getDataStoreContract } from "shared/utils/helpers";
+import { createAsker, settingUp } from "../../../shared/utils/utils";
+import { getDataStoreContract } from "../../../shared/utils/helpers";
 
 async function executeSwapOrder() {
     // get order key from DataStore.get_account_order_keys
