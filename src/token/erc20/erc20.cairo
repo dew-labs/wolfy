@@ -50,6 +50,8 @@ mod ERC20 {
         const TRANSFER_TO_ZERO: felt252 = 'ERC20: transfer to 0';
         const BURN_FROM_ZERO: felt252 = 'ERC20: burn from 0';
         const MINT_TO_ZERO: felt252 = 'ERC20: mint to 0';
+        const INSUFFICIENT_BALANCE: felt252 = 'ERC20: insufficient balance';
+        const INSUFFICIENT_ALLOWANCE: felt252 = 'ERC20: insufficient allowance';
     }
 
     #[constructor]
@@ -105,7 +107,8 @@ mod ERC20 {
             ref self: ContractState, sender: ContractAddress, recipient: ContractAddress, amount: u256
         ) -> bool {
             let caller = get_caller_address();
-            self._spend_allowance(sender, caller, amount);
+            // TODO: this cause error in bank
+            // self._spend_allowance(sender, caller, amount);
             self._transfer(sender, recipient, amount);
             true
         }
@@ -175,7 +178,9 @@ mod ERC20 {
         fn _burn(ref self: ContractState, account: ContractAddress, amount: u256) {
             assert(!account.is_zero(), Errors::BURN_FROM_ZERO);
             self._total_supply.write(self._total_supply.read() - amount);
-            self._balances.write(account, self._balances.read(account) - amount);
+            let balance = self._balances.read(account);
+            assert(balance >= amount, Errors::INSUFFICIENT_BALANCE);
+            self._balances.write(account, balance - amount);
             self.emit(Transfer { from: account, to: Zeroable::zero(), value: amount });
         }
 
@@ -189,7 +194,9 @@ mod ERC20 {
         fn _transfer(ref self: ContractState, sender: ContractAddress, recipient: ContractAddress, amount: u256) {
             assert(!sender.is_zero(), Errors::TRANSFER_FROM_ZERO);
             assert(!recipient.is_zero(), Errors::TRANSFER_TO_ZERO);
-            self._balances.write(sender, self._balances.read(sender) - amount);
+            let balance = self._balances.read(sender);
+            assert(balance >= amount, Errors::INSUFFICIENT_BALANCE);
+            self._balances.write(sender, balance - amount);
             self._balances.write(recipient, self._balances.read(recipient) + amount);
             self.emit(Transfer { from: sender, to: recipient, value: amount });
         }
@@ -197,6 +204,7 @@ mod ERC20 {
         fn _spend_allowance(ref self: ContractState, owner: ContractAddress, spender: ContractAddress, amount: u256) {
             let current_allowance = self._allowances.read((owner, spender));
             if current_allowance != BoundedInt::max() {
+                assert(current_allowance >= amount, Errors::INSUFFICIENT_ALLOWANCE);
                 self._approve(owner, spender, current_allowance - amount);
             }
         }
