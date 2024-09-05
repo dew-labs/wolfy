@@ -346,6 +346,7 @@ export async function executeOrder(
         createSatoruContract(chainId, SatoruContract.OrderHandler, OrderHandlerABI, account);
 
     logger.info("Executing Order ... 💨");
+    logger.info(json.stringify(order));
 
     const executeOrderReceipt = await executeAndWait(
         account,

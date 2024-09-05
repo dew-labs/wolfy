@@ -35,10 +35,6 @@ export class PriceKeeper {
 
             // Execute Limit Order
             if (this.canExecuteLimitOrder(order, oraclePrice)) {
-                console.log(
-                    "🚀 ~ PriceKeeper ~ limitOrders[indexTokenAddress].forEach ~ oraclePrice:",
-                    oraclePrice
-                );
                 await executeOrder(this.account, order, oraclePrice);
                 this.executingOrders.delete(order.key);
             }

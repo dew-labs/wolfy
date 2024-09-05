@@ -23,8 +23,7 @@ async function index() {
     priceOracleService.getPriceFromOracleStream();
 
     // Execute new Orders
-    const orderKeeper = new OrderKeeper(priceOracleService, account, chainId);
-    orderKeeper.subcribeOrderCreatedEvent();
+    new OrderKeeper(priceOracleService, account, chainId);
 }
 
 // Start the main process
