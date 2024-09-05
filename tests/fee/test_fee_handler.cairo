@@ -88,6 +88,7 @@ fn setup() -> (ContractAddress, IDataStoreDispatcher, IEventEmitterDispatcher, I
         role_store.contract_address, data_store.contract_address, event_emitter.contract_address
     );
     let fee_handler = IFeeHandlerDispatcher { contract_address: fee_handler_address };
+    role_store.grant_role(caller_address, role::FEE_KEEPER);
 
     let account = tests_lib::deploy_mock_account();
     data_store.set_address(keys::fee_receiver(), account);

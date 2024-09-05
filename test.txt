@@ -1,4 +1,4 @@
-Tests: 498 passed, 35 failed, 0 skipped, 3 ignored, 0 filtered out
+Tests: 497 passed, 35 failed, 0 skipped, 3 ignored, 0 filtered out
 
 // (0x756e65787065637465645f626f72726f77696e675f666163746f72 ('unexpected_borrowing_factor'), 0x1, 0x0 (''))
 tests::position::test_decrease_position_collateral_utils::given_good_params_when_process_collateral_then_succeed
