@@ -112,6 +112,8 @@ fn setup() -> (
     ContractClass,
     ContractClass,
     ContractClass,
+    ContractClass,
+    ContractClass,
     IMarketFactoryDispatcher,
     IRoleStoreDispatcher,
     IDataStoreDispatcher,
@@ -139,6 +141,8 @@ fn setup() -> (
         decrease_order_class,
         swap_order_class,
         order_utils_class,
+        role_module_class,
+        bank_class,
         market_factory,
         role_store,
         data_store,
@@ -170,6 +174,8 @@ fn setup() -> (
         decrease_order_class,
         swap_order_class,
         order_utils_class,
+        role_module_class,
+        bank_class,
         market_factory,
         role_store,
         data_store,
@@ -235,6 +241,8 @@ fn setup_contracts() -> (
     ContractClass,
     ContractClass,
     ContractClass,
+    ContractClass,
+    ContractClass,
     IMarketFactoryDispatcher,
     IRoleStoreDispatcher,
     IDataStoreDispatcher,
@@ -260,6 +268,9 @@ fn setup_contracts() -> (
     // Declare the `MarketToken` contract.
     let market_token_class = declare_market_token();
 
+    // Declare the `RoleModule` contract
+    let role_module_class = declare_role_module();
+
     // Deploy reader
     let reader_address = deploy_reader();
     let reader = IReaderDispatcher { contract_address: reader_address };
@@ -272,24 +283,26 @@ fn setup_contracts() -> (
     let role_store_address = deploy_role_store();
     let role_store = IRoleStoreDispatcher { contract_address: role_store_address };
 
-    // Deploy the contract.
+    // Deploy the data store contract.
     let data_store_address = deploy_data_store(role_store_address);
     let data_store = IDataStoreDispatcher { contract_address: data_store_address };
 
-    // Deploy bank
-    let bank_address = deploy_bank(data_store_address, role_store_address);
+    // Deploy and initialize bank
+    let (bank_address, bank_class) = deploy_bank();
     let bank = IBankDispatcher { contract_address: bank_address };
+    bank.initialize(data_store_address, role_store_address, role_module_class.class_hash);
 
-    // Deploy strict bank
-    let strict_bank_address = deploy_strict_bank(data_store_address, role_store_address);
+    // Deploy and initialize strict bank
+    let (strict_bank_address, strict_bank_class) = deploy_strict_bank();
     let strict_bank = IStrictBankDispatcher { contract_address: strict_bank_address };
+    strict_bank.initialize(data_store_address, role_store_address, bank_class.class_hash, role_module_class.class_hash);
 
     // Deploy the router contract.
     let router_address = deploy_router(role_store_address);
 
     // Deploy the market factory.
     let market_factory_address = deploy_market_factory(
-        data_store_address, role_store_address, event_emitter_address, market_token_class.class_hash
+        data_store_address, role_store_address, event_emitter_address, market_token_class.class_hash, bank_class.class_hash, role_module_class.class_hash
     );
     let market_factory = IMarketFactoryDispatcher { contract_address: market_factory_address };
 
@@ -305,7 +318,7 @@ fn setup_contracts() -> (
     let oracle = IOracleDispatcher { contract_address: oracle_address };
 
     // Deploy the deposit vault
-    let deposit_vault_address = deploy_deposit_vault(role_store_address, data_store_address);
+    let deposit_vault_address = deploy_deposit_vault(role_store_address, data_store_address, strict_bank_class.class_hash, bank_class.class_hash, role_module_class.class_hash);
     let deposit_vault = IDepositVaultDispatcher { contract_address: deposit_vault_address };
 
     // Deploy the deposit handler
@@ -315,7 +328,7 @@ fn setup_contracts() -> (
     let deposit_handler = IDepositHandlerDispatcher { contract_address: deposit_handler_address };
 
     // Deploy the withdrawal vault
-    let withdrawal_vault_address = deploy_withdrawal_vault(data_store_address, role_store_address);
+    let withdrawal_vault_address = deploy_withdrawal_vault(data_store_address, role_store_address, strict_bank_class.class_hash, bank_class.class_hash, role_module_class.class_hash);
     let withdrawal_vault = IWithdrawalVaultDispatcher { contract_address: withdrawal_vault_address };
 
     // Deploy the withdrawal handler
@@ -325,7 +338,7 @@ fn setup_contracts() -> (
     let withdrawal_handler = IWithdrawalHandlerDispatcher { contract_address: withdrawal_handler_address };
 
     // Deply the order vault
-    let order_vault_address = deploy_order_vault(data_store.contract_address, role_store.contract_address);
+    let order_vault_address = deploy_order_vault(data_store.contract_address, role_store.contract_address, strict_bank_class.class_hash, bank_class.class_hash, role_module_class.class_hash);
     let order_vault = IOrderVaultDispatcher { contract_address: order_vault_address };
 
     // Deploy te swap handler
@@ -393,6 +406,8 @@ fn setup_contracts() -> (
         decrease_order_class,
         swap_order_class,
         order_utils_class,
+        role_module_class,
+        bank_class,
         market_factory,
         role_store,
         data_store,
@@ -419,11 +434,17 @@ fn declare_market_token() -> ContractClass {
     declare("MarketToken").unwrap()
 }
 
+fn declare_role_module() -> ContractClass {
+    declare("RoleModule").unwrap()
+}
+
 fn deploy_market_factory(
     data_store_address: ContractAddress,
     role_store_address: ContractAddress,
     event_emitter_address: ContractAddress,
     market_token_class_hash: ClassHash,
+    bank_class_hash: ClassHash,
+    role_module_class_hash: ClassHash
 ) -> ContractAddress {
     let contract = declare("MarketFactory").unwrap();
     let caller_address: ContractAddress = get_c4ller_address();
@@ -434,6 +455,8 @@ fn deploy_market_factory(
     constructor_calldata.append(role_store_address.into());
     constructor_calldata.append(event_emitter_address.into());
     constructor_calldata.append(market_token_class_hash.into());
+    constructor_calldata.append(bank_class_hash.into());
+    constructor_calldata.append(role_module_class_hash.into());
     let (contract_address, _) = contract.deploy_at(@constructor_calldata, deployed_contract_address).unwrap();
     contract_address
 }
@@ -531,13 +554,13 @@ fn deploy_oracle(
     contract_address
 }
 
-fn deploy_deposit_vault(role_store_address: ContractAddress, data_store_address: ContractAddress) -> ContractAddress {
+fn deploy_deposit_vault(role_store_address: ContractAddress, data_store_address: ContractAddress, strict_bank_class_hash: ClassHash, bank_class_hash: ClassHash, role_module_class_hash: ClassHash) -> ContractAddress {
     let contract = declare("DepositVault").unwrap();
     let caller_address: ContractAddress = get_c4ller_address();
     let deployed_contract_address = get_deposit_vault_address();
     start_cheat_caller_address(deployed_contract_address, caller_address);
     let (contract_address, _) = contract
-        .deploy_at(@array![data_store_address.into(), role_store_address.into()], deployed_contract_address)
+        .deploy_at(@array![data_store_address.into(), role_store_address.into(), strict_bank_class_hash.into(), bank_class_hash.into(), role_module_class_hash.into()], deployed_contract_address)
         .unwrap();
     contract_address
 }
@@ -565,13 +588,13 @@ fn deploy_withdrawal_handler(
 }
 
 fn deploy_withdrawal_vault(
-    data_store_address: ContractAddress, role_store_address: ContractAddress
+    data_store_address: ContractAddress, role_store_address: ContractAddress, strict_bank_class_hash: ClassHash, bank_class_hash: ClassHash, role_module_class_hash: ClassHash
 ) -> ContractAddress {
     let contract = declare("WithdrawalVault").unwrap();
     let caller_address: ContractAddress = get_c4ller_address();
     let deployed_contract_address = get_withdrawal_vault_address();
     start_cheat_caller_address(deployed_contract_address, caller_address);
-    let constructor_calldata = array![data_store_address.into(), role_store_address.into()];
+    let constructor_calldata = array![data_store_address.into(), role_store_address.into(), strict_bank_class_hash.into(), bank_class_hash.into(), role_module_class_hash.into()];
     let (contract_address, _) = contract.deploy_at(@constructor_calldata, deployed_contract_address).unwrap();
     contract_address
 }
@@ -690,7 +713,7 @@ fn deploy_exchange_router(
     contract_address
 }
 
-fn deploy_order_vault(data_store_address: ContractAddress, role_store_address: ContractAddress,) -> ContractAddress {
+fn deploy_order_vault(data_store_address: ContractAddress, role_store_address: ContractAddress, strict_bank_class_hash: ClassHash, bank_class_hash: ClassHash, role_module_class_hash: ClassHash) -> ContractAddress {
     let contract = declare("OrderVault").unwrap();
     let caller_address: ContractAddress = get_c4ller_address();
     let deployed_contract_address = get_order_vault_address();
@@ -698,6 +721,10 @@ fn deploy_order_vault(data_store_address: ContractAddress, role_store_address: C
     let mut constructor_calldata = array![];
     constructor_calldata.append(data_store_address.into());
     constructor_calldata.append(role_store_address.into());
+    constructor_calldata.append(strict_bank_class_hash.into());
+    constructor_calldata.append(bank_class_hash.into());
+    constructor_calldata.append(role_module_class_hash.into());
+
     let (contract_address, _) = contract.deploy_at(@constructor_calldata, deployed_contract_address).unwrap();
     contract_address
 }
@@ -705,40 +732,35 @@ fn deploy_order_vault(data_store_address: ContractAddress, role_store_address: C
 fn declare_increase_order_utils() -> ContractClass {
     declare("IncreaseOrderUtils").unwrap()
 }
+
 fn declare_decrease_order_utils() -> ContractClass {
     declare("DecreaseOrderUtils").unwrap()
 }
+
 fn declare_swap_order_utils() -> ContractClass {
     declare("SwapOrderUtils").unwrap()
 }
-
 
 fn declare_order_utils() -> ContractClass {
     declare("OrderUtils").unwrap()
 }
 
-fn deploy_bank(data_store_address: ContractAddress, role_store_address: ContractAddress,) -> ContractAddress {
+fn deploy_bank() -> (ContractAddress, ContractClass) {
     let caller_address: ContractAddress = get_c4ller_address();
     let bank_address: ContractAddress = get_bank_address();
     let contract = declare("Bank").unwrap();
-    let mut constructor_calldata = array![];
-    constructor_calldata.append(data_store_address.into());
-    constructor_calldata.append(role_store_address.into());
     start_cheat_caller_address(bank_address, caller_address);
-    let (contract_address, _) = contract.deploy_at(@constructor_calldata, bank_address).unwrap();
-    contract_address
+    let (contract_address, _) = contract.deploy_at(@array![], bank_address).unwrap();
+    (contract_address, contract)
 }
 
-fn deploy_strict_bank(data_store_address: ContractAddress, role_store_address: ContractAddress,) -> ContractAddress {
+fn deploy_strict_bank() -> (ContractAddress, ContractClass) {
     let caller_address: ContractAddress = get_c4ller_address();
     let strict_bank_address: ContractAddress = get_strict_bank_address();
     let contract = declare("StrictBank").unwrap();
-    let mut constructor_calldata = array![];
-    constructor_calldata.append(data_store_address.into());
-    constructor_calldata.append(role_store_address.into());
     start_cheat_caller_address(strict_bank_address, caller_address);
-    let (contract_address, _) = contract.deploy_at(@constructor_calldata, strict_bank_address).unwrap();
-    contract_address
+    let (contract_address, _) = contract.deploy_at(@array![], strict_bank_address).unwrap();
+    (contract_address, contract)
 }
 
 fn deploy_reader() -> ContractAddress {

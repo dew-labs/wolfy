@@ -67,6 +67,8 @@ mod MarketFactory {
         event_emitter: IEventEmitterDispatcher,
         /// The class hash of the `MarketToken` contract to deploy when creating a new market.
         market_token_class_hash: ClassHash,
+        bank_class_hash: ClassHash,
+        role_module_class_hash: ClassHash,
     }
 
     // *************************************************************************
@@ -87,11 +89,15 @@ mod MarketFactory {
         role_store_address: ContractAddress,
         event_emitter_address: ContractAddress,
         market_token_class_hash: ClassHash,
+        bank_class_hash: ClassHash,
+        role_module_class_hash: ClassHash
     ) {
         self.data_store.write(IDataStoreDispatcher { contract_address: data_store_address });
         self.role_store.write(IRoleStoreDispatcher { contract_address: role_store_address });
         self.event_emitter.write(IEventEmitterDispatcher { contract_address: event_emitter_address });
         self.market_token_class_hash.write(market_token_class_hash);
+        self.bank_class_hash.write(bank_class_hash);
+        self.role_module_class_hash.write(role_module_class_hash);
     }
 
 
@@ -118,7 +124,7 @@ mod MarketFactory {
             // Deploy the `MarketToken` contract.
             // Contructor arguments: [role_store_address, data_store_address].
             let mut constructor_calldata = array![
-                self.role_store.read().contract_address.into(), self.data_store.read().contract_address.into()
+                self.role_store.read().contract_address.into(), self.data_store.read().contract_address.into(), self.bank_class_hash.read().into(), self.role_module_class_hash.read().into()
             ];
             // Deploy the contract with the `deploy_syscall`.
             let (market_token_deployed_address, _return_data) = deploy_syscall(

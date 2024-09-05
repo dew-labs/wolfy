@@ -6,8 +6,7 @@
 
 // Core lib imports.
 use core::traits::Into;
-use starknet::ContractAddress;
-use satoru::token::erc20::interface::{IERC20, IERC20Dispatcher, IERC20DispatcherTrait};
+use starknet::{ContractAddress, ClassHash};
 
 // *************************************************************************
 //                  Interface of the `Bank` contract.
@@ -18,7 +17,7 @@ trait IBank<TContractState> {
     /// # Arguments
     /// * `data_store_address` - The address of the data store contract.
     /// * `role_store_address` - The address of the role store contract.
-    fn initialize(ref self: TContractState, data_store_address: ContractAddress, role_store_address: ContractAddress);
+    fn initialize(ref self: TContractState, data_store_address: ContractAddress, role_store_address: ContractAddress, role_module_class_hash: ClassHash);
 
     /// Transfer tokens from this contract to a receiver.
     /// # Arguments
@@ -42,74 +41,44 @@ mod Bank {
 
     // Core lib imports.
     use core::zeroable::Zeroable;
-    use starknet::{get_caller_address, get_contract_address, ContractAddress, contract_address_const};
+    use starknet::{get_caller_address, get_contract_address, ContractAddress, ClassHash};
 
     // Local imports.
     use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
+    use satoru::role::role_store::{IRoleStoreDispatcher};
+    use satoru::role::role;
+    use satoru::role::role_module::{IRoleModuleLibraryDispatcher, IRoleModuleDispatcherTrait};
     use super::IBank;
     use satoru::bank::error::BankError;
-    use satoru::role::role_module::{RoleModule, IRoleModule};
-    // use satoru::token::token_utils::transfer;
+    use satoru::token::token_utils::transfer;
     use satoru::token::erc20::interface::{IERC20, IERC20Dispatcher, IERC20DispatcherTrait};
-
 
     // *************************************************************************
     //                              STORAGE
     // *************************************************************************
     #[storage]
     struct Storage {
-        /// Interface to interact with the `DataStore` contract.
-        data_store: IDataStoreDispatcher
+        data_store: IDataStoreDispatcher,
+        role_module: IRoleModuleLibraryDispatcher,
+        // RoleModule storage
+        role_store: IRoleStoreDispatcher,
     }
-
-    // *************************************************************************
-    //                              CONSTRUCTOR
-    // *************************************************************************
-
-    /// Constructor of the contract.
-    /// # Arguments
-    /// * `data_store_address` - The address of the data store contract.
-    /// * `role_store_address` - The address of the role store contract.
-    #[constructor]
-    fn constructor(ref self: ContractState, data_store_address: ContractAddress, role_store_address: ContractAddress,) {
-        self.initialize(data_store_address, role_store_address);
-    }
-
 
     // *************************************************************************
     //                          EXTERNAL FUNCTIONS
     // *************************************************************************
     #[abi(embed_v0)]
     impl BankImpl of super::IBank<ContractState> {
-        fn initialize(
-            ref self: ContractState, data_store_address: ContractAddress, role_store_address: ContractAddress
-        ) {
+        fn initialize(ref self: ContractState, data_store_address: ContractAddress, role_store_address: ContractAddress, role_module_class_hash: ClassHash) {
             // Make sure the contract is not already initialized.
             assert(self.data_store.read().contract_address.is_zero(), BankError::ALREADY_INITIALIZED);
-            let mut role_module: RoleModule::ContractState = RoleModule::unsafe_new_contract_state();
-            IRoleModule::initialize(ref role_module, role_store_address);
+
             self.data_store.write(IDataStoreDispatcher { contract_address: data_store_address });
+            self.role_module.write(IRoleModuleLibraryDispatcher { class_hash: role_module_class_hash });
+            self.role_module.read().initialize(role_store_address)
         }
 
         fn transfer_out(
-            ref self: ContractState,
-            sender: ContractAddress,
-            token: ContractAddress,
-            receiver: ContractAddress,
-            amount: u256,
-        ) {
-            self.transfer_out_internal(sender, token, receiver, amount);
-        }
-    }
-
-    #[generate_trait]
-    impl BankHelperImpl of BankHelperTrait {
-        /// Transfer tokens from this contract to a receiver
-        /// # Arguments
-        /// * `token` - token the token to transfer
-        /// * `amount` - amount the amount to transfer
-        /// * `receiver` - receiver the address to transfer to
-        fn transfer_out_internal(
             ref self: ContractState,
             sender: ContractAddress,
             token: ContractAddress,
@@ -120,10 +89,10 @@ mod Bank {
             assert(receiver != get_contract_address(), BankError::SELF_TRANSFER_NOT_SUPPORTED);
 
             // assert that caller is a controller
-            let mut role_module: RoleModule::ContractState = RoleModule::unsafe_new_contract_state();
-            role_module.only_controller();
+            self.role_module.read().only_controller();
 
-            // transfer(self.data_store.read(), token, receiver, amount); // TODO check double send
+            // TODO: check for double spend error
+            // transfer(self.data_store.read(), token, receiver, amount);
             IERC20Dispatcher { contract_address: token }.transfer_from(sender, receiver, amount);
         }
     }
