@@ -44,14 +44,6 @@ mod RoleModule {
     }
 
     // *************************************************************************
-    // CONSTRUCTOR
-    // *************************************************************************
-    #[constructor]
-    fn constructor(ref self: ContractState, role_store_address: ContractAddress) {
-        self.initialize(role_store_address);
-    }
-
-    // *************************************************************************
     // EXTERNAL FUNCTIONS
     // *************************************************************************
     #[abi(embed_v0)]

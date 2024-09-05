@@ -19,24 +19,37 @@ mod ERC20 {
     }
 
     #[event]
-    #[derive(Drop, starknet::Event)]
+    #[derive(Drop, PartialEq, starknet::Event)]
     enum Event {
         Transfer: Transfer,
         Approval: Approval,
     }
 
-    #[derive(Drop, starknet::Event)]
+    #[derive(Drop, PartialEq, starknet::Event)]
     struct Transfer {
+        #[key]
         from: ContractAddress,
+        #[key]
         to: ContractAddress,
         value: u256
     }
 
-    #[derive(Drop, starknet::Event)]
+    #[derive(Drop, PartialEq, starknet::Event)]
     struct Approval {
+        #[key]
         owner: ContractAddress,
+        #[key]
         spender: ContractAddress,
         value: u256
+    }
+
+    mod Errors {
+        const APPROVE_FROM_ZERO: felt252 = 'ERC20: approve from 0';
+        const APPROVE_TO_ZERO: felt252 = 'ERC20: approve to 0';
+        const TRANSFER_FROM_ZERO: felt252 = 'ERC20: transfer from 0';
+        const TRANSFER_TO_ZERO: felt252 = 'ERC20: transfer to 0';
+        const BURN_FROM_ZERO: felt252 = 'ERC20: burn from 0';
+        const MINT_TO_ZERO: felt252 = 'ERC20: mint to 0';
     }
 
     #[constructor]
@@ -91,8 +104,8 @@ mod ERC20 {
         fn transfer_from(
             ref self: ContractState, sender: ContractAddress, recipient: ContractAddress, amount: u256
         ) -> bool {
-            let _caller = get_caller_address();
-            // self._spend_allowance(sender, caller, amount);
+            let caller = get_caller_address();
+            self._spend_allowance(sender, caller, amount);
             self._transfer(sender, recipient, amount);
             true
         }
@@ -153,29 +166,29 @@ mod ERC20 {
         }
 
         fn _mint(ref self: ContractState, recipient: ContractAddress, amount: u256) {
-            assert(!recipient.is_zero(), 'ERC20: mint to 0');
+            assert(!recipient.is_zero(), Errors::MINT_TO_ZERO);
             self._total_supply.write(self._total_supply.read() + amount);
             self._balances.write(recipient, self._balances.read(recipient) + amount);
             self.emit(Transfer { from: Zeroable::zero(), to: recipient, value: amount });
         }
 
         fn _burn(ref self: ContractState, account: ContractAddress, amount: u256) {
-            assert(!account.is_zero(), 'ERC20: burn from 0');
+            assert(!account.is_zero(), Errors::BURN_FROM_ZERO);
             self._total_supply.write(self._total_supply.read() - amount);
             self._balances.write(account, self._balances.read(account) - amount);
             self.emit(Transfer { from: account, to: Zeroable::zero(), value: amount });
         }
 
         fn _approve(ref self: ContractState, owner: ContractAddress, spender: ContractAddress, amount: u256) {
-            assert(!owner.is_zero(), 'ERC20: approve from 0');
-            assert(!spender.is_zero(), 'ERC20: approve to 0');
+            assert(!owner.is_zero(), Errors::APPROVE_FROM_ZERO);
+            assert(!spender.is_zero(), Errors::APPROVE_TO_ZERO);
             self._allowances.write((owner, spender), amount);
             self.emit(Approval { owner, spender, value: amount });
         }
 
         fn _transfer(ref self: ContractState, sender: ContractAddress, recipient: ContractAddress, amount: u256) {
-            assert(!sender.is_zero(), 'ERC20: transfer from 0');
-            assert(!recipient.is_zero(), 'ERC20: transfer to 0');
+            assert(!sender.is_zero(), Errors::TRANSFER_FROM_ZERO);
+            assert(!recipient.is_zero(), Errors::TRANSFER_TO_ZERO);
             self._balances.write(sender, self._balances.read(sender) - amount);
             self._balances.write(recipient, self._balances.read(recipient) + amount);
             self.emit(Transfer { from: sender, to: recipient, value: amount });
