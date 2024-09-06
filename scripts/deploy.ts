@@ -30,6 +30,18 @@ async function deploy() {
 
     // -------------------------------------------------------------------------
 
+    const roleModuleClassHash = await ensureDeclared(account, "RoleModule");
+
+    // -------------------------------------------------------------------------
+
+    const bankClassHash = await ensureDeclared(account, "Bank");
+
+    // -------------------------------------------------------------------------
+
+    const strictBankClassHash = await ensureDeclared(account, "StrictBank");
+
+    // -------------------------------------------------------------------------
+
     // Mock pragma for testing
     const pragmaAddress = (await ensureDeployed(account, contracts.Pragma, "PriceFeed", {}))
         .address;
@@ -101,6 +113,7 @@ async function deploy() {
 
     const router = await ensureDeployed(account, contracts.Router, "Router", {
         role_store_address: roleStore.address,
+        role_module_class_hash: roleModuleClassHash,
     });
 
     // -------------------------------------------------------------------------
@@ -118,12 +131,12 @@ async function deploy() {
 
     const dataStore = await ensureDeployed(account, contracts.DataStore, "DataStore", {
         role_store_address: roleStore.address,
+        role_module_class_hash: roleModuleClassHash,
     });
 
     // -------------------------------------------------------------------------
 
     const oracleStore = await ensureDeployed(account, contracts.OracleStore, "OracleStore", {
-        role_store_address: roleStore.address,
         event_emitter_address: eventEmitter.address,
     });
 
@@ -131,6 +144,7 @@ async function deploy() {
 
     const swapHandler = await ensureDeployed(account, contracts.SwapHandler, "SwapHandler", {
         role_store_address: roleStore.address,
+        role_module_class_hash: roleModuleClassHash,
     });
 
     // -------------------------------------------------------------------------
@@ -139,6 +153,7 @@ async function deploy() {
         data_store_address: dataStore.address,
         role_store_address: roleStore.address,
         event_emitter_address: eventEmitter.address,
+        role_module_class_hash: roleModuleClassHash,
     });
 
     // -------------------------------------------------------------------------
@@ -148,6 +163,8 @@ async function deploy() {
         role_store_address: roleStore.address,
         event_emitter_address: eventEmitter.address,
         market_token_class_hash: marketTokenClassHash,
+        bank_class_hash: bankClassHash,
+        role_module_class_hash: roleModuleClassHash,
     });
 
     // -------------------------------------------------------------------------
@@ -155,6 +172,9 @@ async function deploy() {
     const orderVault = await ensureDeployed(account, contracts.OrderVault, "OrderVault", {
         data_store_address: dataStore.address,
         role_store_address: roleStore.address,
+        strict_bank_class_hash: strictBankClassHash,
+        bank_class_hash: bankClassHash,
+        role_module_class_hash: roleModuleClassHash,
     });
 
     // -------------------------------------------------------------------------
@@ -162,6 +182,9 @@ async function deploy() {
     const depositVault = await ensureDeployed(account, contracts.DepositVault, "DepositVault", {
         data_store_address: dataStore.address,
         role_store_address: roleStore.address,
+        strict_bank_class_hash: strictBankClassHash,
+        bank_class_hash: bankClassHash,
+        role_module_class_hash: roleModuleClassHash,
     });
 
     // -------------------------------------------------------------------------
@@ -173,6 +196,9 @@ async function deploy() {
         {
             data_store_address: dataStore.address,
             role_store_address: roleStore.address,
+            strict_bank_class_hash: strictBankClassHash,
+            bank_class_hash: bankClassHash,
+            role_module_class_hash: roleModuleClassHash,
         }
     );
 
@@ -183,6 +209,7 @@ async function deploy() {
         role_store_address: roleStore.address,
         oracle_store_address: oracleStore.address,
         pragma_address: pragmaAddress,
+        role_module_class_hash: roleModuleClassHash,
     });
 
     // -------------------------------------------------------------------------
@@ -199,6 +226,7 @@ async function deploy() {
         increase_order_utils_class_hash: increaseOrderUtils.classHash,
         decrease_order_utils_class_hash: decreaseOrderUtils.classHash,
         swap_order_utils_class_hash: swapOrderUtils.classHash,
+        role_module_class_hash: roleModuleClassHash,
     });
 
     // -------------------------------------------------------------------------
@@ -213,6 +241,7 @@ async function deploy() {
             event_emitter_address: eventEmitter.address,
             deposit_vault_address: depositVault.address,
             oracle_address: oracle.address,
+            role_module_class_hash: roleModuleClassHash,
         }
     );
 
@@ -228,6 +257,7 @@ async function deploy() {
             event_emitter_address: eventEmitter.address,
             withdrawal_vault_address: withdrawalVault.address,
             oracle_address: oracle.address,
+            role_module_class_hash: roleModuleClassHash,
         }
     );
 
@@ -249,6 +279,7 @@ async function deploy() {
             increase_order_utils_class_hash: increaseOrderUtils.classHash,
             decrease_order_utils_class_hash: decreaseOrderUtils.classHash,
             swap_order_utils_class_hash: swapOrderUtils.classHash,
+            role_module_class_hash: roleModuleClassHash,
         }
     );
 
@@ -277,7 +308,6 @@ async function deploy() {
         {
             router_address: router.address,
             data_store_address: dataStore.address,
-            role_store_address: roleStore.address,
             event_emitter_address: eventEmitter.address,
             deposit_handler_address: depositHandler.address,
             withdrawal_handler_address: withdrawalHandler.address,
