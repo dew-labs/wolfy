@@ -17,9 +17,6 @@ importers:
       abi-wan-kanabi:
         specifier: ^2.2.2
         version: 2.2.2
-      jiti:
-        specifier: ^1.21.6
-        version: 1.21.6
       picocolors:
         specifier: ^1.0.1
         version: 1.0.1
@@ -364,10 +361,6 @@ packages:
   jake@10.9.2:
     resolution: {integrity: sha512-2P4SQ0HrLQ+fw6llpLnOaGAvN2Zu6778SJMrCUwns4fOoG9ayrTiZk3VV8sCPkVZF8ab0zksVpS8FDY5pRCNBA==, tarball: https://registry.npmjs.org/jake/-/jake-10.9.2.tgz}
     engines: {node: '>=10'}
-    hasBin: true
-
-  jiti@1.21.6:
-    resolution: {integrity: sha512-2yTgeWTWzMWkHu6Jp9NKgePDaYHbntiwvYuuJLbbN9vl7DC9DvXKOB2BC3ZZ92D3cvV/aflH0osDfwpHepQ53w==}
     hasBin: true
 
   json-schema-traverse@1.0.0:
@@ -1002,8 +995,6 @@ snapshots:
       chalk: 4.1.2
       filelist: 1.0.4
       minimatch: 3.1.2
-
-  jiti@1.21.6: {}
 
   json-schema-traverse@1.0.0: {}
 
