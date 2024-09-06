@@ -13,18 +13,6 @@ use starknet::ContractAddress;
 // *************************************************************************
 #[starknet::interface]
 trait IFeeHandler<TContractState> {
-    /// Initialize the contract.
-    /// # Arguments
-    /// * `data_store_address` - The address of the data store contract.
-    /// * `role_store_address` - The address of the role store contract.
-    /// * `event_emitter_address` - The address of the event emitter contract.
-    fn initialize(
-        ref self: TContractState,
-        data_store_address: ContractAddress,
-        role_store_address: ContractAddress,
-        event_emitter_address: ContractAddress,
-    );
-
     /// Claim fees from the specified markets.
     /// # Arguments
     /// * `market` - The markets to claim fees from.
@@ -40,12 +28,11 @@ mod FeeHandler {
 
     // Core lib imports.
     use core::zeroable::Zeroable;
-    use starknet::{get_caller_address, ContractAddress, contract_address_const};
+    use starknet::{get_caller_address, ContractAddress, contract_address_const, ClassHash};
 
 
     // Local imports.
-    use satoru::role::role;
-    use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
+    use satoru::role::role_module::{IRoleModuleLibraryDispatcher, IRoleModuleDispatcherTrait};
     use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
     use satoru::data::keys;
     use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
@@ -60,10 +47,9 @@ mod FeeHandler {
     struct Storage {
         /// Interface to interact with the `DataStore` contract.
         data_store: IDataStoreDispatcher,
-        /// Interface to interact with the `RoleStore` contract.
-        role_store: IRoleStoreDispatcher,
         /// Interface to interact with the `EventEmitter` contract.
         event_emitter: IEventEmitterDispatcher,
+        role_module: IRoleModuleLibraryDispatcher,
     }
 
     // *************************************************************************
@@ -82,8 +68,12 @@ mod FeeHandler {
         data_store_address: ContractAddress,
         role_store_address: ContractAddress,
         event_emitter_address: ContractAddress,
+        role_module_class_hash: ClassHash,
     ) {
-        self.initialize(data_store_address, role_store_address, event_emitter_address);
+        self.data_store.write(IDataStoreDispatcher { contract_address: data_store_address });
+        self.event_emitter.write(IEventEmitterDispatcher { contract_address: event_emitter_address });
+        self.role_module.write(IRoleModuleLibraryDispatcher { class_hash: role_module_class_hash });
+        self.role_module.read().initialize(role_store_address);
     }
 
 
@@ -92,26 +82,13 @@ mod FeeHandler {
     // *************************************************************************
     #[abi(embed_v0)]
     impl FeeHandlerImpl of super::IFeeHandler<ContractState> {
-        fn initialize(
-            ref self: ContractState,
-            data_store_address: ContractAddress,
-            role_store_address: ContractAddress,
-            event_emitter_address: ContractAddress,
-        ) {
-            // Make sure the contract is not already initialized.
-            assert(self.data_store.read().contract_address.is_zero(), FeeError::ALREADY_INITIALIZED);
-            self.data_store.write(IDataStoreDispatcher { contract_address: data_store_address });
-            self.role_store.write(IRoleStoreDispatcher { contract_address: role_store_address });
-            self.event_emitter.write(IEventEmitterDispatcher { contract_address: event_emitter_address });
-        }
-
         /// Claim fees for the specified market.
         /// # Arguments
         /// * `markets` - The market to claim fees from.
         /// * `tokens` - The fee tokens.
         fn claim_fees(ref self: ContractState, market: Array<ContractAddress>, tokens: Array<ContractAddress>) {
             // Only the fee keeper can claim fees
-            self.role_store.read().assert_only_role(get_caller_address(), role::FEE_KEEPER);
+            self.role_module.read().only_fee_keeper();
 
             assert(market.len() == tokens.len(), FeeError::INVALID_CLAIM_FEES_INPUT);
 

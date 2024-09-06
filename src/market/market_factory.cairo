@@ -48,8 +48,8 @@ mod MarketFactory {
 
 
     // Local imports.
-    use satoru::role::role;
-    use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
+    use satoru::role::role_store::{IRoleStoreDispatcher};
+    use satoru::role::role_module::{IRoleModuleLibraryDispatcher, IRoleModuleDispatcherTrait};
     use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
     use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
     use satoru::market::market::{Market, UniqueIdMarket};
@@ -59,16 +59,14 @@ mod MarketFactory {
     // *************************************************************************
     #[storage]
     struct Storage {
-        /// Interface to interact with the `DataStore` contract.
         data_store: IDataStoreDispatcher,
-        /// Interface to interact with the `RoleStore` contract.
-        role_store: IRoleStoreDispatcher,
-        /// Interface to interact with the `EventEmitter` contract.
         event_emitter: IEventEmitterDispatcher,
-        /// The class hash of the `MarketToken` contract to deploy when creating a new market.
         market_token_class_hash: ClassHash,
         bank_class_hash: ClassHash,
         role_module_class_hash: ClassHash,
+        role_module: IRoleModuleLibraryDispatcher,
+        // RoleModule storage
+        role_store: IRoleStoreDispatcher,
     }
 
     // *************************************************************************
@@ -93,10 +91,11 @@ mod MarketFactory {
         role_module_class_hash: ClassHash
     ) {
         self.data_store.write(IDataStoreDispatcher { contract_address: data_store_address });
-        self.role_store.write(IRoleStoreDispatcher { contract_address: role_store_address });
         self.event_emitter.write(IEventEmitterDispatcher { contract_address: event_emitter_address });
         self.market_token_class_hash.write(market_token_class_hash);
         self.bank_class_hash.write(bank_class_hash);
+        self.role_module.write(IRoleModuleLibraryDispatcher { class_hash: role_module_class_hash });
+        self.role_module.read().initialize(role_store_address);
         self.role_module_class_hash.write(role_module_class_hash);
     }
 
@@ -116,7 +115,7 @@ mod MarketFactory {
             // Get the caller address.
             let caller_address = get_caller_address();
             // Check that the caller has the `MARKET_KEEPER` role.
-            self.role_store.read().assert_only_role(caller_address, role::MARKET_KEEPER);
+            self.role_module.read().only_market_keeper();
 
             // Compute the salt to use when deploying the `MarketToken` contract.
             let salt = self.compute_salt_for_deploy_market_token(index_token, long_token, short_token, market_type,);
@@ -153,7 +152,7 @@ mod MarketFactory {
             // Get the caller address.
             let caller_address = get_caller_address();
             // Check that the caller has the `MARKET_KEEPER` role.
-            self.role_store.read().assert_only_role(caller_address, role::MARKET_KEEPER);
+            self.role_module.read().only_market_keeper();
 
             let old_market_token_class = self.market_token_class_hash.read();
 

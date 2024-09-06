@@ -459,7 +459,7 @@ mod DataStore {
     // Core lib imports.
     use core::option::OptionTrait;
     use core::traits::TryInto;
-    use starknet::{get_caller_address, ContractAddress, contract_address_const};
+    use starknet::{get_caller_address, ContractAddress, contract_address_const, ClassHash};
     use nullable::NullableTrait;
     use zeroable::Zeroable;
     use alexandria_storage::list::{ListTrait, List};
@@ -467,8 +467,7 @@ mod DataStore {
 
     // Local imports.
     use satoru::data::keys;
-    use satoru::role::role;
-    use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
+    use satoru::role::role_module::{IRoleModuleLibraryDispatcher, IRoleModuleDispatcherTrait};
     use satoru::market::{market::{Market, ValidateMarket}, error::MarketError};
     use satoru::data::error::DataError;
     use satoru::order::{order::Order, error::OrderError};
@@ -484,7 +483,6 @@ mod DataStore {
     // *************************************************************************
     #[storage]
     struct Storage {
-        role_store: IRoleStoreDispatcher,
         felt252_values: LegacyMap::<felt252, felt252>,
         u256_values: LegacyMap::<felt252, u256>,
         i256_values: LegacyMap::<felt252, i256>,
@@ -513,6 +511,7 @@ mod DataStore {
         deposits: List<Deposit>,
         account_deposits: LegacyMap<ContractAddress, List<felt252>>,
         deposit_indexes: LegacyMap::<felt252, usize>,
+        role_module: IRoleModuleLibraryDispatcher,
     }
 
     const MARKET: felt252 = 'MARKET_SALT';
@@ -521,8 +520,9 @@ mod DataStore {
     //                              CONSTRUCTOR
     // *************************************************************************
     #[constructor]
-    fn constructor(ref self: ContractState, role_store_address: ContractAddress) {
-        self.role_store.write(IRoleStoreDispatcher { contract_address: role_store_address });
+    fn constructor(ref self: ContractState, role_store_address: ContractAddress, role_module_class_hash: ClassHash,) {
+        self.role_module.write(IRoleModuleLibraryDispatcher { class_hash: role_module_class_hash });
+        self.role_module.read().initialize(role_store_address);
     }
 
     // *************************************************************************
@@ -583,21 +583,21 @@ mod DataStore {
 
         fn set_felt252(ref self: ContractState, key: felt252, value: felt252) {
             // Check that the caller has permission to set the value.
-            self.role_store.read().assert_only_role(get_caller_address(), role::CONTROLLER);
+            self.role_module.read().only_controller();
             // Set the value.
             self.felt252_values.write(key, value);
         }
 
         fn remove_felt252(ref self: ContractState, key: felt252) {
             // Check that the caller has permission to delete the value.
-            self.role_store.read().assert_only_role(get_caller_address(), role::CONTROLLER);
+            self.role_module.read().only_controller();
             // Delete the value.
             self.felt252_values.write(key, Default::default());
         }
 
         fn increment_felt252(ref self: ContractState, key: felt252, value: felt252) -> felt252 {
             // Check that the caller has permission to set the value.
-            self.role_store.read().assert_only_role(get_caller_address(), role::CONTROLLER);
+            self.role_module.read().only_controller();
             // Get the current value.
             let current_value = self.felt252_values.read(key);
             // Add the delta to the current value.
@@ -611,7 +611,7 @@ mod DataStore {
 
         fn decrement_felt252(ref self: ContractState, key: felt252, value: felt252) -> felt252 {
             // Check that the caller has permission to set the value.
-            self.role_store.read().assert_only_role(get_caller_address(), role::CONTROLLER);
+            self.role_module.read().only_controller();
             // Get the current value.
             let current_value = self.felt252_values.read(key);
             // Subtract the delta from the current value.
@@ -631,21 +631,21 @@ mod DataStore {
 
         fn set_u256(ref self: ContractState, key: felt252, value: u256) {
             // Check that the caller has permission to set the value.
-            self.role_store.read().assert_only_role(get_caller_address(), role::CONTROLLER);
+            self.role_module.read().only_controller();
             // Set the value.
             self.u256_values.write(key, value);
         }
 
         fn remove_u256(ref self: ContractState, key: felt252) {
             // Check that the caller has permission to delete the value.
-            self.role_store.read().assert_only_role(get_caller_address(), role::CONTROLLER);
+            self.role_module.read().only_controller();
             // Delete the value.
             self.u256_values.write(key, Default::default());
         }
 
         fn increment_u256(ref self: ContractState, key: felt252, value: u256) -> u256 {
             // Check that the caller has permission to set the value.
-            self.role_store.read().assert_only_role(get_caller_address(), role::CONTROLLER);
+            self.role_module.read().only_controller();
             // Get the current value.
             let current_value = self.u256_values.read(key);
             // Add the delta to the current value.
@@ -658,7 +658,7 @@ mod DataStore {
 
         fn decrement_u256(ref self: ContractState, key: felt252, value: u256) -> u256 {
             // Check that the caller has permission to set the value.
-            self.role_store.read().assert_only_role(get_caller_address(), role::CONTROLLER);
+            self.role_module.read().only_controller();
             // Get the current value.
             let current_value = self.u256_values.read(key);
             // Subtract the delta from the current value.
@@ -671,7 +671,7 @@ mod DataStore {
 
         fn apply_delta_to_u256(ref self: ContractState, key: felt252, value: i256, error: felt252) -> u256 {
             // Check that the caller has permission to set the value.
-            self.role_store.read().assert_only_role(get_caller_address(), role::CONTROLLER);
+            self.role_module.read().only_controller();
 
             let current_value = self.u256_values.read(key);
             if value < Zeroable::zero() && calc::to_unsigned(i256_neg(value)) > current_value {
@@ -702,14 +702,14 @@ mod DataStore {
 
         fn set_i256(ref self: ContractState, key: felt252, value: i256) {
             // Check that the caller has permission to set the value.
-            self.role_store.read().assert_only_role(get_caller_address(), role::CONTROLLER);
+            self.role_module.read().only_controller();
             // Set the value.
             self.i256_values.write(key, value);
         }
 
         fn remove_i256(ref self: ContractState, key: felt252) {
             // Check that the caller has permission to delete the value.
-            self.role_store.read().assert_only_role(get_caller_address(), role::CONTROLLER);
+            self.role_module.read().only_controller();
             // Delete the value.
             self.i256_values.write(key, Default::default());
         }
@@ -722,7 +722,7 @@ mod DataStore {
 
         fn increment_i256(ref self: ContractState, key: felt252, value: i256) -> i256 {
             // Check that the caller has permission to set the value.
-            self.role_store.read().assert_only_role(get_caller_address(), role::CONTROLLER);
+            self.role_module.read().only_controller();
             // Get the current value.
             let current_value = self.i256_values.read(key);
             // Add the delta to the current value.
@@ -736,7 +736,7 @@ mod DataStore {
 
         fn decrement_i256(ref self: ContractState, key: felt252, value: i256) -> i256 {
             // Check that the caller has permission to set the value.
-            self.role_store.read().assert_only_role(get_caller_address(), role::CONTROLLER);
+            self.role_module.read().only_controller();
             // Get the current value.
             let current_value = self.i256_values.read(key);
             // Subtract the delta from the current value.
@@ -756,14 +756,14 @@ mod DataStore {
 
         fn set_address(ref self: ContractState, key: felt252, value: ContractAddress) {
             // Check that the caller has permission to set the value.
-            self.role_store.read().assert_only_role(get_caller_address(), role::CONTROLLER);
+            self.role_module.read().only_controller();
             // Set the value.
             self.address_values.write(key, value);
         }
 
         fn remove_address(ref self: ContractState, key: felt252) {
             // Check that the caller has permission to delete the value.
-            self.role_store.read().assert_only_role(get_caller_address(), role::CONTROLLER);
+            self.role_module.read().only_controller();
             // Delete the value.
             self.address_values.write(key, contract_address_const::<0>());
         }
@@ -777,14 +777,14 @@ mod DataStore {
 
         fn set_bool(ref self: ContractState, key: felt252, value: bool) {
             // Check that the caller has permission to set the value.
-            self.role_store.read().assert_only_role(get_caller_address(), role::CONTROLLER);
+            self.role_module.read().only_controller();
             // Set the value.
             self.bool_values.write(key, value);
         }
 
         fn remove_bool(ref self: ContractState, key: felt252) {
             // Check that the caller has permission to delete the value.
-            self.role_store.read().assert_only_role(get_caller_address(), role::CONTROLLER);
+            self.role_module.read().only_controller();
             // Delete the value.
             self.bool_values.write(key, false);
         }
@@ -808,7 +808,7 @@ mod DataStore {
 
         fn set_market(ref self: ContractState, key: ContractAddress, salt: felt252, market: Market) {
             // Check that the caller has permission to set the value.
-            self.role_store.read().assert_only_role(get_caller_address(), role::MARKET_KEEPER);
+            self.role_module.read().only_market_keeper();
 
             let mut markets = self.markets.read();
 
@@ -832,7 +832,7 @@ mod DataStore {
 
         fn remove_market(ref self: ContractState, key: ContractAddress) {
             // Check that the caller has permission to remove the market.
-            self.role_store.read().assert_only_role(get_caller_address(), role::MARKET_KEEPER);
+            self.role_module.read().only_market_keeper();
             let offsetted_index: usize = self.market_indexes.read(key);
             let mut markets = self.markets.read();
             assert(offsetted_index != 0 && offsetted_index <= markets.len(), MarketError::MARKET_NOT_FOUND);
@@ -902,7 +902,7 @@ mod DataStore {
         //                      Oracle related functions.
         // *************************************************************************
         fn set_token_id(ref self: ContractState, token: ContractAddress, id: felt252) {
-            self.role_store.read().assert_only_role(get_caller_address(), role::CONTROLLER);
+            self.role_module.read().only_controller();
             self.tokens_ids.write(token, id);
         }
 
@@ -929,7 +929,7 @@ mod DataStore {
 
         fn set_order(ref self: ContractState, key: felt252, order: Order) {
             // Check that the caller has permission to set the value.
-            self.role_store.read().assert_only_role(get_caller_address(), role::CONTROLLER);
+            self.role_module.read().only_controller();
             assert(order.account != contract_address_const::<0>(), OrderError::CANT_BE_ZERO);
 
             let mut orders = self.orders.read();
@@ -955,7 +955,7 @@ mod DataStore {
 
         fn remove_order(ref self: ContractState, key: felt252, account: ContractAddress) {
             // Check that the caller has permission to remove the order.
-            self.role_store.read().assert_only_role(get_caller_address(), role::CONTROLLER);
+            self.role_module.read().only_controller();
             let offsetted_index: usize = self.order_indexes.read(key);
             let mut orders = self.orders.read();
             assert(offsetted_index != 0 && offsetted_index <= orders.len(), OrderError::ORDER_NOT_FOUND);
@@ -1068,7 +1068,7 @@ mod DataStore {
 
         fn set_position(ref self: ContractState, key: felt252, position: Position) {
             // Check that the caller has permission to set the value.
-            self.role_store.read().assert_only_role(get_caller_address(), role::CONTROLLER);
+            self.role_module.read().only_controller();
             assert(position.account != contract_address_const::<0>(), PositionError::CANT_BE_ZERO);
 
             let mut positions = self.positions.read();
@@ -1094,7 +1094,7 @@ mod DataStore {
 
         fn remove_position(ref self: ContractState, key: felt252, account: ContractAddress) {
             // Check that the caller has permission to remove the position.
-            self.role_store.read().assert_only_role(get_caller_address(), role::CONTROLLER);
+            self.role_module.read().only_controller();
             let offsetted_index: usize = self.position_indexes.read(key);
             let mut positions = self.positions.read();
             assert(offsetted_index != 0 && offsetted_index <= positions.len(), PositionError::POSITION_NOT_FOUND);
@@ -1203,7 +1203,7 @@ mod DataStore {
 
         fn set_withdrawal(ref self: ContractState, key: felt252, withdrawal: Withdrawal) {
             // Check that the caller has permission to set the value.
-            self.role_store.read().assert_only_role(get_caller_address(), role::CONTROLLER);
+            self.role_module.read().only_controller();
             assert(withdrawal.account != contract_address_const::<0>(), WithdrawalError::CANT_BE_ZERO);
 
             let mut withdrawals = self.withdrawals.read();
@@ -1229,7 +1229,7 @@ mod DataStore {
 
         fn remove_withdrawal(ref self: ContractState, key: felt252, account: ContractAddress) {
             // Check that the caller has permission to remove the withdrawal.
-            self.role_store.read().assert_only_role(get_caller_address(), role::CONTROLLER);
+            self.role_module.read().only_controller();
             let offsetted_index: usize = self.withdrawal_indexes.read(key);
             let mut withdrawals = self.withdrawals.read();
             assert(offsetted_index != 0 && offsetted_index <= withdrawals.len(), WithdrawalError::NOT_FOUND);
@@ -1338,7 +1338,7 @@ mod DataStore {
 
         fn set_deposit(ref self: ContractState, key: felt252, deposit: Deposit) {
             // Check that the caller has permission to set the value.
-            self.role_store.read().assert_only_role(get_caller_address(), role::CONTROLLER);
+            self.role_module.read().only_controller();
             assert(deposit.account != contract_address_const::<0>(), DepositError::CANT_BE_ZERO);
 
             let mut deposits = self.deposits.read();
@@ -1363,7 +1363,7 @@ mod DataStore {
 
         fn remove_deposit(ref self: ContractState, key: felt252, account: ContractAddress) {
             // Check that the caller has permission to remove the deposit.
-            self.role_store.read().assert_only_role(get_caller_address(), role::CONTROLLER);
+            self.role_module.read().only_controller();
             let offsetted_index: usize = self.deposit_indexes.read(key);
             let mut deposits = self.deposits.read();
             assert(offsetted_index != 0 && offsetted_index <= deposits.len(), DepositError::DEPOSIT_NOT_FOUND);
