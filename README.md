@@ -6,7 +6,7 @@ Requirement:
 
 - Scarb 2.6.0
 - Starknet Foundry 0.27.0
-- NodeJS 20.15.0
+- Bun 1.1.26
 
 IDE Integration:
 
