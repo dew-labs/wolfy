@@ -114,6 +114,7 @@ fn setup() -> (
     ContractClass,
     ContractClass,
     ContractClass,
+    ContractClass,
     IMarketFactoryDispatcher,
     IRoleStoreDispatcher,
     IDataStoreDispatcher,
@@ -143,6 +144,7 @@ fn setup() -> (
         order_utils_class,
         role_module_class,
         bank_class,
+        governable_class,
         market_factory,
         role_store,
         data_store,
@@ -176,6 +178,7 @@ fn setup() -> (
         order_utils_class,
         role_module_class,
         bank_class,
+        governable_class,
         market_factory,
         role_store,
         data_store,
@@ -243,6 +246,7 @@ fn setup_contracts() -> (
     ContractClass,
     ContractClass,
     ContractClass,
+    ContractClass,
     IMarketFactoryDispatcher,
     IRoleStoreDispatcher,
     IDataStoreDispatcher,
@@ -270,6 +274,9 @@ fn setup_contracts() -> (
 
     // Declare the `RoleModule` contract
     let role_module_class = declare_role_module();
+
+    // Declare the `Governable` contract
+    let governable_class = declare_governable();
 
     // Deploy reader
     let reader_address = deploy_reader();
@@ -346,7 +353,7 @@ fn setup_contracts() -> (
     let swap_handler = ISwapHandlerDispatcher { contract_address: swap_handler_address };
 
     // Deploy the referral storage
-    let referral_storage_address = deploy_referral_storage(event_emitter_address);
+    let referral_storage_address = deploy_referral_storage(event_emitter_address, governable_class.class_hash);
     let referral_storage = IReferralStorageDispatcher { contract_address: referral_storage_address };
 
     // Declare utils
@@ -354,6 +361,7 @@ fn setup_contracts() -> (
     let decrease_order_class = declare_decrease_order_utils();
     let swap_order_class = declare_swap_order_utils();
     let order_utils_class = declare_order_utils();
+    let base_order_handler_class = declare_base_order_handler();
 
     // Deploy order handler
     let order_handler_address = deploy_order_handler(
@@ -369,6 +377,7 @@ fn setup_contracts() -> (
         decrease_order_class.class_hash,
         swap_order_class.class_hash,
         role_module_class.class_hash,
+        base_order_handler_class.class_hash,
     );
     let order_handler = IOrderHandlerDispatcher { contract_address: order_handler_address };
 
@@ -397,6 +406,7 @@ fn setup_contracts() -> (
         decrease_order_class.class_hash,
         swap_order_class.class_hash,
         role_module_class.class_hash,
+        base_order_handler_class.class_hash,
     );
     let liquidation_handler = ILiquidationHandlerDispatcher { contract_address: liquidation_handler_address };
 
@@ -409,6 +419,7 @@ fn setup_contracts() -> (
         order_utils_class,
         role_module_class,
         bank_class,
+        governable_class,
         market_factory,
         role_store,
         data_store,
@@ -437,6 +448,10 @@ fn declare_market_token() -> ContractClass {
 
 fn declare_role_module() -> ContractClass {
     declare("RoleModule").unwrap()
+}
+
+fn declare_governable() -> ContractClass {
+    declare("Governable").unwrap()
 }
 
 fn deploy_market_factory(
@@ -617,6 +632,7 @@ fn deploy_order_handler(
     decrease_order_class: ClassHash,
     swap_order_class: ClassHash,
     role_module_class_hash: ClassHash,
+    base_order_handler_class_hash: ClassHash,
 ) -> ContractAddress {
     let contract = declare("OrderHandler").unwrap();
     let caller_address: ContractAddress = get_c4ller_address();
@@ -635,6 +651,7 @@ fn deploy_order_handler(
         decrease_order_class.into(),
         swap_order_class.into(),
         role_module_class_hash.into(),
+        base_order_handler_class_hash.into(),
     ];
     let (contract_address, _) = contract.deploy_at(@constructor_calldata, deployed_contract_address).unwrap();
     contract_address
@@ -653,6 +670,7 @@ fn deploy_liquidation_handler(
     decrease_order_class: ClassHash,
     swap_order_class: ClassHash,
     role_module_class_hash: ClassHash,
+    base_order_handler_class_hash: ClassHash,
 ) -> ContractAddress {
     let contract = declare("LiquidationHandler").unwrap();
     let caller_address: ContractAddress = get_c4ller_address();
@@ -671,6 +689,7 @@ fn deploy_liquidation_handler(
         decrease_order_class.into(),
         swap_order_class.into(),
         role_module_class_hash.into(),
+        base_order_handler_class_hash.into(),
     ];
     let (contract_address, _) = contract.deploy_at(@constructor_calldata, deployed_contract_address).unwrap();
     contract_address
@@ -686,12 +705,12 @@ fn deploy_swap_handler(role_store_address: ContractAddress, role_module_class_ha
     contract_address
 }
 
-fn deploy_referral_storage(event_emitter_address: ContractAddress) -> ContractAddress {
+fn deploy_referral_storage(event_emitter_address: ContractAddress, governable_class_hash: ClassHash) -> ContractAddress {
     let contract = declare("ReferralStorage").unwrap();
     let caller_address: ContractAddress = get_c4ller_address();
     let deployed_contract_address = get_referral_storage_address();
     start_cheat_caller_address(deployed_contract_address, caller_address);
-    let constructor_calldata = array![event_emitter_address.into()];
+    let constructor_calldata = array![event_emitter_address.into(), governable_class_hash.into()];
     let (contract_address, _) = contract.deploy_at(@constructor_calldata, deployed_contract_address).unwrap();
     contract_address
 }
@@ -750,6 +769,10 @@ fn declare_swap_order_utils() -> ContractClass {
 
 fn declare_order_utils() -> ContractClass {
     declare("OrderUtils").unwrap()
+}
+
+fn declare_base_order_handler() -> ContractClass {
+    declare("BaseOrderHandler").unwrap()
 }
 
 fn deploy_bank() -> (ContractAddress, ContractClass) {

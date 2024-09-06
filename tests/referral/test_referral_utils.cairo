@@ -326,13 +326,13 @@ fn deploy_market_token(
     contract_address
 }
 
-fn deploy_governable(event_emitter_address: ContractAddress) -> ContractAddress {
-    let contract = declare("Governable").unwrap();
+fn deploy_governable(contract: ContractClass, event_emitter_address: ContractAddress) -> ContractAddress {
     let caller_address: ContractAddress = tests_lib::get_c4ller_address();
     let deployed_contract_address = contract_address_const::<'governable'>();
     start_cheat_caller_address(deployed_contract_address, caller_address);
-    let constructor_calldata = array![event_emitter_address.into()];
+    let constructor_calldata = array![];
     let (contract_address, _) = contract.deploy_at(@constructor_calldata, deployed_contract_address).unwrap();
+    IGovernableDispatcher { contract_address }.initialize(event_emitter_address);
     contract_address
 }
 
@@ -355,6 +355,7 @@ fn setup() -> (
         _order_utils_class,
         role_module_class,
         bank_class,
+        governable_class,
         _market_factory,
         role_store,
         data_store,
@@ -382,7 +383,7 @@ fn setup() -> (
     );
     let market_token = IMarketTokenDispatcher { contract_address: market_token_address };
 
-    let governable_address = deploy_governable(event_emitter.contract_address);
+    let governable_address = deploy_governable(governable_class, event_emitter.contract_address);
     let governable = IGovernableDispatcher { contract_address: governable_address };
 
     (caller_address, role_store, data_store, event_emitter, referral_storage, governable, market_token)

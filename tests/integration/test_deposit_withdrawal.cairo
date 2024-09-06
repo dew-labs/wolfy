@@ -832,6 +832,7 @@ fn setup() -> (
         role_store_address,
         data_store_address,
         market_token_class,
+        _governable_class,
         market_factory,
         role_store,
         data_store,

@@ -95,7 +95,6 @@ mod OrderHandler {
     // *************************************************************************
 
     // Core lib imports.
-    use satoru::exchange::base_order_handler::BaseOrderHandler::order_utils_libContractMemberStateTrait;
     use satoru::order::order_utils::IOrderUtilsDispatcherTrait;
     use core::starknet::SyscallResultTrait;
     use core::traits::Into;
@@ -111,21 +110,12 @@ mod OrderHandler {
     use satoru::oracle::oracle_utils::{SetPricesParams, SimulatePricesParams};
     use satoru::order::{
         base_order_utils::CreateOrderParams, order_utils::{IOrderUtilsDispatcher},
-        order::{Order, OrderTrait, OrderType, SecondaryOrderType},
-        order_vault::{IOrderVaultDispatcher, IOrderVaultDispatcherTrait}
     };
     use satoru::order::base_order_utils;
     // use satoru::market::error::MarketError;
     // use satoru::position::error::PositionError;
     // use satoru::feature::error::FeatureError;
-    use satoru::order::error::OrderError;
     use satoru::exchange::exchange_utils;
-    use satoru::exchange::base_order_handler::{IBaseOrderHandler, BaseOrderHandler};
-    use satoru::exchange::base_order_handler::BaseOrderHandler::{
-        role_storeContractMemberStateTrait, data_storeContractMemberStateTrait, event_emitterContractMemberStateTrait,
-        order_vaultContractMemberStateTrait, referral_storageContractMemberStateTrait, oracleContractMemberStateTrait,
-        InternalTrait as BaseOrderHandleInternalTrait,
-    };
     use satoru::feature::feature_utils::{validate_feature};
     use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
     use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
@@ -142,6 +132,22 @@ mod OrderHandler {
     use satoru::role::role_store::{IRoleStoreDispatcher};
     use satoru::role::role;
     use satoru::role::role_module::{IRoleModuleLibraryDispatcher, IRoleModuleDispatcherTrait};
+    use satoru::exchange::base_order_handler::{IBaseOrderHandlerLibraryDispatcher, IBaseOrderHandlerDispatcherTrait};
+    use satoru::oracle::{
+        oracle::{IOracleDispatcher, IOracleDispatcherTrait},
+    };
+    use satoru::swap::swap_handler::{ISwapHandlerDispatcher, ISwapHandlerDispatcherTrait};
+    use satoru::mock::referral_storage::{IReferralStorageDispatcher, IReferralStorageDispatcherTrait};
+    use satoru::order::{
+        error::OrderError,
+        order::{SecondaryOrderType, OrderType, Order, OrderTrait, DecreasePositionSwapType},
+        order_vault::{IOrderVaultDispatcher, IOrderVaultDispatcherTrait},
+        base_order_utils::{ExecuteOrderParams, ExecuteOrderParamsContracts},
+        order_utils::IOrderUtilsLibraryDispatcher,
+        increase_order_utils::IIncreaseOrderUtilsLibraryDispatcher,
+        decrease_order_utils::IDecreaseOrderUtilsLibraryDispatcher,
+        swap_order_utils::ISwapOrderUtilsLibraryDispatcher
+    };
 
     // *************************************************************************
     //                              STORAGE
@@ -149,6 +155,19 @@ mod OrderHandler {
     #[storage]
     struct Storage {
         role_module: IRoleModuleLibraryDispatcher,
+        base_order_handler: IBaseOrderHandlerLibraryDispatcher,
+        // BaseOrderHandler storage
+        data_store: IDataStoreDispatcher,
+        role_store: IRoleStoreDispatcher,
+        event_emitter: IEventEmitterDispatcher,
+        order_vault: IOrderVaultDispatcher,
+        swap_handler: ISwapHandlerDispatcher,
+        oracle: IOracleDispatcher,
+        referral_storage: IReferralStorageDispatcher,
+        order_utils_lib: IOrderUtilsLibraryDispatcher,
+        increase_order_utils_lib: IIncreaseOrderUtilsLibraryDispatcher,
+        decrease_order_utils_lib: IDecreaseOrderUtilsLibraryDispatcher,
+        swap_order_utils_lib: ISwapOrderUtilsLibraryDispatcher
     }
 
     // *************************************************************************
@@ -178,12 +197,11 @@ mod OrderHandler {
         decrease_order_utils_class_hash: ClassHash,
         swap_order_utils_class_hash: ClassHash,
         role_module_class_hash: ClassHash,
+        base_order_handler_class_hash: ClassHash,
     ) {
-        let mut state: BaseOrderHandler::ContractState = BaseOrderHandler::unsafe_new_contract_state();
-        IBaseOrderHandler::initialize(
-            ref state,
+        self.base_order_handler.write(IBaseOrderHandlerLibraryDispatcher { class_hash: base_order_handler_class_hash });
+        self.base_order_handler.read().initialize(
             data_store_address,
-            role_store_address,
             event_emitter_address,
             order_vault_address,
             oracle_address,
@@ -209,21 +227,20 @@ mod OrderHandler {
             self.role_module.read().only_order_keeper();
 
             // Fetch data store.
-            let base_order_handler_state = BaseOrderHandler::unsafe_new_contract_state();
-            let data_store = base_order_handler_state.data_store.read();
+            let data_store = self.data_store.read();
 
             non_reentrant_before(data_store);
 
             // Validate feature and create order.
             validate_feature(data_store, create_order_feature_disabled_key(get_contract_address(), params.order_type));
-            let key = base_order_handler_state
+            let key = self
                 .order_utils_lib
                 .read()
                 .create_order_utils(
                     data_store,
-                    base_order_handler_state.event_emitter.read(),
-                    base_order_handler_state.order_vault.read(),
-                    base_order_handler_state.referral_storage.read(),
+                    self.event_emitter.read(),
+                    self.order_vault.read(),
+                    self.referral_storage.read(),
                     account,
                     params
                 );
@@ -246,9 +263,8 @@ mod OrderHandler {
             self.role_module.read().only_controller();
 
             // Fetch data store.
-            let base_order_handler_state = BaseOrderHandler::unsafe_new_contract_state();
-            let data_store = base_order_handler_state.data_store.read();
-            let event_emitter = base_order_handler_state.event_emitter.read();
+            let data_store = self.data_store.read();
+            let event_emitter = self.event_emitter.read();
 
             non_reentrant_before(data_store);
 
@@ -268,7 +284,7 @@ mod OrderHandler {
 
             // Allow topping up of execution fee as frozen orders will have execution fee reduced.
             let fee_token = token_utils::fee_token(data_store);
-            let order_vault = base_order_handler_state.order_vault.read();
+            let order_vault = self.order_vault.read();
             let received_fee_token = order_vault.record_transfer_in(fee_token);
             updated_order.execution_fee = received_fee_token;
 
@@ -294,8 +310,7 @@ mod OrderHandler {
             self.role_module.read().only_controller();
 
             // Fetch data store.
-            let base_order_handler_state = BaseOrderHandler::unsafe_new_contract_state();
-            let data_store = base_order_handler_state.data_store.read();
+            let data_store = self.data_store.read();
 
             non_reentrant_before(data_store);
 
@@ -310,13 +325,13 @@ mod OrderHandler {
                 exchange_utils::validate_request_cancellation(data_store, order.updated_at_block, 'Order')
             }
 
-            base_order_handler_state
+            self
                 .order_utils_lib
                 .read()
                 .cancel_order(
                     data_store,
-                    base_order_handler_state.event_emitter.read(),
-                    base_order_handler_state.order_vault.read(),
+                    self.event_emitter.read(),
+                    self.order_vault.read(),
                     key,
                     order.account,
                     starting_gas,
@@ -338,8 +353,7 @@ mod OrderHandler {
         // ) {
         //     let error_selector = error_utils::get_error_selector_from_data(reason_bytes.span());
 
-        //     let mut base_order_handler_state = BaseOrderHandler::unsafe_new_contract_state();
-        //     let data_store = base_order_handler_state.data_store.read();
+        //     let data_store = self.data_store.read();
 
         //     let order = data_store.get_order(key);
         //     // let is_market_order = base_order_utils::is_market_order(order.order_type);
@@ -363,8 +377,8 @@ mod OrderHandler {
         //         || error_selector == PositionError::INVALID_POSITION_SIZE_VALUES) {
         //         order_utils::cancel_order(
         //             data_store,
-        //             base_order_handler_state.event_emitter.read(),
-        //             base_order_handler_state.order_vault.read(),
+        //             self.event_emitter.read(),
+        //             self.order_vault.read(),
         //             key,
         //             order.account,
         //             starting_gas,
@@ -376,8 +390,8 @@ mod OrderHandler {
 
         //     order_utils::freeze_order(
         //         data_store,
-        //         base_order_handler_state.event_emitter.read(),
-        //         base_order_handler_state.order_vault.read(),
+        //         self.event_emitter.read(),
+        //         self.order_vault.read(),
         //         key,
         //         get_caller_address(),
         //         starting_gas,
@@ -391,18 +405,17 @@ mod OrderHandler {
             self.role_module.read().only_order_keeper();
 
             // Fetch data store.
-            let base_order_handler_state = BaseOrderHandler::unsafe_new_contract_state();
-            let data_store = base_order_handler_state.data_store.read();
+            let data_store = self.data_store.read();
             non_reentrant_before(data_store);
             oracle_modules::with_oracle_prices_before(
-                base_order_handler_state.oracle.read(),
+                self.oracle.read(),
                 data_store,
-                base_order_handler_state.event_emitter.read(),
+                self.event_emitter.read(),
                 @oracle_params
             );
             // TODO: Did not implement starting gas and try / catch logic as not available in Cairo
             self._execute_order(key, oracle_params, get_contract_address());
-            oracle_modules::with_oracle_prices_after(base_order_handler_state.oracle.read());
+            oracle_modules::with_oracle_prices_after(self.oracle.read());
             non_reentrant_after(data_store);
         }
 
@@ -417,12 +430,11 @@ mod OrderHandler {
             self.role_module.read().only_order_keeper();
 
             // Fetch data store.
-            let base_order_handler_state = BaseOrderHandler::unsafe_new_contract_state();
-            let data_store = base_order_handler_state.data_store.read();
+            let data_store = self.data_store.read();
 
             non_reentrant_before(data_store);
             // oracle_modules::with_simulated_oracle_prices_before(
-            //     base_order_handler_state.oracle.read(), params
+            //     self.oracle.read(), params
             // );
 
             let oracle_params: SetPricesParams = Default::default();
@@ -446,8 +458,7 @@ mod OrderHandler {
         fn _execute_order(self: @ContractState, key: felt252, oracle_params: SetPricesParams, keeper: ContractAddress) {
             let starting_gas: u256 = 100000; // TODO: Get starting gas from Cairo.
 
-            let mut base_order_handler_state = BaseOrderHandler::unsafe_new_contract_state();
-            let params = base_order_handler_state
+            let params = self.base_order_handler.read()
                 .get_execute_order_params(key, oracle_params, keeper, starting_gas, SecondaryOrderType::None(()),);
 
             if params.order.is_frozen || params.order.order_type == OrderType::LimitSwap(()) {
@@ -460,7 +471,7 @@ mod OrderHandler {
                 execute_order_feature_disabled_key(get_contract_address(), params.order.order_type)
             );
 
-            base_order_handler_state.order_utils_lib.read().execute_order_utils(params);
+            self.order_utils_lib.read().execute_order_utils(params);
         }
 
 

@@ -42,6 +42,10 @@ async function deploy() {
 
     // -------------------------------------------------------------------------
 
+    const baseOrderHandlerClassHash = await ensureDeclared(account, "BaseOrderHandler");
+
+    // -------------------------------------------------------------------------
+
     // Mock pragma for testing
     const pragmaAddress = (await ensureDeployed(account, contracts.Pragma, "PriceFeed", {}))
         .address;
@@ -227,6 +231,7 @@ async function deploy() {
         decrease_order_utils_class_hash: decreaseOrderUtils.classHash,
         swap_order_utils_class_hash: swapOrderUtils.classHash,
         role_module_class_hash: roleModuleClassHash,
+        base_order_handler_class_hash: baseOrderHandlerClassHash,
     });
 
     // -------------------------------------------------------------------------
@@ -280,6 +285,7 @@ async function deploy() {
             decrease_order_utils_class_hash: decreaseOrderUtils.classHash,
             swap_order_utils_class_hash: swapOrderUtils.classHash,
             role_module_class_hash: roleModuleClassHash,
+            base_order_handler_class_hash: baseOrderHandlerClassHash,
         }
     );
 
@@ -297,6 +303,7 @@ async function deploy() {
         increase_order_utils_class_hash: increaseOrderUtils.classHash,
         decrease_order_utils_class_hash: decreaseOrderUtils.classHash,
         swap_order_utils_class_hash: swapOrderUtils.classHash,
+        base_order_handler_class_hash: baseOrderHandlerClassHash,
     });
 
     // -------------------------------------------------------------------------

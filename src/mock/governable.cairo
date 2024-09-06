@@ -44,17 +44,6 @@ mod Governable {
     }
 
     // *************************************************************************
-    //                              CONSTRUCTOR
-    // *************************************************************************
-    /// Constructor of the contract.
-    /// # Arguments
-    /// * `event_emitter_address` - The address of the event emitter contract.
-    #[constructor]
-    fn constructor(ref self: ContractState, event_emitter_address: ContractAddress) {
-        self.initialize(event_emitter_address);
-    }
-
-    // *************************************************************************
     //                          EXTERNAL FUNCTIONS
     // *************************************************************************
     #[abi(embed_v0)]
