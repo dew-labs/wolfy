@@ -133,19 +133,23 @@ mod OrderHandler {
     use satoru::data::keys;
     use satoru::role::role::FROZEN_ORDER_KEEPER;
     use satoru::role::role_module::{RoleModule, IRoleModule};
-    use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
     use satoru::token::token_utils;
     use satoru::gas::gas_utils;
     use satoru::utils::global_reentrancy_guard::{non_reentrant_before, non_reentrant_after};
     use satoru::utils::error_utils;
     use satoru::token::erc20::interface::{IERC20, IERC20Dispatcher, IERC20DispatcherTrait};
     use starknet::contract_address_const;
+    use satoru::role::role_store::{IRoleStoreDispatcher};
+    use satoru::role::role;
+    use satoru::role::role_module::{IRoleModuleLibraryDispatcher, IRoleModuleDispatcherTrait};
 
     // *************************************************************************
     //                              STORAGE
     // *************************************************************************
     #[storage]
-    struct Storage {}
+    struct Storage {
+        role_module: IRoleModuleLibraryDispatcher,
+    }
 
     // *************************************************************************
     //                              CONSTRUCTOR
@@ -173,6 +177,7 @@ mod OrderHandler {
         increase_order_utils_class_hash: ClassHash,
         decrease_order_utils_class_hash: ClassHash,
         swap_order_utils_class_hash: ClassHash,
+        role_module_class_hash: ClassHash,
     ) {
         let mut state: BaseOrderHandler::ContractState = BaseOrderHandler::unsafe_new_contract_state();
         IBaseOrderHandler::initialize(
@@ -189,6 +194,8 @@ mod OrderHandler {
             decrease_order_utils_class_hash,
             swap_order_utils_class_hash
         );
+        self.role_module.write(IRoleModuleLibraryDispatcher { class_hash: role_module_class_hash });
+        self.role_module.read().initialize(role_store_address);
     }
 
 
@@ -198,9 +205,8 @@ mod OrderHandler {
     #[abi(embed_v0)]
     impl OrderHandlerImpl of super::IOrderHandler<ContractState> {
         fn create_order(ref self: ContractState, account: ContractAddress, params: CreateOrderParams) -> felt252 {
-            // Check only controller.
-            let role_module_state = RoleModule::unsafe_new_contract_state();
-            role_module_state.only_order_keeper();
+            // Check only order keeper
+            self.role_module.read().only_order_keeper();
 
             // Fetch data store.
             let base_order_handler_state = BaseOrderHandler::unsafe_new_contract_state();
@@ -237,8 +243,7 @@ mod OrderHandler {
             order: Order
         ) -> Order {
             // Check only controller.
-            let role_module_state = RoleModule::unsafe_new_contract_state();
-            role_module_state.only_controller();
+            self.role_module.read().only_controller();
 
             // Fetch data store.
             let base_order_handler_state = BaseOrderHandler::unsafe_new_contract_state();
@@ -286,8 +291,7 @@ mod OrderHandler {
             let starting_gas: u256 = 0; // TODO: Get starting gas from Cairo.
 
             // Check only controller.
-            let role_module_state = RoleModule::unsafe_new_contract_state();
-            role_module_state.only_controller();
+            self.role_module.read().only_controller();
 
             // Fetch data store.
             let base_order_handler_state = BaseOrderHandler::unsafe_new_contract_state();
@@ -384,8 +388,8 @@ mod OrderHandler {
 
         fn execute_order(ref self: ContractState, key: felt252, oracle_params: SetPricesParams) {
             // Check only order keeper.
-            let role_module_state = RoleModule::unsafe_new_contract_state();
-            role_module_state.only_order_keeper();
+            self.role_module.read().only_order_keeper();
+
             // Fetch data store.
             let base_order_handler_state = BaseOrderHandler::unsafe_new_contract_state();
             let data_store = base_order_handler_state.data_store.read();
@@ -410,8 +414,7 @@ mod OrderHandler {
 
         fn simulate_execute_order(ref self: ContractState, key: felt252, params: SimulatePricesParams) {
             // Check only order keeper.
-            let role_module_state = RoleModule::unsafe_new_contract_state();
-            role_module_state.only_order_keeper();
+            self.role_module.read().only_order_keeper();
 
             // Fetch data store.
             let base_order_handler_state = BaseOrderHandler::unsafe_new_contract_state();
@@ -465,10 +468,7 @@ mod OrderHandler {
         /// # Arguments
         /// * `keeper` - address of the keeper.
         fn _validate_state_frozen_order_keeper(self: @ContractState, keeper: ContractAddress) {
-            let mut base_order_handler_state = BaseOrderHandler::unsafe_new_contract_state();
-            let role_store = base_order_handler_state.role_store.read();
-
-            assert(role_store.has_role(keeper, FROZEN_ORDER_KEEPER), OrderError::INVALID_FROZEN_ORDER_KEEPER);
+            self.role_module.read().only_frozen_order_keeper();
         }
     }
 }

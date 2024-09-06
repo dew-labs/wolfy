@@ -75,7 +75,7 @@ mod Bank {
 
             self.data_store.write(IDataStoreDispatcher { contract_address: data_store_address });
             self.role_module.write(IRoleModuleLibraryDispatcher { class_hash: role_module_class_hash });
-            self.role_module.read().initialize(role_store_address)
+            self.role_module.read().initialize(role_store_address);
         }
 
         fn transfer_out(

@@ -12,7 +12,6 @@
 use starknet::ContractAddress;
 
 // Local imports
-use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
 use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
 use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
 use satoru::oracle::{
@@ -28,17 +27,6 @@ use pragma_lib::types::{DataType, PragmaPricesResponse};
 // *************************************************************************
 #[starknet::interface]
 trait IOracle<TContractState> {
-    /// Initialize the contract.
-    /// # Arguments
-    /// * `role_store_address` - The address of the role store contract.
-    /// * `oracle_store_address` - The address of the oracle store contract.
-    fn initialize(
-        ref self: TContractState,
-        role_store_address: ContractAddress,
-        oracle_store_address: ContractAddress,
-        pragma_address: ContractAddress,
-    );
-
     /// Validate and store signed prices
     ///
     /// The set_prices function is used to set the prices of tokens in the Oracle contract.
@@ -194,7 +182,7 @@ mod Oracle {
     use core::traits::Into;
     use core::traits::TryInto;
     use core::zeroable::Zeroable;
-    use starknet::ContractAddress;
+    use starknet::{ContractAddress, ClassHash};
     use starknet::contract_address_const;
     use starknet::info::{get_block_timestamp, get_block_number};
     use starknet::syscalls::get_block_hash_syscall;
@@ -215,8 +203,10 @@ mod Oracle {
     };
     use satoru::role::role_module::{
         IRoleModule, RoleModule
-    }; //::role_storeContractMemberStateTrait as RoleModuleStateTrait;
-    use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
+    };
+    use satoru::role::role_store::{IRoleStoreDispatcher};
+    use satoru::role::role;
+    use satoru::role::role_module::{IRoleModuleLibraryDispatcher, IRoleModuleDispatcherTrait};
     use satoru::utils::{arrays, arrays::pow, bits, calc, precision};
     use satoru::utils::u256_mask::{Mask, MaskTrait, validate_unique_and_set_index};
 
@@ -240,8 +230,6 @@ mod Oracle {
     // *************************************************************************
     #[storage]
     struct Storage {
-        /// Interface to interact with the `RoleStore` contract.
-        role_store: IRoleStoreDispatcher,
         /// Interface to interact with the `OracleStore` contract.
         oracle_store: IOracleStoreDispatcher,
         /// Interface to interact with the Pragma Oracle.
@@ -250,6 +238,7 @@ mod Oracle {
         tokens_with_prices: List<ContractAddress>,
         /// Mapping between tokens and prices.
         primary_prices: LegacyMap::<ContractAddress, Price>,
+        role_module: IRoleModuleLibraryDispatcher,
     }
 
     // *************************************************************************
@@ -266,8 +255,12 @@ mod Oracle {
         role_store_address: ContractAddress,
         oracle_store_address: ContractAddress,
         pragma_address: ContractAddress,
+        role_module_class_hash: ClassHash,
     ) {
-        self.initialize(role_store_address, oracle_store_address, pragma_address);
+        self.oracle_store.write(IOracleStoreDispatcher { contract_address: oracle_store_address });
+        self.price_feed.write(IPragmaABIDispatcher { contract_address: pragma_address });
+        self.role_module.write(IRoleModuleLibraryDispatcher { class_hash: role_module_class_hash });
+        self.role_module.read().initialize(role_store_address);
     }
 
     // *************************************************************************
@@ -275,27 +268,14 @@ mod Oracle {
     // *************************************************************************
     #[abi(embed_v0)]
     impl OracleImpl of super::IOracle<ContractState> {
-        fn initialize(
-            ref self: ContractState,
-            role_store_address: ContractAddress,
-            oracle_store_address: ContractAddress,
-            pragma_address: ContractAddress,
-        ) {
-            // Make sure the contract is not already initialized.
-            assert(self.role_store.read().contract_address.is_zero(), OracleError::ALREADY_INITIALIZED);
-            self.role_store.write(IRoleStoreDispatcher { contract_address: role_store_address });
-            self.oracle_store.write(IOracleStoreDispatcher { contract_address: oracle_store_address });
-            self.price_feed.write(IPragmaABIDispatcher { contract_address: pragma_address });
-        }
-
         fn set_prices(
             ref self: ContractState,
             data_store: IDataStoreDispatcher,
             event_emitter: IEventEmitterDispatcher,
             params: SetPricesParams,
         ) {
-            let state: RoleModule::ContractState = RoleModule::unsafe_new_contract_state();
-            IRoleModule::only_controller(@state);
+            self.role_module.read().only_controller();
+
             let tokens_with_prices_len = self.tokens_with_prices.read().len();
             if !tokens_with_prices_len.is_zero() {
                 OracleError::NON_EMPTY_TOKENS_WITH_PRICES(tokens_with_prices_len);
@@ -327,14 +307,12 @@ mod Oracle {
         // * `token` - The token to set the price for.
         // * `price` - The price value to set to.
         fn set_primary_price(ref self: ContractState, token: ContractAddress, price: Price,) {
-            let state: RoleModule::ContractState = RoleModule::unsafe_new_contract_state();
-            IRoleModule::only_controller(@state);
+            self.role_module.read().only_controller();
             self.set_primary_price_(token, price);
         }
 
         fn clear_all_prices(ref self: ContractState) {
-            let state: RoleModule::ContractState = RoleModule::unsafe_new_contract_state();
-            IRoleModule::only_controller(@state);
+            self.role_module.read().only_controller();
             loop {
                 if self.tokens_with_prices.read().len() == Zeroable::zero() {
                     break;

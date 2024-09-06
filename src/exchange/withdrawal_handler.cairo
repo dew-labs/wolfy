@@ -50,12 +50,14 @@ mod WithdrawalHandler {
     // *************************************************************************
 
     // Core lib imports.
-    use starknet::{ContractAddress, get_contract_address, get_caller_address};
+    use starknet::{ContractAddress, get_contract_address, get_caller_address, ClassHash};
     use traits::Default;
     use clone::Clone;
     // Local imports.
     use super::IWithdrawalHandler;
-    use satoru::role::{role, role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait}};
+    use satoru::role::role_store::{IRoleStoreDispatcher};
+    use satoru::role::role;
+    use satoru::role::role_module::{IRoleModuleLibraryDispatcher, IRoleModuleDispatcherTrait};
     use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
     use satoru::data::keys;
     use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
@@ -85,14 +87,13 @@ mod WithdrawalHandler {
     struct Storage {
         /// Interface to interact with the `DataStore` contract.
         data_store: IDataStoreDispatcher,
-        /// Interface to interact with the `RoleStore` contract.
-        role_store: IRoleStoreDispatcher,
         /// Interface to interact with the `EventEmitter` contract.
         event_emitter: IEventEmitterDispatcher,
         /// Interface to interact with the `WithdrawalVault` contract.
         withdrawal_vault: IWithdrawalVaultDispatcher,
         /// Interface to interact with the `Oracle` contract.
-        oracle: IOracleDispatcher
+        oracle: IOracleDispatcher,
+        role_module: IRoleModuleLibraryDispatcher,
     }
 
     // *************************************************************************
@@ -114,12 +115,14 @@ mod WithdrawalHandler {
         event_emitter_address: ContractAddress,
         withdrawal_vault_address: ContractAddress,
         oracle_address: ContractAddress,
+        role_module_class_hash: ClassHash,
     ) {
         self.data_store.write(IDataStoreDispatcher { contract_address: data_store_address });
-        self.role_store.write(IRoleStoreDispatcher { contract_address: role_store_address });
         self.event_emitter.write(IEventEmitterDispatcher { contract_address: event_emitter_address });
         self.withdrawal_vault.write(IWithdrawalVaultDispatcher { contract_address: withdrawal_vault_address });
         self.oracle.write(IOracleDispatcher { contract_address: oracle_address });
+        self.role_module.write(IRoleModuleLibraryDispatcher { class_hash: role_module_class_hash });
+        self.role_module.read().initialize(role_store_address);
     }
 
 
@@ -131,9 +134,7 @@ mod WithdrawalHandler {
         fn create_withdrawal(
             ref self: ContractState, account: ContractAddress, params: CreateWithdrawalParams
         ) -> felt252 {
-            let role_store = self.role_store.read();
-            role_store
-                .assert_only_role(get_caller_address(), role::CONTROLLER); // Only controller can call this method.
+            self.role_module.read().only_controller();
 
             let data_store = self.data_store.read();
 
@@ -153,9 +154,7 @@ mod WithdrawalHandler {
         }
 
         fn cancel_withdrawal(ref self: ContractState, key: felt252) {
-            let role_store = self.role_store.read();
-            role_store
-                .assert_only_role(get_caller_address(), role::CONTROLLER); // Only controller can call this method.
+            self.role_module.read().only_controller();
 
             let data_store = self.data_store.read();
 
@@ -185,8 +184,7 @@ mod WithdrawalHandler {
         }
 
         fn execute_withdrawal(ref self: ContractState, key: felt252, oracle_params: SetPricesParams) {
-            let role_store = self.role_store.read();
-            role_store.assert_only_role(get_caller_address(), role::ORDER_KEEPER); // Only order keeper can call.
+            self.role_module.read().only_order_keeper();
 
             let data_store = self.data_store.read();
 
@@ -224,9 +222,7 @@ mod WithdrawalHandler {
         }
 
         fn simulate_execute_withdrawal(ref self: ContractState, key: felt252, params: SimulatePricesParams) {
-            let role_store = self.role_store.read();
-            role_store
-                .assert_only_role(get_caller_address(), role::CONTROLLER); // Only controller can call this method.
+            self.role_module.read().only_controller();
 
             oracle_modules::with_simulated_oracle_prices_before(self.oracle.read(), params);
 

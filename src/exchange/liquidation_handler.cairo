@@ -74,12 +74,17 @@ mod LiquidationHandler {
         order_utils_libContractMemberStateTrait, oracleContractMemberStateTrait,
     };
     use satoru::order::order_utils::IOrderUtilsDispatcherTrait;
+    use satoru::role::role_store::{IRoleStoreDispatcher};
+    use satoru::role::role;
+    use satoru::role::role_module::{IRoleModuleLibraryDispatcher, IRoleModuleDispatcherTrait};
 
     // *************************************************************************
     //                              STORAGE
     // *************************************************************************
     #[storage]
-    struct Storage {}
+    struct Storage {
+        role_module: IRoleModuleLibraryDispatcher,
+    }
 
     // *************************************************************************
     //                              CONSTRUCTOR
@@ -107,6 +112,7 @@ mod LiquidationHandler {
         increase_order_utils_class_hash: ClassHash,
         decrease_order_utils_class_hash: ClassHash,
         swap_order_utils_class_hash: ClassHash,
+        role_module_class_hash: ClassHash,
     ) {
         let mut state: BaseOrderHandler::ContractState = BaseOrderHandler::unsafe_new_contract_state();
         IBaseOrderHandler::initialize(
@@ -123,8 +129,8 @@ mod LiquidationHandler {
             decrease_order_utils_class_hash,
             swap_order_utils_class_hash,
         );
-        let mut state: RoleModule::ContractState = RoleModule::unsafe_new_contract_state();
-        IRoleModule::initialize(ref state, role_store_address,);
+        self.role_module.write(IRoleModuleLibraryDispatcher { class_hash: role_module_class_hash });
+        self.role_module.read().initialize(role_store_address);
     }
 
 
@@ -144,8 +150,7 @@ mod LiquidationHandler {
             let mut state_base = BaseOrderHandler::unsafe_new_contract_state(); //retrieve BaseOrderHandler state
             global_reentrancy_guard::non_reentrant_before(state_base.data_store.read());
 
-            let mut role_state: RoleModule::ContractState = RoleModule::unsafe_new_contract_state();
-            IRoleModule::only_liquidation_keeper(@role_state);
+            self.role_module.read().only_liquidation_keeper();
 
             with_oracle_prices_before(
                 state_base.oracle.read(), state_base.data_store.read(), state_base.event_emitter.read(), @oracle_params
