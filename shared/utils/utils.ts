@@ -35,6 +35,8 @@ import type { Order } from "./../interfaces/Order";
 import { getDataStoreContract } from "./helpers";
 import { logger } from "./logger";
 import { OrderPersistenceService } from "../../keeper/src/services/OrderPersistenceService";
+import type { Token } from "../../shared/interfaces/Token";
+import type { Contracts } from "../../shared/interfaces/Contracts";
 
 export function getCompiledSierra(contractPath: string) {
     return json.parse(
@@ -205,44 +207,29 @@ export function getPragmaContract() {
     }
 }
 
-export interface Contracts {
-    RoleStore: string | undefined;
-    DataStore: string | undefined;
-    EventEmitter: string | undefined;
-    OracleStore: string | undefined;
-    Pragma: string | undefined;
-    Oracle: string | undefined;
-    OrderVault: string | undefined;
-    SwapHandler: string | undefined;
-    FeeHandler: string | undefined;
-    ReferralStorage: string | undefined;
-    IncreaseOrderUtils: string | undefined;
-    DecreaseOrderUtils: string | undefined;
-    SwapOrderUtils: string | undefined;
-    OrderUtils: string | undefined;
-    OrderHandler: string | undefined;
-    DepositVault: string | undefined;
-    DepositHandler: string | undefined;
-    WithdrawalVault: string | undefined;
-    WithdrawalHandler: string | undefined;
-    LiquidationHandler: string | undefined;
-    AdlHandler: string | undefined;
-    MarketFactory: string | undefined;
-    Reader: string | undefined;
-    Router: string | undefined;
-    ExchangeRouter: string | undefined;
-}
-
 export function getContracts(): Contracts {
     const net = process.env.NET;
-    try {
-        const contracts = JSON.parse(fs.readFileSync(`./contracts.${net}.json`).toString("ascii"));
+    let contracts = {} as Contracts;
 
-        if (!contracts || typeof contracts !== "object") return {} as Contracts;
-        return contracts as Contracts;
-    } catch {
-        return {} as Contracts;
-    }
+    try {
+        contracts = JSON.parse(fs.readFileSync(`./contracts.${net}.json`).toString("ascii"));
+    } catch {}
+
+    console.info("Contracts", contracts);
+
+    return contracts;
+}
+
+export function getTokens(): Token[] {
+    const net = process.env.NET;
+    let tokens: Token[] = [];
+    try {
+        tokens = JSON.parse(fs.readFileSync(`./tokens.${net}.json`).toString("ascii"));
+    } catch {}
+
+    console.info("Tokens", tokens);
+
+    return tokens;
 }
 
 export function createAsker() {
@@ -349,7 +336,8 @@ export async function executeOrder(
         createSatoruContract(chainId, SatoruContract.OrderHandler, OrderHandlerABI, account);
 
     logger.info("Executing Order ... 💨");
-    logger.info(json.stringify(order));
+    console.info("Order Data: ", json.stringify(order));
+    console.info("Execute at Price: ", executionPrice);
 
     const executeOrderReceipt = await executeAndWait(
         account,

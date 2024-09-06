@@ -43,13 +43,14 @@ export class PythPriceOracleService extends EventEmitter {
 
     private handlePriceUpdate(pythPriceFeed: PythPriceFeed): void {
         const pythPriceId: string = "0x" + pythPriceFeed.id;
-        const indexTokenAddress: string = this.getTokenAddressByPythPriceId(pythPriceId);
+        const { address: indexTokenAddress, decimals: indexTokenDecimals }: Token =
+            this.getTokenByPythPriceId(pythPriceId);
 
         const oraclePrice =
             expandDecimals(
                 pythPriceFeed.price.price,
                 USD_DECIMALS - Math.abs(pythPriceFeed.price.expo)
-            ) / expandDecimals(1, Math.abs(pythPriceFeed.price.expo));
+            ) / expandDecimals(1, indexTokenDecimals);
         this.oraclePrices[indexTokenAddress] = oraclePrice;
         this.emit("oraclePricesUpdate", { indexTokenAddress, oraclePrice });
     }
@@ -61,10 +62,10 @@ export class PythPriceOracleService extends EventEmitter {
         return token.pythPriceId;
     }
 
-    private getTokenAddressByPythPriceId(pythPriceId: string): string {
+    private getTokenByPythPriceId(pythPriceId: string): Token {
         const token = this.tokens.find((token) => token.pythPriceId === pythPriceId);
         if (!token) throw new Error("Not found token address with PythPriceId");
 
-        return token.address;
+        return token;
     }
 }
