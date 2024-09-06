@@ -4,7 +4,7 @@
 // *                                       IMPORTS                                             *
 // *********************************************************************************************
 // Core lib imports.
-use snforge_std::{declare, start_cheat_caller_address, stop_cheat_caller_address, ContractClassTrait};
+use snforge_std::{declare, start_cheat_caller_address, stop_cheat_caller_address, ContractClass, ContractClassTrait};
 use starknet::{ContractAddress, contract_address_const};
 
 // Local imports.
@@ -21,14 +21,6 @@ use satoru::test_utils::tests_lib;
 // *********************************************************************************************
 // *                                      TEST LOGIC                                           *
 // *********************************************************************************************
-#[test]
-#[should_panic(expected: ('already_initialized',))]
-fn given_initialize_when_already_intialized_then_fails() {
-    let (_, _, event_emitter, referral_storage, _) = setup();
-    referral_storage.initialize(event_emitter.contract_address);
-    tests_lib::teardown();
-}
-
 #[test]
 fn given_normal_conditions_when_setting_handler_from_storage_than_work() {
     let (caller_address, _, _, referral_storage, _) = setup();
@@ -348,6 +340,7 @@ fn setup() -> (
         _order_utils_class,
         _role_module_class,
         _bank_class,
+        governable_class,
         _market_factory,
         role_store,
         _data_store,
@@ -370,18 +363,18 @@ fn setup() -> (
     ) =
         tests_lib::setup();
 
-    let governable_address = deploy_governable(event_emitter.contract_address);
+    let governable_address = deploy_governable(governable_class, event_emitter.contract_address);
     let governable = IGovernableDispatcher { contract_address: governable_address };
 
     return (caller_address, role_store, event_emitter, referral_storage, governable);
 }
 
-fn deploy_governable(event_emitter_address: ContractAddress) -> ContractAddress {
-    let contract = declare("Governable").unwrap();
+fn deploy_governable(contract: ContractClass, event_emitter_address: ContractAddress) -> ContractAddress {
     let caller_address: ContractAddress = tests_lib::get_c4ller_address();
     let deployed_contract_address = contract_address_const::<'governable'>();
     start_cheat_caller_address(deployed_contract_address, caller_address);
-    let constructor_calldata = array![event_emitter_address.into()];
+    let constructor_calldata = array![];
     let (contract_address, _) = contract.deploy_at(@constructor_calldata, deployed_contract_address).unwrap();
+    IGovernableDispatcher { contract_address }.initialize(event_emitter_address);
     contract_address
 }

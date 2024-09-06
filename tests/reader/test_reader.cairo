@@ -984,6 +984,7 @@ fn setup() -> (
         _order_utils_class,
         role_module_class,
         bank_class,
+        _governable_class,
         _market_factory,
         role_store,
         data_store,

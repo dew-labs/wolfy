@@ -5,22 +5,21 @@ use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
 use satoru::mock::referral_storage::{IReferralStorageDispatcher, IReferralStorageDispatcherTrait};
 use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
 use satoru::mock::governable::{IGovernableDispatcher, IGovernableDispatcherTrait};
-
 use satoru::role::role;
 use satoru::deposit::deposit::Deposit;
 use satoru::test_utils::tests_lib;
 use satoru::utils::span32::{Span32, Array32Trait};
 use satoru::referral::referral_utils;
 
-use snforge_std::{declare, start_cheat_caller_address, ContractClassTrait};
+use snforge_std::{declare, start_cheat_caller_address, ContractClassTrait, ContractClass};
 
-fn deploy_governable(event_emitter_address: ContractAddress) -> ContractAddress {
-    let contract = declare("Governable").unwrap();
+fn deploy_governable(contract: ContractClass, event_emitter_address: ContractAddress) -> ContractAddress {
     let caller_address: ContractAddress = tests_lib::get_c4ller_address();
     let deployed_contract_address = contract_address_const::<'governable'>();
     start_cheat_caller_address(deployed_contract_address, caller_address);
-    let constructor_calldata = array![event_emitter_address.into()];
+    let constructor_calldata = array![];
     let (contract_address, _) = contract.deploy_at(@constructor_calldata, deployed_contract_address).unwrap();
+    IGovernableDispatcher { contract_address }.initialize(event_emitter_address);
     contract_address
 }
 
@@ -34,6 +33,7 @@ fn setup() -> (IEventEmitterDispatcher, IGovernableDispatcher,) {
         _order_utils_class,
         _role_module_class,
         _bank_class,
+        governable_class,
         _market_factory,
         _role_store,
         _data_store,
@@ -56,7 +56,7 @@ fn setup() -> (IEventEmitterDispatcher, IGovernableDispatcher,) {
     ) =
         tests_lib::setup();
 
-    let governable_address = deploy_governable(event_emitter.contract_address);
+    let governable_address = deploy_governable(governable_class, event_emitter.contract_address);
     let governable = IGovernableDispatcher { contract_address: governable_address };
 
     (event_emitter, governable)
@@ -72,6 +72,7 @@ fn setup_with_other_address() -> (IEventEmitterDispatcher, IGovernableDispatcher
         _order_utils_class,
         _role_module_class,
         _bank_class,
+        governable_class,
         _market_factory,
         role_store,
         data_store,
@@ -96,7 +97,7 @@ fn setup_with_other_address() -> (IEventEmitterDispatcher, IGovernableDispatcher
 
     let caller_address: ContractAddress = 0x102.try_into().unwrap();
 
-    let governable_address = deploy_governable(event_emitter.contract_address);
+    let governable_address = deploy_governable(governable_class, event_emitter.contract_address);
     let governable = IGovernableDispatcher { contract_address: governable_address };
 
     start_cheat_caller_address(role_store.contract_address, caller_address);

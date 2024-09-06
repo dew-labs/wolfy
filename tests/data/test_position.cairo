@@ -472,6 +472,7 @@ fn setup() -> (ContractAddress, IRoleStoreDispatcher, IDataStoreDispatcher) {
         _order_utils_class,
         _role_module_class,
         _bank_class,
+        _governable_class,
         _market_factory,
         role_store,
         data_store,

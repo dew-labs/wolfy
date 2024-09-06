@@ -289,6 +289,7 @@ fn setup() -> (
         _order_utils_class,
         _role_module_class,
         _bank_class,
+        _governable_class,
         _,
         role_store,
         data_store,
