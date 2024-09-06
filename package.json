@@ -11,7 +11,7 @@
         "action:execute-order": "bun ./scripts/actions/keeper/executeOrder.ts",
         "action:create-swap-order": "bun ./scripts/actions/user/createSwapOrder.ts",
         "keeper": "bun ./keeper/src/index.ts",
-        "full-flow": "pnpm action:create-deposit && pnpm action:execute-deposit && pnpm action:create-order && pnpm action:execute-order",
+        "full-flow": "pnpm action:create-market && pnpm action:config-market && pnpm action:create-deposit && pnpm action:execute-deposit && pnpm action:create-order && pnpm action:execute-order",
         "sepolia:deploy": "dotenvx run -f .env.sepolia -- pnpm run deploy",
         "sepolia:action:create-market": "dotenvx run -f .env.sepolia -- pnpm run action:create-market",
         "sepolia:action:config-market": "dotenvx run -f .env.sepolia -- pnpm run action:config-market",
