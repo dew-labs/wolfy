@@ -328,35 +328,122 @@ export function decimalToFloat(value: BigNumberish, decimals = 0) {
     return expandDecimals(value, 30 - decimals);
 }
 
-export async function getSetPriceParams(
-    account: Account,
-    indexTokenAddress: string,
-    executionPrice: bigint
-) {
+// export const MAX_UINT8 = 255n; // 2^8 - 1
+// export const MAX_UINT32 = 4294967295n; // 2^32 - 1
+// export const MAX_UINT64 = 18446744073709551615n; // 2^64 - 1
+
+// function getCompactedValues({
+//     values,
+//     compactedValueBitLength,
+//     maxValue,
+// }: {
+//     values: bigint[];
+//     compactedValueBitLength: number;
+//     maxValue: bigint;
+// }) {
+//     const compactedValuesPerSlot = 256 / compactedValueBitLength;
+//     const compactedValues = [];
+//     let shouldExit = false;
+
+//     for (let i = 0; i < Math.floor((values.length - 1) / compactedValuesPerSlot) + 1; i++) {
+//         let valueBits = 0n;
+//         for (let j = 0; j < compactedValuesPerSlot; j++) {
+//             const index = i * compactedValuesPerSlot + j;
+//             if (index >= values.length) {
+//                 shouldExit = true;
+//                 break;
+//             }
+
+//             const value = values[index];
+//             if (!value && value !== 0n) throw new Error(`Value index out of range: ${index}`);
+
+//             if (value > maxValue) {
+//                 throw new Error(`Max value exceeded: ${value}`);
+//             }
+
+//             valueBits = valueBits | (value << BigInt(j * compactedValueBitLength));
+//         }
+
+//         compactedValues.push(valueBits);
+
+//         if (shouldExit) {
+//             break;
+//         }
+//     }
+
+//     return compactedValues;
+// }
+
+// export function getCompactedPrices(prices: bigint[]) {
+//     return getCompactedValues({
+//         values: prices,
+//         compactedValueBitLength: 32,
+//         maxValue: MAX_UINT32,
+//     });
+// }
+
+// export function getCompactedPriceIndexes(priceIndexes: bigint[]) {
+//     return getCompactedValues({
+//         values: priceIndexes,
+//         compactedValueBitLength: 8,
+//         maxValue: MAX_UINT8,
+//     });
+// }
+
+// export function getCompactedDecimals(decimals: bigint[]) {
+//     return getCompactedValues({
+//         values: decimals,
+//         compactedValueBitLength: 8,
+//         maxValue: MAX_UINT8,
+//     });
+// }
+
+// export function getCompactedOracleBlockNumbers(blockNumbers: bigint[]) {
+//     return getCompactedValues({
+//         values: blockNumbers,
+//         compactedValueBitLength: 64,
+//         maxValue: MAX_UINT64,
+//     });
+// }
+
+// export function getCompactedOracleTimestamps(timestamps: bigint[]) {
+//     return getCompactedValues({
+//         values: timestamps,
+//         compactedValueBitLength: 64,
+//         maxValue: MAX_UINT64,
+//     });
+// }
+
+export async function getSetPriceParams(account: Account, tokensWithPrices: [string, bigint][]) {
     const currentBlockNum = await account.getBlockNumber();
     const currentBlock = await account.getBlock();
-    const block0 = 0;
-    const block1 = currentBlockNum;
+    const block0 = BigInt(currentBlockNum - 1);
+    const block1 = BigInt(currentBlockNum);
+
+    const blocks0 = tokensWithPrices.map(() => block0);
+    const blocks1 = tokensWithPrices.map(() => block1);
+    const tokens = tokensWithPrices.map(([tokenAddress]) => tokenAddress);
+    const prices = tokensWithPrices.map(([, price]) => price);
+    const notInUse = tokensWithPrices.map(() => 0n);
+    const signatures = tokensWithPrices.map(() => ["signatures1", "signatures2"]);
 
     return {
+        compacted_min_oracle_block_numbers: blocks0,
+        compacted_max_oracle_block_numbers: blocks1,
+        compacted_oracle_timestamps: [currentBlock.timestamp], // not in use
+        tokens: tokens,
+        compacted_decimals: notInUse, // decimals of the price, not in use
+        compacted_min_prices_indexes: notInUse, // not in use
+        compacted_max_prices_indexes: notInUse, // not in use
+        compacted_min_prices: prices, // doesn't matter
+        compacted_max_prices: prices, // this is the price where order executed
         signer_info: 1,
-        tokens: [indexTokenAddress],
-        compacted_min_oracle_block_numbers: [block0, block0],
-        compacted_max_oracle_block_numbers: [block1, block1],
-        compacted_oracle_timestamps: [currentBlock.timestamp, currentBlock.timestamp], // not in use
-        compacted_decimals: [0, 0], // decimals of the price, not in use
-        compacted_min_prices_indexes: [0], // not in use
-        compacted_max_prices_indexes: [0], // not in use
-        compacted_min_prices: [2147483648010000], // doesn't matter
-        compacted_max_prices: [executionPrice], // this is the price where order executed
-        signatures: [
-            ["signatures1", "signatures2"],
-            ["signatures1", "signatures2"],
-        ],
+        signatures: signatures,
         price_feed_tokens: [],
     };
 }
 
+// TODO: set price of long token, short token, not just index token
 export async function executeOrder(
     account: Account,
     order: Order,
@@ -367,7 +454,7 @@ export async function executeOrder(
         getDataStoreContract(chainId, account);
     const market = await dataStoreContract.get_market(order.market);
     const indexTokenAddress: string = toStarknetHexString(market.index_token);
-    const priceParams = await getSetPriceParams(account, indexTokenAddress, executionPrice);
+    const priceParams = await getSetPriceParams(account, [[indexTokenAddress, executionPrice]]);
 
     const orderHandlerContract: TypedContractV2<SatoruContractAbi<SatoruContract.OrderHandler>> =
         createSatoruContract(chainId, SatoruContract.OrderHandler, OrderHandlerABI, account);

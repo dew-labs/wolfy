@@ -378,6 +378,11 @@ async function grantRoles() {
             SatoruRole.MARKET_KEEPER,
             SatoruRole.FROZEN_ORDER_KEEPER,
             SatoruRole.FEE_KEEPER,
+            SatoruRole.CONFIG_KEEPER,
+            SatoruRole.LIQUIDATION_KEEPER,
+            SatoruRole.ADL_KEEPER,
+            // SatoruRole.TIMELOCK_ADMIN
+            // SatoruRole.TIMELOCK_MULTISIG
             // router plugin role is sus?
             SatoruRole.ROUTER_PLUGIN,
         ],
