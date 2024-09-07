@@ -174,9 +174,17 @@ export async function settingUp() {
 
     const provider = getProvider(ProviderType.HTTP, chainId);
 
+    if (
+        !process.env.ACCOUNT_PRIVATE ||
+        !process.env.ACCOUNT_PUBLIC ||
+        !process.env.HERMES_URL ||
+        !process.env.FEE_TOKEN
+    )
+        throw new Error("Missing required environment variables");
+
     // Connect to account
-    const privateKey0: string = process.env.ACCOUNT_PRIVATE as string;
-    const account0Address: string = process.env.ACCOUNT_PUBLIC as string;
+    const privateKey0: string = process.env.ACCOUNT_PRIVATE;
+    const account0Address: string = process.env.ACCOUNT_PUBLIC;
     const account0 = new Account(provider, account0Address!, privateKey0!);
 
     console.log(
@@ -190,8 +198,8 @@ export async function settingUp() {
         net,
         chainId,
         account: account0,
-        hermesUrl: process.env.HERMES_URL as string,
-        feeToken: process.env.FEE_TOKEN as string,
+        hermesUrl: process.env.HERMES_URL,
+        feeToken: process.env.FEE_TOKEN,
     };
 }
 
@@ -209,7 +217,7 @@ export function getPragmaContract() {
 
 export function getContracts(): Contracts {
     const net = process.env.NET;
-    let contracts = {} as Contracts;
+    let contracts: Contracts = {};
 
     try {
         contracts = JSON.parse(fs.readFileSync(`./contracts.${net}.json`).toString("ascii"));
@@ -316,8 +324,37 @@ export function shrinkDecimals(
     return `${negative ? "-" : ""}${integer || "0"}${fraction ? "." + fraction : ""}`;
 }
 
-export function decimalToFloat(value: any, decimals = 0) {
+export function decimalToFloat(value: BigNumberish, decimals = 0) {
     return expandDecimals(value, 30 - decimals);
+}
+
+export async function getSetPriceParams(
+    account: Account,
+    indexTokenAddress: string,
+    executionPrice: bigint
+) {
+    const currentBlockNum = await account.getBlockNumber();
+    const currentBlock = await account.getBlock();
+    const block0 = 0;
+    const block1 = currentBlockNum;
+
+    return {
+        signer_info: 1,
+        tokens: [indexTokenAddress],
+        compacted_min_oracle_block_numbers: [block0, block0],
+        compacted_max_oracle_block_numbers: [block1, block1],
+        compacted_oracle_timestamps: [currentBlock.timestamp, currentBlock.timestamp], // not in use
+        compacted_decimals: [0, 0], // decimals of the price, not in use
+        compacted_min_prices_indexes: [0], // not in use
+        compacted_max_prices_indexes: [0], // not in use
+        compacted_min_prices: [2147483648010000], // doesn't matter
+        compacted_max_prices: [executionPrice], // this is the price where order executed
+        signatures: [
+            ["signatures1", "signatures2"],
+            ["signatures1", "signatures2"],
+        ],
+        price_feed_tokens: [],
+    };
 }
 
 export async function executeOrder(
@@ -330,7 +367,7 @@ export async function executeOrder(
         getDataStoreContract(chainId, account);
     const market = await dataStoreContract.get_market(order.market);
     const indexTokenAddress: string = toStarknetHexString(market.index_token);
-    const priceParams: any = await setPriceParams(account, indexTokenAddress, executionPrice);
+    const priceParams = await getSetPriceParams(account, indexTokenAddress, executionPrice);
 
     const orderHandlerContract: TypedContractV2<SatoruContractAbi<SatoruContract.OrderHandler>> =
         createSatoruContract(chainId, SatoruContract.OrderHandler, OrderHandlerABI, account);
@@ -359,34 +396,4 @@ export async function executeOrder(
     } else {
         // TODO: retry here
     }
-}
-
-// TODO: handle any
-export async function setPriceParams(
-    account: Account,
-    indexTokenAddress: string,
-    executionPrice: bigint
-): Promise<any> {
-    const currentBlockNum = await account.getBlockNumber();
-    const currentBlock = await account.getBlock();
-    const block0 = 0;
-    const block1 = currentBlockNum;
-
-    return {
-        signer_info: 1,
-        tokens: [indexTokenAddress],
-        compacted_min_oracle_block_numbers: [block0, block0],
-        compacted_max_oracle_block_numbers: [block1, block1],
-        compacted_oracle_timestamps: [currentBlock.timestamp, currentBlock.timestamp], // not in use
-        compacted_decimals: [0, 0], // decimals of the price, not in use
-        compacted_min_prices_indexes: [0], // not in use
-        compacted_max_prices_indexes: [0], // not in use
-        compacted_min_prices: [2147483648010000], // doesn't matter
-        compacted_max_prices: [executionPrice], // this is the price where order executed
-        signatures: [
-            ["signatures1", "signatures2"],
-            ["signatures1", "signatures2"],
-        ],
-        price_feed_tokens: [],
-    };
 }

@@ -15,6 +15,7 @@ import {
     getExchangeRouterContract,
 } from "../../../shared/utils/helpers";
 
+// TODO: update this script
 async function createSwapOrder() {
     const contracts = getContracts();
 

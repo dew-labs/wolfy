@@ -1,21 +1,11 @@
 import {
     cairoIntToBigInt,
-    createCall,
-    createSatoruContract,
     createTokenContract,
-    executeAndWait,
-    OrderHandlerABI,
     OrderType,
     parseOrderType,
-    SatoruContract,
     toStarknetHexString,
 } from "satoru-sdk";
-import {
-    createAsker,
-    expandDecimals,
-    setPriceParams,
-    settingUp,
-} from "../../../shared/utils/utils";
+import { createAsker, expandDecimals, settingUp } from "../../../shared/utils/utils";
 import { getDataStoreContract } from "../../../shared/utils/helpers";
 import { USD_DECIMALS } from "../../../shared/utils/config";
 import { executeOrder as utilExecuteOrder } from "../../../shared/utils/utils";

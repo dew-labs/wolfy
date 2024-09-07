@@ -1,24 +1,19 @@
-export interface Contracts {
-    RoleStore?: string | undefined;
-    DataStore?: string | undefined;
-    EventEmitter?: string | undefined;
-    OracleStore?: string | undefined;
-    Pragma?: string | undefined;
-    Oracle?: string | undefined;
-    OrderVault?: string | undefined;
-    SwapHandler?: string | undefined;
-    ReferralStorage?: string | undefined;
-    IncreaseOrderUtils?: string | undefined;
-    DecreaseOrderUtils?: string | undefined;
-    SwapOrderUtils?: string | undefined;
-    OrderUtils?: string | undefined;
-    OrderHandler?: string | undefined;
-    DepositVault?: string | undefined;
-    DepositHandler?: string | undefined;
-    WithdrawalVault?: string | undefined;
-    WithdrawalHandler?: string | undefined;
-    MarketFactory?: string | undefined;
-    Reader?: string | undefined;
-    Router?: string | undefined;
-    ExchangeRouter?: string | undefined;
+import { SatoruContract } from "satoru-sdk";
+
+enum InternalSatoruContract {
+    Pragma = "Pragma",
+    IncreaseOrderUtils = "IncreaseOrderUtils",
+    DecreaseOrderUtils = "DecreaseOrderUtils",
+    SwapOrderUtils = "SwapOrderUtils",
+    OrderUtils = "OrderUtils",
+    OracleStore = "OracleStore",
+    Oracle = "Oracle",
 }
+
+export type AllSatoruContract = SatoruContract | InternalSatoruContract;
+export const AllSatoruContract = {
+    ...SatoruContract,
+    ...InternalSatoruContract,
+};
+
+export type Contracts = Partial<Record<AllSatoruContract, string | undefined>>;

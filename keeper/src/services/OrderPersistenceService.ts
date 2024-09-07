@@ -10,7 +10,8 @@ export class OrderPersistenceService {
         this.filePath = path.resolve(__dirname, "../../data/orders.json");
     }
 
-    loadOrders(): Record<string, Order[]> {
+    loadOrders() {
+        // TODO: parse data using typebox instead of type assertions
         return json.parse(fs.readFileSync(this.filePath).toString("ascii")) as Record<
             string,
             Order[]
@@ -18,11 +19,14 @@ export class OrderPersistenceService {
     }
 
     saveOrder(order: Order, indexTokenAddress: string): void {
-        fs.readFile(this.filePath, "utf8", (err: any, data: any) => {
+        // TODO: reuse loadOrders
+        fs.readFile(this.filePath, "utf8", (err: unknown, data: unknown) => {
             if (err) {
                 console.error(`Error reading file from disk: ${err}`);
                 return;
             }
+
+            if (typeof data !== "string") throw new Error("Invalid file content");
 
             try {
                 const ordersData = json.parse(data) as Record<string, Order[]>;
@@ -44,11 +48,14 @@ export class OrderPersistenceService {
     }
 
     deleteOrder(orderKey: string, indexTokenAddress: string): void {
-        fs.readFile(this.filePath, "utf8", (err: any, data: any) => {
+        // TODO: reuse loadOrders
+        fs.readFile(this.filePath, "utf8", (err: unknown, data: unknown) => {
             if (err) {
                 console.error(`Error reading file from disk: ${err}`);
                 return;
             }
+
+            if (typeof data !== "string") throw new Error("Invalid file content");
 
             try {
                 const orderData = json.parse(data) as Record<string, Order[]>;

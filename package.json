@@ -34,14 +34,16 @@
     "dependencies": {
         "@dotenvx/dotenvx": "^1.6.4",
         "@pythnetwork/hermes-client": "^1.0.4",
-        "abi-wan-kanabi": "^2.2.2",
+        "abi-wan-kanabi": "2.2.2",
         "picocolors": "^1.0.1",
-        "satoru-sdk": "^1.0.8",
+        "satoru-sdk": "^1.0.9",
         "starknet": "^6.12.1",
         "typescript": "^5.5.3"
     },
     "devDependencies": {
         "@flydotio/dockerfile": "^0.5.8",
-        "@types/node": "^20.14.11"
+        "@total-typescript/ts-reset": "^0.6.1",
+        "@types/bun": "^1.1.8",
+        "type-fest": "^4.26.0"
     }
 }

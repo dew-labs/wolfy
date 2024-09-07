@@ -104,9 +104,9 @@ async function createOrder() {
         triggerPrice = Number(await ask("Trigger price (usd) (default to 3500)")) || 3500;
         triggerPrice =
             expandDecimals(triggerPrice, USD_DECIMALS) / expandDecimals(1, indexTokenDecimals);
-        acceptablePrice = triggerPrice; // TODO: Apply sippage
+        acceptablePrice = triggerPrice; // TODO: Apply slippage
     } else {
-        triggerPrice = Number(await ask("Acceptable price (usd) (default to 3500)")) || 3500;
+        acceptablePrice = Number(await ask("Acceptable price (usd) (default to 3500)")) || 3500;
     }
 
     const orderType = (() => {

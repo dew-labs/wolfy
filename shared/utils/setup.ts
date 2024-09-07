@@ -2,8 +2,7 @@ import {
     ProviderType,
     registerSatoruContractAddress,
     registerProvider,
-    SatoruContract,
-    StarknetChainId,
+    isSatoruContract,
 } from "satoru-sdk";
 import { getContracts, getNetAndChainId } from "./utils";
 
@@ -20,7 +19,7 @@ function registerWssProviders() {
     const { chainId } = getNetAndChainId();
     const providerUrl = process.env.WSS_PROVIDER_URL;
     if (!providerUrl) throw new Error("Missing WSS_PROVIDER_URL environment variable");
-    registerProvider(ProviderType.WSS, chainId as StarknetChainId, providerUrl);
+    registerProvider(ProviderType.WSS, chainId, providerUrl);
 }
 
 function registerContractAddresses() {
@@ -28,11 +27,8 @@ function registerContractAddresses() {
     const { chainId } = getNetAndChainId();
 
     Object.entries(contracts).forEach(([contract, address]) => {
-        registerSatoruContractAddress(
-            chainId as StarknetChainId,
-            contract as unknown as SatoruContract,
-            address
-        );
+        if (address && isSatoruContract(contract))
+            registerSatoruContractAddress(chainId, contract, address);
     });
 }
 

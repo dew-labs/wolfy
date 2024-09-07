@@ -27,15 +27,27 @@ export class PythPriceOracleService extends EventEmitter {
             benchmarksOnly: true,
         });
 
-        eventSource.onmessage = (event: any) => {
-            const pythPriceFeeds: PythPriceFeed[] = json.parse(event.data).parsed;
+        eventSource.onmessage = (event: unknown) => {
+            try {
+                if (
+                    typeof event !== "object" ||
+                    event === null ||
+                    !("data" in event) ||
+                    typeof event.data !== "string"
+                )
+                    throw new Error("Invalid price data");
 
-            pythPriceFeeds.forEach((pythPriceFeed) => {
-                this.handlePriceUpdate(pythPriceFeed);
-            });
+                const pythPriceFeeds: PythPriceFeed[] = json.parse(event.data).parsed;
+
+                pythPriceFeeds.forEach((pythPriceFeed) => {
+                    this.handlePriceUpdate(pythPriceFeed);
+                });
+            } catch {
+                // do nothing, we can still safe ignore the error
+            }
         };
 
-        eventSource.onerror = (error: any) => {
+        eventSource.onerror = (error: unknown) => {
             logger.error(`Hermes Client got error: ${error}`);
             // TODO: resubcribe when error
             eventSource.close();
