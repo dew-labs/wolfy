@@ -22,11 +22,11 @@ export class PriceKeeper {
         oraclePrice: bigint;
     }) => {
         // TODO: performance issue, should work on memory instead
-        const limitOrders: Record<string, Order[]> =
-            await this.orderPersistenceService.loadOrders();
+        const limitOrders: Record<string, Order[]> = this.orderPersistenceService.loadOrders();
         if (!limitOrders[indexTokenAddress]) return;
 
         limitOrders[indexTokenAddress].forEach(async (order) => {
+            // TODO: emit event to let OrderKeeper handle the below logic
             if (this.executingOrders.has(order.key)) {
                 return;
             } else {
@@ -35,6 +35,7 @@ export class PriceKeeper {
 
             // Execute Limit Order
             if (this.canExecuteLimitOrder(order, oraclePrice)) {
+                // TODO: execute in child process
                 await executeOrder(this.account, order, oraclePrice);
                 this.executingOrders.delete(order.key);
             }

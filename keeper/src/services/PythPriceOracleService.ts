@@ -27,16 +27,17 @@ export class PythPriceOracleService extends EventEmitter {
             benchmarksOnly: true,
         });
 
-        eventSource.onmessage = async (event: any) => {
+        eventSource.onmessage = (event: any) => {
             const pythPriceFeeds: PythPriceFeed[] = json.parse(event.data).parsed;
 
-            pythPriceFeeds.forEach(async (pythPriceFeed) => {
+            pythPriceFeeds.forEach((pythPriceFeed) => {
                 this.handlePriceUpdate(pythPriceFeed);
             });
         };
 
         eventSource.onerror = (error: any) => {
             logger.error(`Hermes Client got error: ${error}`);
+            // TODO: resubcribe when error
             eventSource.close();
         };
     }
@@ -53,13 +54,6 @@ export class PythPriceOracleService extends EventEmitter {
             ) / expandDecimals(1, indexTokenDecimals);
         this.oraclePrices[indexTokenAddress] = oraclePrice;
         this.emit("oraclePricesUpdate", { indexTokenAddress, oraclePrice });
-    }
-
-    private getPythPriceIdByTokenAddress(tokenAddress: string): string {
-        const token = this.tokens.find((token) => token.address === tokenAddress);
-        if (!token) throw new Error("Not found PythPriceId with token address");
-
-        return token.pythPriceId;
     }
 
     private getTokenByPythPriceId(pythPriceId: string): Token {

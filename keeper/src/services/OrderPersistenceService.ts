@@ -10,7 +10,7 @@ export class OrderPersistenceService {
         this.filePath = path.resolve(__dirname, "../../data/orders.json");
     }
 
-    async loadOrders(): Promise<Record<string, Order[]>> {
+    loadOrders(): Record<string, Order[]> {
         return json.parse(fs.readFileSync(this.filePath).toString("ascii")) as Record<
             string,
             Order[]

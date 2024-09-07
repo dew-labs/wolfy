@@ -36,7 +36,7 @@
         "@pythnetwork/hermes-client": "^1.0.4",
         "abi-wan-kanabi": "^2.2.2",
         "picocolors": "^1.0.1",
-        "satoru-sdk": "^1.0.6",
+        "satoru-sdk": "^1.0.8",
         "starknet": "^6.12.1",
         "typescript": "^5.5.3"
     },

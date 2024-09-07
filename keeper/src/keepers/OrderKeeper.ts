@@ -49,7 +49,9 @@ export class OrderKeeper {
         this.start();
     }
 
-    handleOrderCreated: SatoruEventHandler<SatoruEvent.OrderCreated> = async (event: any) => {
+    // TODO: handler for subcribe error
+
+    handleOrderCreated: SatoruEventHandler<SatoruEvent.OrderCreated> = async (event) => {
         const {
             key,
             order_type,
@@ -92,6 +94,7 @@ export class OrderKeeper {
             }
 
             // Execute Market Order
+            // TODO: execute in child process
             await executeOrder(this.account, order, executionPrice);
             logger.success("New Market Order Executed 📝");
             logger.success(`== with Order Key: ${orderKey}`);
