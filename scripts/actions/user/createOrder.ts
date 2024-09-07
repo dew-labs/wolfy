@@ -1,4 +1,4 @@
-import { createAsker, expandDecimals, getContracts, settingUp } from "../../utils";
+import { createAsker, expandDecimals, getContracts, settingUp } from "../../../shared/utils/utils";
 import { cairoIntToBigInt, toCairoCustomEnum } from "satoru-sdk";
 import {
     createCall,
@@ -12,9 +12,9 @@ import {
     executeAndGetResult,
     getDataStoreContract,
     getExchangeRouterContract,
-} from "../../helpers";
+} from "../../../shared/utils/helpers";
 import { CairoUint256, shortString } from "starknet";
-import { USD_DECIMALS } from "../../config";
+import { USD_DECIMALS } from "../../../shared/utils/config";
 
 async function createOrder() {
     const contracts = getContracts();
@@ -104,9 +104,9 @@ async function createOrder() {
         triggerPrice = Number(await ask("Trigger price (usd) (default to 3500)")) || 3500;
         triggerPrice =
             expandDecimals(triggerPrice, USD_DECIMALS) / expandDecimals(1, indexTokenDecimals);
-        acceptablePrice = triggerPrice; // TODO: Apply sippage
+        acceptablePrice = triggerPrice; // TODO: Apply slippage
     } else {
-        triggerPrice = Number(await ask("Acceptable price (usd) (default to 3500)")) || 3500;
+        acceptablePrice = Number(await ask("Acceptable price (usd) (default to 3500)")) || 3500;
     }
 
     const orderType = (() => {

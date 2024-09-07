@@ -1,7 +1,6 @@
 import {
     Account,
     CallData,
-    Contract,
     hash,
     json,
     shortString,
@@ -11,17 +10,33 @@ import {
     type CompiledSierra,
     type CairoAssembly,
     type CompiledContract,
-    RpcProvider,
-    type Call,
-    type AccountInterface,
     ec,
     num,
     type BigNumberish,
+    type TypedContractV2,
 } from "starknet";
 import fs from "node:fs";
-import { getProvider, ProviderType, StarknetChainId } from "satoru-sdk";
-import setup from "./setup";
+import {
+    createCall,
+    createSatoruContract,
+    executeAndWait,
+    getProvider,
+    OrderHandlerABI,
+    OrderType,
+    ProviderType,
+    SatoruContract,
+    StarknetChainId,
+    toStarknetHexString,
+    type SatoruContractAbi,
+} from "satoru-sdk";
 import readline from "node:readline";
+import setup from "./setup";
+import type { Order } from "./../interfaces/Order";
+import { getDataStoreContract } from "./helpers";
+import { logger } from "./logger";
+import { OrderPersistenceService } from "../../keeper/src/services/OrderPersistenceService";
+import type { Token } from "../../shared/interfaces/Token";
+import type { Contracts } from "../../shared/interfaces/Contracts";
 
 export function getCompiledSierra(contractPath: string) {
     return json.parse(
@@ -159,9 +174,17 @@ export async function settingUp() {
 
     const provider = getProvider(ProviderType.HTTP, chainId);
 
+    if (
+        !process.env.ACCOUNT_PRIVATE ||
+        !process.env.ACCOUNT_PUBLIC ||
+        !process.env.HERMES_URL ||
+        !process.env.FEE_TOKEN
+    )
+        throw new Error("Missing required environment variables");
+
     // Connect to account
-    const privateKey0: string = process.env.ACCOUNT_PRIVATE as string;
-    const account0Address: string = process.env.ACCOUNT_PUBLIC as string;
+    const privateKey0: string = process.env.ACCOUNT_PRIVATE;
+    const account0Address: string = process.env.ACCOUNT_PUBLIC;
     const account0 = new Account(provider, account0Address!, privateKey0!);
 
     console.log(
@@ -175,7 +198,8 @@ export async function settingUp() {
         net,
         chainId,
         account: account0,
-        feeToken: process.env.FEE_TOKEN as string,
+        hermesUrl: process.env.HERMES_URL,
+        feeToken: process.env.FEE_TOKEN,
     };
 }
 
@@ -191,44 +215,29 @@ export function getPragmaContract() {
     }
 }
 
-export interface Contracts {
-    RoleStore: string | undefined;
-    DataStore: string | undefined;
-    EventEmitter: string | undefined;
-    OracleStore: string | undefined;
-    Pragma: string | undefined;
-    Oracle: string | undefined;
-    OrderVault: string | undefined;
-    SwapHandler: string | undefined;
-    FeeHandler: string | undefined;
-    ReferralStorage: string | undefined;
-    IncreaseOrderUtils: string | undefined;
-    DecreaseOrderUtils: string | undefined;
-    SwapOrderUtils: string | undefined;
-    OrderUtils: string | undefined;
-    OrderHandler: string | undefined;
-    DepositVault: string | undefined;
-    DepositHandler: string | undefined;
-    WithdrawalVault: string | undefined;
-    WithdrawalHandler: string | undefined;
-    LiquidationHandler: string | undefined;
-    AdlHandler: string | undefined;
-    MarketFactory: string | undefined;
-    Reader: string | undefined;
-    Router: string | undefined;
-    ExchangeRouter: string | undefined;
-}
-
 export function getContracts(): Contracts {
     const net = process.env.NET;
-    try {
-        const contracts = JSON.parse(fs.readFileSync(`./contracts.${net}.json`).toString("ascii"));
+    let contracts: Contracts = {};
 
-        if (!contracts || typeof contracts !== "object") return {} as Contracts;
-        return contracts as Contracts;
-    } catch {
-        return {} as Contracts;
-    }
+    try {
+        contracts = JSON.parse(fs.readFileSync(`./contracts.${net}.json`).toString("ascii"));
+    } catch {}
+
+    console.info("Contracts", contracts);
+
+    return contracts;
+}
+
+export function getTokens(): Token[] {
+    const net = process.env.NET;
+    let tokens: Token[] = [];
+    try {
+        tokens = JSON.parse(fs.readFileSync(`./tokens.${net}.json`).toString("ascii"));
+    } catch {}
+
+    console.info("Tokens", tokens);
+
+    return tokens;
 }
 
 export function createAsker() {
@@ -315,6 +324,76 @@ export function shrinkDecimals(
     return `${negative ? "-" : ""}${integer || "0"}${fraction ? "." + fraction : ""}`;
 }
 
-export function decimalToFloat(value: any, decimals = 0) {
+export function decimalToFloat(value: BigNumberish, decimals = 0) {
     return expandDecimals(value, 30 - decimals);
+}
+
+export async function getSetPriceParams(
+    account: Account,
+    indexTokenAddress: string,
+    executionPrice: bigint
+) {
+    const currentBlockNum = await account.getBlockNumber();
+    const currentBlock = await account.getBlock();
+    const block0 = 0;
+    const block1 = currentBlockNum;
+
+    return {
+        signer_info: 1,
+        tokens: [indexTokenAddress],
+        compacted_min_oracle_block_numbers: [block0, block0],
+        compacted_max_oracle_block_numbers: [block1, block1],
+        compacted_oracle_timestamps: [currentBlock.timestamp, currentBlock.timestamp], // not in use
+        compacted_decimals: [0, 0], // decimals of the price, not in use
+        compacted_min_prices_indexes: [0], // not in use
+        compacted_max_prices_indexes: [0], // not in use
+        compacted_min_prices: [2147483648010000], // doesn't matter
+        compacted_max_prices: [executionPrice], // this is the price where order executed
+        signatures: [
+            ["signatures1", "signatures2"],
+            ["signatures1", "signatures2"],
+        ],
+        price_feed_tokens: [],
+    };
+}
+
+export async function executeOrder(
+    account: Account,
+    order: Order,
+    executionPrice: bigint
+): Promise<void> {
+    const { chainId } = getNetAndChainId();
+    const dataStoreContract: TypedContractV2<SatoruContractAbi<SatoruContract.DataStore>> =
+        getDataStoreContract(chainId, account);
+    const market = await dataStoreContract.get_market(order.market);
+    const indexTokenAddress: string = toStarknetHexString(market.index_token);
+    const priceParams = await getSetPriceParams(account, indexTokenAddress, executionPrice);
+
+    const orderHandlerContract: TypedContractV2<SatoruContractAbi<SatoruContract.OrderHandler>> =
+        createSatoruContract(chainId, SatoruContract.OrderHandler, OrderHandlerABI, account);
+
+    logger.info("Executing Order ... 💨");
+    console.info("Order Data: ", json.stringify(order));
+    console.info("Execute at Price: ", executionPrice);
+
+    const executeOrderReceipt = await executeAndWait(
+        account,
+        createCall(orderHandlerContract, "execute_order", [order.key, priceParams])
+    );
+
+    if (executeOrderReceipt.isSuccess()) {
+        logger.success("Execute Successfully 🚀");
+        logger.success(`== with Transaction Hash: ${executeOrderReceipt.transaction_hash}`);
+
+        if (
+            [OrderType.LimitIncrease, OrderType.LimitIncrease, OrderType.LimitSwap].includes(
+                order.order_type
+            )
+        ) {
+            const orderPersistenceService = new OrderPersistenceService();
+            orderPersistenceService.deleteOrder(order.key, indexTokenAddress);
+        }
+    } else {
+        // TODO: retry here
+    }
 }

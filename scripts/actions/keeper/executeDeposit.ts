@@ -5,9 +5,9 @@ import {
     SatoruContract,
     toStarknetHexString,
 } from "satoru-sdk";
-import { createAsker, expandDecimals, settingUp } from "../../utils";
-import { executeAndGetResult, getDataStoreContract } from "../../helpers";
-import { USD_DECIMALS } from "../../config";
+import { createAsker, expandDecimals, settingUp } from "../../../shared/utils/utils";
+import { executeAndGetResult, getDataStoreContract } from "../../../shared/utils/helpers";
+import { USD_DECIMALS } from "../../../shared/utils/config";
 import { createTokenContract } from "satoru-sdk";
 
 async function executeDeposit() {

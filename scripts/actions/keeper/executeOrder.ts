@@ -1,18 +1,15 @@
 import {
     cairoIntToBigInt,
-    createCall,
-    createSatoruContract,
     createTokenContract,
-    executeAndWait,
-    OrderHandlerABI,
     OrderType,
     parseOrderType,
-    SatoruContract,
     toStarknetHexString,
 } from "satoru-sdk";
-import { createAsker, expandDecimals, settingUp } from "../../utils";
-import { getDataStoreContract } from "../../helpers";
-import { USD_DECIMALS } from "../../config";
+import { createAsker, expandDecimals, settingUp } from "../../../shared/utils/utils";
+import { getDataStoreContract } from "../../../shared/utils/helpers";
+import { USD_DECIMALS } from "../../../shared/utils/config";
+import { executeOrder as utilExecuteOrder } from "../../../shared/utils/utils";
+import type { Order } from "shared/interfaces/Order";
 
 async function executeOrder() {
     // get order key from DataStore.get_account_order_keys
@@ -51,6 +48,18 @@ async function executeOrder() {
 
     console.log(order);
 
+    const triggerPrice: bigint = cairoIntToBigInt(order.trigger_price);
+    const acceptablePrice: bigint = cairoIntToBigInt(order.acceptable_price);
+
+    const executeOrder: Order = {
+        key: orderKey,
+        market: order.market,
+        order_type: orderType,
+        trigger_price: triggerPrice,
+        acceptable_price: acceptablePrice,
+        is_long: order.is_long,
+    };
+
     let executionPrice = await ask("Execution price (usd) (default to trigger price for limit)");
 
     let executionContractPrice = 0n;
@@ -70,47 +79,7 @@ async function executeOrder() {
             expandDecimals(executionPrice, USD_DECIMALS) / expandDecimals(1, indexTokenDecimals);
     }
 
-    const currentBlockNum = await account.getBlockNumber();
-    const currentBlock = await account.getBlock();
-
-    const block0 = 0;
-    const block1 = currentBlockNum;
-
-    const setPricesParams = {
-        signer_info: 1,
-        tokens: [indexTokenAddress],
-        compacted_min_oracle_block_numbers: [block0, block0],
-        compacted_max_oracle_block_numbers: [block1, block1],
-        compacted_oracle_timestamps: [currentBlock.timestamp, currentBlock.timestamp], // not in use
-        compacted_decimals: [0, 0], // decimals of the price, not in use
-        compacted_min_prices_indexes: [0], // not in use
-        compacted_max_prices_indexes: [0], // not in use
-        compacted_min_prices: [2147483648010000], // doesn't matter
-        compacted_max_prices: [executionContractPrice], // this is the price where order executed
-        signatures: [
-            ["signatures1", "signatures2"],
-            ["signatures1", "signatures2"],
-        ],
-        price_feed_tokens: [],
-    };
-
-    const orderHandlerContract = createSatoruContract(
-        chainId,
-        SatoruContract.OrderHandler,
-        OrderHandlerABI,
-        account
-    );
-
-    const executeOrderReceipt = await executeAndWait(
-        account,
-        createCall(orderHandlerContract, "execute_order", [orderKey, setPricesParams])
-    );
-
-    if (executeOrderReceipt.isSuccess()) {
-        console.log("Order executed");
-    } else {
-        throw new Error("Order execution failed");
-    }
+    await utilExecuteOrder(account, executeOrder, executionContractPrice);
 
     doneAsking();
 }
