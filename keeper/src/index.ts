@@ -5,6 +5,7 @@ import { getTokens, settingUp } from "@shared/utils/utils";
 
 import type { Token } from "@shared/interfaces/Token";
 import { OrderKeeper } from "./keepers/OrderKeeper";
+import { createNanoEvents, type Emitter } from "nanoevents";
 
 async function index() {
     const { account, chainId, hermesUrl } = await settingUp();
@@ -13,15 +14,17 @@ async function index() {
 
     const priceOracleService = new PythPriceOracleService(hermesUrl, tokens);
 
+    const emitter: Emitter = createNanoEvents();
+
+    logger.info("Keeper is running ...");
+
     // Stream Prices from Oracle
-    new PriceKeeper(priceOracleService, account);
+    new PriceKeeper(priceOracleService, emitter);
     priceOracleService.getPriceFromOracleStream();
 
     // Execute new Orders
-    new OrderKeeper(priceOracleService, account, chainId);
+    new OrderKeeper(priceOracleService, account, chainId, emitter);
 }
 
 // Start the main process
 index();
-
-logger.info("Keeper is running...");

@@ -187,12 +187,12 @@ export async function settingUp() {
     const account0Address: string = process.env.ACCOUNT_PUBLIC;
     const account0 = new Account(provider, account0Address!, privateKey0!);
 
-    console.log(
+    logger.info(
         `Interacting with Account: ${account0Address} via provider: ${provider.channel.nodeUrl}`
     );
 
     const resp = await account0.getSpecVersion();
-    console.log("rpc version =", resp);
+    logger.info(`rpc version = ${resp}`);
 
     return {
         net,
@@ -223,7 +223,8 @@ export function getContracts(): Contracts {
         contracts = JSON.parse(fs.readFileSync(`./contracts.${net}.json`).toString("ascii"));
     } catch {}
 
-    console.info("Contracts", contracts);
+    logger.info("Contracts");
+    logger.info(contracts);
 
     return contracts;
 }
@@ -235,7 +236,8 @@ export function getTokens(): Token[] {
         tokens = JSON.parse(fs.readFileSync(`./tokens.${net}.json`).toString("ascii"));
     } catch {}
 
-    console.info("Tokens", tokens);
+    logger.info("Tokens");
+    logger.info(tokens);
 
     return tokens;
 }
@@ -464,9 +466,7 @@ export async function executeOrder(
     const orderHandlerContract: TypedContractV2<SatoruContractAbi<SatoruContract.OrderHandler>> =
         createSatoruContract(chainId, SatoruContract.OrderHandler, OrderHandlerABI, account);
 
-    logger.info("Executing Order ... 💨");
-    console.info("Order Data: ", json.stringify(order));
-    console.info("Execute at Price: ", executionIndexPrice);
+    logger.info(`[${order.order_type}][${order.key}] Executing ...`);
 
     const executeOrderReceipt = await executeAndWait(
         account,
@@ -474,20 +474,10 @@ export async function executeOrder(
     );
 
     if (executeOrderReceipt.isSuccess()) {
-        logger.info("Execute Successfully 🚀");
-        logger.info(`== with Transaction Hash: ${executeOrderReceipt.transaction_hash}`);
-
-        if (
-            [OrderType.LimitIncrease, OrderType.LimitIncrease, OrderType.LimitSwap].includes(
-                order.order_type
-            )
-        ) {
-            const orderPersistenceService = new OrderPersistenceService();
-            orderPersistenceService.deleteOrder(order.key, indexTokenAddress);
-        }
+        logger.info(
+            `[${order.order_type}][${order.key}] Executed Successfully with Transaction Hash: ${executeOrderReceipt.transaction_hash}`
+        );
     } else {
         // TODO: retry here
-        logger.error("Execute Failed 🚀");
-        logger.error(`== with Transaction Hash: ${executeOrderReceipt}`);
     }
 }
