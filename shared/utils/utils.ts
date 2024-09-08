@@ -455,8 +455,6 @@ export async function executeOrder(
     executionShortPrice: bigint
 ): Promise<void> {
     const { chainId } = getNetAndChainId();
-    const dataStoreContract: TypedContractV2<SatoruContractAbi<SatoruContract.DataStore>> =
-        getDataStoreContract(chainId, account);
     const priceParams = await getSetPriceParams(account, [
         [indexTokenAddress, executionIndexPrice],
         [longTokenAddress, executionLongPrice],
@@ -476,8 +474,8 @@ export async function executeOrder(
     );
 
     if (executeOrderReceipt.isSuccess()) {
-        logger.success("Execute Successfully 🚀");
-        logger.success(`== with Transaction Hash: ${executeOrderReceipt.transaction_hash}`);
+        logger.info("Execute Successfully 🚀");
+        logger.info(`== with Transaction Hash: ${executeOrderReceipt.transaction_hash}`);
 
         if (
             [OrderType.LimitIncrease, OrderType.LimitIncrease, OrderType.LimitSwap].includes(
