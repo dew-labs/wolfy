@@ -28,7 +28,7 @@ export class OrderKeeper {
     >;
     private wssProvider?: SatoruWebSocketProvider;
     private readonly orderPersistenceService: OrderPersistenceService;
-    private executingOrders: Set<string>;
+    private executingLimitOrders: Set<string>;
 
     constructor(
         private priceOracleService: PythPriceOracleService,
@@ -38,7 +38,7 @@ export class OrderKeeper {
     ) {
         this.dataStoreContract = getDataStoreContract(chainId, account);
         this.orderPersistenceService = new OrderPersistenceService();
-        this.executingOrders = new Set();
+        this.executingLimitOrders = new Set();
         this.start();
     }
 
@@ -89,35 +89,7 @@ export class OrderKeeper {
             )
         ) {
             // Market Order
-
-            const longTokenAddress: string = toStarknetHexString(market.long_token);
-            const shortTokenAddress: string = toStarknetHexString(market.short_token);
-
-            // Get oracle price
-            try {
-                const executionIndexPrice: bigint =
-                    this.priceOracleService.getOraclePrice(indexTokenAddress);
-                const executionLongPrice: bigint =
-                    this.priceOracleService.getOraclePrice(longTokenAddress);
-                const executionShortPrice: bigint =
-                    this.priceOracleService.getOraclePrice(shortTokenAddress);
-
-                // TODO: execute in child process
-                await executeOrder(
-                    this.account,
-                    order,
-                    indexTokenAddress,
-                    longTokenAddress,
-                    shortTokenAddress,
-                    executionIndexPrice,
-                    executionLongPrice,
-                    executionShortPrice
-                );
-            } catch {
-                // TODO: call cancel order
-            }
-
-            // Execute Market Order
+            await this.executeOrder(order);
         } else {
             // Limit Order
 
@@ -128,7 +100,7 @@ export class OrderKeeper {
             if (this.canExecuteLimitOrder(order, executionIndexPrice)) {
                 // TODO: execute in child process
                 await this.executeOrder(order);
-                this.executingOrders.delete(order.key);
+                this.executingLimitOrders.delete(order.key);
                 this.orderPersistenceService.deleteOrder(order.key, indexTokenAddress);
             } else {
                 // Store to json
@@ -164,7 +136,6 @@ export class OrderKeeper {
                 executionLongPrice,
                 executionShortPrice
             );
-            this.orderPersistenceService.deleteOrder(order.key, indexTokenAddress);
         } catch {
             // TODO: call cancel order
         }
@@ -178,16 +149,16 @@ export class OrderKeeper {
         executionPrice: bigint
     ) => {
         limitOrders.forEach(async (order) => {
-            if (this.executingOrders.has(order.key)) {
+            if (this.executingLimitOrders.has(order.key)) {
                 return;
             } else {
-                this.executingOrders.add(order.key);
+                this.executingLimitOrders.add(order.key);
             }
 
             if (this.canExecuteLimitOrder(order, executionPrice)) {
                 // TODO: execute in child process
                 await this.executeOrder(order);
-                this.executingOrders.delete(order.key);
+                this.executingLimitOrders.delete(order.key);
                 this.orderPersistenceService.deleteOrder(order.key, indexTokenAddress);
             }
         });
