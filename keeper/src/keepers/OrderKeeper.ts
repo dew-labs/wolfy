@@ -77,7 +77,7 @@ export class OrderKeeper {
 
         const order: Order = {
             key: orderKey,
-            market: marketKey,
+            market: marketKey.toString(), // still receive bigint if not convert
             order_type: orderType,
             trigger_price: triggerPrice,
             acceptable_price: acceptablePrice,
