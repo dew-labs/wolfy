@@ -48,10 +48,11 @@
         // because the full non-relative path would be longer.
         "baseUrl": ".",
         "paths": {
-            "@/*": ["./src/*"]
+            "@/*": ["./src/*"],
+            "@shared/*": ["./shared/*"]
         },
         "types": ["node"]
     },
     "exclude": [],
-    "include": ["scripts/**/*", "keeper/**/*", "shared/**/*"]
+    "include": ["scripts/**/*", "keeper/**/*", "@shared/**/*"]
 }

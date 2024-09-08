@@ -1,11 +1,11 @@
-import type { PythPriceFeed } from "../../../shared/interfaces/PythPriceFeed";
-import type { Token } from "../../../shared/interfaces/Token";
+import type { PythPriceFeed } from "@shared/interfaces/PythPriceFeed";
+import type { Token } from "@shared/interfaces/Token";
 import { HermesClient } from "@pythnetwork/hermes-client";
-import { logger } from "../../../shared/utils/logger";
+import { logger } from "@shared/utils/logger";
 import EventEmitter from "events";
 import { json } from "starknet";
-import { expandDecimals } from "../../../shared/utils/utils";
-import { USD_DECIMALS } from "../../../shared/utils/config";
+import { expandDecimals } from "@shared/utils/utils";
+import { USD_DECIMALS } from "@shared/utils/config";
 
 export class PythPriceOracleService extends EventEmitter {
     private readonly hermesClient: HermesClient;

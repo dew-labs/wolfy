@@ -1,8 +1,8 @@
-import { executeOrder } from "../../../shared/utils/utils";
+import { executeOrder } from "@shared/utils/utils";
 import { OrderPersistenceService } from "../services/OrderPersistenceService";
 import { PythPriceOracleService } from "../services/PythPriceOracleService";
 import type { Account } from "starknet";
-import type { Order } from "../../../shared/interfaces/Order";
+import type { Order } from "@shared/interfaces/Order";
 
 export class PriceKeeper {
     private readonly executingOrders: Set<string>;

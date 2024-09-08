@@ -5,11 +5,11 @@ import {
     parseOrderType,
     toStarknetHexString,
 } from "satoru-sdk";
-import { createAsker, expandDecimals, settingUp } from "../../../shared/utils/utils";
-import { getDataStoreContract } from "../../../shared/utils/helpers";
-import { USD_DECIMALS } from "../../../shared/utils/config";
-import { executeOrder as utilExecuteOrder } from "../../../shared/utils/utils";
-import type { Order } from "shared/interfaces/Order";
+import { createAsker, expandDecimals, settingUp } from "@shared/utils/utils";
+import { getDataStoreContract } from "@shared/utils/helpers";
+import { USD_DECIMALS } from "@shared/utils/config";
+import { executeOrder as utilExecuteOrder } from "@shared/utils/utils";
+import type { Order } from "@shared/interfaces/Order";
 
 async function executeOrder() {
     // get order key from DataStore.get_account_order_keys

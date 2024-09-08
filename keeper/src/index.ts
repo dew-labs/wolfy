@@ -1,9 +1,9 @@
-import { logger } from "../../shared/utils/logger";
+import { logger } from "@shared/utils/logger";
 import { PriceKeeper } from "./keepers/PriceKeeper";
 import { PythPriceOracleService } from "./services/PythPriceOracleService";
-import { getTokens, settingUp } from "../../shared/utils/utils";
+import { getTokens, settingUp } from "@shared/utils/utils";
 
-import type { Token } from "../../shared/interfaces/Token";
+import type { Token } from "@shared/interfaces/Token";
 import { OrderKeeper } from "./keepers/OrderKeeper";
 
 async function index() {

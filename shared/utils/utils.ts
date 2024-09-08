@@ -35,8 +35,8 @@ import type { Order } from "./../interfaces/Order";
 import { getDataStoreContract } from "./helpers";
 import { logger } from "./logger";
 import { OrderPersistenceService } from "../../keeper/src/services/OrderPersistenceService";
-import type { Token } from "../../shared/interfaces/Token";
-import type { Contracts } from "../../shared/interfaces/Contracts";
+import type { Token } from "@shared/interfaces/Token";
+import type { Contracts } from "@shared/interfaces/Contracts";
 
 export function getCompiledSierra(contractPath: string) {
     return json.parse(

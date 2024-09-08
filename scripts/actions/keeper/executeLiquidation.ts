@@ -6,10 +6,10 @@ import {
     SatoruContract,
     toStarknetHexString,
 } from "satoru-sdk";
-import { createAsker, expandDecimals, getContracts, settingUp } from "../../../shared/utils/utils";
-import { getDataStoreContract } from "../../../shared/utils/helpers";
-import { getSetPriceParams } from "../../../shared/utils/utils";
-import { USD_DECIMALS } from "../../../shared/utils/config";
+import { createAsker, expandDecimals, getContracts, settingUp } from "@shared/utils/utils";
+import { getDataStoreContract } from "@shared/utils/helpers";
+import { getSetPriceParams } from "@shared/utils/utils";
+import { USD_DECIMALS } from "@shared/utils/config";
 import { shortString } from "starknet";
 
 async function executeLiquidation() {

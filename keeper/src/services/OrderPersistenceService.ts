@@ -1,6 +1,6 @@
 import * as path from "path";
 import fs from "node:fs";
-import type { Order } from "../../../shared/interfaces/Order";
+import type { Order } from "@shared/interfaces/Order";
 import { json } from "starknet";
 
 export class OrderPersistenceService {
