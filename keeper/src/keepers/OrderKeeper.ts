@@ -85,19 +85,36 @@ export class OrderKeeper {
         ) {
             // Market Order
 
-            // Get oracle price
-            const executionPrice: bigint | undefined =
-                this.priceOracleService.oraclePrices[indexTokenAddress];
+            const longTokenAddress: string = toStarknetHexString(market.long_token);
+            const shortTokenAddress: string = toStarknetHexString(market.short_token);
 
-            if (!executionPrice) {
-                throw new Error(`Cannot find ${indexTokenAddress} token`);
+            // Get oracle price
+            try {
+                const executionIndexPrice: bigint =
+                    this.priceOracleService.getOraclePrice(indexTokenAddress);
+                const executionLongPrice: bigint =
+                    this.priceOracleService.getOraclePrice(longTokenAddress);
+                const executionShortPrice: bigint =
+                    this.priceOracleService.getOraclePrice(shortTokenAddress);
+
+                // TODO: execute in child process
+                await executeOrder(
+                    this.account,
+                    order,
+                    indexTokenAddress,
+                    longTokenAddress,
+                    shortTokenAddress,
+                    executionIndexPrice,
+                    executionLongPrice,
+                    executionShortPrice
+                );
+                logger.success("New Market Order Executed 📝");
+                logger.success(`== with Order Key: ${orderKey}`);
+            } catch {
+                // TODO: call cancel order
             }
 
             // Execute Market Order
-            // TODO: execute in child process
-            await executeOrder(this.account, order, executionPrice);
-            logger.success("New Market Order Executed 📝");
-            logger.success(`== with Order Key: ${orderKey}`);
         } else {
             // Limit Order
 

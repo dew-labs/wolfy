@@ -447,21 +447,28 @@ export async function getSetPriceParams(account: Account, tokensWithPrices: [str
 export async function executeOrder(
     account: Account,
     order: Order,
-    executionPrice: bigint
+    indexTokenAddress: string,
+    longTokenAddress: string,
+    shortTokenAddress: string,
+    executionIndexPrice: bigint,
+    executionLongPrice: bigint,
+    executionShortPrice: bigint
 ): Promise<void> {
     const { chainId } = getNetAndChainId();
     const dataStoreContract: TypedContractV2<SatoruContractAbi<SatoruContract.DataStore>> =
         getDataStoreContract(chainId, account);
-    const market = await dataStoreContract.get_market(order.market);
-    const indexTokenAddress: string = toStarknetHexString(market.index_token);
-    const priceParams = await getSetPriceParams(account, [[indexTokenAddress, executionPrice]]);
+    const priceParams = await getSetPriceParams(account, [
+        [indexTokenAddress, executionIndexPrice],
+        [longTokenAddress, executionLongPrice],
+        [shortTokenAddress, executionShortPrice],
+    ]);
 
     const orderHandlerContract: TypedContractV2<SatoruContractAbi<SatoruContract.OrderHandler>> =
         createSatoruContract(chainId, SatoruContract.OrderHandler, OrderHandlerABI, account);
 
     logger.info("Executing Order ... 💨");
     console.info("Order Data: ", json.stringify(order));
-    console.info("Execute at Price: ", executionPrice);
+    console.info("Execute at Price: ", executionIndexPrice);
 
     const executeOrderReceipt = await executeAndWait(
         account,
@@ -482,5 +489,7 @@ export async function executeOrder(
         }
     } else {
         // TODO: retry here
+        logger.error("Execute Failed 🚀");
+        logger.error(`== with Transaction Hash: ${executeOrderReceipt}`);
     }
 }

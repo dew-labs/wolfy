@@ -54,6 +54,14 @@ export class PythPriceOracleService extends EventEmitter {
         };
     }
 
+    getOraclePrice(tokenAddress: string) {
+        const price = this.oraclePrices[tokenAddress];
+        if (!price) {
+            throw new Error(`Cannot find ${tokenAddress} token`);
+        }
+        return price;
+    }
+
     private handlePriceUpdate(pythPriceFeed: PythPriceFeed): void {
         const pythPriceId: string = "0x" + pythPriceFeed.id;
         const { address: indexTokenAddress, decimals: indexTokenDecimals }: Token =
