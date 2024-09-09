@@ -167,11 +167,10 @@ async function config() {
 
     // -----------------------------------------------------------------------------------------------------------------
 
-    // const virtualTokenCalls = [];
     // const virtualTokenIdForIndexTokenKey = dataStoreKeys.virtualTokenIdKey(
     //     configData.virtualTokenIdForIndexToken
     // );
-    // virtualTokenCalls.push({
+    // calls.push({
     //     contractAddress: dataStoreContract.address,
     //     entrypoint: "set_felt252",
     //     calldata: [virtualTokenIdForIndexTokenKey, configData.virtualTokenIdForIndexToken],
@@ -179,12 +178,11 @@ async function config() {
     // const virtualTokenIdForMarketToken = dataStoreKeys.virtualMarketIdKey(
     //     configData.virtualTokenIdForIndexToken
     // );
-    // virtualTokenCalls.push({
+    // calls.push({
     //     contractAddress: dataStoreContract.address,
     //     entrypoint: "set_felt252",
     //     calldata: [virtualTokenIdForMarketToken, configData.virtualMarketId],
     // });
-    // await executeAndWait(account, virtualTokenCalls);
 
     // -----------------------------------------------------------------------------------------------------------------
 
@@ -203,7 +201,7 @@ async function config() {
         createCall(dataStoreContract, "set_u256", [
             maxLongTokenPoolAmountKey,
             // configData.maxLongTokenPoolAmount,
-            new CairoUint256(5000000000000000000000000000000000000000000),
+            new CairoUint256(5000000000000000000000000_000000000000000000),
         ])
     );
 
@@ -216,7 +214,7 @@ async function config() {
         createCall(dataStoreContract, "set_u256", [
             maxShortTokenPoolAmountKey,
             // configData.maxShortTokenPoolAmount,
-            new CairoUint256(2500000000000000000000000000000000000000000000),
+            new CairoUint256(2500000000000000000000000000_000000000000000000),
         ])
     );
 
@@ -228,7 +226,7 @@ async function config() {
         createCall(dataStoreContract, "set_u256", [
             reserveFactorLongsKey,
             // configData.reserveFactorLongs,
-            new CairoUint256(1000000000000000000n),
+            new CairoUint256(1_000000000000000000n),
         ])
     );
 
@@ -238,7 +236,27 @@ async function config() {
         createCall(dataStoreContract, "set_u256", [
             reserveFactorShortsKey,
             // configData.reserveFactorShorts,
-            new CairoUint256(1000000000000000000n),
+            new CairoUint256(1_000000000000000000n),
+        ])
+    );
+
+    // -----------------------------------------------------------------------------------------------------------------
+
+    // maxOpenInterestForLongs
+    const maxOpenInterestForLongsKey = dataStoreKeys.maxOpenInterestKey(marketTokenAddress, true);
+    calls.push(
+        createCall(dataStoreContract, "set_u256", [
+            maxOpenInterestForLongsKey,
+            configData.maxOpenInterestForLongs,
+        ])
+    );
+
+    // maxOpenInterestForShorts
+    const maxOpenInterestForShortsKey = dataStoreKeys.maxOpenInterestKey(marketTokenAddress, false);
+    calls.push(
+        createCall(dataStoreContract, "set_u256", [
+            maxOpenInterestForShortsKey,
+            configData.maxOpenInterestForShorts,
         ])
     );
 
@@ -327,26 +345,6 @@ async function config() {
             maxPnlFactorForWithdrawalsShortsKey,
             // configData.maxPnlFactorForWithdrawalsShorts,
             new CairoUint256(50000000000000000000000000000000000000000000000n),
-        ])
-    );
-
-    // -----------------------------------------------------------------------------------------------------------------
-
-    // maxOpenInterestForLongs
-    const maxOpenInterestForLongsKey = dataStoreKeys.maxOpenInterestKey(marketTokenAddress, true);
-    calls.push(
-        createCall(dataStoreContract, "set_u256", [
-            maxOpenInterestForLongsKey,
-            configData.maxOpenInterestForLongs,
-        ])
-    );
-
-    // maxOpenInterestForShorts
-    const maxOpenInterestForShortsKey = dataStoreKeys.maxOpenInterestKey(marketTokenAddress, false);
-    calls.push(
-        createCall(dataStoreContract, "set_u256", [
-            maxOpenInterestForShortsKey,
-            configData.maxOpenInterestForShorts,
         ])
     );
 
