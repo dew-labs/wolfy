@@ -4,19 +4,21 @@ import { OrderType } from "satoru-sdk";
 export interface Order {
     key: string;
     market: string;
-    order_type: OrderType;
-    is_long: boolean;
-    trigger_price?: bigint;
-    acceptable_price: bigint;
+    orderType: OrderType;
+    isLong: boolean;
+    sizeDeltaUsd: bigint;
+    triggerPrice?: bigint;
+    acceptablePrice: bigint;
 }
 
 export const OrderSchema = Type.Object({
     key: Type.String(),
     market: Type.String(),
-    order_type: Type.Enum(OrderType),
-    is_long: Type.Boolean(),
-    trigger_price: Type.BigInt(),
-    acceptable_price: Type.BigInt(),
+    orderType: Type.Enum(OrderType),
+    isLong: Type.Boolean(),
+    sizeDeltaUsd: Type.BigInt(),
+    triggerPrice: Type.Optional(Type.BigInt()),
+    acceptablePrice: Type.BigInt(),
 });
 
 export const OrdersSchema = Type.Optional(Type.Record(Type.String(), Type.Array(OrderSchema)));

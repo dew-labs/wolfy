@@ -465,7 +465,7 @@ export async function executeOrder(
     const orderHandlerContract: TypedContractV2<SatoruContractAbi<SatoruContract.OrderHandler>> =
         createSatoruContract(chainId, SatoruContract.OrderHandler, OrderHandlerABI, account);
 
-    logger.info(`[${order.order_type}][${order.key}] Executing ...`);
+    logger.info(`[${order.orderType}][${order.key}] Executing ...`);
 
     const executeOrderReceipt = await executeAndWait(
         account,
@@ -474,7 +474,7 @@ export async function executeOrder(
 
     if (executeOrderReceipt.isSuccess()) {
         logger.info(
-            `[${order.order_type}][${order.key}] Executed Successfully with Transaction Hash: ${executeOrderReceipt.transaction_hash}`
+            `[${order.orderType}][${order.key}] Executed Successfully with Transaction Hash: ${executeOrderReceipt.transaction_hash}`
         );
     } else {
         // TODO: retry here

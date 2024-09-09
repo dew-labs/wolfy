@@ -64,30 +64,30 @@ export class OrderKeeper {
             trigger_price,
             acceptable_price,
             is_long,
+            size_delta_usd,
         } = event.order;
 
         // init data
         const orderKey: string = toStarknetHexString(key);
+        const marketKeyString: string = toStarknetHexString(marketKey);
         const orderType: OrderType = parseOrderType(order_type);
         const triggerPrice: bigint = cairoIntToBigInt(trigger_price);
         const acceptablePrice: bigint = cairoIntToBigInt(acceptable_price);
+        const sizeDeltaUsd: bigint = cairoIntToBigInt(size_delta_usd);
 
         const market = await this.dataStoreContract.get_market(marketKey);
         const indexTokenAddress: string = toStarknetHexString(market.index_token);
 
         const order: Order = {
             key: orderKey,
-            market: marketKey.toString(), // TODO: toStarknetHexString
-            order_type: orderType,
-            trigger_price: triggerPrice,
-            acceptable_price: acceptablePrice,
-            is_long,
+            market: marketKeyString,
+            orderType,
+            isLong: is_long,
+            sizeDeltaUsd,
+            triggerPrice,
+            acceptablePrice,
         };
-        if (
-            [OrderType.MarketDecrease, OrderType.MarketIncrease, OrderType.MarketSwap].includes(
-                orderType
-            )
-        ) {
+        if (this.isMarketOrder(orderType)) {
             // Market Order
             await this.executeOrder(order);
         } else {
@@ -103,7 +103,7 @@ export class OrderKeeper {
             } else {
                 // Store to json
                 this.orderPersistenceService.saveOrder(order, indexTokenAddress);
-                logger.info(`[${order.order_type}][${order.key}] Saved ...`);
+                logger.info(`[${order.orderType}][${order.key}] Saved ...`);
             }
         }
     };
@@ -135,11 +135,7 @@ export class OrderKeeper {
                 executionShortPrice
             );
         } catch (e) {
-            if (
-                [OrderType.MarketDecrease, OrderType.MarketIncrease, OrderType.MarketSwap].includes(
-                    order.order_type
-                )
-            ) {
+            if (this.isMarketOrder(order.orderType)) {
                 // TODO: handle cancel market order
                 logger.error(e);
             } else {
@@ -172,14 +168,20 @@ export class OrderKeeper {
     };
 
     private isLimitOrderExecutable(order: Order, executionPrice: bigint): boolean {
-        const acceptablePrice: bigint = order.acceptable_price;
+        const acceptablePrice: bigint = order.acceptablePrice;
 
-        if (order.is_long) {
+        if (order.isLong) {
             return executionPrice <= acceptablePrice;
         } else {
             return executionPrice >= acceptablePrice;
         }
 
         return true;
+    }
+
+    private isMarketOrder(orderType: OrderType): boolean {
+        return [OrderType.MarketDecrease, OrderType.MarketIncrease, OrderType.MarketSwap].includes(
+            orderType
+        );
     }
 }
