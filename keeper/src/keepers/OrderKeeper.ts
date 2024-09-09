@@ -13,13 +13,13 @@ import {
     type SatoruWebSocketProvider,
 } from "satoru-sdk";
 
-import { getDataStoreContract } from "@shared/utils/helpers";
+import { getDataStoreContract } from "@/shared/utils/helpers";
 import type { Account, TypedContractV2 } from "starknet";
-import type { Order } from "@shared/interfaces/Order";
+import type { Order } from "@/shared/interfaces/Order";
 import type { PythPriceOracleService } from "../services/PythPriceOracleService";
 import { OrderPersistenceService } from "../services/OrderPersistenceService";
-import { executeOrder } from "@shared/utils/utils";
-import { logger } from "@shared/utils/logger";
+import { executeOrder } from "@/shared/utils/utils";
+import { logger } from "@/shared/utils/logger";
 import type { Emitter } from "nanoevents";
 
 export class OrderKeeper {

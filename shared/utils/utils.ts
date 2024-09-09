@@ -35,8 +35,8 @@ import type { Order } from "./../interfaces/Order";
 import { getDataStoreContract } from "./helpers";
 import { logger } from "./logger";
 import { OrderPersistenceService } from "../../keeper/src/services/OrderPersistenceService";
-import type { Token } from "@shared/interfaces/Token";
-import type { Contracts } from "@shared/interfaces/Contracts";
+import type { Token } from "@/shared/interfaces/Token";
+import type { Contracts } from "@/shared/interfaces/Contracts";
 
 export function getCompiledSierra(contractPath: string) {
     return json.parse(
@@ -445,7 +445,6 @@ export async function getSetPriceParams(account: Account, tokensWithPrices: [str
     };
 }
 
-// TODO: set price of long token, short token, not just index token
 export async function executeOrder(
     account: Account,
     order: Order,

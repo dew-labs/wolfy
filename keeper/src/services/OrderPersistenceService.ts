@@ -1,5 +1,5 @@
-import { logger } from "@shared/utils/logger";
-import { OrdersSchema, type Order } from "@shared/interfaces/Order";
+import { logger } from "@/shared/utils/logger";
+import { OrdersSchema, type Order } from "@/shared/interfaces/Order";
 import { Value } from "@sinclair/typebox/value";
 import * as devalue from "devalue";
 import * as path from "path";

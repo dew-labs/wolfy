@@ -1,7 +1,7 @@
 import { OrderPersistenceService } from "../services/OrderPersistenceService";
 import { PythPriceOracleService } from "../services/PythPriceOracleService";
 import { type Emitter } from "nanoevents";
-import type { Order } from "@shared/interfaces/Order";
+import type { Order } from "@/shared/interfaces/Order";
 
 export class PriceKeeper {
     private readonly orderPersistenceService: OrderPersistenceService;

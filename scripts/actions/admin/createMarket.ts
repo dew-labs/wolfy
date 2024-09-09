@@ -1,5 +1,5 @@
 import { CairoUint256, type Account } from "starknet";
-import { ensureDeployed, settingUp } from "@shared/utils/utils";
+import { ensureDeployed, settingUp } from "@/shared/utils/utils";
 
 import fs from "node:fs";
 import { StarknetChainId } from "satoru-sdk";
