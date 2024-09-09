@@ -46,7 +46,7 @@ export class OrderKeeper {
         this.wssProvider = getProvider(ProviderType.WSS, this.chainId);
         await this.wssProvider.subscribeToEvent(SatoruEvent.OrderCreated, this.handleOrderCreated);
         this.wssProvider.onClose(this.onCloseHandler);
-        this.emitter.on("executeLimitOrders", this.executeLimitOrders);
+        this.emitter.on("executeLimitOrdersIfExecutable", this.executeLimitOrdersIfExecutable);
     }
 
     onCloseHandler() {
@@ -77,7 +77,7 @@ export class OrderKeeper {
 
         const order: Order = {
             key: orderKey,
-            market: marketKey.toString(), // still receive bigint if not convert
+            market: marketKey.toString(), // TODO: toStarknetHexString
             order_type: orderType,
             trigger_price: triggerPrice,
             acceptable_price: acceptablePrice,
@@ -97,11 +97,9 @@ export class OrderKeeper {
             const executionIndexPrice: bigint =
                 this.priceOracleService.getOraclePrice(indexTokenAddress);
 
-            if (this.canExecuteLimitOrder(order, executionIndexPrice)) {
+            if (this.isLimitOrderExecutable(order, executionIndexPrice)) {
                 // TODO: execute in child process
                 await this.executeOrder(order);
-                this.executingLimitOrders.delete(order.key);
-                this.orderPersistenceService.deleteOrder(order.key, indexTokenAddress);
             } else {
                 // Store to json
                 this.orderPersistenceService.saveOrder(order, indexTokenAddress);
@@ -136,14 +134,23 @@ export class OrderKeeper {
                 executionLongPrice,
                 executionShortPrice
             );
-        } catch {
-            // TODO: call cancel order
+        } catch (e) {
+            if (
+                [OrderType.MarketDecrease, OrderType.MarketIncrease, OrderType.MarketSwap].includes(
+                    order.order_type
+                )
+            ) {
+                // TODO: handle cancel market order
+                logger.error(e);
+            } else {
+            }
         }
     }
 
+    // TODO: handle cancel order
     async cancelOrder() {}
 
-    private executeLimitOrders = (
+    private executeLimitOrdersIfExecutable = (
         limitOrders: Order[],
         indexTokenAddress: string,
         executionPrice: bigint
@@ -155,7 +162,7 @@ export class OrderKeeper {
                 this.executingLimitOrders.add(order.key);
             }
 
-            if (this.canExecuteLimitOrder(order, executionPrice)) {
+            if (this.isLimitOrderExecutable(order, executionPrice)) {
                 // TODO: execute in child process
                 await this.executeOrder(order);
                 this.executingLimitOrders.delete(order.key);
@@ -164,7 +171,7 @@ export class OrderKeeper {
         });
     };
 
-    private canExecuteLimitOrder(order: Order, executionPrice: bigint): boolean {
+    private isLimitOrderExecutable(order: Order, executionPrice: bigint): boolean {
         const acceptablePrice: bigint = order.acceptable_price;
 
         if (order.is_long) {

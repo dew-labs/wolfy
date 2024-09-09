@@ -23,7 +23,7 @@ export class PriceKeeper {
         if (!limitOrders[indexTokenAddress] || limitOrders[indexTokenAddress].length === 0) return;
 
         this.emitter.emit(
-            "executeLimitOrders",
+            "executeLimitOrdersIfExecutable",
             limitOrders[indexTokenAddress],
             indexTokenAddress,
             oraclePrice

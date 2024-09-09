@@ -22,6 +22,7 @@ export class OrderPersistenceService {
             const data = fs.readFileSync(this.filePath, "utf8");
             const parsedData = devalue.parse(data);
 
+            // TODO: use compile then check
             if (!Value.Check(OrdersSchema, parsedData)) {
                 throw new Error("Invalid orders format");
             }

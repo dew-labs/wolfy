@@ -5,7 +5,7 @@ import { getTokens, settingUp } from "@/shared/utils/utils";
 
 import type { Token } from "@/shared/interfaces/Token";
 import { OrderKeeper } from "./keepers/OrderKeeper";
-import { createNanoEvents, type Emitter } from "nanoevents";
+import { createNanoEvents } from "nanoevents";
 
 async function index() {
     const { account, chainId, hermesUrl } = await settingUp();
@@ -14,7 +14,8 @@ async function index() {
 
     const priceOracleService = new PythPriceOracleService(hermesUrl, tokens);
 
-    const emitter: Emitter = createNanoEvents();
+    // TODO: define types
+    const emitter = createNanoEvents();
 
     logger.info("Keeper is running ...");
 
