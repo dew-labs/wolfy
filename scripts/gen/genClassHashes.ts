@@ -1,5 +1,5 @@
 import fs from "node:fs";
-import { getClassHash } from "shared/utils/utils";
+import { getClassHash } from "@/shared/utils/utils";
 
 function getClassHashes() {
     const paths = fs

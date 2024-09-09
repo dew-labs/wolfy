@@ -1,7 +1,9 @@
+import { logger } from "@/shared/utils/logger";
+import { OrdersSchema, type Order } from "@/shared/interfaces/Order";
+import { Value } from "@sinclair/typebox/value";
+import * as devalue from "devalue";
 import * as path from "path";
 import fs from "node:fs";
-import type { Order } from "../../../shared/interfaces/Order";
-import { json } from "starknet";
 
 export class OrderPersistenceService {
     private readonly filePath: string;
@@ -10,71 +12,62 @@ export class OrderPersistenceService {
         this.filePath = path.resolve(__dirname, "../../data/orders.json");
     }
 
-    loadOrders() {
-        // TODO: parse data using typebox instead of type assertions
-        return json.parse(fs.readFileSync(this.filePath).toString("ascii")) as Record<
-            string,
-            Order[]
-        >;
+    loadOrders(): Record<string, Order[]> {
+        try {
+            if (!fs.existsSync(this.filePath)) {
+                fs.writeFileSync(this.filePath, devalue.stringify({}));
+                return {};
+            }
+
+            const data = fs.readFileSync(this.filePath, "utf8");
+            const parsedData = devalue.parse(data);
+
+            // TODO: use compile then check
+            if (!Value.Check(OrdersSchema, parsedData)) {
+                throw new Error("Invalid orders format");
+            }
+
+            return parsedData;
+        } catch (err) {
+            logger.error("[PersistOrder] Loading error");
+            logger.error(err);
+            return {};
+        }
     }
 
     saveOrder(order: Order, indexTokenAddress: string): void {
-        // TODO: reuse loadOrders
-        fs.readFile(this.filePath, "utf8", (err: unknown, data: unknown) => {
-            if (err) {
-                console.error(`Error reading file from disk: ${err}`);
-                return;
+        try {
+            const limitOrders = this.loadOrders();
+
+            if (!limitOrders[indexTokenAddress]) {
+                limitOrders[indexTokenAddress] = [];
             }
 
-            if (typeof data !== "string") throw new Error("Invalid file content");
+            limitOrders[indexTokenAddress].push(order);
 
-            try {
-                const ordersData = json.parse(data) as Record<string, Order[]>;
-
-                if (!ordersData.hasOwnProperty(indexTokenAddress)) {
-                    ordersData[indexTokenAddress] = [];
-                    ordersData[indexTokenAddress].push(order);
-                }
-
-                fs.writeFile(this.filePath, json.stringify(ordersData, null, 2), "utf8", (err) => {
-                    if (err) {
-                        console.error(`Error writing file to disk: ${err}`);
-                    }
-                });
-            } catch (err) {
-                console.error(`Error parsing JSON string: ${err}`);
-            }
-        });
+            fs.writeFileSync(this.filePath, devalue.stringify(limitOrders), "utf8");
+        } catch (err) {
+            logger.error("[PersistOrder] Saving error");
+            logger.error(err);
+        }
     }
 
     deleteOrder(orderKey: string, indexTokenAddress: string): void {
-        // TODO: reuse loadOrders
-        fs.readFile(this.filePath, "utf8", (err: unknown, data: unknown) => {
-            if (err) {
-                console.error(`Error reading file from disk: ${err}`);
-                return;
+        try {
+            const limitOrders = this.loadOrders();
+            const orders = limitOrders[indexTokenAddress];
+
+            if (!orders) {
+                throw new Error(`No orders found for token address: ${indexTokenAddress}`);
             }
 
-            if (typeof data !== "string") throw new Error("Invalid file content");
+            const newOrders = orders.filter((order) => order.key !== orderKey);
+            limitOrders[indexTokenAddress] = newOrders;
 
-            try {
-                const orderData = json.parse(data) as Record<string, Order[]>;
-                const orders: Order[] | undefined = orderData[indexTokenAddress];
-
-                if (!orders) {
-                    throw new Error(`Cannot find the Order with index token ${indexTokenAddress}`);
-                }
-                const newOrders = orders.filter((order) => order.key !== orderKey);
-                orderData[indexTokenAddress] = newOrders;
-
-                fs.writeFile(this.filePath, json.stringify(orderData, null, 2), "utf8", (err) => {
-                    if (err) {
-                        console.error(`Error writing file to disk: ${err}`);
-                    }
-                });
-            } catch (err) {
-                console.error(`Error parsing JSON string: ${err}`);
-            }
-        });
+            fs.writeFileSync(this.filePath, devalue.stringify(limitOrders), "utf8");
+        } catch (err) {
+            logger.error("[PersistOrder] Removing error");
+            logger.error(err);
+        }
     }
 }

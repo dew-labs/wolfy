@@ -10,6 +10,7 @@ COPY shared/ ./shared
 COPY package.json ./
 COPY tokens.sepolia.json ./
 COPY contracts.sepolia.json ./
+COPY tsconfig.json ./
 
 # Install project dependencies using bun
 RUN bun install

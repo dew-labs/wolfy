@@ -1,20 +1,17 @@
-import { executeOrder } from "../../../shared/utils/utils";
 import { OrderPersistenceService } from "../services/OrderPersistenceService";
 import { PythPriceOracleService } from "../services/PythPriceOracleService";
-import type { Account } from "starknet";
-import type { Order } from "../../../shared/interfaces/Order";
+import { type Emitter } from "nanoevents";
+import type { Order } from "@/shared/interfaces/Order";
 
 export class PriceKeeper {
-    private readonly executingOrders: Set<string>;
     private readonly orderPersistenceService: OrderPersistenceService;
 
-    constructor(private priceOracleService: PythPriceOracleService, private account: Account) {
-        this.priceOracleService.on("oraclePricesUpdate", this.handlePriceUpdate);
+    constructor(private priceOracleService: PythPriceOracleService, private emitter: Emitter) {
         this.orderPersistenceService = new OrderPersistenceService();
-        this.executingOrders = new Set();
+        this.priceOracleService.on("oraclePricesUpdate", this.handlePriceUpdate);
     }
 
-    private handlePriceUpdate = async ({
+    private handlePriceUpdate = ({
         indexTokenAddress,
         oraclePrice,
     }: {
@@ -23,34 +20,13 @@ export class PriceKeeper {
     }) => {
         // TODO: performance issue, should work on memory instead
         const limitOrders: Record<string, Order[]> = this.orderPersistenceService.loadOrders();
-        if (!limitOrders[indexTokenAddress]) return;
+        if (!limitOrders[indexTokenAddress] || limitOrders[indexTokenAddress].length === 0) return;
 
-        limitOrders[indexTokenAddress].forEach(async (order) => {
-            // TODO: emit event to let OrderKeeper handle the below logic
-            if (this.executingOrders.has(order.key)) {
-                return;
-            } else {
-                this.executingOrders.add(order.key);
-            }
-
-            // Execute Limit Order
-            if (this.canExecuteLimitOrder(order, oraclePrice)) {
-                // TODO: execute in child process
-                await executeOrder(this.account, order, oraclePrice);
-                this.executingOrders.delete(order.key);
-            }
-        });
+        this.emitter.emit(
+            "executeLimitOrdersIfExecutable",
+            limitOrders[indexTokenAddress],
+            indexTokenAddress,
+            oraclePrice
+        );
     };
-
-    private canExecuteLimitOrder(order: Order, executionPrice: bigint): boolean {
-        const acceptablePrice: bigint = order.acceptable_price;
-
-        if (order.is_long) {
-            return executionPrice <= acceptablePrice;
-        } else {
-            return executionPrice >= acceptablePrice;
-        }
-
-        return true;
-    }
 }

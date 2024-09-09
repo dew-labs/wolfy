@@ -1,9 +1,10 @@
-import pc from "picocolors";
+import pino from "pino";
 
-// TODO: improve logger
-
-export const logger = {
-    success: (message: string) => console.log(pc.green(message)),
-    info: (message: string) => console.log(pc.blue(message)),
-    error: (message: string) => console.error(pc.red(message)),
-};
+export const logger = pino({
+    transport: {
+        target: "pino-pretty",
+        options: {
+            colorize: true,
+        },
+    },
+});

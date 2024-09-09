@@ -1,11 +1,11 @@
-import type { PythPriceFeed } from "../../../shared/interfaces/PythPriceFeed";
-import type { Token } from "../../../shared/interfaces/Token";
+import type { PythPriceFeed } from "@/shared/interfaces/PythPriceFeed";
+import type { Token } from "@/shared/interfaces/Token";
 import { HermesClient } from "@pythnetwork/hermes-client";
-import { logger } from "../../../shared/utils/logger";
+import { logger } from "@/shared/utils/logger";
 import EventEmitter from "events";
 import { json } from "starknet";
-import { expandDecimals } from "../../../shared/utils/utils";
-import { USD_DECIMALS } from "../../../shared/utils/config";
+import { expandDecimals } from "@/shared/utils/utils";
+import { USD_DECIMALS } from "@/shared/utils/config";
 
 export class PythPriceOracleService extends EventEmitter {
     private readonly hermesClient: HermesClient;
@@ -52,6 +52,14 @@ export class PythPriceOracleService extends EventEmitter {
             // TODO: resubcribe when error
             eventSource.close();
         };
+    }
+
+    getOraclePrice(tokenAddress: string) {
+        const price = this.oraclePrices[tokenAddress];
+        if (!price) {
+            throw new Error(`Cannot find ${tokenAddress} token`);
+        }
+        return price;
     }
 
     private handlePriceUpdate(pythPriceFeed: PythPriceFeed): void {

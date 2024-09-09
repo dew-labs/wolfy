@@ -13,10 +13,10 @@ import {
     getContracts,
     getKey,
     settingUp,
-} from "shared/utils/utils";
+} from "@/shared/utils/utils";
 
 import fs from "node:fs";
-import type { Contracts } from "shared/interfaces/Contracts";
+import type { Contracts } from "@/shared/interfaces/Contracts";
 
 async function deploy() {
     const { account, net } = await settingUp();

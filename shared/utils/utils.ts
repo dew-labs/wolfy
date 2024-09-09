@@ -35,8 +35,8 @@ import type { Order } from "./../interfaces/Order";
 import { getDataStoreContract } from "./helpers";
 import { logger } from "./logger";
 import { OrderPersistenceService } from "../../keeper/src/services/OrderPersistenceService";
-import type { Token } from "../../shared/interfaces/Token";
-import type { Contracts } from "../../shared/interfaces/Contracts";
+import type { Token } from "@/shared/interfaces/Token";
+import type { Contracts } from "@/shared/interfaces/Contracts";
 
 export function getCompiledSierra(contractPath: string) {
     return json.parse(
@@ -187,12 +187,12 @@ export async function settingUp() {
     const account0Address: string = process.env.ACCOUNT_PUBLIC;
     const account0 = new Account(provider, account0Address!, privateKey0!);
 
-    console.log(
+    logger.info(
         `Interacting with Account: ${account0Address} via provider: ${provider.channel.nodeUrl}`
     );
 
     const resp = await account0.getSpecVersion();
-    console.log("rpc version =", resp);
+    logger.info(`rpc version = ${resp}`);
 
     return {
         net,
@@ -223,7 +223,8 @@ export function getContracts(): Contracts {
         contracts = JSON.parse(fs.readFileSync(`./contracts.${net}.json`).toString("ascii"));
     } catch {}
 
-    console.info("Contracts", contracts);
+    logger.info("Contracts");
+    logger.info(contracts);
 
     return contracts;
 }
@@ -235,7 +236,8 @@ export function getTokens(): Token[] {
         tokens = JSON.parse(fs.readFileSync(`./tokens.${net}.json`).toString("ascii"));
     } catch {}
 
-    console.info("Tokens", tokens);
+    logger.info("Tokens");
+    logger.info(tokens);
 
     return tokens;
 }
@@ -443,25 +445,27 @@ export async function getSetPriceParams(account: Account, tokensWithPrices: [str
     };
 }
 
-// TODO: set price of long token, short token, not just index token
 export async function executeOrder(
     account: Account,
     order: Order,
-    executionPrice: bigint
+    indexTokenAddress: string,
+    longTokenAddress: string,
+    shortTokenAddress: string,
+    executionIndexPrice: bigint,
+    executionLongPrice: bigint,
+    executionShortPrice: bigint
 ): Promise<void> {
     const { chainId } = getNetAndChainId();
-    const dataStoreContract: TypedContractV2<SatoruContractAbi<SatoruContract.DataStore>> =
-        getDataStoreContract(chainId, account);
-    const market = await dataStoreContract.get_market(order.market);
-    const indexTokenAddress: string = toStarknetHexString(market.index_token);
-    const priceParams = await getSetPriceParams(account, [[indexTokenAddress, executionPrice]]);
+    const priceParams = await getSetPriceParams(account, [
+        [indexTokenAddress, executionIndexPrice],
+        [longTokenAddress, executionLongPrice],
+        [shortTokenAddress, executionShortPrice],
+    ]);
 
     const orderHandlerContract: TypedContractV2<SatoruContractAbi<SatoruContract.OrderHandler>> =
         createSatoruContract(chainId, SatoruContract.OrderHandler, OrderHandlerABI, account);
 
-    logger.info("Executing Order ... 💨");
-    console.info("Order Data: ", json.stringify(order));
-    console.info("Execute at Price: ", executionPrice);
+    logger.info(`[${order.order_type}][${order.key}] Executing ...`);
 
     const executeOrderReceipt = await executeAndWait(
         account,
@@ -469,17 +473,9 @@ export async function executeOrder(
     );
 
     if (executeOrderReceipt.isSuccess()) {
-        logger.success("Execute Successfully 🚀");
-        logger.success(`== with Transaction Hash: ${executeOrderReceipt.transaction_hash}`);
-
-        if (
-            [OrderType.LimitIncrease, OrderType.LimitIncrease, OrderType.LimitSwap].includes(
-                order.order_type
-            )
-        ) {
-            const orderPersistenceService = new OrderPersistenceService();
-            orderPersistenceService.deleteOrder(order.key, indexTokenAddress);
-        }
+        logger.info(
+            `[${order.order_type}][${order.key}] Executed Successfully with Transaction Hash: ${executeOrderReceipt.transaction_hash}`
+        );
     } else {
         // TODO: retry here
     }
