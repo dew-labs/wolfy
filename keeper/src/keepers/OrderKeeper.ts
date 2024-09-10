@@ -12,15 +12,23 @@ import {
     type SatoruEventHandler,
     type SatoruWebSocketProvider,
 } from "satoru-sdk";
-
-import { getDataStoreContract } from "@/shared/utils/helpers";
 import type { Account, TypedContractV2 } from "starknet";
-import type { Order } from "@/shared/interfaces/Order";
-import type { PythPriceOracleService } from "../services/PythPriceOracleService";
-import { OrderPersistenceService } from "../services/OrderPersistenceService";
-import { executeOrder } from "@/shared/utils/utils";
-import { logger } from "@/shared/utils/logger";
 import type { Emitter } from "nanoevents";
+
+import { logger } from "@/shared/utils/logger";
+import { getDataStoreContract } from "@/shared/utils/helpers";
+import { executeOrder } from "@/shared/utils/utils";
+import type { Order } from "@/shared/interfaces/Order";
+import type { Position } from "@/shared/interfaces/Position";
+
+import { PythPriceOracleService } from "../services/PythPriceOracleService";
+import { OrderPersistenceService } from "../services/OrderPersistenceService";
+import {
+    savePosition,
+    getPosition,
+    removePosition,
+    updatePosition,
+} from "../services/positionPersistenceService";
 
 export class OrderKeeper {
     private readonly dataStoreContract: TypedContractV2<
@@ -44,9 +52,19 @@ export class OrderKeeper {
 
     async start() {
         this.wssProvider = getProvider(ProviderType.WSS, this.chainId);
-        await this.wssProvider.subscribeToEvent(SatoruEvent.OrderCreated, this.handleOrderCreated);
         this.wssProvider.onClose(this.onCloseHandler);
         this.emitter.on("executeLimitOrdersIfExecutable", this.executeLimitOrdersIfExecutable);
+
+        // Subscribe to events
+        await this.wssProvider.subscribeToEvent(SatoruEvent.OrderCreated, this.handleOrderCreated);
+        await this.wssProvider.subscribeToEvent(
+            SatoruEvent.PositionIncrease,
+            this.handlePositionIncrease
+        );
+        await this.wssProvider.subscribeToEvent(
+            SatoruEvent.PositionDecrease,
+            this.handlePositionDecrease
+        );
     }
 
     onCloseHandler() {
@@ -104,6 +122,51 @@ export class OrderKeeper {
                 // Store to json
                 this.orderPersistenceService.saveOrder(order, indexTokenAddress);
                 logger.info(`[${order.orderType}][${order.key}] Saved ...`);
+            }
+        }
+    };
+
+    handlePositionIncrease: SatoruEventHandler<SatoruEvent.PositionIncrease> = (event) => {
+        const { position_key, size_delta_usd } = event;
+        const positionKey: string = toStarknetHexString(position_key);
+        const sizeDeltaUsd: bigint = cairoIntToBigInt(size_delta_usd);
+        console.log("🚀 ~ OrderKeeper ~ sizeDeltaUsd:", sizeDeltaUsd);
+
+        const existPosition = getPosition(positionKey);
+
+        if (existPosition) {
+            const updatedPosition: Position = {
+                ...existPosition,
+                sizeDeltaUsd: existPosition.sizeDeltaUsd + sizeDeltaUsd,
+            };
+            updatePosition(updatedPosition);
+        } else {
+            const newPosition: Position = {
+                key: positionKey,
+                sizeDeltaUsd: sizeDeltaUsd,
+            };
+            savePosition(newPosition);
+        }
+    };
+
+    handlePositionDecrease: SatoruEventHandler<SatoruEvent.PositionDecrease> = (event) => {
+        const { position_key, size_delta_usd } = event;
+        const positionKey: string = toStarknetHexString(position_key);
+        const sizeDeltaUsd: bigint = cairoIntToBigInt(size_delta_usd);
+        console.log("🚀 ~ OrderKeeper ~ sizeDeltaUsd:", sizeDeltaUsd);
+
+        const existPosition = getPosition(positionKey);
+
+        if (existPosition) {
+            if (existPosition.sizeDeltaUsd > sizeDeltaUsd) {
+                const updatedPosition: Position = {
+                    ...existPosition,
+                    sizeDeltaUsd: existPosition.sizeDeltaUsd - sizeDeltaUsd,
+                };
+                updatePosition(updatedPosition);
+            } else {
+                removePosition(positionKey);
+                return;
             }
         }
     };

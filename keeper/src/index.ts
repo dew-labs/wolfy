@@ -1,11 +1,12 @@
-import { logger } from "@/shared/utils/logger";
-import { PriceKeeper } from "./keepers/PriceKeeper";
-import { PythPriceOracleService } from "./services/PythPriceOracleService";
-import { getTokens, settingUp } from "@/shared/utils/utils";
-
-import type { Token } from "@/shared/interfaces/Token";
-import { OrderKeeper } from "./keepers/OrderKeeper";
 import { createNanoEvents } from "nanoevents";
+
+import { logger } from "@/shared/utils/logger";
+import { getTokens, settingUp } from "@/shared/utils/utils";
+import type { Token } from "@/shared/interfaces/Token";
+
+import { OrderKeeper } from "@/keeper/src/keepers/OrderKeeper";
+import { PriceKeeper } from "@/keeper/src/keepers/PriceKeeper";
+import { PythPriceOracleService } from "@/keeper/src/services/PythPriceOracleService";
 
 async function index() {
     const { account, chainId, hermesUrl } = await settingUp();
