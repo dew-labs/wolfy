@@ -30,7 +30,7 @@ import {
     updatePosition,
 } from "../services/positionPersistenceService";
 
-export class OrderKeeper {
+export class OrderExecutionKeeper {
     private readonly dataStoreContract: TypedContractV2<
         SatoruContractAbi<SatoruContract.DataStore>
     >;
@@ -130,7 +130,7 @@ export class OrderKeeper {
         const { position_key, size_delta_usd } = event;
         const positionKey: string = toStarknetHexString(position_key);
         const sizeDeltaUsd: bigint = cairoIntToBigInt(size_delta_usd);
-        console.log("🚀 ~ OrderKeeper ~ sizeDeltaUsd:", sizeDeltaUsd);
+        console.log("🚀 ~ OrderExecutionKeeper ~ sizeDeltaUsd:", sizeDeltaUsd);
 
         const existPosition = getPosition(positionKey);
 
@@ -153,7 +153,7 @@ export class OrderKeeper {
         const { position_key, size_delta_usd } = event;
         const positionKey: string = toStarknetHexString(position_key);
         const sizeDeltaUsd: bigint = cairoIntToBigInt(size_delta_usd);
-        console.log("🚀 ~ OrderKeeper ~ sizeDeltaUsd:", sizeDeltaUsd);
+        console.log("🚀 ~ OrderExecutionKeeper ~ sizeDeltaUsd:", sizeDeltaUsd);
 
         const existPosition = getPosition(positionKey);
 

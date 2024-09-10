@@ -4,7 +4,7 @@ import { logger } from "@/shared/utils/logger";
 import { getTokens, settingUp } from "@/shared/utils/utils";
 import type { Token } from "@/shared/interfaces/Token";
 
-import { OrderKeeper } from "@/keeper/src/keepers/OrderKeeper";
+import { OrderExecutionKeeper } from "@/keeper/src/keepers/OrderExecutionKeeper";
 import { PriceKeeper } from "@/keeper/src/keepers/PriceKeeper";
 import { PythPriceOracleService } from "@/keeper/src/services/PythPriceOracleService";
 
@@ -25,7 +25,7 @@ async function index() {
     priceOracleService.getPriceFromOracleStream();
 
     // Execute new Orders
-    new OrderKeeper(priceOracleService, account, chainId, emitter);
+    new OrderExecutionKeeper(priceOracleService, account, chainId, emitter);
 }
 
 // Start the main process
