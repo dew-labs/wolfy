@@ -18,6 +18,7 @@ import type { Emitter } from "nanoevents";
 import { logger } from "@/shared/utils/logger";
 import { getDataStoreContract } from "@/shared/utils/helpers";
 import { executeOrder } from "@/shared/utils/utils";
+import { EventHandlerTypes } from "@/shared/utils/config";
 import type { Order } from "@/shared/interfaces/Order";
 import type { Position } from "@/shared/interfaces/Position";
 
@@ -29,6 +30,7 @@ import {
     removePosition,
     updatePosition,
 } from "../services/positionPersistenceService";
+import { createPositionEventHandler } from "../eventHandlers/positionEventHandler";
 
 export class OrderExecutionKeeper {
     private readonly dataStoreContract: TypedContractV2<
@@ -37,6 +39,7 @@ export class OrderExecutionKeeper {
     private wssProvider?: SatoruWebSocketProvider;
     private readonly orderPersistenceService: OrderPersistenceService;
     private executingLimitOrders: Set<string>;
+    private positionEventHandler: ReturnType<typeof createPositionEventHandler>;
 
     constructor(
         private priceOracleService: PythPriceOracleService,
@@ -47,28 +50,32 @@ export class OrderExecutionKeeper {
         this.dataStoreContract = getDataStoreContract(chainId, account);
         this.orderPersistenceService = new OrderPersistenceService();
         this.executingLimitOrders = new Set();
+        this.positionEventHandler = createPositionEventHandler(emitter);
         this.start();
     }
 
     async start() {
         this.wssProvider = getProvider(ProviderType.WSS, this.chainId);
         this.wssProvider.onClose(this.onCloseHandler);
-        this.emitter.on("executeLimitOrdersIfExecutable", this.executeLimitOrdersIfExecutable);
+        this.emitter.on(
+            EventHandlerTypes.executeLimitOrdersIfExecutable,
+            this.executeLimitOrdersIfExecutable
+        );
 
         // Subscribe to events
         await this.wssProvider.subscribeToEvent(SatoruEvent.OrderCreated, this.handleOrderCreated);
         await this.wssProvider.subscribeToEvent(
             SatoruEvent.PositionIncrease,
-            this.handlePositionIncrease
+            this.positionEventHandler.handlePositionIncrease
         );
         await this.wssProvider.subscribeToEvent(
             SatoruEvent.PositionDecrease,
-            this.handlePositionDecrease
+            this.positionEventHandler.handlePositionDecrease
         );
     }
 
     onCloseHandler() {
-        console.log("restart");
+        logger.info("[OrderKeeper] Restarting ...");
         this.start();
     }
 
@@ -122,51 +129,6 @@ export class OrderExecutionKeeper {
                 // Store to json
                 this.orderPersistenceService.saveOrder(order, indexTokenAddress);
                 logger.info(`[${order.orderType}][${order.key}] Saved ...`);
-            }
-        }
-    };
-
-    handlePositionIncrease: SatoruEventHandler<SatoruEvent.PositionIncrease> = (event) => {
-        const { position_key, size_delta_usd } = event;
-        const positionKey: string = toStarknetHexString(position_key);
-        const sizeDeltaUsd: bigint = cairoIntToBigInt(size_delta_usd);
-        console.log("🚀 ~ OrderExecutionKeeper ~ sizeDeltaUsd:", sizeDeltaUsd);
-
-        const existPosition = getPosition(positionKey);
-
-        if (existPosition) {
-            const updatedPosition: Position = {
-                ...existPosition,
-                sizeDeltaUsd: existPosition.sizeDeltaUsd + sizeDeltaUsd,
-            };
-            updatePosition(updatedPosition);
-        } else {
-            const newPosition: Position = {
-                key: positionKey,
-                sizeDeltaUsd: sizeDeltaUsd,
-            };
-            savePosition(newPosition);
-        }
-    };
-
-    handlePositionDecrease: SatoruEventHandler<SatoruEvent.PositionDecrease> = (event) => {
-        const { position_key, size_delta_usd } = event;
-        const positionKey: string = toStarknetHexString(position_key);
-        const sizeDeltaUsd: bigint = cairoIntToBigInt(size_delta_usd);
-        console.log("🚀 ~ OrderExecutionKeeper ~ sizeDeltaUsd:", sizeDeltaUsd);
-
-        const existPosition = getPosition(positionKey);
-
-        if (existPosition) {
-            if (existPosition.sizeDeltaUsd > sizeDeltaUsd) {
-                const updatedPosition: Position = {
-                    ...existPosition,
-                    sizeDeltaUsd: existPosition.sizeDeltaUsd - sizeDeltaUsd,
-                };
-                updatePosition(updatedPosition);
-            } else {
-                removePosition(positionKey);
-                return;
             }
         }
     };
