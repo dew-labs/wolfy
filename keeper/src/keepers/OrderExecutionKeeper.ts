@@ -24,12 +24,6 @@ import type { Position } from "@/shared/interfaces/Position";
 
 import { PythPriceOracleService } from "../services/PythPriceOracleService";
 import { OrderPersistenceService } from "../services/OrderPersistenceService";
-import {
-    savePosition,
-    getPosition,
-    removePosition,
-    updatePosition,
-} from "../services/positionPersistenceService";
 import { createPositionEventHandler } from "../eventHandlers/positionEventHandler";
 
 export class OrderExecutionKeeper {
@@ -62,7 +56,6 @@ export class OrderExecutionKeeper {
             this.executeLimitOrdersIfExecutable
         );
 
-        // Subscribe to events
         await this.wssProvider.subscribeToEvent(SatoruEvent.OrderCreated, this.handleOrderCreated);
         await this.wssProvider.subscribeToEvent(
             SatoruEvent.PositionIncrease,
