@@ -1,11 +1,14 @@
+import { createNanoEvents } from "nanoevents";
+
 import { logger } from "@/shared/utils/logger";
+import { getTokens, settingUp } from "@/shared/utils/utils";
+import type { Events } from "@/shared/interfaces/Events";
+import type { Token } from "@/shared/interfaces/Token";
+
+import { OrderExecutionKeeper } from "./keepers/OrderExecutionKeeper";
 import { PriceKeeper } from "./keepers/PriceKeeper";
 import { PythPriceOracleService } from "./services/PythPriceOracleService";
-import { getTokens, settingUp } from "@/shared/utils/utils";
-
-import type { Token } from "@/shared/interfaces/Token";
-import { OrderKeeper } from "./keepers/OrderKeeper";
-import { createNanoEvents } from "nanoevents";
+import { startLiquidationKeeper } from "./keepers/liquidationKeeper";
 
 async function index() {
     const { account, chainId, hermesUrl } = await settingUp();
@@ -14,17 +17,16 @@ async function index() {
 
     const priceOracleService = new PythPriceOracleService(hermesUrl, tokens);
 
-    // TODO: define types
-    const emitter = createNanoEvents();
+    const emitter = createNanoEvents<Events>();
 
     logger.info("Keeper is running ...");
 
-    // Stream Prices from Oracle
     new PriceKeeper(priceOracleService, emitter);
     priceOracleService.getPriceFromOracleStream();
 
-    // Execute new Orders
-    new OrderKeeper(priceOracleService, account, chainId, emitter);
+    new OrderExecutionKeeper(priceOracleService, account, chainId, emitter);
+
+    startLiquidationKeeper(5);
 }
 
 // Start the main process

@@ -50,14 +50,16 @@ async function executeOrder() {
 
     const triggerPrice: bigint = cairoIntToBigInt(order.trigger_price);
     const acceptablePrice: bigint = cairoIntToBigInt(order.acceptable_price);
+    const sizeDeltaUsd: bigint = cairoIntToBigInt(order.size_delta_usd);
 
     const executeOrder: Order = {
         key: orderKey,
         market: order.market,
-        order_type: orderType,
-        trigger_price: triggerPrice,
-        acceptable_price: acceptablePrice,
-        is_long: order.is_long,
+        orderType,
+        triggerPrice,
+        acceptablePrice,
+        isLong: order.is_long,
+        sizeDeltaUsd,
     };
 
     let executionPrice = await ask("Execution price (usd) (default to trigger price for limit)");
@@ -79,7 +81,46 @@ async function executeOrder() {
             expandDecimals(executionPrice, USD_DECIMALS) / expandDecimals(1, indexTokenDecimals);
     }
 
-    await utilExecuteOrder(account, executeOrder, executionContractPrice);
+    const longTokenAddress = toStarknetHexString(market.long_token);
+    const shortTokenAddress = toStarknetHexString(market.short_token);
+
+    const longToken = createTokenContract(chainId, longTokenAddress);
+    const longTokenDecimals = await longToken.decimals();
+
+    const shortToken = createTokenContract(chainId, shortTokenAddress);
+    const shortTokenDecimals = await shortToken.decimals();
+
+    let longTokenContractPrice = 0n;
+    let shortTokenContractPrice = 0n;
+
+    if (longTokenAddress !== indexTokenAddress) {
+        const longTokenPriceInput = await ask("Long token price (usd)");
+        longTokenContractPrice =
+            expandDecimals(BigInt(longTokenPriceInput), USD_DECIMALS) /
+            expandDecimals(1, longTokenDecimals);
+    } else {
+        longTokenContractPrice = executionContractPrice;
+    }
+
+    if (shortTokenAddress !== indexTokenAddress) {
+        const shortTokenPriceInput = await ask("Short token price (usd)");
+        shortTokenContractPrice =
+            expandDecimals(BigInt(shortTokenPriceInput), USD_DECIMALS) /
+            expandDecimals(1, shortTokenDecimals);
+    } else {
+        shortTokenContractPrice = executionContractPrice;
+    }
+
+    await utilExecuteOrder(
+        account,
+        executeOrder,
+        indexTokenAddress,
+        longTokenAddress,
+        shortTokenAddress,
+        executionContractPrice,
+        longTokenContractPrice,
+        shortTokenContractPrice
+    );
 
     doneAsking();
 }

@@ -12,23 +12,27 @@ import {
     type SatoruEventHandler,
     type SatoruWebSocketProvider,
 } from "satoru-sdk";
-
-import { getDataStoreContract } from "@/shared/utils/helpers";
 import type { Account, TypedContractV2 } from "starknet";
-import type { Order } from "@/shared/interfaces/Order";
-import type { PythPriceOracleService } from "../services/PythPriceOracleService";
-import { OrderPersistenceService } from "../services/OrderPersistenceService";
-import { executeOrder } from "@/shared/utils/utils";
-import { logger } from "@/shared/utils/logger";
 import type { Emitter } from "nanoevents";
 
-export class OrderKeeper {
+import { logger } from "@/shared/utils/logger";
+import { getDataStoreContract } from "@/shared/utils/helpers";
+import { executeOrder } from "@/shared/utils/utils";
+import { EventHandlerTypes } from "@/shared/utils/config";
+import type { Order } from "@/shared/interfaces/Order";
+
+import { PythPriceOracleService } from "../services/PythPriceOracleService";
+import { OrderPersistenceService } from "../services/OrderPersistenceService";
+import { createPositionEventHandler } from "../eventHandlers/positionEventHandler";
+
+export class OrderExecutionKeeper {
     private readonly dataStoreContract: TypedContractV2<
         SatoruContractAbi<SatoruContract.DataStore>
     >;
     private wssProvider?: SatoruWebSocketProvider;
     private readonly orderPersistenceService: OrderPersistenceService;
     private executingLimitOrders: Set<string>;
+    private positionEventHandler: ReturnType<typeof createPositionEventHandler>;
 
     constructor(
         private priceOracleService: PythPriceOracleService,
@@ -39,18 +43,31 @@ export class OrderKeeper {
         this.dataStoreContract = getDataStoreContract(chainId, account);
         this.orderPersistenceService = new OrderPersistenceService();
         this.executingLimitOrders = new Set();
+        this.positionEventHandler = createPositionEventHandler();
         this.start();
     }
 
     async start() {
         this.wssProvider = getProvider(ProviderType.WSS, this.chainId);
-        await this.wssProvider.subscribeToEvent(SatoruEvent.OrderCreated, this.handleOrderCreated);
         this.wssProvider.onClose(this.onCloseHandler);
-        this.emitter.on("executeLimitOrdersIfExecutable", this.executeLimitOrdersIfExecutable);
+        this.emitter.on(
+            EventHandlerTypes.executeLimitOrdersIfExecutable,
+            this.executeLimitOrdersIfExecutable
+        );
+
+        await this.wssProvider.subscribeToEvent(SatoruEvent.OrderCreated, this.handleOrderCreated);
+        await this.wssProvider.subscribeToEvent(
+            SatoruEvent.PositionIncrease,
+            this.positionEventHandler.handlePositionIncrease
+        );
+        await this.wssProvider.subscribeToEvent(
+            SatoruEvent.PositionDecrease,
+            this.positionEventHandler.handlePositionDecrease
+        );
     }
 
     onCloseHandler() {
-        console.log("restart");
+        logger.info("[OrderKeeper] Restarting ...");
         this.start();
     }
 
@@ -64,30 +81,30 @@ export class OrderKeeper {
             trigger_price,
             acceptable_price,
             is_long,
+            size_delta_usd,
         } = event.order;
 
         // init data
         const orderKey: string = toStarknetHexString(key);
+        const marketKeyString: string = toStarknetHexString(marketKey);
         const orderType: OrderType = parseOrderType(order_type);
         const triggerPrice: bigint = cairoIntToBigInt(trigger_price);
         const acceptablePrice: bigint = cairoIntToBigInt(acceptable_price);
+        const sizeDeltaUsd: bigint = cairoIntToBigInt(size_delta_usd);
 
         const market = await this.dataStoreContract.get_market(marketKey);
         const indexTokenAddress: string = toStarknetHexString(market.index_token);
 
         const order: Order = {
             key: orderKey,
-            market: marketKey.toString(), // TODO: toStarknetHexString
-            order_type: orderType,
-            trigger_price: triggerPrice,
-            acceptable_price: acceptablePrice,
-            is_long,
+            market: marketKeyString,
+            orderType,
+            isLong: is_long,
+            sizeDeltaUsd,
+            triggerPrice,
+            acceptablePrice,
         };
-        if (
-            [OrderType.MarketDecrease, OrderType.MarketIncrease, OrderType.MarketSwap].includes(
-                orderType
-            )
-        ) {
+        if (this.isMarketOrder(orderType)) {
             // Market Order
             await this.executeOrder(order);
         } else {
@@ -103,7 +120,7 @@ export class OrderKeeper {
             } else {
                 // Store to json
                 this.orderPersistenceService.saveOrder(order, indexTokenAddress);
-                logger.info(`[${order.order_type}][${order.key}] Saved ...`);
+                logger.info(`[${order.orderType}][${order.key}] Saved ...`);
             }
         }
     };
@@ -135,11 +152,7 @@ export class OrderKeeper {
                 executionShortPrice
             );
         } catch (e) {
-            if (
-                [OrderType.MarketDecrease, OrderType.MarketIncrease, OrderType.MarketSwap].includes(
-                    order.order_type
-                )
-            ) {
+            if (this.isMarketOrder(order.orderType)) {
                 // TODO: handle cancel market order
                 logger.error(e);
             } else {
@@ -172,14 +185,20 @@ export class OrderKeeper {
     };
 
     private isLimitOrderExecutable(order: Order, executionPrice: bigint): boolean {
-        const acceptablePrice: bigint = order.acceptable_price;
+        const acceptablePrice: bigint = order.acceptablePrice;
 
-        if (order.is_long) {
+        if (order.isLong) {
             return executionPrice <= acceptablePrice;
         } else {
             return executionPrice >= acceptablePrice;
         }
 
         return true;
+    }
+
+    private isMarketOrder(orderType: OrderType): boolean {
+        return [OrderType.MarketDecrease, OrderType.MarketIncrease, OrderType.MarketSwap].includes(
+            orderType
+        );
     }
 }

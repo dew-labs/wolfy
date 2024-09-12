@@ -167,6 +167,26 @@ export function getNetAndChainId() {
     return { net, chainId };
 }
 
+export function getNetworkConfig() {
+    const { net, chainId } = getNetAndChainId();
+    console.log("🚀 ~ getNetworkConfig ~ net, chainId:", net, chainId);
+    const provider = getProvider(ProviderType.HTTP, chainId);
+
+    const privateKey = process.env.ACCOUNT_PRIVATE;
+    const accountAddress = process.env.ACCOUNT_PUBLIC;
+    const hermesUrl = process.env.HERMES_URL;
+
+    if (!privateKey || !accountAddress || !hermesUrl) {
+        throw new Error(
+            "Missing required environment variables: ACCOUNT_PRIVATE or ACCOUNT_PUBLIC or HERMES_URL"
+        );
+    }
+
+    const account = new Account(provider, accountAddress, privateKey);
+
+    return { net, chainId, account, hermesUrl };
+}
+
 export async function settingUp() {
     setup();
 
@@ -223,8 +243,8 @@ export function getContracts(): Contracts {
         contracts = JSON.parse(fs.readFileSync(`./contracts.${net}.json`).toString("ascii"));
     } catch {}
 
-    logger.info("Contracts");
-    logger.info(contracts);
+    // logger.info("Contracts");
+    // logger.info(contracts);
 
     return contracts;
 }
@@ -236,8 +256,8 @@ export function getTokens(): Token[] {
         tokens = JSON.parse(fs.readFileSync(`./tokens.${net}.json`).toString("ascii"));
     } catch {}
 
-    logger.info("Tokens");
-    logger.info(tokens);
+    // logger.info("Tokens");
+    // logger.info(tokens);
 
     return tokens;
 }
@@ -465,7 +485,7 @@ export async function executeOrder(
     const orderHandlerContract: TypedContractV2<SatoruContractAbi<SatoruContract.OrderHandler>> =
         createSatoruContract(chainId, SatoruContract.OrderHandler, OrderHandlerABI, account);
 
-    logger.info(`[${order.order_type}][${order.key}] Executing ...`);
+    logger.info(`[${order.orderType}][${order.key}] Executing ...`);
 
     const executeOrderReceipt = await executeAndWait(
         account,
@@ -474,7 +494,7 @@ export async function executeOrder(
 
     if (executeOrderReceipt.isSuccess()) {
         logger.info(
-            `[${order.order_type}][${order.key}] Executed Successfully with Transaction Hash: ${executeOrderReceipt.transaction_hash}`
+            `[${order.orderType}][${order.key}] Executed Successfully with Transaction Hash: ${executeOrderReceipt.transaction_hash}`
         );
     } else {
         // TODO: retry here
