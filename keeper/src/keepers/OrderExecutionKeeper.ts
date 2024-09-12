@@ -20,7 +20,6 @@ import { getDataStoreContract } from "@/shared/utils/helpers";
 import { executeOrder } from "@/shared/utils/utils";
 import { EventHandlerTypes } from "@/shared/utils/config";
 import type { Order } from "@/shared/interfaces/Order";
-import type { Position } from "@/shared/interfaces/Position";
 
 import { PythPriceOracleService } from "../services/PythPriceOracleService";
 import { OrderPersistenceService } from "../services/OrderPersistenceService";
@@ -44,7 +43,7 @@ export class OrderExecutionKeeper {
         this.dataStoreContract = getDataStoreContract(chainId, account);
         this.orderPersistenceService = new OrderPersistenceService();
         this.executingLimitOrders = new Set();
-        this.positionEventHandler = createPositionEventHandler(emitter);
+        this.positionEventHandler = createPositionEventHandler();
         this.start();
     }
 

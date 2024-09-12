@@ -10,51 +10,40 @@ import {
     updatePosition,
 } from "../services/positionPersistenceService";
 
-export const createPositionEventHandler = (emitter: Emitter) => {
-    const handlePositionIncrease: SatoruEventHandler<SatoruEvent.PositionIncrease> = (event) => {
+export const createPositionEventHandler = () => {
+    const handlePositionChange = (
+        event: Parameters<
+            SatoruEventHandler<SatoruEvent.PositionIncrease | SatoruEvent.PositionDecrease>
+        >[0],
+        isIncrease: boolean
+    ) => {
         const { position_key, size_delta_usd } = event;
-        const positionKey: string = toStarknetHexString(position_key);
-        const sizeDeltaUsd: bigint = cairoIntToBigInt(size_delta_usd);
+        const positionKey = toStarknetHexString(position_key as bigint);
+        const sizeDeltaUsd = cairoIntToBigInt(size_delta_usd as bigint);
 
         const existingPosition = getPosition(positionKey);
 
         if (existingPosition) {
-            const updatedPosition: Position = {
-                ...existingPosition,
-                sizeDeltaUsd: existingPosition.sizeDeltaUsd + sizeDeltaUsd,
-            };
-            updatePosition(updatedPosition);
-        } else {
-            const newPosition: Position = {
-                key: positionKey,
-                sizeDeltaUsd: sizeDeltaUsd,
-            };
-            savePosition(newPosition);
-        }
+            const newSizeDeltaUsd = isIncrease
+                ? existingPosition.sizeDeltaUsd + sizeDeltaUsd
+                : existingPosition.sizeDeltaUsd - sizeDeltaUsd;
 
-        emitter.emit("positionUpdated", positionKey);
-    };
-
-    const handlePositionDecrease: SatoruEventHandler<SatoruEvent.PositionDecrease> = (event) => {
-        const { position_key, size_delta_usd } = event;
-        const positionKey: string = toStarknetHexString(position_key);
-        const sizeDeltaUsd: bigint = cairoIntToBigInt(size_delta_usd);
-
-        const existingPosition = getPosition(positionKey);
-
-        if (existingPosition) {
-            if (existingPosition.sizeDeltaUsd > sizeDeltaUsd) {
-                const updatedPosition: Position = {
-                    ...existingPosition,
-                    sizeDeltaUsd: existingPosition.sizeDeltaUsd - sizeDeltaUsd,
-                };
-                updatePosition(updatedPosition);
+            if (newSizeDeltaUsd > 0) {
+                updatePosition({ ...existingPosition, sizeDeltaUsd: newSizeDeltaUsd });
             } else {
                 removePosition(positionKey);
             }
+        } else if (isIncrease) {
+            savePosition({ key: positionKey, sizeDeltaUsd });
         }
+    };
 
-        emitter.emit("positionUpdated", positionKey);
+    const handlePositionIncrease: SatoruEventHandler<SatoruEvent.PositionIncrease> = (event) => {
+        handlePositionChange(event, true);
+    };
+
+    const handlePositionDecrease: SatoruEventHandler<SatoruEvent.PositionDecrease> = (event) => {
+        handlePositionChange(event, false);
     };
 
     return {
