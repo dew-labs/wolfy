@@ -19,6 +19,7 @@ import { expandDecimals, getContracts, getNetworkConfig, getTokens } from "@/sha
 import { getSetPriceParams } from "@/shared/utils/utils";
 
 import { loadPositions } from "../services/positionPersistenceService";
+import pRetry from "p-retry";
 
 interface ContractSetup {
     account: Account;
@@ -210,17 +211,23 @@ const processPosition = async (positionKey: string, contractSetup: ContractSetup
     if (shouldBeLiquidated) {
         logger.info(`Position ${positionKey} should be liquidated`);
         try {
-            await executeLiquidation(
-                liquidationHandlerContract,
-                account,
-                position,
-                market,
-                indexTokenPrice,
-                longTokenPrice,
-                shortTokenPrice
+            await pRetry(
+                async () =>
+                    await executeLiquidation(
+                        liquidationHandlerContract,
+                        account,
+                        position,
+                        market,
+                        indexTokenPrice,
+                        longTokenPrice,
+                        shortTokenPrice
+                    ),
+                {
+                    retries: 3,
+                    minTimeout: 0,
+                }
             );
         } catch (error) {
-            // TODO: retry
             logger.error(error, `[LiquidationKeeper] Failed to liquidate position ${positionKey}:`);
         }
     } else {

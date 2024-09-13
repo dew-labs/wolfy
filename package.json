@@ -40,6 +40,7 @@
         "abi-wan-kanabi": "2.2.2",
         "devalue": "^5.0.0",
         "nanoevents": "^9.0.0",
+        "p-retry": "^6.2.0",
         "picocolors": "^1.0.1",
         "pino": "^9.4.0",
         "pino-pretty": "^11.2.2",

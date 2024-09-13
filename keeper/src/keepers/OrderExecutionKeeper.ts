@@ -1,5 +1,7 @@
 import {
     cairoIntToBigInt,
+    createCall,
+    executeAndWait,
     getProvider,
     OrderType,
     parseOrderType,
@@ -14,6 +16,7 @@ import {
 } from "satoru-sdk";
 import type { Account, TypedContractV2 } from "starknet";
 import type { Emitter } from "nanoevents";
+import pRetry, { type AbortError } from "p-retry";
 
 import { logger } from "@/shared/utils/logger";
 import { getDataStoreContract } from "@/shared/utils/helpers";
@@ -24,6 +27,7 @@ import type { Order } from "@/shared/interfaces/Order";
 import { PythPriceOracleService } from "../services/PythPriceOracleService";
 import { OrderPersistenceService } from "../services/OrderPersistenceService";
 import { createPositionEventHandler } from "../eventHandlers/positionEventHandler";
+import { getExchangeRouterContract } from "@/shared/utils/contracts/getters";
 
 export class OrderExecutionKeeper {
     private readonly dataStoreContract: TypedContractV2<
@@ -129,57 +133,97 @@ export class OrderExecutionKeeper {
         const longTokenAddress: string = toStarknetHexString(market.long_token);
         const shortTokenAddress: string = toStarknetHexString(market.short_token);
 
-        // Get oracle price
+        let shouldCancel = false;
         try {
-            const executionIndexPrice: bigint =
-                this.priceOracleService.getOraclePrice(indexTokenAddress);
-            const executionLongPrice: bigint =
-                this.priceOracleService.getOraclePrice(longTokenAddress);
-            const executionShortPrice: bigint =
-                this.priceOracleService.getOraclePrice(shortTokenAddress);
+            await pRetry(
+                async () => {
+                    const executionIndexPrice: bigint =
+                        this.priceOracleService.getOraclePrice(indexTokenAddress);
+                    const executionLongPrice: bigint =
+                        this.priceOracleService.getOraclePrice(longTokenAddress);
+                    const executionShortPrice: bigint =
+                        this.priceOracleService.getOraclePrice(shortTokenAddress);
 
-            // TODO: execute in child process
-            await executeOrder(
-                this.account,
-                order,
-                indexTokenAddress,
-                longTokenAddress,
-                shortTokenAddress,
-                executionIndexPrice,
-                executionLongPrice,
-                executionShortPrice
+                    // TODO: execute in child process
+                    await executeOrder(
+                        this.account,
+                        order,
+                        indexTokenAddress,
+                        longTokenAddress,
+                        shortTokenAddress,
+                        executionIndexPrice,
+                        executionLongPrice,
+                        executionShortPrice
+                    );
+                },
+                {
+                    retries: 3,
+                    minTimeout: 0,
+                }
             );
         } catch (e) {
+            logger.error(`Failed to execute order ${order.key}`);
             if (this.isMarketOrder(order.orderType)) {
-                // TODO: handle cancel market order
-                logger.error(e);
-            } else {
+                shouldCancel = true;
+                logger.info(`Canceling market order ${order.key}...`);
+            }
+        }
+
+        if (shouldCancel) {
+            try {
+                await pRetry(
+                    async () => {
+                        await this.cancelOrder(order.key);
+                    },
+                    {
+                        retries: 3,
+                        minTimeout: 0,
+                    }
+                );
+            } catch (e) {
+                logger.error(`Failed to cancel order ${order.key}`);
             }
         }
     }
 
-    // TODO: handle cancel order
-    async cancelOrder() {}
+    // TODO: only trader can cancel order, so what if slippage is too high?
+    async cancelOrder(orderKey: string) {
+        logger.info(`Cancel order ${orderKey}`);
+
+        const exchangeRouterContract = getExchangeRouterContract(this.chainId, this.account);
+        const executeOrderReceipt = await executeAndWait(
+            this.account,
+            createCall(exchangeRouterContract, "cancel_order", [orderKey])
+        );
+
+        if (executeOrderReceipt.isSuccess()) {
+            logger.info("Order cancelled");
+        } else {
+            throw new Error("Order cancellation failed");
+        }
+    }
 
     private executeLimitOrdersIfExecutable = (
         limitOrders: Order[],
         indexTokenAddress: string,
         executionPrice: bigint
     ) => {
-        limitOrders.forEach(async (order) => {
-            if (this.executingLimitOrders.has(order.key)) {
-                return;
-            } else {
-                this.executingLimitOrders.add(order.key);
-            }
+        Promise.allSettled(
+            limitOrders.map(async (order) => {
+                if (this.executingLimitOrders.has(order.key)) {
+                    return;
+                } else {
+                    this.executingLimitOrders.add(order.key);
+                }
 
-            if (this.isLimitOrderExecutable(order, executionPrice)) {
-                // TODO: execute in child process
-                await this.executeOrder(order);
-                this.executingLimitOrders.delete(order.key);
-                this.orderPersistenceService.deleteOrder(order.key, indexTokenAddress);
-            }
-        });
+                if (this.isLimitOrderExecutable(order, executionPrice)) {
+                    // TODO: execute in child process
+                    await this.executeOrder(order);
+                    this.executingLimitOrders.delete(order.key);
+                    this.orderPersistenceService.deleteOrder(order.key, indexTokenAddress);
+                }
+            })
+        );
     };
 
     private isLimitOrderExecutable(order: Order, executionPrice: bigint): boolean {

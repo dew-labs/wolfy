@@ -9,10 +9,12 @@ import {
 } from "satoru-sdk";
 import type { Account, Call, SuccessfulTransactionReceiptResponse } from "starknet";
 
+// TODO: uss contracts/getters.ts instead
 export function getDataStoreContract(chainId: StarknetChainId, connectTo?: Account) {
     return createSatoruContract(chainId, SatoruContract.DataStore, DataStoreABI, connectTo);
 }
 
+// TODO: uss contracts/getters.ts instead
 export function getExchangeRouterContract(chainId: StarknetChainId, connectTo?: Account) {
     return createSatoruContract(
         chainId,
