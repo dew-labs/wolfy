@@ -7,7 +7,6 @@ import {
     type SatoruContractAbi,
 } from "satoru-sdk";
 
-import type { Position } from "@/shared/interfaces/Position";
 import type { Token } from "@/shared/interfaces/Token";
 import { USD_DECIMALS } from "@/shared/utils/config";
 import {

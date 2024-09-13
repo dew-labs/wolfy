@@ -487,7 +487,9 @@ export async function executeOrder(
     const orderHandlerContract: TypedContractV2<SatoruContractAbi<SatoruContract.OrderHandler>> =
         createSatoruContract(chainId, SatoruContract.OrderHandler, OrderHandlerABI, account);
 
-    logger.info(`[${order.orderType}][${order.key}] Executing ...`);
+    logger.info(
+        `[${order.orderType}][${order.key}] Executing with price: ${executionIndexPrice} (acceptable: ${order.acceptablePrice})`
+    );
 
     const executeOrderReceipt = await executeAndWait(
         account,

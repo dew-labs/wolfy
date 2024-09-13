@@ -26,7 +26,7 @@ async function index() {
 
     new OrderExecutionKeeper(priceOracleService, account, chainId, emitter);
 
-    startLiquidationKeeper(5);
+    startLiquidationKeeper(1);
 }
 
 // Start the main process

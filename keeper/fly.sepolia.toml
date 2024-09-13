@@ -1,4 +1,4 @@
-app = 'satoru-keeper-sepolia'
+app = 'wolfy-keeper-sepolia'
 primary_region = 'sin'
 
 [build]
