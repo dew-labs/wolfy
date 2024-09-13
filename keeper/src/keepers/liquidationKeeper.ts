@@ -59,10 +59,14 @@ const getPosition = async (
     positionKey: string
 ) => await dataStoreContract.get_position(positionKey);
 
+type ContractPosition = Awaited<ReturnType<typeof getPosition>>;
+
 const getMarket = async (
     dataStoreContract: TypedContractV2<SatoruContractAbi<SatoruContract.DataStore>>,
     marketAddress: string
 ) => await dataStoreContract.get_market(toStarknetHexString(marketAddress));
+
+type ContractMarket = Awaited<ReturnType<typeof getMarket>>;
 
 // TODO: to be removed when PythPriceOracleService is changed to functional
 const findTokenByAddress = (tokens: Token[], address: string): Token => {
@@ -86,7 +90,7 @@ const calculateTokenPrice = (priceUpdate: any, token: Token): bigint => {
 // TODO: to be removed when PythPriceOracleService is changed to functional
 const fetchPrices = async (
     hermesUrl: string,
-    market: any
+    market: ContractMarket
 ): Promise<{
     indexTokenPrice: bigint;
     longTokenPrice: bigint;
@@ -120,8 +124,8 @@ const checkIfLiquidable = async (
     readerContract: TypedContractV2<SatoruContractAbi<SatoruContract.Reader>>,
     dataStoreContract: TypedContractV2<SatoruContractAbi<SatoruContract.DataStore>>,
     referralStorageAddress: string,
-    position: any,
-    market: any,
+    position: ContractPosition,
+    market: ContractMarket,
     hermesUrl: string
 ) => {
     // TODO: use function when PythPriceOracleService is changed to functional
@@ -151,12 +155,15 @@ const executeLiquidation = async (
         SatoruContractAbi<SatoruContract.LiquidationHandler>
     >,
     account: Account,
-    position: any,
-    market: any,
+    position: ContractPosition,
+    market: ContractMarket,
     indexTokenPrice: bigint,
     longTokenPrice: bigint,
     shortTokenPrice: bigint
 ) => {
+    logger.debug(`Position ${position.key}: liquidating...`);
+    const startTime = performance.now();
+
     const priceParams = await getSetPriceParams(account, [
         [market.index_token, indexTokenPrice],
         [market.long_token, longTokenPrice],
@@ -170,6 +177,10 @@ const executeLiquidation = async (
         position.is_long,
         priceParams
     );
+
+    const endTime = performance.now();
+    const executionTime = endTime - startTime;
+    logger.debug(`Position ${position.key}: liquidated (in ${executionTime} ms)`);
 };
 
 const processPosition = async (positionKey: string, contractSetup: ContractSetup) => {
@@ -194,10 +205,8 @@ const processPosition = async (positionKey: string, contractSetup: ContractSetup
             market,
             hermesUrl
         );
-    console.log(
-        "🚀 ~ processPosition ~ { shouldBeLiquidated, indexTokenPrice, longTokenPrice, shortTokenPrice }:",
-        { shouldBeLiquidated, indexTokenPrice, longTokenPrice, shortTokenPrice }
-    );
+
+    logger.debug({ shouldBeLiquidated, indexTokenPrice, longTokenPrice, shortTokenPrice });
 
     if (shouldBeLiquidated) {
         logger.info(`Position ${positionKey} should be liquidated`);
@@ -211,16 +220,17 @@ const processPosition = async (positionKey: string, contractSetup: ContractSetup
                 longTokenPrice,
                 shortTokenPrice
             );
-            logger.info(`Liquidation executed for position ${positionKey}`);
         } catch (error) {
+            // TODO: retry
             logger.error(error, `[LiquidationKeeper] Failed to liquidate position ${positionKey}:`);
         }
     } else {
-        logger.info(`Position ${positionKey} is not liquidable`);
+        logger.debug(`Position ${positionKey} is not liquidable`);
     }
 };
 
 const checkAndLiquidatePositions = async (contractSetup: ContractSetup, positions: Position[]) => {
+    logger.debug("Checking positions...");
     await Promise.allSettled(
         positions.map((position) => processPosition(position.key, contractSetup))
     );
@@ -229,12 +239,11 @@ const checkAndLiquidatePositions = async (contractSetup: ContractSetup, position
 export const startLiquidationKeeper = (intervalMinutes: number) => {
     const intervalMs = intervalMinutes * 60 * 1000;
 
-    logger.info(
+    logger.debug(
         `[LiquidationKeeper] Starting liquidation keeper. Checking positions every ${intervalMinutes} minutes.`
     );
 
     const runKeeper = async () => {
-        logger.info("Checking positions...");
         try {
             const contractSetup = await setupContracts();
             const positions = loadPositions();
@@ -242,7 +251,7 @@ export const startLiquidationKeeper = (intervalMinutes: number) => {
         } catch (error) {
             logger.error(error, "[LiquidationKeeper] Error during position check:");
         }
-        logger.info(`[LiquidationKeeper] Checked positions at ${new Date().toISOString()}`);
+        logger.debug(`[LiquidationKeeper] Checked positions at ${new Date().toISOString()}`);
     };
 
     setInterval(runKeeper, intervalMs);

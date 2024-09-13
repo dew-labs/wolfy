@@ -207,12 +207,12 @@ export async function settingUp() {
     const account0Address: string = process.env.ACCOUNT_PUBLIC;
     const account0 = new Account(provider, account0Address!, privateKey0!);
 
-    logger.info(
+    logger.debug(
         `Interacting with Account: ${account0Address} via provider: ${provider.channel.nodeUrl}`
     );
 
     const resp = await account0.getSpecVersion();
-    logger.info(`rpc version = ${resp}`);
+    logger.debug(`rpc version = ${resp}`);
 
     return {
         net,
@@ -475,6 +475,8 @@ export async function executeOrder(
     executionLongPrice: bigint,
     executionShortPrice: bigint
 ): Promise<void> {
+    const startTime = performance.now();
+
     const { chainId } = getNetAndChainId();
     const priceParams = await getSetPriceParams(account, [
         [indexTokenAddress, executionIndexPrice],
@@ -494,9 +496,13 @@ export async function executeOrder(
 
     if (executeOrderReceipt.isSuccess()) {
         logger.info(
-            `[${order.orderType}][${order.key}] Executed Successfully with Transaction Hash: ${executeOrderReceipt.transaction_hash}`
+            `[${order.orderType}][${order.key}] Executed: transaction hash: ${executeOrderReceipt.transaction_hash}`
         );
     } else {
         // TODO: retry here
     }
+
+    const endTime = performance.now();
+    const executionTime = endTime - startTime;
+    logger.debug(`Order ${order.key}: executed in ${executionTime} ms`);
 }

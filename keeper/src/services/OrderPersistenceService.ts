@@ -46,6 +46,10 @@ export class OrderPersistenceService {
             limitOrders[indexTokenAddress].push(order);
 
             fs.writeFileSync(this.filePath, devalue.stringify(limitOrders), "utf8");
+
+            logger.info(
+                `[${order.orderType}][${order.key}] Saved, triggerPrice: ${order.triggerPrice}`
+            );
         } catch (err) {
             logger.error("[PersistOrder] Saving error");
             logger.error(err);

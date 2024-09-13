@@ -67,7 +67,7 @@ export class OrderExecutionKeeper {
     }
 
     onCloseHandler() {
-        logger.info("[OrderKeeper] Restarting ...");
+        logger.debug("[OrderKeeper] Restarting ...");
         this.start();
     }
 
@@ -118,9 +118,7 @@ export class OrderExecutionKeeper {
                 // TODO: execute in child process
                 await this.executeOrder(order);
             } else {
-                // Store to json
                 this.orderPersistenceService.saveOrder(order, indexTokenAddress);
-                logger.info(`[${order.orderType}][${order.key}] Saved ...`);
             }
         }
     };

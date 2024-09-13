@@ -44,7 +44,7 @@ export const savePosition = (newPosition: Position): void => {
                       position.key === newPosition.key ? newPosition : position
                   );
         writeFile(filePath, stringifyData(updatedPositions));
-        logger.info(`[PositionPersistenceService] Position saved: ${newPosition.key}`);
+        logger.debug(`[PositionPersistenceService] Position saved: ${newPosition.key}`);
     } catch (error) {
         logger.error(
             error,
@@ -62,7 +62,7 @@ export const removePosition = (positionKey: string): void => {
         }
         const updatedPositions = positions.filter((position) => position.key !== positionKey);
         writeFile(filePath, stringifyData(updatedPositions));
-        logger.info(`[PositionPersistenceService] Position removed: ${positionKey}`);
+        logger.debug(`[PositionPersistenceService] Position removed: ${positionKey}`);
     } catch (error) {
         logger.error(error, `[PositionPersistenceService] Error deleting position: ${positionKey}`);
     }
@@ -75,7 +75,7 @@ export const updatePosition = (updatedPosition: Position): void => {
             p.key === updatedPosition.key ? updatedPosition : p
         );
         writeFile(filePath, stringifyData(newPositions));
-        logger.info(`[PositionPersistenceService] Position updated: ${updatedPosition.key}`);
+        logger.debug(`[PositionPersistenceService] Position updated: ${updatedPosition.key}`);
     } catch (error) {
         logger.error(
             error,
