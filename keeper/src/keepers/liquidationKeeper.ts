@@ -229,29 +229,29 @@ const processPosition = async (positionKey: string, contractSetup: ContractSetup
     }
 };
 
-const checkAndLiquidatePositions = async (contractSetup: ContractSetup, positions: Position[]) => {
+const checkAndLiquidatePositions = async (contractSetup: ContractSetup) => {
     logger.debug("Checking positions...");
+    const positions = loadPositions();
     await Promise.allSettled(
         positions.map((position) => processPosition(position.key, contractSetup))
     );
 };
 
-export const startLiquidationKeeper = (intervalMinutes: number) => {
+export const startLiquidationKeeper = async (intervalMinutes: number) => {
     const intervalMs = intervalMinutes * 60 * 1000;
 
     logger.debug(
         `[LiquidationKeeper] Starting liquidation keeper. Checking positions every ${intervalMinutes} minutes.`
     );
+    const contractSetup = await setupContracts();
 
     const runKeeper = async () => {
         try {
-            const contractSetup = await setupContracts();
-            const positions = loadPositions();
-            await checkAndLiquidatePositions(contractSetup, positions);
+            await checkAndLiquidatePositions(contractSetup);
         } catch (error) {
             logger.error(error, "[LiquidationKeeper] Error during position check:");
         }
-        logger.debug(`[LiquidationKeeper] Checked positions at ${new Date().toISOString()}`);
+        logger.debug(`[LiquidationKeeper] Positions checked`);
     };
 
     setInterval(runKeeper, intervalMs);
