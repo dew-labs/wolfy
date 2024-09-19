@@ -1,7 +1,7 @@
 import * as path from "path";
 import { TypeCompiler } from "@sinclair/typebox/compiler";
 
-import { logger } from "@/shared/utils/logger";
+import { createLogger } from "@/shared/utils/logger";
 import { OrdersSchema, type Order } from "@/shared/interfaces/Order";
 import {
     readFile,
@@ -11,6 +11,8 @@ import {
     ensureFileExists,
 } from "@/shared/utils/file";
 
+const logger = createLogger("OrderPersistenceService");
+
 const filePath = path.resolve(__dirname, "../../data/orders.json");
 const validator = TypeCompiler.Compile(OrdersSchema);
 
@@ -18,7 +20,7 @@ const validateOrders = (data: unknown): Record<string, Order[]> => {
     if (typeof data === "object" && data !== null && validator.Check(data)) {
         return data as Record<string, Order[]>;
     }
-    throw new Error("Invalid orders format");
+    throw new Error("Orders: Invalid format in JSON");
 };
 
 export const loadOrders = (): Record<string, Order[]> => {
@@ -28,7 +30,7 @@ export const loadOrders = (): Record<string, Order[]> => {
         const parsedData = parseData(data);
         return validateOrders(parsedData);
     } catch (error) {
-        logger.error(error, "Error loading orders");
+        logger.error(error, "Orders: Failed to load from JSON");
         return {};
     }
 };
@@ -41,9 +43,9 @@ export const saveOrder = (order: Order, indexTokenAddress: string): void => {
         }
         Orders[indexTokenAddress].push(order);
         writeFile(filePath, stringifyData(Orders));
-        logger.debug(`Limit Order saved : ${order.key}`);
+        logger.debug(`${order.orderType} Order ${order.key}: Saved to JSON`);
     } catch (error) {
-        logger.error(error, `Error saving order: ${order.key}`);
+        logger.error(error, `Order ${order.key}: Failed to save to JSON`);
     }
 };
 
@@ -51,7 +53,7 @@ export const removeOrder = (orderKey: string, indexTokenAddress: string): void =
     try {
         const orders = loadOrders();
         if (!orders[indexTokenAddress] || !orders[indexTokenAddress].length) {
-            logger.warn(`No orders found for token address: ${indexTokenAddress}`);
+            logger.warn(`Orders with token ${indexTokenAddress}: Not found in JSON`);
             return;
         }
 
@@ -61,18 +63,13 @@ export const removeOrder = (orderKey: string, indexTokenAddress: string): void =
         );
 
         if (orders[indexTokenAddress].length === initialOrderCount) {
-            logger.warn(
-                `Order with key ${orderKey} not found for token address: ${indexTokenAddress}`
-            );
+            logger.warn(`Order ${orderKey}: Not found in JSON`);
             return;
         }
 
         writeFile(filePath, stringifyData(orders));
-        logger.debug(`Order removed: ${orderKey} for token address: ${indexTokenAddress}`);
+        logger.debug(`Order ${orderKey}: Removed from JSON`);
     } catch (error) {
-        logger.error(
-            error,
-            `Error removing order: ${orderKey} for token address: ${indexTokenAddress}`
-        );
+        logger.error(error, `Order ${orderKey}: Failed to remove from JSON`);
     }
 };

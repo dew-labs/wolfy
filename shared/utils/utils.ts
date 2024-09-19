@@ -22,20 +22,19 @@ import {
     executeAndWait,
     getProvider,
     OrderHandlerABI,
-    OrderType,
     ProviderType,
     SatoruContract,
     StarknetChainId,
-    toStarknetHexString,
     type SatoruContractAbi,
 } from "satoru-sdk";
 import readline from "node:readline";
 import setup from "./setup";
 import type { Order } from "./../interfaces/Order";
-import { getDataStoreContract } from "./helpers";
-import { logger } from "./logger";
+import { createLogger } from "./logger";
 import type { Token } from "@/shared/interfaces/Token";
 import type { Contracts } from "@/shared/interfaces/Contracts";
+
+const logger = createLogger("Utils");
 
 export function getCompiledSierra(contractPath: string) {
     return json.parse(
@@ -451,8 +450,6 @@ export async function executeOrder(
     executionLongPrice: bigint,
     executionShortPrice: bigint
 ): Promise<void> {
-    const startTime = performance.now();
-
     const { chainId } = getNetAndChainId();
     const priceParams = await getSetPriceParams(account, [
         [indexTokenAddress, executionIndexPrice],
@@ -464,7 +461,7 @@ export async function executeOrder(
         createSatoruContract(chainId, SatoruContract.OrderHandler, OrderHandlerABI, account);
 
     logger.info(
-        `[${order.orderType}][${order.key}] Executing with price: ${executionIndexPrice} (acceptable: ${order.acceptablePrice})`
+        `Order ${order.key} [${order.orderType}]: Executing with price: ${executionIndexPrice} (acceptable: ${order.acceptablePrice})`
     );
 
     const executeOrderReceipt = await executeAndWait(
@@ -473,14 +470,20 @@ export async function executeOrder(
     );
 
     if (executeOrderReceipt.isSuccess()) {
-        logger.info(
-            `[${order.orderType}][${order.key}] Executed: transaction hash: ${executeOrderReceipt.transaction_hash}`
+        logger.debug(
+            `${order.orderType} Order ${order.key}: Transaction key ${executeOrderReceipt.transaction_hash}`
         );
-    } else {
-        // TODO: retry here
     }
+}
 
+export const measureExecutionTime = async <T>(
+    fn: () => Promise<T>,
+    logMessage: string
+): Promise<T> => {
+    const startTime = performance.now();
+    const result = await fn();
     const endTime = performance.now();
     const executionTime = endTime - startTime;
-    logger.debug(`Order ${order.key}: executed in ${executionTime} ms`);
-}
+    logger.debug(`${logMessage} (in ${executionTime.toFixed(2)} ms)`);
+    return result;
+};

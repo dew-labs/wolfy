@@ -1,14 +1,15 @@
 import { createNanoEvents, type Emitter } from "nanoevents";
 
-import { logger } from "@/shared/utils/logger";
 import type { Events } from "@/shared/interfaces/Events";
-
-import { createPriceKeeper } from "./keepers/priceKeeper";
-import { createOrderExecutionKeeper } from "./keepers/orderExecutionKeeper";
-import { createLiquidationKeeper } from "./keepers/liquidationKeeper";
 import { LIQUIDATION_INTERVAL_MINUTES } from "@/shared/utils/config";
+import { createLogger } from "@/shared/utils/logger";
 import { settingUp } from "@/shared/utils/utils";
 
+import { createLiquidationKeeper } from "./keepers/liquidationKeeper";
+import { createOrderExecutionKeeper } from "./keepers/orderExecutionKeeper";
+import { createPriceKeeper } from "./keepers/priceKeeper";
+
+const logger = createLogger("Keeper");
 const emitter = createNanoEvents<Events>();
 
 const runKeepers = async (emitter: Emitter<Events>) => {
