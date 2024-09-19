@@ -1,11 +1,13 @@
 import { json } from "starknet";
 import { HermesClient } from "@pythnetwork/hermes-client";
 
-import { logger } from "@/shared/utils/logger";
+import { createLogger } from "@/shared/utils/logger";
 import { expandDecimals, getNetworkConfig, getTokens } from "@/shared/utils/utils";
 import { USD_DECIMALS } from "@/shared/utils/config";
 import type { PythPriceFeed } from "@/shared/interfaces/PythPriceFeed";
 import type { Token } from "@/shared/interfaces/Token";
+
+const logger = createLogger("PythPriceOracleService");
 
 const tokens: Token[] = getTokens();
 
@@ -70,7 +72,7 @@ const getPriceFromOracleStream = async (
     };
 
     eventSource.onerror = (error: unknown) => {
-        logger.error(`Hermes Client got error: ${error}`);
+        logger.error(error, "Hermes Client got error");
         // TODO: resubscribe when error
         eventSource.close();
     };

@@ -10,13 +10,16 @@ import {
     toStarknetHexString,
     type SatoruEventHandler,
 } from "satoru-sdk";
-import type { Account, TypedContractV2 } from "starknet";
 import type { Emitter } from "nanoevents";
 import pRetry from "p-retry";
 
-import { logger } from "@/shared/utils/logger";
+import { createLogger } from "@/shared/utils/logger";
 import { getDataStoreContract } from "@/shared/utils/helpers";
-import { executeOrder as executeOrderUtil, getNetworkConfig } from "@/shared/utils/utils";
+import {
+    executeOrder as executeOrderUtil,
+    getNetworkConfig,
+    measureExecutionTime,
+} from "@/shared/utils/utils";
 import type { Order } from "@/shared/interfaces/Order";
 import { getExchangeRouterContract } from "@/shared/utils/contracts/getters";
 import { EventHandlerTypes } from "@/shared/interfaces/Events";
@@ -27,6 +30,8 @@ import {
 } from "../eventHandlers/positionEventHandler";
 import { saveOrder, removeOrder, loadOrders } from "../services/orderPersistenceService";
 import { getOraclePrice } from "../services/pythPriceOracleService";
+
+const logger = createLogger("OrderExecutionKeeper");
 
 const isLimitOrderExecutable = (order: Order, executionPrice: bigint): boolean => {
     const acceptablePrice = order.acceptablePrice;
@@ -65,7 +70,18 @@ export function createOrderExecutionKeeper(emitter: Emitter) {
 
     let executingLimitOrders = new Set<string>();
 
-    const handleOrderCreated: SatoruEventHandler<SatoruEvent.OrderCreated> = async (event) => {
+    const onPriceChangedHandler = async (indexTokenAddress: string, oraclePrice: bigint) => {
+        const limitOrders: Record<string, Order[]> = loadOrders();
+        if (!limitOrders[indexTokenAddress] || limitOrders[indexTokenAddress].length === 0) return;
+
+        await executeLimitOrdersIfExecutable(
+            limitOrders[indexTokenAddress],
+            indexTokenAddress,
+            oraclePrice
+        );
+    };
+
+    const onOrderCreatedHandler: SatoruEventHandler<SatoruEvent.OrderCreated> = async (event) => {
         const {
             key,
             order_type,
@@ -109,64 +125,75 @@ export function createOrderExecutionKeeper(emitter: Emitter) {
         }
     };
 
+    const onOrderCancelledHandler: SatoruEventHandler<SatoruEvent.OrderCancelled> = async (
+        event
+    ) => {
+        const { key, reason } = event;
+
+        const orderKey = toStarknetHexString(key);
+
+        cancelOrder(orderKey);
+    };
+
     const executeOrder = async (order: Order): Promise<void> => {
-        const market = await dataStoreContract.get_market(order.market);
-        const indexTokenAddress = toStarknetHexString(market.index_token);
-        const longTokenAddress = toStarknetHexString(market.long_token);
-        const shortTokenAddress = toStarknetHexString(market.short_token);
+        return await measureExecutionTime(async () => {
+            const market = await dataStoreContract.get_market(order.market);
+            const indexTokenAddress = toStarknetHexString(market.index_token);
+            const longTokenAddress = toStarknetHexString(market.long_token);
+            const shortTokenAddress = toStarknetHexString(market.short_token);
 
-        let shouldCancel = false;
-        try {
-            await pRetry(
-                async () => {
-                    const executionIndexPrice = getOraclePrice(indexTokenAddress);
-                    const executionLongPrice = getOraclePrice(longTokenAddress);
-                    const executionShortPrice = getOraclePrice(shortTokenAddress);
+            let shouldCancel = false;
+            try {
+                await pRetry(
+                    async () => {
+                        const executionIndexPrice = getOraclePrice(indexTokenAddress);
+                        const executionLongPrice = getOraclePrice(longTokenAddress);
+                        const executionShortPrice = getOraclePrice(shortTokenAddress);
 
-                    await executeOrderUtil(
-                        account,
-                        order,
-                        indexTokenAddress,
-                        longTokenAddress,
-                        shortTokenAddress,
-                        executionIndexPrice,
-                        executionLongPrice,
-                        executionShortPrice
-                    );
-                },
-                { retries: 3, minTimeout: 0 }
-            );
-        } catch (e) {
-            logger.error(`Failed to execute order ${order.key}, ${e}`);
-            if (isMarketOrder(order.orderType)) {
-                shouldCancel = true;
-                logger.info(`Canceling market order ${order.key}...`);
+                        await executeOrderUtil(
+                            account,
+                            order,
+                            indexTokenAddress,
+                            longTokenAddress,
+                            shortTokenAddress,
+                            executionIndexPrice,
+                            executionLongPrice,
+                            executionShortPrice
+                        );
+                    },
+                    { retries: 3, minTimeout: 0 }
+                );
+            } catch (error) {
+                logger.error(error, `Order ${order.key}: Failed to execute`);
+                if (isMarketOrder(order.orderType)) {
+                    shouldCancel = true;
+                }
             }
-        }
 
-        if (shouldCancel) {
-            await cancelOrder(order.key);
-        }
+            if (shouldCancel) {
+                await cancelOrder(order.key);
+            }
+        }, `${order.orderType} Order ${order.key}: Executed`);
     };
 
     const cancelOrder = async (orderKey: string): Promise<void> => {
-        logger.info(`Cancel order ${orderKey}`);
+        return await measureExecutionTime(async () => {
+            logger.info(`Order ${orderKey}: Canceling ...`);
 
-        try {
-            const executeOrderReceipt = await executeAndWait(
-                account,
-                createCall(exchangeRouterContract, "cancel_order", [orderKey])
-            );
+            try {
+                const executeOrderReceipt = await executeAndWait(
+                    account,
+                    createCall(exchangeRouterContract, "cancel_order", [orderKey])
+                );
 
-            if (executeOrderReceipt.isSuccess()) {
-                logger.info("Order cancelled");
-            } else {
-                throw new Error("Order cancellation failed");
+                if (!executeOrderReceipt.isSuccess()) {
+                    throw new Error("Order cancellation failed");
+                }
+            } catch (error) {
+                logger.error(error, `Order ${orderKey}: Failed to cancel`);
+                throw error;
             }
-        } catch (error) {
-            logger.error(`Failed to cancel order ${orderKey}: ${error}`);
-            throw error;
-        }
+        }, `Order ${orderKey}: Cancelled`);
     };
 
     const executeLimitOrdersIfExecutable = async (
@@ -189,21 +216,10 @@ export function createOrderExecutionKeeper(emitter: Emitter) {
                         );
                         removeOrder(order.key, indexTokenAddress);
                     } catch (error) {
-                        logger.error(`Failed to execute limit order: ${error}`);
+                        logger.error(error, `Order ${order.key}: Failed to execute`);
                     }
                 }
             })
-        );
-    };
-
-    const onPriceChangedHandler = async (indexTokenAddress: string, oraclePrice: bigint) => {
-        const limitOrders: Record<string, Order[]> = loadOrders();
-        if (!limitOrders[indexTokenAddress] || limitOrders[indexTokenAddress].length === 0) return;
-
-        await executeLimitOrdersIfExecutable(
-            limitOrders[indexTokenAddress],
-            indexTokenAddress,
-            oraclePrice
         );
     };
 
@@ -212,10 +228,10 @@ export function createOrderExecutionKeeper(emitter: Emitter) {
             const wssProvider = getProvider(ProviderType.WSS, chainId);
             wssProvider.onClose(run);
 
-            emitter.on(EventHandlerTypes.priceChanged, onPriceChangedHandler);
+            emitter.on(EventHandlerTypes.PriceChanged, onPriceChangedHandler);
 
-            await wssProvider.subscribeToEvent(SatoruEvent.OrderCreated, handleOrderCreated);
-            // TODO: subscribe to order cancelled event
+            await wssProvider.subscribeToEvent(SatoruEvent.OrderCreated, onOrderCreatedHandler);
+            await wssProvider.subscribeToEvent(SatoruEvent.OrderCancelled, onOrderCancelledHandler);
 
             await wssProvider.subscribeToEvent(
                 SatoruEvent.PositionIncrease,
@@ -226,7 +242,7 @@ export function createOrderExecutionKeeper(emitter: Emitter) {
                 onPositionDecreasedHandler
             );
         } catch (error) {
-            logger.error(`Failed to start: ${error}`);
+            logger.error(error, "Failed to start");
             throw error;
         }
     };

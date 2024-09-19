@@ -1,7 +1,7 @@
 import * as path from "path";
 import { TypeCompiler } from "@sinclair/typebox/compiler";
 
-import { logger } from "@/shared/utils/logger";
+import { createLogger } from "@/shared/utils/logger";
 import { PositionsSchema, type Position } from "@/shared/interfaces/Position";
 import {
     readFile,
@@ -11,6 +11,8 @@ import {
     ensureFileExists,
 } from "@/shared/utils/file";
 
+const logger = createLogger("PositionPersistenceService");
+
 const filePath = path.resolve(__dirname, "../../data/positions.json");
 const validator = TypeCompiler.Compile(PositionsSchema);
 
@@ -18,7 +20,7 @@ const validatePositions = (data: unknown): Position[] => {
     if (Array.isArray(data) && validator.Check(data)) {
         return data;
     }
-    throw new Error("Invalid positions format");
+    throw new Error("Positions: Invalid format in JSON");
 };
 
 export const loadPositions = (): Position[] => {
@@ -28,7 +30,7 @@ export const loadPositions = (): Position[] => {
         const parsedData = parseData(data);
         return validatePositions(parsedData);
     } catch (error) {
-        logger.error(error, "Error loading positions");
+        logger.error(error, "Positions: Failed to load from JSON");
         return [];
     }
 };
@@ -44,9 +46,9 @@ export const savePosition = (newPosition: Position): void => {
                       position.key === newPosition.key ? newPosition : position
                   );
         writeFile(filePath, stringifyData(updatedPositions));
-        logger.debug(`Position saved: ${newPosition.key}`);
+        logger.debug(`Position ${newPosition.key}: Saved to JSON`);
     } catch (error) {
-        logger.error(error, `Error saving position: ${newPosition.key}`);
+        logger.error(error, `Position ${newPosition.key}: Failed to save to JSON`);
     }
 };
 
@@ -56,14 +58,14 @@ export const removePosition = (positionKey: string): void => {
         const updatedPositions = positions.filter((position) => position.key !== positionKey);
 
         if (positions.length === updatedPositions.length) {
-            logger.warn(`Position with key ${positionKey} not found`);
+            logger.warn(`Position ${positionKey}: Not found in JSON`);
             return;
         }
 
         writeFile(filePath, stringifyData(updatedPositions));
-        logger.debug(`Position removed: ${positionKey}`);
+        logger.debug(`Position ${positionKey}: Removed from JSON`);
     } catch (error) {
-        logger.error(error, `Error removing position: ${positionKey}`);
+        logger.error(error, `Position ${positionKey}: Failed to remove from JSON`);
     }
 };
 
@@ -74,9 +76,9 @@ export const updatePosition = (updatedPosition: Position): void => {
             p.key === updatedPosition.key ? updatedPosition : p
         );
         writeFile(filePath, stringifyData(newPositions));
-        logger.debug(`Position updated: ${updatedPosition.key}`);
+        logger.debug(`Position ${updatedPosition.key}: Updated to JSON`);
     } catch (error) {
-        logger.error(error, `Error updating position: ${updatedPosition.key}`);
+        logger.error(error, `Position ${updatedPosition.key}: Failed to update to JSON`);
     }
 };
 
@@ -85,7 +87,7 @@ export const getPosition = (positionKey: string): Position | undefined => {
         const positions = loadPositions();
         return positions.find((position) => position.key === positionKey);
     } catch (error) {
-        logger.error(error, `Error getting position: ${positionKey}`);
+        logger.error(error, `Position ${positionKey}: Failed to get from JSON`);
         return undefined;
     }
 };
