@@ -12,9 +12,9 @@ import {
 } from "@/shared/utils/file";
 
 const filePath = path.resolve(__dirname, "../../data/positions.json");
+const validator = TypeCompiler.Compile(PositionsSchema);
 
 const validatePositions = (data: unknown): Position[] => {
-    const validator = TypeCompiler.Compile(PositionsSchema);
     if (Array.isArray(data) && validator.Check(data)) {
         return data;
     }
@@ -28,7 +28,7 @@ export const loadPositions = (): Position[] => {
         const parsedData = parseData(data);
         return validatePositions(parsedData);
     } catch (error) {
-        logger.error(error, "[PositionPersistenceService] Error loading positions");
+        logger.error(error, "Error loading positions");
         return [];
     }
 };
@@ -44,27 +44,26 @@ export const savePosition = (newPosition: Position): void => {
                       position.key === newPosition.key ? newPosition : position
                   );
         writeFile(filePath, stringifyData(updatedPositions));
-        logger.debug(`[PositionPersistenceService] Position saved: ${newPosition.key}`);
+        logger.debug(`Position saved: ${newPosition.key}`);
     } catch (error) {
-        logger.error(
-            error,
-            `[PositionPersistenceService] Error saving position: ${newPosition.key}`
-        );
+        logger.error(error, `Error saving position: ${newPosition.key}`);
     }
 };
 
 export const removePosition = (positionKey: string): void => {
     try {
         const positions = loadPositions();
-        const positionIndex = positions.findIndex((position) => position.key === positionKey);
-        if (positionIndex === -1) {
-            throw new Error(`Position with key ${positionKey} not found`);
-        }
         const updatedPositions = positions.filter((position) => position.key !== positionKey);
+
+        if (positions.length === updatedPositions.length) {
+            logger.warn(`Position with key ${positionKey} not found`);
+            return;
+        }
+
         writeFile(filePath, stringifyData(updatedPositions));
-        logger.debug(`[PositionPersistenceService] Position removed: ${positionKey}`);
+        logger.debug(`Position removed: ${positionKey}`);
     } catch (error) {
-        logger.error(error, `[PositionPersistenceService] Error deleting position: ${positionKey}`);
+        logger.error(error, `Error removing position: ${positionKey}`);
     }
 };
 
@@ -75,12 +74,9 @@ export const updatePosition = (updatedPosition: Position): void => {
             p.key === updatedPosition.key ? updatedPosition : p
         );
         writeFile(filePath, stringifyData(newPositions));
-        logger.debug(`[PositionPersistenceService] Position updated: ${updatedPosition.key}`);
+        logger.debug(`Position updated: ${updatedPosition.key}`);
     } catch (error) {
-        logger.error(
-            error,
-            `[PositionPersistenceService] Error updating position: ${updatedPosition.key}`
-        );
+        logger.error(error, `Error updating position: ${updatedPosition.key}`);
     }
 };
 
@@ -89,7 +85,7 @@ export const getPosition = (positionKey: string): Position | undefined => {
         const positions = loadPositions();
         return positions.find((position) => position.key === positionKey);
     } catch (error) {
-        logger.error(error, `[PositionPersistenceService] Error getting position: ${positionKey}`);
+        logger.error(error, `Error getting position: ${positionKey}`);
         return undefined;
     }
 };

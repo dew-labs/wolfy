@@ -1,77 +1,78 @@
+import * as path from "path";
+import { TypeCompiler } from "@sinclair/typebox/compiler";
+
 import { logger } from "@/shared/utils/logger";
 import { OrdersSchema, type Order } from "@/shared/interfaces/Order";
-import { Value } from "@sinclair/typebox/value";
-import * as devalue from "devalue";
-import * as path from "path";
-import fs from "node:fs";
+import {
+    readFile,
+    writeFile,
+    parseData,
+    stringifyData,
+    ensureFileExists,
+} from "@/shared/utils/file";
 
-export class OrderPersistenceService {
-    private readonly filePath: string;
+const filePath = path.resolve(__dirname, "../../data/orders.json");
+const validator = TypeCompiler.Compile(OrdersSchema);
 
-    constructor() {
-        this.filePath = path.resolve(__dirname, "../../data/orders.json");
+const validateOrders = (data: unknown): Record<string, Order[]> => {
+    if (typeof data === "object" && data !== null && validator.Check(data)) {
+        return data as Record<string, Order[]>;
     }
+    throw new Error("Invalid orders format");
+};
 
-    loadOrders(): Record<string, Order[]> {
-        try {
-            if (!fs.existsSync(this.filePath)) {
-                fs.writeFileSync(this.filePath, devalue.stringify({}));
-                return {};
-            }
+export const loadOrders = (): Record<string, Order[]> => {
+    try {
+        ensureFileExists(filePath, stringifyData({}));
+        const data = readFile(filePath);
+        const parsedData = parseData(data);
+        return validateOrders(parsedData);
+    } catch (error) {
+        logger.error(error, "Error loading orders");
+        return {};
+    }
+};
 
-            const data = fs.readFileSync(this.filePath, "utf8");
-            const parsedData = devalue.parse(data);
-
-            // TODO: use compile then check
-            if (!Value.Check(OrdersSchema, parsedData)) {
-                throw new Error("Invalid orders format");
-            }
-
-            return parsedData;
-        } catch (err) {
-            logger.error("[PersistOrder] Loading error");
-            logger.error(err);
-            return {};
+export const saveOrder = (order: Order, indexTokenAddress: string): void => {
+    try {
+        const Orders = loadOrders();
+        if (!Orders[indexTokenAddress]) {
+            Orders[indexTokenAddress] = [];
         }
+        Orders[indexTokenAddress].push(order);
+        writeFile(filePath, stringifyData(Orders));
+        logger.debug(`Limit Order saved : ${order.key}`);
+    } catch (error) {
+        logger.error(error, `Error saving order: ${order.key}`);
     }
+};
 
-    saveOrder(order: Order, indexTokenAddress: string): void {
-        try {
-            const limitOrders = this.loadOrders();
+export const removeOrder = (orderKey: string, indexTokenAddress: string): void => {
+    try {
+        const orders = loadOrders();
+        if (!orders[indexTokenAddress] || !orders[indexTokenAddress].length) {
+            logger.warn(`No orders found for token address: ${indexTokenAddress}`);
+            return;
+        }
 
-            if (!limitOrders[indexTokenAddress]) {
-                limitOrders[indexTokenAddress] = [];
-            }
+        const initialOrderCount = orders[indexTokenAddress].length;
+        orders[indexTokenAddress] = orders[indexTokenAddress].filter(
+            (order) => order.key !== orderKey
+        );
 
-            limitOrders[indexTokenAddress].push(order);
-
-            fs.writeFileSync(this.filePath, devalue.stringify(limitOrders), "utf8");
-
-            logger.info(
-                `[${order.orderType}][${order.key}] Saved, triggerPrice: ${order.triggerPrice}`
+        if (orders[indexTokenAddress].length === initialOrderCount) {
+            logger.warn(
+                `Order with key ${orderKey} not found for token address: ${indexTokenAddress}`
             );
-        } catch (err) {
-            logger.error("[PersistOrder] Saving error");
-            logger.error(err);
+            return;
         }
+
+        writeFile(filePath, stringifyData(orders));
+        logger.debug(`Order removed: ${orderKey} for token address: ${indexTokenAddress}`);
+    } catch (error) {
+        logger.error(
+            error,
+            `Error removing order: ${orderKey} for token address: ${indexTokenAddress}`
+        );
     }
-
-    deleteOrder(orderKey: string, indexTokenAddress: string): void {
-        try {
-            const limitOrders = this.loadOrders();
-            const orders = limitOrders[indexTokenAddress];
-
-            if (!orders) {
-                throw new Error(`No orders found for token address: ${indexTokenAddress}`);
-            }
-
-            const newOrders = orders.filter((order) => order.key !== orderKey);
-            limitOrders[indexTokenAddress] = newOrders;
-
-            fs.writeFileSync(this.filePath, devalue.stringify(limitOrders), "utf8");
-        } catch (err) {
-            logger.error("[PersistOrder] Removing error");
-            logger.error(err);
-        }
-    }
-}
+};

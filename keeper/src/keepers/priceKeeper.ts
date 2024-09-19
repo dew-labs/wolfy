@@ -1,32 +1,16 @@
-import { OrderPersistenceService } from "../services/OrderPersistenceService";
-import { PythPriceOracleService } from "../services/PythPriceOracleService";
+import { getPriceFromOracleStream } from "../services/pythPriceOracleService";
 import { type Emitter } from "nanoevents";
-import type { Order } from "@/shared/interfaces/Order";
+import { EventHandlerTypes, type Events } from "@/shared/interfaces/Events";
 
-export class PriceKeeper {
-    private readonly orderPersistenceService: OrderPersistenceService;
-
-    constructor(private priceOracleService: PythPriceOracleService, private emitter: Emitter) {
-        this.orderPersistenceService = new OrderPersistenceService();
-        this.priceOracleService.on("oraclePricesUpdate", this.handlePriceUpdate);
-    }
-
-    private handlePriceUpdate = ({
-        indexTokenAddress,
-        oraclePrice,
-    }: {
-        indexTokenAddress: string;
-        oraclePrice: bigint;
-    }) => {
-        // TODO: performance issue, should work on memory instead
-        const limitOrders: Record<string, Order[]> = this.orderPersistenceService.loadOrders();
-        if (!limitOrders[indexTokenAddress] || limitOrders[indexTokenAddress].length === 0) return;
-
-        this.emitter.emit(
-            "executeLimitOrdersIfExecutable",
-            limitOrders[indexTokenAddress],
-            indexTokenAddress,
-            oraclePrice
-        );
+export const createPriceKeeper = (emitter: Emitter<Events>) => {
+    const handlePriceUpdate = (indexTokenAddress: string, oraclePrice: bigint) => {
+        emitter.emit(EventHandlerTypes.priceChanged, indexTokenAddress, oraclePrice);
     };
-}
+
+    const run = async () => {
+        console.log("🚀 ~ run ~ run:");
+        await getPriceFromOracleStream(handlePriceUpdate);
+    };
+
+    return { run };
+};
