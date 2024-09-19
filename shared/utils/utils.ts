@@ -34,7 +34,6 @@ import setup from "./setup";
 import type { Order } from "./../interfaces/Order";
 import { getDataStoreContract } from "./helpers";
 import { logger } from "./logger";
-import { OrderPersistenceService } from "../../keeper/src/services/OrderPersistenceService";
 import type { Token } from "@/shared/interfaces/Token";
 import type { Contracts } from "@/shared/interfaces/Contracts";
 
@@ -169,7 +168,7 @@ export function getNetAndChainId() {
 
 export function getNetworkConfig() {
     const { net, chainId } = getNetAndChainId();
-    console.log("🚀 ~ getNetworkConfig ~ net, chainId:", net, chainId);
+
     const provider = getProvider(ProviderType.HTTP, chainId);
 
     const privateKey = process.env.ACCOUNT_PRIVATE;
@@ -243,9 +242,6 @@ export function getContracts(): Contracts {
         contracts = JSON.parse(fs.readFileSync(`./contracts.${net}.json`).toString("ascii"));
     } catch {}
 
-    // logger.info("Contracts");
-    // logger.info(contracts);
-
     return contracts;
 }
 
@@ -255,9 +251,6 @@ export function getTokens(): Token[] {
     try {
         tokens = JSON.parse(fs.readFileSync(`./tokens.${net}.json`).toString("ascii"));
     } catch {}
-
-    // logger.info("Tokens");
-    // logger.info(tokens);
 
     return tokens;
 }

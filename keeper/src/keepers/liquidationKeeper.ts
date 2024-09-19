@@ -21,7 +21,7 @@ import { getSetPriceParams } from "@/shared/utils/utils";
 import { loadPositions } from "../services/positionPersistenceService";
 import pRetry from "p-retry";
 
-interface ContractSetup {
+type ContractSetup = {
     account: Account;
     chainId: StarknetChainId;
     hermesUrl: string;
@@ -31,7 +31,7 @@ interface ContractSetup {
         SatoruContractAbi<SatoruContract.LiquidationHandler>
     >;
     referralStorageAddress: string;
-}
+};
 
 const setupContracts = (): ContractSetup => {
     const contracts = getContracts();
@@ -237,29 +237,31 @@ const processPosition = async (positionKey: string, contractSetup: ContractSetup
 
 const checkAndLiquidatePositions = async (contractSetup: ContractSetup) => {
     logger.debug("Checking positions...");
-    const positions = loadPositions();
-    await Promise.allSettled(
-        positions.map((position) => processPosition(position.key, contractSetup))
-    );
+
+    try {
+        const positions = loadPositions();
+        await Promise.allSettled(
+            positions.map((position) => processPosition(position.key, contractSetup))
+        );
+    } catch (error) {
+        logger.error(error, "[LiquidationKeeper] Error during position check:");
+    }
+    logger.debug(`[LiquidationKeeper] Positions checked`);
 };
 
-export const startLiquidationKeeper = async (intervalMinutes: number) => {
+export const createLiquidationKeeper = (intervalMinutes: number) => {
     const intervalMs = intervalMinutes * 60 * 1000;
 
     logger.debug(
         `[LiquidationKeeper] Starting liquidation keeper. Checking positions every ${intervalMinutes} minutes.`
     );
-    const contractSetup = await setupContracts();
+    const contractSetup = setupContracts();
 
-    const runKeeper = async () => {
-        try {
-            await checkAndLiquidatePositions(contractSetup);
-        } catch (error) {
-            logger.error(error, "[LiquidationKeeper] Error during position check:");
-        }
-        logger.debug(`[LiquidationKeeper] Positions checked`);
+    const run = () => {
+        const go = () => checkAndLiquidatePositions(contractSetup);
+        setInterval(go, intervalMs);
+        go();
     };
 
-    setInterval(runKeeper, intervalMs);
-    runKeeper();
+    return { run };
 };

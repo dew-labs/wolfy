@@ -1,85 +1,87 @@
+import { json } from "starknet";
+import { HermesClient } from "@pythnetwork/hermes-client";
+
+import { logger } from "@/shared/utils/logger";
+import { expandDecimals, getNetworkConfig, getTokens } from "@/shared/utils/utils";
+import { USD_DECIMALS } from "@/shared/utils/config";
 import type { PythPriceFeed } from "@/shared/interfaces/PythPriceFeed";
 import type { Token } from "@/shared/interfaces/Token";
-import { HermesClient } from "@pythnetwork/hermes-client";
-import { logger } from "@/shared/utils/logger";
-import EventEmitter from "events";
-import { json } from "starknet";
-import { expandDecimals } from "@/shared/utils/utils";
-import { USD_DECIMALS } from "@/shared/utils/config";
 
-export class PythPriceOracleService extends EventEmitter {
-    private readonly hermesClient: HermesClient;
-    public readonly oraclePrices: Record<string, bigint>;
+const tokens: Token[] = getTokens();
 
-    constructor(private readonly hermesUrl: string, private readonly tokens: Token[]) {
-        super();
-        this.hermesClient = new HermesClient(this.hermesUrl, {});
-        this.oraclePrices = {};
-        tokens.forEach((token) => (this.oraclePrices[token.address] = 0n));
-    }
+let oraclePrices: Record<string, bigint> = Object.fromEntries(
+    tokens.map((token) => [token.address, 0n])
+);
 
-    async getPriceFromOracleStream(): Promise<void> {
-        const pythPriceIds = this.tokens.map((token) => token.pythPriceId);
-        const eventSource = await this.hermesClient.getPriceUpdatesStream(pythPriceIds, {
-            encoding: "hex",
-            parsed: true,
-            allowUnordered: false,
-            benchmarksOnly: true,
-        });
+const pythPriceIds = tokens.map((token) => token.pythPriceId);
 
-        eventSource.onmessage = (event: unknown) => {
-            try {
-                if (
-                    typeof event !== "object" ||
-                    event === null ||
-                    !("data" in event) ||
-                    typeof event.data !== "string"
-                )
-                    throw new Error("Invalid price data");
+const handlePriceUpdate = (pythPriceFeed: PythPriceFeed): void => {
+    const pythPriceId: string = "0x" + pythPriceFeed.id;
+    const token = tokens.find((token) => token.pythPriceId === pythPriceId);
+    if (!token) throw new Error("Not found token address with PythPriceId");
 
-                const pythPriceFeeds: PythPriceFeed[] = json.parse(event.data).parsed;
+    const oraclePrice =
+        expandDecimals(
+            pythPriceFeed.price.price,
+            USD_DECIMALS - Math.abs(pythPriceFeed.price.expo)
+        ) / expandDecimals(1, token.decimals);
 
-                pythPriceFeeds.forEach((pythPriceFeed) => {
-                    this.handlePriceUpdate(pythPriceFeed);
-                });
-            } catch {
-                // do nothing, we can still safe ignore the error
-            }
-        };
+    oraclePrices[token.address] = oraclePrice;
+};
 
-        eventSource.onerror = (error: unknown) => {
-            logger.error(`Hermes Client got error: ${error}`);
-            // TODO: resubcribe when error
-            eventSource.close();
-        };
-    }
+const getPriceFromOracleStream = async (
+    onUpdate: (address: string, price: bigint) => void
+): Promise<void> => {
+    const { hermesUrl } = getNetworkConfig();
 
-    getOraclePrice(tokenAddress: string) {
-        const price = this.oraclePrices[tokenAddress];
-        if (!price) {
-            throw new Error(`Cannot find ${tokenAddress} token`);
+    const hermesClient = new HermesClient(hermesUrl, {});
+
+    const eventSource = await hermesClient.getPriceUpdatesStream(pythPriceIds, {
+        encoding: "hex",
+        parsed: true,
+        allowUnordered: false,
+        benchmarksOnly: true,
+    });
+
+    eventSource.onmessage = (event: unknown) => {
+        try {
+            if (
+                typeof event !== "object" ||
+                event === null ||
+                !("data" in event) ||
+                typeof event.data !== "string"
+            )
+                throw new Error("Invalid price data");
+
+            const pythPriceFeeds: PythPriceFeed[] = json.parse(event.data).parsed;
+
+            const oldPrices = { ...oraclePrices };
+            pythPriceFeeds.forEach(handlePriceUpdate);
+
+            // Notify about updates
+            Object.entries(oraclePrices).forEach(([address, price]) => {
+                if (price !== oldPrices[address]) {
+                    onUpdate(address, price);
+                }
+            });
+        } catch {
+            // do nothing, we can still safe ignore the error
         }
-        return price;
+    };
+
+    eventSource.onerror = (error: unknown) => {
+        logger.error(`Hermes Client got error: ${error}`);
+        // TODO: resubscribe when error
+        eventSource.close();
+    };
+};
+
+const getOraclePrice = (tokenAddress: string): bigint => {
+    const price = oraclePrices[tokenAddress];
+    if (!price) {
+        throw new Error(`Cannot find ${tokenAddress} token`);
     }
+    return price;
+};
 
-    private handlePriceUpdate(pythPriceFeed: PythPriceFeed): void {
-        const pythPriceId: string = "0x" + pythPriceFeed.id;
-        const { address: indexTokenAddress, decimals: indexTokenDecimals }: Token =
-            this.getTokenByPythPriceId(pythPriceId);
-
-        const oraclePrice =
-            expandDecimals(
-                pythPriceFeed.price.price,
-                USD_DECIMALS - Math.abs(pythPriceFeed.price.expo)
-            ) / expandDecimals(1, indexTokenDecimals);
-        this.oraclePrices[indexTokenAddress] = oraclePrice;
-        this.emit("oraclePricesUpdate", { indexTokenAddress, oraclePrice });
-    }
-
-    private getTokenByPythPriceId(pythPriceId: string): Token {
-        const token = this.tokens.find((token) => token.pythPriceId === pythPriceId);
-        if (!token) throw new Error("Not found token address with PythPriceId");
-
-        return token;
-    }
-}
+export { getOraclePrice, getPriceFromOracleStream };

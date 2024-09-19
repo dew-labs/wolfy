@@ -1,5 +1,12 @@
 import type { SatoruEvent, SatoruEventHandler } from "satoru-sdk";
-import { EventHandlerTypes } from "@/shared/utils/config";
+
+export enum EventHandlerTypes {
+    orderCreated = "orderCreated",
+    positionIncrease = "positionIncrease",
+    positionDecrease = "positionDecrease",
+    oraclePriceUpdated = "oraclePriceUpdated",
+    priceChanged = "priceChanged",
+}
 
 export interface Events {
     [EventHandlerTypes.oraclePriceUpdated]: (tokenAddress: string, price: bigint) => void;
@@ -12,7 +19,5 @@ export interface Events {
     [EventHandlerTypes.positionDecrease]: (
         handler: SatoruEventHandler<SatoruEvent.PositionDecrease>
     ) => void;
-    [EventHandlerTypes.executeLimitOrdersIfExecutable]: (
-        handler: SatoruEventHandler<SatoruEvent.OrderCreated>
-    ) => void;
+    [EventHandlerTypes.priceChanged]: (tokenAddress: string, price: bigint) => void;
 }
