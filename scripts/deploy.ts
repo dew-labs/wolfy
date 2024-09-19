@@ -8,6 +8,7 @@ import {
     SatoruRole,
 } from "satoru-sdk";
 import {
+    createAsker,
     ensureDeclared,
     ensureDeployed,
     getContracts,
@@ -327,7 +328,7 @@ async function deploy() {
     console.log(`Written deployed contracts to contracts.${net}.json`);
 }
 
-async function grantRoles() {
+async function grantRoles(additionAdmins?: string[]) {
     const { account, chainId } = await settingUp();
 
     const contracts = getContracts();
@@ -366,28 +367,41 @@ async function grantRoles() {
 
     // -------------------------------------------------------------------------
 
+    const ADMIN_ROLEs = [
+        SatoruRole.CONTROLLER,
+        SatoruRole.ORDER_KEEPER,
+        SatoruRole.MARKET_KEEPER,
+        SatoruRole.FROZEN_ORDER_KEEPER,
+        SatoruRole.FEE_KEEPER,
+        SatoruRole.CONFIG_KEEPER,
+        SatoruRole.LIQUIDATION_KEEPER,
+        SatoruRole.ADL_KEEPER,
+        // SatoruRole.TIMELOCK_ADMIN
+        // SatoruRole.TIMELOCK_MULTISIG
+        // router plugin role is sus?
+        SatoruRole.ROUTER_PLUGIN,
+    ];
+
     // Grant roles to Account0 (deployment account)
     await grantRole(
         chainId,
         account,
         account.address,
-        [
-            SatoruRole.ROLE_ADMIN,
-            SatoruRole.CONTROLLER,
-            SatoruRole.ORDER_KEEPER,
-            SatoruRole.MARKET_KEEPER,
-            SatoruRole.FROZEN_ORDER_KEEPER,
-            SatoruRole.FEE_KEEPER,
-            SatoruRole.CONFIG_KEEPER,
-            SatoruRole.LIQUIDATION_KEEPER,
-            SatoruRole.ADL_KEEPER,
-            // SatoruRole.TIMELOCK_ADMIN
-            // SatoruRole.TIMELOCK_MULTISIG
-            // router plugin role is sus?
-            SatoruRole.ROUTER_PLUGIN,
-        ],
+        [SatoruRole.ROLE_ADMIN, ...ADMIN_ROLEs],
         "Account0"
     );
+
+    if (additionAdmins) {
+        for (const adminIdx in additionAdmins) {
+            await grantRole(
+                chainId,
+                account,
+                additionAdmins[adminIdx]!,
+                ADMIN_ROLEs,
+                `Additional Admin #${adminIdx}`
+            );
+        }
+    }
 
     // -------------------------------------------------------------------------
 
@@ -502,8 +516,15 @@ async function config() {
 
 async function deployApp() {
     await deploy();
-    await grantRoles();
+
+    const { ask, doneAsking } = createAsker();
+
+    const additionAdmins = await ask("Enter additional admins (comma separated)");
+
+    await grantRoles(additionAdmins ? additionAdmins.split(",") : undefined);
     await config();
+
+    doneAsking();
 }
 
 deployApp();
