@@ -189,7 +189,6 @@ mod ExchangeRouter {
     use satoru::order::base_order_utils::CreateOrderParams;
     use satoru::oracle::oracle_utils::SimulatePricesParams;
     use satoru::utils::account_utils;
-    use satoru::utils::global_reentrancy_guard;
     use satoru::router::error::RouterError;
     use satoru::deposit::deposit::Deposit;
     use satoru::order::order::Order;
@@ -297,8 +296,9 @@ mod ExchangeRouter {
         }
 
         fn cancel_deposit(ref self: ContractState, key: felt252) {
+            self.reentrancy_guard.start();
+
             let data_store = self.data_store.read();
-            global_reentrancy_guard::non_reentrant_before(data_store);
 
             let deposit = data_store.get_deposit(key);
 
@@ -312,25 +312,25 @@ mod ExchangeRouter {
 
             self.deposit_handler.read().cancel_deposit(key);
 
-            global_reentrancy_guard::non_reentrant_after(data_store);
+            self.reentrancy_guard.end();
         }
 
         fn create_withdrawal(ref self: ContractState, params: CreateWithdrawalParams) -> felt252 {
-            let data_store = self.data_store.read();
-            global_reentrancy_guard::non_reentrant_before(data_store);
+            self.reentrancy_guard.start();
 
             let account = get_caller_address();
 
             let key = self.withdrawal_handler.read().create_withdrawal(account, params);
 
-            global_reentrancy_guard::non_reentrant_after(data_store);
+            self.reentrancy_guard.end();
 
             key
         }
 
         fn cancel_withdrawal(ref self: ContractState, key: felt252) {
+            self.reentrancy_guard.start();
+
             let data_store = self.data_store.read();
-            global_reentrancy_guard::non_reentrant_before(data_store);
 
             let withdrawal = data_store.get_withdrawal(key);
 
@@ -340,7 +340,7 @@ mod ExchangeRouter {
 
             self.withdrawal_handler.read().cancel_withdrawal(key);
 
-            global_reentrancy_guard::non_reentrant_after(data_store);
+            self.reentrancy_guard.end();
         }
 
         fn create_order(ref self: ContractState, params: CreateOrderParams) -> felt252 {
@@ -358,45 +358,43 @@ mod ExchangeRouter {
         fn set_saved_callback_contract(
             ref self: ContractState, market: ContractAddress, callback_contract: ContractAddress
         ) {
+            self.reentrancy_guard.start();
+
             let data_store = self.data_store.read();
-            global_reentrancy_guard::non_reentrant_before(data_store);
 
             callback_utils::set_saved_callback_contract(data_store, get_caller_address(), market, callback_contract);
 
-            global_reentrancy_guard::non_reentrant_after(data_store);
+            self.reentrancy_guard.end();
         }
 
         fn simulate_execute_deposit(
             ref self: ContractState, key: felt252, simulated_oracle_params: SimulatePricesParams
         ) {
-            let data_store = self.data_store.read();
-            global_reentrancy_guard::non_reentrant_before(data_store);
+            self.reentrancy_guard.start();
 
             self.deposit_handler.read().simulate_execute_deposit(key, simulated_oracle_params);
 
-            global_reentrancy_guard::non_reentrant_after(data_store);
+            self.reentrancy_guard.end();
         }
 
         fn simulate_execute_withdrawal(
             ref self: ContractState, key: felt252, simulated_oracle_params: SimulatePricesParams
         ) {
-            let data_store = self.data_store.read();
-            global_reentrancy_guard::non_reentrant_before(data_store);
+            self.reentrancy_guard.start();
 
             self.withdrawal_handler.read().simulate_execute_withdrawal(key, simulated_oracle_params);
 
-            global_reentrancy_guard::non_reentrant_after(data_store);
+            self.reentrancy_guard.end();
         }
 
         fn simulate_execute_order(
             ref self: ContractState, key: felt252, simulated_oracle_params: SimulatePricesParams
         ) {
-            let data_store = self.data_store.read();
-            global_reentrancy_guard::non_reentrant_before(data_store);
+            self.reentrancy_guard.start();
 
             self.order_handler.read().simulate_execute_order(key, simulated_oracle_params);
 
-            global_reentrancy_guard::non_reentrant_after(data_store);
+            self.reentrancy_guard.end();
         }
 
         fn update_order(
@@ -407,8 +405,9 @@ mod ExchangeRouter {
             trigger_price: u256,
             min_output_amout: u256
         ) {
+            self.reentrancy_guard.start();
+
             let data_store = self.data_store.read();
-            global_reentrancy_guard::non_reentrant_before(data_store);
 
             let order = data_store.get_order(key);
 
@@ -420,7 +419,7 @@ mod ExchangeRouter {
                 .read()
                 .update_order(key, size_delta_usd, acceptable_price, trigger_price, min_output_amout, order);
 
-            global_reentrancy_guard::non_reentrant_after(data_store);
+            self.reentrancy_guard.end();
         }
 
         fn cancel_order(ref self: ContractState, key: felt252) {
@@ -444,8 +443,9 @@ mod ExchangeRouter {
             tokens: Array<ContractAddress>,
             receiver: ContractAddress
         ) -> Array<u256> {
+            self.reentrancy_guard.start();
+
             let data_store = self.data_store.read();
-            global_reentrancy_guard::non_reentrant_before(data_store);
 
             if (markets.len() != tokens.len()) {
                 RouterError::INVALID_CLAIM_FUNDING_FEES_INPUT(markets.len(), tokens.len())
@@ -475,7 +475,7 @@ mod ExchangeRouter {
                 i += 1;
             };
 
-            global_reentrancy_guard::non_reentrant_after(data_store);
+            self.reentrancy_guard.end();
 
             claimed_amounts
         }
@@ -487,8 +487,9 @@ mod ExchangeRouter {
             time_keys: Array<u256>,
             receiver: ContractAddress
         ) -> Array<u256> {
+            self.reentrancy_guard.start();
+
             let data_store = self.data_store.read();
-            global_reentrancy_guard::non_reentrant_before(data_store);
 
             if (markets.len() != tokens.len() || tokens.len() != time_keys.len()) {
                 RouterError::INVALID_CLAIM_COLLATERAL_INPUT(markets.len(), tokens.len(), time_keys.len())
@@ -524,7 +525,7 @@ mod ExchangeRouter {
                 i += 1;
             };
 
-            global_reentrancy_guard::non_reentrant_after(data_store);
+            self.reentrancy_guard.end();
 
             claimed_amounts
         }
@@ -535,8 +536,9 @@ mod ExchangeRouter {
             tokens: Array<ContractAddress>,
             receiver: ContractAddress
         ) -> Array<u256> {
+            self.reentrancy_guard.start();
+
             let data_store = self.data_store.read();
-            global_reentrancy_guard::non_reentrant_before(data_store);
 
             if (markets.len() != tokens.len()) {
                 RouterError::INVALID_CLAIM_AFFILIATE_REWARDS_INPUT(markets.len(), tokens.len())
@@ -564,19 +566,20 @@ mod ExchangeRouter {
                 i = i + 1;
             };
 
-            global_reentrancy_guard::non_reentrant_after(data_store);
+            self.reentrancy_guard.end();
 
             claimed_amounts
         }
 
         fn set_ui_fee_factor(ref self: ContractState, ui_fee_factor: u256) {
+            self.reentrancy_guard.start();
+
             let data_store = self.data_store.read();
-            global_reentrancy_guard::non_reentrant_before(data_store);
 
             let account = get_caller_address();
             market_utils::set_ui_fee_factor(data_store, self.event_emitter.read(), account, ui_fee_factor);
 
-            global_reentrancy_guard::non_reentrant_after(data_store);
+            self.reentrancy_guard.end();
         }
 
         fn claim_ui_fees(
@@ -585,8 +588,9 @@ mod ExchangeRouter {
             tokens: Array<ContractAddress>,
             receiver: ContractAddress
         ) -> Array<u256> {
+            self.reentrancy_guard.start();
+
             let data_store = self.data_store.read();
-            global_reentrancy_guard::non_reentrant_before(data_store);
 
             if (markets.len() != tokens.len()) {
                 RouterError::INVALID_CLAIM_UI_FEES_INPUT(markets.len(), tokens.len())
@@ -614,7 +618,7 @@ mod ExchangeRouter {
                 i += 1;
             };
 
-            global_reentrancy_guard::non_reentrant_after(data_store);
+            self.reentrancy_guard.end();
 
             claimed_amounts
         }

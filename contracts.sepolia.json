@@ -23,5 +23,5 @@
     "DepositHandler": "0x21b42f9a7c82f3282348e623b3cf0a0d8ca5249c5f7209ada4b319147938b00",
     "LiquidationHandler": "0xa007c2c9fe092fcfba37875862f93bd18ca197eaf9f52659c73d898d50b43f",
     "AdlHandler": "0x25c88645e100078c99ad903aabab3d2d17ee0b955c9ccbcea343212a1d7bf5e",
-    "ExchangeRouter": "0x361622cf9c4a17fc85739539a979f5fe5355e9e6f2e9c11b47b137ead9648de"
+    "ExchangeRouter": "0x40917f2c4360b415e3facedec9d718114575a8ec6ce0beaf3ea508c37bcea8d"
 }
