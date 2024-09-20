@@ -415,7 +415,7 @@ export async function getSetPriceParams(account: Account, tokensWithPrices: [str
     const currentBlockNum = await account.getBlockNumber();
     const currentBlock = await account.getBlock();
     const block0 = BigInt(currentBlockNum - 1);
-    const block1 = BigInt(currentBlockNum);
+    const block1 = BigInt(currentBlockNum + 1);
 
     const blocks0 = tokensWithPrices.map(() => block0);
     const blocks1 = tokensWithPrices.map(() => block1);

@@ -1,6 +1,7 @@
 import {
     createSatoruContract,
     DataStoreABI,
+    DepositHandlerABI,
     ExchangeRouterABI,
     LiquidationHandlerABI,
     ReaderABI,
@@ -45,4 +46,12 @@ export const getLiquidationHandlerContract: (
 ) => TypedContractV2<SatoruContractAbi<SatoruContract.LiquidationHandler>> = createContractGetter(
     SatoruContract.LiquidationHandler,
     LiquidationHandlerABI
+);
+
+export const getDepositHandlerContract: (
+    chainId: StarknetChainId,
+    connectTo?: Account
+) => TypedContractV2<SatoruContractAbi<SatoruContract.DepositHandler>> = createContractGetter(
+    SatoruContract.DepositHandler,
+    DepositHandlerABI
 );
