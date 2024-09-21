@@ -6,7 +6,7 @@ import { createLogger } from "@/shared/utils/logger";
 import { settingUp } from "@/shared/utils/utils";
 
 import { createLiquidationKeeper } from "./keepers/liquidationKeeper";
-import { createOrderExecutionKeeper } from "./keepers/orderExecutionKeeper";
+import { createOrderKeeper } from "./keepers/orderKeeper";
 import { createPriceKeeper } from "./keepers/priceKeeper";
 import { createDepositKeeper } from "./keepers/depositKeeper";
 
@@ -17,7 +17,7 @@ const runKeepers = async (emitter: Emitter<Events>) => {
     await settingUp();
 
     const { run: runPriceKeeper } = createPriceKeeper(emitter);
-    const { run: runOrderExecutionKeeper } = createOrderExecutionKeeper(emitter);
+    const { run: runOrderExecutionKeeper } = createOrderKeeper(emitter);
     const { run: runLiquidationKeeper } = createLiquidationKeeper(LIQUIDATION_INTERVAL_MINUTES);
     const { run: runDepositKeeper } = createDepositKeeper();
 

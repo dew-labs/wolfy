@@ -62,7 +62,7 @@ const isExecutingLimitOrder = (orderKey: string, executingLimitOrders: Set<strin
     return executingLimitOrders.has(orderKey);
 };
 
-export function createOrderExecutionKeeper(emitter: Emitter) {
+export function createOrderKeeper(emitter: Emitter) {
     const { account, chainId } = getNetworkConfig();
 
     const dataStoreContract = getDataStoreContract(chainId, account);
