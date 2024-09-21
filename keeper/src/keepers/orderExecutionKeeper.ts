@@ -161,7 +161,7 @@ export function createOrderExecutionKeeper(emitter: Emitter) {
                             executionShortPrice
                         );
                     },
-                    { retries: 3, minTimeout: 0 }
+                    { retries: 3, minTimeout: 0, maxTimeout: 0 }
                 );
             } catch (error) {
                 logger.error(error, `Order ${order.key}: Failed to execute`);

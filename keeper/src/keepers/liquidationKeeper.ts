@@ -174,6 +174,7 @@ const processPosition = async (positionKey: string, contractSetup: ContractSetup
                 {
                     retries: 3,
                     minTimeout: 0,
+                    maxTimeout: 0,
                 }
             );
         } catch (error) {
