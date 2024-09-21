@@ -78,7 +78,7 @@ const run = async (account: Account, chainId: StarknetChainId): Promise<void> =>
         wssProvider.onClose(() => run(account, chainId));
 
         // const onDepositCreatedHandler = createOnDepositCreatedHandler(account, chainId);
-        await wssProvider.subscribeToEvent(
+        await wssProvider.subscribeTo(
             SatoruEvent.DepositCreated,
             onDepositCreatedHandler(account, chainId)
         );
