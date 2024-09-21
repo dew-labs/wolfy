@@ -59,12 +59,12 @@ export class OrderExecutionKeeper {
             this.executeLimitOrdersIfExecutable
         );
 
-        await this.wssProvider.subscribeToEvent(SatoruEvent.OrderCreated, this.handleOrderCreated);
-        await this.wssProvider.subscribeToEvent(
+        await this.wssProvider.subscribeTo(SatoruEvent.OrderCreated, this.handleOrderCreated);
+        await this.wssProvider.subscribeTo(
             SatoruEvent.PositionIncrease,
             this.positionEventHandler.handlePositionIncrease
         );
-        await this.wssProvider.subscribeToEvent(
+        await this.wssProvider.subscribeTo(
             SatoruEvent.PositionDecrease,
             this.positionEventHandler.handlePositionDecrease
         );

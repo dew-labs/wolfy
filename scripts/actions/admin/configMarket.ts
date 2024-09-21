@@ -1,6 +1,6 @@
 import { createAsker, decimalToFloat, expandDecimals, settingUp } from "@/shared/utils/utils";
 
-import * as dataStoreKeys from "@/shared/utils/dataStore";
+import * as dataStoreKeys from "satoru-sdk/dataStore";
 import {
     createCall,
     createSatoruContract,
@@ -94,8 +94,8 @@ async function config() {
 
         // ---------------------------------------------------------------------
 
-        // virtualTokenIdForIndexToken: getKey("PERP:ETH/USD"),
-        // virtualMarketId: getKey("SPOT:ETH/USD"),
+        // virtualTokenIdForIndexToken: poseidonHash("PERP:ETH/USD"),
+        // virtualMarketId: poseidonHash("SPOT:ETH/USD"),
 
         // ---------------------------------------------------------------------
 

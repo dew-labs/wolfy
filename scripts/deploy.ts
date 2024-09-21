@@ -4,6 +4,7 @@ import {
     DataStoreABI,
     executeAndWait,
     grantRole,
+    poseidonHash,
     SatoruContract,
     SatoruRole,
 } from "satoru-sdk";
@@ -12,7 +13,6 @@ import {
     ensureDeclared,
     ensureDeployed,
     getContracts,
-    getKey,
     settingUp,
 } from "@/shared/utils/utils";
 
@@ -506,9 +506,9 @@ async function config() {
 
     await executeAndWait(account, [
         // set fee token
-        createCall(dataStoreContract, "set_address", [getKey("FEE_TOKEN"), feeToken]),
+        createCall(dataStoreContract, "set_address", [poseidonHash("FEE_TOKEN"), feeToken]),
         // set max swap path length
-        createCall(dataStoreContract, "set_u256", [getKey("MAX_SWAP_PATH_LENGTH"), 5]),
+        createCall(dataStoreContract, "set_u256", [poseidonHash("MAX_SWAP_PATH_LENGTH"), 5]),
     ]);
 
     console.log("Done config");

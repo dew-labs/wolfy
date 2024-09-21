@@ -44,7 +44,7 @@
         "picocolors": "^1.0.1",
         "pino": "^9.4.0",
         "pino-pretty": "^11.2.2",
-        "satoru-sdk": "^1.0.10",
+        "satoru-sdk": "^1.1.1",
         "starknet": "^6.12.1",
         "typescript": "^5.5.3"
     },
