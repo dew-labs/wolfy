@@ -1,33 +1,33 @@
-import { createNanoEvents } from "nanoevents";
+import { createNanoEvents, type Emitter } from "nanoevents";
 
-import { logger } from "@/shared/utils/logger";
-import { getTokens, settingUp } from "@/shared/utils/utils";
 import type { Events } from "@/shared/interfaces/Events";
-import type { Token } from "@/shared/interfaces/Token";
+import { LIQUIDATION_INTERVAL_MINUTES } from "@/shared/utils/config";
+import { createLogger } from "@/shared/utils/logger";
+import { settingUp } from "@/shared/utils/utils";
 
-import { OrderExecutionKeeper } from "./keepers/OrderExecutionKeeper";
-import { PriceKeeper } from "./keepers/PriceKeeper";
-import { PythPriceOracleService } from "./services/PythPriceOracleService";
-import { startLiquidationKeeper } from "./keepers/liquidationKeeper";
+import { createLiquidationKeeper } from "./keepers/liquidationKeeper";
+import { createOrderExecutionKeeper } from "./keepers/orderExecutionKeeper";
+import { createPriceKeeper } from "./keepers/priceKeeper";
 
-async function index() {
-    const { account, chainId, hermesUrl } = await settingUp();
+const logger = createLogger("Keeper");
+const emitter = createNanoEvents<Events>();
 
-    const tokens: Token[] = getTokens();
+const runKeepers = async (emitter: Emitter<Events>) => {
+    await settingUp();
 
-    const priceOracleService = new PythPriceOracleService(hermesUrl, tokens);
+    const { run: runPriceKeeper } = createPriceKeeper(emitter);
+    const { run: runOrderExecutionKeeper } = createOrderExecutionKeeper(emitter);
+    const { run: runLiquidationKeeper } = createLiquidationKeeper(LIQUIDATION_INTERVAL_MINUTES);
 
-    const emitter = createNanoEvents<Events>();
+    runPriceKeeper();
+    runOrderExecutionKeeper();
+    runLiquidationKeeper();
 
     logger.info("Keeper is running ...");
+};
 
-    new PriceKeeper(priceOracleService, emitter);
-    priceOracleService.getPriceFromOracleStream();
+const index = async () => {
+    await runKeepers(emitter);
+};
 
-    new OrderExecutionKeeper(priceOracleService, account, chainId, emitter);
-
-    startLiquidationKeeper(1);
-}
-
-// Start the main process
 index();
