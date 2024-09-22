@@ -24,10 +24,6 @@ import type { Order } from "@/shared/interfaces/Order";
 import { getExchangeRouterContract } from "@/shared/utils/contracts/getters";
 import { EventHandlerTypes } from "@/shared/interfaces/Events";
 
-import {
-    onPositionIncreasedHandler,
-    onPositionDecreasedHandler,
-} from "../eventHandlers/positionEventHandler";
 import { saveOrder, removeOrder, loadOrders } from "../services/orderPersistenceService";
 import { getOraclePrice } from "../services/pythPriceOracleService";
 
@@ -170,9 +166,10 @@ export function createOrderKeeper(emitter: Emitter) {
                 }
             }
 
-            if (shouldCancel) {
-                await cancelOrder(order.key);
-            }
+            // TODO: verify cancel flow
+            // if (shouldCancel) {
+            //     await cancelOrder(order.key);
+            // }
         }, `${order.orderType} Order ${order.key}: Executed`);
     };
 
@@ -232,9 +229,6 @@ export function createOrderKeeper(emitter: Emitter) {
 
             await wssProvider.subscribeTo(SatoruEvent.OrderCreated, onOrderCreatedHandler);
             await wssProvider.subscribeTo(SatoruEvent.OrderCancelled, onOrderCancelledHandler);
-
-            await wssProvider.subscribeTo(SatoruEvent.PositionIncrease, onPositionIncreasedHandler);
-            await wssProvider.subscribeTo(SatoruEvent.PositionDecrease, onPositionDecreasedHandler);
         } catch (error) {
             logger.error(error, "Failed to start");
             throw error;
