@@ -18,13 +18,13 @@ const runKeepers = async (emitter: Emitter<Events>) => {
     await settingUp();
 
     const { run: runPriceKeeper } = createPriceKeeper(emitter);
-    const { run: runOrderExecutionKeeper } = createOrderKeeper(emitter);
+    const { run: runOrderKeeper } = createOrderKeeper(emitter);
     const { run: runPositionKeeper } = createPositionKeeper();
     const { run: runLiquidationKeeper } = createLiquidationKeeper(LIQUIDATION_INTERVAL_MINUTES);
     const { run: runDepositKeeper } = createDepositKeeper();
 
     runPriceKeeper();
-    runOrderExecutionKeeper();
+    runOrderKeeper();
     runPositionKeeper();
     runLiquidationKeeper();
     runDepositKeeper();
