@@ -32,24 +32,17 @@ async function createDeposit() {
     const longTokenDecimals = await longTokenContract.decimals();
     const shortTokenDecimals = await shortTokenContract.decimals();
 
-    const longTokenAmount = expandDecimals(
-        (await ask("Enter long amount (default 50000000000)")) || 50000000000,
-        longTokenDecimals
-    );
+    const longTokenAmount = expandDecimals(await ask("Enter long amount"), longTokenDecimals);
 
-    const shortTokenAmount = expandDecimals(
-        (await ask("Enter short amount (default 50000000000)")) || 50000000000,
-        shortTokenDecimals
-    );
+    const shortTokenAmount = expandDecimals(await ask("Enter short amount"), shortTokenDecimals);
 
     const exchangeRouterContract = getExchangeRouterContract(chainId, account);
 
     console.log("Mint, approve and sending tokens to the deposit vault..."); // The mint step is to make sure account have enough balance
 
     await executeAndWait(account, [
-        createCall(longTokenContract, "mint", [account.address, new CairoUint256(longTokenAmount)]),
         createCall(longTokenContract, "approve", [
-            account.address,
+            exchangeRouterContract.address,
             new CairoUint256(longTokenAmount),
         ]),
         createCall(exchangeRouterContract, "send_tokens", [
@@ -57,12 +50,8 @@ async function createDeposit() {
             depositVaultAddress,
             new CairoUint256(longTokenAmount),
         ]),
-        createCall(shortTokenContract, "mint", [
-            account.address,
-            new CairoUint256(shortTokenAmount),
-        ]),
         createCall(shortTokenContract, "approve", [
-            account.address,
+            exchangeRouterContract.address,
             new CairoUint256(shortTokenAmount),
         ]),
         createCall(exchangeRouterContract, "send_tokens", [
