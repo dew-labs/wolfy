@@ -61,6 +61,7 @@ const onDepositCreatedHandler =
         const executionLongPrice = getOraclePrice(longTokenAddress);
         const executionShortPrice = getOraclePrice(shortTokenAddress);
 
+        // TODO: retry
         await executeDeposit(
             account,
             chainId,
