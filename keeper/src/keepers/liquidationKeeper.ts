@@ -191,7 +191,7 @@ const checkAndLiquidatePositions = async (contractSetup: ContractSetup) => {
     try {
         const positions = loadPositions();
         await Promise.allSettled(
-            positions.map((position) => processPosition(position.key, contractSetup))
+            positions.map((position) => processPosition(position, contractSetup))
         );
     } catch (error) {
         logger.error(error, "Error during position check:");

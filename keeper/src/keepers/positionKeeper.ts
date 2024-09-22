@@ -1,61 +1,49 @@
 import {
-    cairoIntToBigInt,
     getProvider,
     ProviderType,
+    SatoruContract,
     SatoruEvent,
     toStarknetHexString,
+    type SatoruContractAbi,
     type SatoruEventHandler,
 } from "satoru-sdk";
 
 import { createLogger } from "@/shared/utils/logger";
 import { getNetworkConfig } from "@/shared/utils/utils";
 
-import {
-    getPosition,
-    removePosition,
-    savePosition,
-    updatePosition,
-} from "../services/positionPersistenceService";
+import { getDataStoreContract } from "@/shared/utils/contracts/getters";
+import type { TypedContractV2 } from "starknet";
+import { removePosition, savePosition } from "../services/positionPersistenceService";
 
 const logger = createLogger("PositionKeeper");
 
-const changePosition = (
-    event: Parameters<
-        SatoruEventHandler<SatoruEvent.PositionIncrease | SatoruEvent.PositionDecrease>
-    >[0],
-    isIncrease: boolean
+const increasePosition = (event: Parameters<SatoruEventHandler<SatoruEvent.PositionIncrease>>[0]) =>
+    savePosition(toStarknetHexString(event.position_key));
+
+const decreasePosition = async (
+    event: Parameters<SatoruEventHandler<SatoruEvent.PositionDecrease>>[0],
+    dataStoreContract: TypedContractV2<SatoruContractAbi<SatoruContract.DataStore>>
 ) => {
-    const { position_key, size_delta_usd } = event;
-    const positionKey = toStarknetHexString(position_key as bigint);
-    const sizeDeltaUsd = cairoIntToBigInt(size_delta_usd as bigint);
-
-    const existingPosition = getPosition(positionKey);
-
-    if (existingPosition) {
-        const newSizeDeltaUsd = isIncrease
-            ? existingPosition.sizeDeltaUsd + sizeDeltaUsd
-            : existingPosition.sizeDeltaUsd - sizeDeltaUsd;
-
-        if (newSizeDeltaUsd > 0) {
-            updatePosition({ ...existingPosition, sizeDeltaUsd: newSizeDeltaUsd });
-        } else {
-            removePosition(positionKey);
-        }
-    } else if (isIncrease) {
-        savePosition({ key: positionKey, sizeDeltaUsd });
+    const positionKey = toStarknetHexString(event.position_key as bigint);
+    const position = await dataStoreContract.get_position(positionKey);
+    if (position.size_in_usd >= event.size_delta_usd) {
+        return;
     }
+
+    removePosition(positionKey);
 };
 
-const onPositionIncreasedHandler: SatoruEventHandler<SatoruEvent.PositionIncrease> = (event) => {
-    changePosition(event, true);
-};
+const onPositionIncreasedHandler: SatoruEventHandler<SatoruEvent.PositionIncrease> = (event) =>
+    increasePosition(event);
 
-const onPositionDecreasedHandler: SatoruEventHandler<SatoruEvent.PositionDecrease> = (event) => {
-    changePosition(event, false);
-};
+const onPositionDecreasedHandler: (
+    dataStoreContract: TypedContractV2<SatoruContractAbi<SatoruContract.DataStore>>
+) => SatoruEventHandler<SatoruEvent.PositionDecrease> = (dataStoreContract) => async (event) =>
+    decreasePosition(event, dataStoreContract);
 
 export function createPositionKeeper() {
-    const { chainId } = getNetworkConfig();
+    const { chainId, account } = getNetworkConfig();
+    const dataStoreContract = getDataStoreContract(chainId, account);
 
     const run = async () => {
         try {
@@ -63,7 +51,10 @@ export function createPositionKeeper() {
             wssProvider.onClose(run);
 
             await wssProvider.subscribeTo(SatoruEvent.PositionIncrease, onPositionIncreasedHandler);
-            await wssProvider.subscribeTo(SatoruEvent.PositionDecrease, onPositionDecreasedHandler);
+            await wssProvider.subscribeTo(
+                SatoruEvent.PositionDecrease,
+                onPositionDecreasedHandler(dataStoreContract)
+            );
         } catch (error) {
             logger.error(error, "Failed to start");
             throw error;
