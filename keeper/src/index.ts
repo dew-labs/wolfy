@@ -8,6 +8,7 @@ import { settingUp } from "@/shared/utils/utils";
 import { createLiquidationKeeper } from "./keepers/liquidationKeeper";
 import { createOrderExecutionKeeper } from "./keepers/orderExecutionKeeper";
 import { createPriceKeeper } from "./keepers/priceKeeper";
+import { createDepositKeeper } from "./keepers/depositKeeper";
 
 const logger = createLogger("Keeper");
 const emitter = createNanoEvents<Events>();
@@ -18,10 +19,12 @@ const runKeepers = async (emitter: Emitter<Events>) => {
     const { run: runPriceKeeper } = createPriceKeeper(emitter);
     const { run: runOrderExecutionKeeper } = createOrderExecutionKeeper(emitter);
     const { run: runLiquidationKeeper } = createLiquidationKeeper(LIQUIDATION_INTERVAL_MINUTES);
+    const { run: runDepositKeeper } = createDepositKeeper();
 
     runPriceKeeper();
     runOrderExecutionKeeper();
     runLiquidationKeeper();
+    runDepositKeeper();
 
     logger.info("Keeper is running ...");
 };

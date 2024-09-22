@@ -3,15 +3,12 @@ import {
     CallData,
     hash,
     json,
-    shortString,
     type Abi,
     type Calldata,
     type RawArgs,
     type CompiledSierra,
     type CairoAssembly,
     type CompiledContract,
-    ec,
-    num,
     type BigNumberish,
     type TypedContractV2,
 } from "starknet";
@@ -414,8 +411,8 @@ export function decimalToFloat(value: BigNumberish, decimals = 0) {
 export async function getSetPriceParams(account: Account, tokensWithPrices: [string, bigint][]) {
     const currentBlockNum = await account.getBlockNumber();
     const currentBlock = await account.getBlock();
-    const block0 = BigInt(currentBlockNum - 1);
-    const block1 = BigInt(currentBlockNum);
+    const block0 = 0; // BigInt(currentBlockNum - 1);
+    const block1 = BigInt(currentBlockNum + 1);
 
     const blocks0 = tokensWithPrices.map(() => block0);
     const blocks1 = tokensWithPrices.map(() => block1);
