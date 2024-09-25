@@ -1,18 +1,6 @@
-import {
-    Account,
-    CallData,
-    hash,
-    json,
-    type Abi,
-    type Calldata,
-    type RawArgs,
-    type CompiledSierra,
-    type CairoAssembly,
-    type CompiledContract,
-    type BigNumberish,
-    type TypedContractV2,
-} from "starknet";
+import type { Contracts, Order, Token } from "@/interfaces";
 import fs from "node:fs";
+import readline from "node:readline";
 import {
     createCall,
     createSatoruContract,
@@ -24,12 +12,22 @@ import {
     StarknetChainId,
     type SatoruContractAbi,
 } from "satoru-sdk";
-import readline from "node:readline";
-import setup from "./setup";
-import type { Order } from "./../interfaces/Order";
+import {
+    Account,
+    CallData,
+    hash,
+    json,
+    type Abi,
+    type BigNumberish,
+    type CairoAssembly,
+    type Calldata,
+    type CompiledContract,
+    type CompiledSierra,
+    type RawArgs,
+    type TypedContractV2,
+} from "starknet";
 import { createLogger } from "./logger";
-import type { Token } from "@/shared/interfaces/Token";
-import type { Contracts } from "@/shared/interfaces/Contracts";
+import setup from "./setup";
 
 const logger = createLogger("Utils");
 

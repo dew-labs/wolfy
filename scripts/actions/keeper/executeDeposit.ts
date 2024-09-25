@@ -1,14 +1,20 @@
 import {
+    createAsker,
+    executeAndGetResult,
+    expandDecimals,
+    getDataStoreContract,
+    getSetPriceParams,
+    settingUp,
+    USD_DECIMALS,
+} from "@dew-labs/shared/utils";
+import {
     createCall,
     createSatoruContract,
+    createTokenContract,
     DepositHandlerABI,
     SatoruContract,
     toStarknetHexString,
 } from "satoru-sdk";
-import { createAsker, expandDecimals, getSetPriceParams, settingUp } from "@/shared/utils/utils";
-import { executeAndGetResult, getDataStoreContract } from "@/shared/utils/helpers";
-import { USD_DECIMALS } from "@/shared/utils/config";
-import { createTokenContract } from "satoru-sdk";
 
 async function executeDeposit() {
     const { ask, doneAsking } = createAsker();

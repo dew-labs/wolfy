@@ -1,4 +1,3 @@
-import { type Account, type TypedContractV2 } from "starknet";
 import pRetry from "p-retry";
 import {
     SatoruContract,
@@ -6,19 +5,20 @@ import {
     toStarknetHexString,
     type SatoruContractAbi,
 } from "satoru-sdk";
+import { type Account, type TypedContractV2 } from "starknet";
 
 import {
     getDataStoreContract,
     getLiquidationHandlerContract,
     getReaderContract,
-} from "@/shared/utils/contracts/getters";
-import { createLogger } from "@/shared/utils/logger";
+} from "@dew-labs/shared/contracts";
 import {
+    createLogger,
     getContracts,
     getNetworkConfig,
-    measureExecutionTime,
     getSetPriceParams,
-} from "@/shared/utils/utils";
+    measureExecutionTime,
+} from "@dew-labs/shared/utils";
 
 import { loadPositions } from "../services/positionPersistenceService";
 import { getOraclePrice } from "../services/pythPriceOracleService";

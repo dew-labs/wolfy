@@ -1,11 +1,14 @@
-import { json } from "starknet";
 import { HermesClient } from "@pythnetwork/hermes-client";
+import { json } from "starknet";
 
-import { createLogger } from "@/shared/utils/logger";
-import { expandDecimals, getNetworkConfig, getTokens } from "@/shared/utils/utils";
-import { USD_DECIMALS } from "@/shared/utils/config";
-import type { PythPriceFeed } from "@/shared/interfaces/PythPriceFeed";
-import type { Token } from "@/shared/interfaces/Token";
+import type { PythPriceFeed, Token } from "@dew-labs/shared/interfaces";
+import {
+    createLogger,
+    expandDecimals,
+    getNetworkConfig,
+    getTokens,
+    USD_DECIMALS,
+} from "@dew-labs/shared/utils";
 
 const logger = createLogger("PythPriceOracleService");
 

@@ -10,10 +10,8 @@ import {
     type SatoruEventHandler,
 } from "satoru-sdk";
 
-import { getDepositHandlerContract } from "@/shared/utils/contracts/getters";
-import { createLogger } from "@/shared/utils/logger";
-import { executeAndGetResult } from "@/shared/utils/helpers";
-import { getNetworkConfig, getSetPriceParams, measureExecutionTime } from "@/shared/utils/utils";
+import { getDepositHandlerContract } from "@dew-labs/shared/contracts";
+import { createLogger, executeAndGetResult, getNetworkConfig, getSetPriceParams, measureExecutionTime } from "@dew-labs/shared/utils";
 
 import { getOraclePrice } from "../services/pythPriceOracleService";
 

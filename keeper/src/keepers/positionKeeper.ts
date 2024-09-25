@@ -8,10 +8,9 @@ import {
     type SatoruEventHandler,
 } from "satoru-sdk";
 
-import { createLogger } from "@/shared/utils/logger";
-import { getNetworkConfig } from "@/shared/utils/utils";
+import { createLogger, getNetworkConfig } from "@dew-labs/shared/utils";
 
-import { getDataStoreContract } from "@/shared/utils/contracts/getters";
+import { getDataStoreContract } from "@dew-labs/shared/contracts";
 import type { TypedContractV2 } from "starknet";
 import { removePosition, savePosition } from "../services/positionPersistenceService";
 

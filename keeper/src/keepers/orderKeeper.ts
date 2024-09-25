@@ -1,3 +1,5 @@
+import type { Emitter } from "nanoevents";
+import pRetry from "p-retry";
 import {
     cairoIntToBigInt,
     createCall,
@@ -10,21 +12,19 @@ import {
     toStarknetHexString,
     type SatoruEventHandler,
 } from "satoru-sdk";
-import type { Emitter } from "nanoevents";
-import pRetry from "p-retry";
 
-import { createLogger } from "@/shared/utils/logger";
-import { getDataStoreContract } from "@/shared/utils/helpers";
 import {
+    createLogger,
     executeOrder as executeOrderUtil,
+    getDataStoreContract,
     getNetworkConfig,
     measureExecutionTime,
-} from "@/shared/utils/utils";
-import type { Order } from "@/shared/interfaces/Order";
-import { getExchangeRouterContract } from "@/shared/utils/contracts/getters";
-import { EventHandlerTypes } from "@/shared/interfaces/Events";
+} from "@dew-labs/shared/utils";
 
-import { saveOrder, removeOrder, loadOrders } from "../services/orderPersistenceService";
+import { getExchangeRouterContract } from "@dew-labs/shared/contracts";
+import { EventHandlerTypes, type Order } from "@dew-labs/shared/interfaces";
+
+import { loadOrders, removeOrder, saveOrder } from "../services/orderPersistenceService";
 import { getOraclePrice } from "../services/pythPriceOracleService";
 
 const logger = createLogger("OrderExecutionKeeper");

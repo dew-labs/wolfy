@@ -1,4 +1,4 @@
-import { createAsker, settingUp } from "@/shared/utils/utils";
+import { createAsker, settingUp } from "@dew-labs/shared/utils";
 
 import {
     createSatoruContract,
