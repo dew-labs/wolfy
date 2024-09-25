@@ -1,14 +1,14 @@
 import { HermesClient } from "@pythnetwork/hermes-client";
 import { json } from "starknet";
 
-import type { PythPriceFeed, Token } from "@wolfy/shared/interfaces";
+import type { PythPriceFeed, Token } from "@freyr/shared/interfaces";
 import {
     createLogger,
     expandDecimals,
     getNetworkConfig,
     getTokens,
     USD_DECIMALS,
-} from "@wolfy/shared/utils";
+} from "@freyr/shared/utils";
 
 const logger = createLogger("PythPriceOracleService");
 

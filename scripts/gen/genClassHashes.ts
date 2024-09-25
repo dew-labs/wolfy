@@ -1,4 +1,4 @@
-import { getClassHash } from "@wolfy/shared/utils";
+import { getClassHash } from "@freyr/shared/utils";
 import fs from "node:fs";
 
 function getClassHashes() {

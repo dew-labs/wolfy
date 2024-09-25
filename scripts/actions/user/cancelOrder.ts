@@ -3,7 +3,7 @@ import {
     getDataStoreContract,
     getExchangeRouterContract,
     settingUp,
-} from "@wolfy/shared/utils";
+} from "@freyr/shared/utils";
 import { createCall, executeAndWait, toStarknetHexString } from "satoru-sdk";
 
 async function cancelOrder() {

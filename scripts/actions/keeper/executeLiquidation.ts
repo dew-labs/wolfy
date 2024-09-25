@@ -4,7 +4,7 @@ import {
     getDataStoreContract,
     getSetPriceParams,
     settingUp,
-} from "@wolfy/shared/utils";
+} from "@freyr/shared/utils";
 import {
     createSatoruContract,
     LiquidationHandlerABI,

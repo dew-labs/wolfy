@@ -6,7 +6,7 @@ import {
     getSetPriceParams,
     settingUp,
     USD_DECIMALS,
-} from "@wolfy/shared/utils";
+} from "@freyr/shared/utils";
 import {
     createCall,
     createSatoruContract,

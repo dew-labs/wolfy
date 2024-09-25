@@ -4,7 +4,7 @@ import {
     ensureDeployed,
     getContracts,
     settingUp,
-} from "@wolfy/shared/utils";
+} from "@freyr/shared/utils";
 import {
     createCall,
     createSatoruContract,
@@ -16,7 +16,7 @@ import {
     SatoruRole,
 } from "satoru-sdk";
 
-import type { Contracts } from "@wolfy/shared/interfaces";
+import type { Contracts } from "@freyr/shared/interfaces";
 import fs from "node:fs";
 
 async function deploy() {

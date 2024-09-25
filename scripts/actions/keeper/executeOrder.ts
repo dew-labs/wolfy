@@ -1,4 +1,4 @@
-import type { Order } from "@wolfy/shared/interfaces";
+import type { Order } from "@freyr/shared/interfaces";
 import {
     createAsker,
     expandDecimals,
@@ -6,7 +6,7 @@ import {
     settingUp,
     USD_DECIMALS,
     executeOrder as utilExecuteOrder,
-} from "@wolfy/shared/utils";
+} from "@freyr/shared/utils";
 import {
     cairoIntToBigInt,
     createTokenContract,

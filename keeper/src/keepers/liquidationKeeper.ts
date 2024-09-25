@@ -11,14 +11,14 @@ import {
     getDataStoreContract,
     getLiquidationHandlerContract,
     getReaderContract,
-} from "@wolfy/shared/contracts";
+} from "@freyr/shared/contracts";
 import {
     createLogger,
     getContracts,
     getNetworkConfig,
     getSetPriceParams,
     measureExecutionTime,
-} from "@wolfy/shared/utils";
+} from "@freyr/shared/utils";
 
 import { loadPositions } from "../services/positionPersistenceService";
 import { getOraclePrice } from "../services/pythPriceOracleService";

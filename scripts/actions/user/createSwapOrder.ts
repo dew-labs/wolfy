@@ -6,7 +6,7 @@ import {
     getDataStoreContract,
     getExchangeRouterContract,
     settingUp,
-} from "@wolfy/shared/utils";
+} from "@freyr/shared/utils";
 import {
     createCall,
     createTokenContract,

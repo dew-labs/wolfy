@@ -19,10 +19,10 @@ import {
     getDataStoreContract,
     getNetworkConfig,
     measureExecutionTime,
-} from "@wolfy/shared/utils";
+} from "@freyr/shared/utils";
 
-import { getExchangeRouterContract } from "@wolfy/shared/contracts";
-import { EventHandlerTypes, type Order } from "@wolfy/shared/interfaces";
+import { getExchangeRouterContract } from "@freyr/shared/contracts";
+import { EventHandlerTypes, type Order } from "@freyr/shared/interfaces";
 
 import { loadOrders, removeOrder, saveOrder } from "../services/orderPersistenceService";
 import { getOraclePrice } from "../services/pythPriceOracleService";

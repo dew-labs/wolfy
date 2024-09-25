@@ -8,9 +8,9 @@ import {
     type SatoruEventHandler,
 } from "satoru-sdk";
 
-import { createLogger, getNetworkConfig } from "@wolfy/shared/utils";
+import { createLogger, getNetworkConfig } from "@freyr/shared/utils";
 
-import { getDataStoreContract } from "@wolfy/shared/contracts";
+import { getDataStoreContract } from "@freyr/shared/contracts";
 import type { TypedContractV2 } from "starknet";
 import { removePosition, savePosition } from "../services/positionPersistenceService";
 

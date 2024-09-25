@@ -8,7 +8,7 @@ import {
     getExchangeRouterContract,
     settingUp,
     USD_DECIMALS,
-} from "@wolfy/shared/utils";
+} from "@freyr/shared/utils";
 import {
     cairoIntToBigInt,
     createCall,

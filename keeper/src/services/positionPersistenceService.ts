@@ -9,7 +9,7 @@ import {
     readFile,
     stringifyData,
     writeFile,
-} from "@wolfy/shared/utils";
+} from "@freyr/shared/utils";
 
 const logger = createLogger("PositionPersistenceService");
 

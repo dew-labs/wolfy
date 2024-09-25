@@ -1,4 +1,4 @@
-import { decimalToFloat, expandDecimals } from "@wolfy/shared/utils";
+import { decimalToFloat, expandDecimals } from "@freyr/shared/utils";
 import {
     createCall,
     createSatoruContract,

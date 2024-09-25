@@ -10,14 +10,14 @@ import {
     type SatoruEventHandler,
 } from "satoru-sdk";
 
-import { getDepositHandlerContract } from "@wolfy/shared/contracts";
+import { getDepositHandlerContract } from "@freyr/shared/contracts";
 import {
     createLogger,
     executeAndGetResult,
     getNetworkConfig,
     getSetPriceParams,
     measureExecutionTime,
-} from "@wolfy/shared/utils";
+} from "@freyr/shared/utils";
 
 import { getOraclePrice } from "../services/pythPriceOracleService";
 
