@@ -1,7 +1,7 @@
 import { createNanoEvents, type Emitter } from "nanoevents";
 
-import type { Events } from "@dew-labs/shared/interfaces";
-import { createLogger, LIQUIDATION_INTERVAL_MINUTES, settingUp } from "@dew-labs/shared/utils";
+import type { Events } from "@wolfy/shared/interfaces";
+import { createLogger, LIQUIDATION_INTERVAL_MINUTES, settingUp } from "@wolfy/shared/utils";
 
 import { createDepositKeeper } from "./keepers/depositKeeper";
 import { createLiquidationKeeper } from "./keepers/liquidationKeeper";

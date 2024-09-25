@@ -1,4 +1,4 @@
-import { settingUp } from "@dew-labs/shared/utils";
+import { settingUp } from "@wolfy/shared/utils";
 import configMarket from "./utils/configMarket";
 import createMarket from "./utils/createMarket";
 

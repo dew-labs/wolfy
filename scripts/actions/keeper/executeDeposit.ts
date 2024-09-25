@@ -6,7 +6,7 @@ import {
     getSetPriceParams,
     settingUp,
     USD_DECIMALS,
-} from "@dew-labs/shared/utils";
+} from "@wolfy/shared/utils";
 import {
     createCall,
     createSatoruContract,

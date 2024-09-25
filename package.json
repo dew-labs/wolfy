@@ -41,7 +41,7 @@
         "@dotenvx/dotenvx": "^1.6.4",
         "@pythnetwork/hermes-client": "^1.0.4",
         "@sinclair/typebox": "^0.33.9",
-        "@dew-labs/shared": "workspace:*",
+        "@wolfy/shared": "workspace:*",
         "abi-wan-kanabi": "2.2.2",
         "nanoevents": "^9.0.0",
         "p-retry": "^6.2.0",

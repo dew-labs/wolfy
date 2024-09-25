@@ -6,7 +6,7 @@ import {
     getDataStoreContract,
     getExchangeRouterContract,
     settingUp,
-} from "@dew-labs/shared/utils";
+} from "@wolfy/shared/utils";
 import {
     createCall,
     createTokenContract,

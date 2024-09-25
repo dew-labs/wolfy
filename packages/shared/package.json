@@ -1,5 +1,5 @@
 {
-  "name": "@dew-labs/shared",
+  "name": "@wolfy/shared",
   "version": "0.0.1",
   "dependencies": {
     "devalue": "^5.0.0",

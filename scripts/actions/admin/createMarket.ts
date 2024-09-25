@@ -1,4 +1,4 @@
-import { ensureDeployed, settingUp } from "@dew-labs/shared/utils";
+import { ensureDeployed, settingUp } from "@wolfy/shared/utils";
 import { type Account } from "starknet";
 
 import fs from "node:fs";

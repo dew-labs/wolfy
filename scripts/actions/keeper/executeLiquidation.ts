@@ -4,7 +4,7 @@ import {
     getDataStoreContract,
     getSetPriceParams,
     settingUp,
-} from "@dew-labs/shared/utils";
+} from "@wolfy/shared/utils";
 import {
     createSatoruContract,
     LiquidationHandlerABI,

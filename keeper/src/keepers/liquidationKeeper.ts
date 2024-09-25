@@ -11,14 +11,14 @@ import {
     getDataStoreContract,
     getLiquidationHandlerContract,
     getReaderContract,
-} from "@dew-labs/shared/contracts";
+} from "@wolfy/shared/contracts";
 import {
     createLogger,
     getContracts,
     getNetworkConfig,
     getSetPriceParams,
     measureExecutionTime,
-} from "@dew-labs/shared/utils";
+} from "@wolfy/shared/utils";
 
 import { loadPositions } from "../services/positionPersistenceService";
 import { getOraclePrice } from "../services/pythPriceOracleService";

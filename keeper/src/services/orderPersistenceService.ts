@@ -1,7 +1,7 @@
 import { TypeCompiler } from "@sinclair/typebox/compiler";
 import * as path from "path";
 
-import { OrdersSchema, type Order } from "@dew-labs/shared/interfaces";
+import { OrdersSchema, type Order } from "@wolfy/shared/interfaces";
 import {
     createLogger,
     ensureFileExists,
@@ -9,7 +9,7 @@ import {
     readFile,
     stringifyData,
     writeFile,
-} from "@dew-labs/shared/utils";
+} from "@wolfy/shared/utils";
 
 const logger = createLogger("OrderPersistenceService");
 

@@ -19,10 +19,10 @@ import {
     getDataStoreContract,
     getNetworkConfig,
     measureExecutionTime,
-} from "@dew-labs/shared/utils";
+} from "@wolfy/shared/utils";
 
-import { getExchangeRouterContract } from "@dew-labs/shared/contracts";
-import { EventHandlerTypes, type Order } from "@dew-labs/shared/interfaces";
+import { getExchangeRouterContract } from "@wolfy/shared/contracts";
+import { EventHandlerTypes, type Order } from "@wolfy/shared/interfaces";
 
 import { loadOrders, removeOrder, saveOrder } from "../services/orderPersistenceService";
 import { getOraclePrice } from "../services/pythPriceOracleService";

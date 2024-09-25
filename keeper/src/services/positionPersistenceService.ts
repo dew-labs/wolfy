@@ -1,6 +1,7 @@
 import { TypeCompiler } from "@sinclair/typebox/compiler";
 import * as path from "path";
 
+import { Type } from "@sinclair/typebox";
 import {
     createLogger,
     ensureFileExists,
@@ -8,8 +9,7 @@ import {
     readFile,
     stringifyData,
     writeFile,
-} from "@dew-labs/shared/utils";
-import { Type } from "@sinclair/typebox";
+} from "@wolfy/shared/utils";
 
 const logger = createLogger("PositionPersistenceService");
 
