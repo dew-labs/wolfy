@@ -1,5 +1,5 @@
+import { getClassHash } from "@freyr/shared/utils";
 import fs from "node:fs";
-import { getClassHash } from "@/shared/utils/utils";
 
 function getClassHashes() {
     const paths = fs

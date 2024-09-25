@@ -1,5 +1,5 @@
+import { ensureDeployed, settingUp } from "@freyr/shared/utils";
 import { type Account } from "starknet";
-import { ensureDeployed, settingUp } from "@/shared/utils/utils";
 
 import fs from "node:fs";
 

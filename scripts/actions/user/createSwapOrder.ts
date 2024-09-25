@@ -1,4 +1,13 @@
 import {
+    askOrLatestMarketToken,
+    createAsker,
+    executeAndGetResult,
+    getContracts,
+    getDataStoreContract,
+    getExchangeRouterContract,
+    settingUp,
+} from "@freyr/shared/utils";
+import {
     createCall,
     createTokenContract,
     DecreasePositionSwapType,
@@ -6,14 +15,7 @@ import {
     toCairoCustomEnum,
     toStarknetHexString,
 } from "satoru-sdk";
-import { createAsker, getContracts, settingUp } from "@/shared/utils/utils";
 import { CairoUint256 } from "starknet";
-import {
-    askOrLatestMarketToken,
-    executeAndGetResult,
-    getDataStoreContract,
-    getExchangeRouterContract,
-} from "@/shared/utils/helpers";
 
 // TODO: update this script
 async function createSwapOrder() {

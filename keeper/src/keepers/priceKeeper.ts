@@ -1,6 +1,6 @@
 import { type Emitter } from "nanoevents";
 
-import { EventHandlerTypes, type Events } from "@/shared/interfaces/Events";
+import { EventHandlerTypes, type Events } from "@freyr/shared/interfaces";
 
 import { getPriceFromOracleStream } from "../services/pythPriceOracleService";
 

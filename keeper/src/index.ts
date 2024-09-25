@@ -1,15 +1,13 @@
 import { createNanoEvents, type Emitter } from "nanoevents";
 
-import type { Events } from "@/shared/interfaces/Events";
-import { LIQUIDATION_INTERVAL_MINUTES } from "@/shared/utils/config";
-import { createLogger } from "@/shared/utils/logger";
-import { settingUp } from "@/shared/utils/utils";
+import type { Events } from "@freyr/shared/interfaces";
+import { createLogger, LIQUIDATION_INTERVAL_MINUTES, settingUp } from "@freyr/shared/utils";
 
-import { createPriceKeeper } from "./keepers/priceKeeper";
 import { createDepositKeeper } from "./keepers/depositKeeper";
+import { createLiquidationKeeper } from "./keepers/liquidationKeeper";
 import { createOrderKeeper } from "./keepers/orderKeeper";
 import { createPositionKeeper } from "./keepers/positionKeeper";
-import { createLiquidationKeeper } from "./keepers/liquidationKeeper";
+import { createPriceKeeper } from "./keepers/priceKeeper";
 
 const logger = createLogger("Keeper");
 const emitter = createNanoEvents<Events>();

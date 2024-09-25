@@ -1,15 +1,15 @@
-import * as path from "path";
 import { TypeCompiler } from "@sinclair/typebox/compiler";
+import * as path from "path";
 
-import { createLogger } from "@/shared/utils/logger";
-import { OrdersSchema, type Order } from "@/shared/interfaces/Order";
+import { OrdersSchema, type Order } from "@freyr/shared/interfaces";
 import {
-    readFile,
-    writeFile,
-    parseData,
-    stringifyData,
+    createLogger,
     ensureFileExists,
-} from "@/shared/utils/file";
+    parseData,
+    readFile,
+    stringifyData,
+    writeFile,
+} from "@freyr/shared/utils";
 
 const logger = createLogger("OrderPersistenceService");
 

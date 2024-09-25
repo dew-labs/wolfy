@@ -1,4 +1,4 @@
-import { settingUp } from "@/shared/utils/utils";
+import { settingUp } from "@freyr/shared/utils";
 import configMarket from "./utils/configMarket";
 import createMarket from "./utils/createMarket";
 

@@ -1,20 +1,24 @@
-import { createAsker, expandDecimals, getContracts, settingUp } from "@/shared/utils/utils";
-import { cairoIntToBigInt, toCairoCustomEnum } from "satoru-sdk";
 import {
+    askOrLatestMarketToken,
+    createAsker,
+    executeAndGetResult,
+    expandDecimals,
+    getContracts,
+    getDataStoreContract,
+    getExchangeRouterContract,
+    settingUp,
+    USD_DECIMALS,
+} from "@freyr/shared/utils";
+import {
+    cairoIntToBigInt,
     createCall,
     createTokenContract,
     DecreasePositionSwapType,
     OrderType,
+    toCairoCustomEnum,
     toStarknetHexString,
 } from "satoru-sdk";
-import {
-    askOrLatestMarketToken,
-    executeAndGetResult,
-    getDataStoreContract,
-    getExchangeRouterContract,
-} from "@/shared/utils/helpers";
 import { CairoUint256, shortString } from "starknet";
-import { USD_DECIMALS } from "@/shared/utils/config";
 
 async function createOrder() {
     const contracts = getContracts();

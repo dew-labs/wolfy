@@ -1,15 +1,15 @@
 import { TypeCompiler } from "@sinclair/typebox/compiler";
 import * as path from "path";
 
+import { Type } from "@sinclair/typebox";
 import {
+    createLogger,
     ensureFileExists,
     parseData,
     readFile,
     stringifyData,
     writeFile,
-} from "@/shared/utils/file";
-import { createLogger } from "@/shared/utils/logger";
-import { Type } from "@sinclair/typebox";
+} from "@freyr/shared/utils";
 
 const logger = createLogger("PositionPersistenceService");
 

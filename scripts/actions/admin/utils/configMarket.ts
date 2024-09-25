@@ -1,4 +1,4 @@
-import { decimalToFloat, expandDecimals } from "@/shared/utils/utils";
+import { decimalToFloat, expandDecimals } from "@freyr/shared/utils";
 import {
     createCall,
     createSatoruContract,
@@ -10,8 +10,8 @@ import {
     toStarknetHexString,
     type StarknetChainId,
 } from "satoru-sdk";
-import { CairoUint256, type Account, type Call } from "starknet";
 import * as dataStoreKeys from "satoru-sdk/dataStore";
+import { CairoUint256, type Account, type Call } from "starknet";
 
 const DEFAULT_CONFIG = {
     minCollateralFactor: decimalToFloat(1, 2), // 1%

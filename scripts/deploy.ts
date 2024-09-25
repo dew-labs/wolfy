@@ -1,4 +1,11 @@
 import {
+    createAsker,
+    ensureDeclared,
+    ensureDeployed,
+    getContracts,
+    settingUp,
+} from "@freyr/shared/utils";
+import {
     createCall,
     createSatoruContract,
     DataStoreABI,
@@ -8,16 +15,9 @@ import {
     SatoruContract,
     SatoruRole,
 } from "satoru-sdk";
-import {
-    createAsker,
-    ensureDeclared,
-    ensureDeployed,
-    getContracts,
-    settingUp,
-} from "@/shared/utils/utils";
 
+import type { Contracts } from "@freyr/shared/interfaces";
 import fs from "node:fs";
-import type { Contracts } from "@/shared/interfaces/Contracts";
 
 async function deploy() {
     const { account, net } = await settingUp();

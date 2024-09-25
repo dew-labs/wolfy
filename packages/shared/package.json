@@ -1,0 +1,15 @@
+{
+    "name": "@freyr/shared",
+    "version": "0.0.1",
+    "dependencies": {
+        "devalue": "^5.0.0",
+        "pino": "^9.4.0",
+        "pino-pretty": "^11.2.2"
+    },
+    "exports": {
+        ".": "./src/index.ts",
+        "./interfaces": "./src/interfaces/index.ts",
+        "./utils": "./src/utils/index.ts",
+        "./contracts": "./src/utils/contracts/index.ts"
+    }
+}
