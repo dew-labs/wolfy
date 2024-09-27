@@ -37,16 +37,21 @@
         "test": "bun ./scripts/test.ts"
     },
     "type": "module",
+    "workspaces": [
+        "apps/*",
+        "packages/*"
+    ],
+    "private": true,
     "dependencies": {
         "@dotenvx/dotenvx": "^1.6.4",
+        "@freyr/shared": "workspace:*",
         "@pythnetwork/hermes-client": "^1.0.4",
         "@sinclair/typebox": "^0.33.9",
-        "@freyr/shared": "workspace:*",
         "abi-wan-kanabi": "2.2.2",
         "nanoevents": "^9.0.0",
         "p-retry": "^6.2.0",
         "picocolors": "^1.0.1",
-        "satoru-sdk": "^1.1.3",
+        "satoru-sdk": "^1.1.4",
         "starknet": "^6.12.1",
         "typescript": "^5.5.3"
     },
@@ -55,9 +60,5 @@
         "@total-typescript/ts-reset": "^0.6.1",
         "@types/bun": "^1.1.8",
         "type-fest": "^4.26.0"
-    },
-    "private": true,
-    "workspaces": [
-        "packages/*"
-    ]
+    }
 }

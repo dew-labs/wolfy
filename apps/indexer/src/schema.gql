@@ -1,0 +1,15 @@
+type Order {
+    id: ID!
+    author: String!
+    key: String!
+    market: String!
+    order_type: String!
+    is_long: Boolean!
+    index_token_address: String!
+    index_token_decimals: Int!
+    trigger_price: String!
+    acceptable_price: String!
+    tx_hash: String!
+    created_at: Int!
+    created_at_block: Int!
+}

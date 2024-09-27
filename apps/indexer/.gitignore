@@ -1,0 +1,23 @@
+# Logs
+logs
+*.log
+
+# Dependency directories
+node_modules
+dist
+*.local
+
+# Editor directories and files
+.idea
+
+# Finder (MacOS) folder config
+.DS_Store
+
+# dotenv environment variable files
+
+.env
+.env.*
+!.env.example
+
+# Checkpoint Config
+src/config.json

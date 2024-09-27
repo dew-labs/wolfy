@@ -15,9 +15,11 @@ import {
 import {
     createLogger,
     getContracts,
+    getMarket,
     getNetworkConfig,
     getSetPriceParams,
     measureExecutionTime,
+    type ContractMarket,
 } from "@freyr/shared/utils";
 
 import { loadPositions } from "../services/positionPersistenceService";
@@ -64,13 +66,6 @@ const getPosition = async (
 ) => await dataStoreContract.get_position(positionKey);
 
 type ContractPosition = Awaited<ReturnType<typeof getPosition>>;
-
-const getMarket = async (
-    dataStoreContract: TypedContractV2<SatoruContractAbi<SatoruContract.DataStore>>,
-    marketAddress: string
-) => await dataStoreContract.get_market(toStarknetHexString(marketAddress));
-
-type ContractMarket = Awaited<ReturnType<typeof getMarket>>;
 
 const checkIfLiquidable = async (
     readerContract: TypedContractV2<SatoruContractAbi<SatoruContract.Reader>>,
@@ -143,7 +138,7 @@ const processPosition = async (positionKey: string, contractSetup: ContractSetup
     } = contractSetup;
 
     const position = await getPosition(dataStoreContract, positionKey);
-    const market = await getMarket(dataStoreContract, position.market);
+    const market: ContractMarket = await getMarket(dataStoreContract, position.market);
 
     const { shouldBeLiquidated, indexTokenPrice, longTokenPrice, shortTokenPrice } =
         await checkIfLiquidable(

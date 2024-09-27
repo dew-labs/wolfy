@@ -1,0 +1,17 @@
+{
+    "name": "indexer",
+    "type": "module",
+    "scripts": {
+        "start": "bun src/index.ts",
+        "dev": "bun --watch src/index.ts",
+        "sepolia:dev": "dotenvx run -f ../../.env.sepolia -- bun run dev"
+    },
+    "devDependencies": {
+        "@types/bun": "latest"
+    },
+    "dependencies": {
+        "@apollo/server": "^4.11.0",
+        "@freyr/shared": "workspace:*",
+        "@snapshot-labs/checkpoint": "^0.1.0-beta.40"
+    }
+}
