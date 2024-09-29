@@ -32,7 +32,7 @@ function registerContractAddresses() {
     });
 }
 
-export default function setup() {
+export function setup() {
     registerContractAddresses();
     registerHttpProviders();
     registerWssProviders();

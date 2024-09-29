@@ -1,4 +1,4 @@
-import type { Contracts, Order, Token } from "@/interfaces";
+import type { Contracts, Order, Token } from "@freyr/shared/interfaces";
 import fs from "node:fs";
 import readline from "node:readline";
 import {
@@ -27,7 +27,8 @@ import {
     type TypedContractV2,
 } from "starknet";
 import { createLogger } from "./logger";
-import setup from "./setup";
+import { setup } from "./setup";
+import { findUpSync } from "find-up";
 
 const logger = createLogger("Utils");
 
@@ -233,7 +234,11 @@ export function getContracts(): Contracts {
     let contracts: Contracts = {};
 
     try {
-        contracts = JSON.parse(fs.readFileSync(`./contracts.${net}.json`).toString("ascii"));
+        const contractsPath = findUpSync(`contracts.${net}.json`);
+        if (!contractsPath) {
+            throw new Error(`Contracts file not found for network: ${net}`);
+        }
+        contracts = JSON.parse(fs.readFileSync(contractsPath).toString("ascii"));
     } catch {}
 
     return contracts;
@@ -243,7 +248,11 @@ export function getTokens(): Token[] {
     const net = process.env.NET;
     let tokens: Token[] = [];
     try {
-        tokens = JSON.parse(fs.readFileSync(`./tokens.${net}.json`).toString("ascii"));
+        const tokensPath = findUpSync(`tokens.${net}.json`);
+        if (!tokensPath) {
+            throw new Error(`Tokens file not found for network: ${net}`);
+        }
+        tokens = JSON.parse(fs.readFileSync(tokensPath).toString("ascii"));
     } catch {}
 
     return tokens;
