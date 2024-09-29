@@ -9,7 +9,6 @@ COPY bun.lockb ./
 
 COPY packages ./packages
 COPY apps/keeper/package.json ./apps/keeper/package.json
-COPY apps/indexer/package.json ./apps/indexer/package.json
 
 # Install project dependencies using bun
 RUN bun install --frozen-lockfile
