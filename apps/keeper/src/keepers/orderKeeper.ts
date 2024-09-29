@@ -16,10 +16,11 @@ import {
 import {
     createLogger,
     executeOrder as executeOrderUtil,
-    getDataStoreContract,
     getNetworkConfig,
     measureExecutionTime,
 } from "@freyr/shared/utils";
+
+import { getDataStoreContract} from "@freyr/shared/contracts"
 
 import { getExchangeRouterContract } from "@freyr/shared/contracts";
 import { EventHandlerTypes, type Order } from "@freyr/shared/interfaces";

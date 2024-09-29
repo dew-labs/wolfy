@@ -1,0 +1,14 @@
+{
+    "name": "keeper",
+    "dependencies": {
+        "@pythnetwork/hermes-client": "^1.0.4",
+        "nanoevents": "^9.0.0",
+        "p-retry": "^6.2.0"
+    },
+    "scripts": {
+        "start": "bun src/index.ts",
+        "dev": "bun --watch src/index.ts",
+        "sepolia:dev": "dotenvx run -f ../../.env.sepolia -- bun run dev",
+        "sepolia": "dotenvx run -f ../../.env.sepolia -- bun run start"
+    }
+}

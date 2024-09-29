@@ -2,7 +2,7 @@ app = 'wolfy-keeper-sepolia'
 primary_region = 'sin'
 
 [build]
-  dockerfile = "./Dockerfile"
+  dockerfile = "./apps/keeper/Dockerfile"
 
 [http_service]
   auto_start_machines = true
