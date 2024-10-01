@@ -41,7 +41,6 @@
     ],
     "private": true,
     "dependencies": {
-        "@dotenvx/dotenvx": "^1.6.4",
         "@freyr/shared": "workspace:*",
         "@sinclair/typebox": "^0.33.9",
         "abi-wan-kanabi": "2.2.2",
