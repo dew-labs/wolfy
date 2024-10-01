@@ -8,7 +8,6 @@
     "scripts": {
         "start": "bun src/index.ts",
         "dev": "bun --watch src/index.ts",
-        "sepolia:dev": "MISE_ENV=sepolia mise x -- bun run dev",
-        "sepolia": "MISE_ENV=sepolia mise x -- bun run start"
+        "sepolia:dev": "MISE_ENV=sepolia mise x -- bun run dev"
     }
 }
