@@ -8,7 +8,7 @@
     "scripts": {
         "start": "bun src/index.ts",
         "dev": "bun --watch src/index.ts",
-        "sepolia:dev": "dotenvx run -f ../../.env.sepolia -- bun run dev",
-        "sepolia": "dotenvx run -f ../../.env.sepolia -- bun run start"
+        "sepolia:dev": "MISE_ENV=sepolia mise x -- bun run dev",
+        "sepolia": "MISE_ENV=sepolia mise x -- bun run start"
     }
 }

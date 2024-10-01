@@ -7,13 +7,24 @@ Requirement:
 - Scarb 2.6.0
 - Starknet Foundry 0.27.0
 - Bun 1.1.26
+- mise
 
 IDE Integration:
 
 - VSCocde: [Cairo 1.0](https://marketplace.visualstudio.com/items?itemName=starkware.cairo1)
 
+
 ```sh
-pnpm install
+mise install
+```
+
+```sh
+# Create local mise config file for sepolia
+copy .mise.sepolia.example.toml .mise.sepolia.local.toml
+```
+
+```sh
+bun install
 ```
 
 ## Test
