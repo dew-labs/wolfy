@@ -23,3 +23,6 @@ tsconfig.tsbuildinfo
 .snfoundry_cache
 artifacts
 output.txt
+
+.mise.local.toml
+.mise.*.local.toml

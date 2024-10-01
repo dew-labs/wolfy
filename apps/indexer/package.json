@@ -4,7 +4,7 @@
     "scripts": {
         "start": "bun src/index.ts",
         "dev": "bun --watch src/index.ts",
-        "sepolia:dev": "dotenvx run -f ../../.env.sepolia -- bun run dev"
+        "sepolia:dev": "MISE_ENV=sepolia mise x -- bun run dev"
     },
     "devDependencies": {
         "@types/bun": "latest"
