@@ -34,6 +34,10 @@ export const stringifyData = (data: unknown): string => {
 };
 
 export const ensureFileExists = (path: string, defaultContent: string): void => {
+    const directory = path.substring(0, path.lastIndexOf("/"));
+    if (!fs.existsSync(directory)) {
+        fs.mkdirSync(directory, { recursive: true });
+    }
     if (!fs.existsSync(path)) {
         writeFile(path, defaultContent);
     }
