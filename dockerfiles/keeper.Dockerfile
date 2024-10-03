@@ -2,8 +2,8 @@ FROM oven/bun:alpine AS base
 
 WORKDIR /satoru
 
-ARG MISE_ENV
-ENV MISE_ENV=${MISE_ENV}
+ARG NET
+ENV NET=${NET}
 
 RUN mkdir apps
 
@@ -16,8 +16,8 @@ COPY apps/keeper/package.json ./apps/keeper/package.json
 # TODO: checkout --frozen-lockfile
 RUN bun install
 
-COPY tokens.${MISE_ENV}.json ./
-COPY contracts.${MISE_ENV}.json ./
+COPY tokens.${NET}.json ./
+COPY contracts.${NET}.json ./
 COPY tsconfig.json ./
 
 FROM base AS keeper

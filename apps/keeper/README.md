@@ -42,13 +42,15 @@ bun run sepolia:dev
 
 ## Deployment
 
-### Build Docker image
+### 1. Change the directory to root
+
+### 2. Build Docker image (for testing )
 
 ```bash
-docker build --build-arg MISE_ENV={env} -f apps/keeper/Dockerfile -t keeper .
+docker build --build-arg NET={net} -f dockerfiles/keeper.Dockerfile -t keeper .
 ```
 
-### Deploy onto Fly.io
+### 3. Deploy onto Fly.io
 
 ```bash
 # Launch
@@ -58,7 +60,7 @@ fly launch --org dew-labs --config keeper/fly.sepolia.toml
 flyctl secrets import --app wolfy-keeper-sepolia < .env.sepolia
 
 # Deploy
-fly deploy --app wolfy-keeper-sepolia --dockerfile apps/keeper/Dockerfile --config fly.sepolia.toml --build-arg MISE_ENV={app}
+fly deploy --config fly.sepolia.toml
 
 # Tail logs
 fly logs --app wolfy-keeper-sepolia
