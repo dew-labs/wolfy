@@ -4,8 +4,8 @@ Keeper is a backend service designed to detect specific conditions, such as pric
 
 ## Tools
 
-- bun 1.1.26
-- mise (package manager)
+-   bun 1.1.26
+-   mise (package manager)
 
 ## Local Environment Setup
 
@@ -47,20 +47,20 @@ bun run sepolia:dev
 ### 2. Build Docker image (for testing )
 
 ```bash
-docker build --build-arg NET={net} -f dockerfiles/keeper.Dockerfile -t keeper .
+docker build --build-arg NET={net} -f apps/keeper/Dockerfile -t keeper .
 ```
 
 ### 3. Deploy onto Fly.io
 
 ```bash
 # Launch
-fly launch --org dew-labs --config keeper/fly.sepolia.toml
+fly launch --org dew-labs --config apps/keeper/fly.sepolia.toml
 
 # Inject secrets
 flyctl secrets import --app wolfy-keeper-sepolia < .env.sepolia
 
 # Deploy
-fly deploy --config fly.sepolia.toml
+fly deploy --config apps/keeper/fly.sepolia.toml
 
 # Tail logs
 fly logs --app wolfy-keeper-sepolia

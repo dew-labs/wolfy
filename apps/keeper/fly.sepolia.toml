@@ -2,7 +2,7 @@ app = 'wolfy-keeper-sepolia'
 primary_region = 'sin'
 
 [build]
-  dockerfile = "./dockerfiles/keeper.Dockerfile"
+  dockerfile = "./Dockerfile"
 
 [build.args]
   NET="sepolia"
@@ -18,7 +18,3 @@ primary_region = 'sin'
   memory = '1gb'
   cpu_kind = 'shared'
   cpus = 1
-
-[mounts]
-  source = "data"
-  destination = "../data"

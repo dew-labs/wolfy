@@ -1,0 +1,18 @@
+# fly.toml app configuration file generated for wolfy-indexer-sepolia on 2024-10-03T18:13:28+07:00
+#
+# See https://fly.io/docs/reference/configuration/ for information about how to use this file.
+#
+
+app = 'wolfy-indexer-sepolia'
+primary_region = 'sin'
+
+[build]
+  dockerfile = './Dockerfile'
+
+  [build.args]
+    NET = 'sepolia'
+
+[[vm]]
+  memory = '1gb'
+  cpu_kind = 'shared'
+  cpus = 1
