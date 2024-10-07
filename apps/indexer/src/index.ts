@@ -42,6 +42,9 @@ const startServer = async (server: ApolloServer, checkpoint: Checkpoint) => {
 };
 
 const main = async () => {
+    if (process.env.CA_CERT) {
+        process.env.CA_CERT = Buffer.from(process.env.CA_CERT, "base64").toString("utf-8");
+    }
     const indexer = createIndexer();
     const checkpoint = createCheckpoint(indexer);
 

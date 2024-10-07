@@ -11,7 +11,7 @@ COPY package.json ./
 COPY bun.lockb ./
 
 COPY packages ./packages
-COPY apps/keeper/package.json ./apps/keeper/package.json
+COPY apps/indexer/package.json ./apps/indexer/package.json
 
 # TODO: checkout --frozen-lockfile
 RUN bun install
@@ -20,11 +20,13 @@ COPY tokens.${NET}.json ./
 COPY contracts.${NET}.json ./
 COPY tsconfig.json ./
 
-FROM base AS keeper
+FROM base AS indexer
 
-WORKDIR /satoru/apps/keeper
+WORKDIR /satoru/apps/indexer
 
-COPY apps/keeper/src ./src
-COPY apps/keeper/tsconfig.json ./tsconfig.json
+COPY apps/indexer/src ./src
+COPY apps/indexer/.checkpoint ./.checkpoint
+COPY apps/indexer/tsconfig.json ./tsconfig.json
 
+EXPOSE 3001
 CMD ["bun", "run", "start"]

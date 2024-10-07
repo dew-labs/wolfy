@@ -1,8 +1,12 @@
 app = 'wolfy-keeper-sepolia'
-primary_region = 'sin'
+primary_region = 'iad'
 
 [build]
-  dockerfile = "./apps/keeper/Dockerfile"
+  dockerfile = "./Dockerfile"
+
+[build.args]
+  NET="sepolia"
+
 
 [http_service]
   auto_start_machines = true
@@ -14,7 +18,3 @@ primary_region = 'sin'
   memory = '1gb'
   cpu_kind = 'shared'
   cpus = 1
-
-[mounts]
-  source = "data"
-  destination = "../data"
