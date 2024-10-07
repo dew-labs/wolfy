@@ -28,4 +28,5 @@ COPY apps/indexer/src ./src
 COPY apps/indexer/.checkpoint ./.checkpoint
 COPY apps/indexer/tsconfig.json ./tsconfig.json
 
+EXPOSE 3001
 CMD ["bun", "run", "start"]

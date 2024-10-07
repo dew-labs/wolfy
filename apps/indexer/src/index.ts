@@ -45,8 +45,6 @@ const main = async () => {
     if (process.env.CA_CERT) {
         process.env.CA_CERT = Buffer.from(process.env.CA_CERT, "base64").toString("utf-8");
     }
-    logger.info(process.env.DATABASE_URL);
-    logger.info(process.env.CA_CERT);
     const indexer = createIndexer();
     const checkpoint = createCheckpoint(indexer);
 

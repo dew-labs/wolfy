@@ -1,5 +1,5 @@
 app = 'wolfy-keeper-sepolia'
-primary_region = 'sin'
+primary_region = 'iad'
 
 [build]
   dockerfile = "./Dockerfile"
