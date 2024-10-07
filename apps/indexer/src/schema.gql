@@ -9,6 +9,7 @@ type Order {
     index_token_decimals: Int!
     trigger_price: String!
     acceptable_price: String!
+    is_executed: Boolean!
     tx_hash: String!
     created_at: Int!
     created_at_block: Int!

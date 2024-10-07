@@ -3,7 +3,7 @@ import { ApolloServer } from "@apollo/server";
 import { startStandaloneServer } from "@apollo/server/standalone";
 import Checkpoint, { createGetLoader, starknet } from "@snapshot-labs/checkpoint";
 import { config, options } from "./config";
-import * as writers from "./writers/orderLimitWriter";
+import * as writers from "./writers";
 import { createLogger } from "@freyr/shared/utils";
 import { StarknetIndexer } from "@snapshot-labs/checkpoint/dist/src/providers/starknet";
 
@@ -16,8 +16,10 @@ const createCheckpoint = (indexer: StarknetIndexer) =>
     new Checkpoint(config, indexer, schema, options);
 
 const initializeCheckpoint = async (checkpoint: Checkpoint) => {
-    await checkpoint.reset();
-    await checkpoint.resetMetadata();
+    if (process.env.NET === "sepolia") {
+        await checkpoint.reset();
+        await checkpoint.resetMetadata();
+    }
     await checkpoint.start();
 };
 

@@ -2,7 +2,7 @@ import { cairoIntToBigInt, parseOrderType, toStarknetHexString } from "satoru-sd
 import { validateAndParseAddress } from "starknet";
 
 import {
-    ContractMarket,
+    type ContractMarket,
     createLogger,
     getDataStoreContract,
     getMarket,
@@ -60,4 +60,22 @@ export const handleOrderCreated: starknet.Writer = async ({ block, tx, rawEvent,
     await order.save();
 
     logger.info(`Order created: ${order.id}`);
+};
+
+export const handleOrderExecuted: starknet.Writer = async ({ block, tx, rawEvent, event }) => {
+    if (!block || !event || !rawEvent) return;
+
+    const key = toStarknetHexString(event.key);
+
+    const order = await Order.loadEntity(key);
+    if (!order) {
+        logger.error(`Order not found for key: ${key}`);
+        return;
+    }
+
+    order.is_executed = true;
+
+    await order.save();
+
+    logger.info(`Order executed: ${order.id}`);
 };

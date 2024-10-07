@@ -23,6 +23,10 @@ const getConfig = () => {
             name: "OrderCreated",
             fn: "handleOrderCreated",
         },
+        {
+            name: "OrderExecuted",
+            fn: "handleOrderExecuted",
+        },
     ];
 
     const config = {
