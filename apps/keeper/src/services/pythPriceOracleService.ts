@@ -22,16 +22,17 @@ const pythPriceIds = tokens.map((token) => token.pythPriceId);
 
 const handlePriceUpdate = (pythPriceFeed: PythPriceFeed): void => {
     const pythPriceId: string = "0x" + pythPriceFeed.id;
-    const token = tokens.find((token) => token.pythPriceId === pythPriceId);
-    if (!token) throw new Error("Not found token address with PythPriceId");
+    tokens
+        .filter((token) => token.pythPriceId === pythPriceId)
+        .forEach((token) => {
+            const oraclePrice =
+                expandDecimals(
+                    pythPriceFeed.price.price,
+                    USD_DECIMALS - Math.abs(pythPriceFeed.price.expo)
+                ) / expandDecimals(1, token.decimals);
 
-    const oraclePrice =
-        expandDecimals(
-            pythPriceFeed.price.price,
-            USD_DECIMALS - Math.abs(pythPriceFeed.price.expo)
-        ) / expandDecimals(1, token.decimals);
-
-    oraclePrices[token.address] = oraclePrice;
+            oraclePrices[token.address] = oraclePrice;
+        });
 };
 
 const getPriceFromOracleStream = async (
