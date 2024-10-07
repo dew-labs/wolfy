@@ -9,7 +9,7 @@ import {
     settingUp,
 } from "@freyr/shared/utils";
 import { createCall, createTokenContract, executeAndWait, toStarknetHexString } from "satoru-sdk";
-import { CairoUint256 } from "starknet";
+import { CairoUint256, shortString } from "starknet";
 
 async function createDeposit() {
     const contracts = getContracts();
@@ -31,6 +31,13 @@ async function createDeposit() {
 
     const longTokenContract = createTokenContract(chainId, longTokenAddress);
     const shortTokenContract = createTokenContract(chainId, shortTokenAddress);
+
+    const longTokenSymbol = shortString.decodeShortString(String(await longTokenContract.symbol()));
+    const shortTokenSymbol = shortString.decodeShortString(
+        String(await shortTokenContract.symbol())
+    );
+
+    console.log(`Market: ${longTokenSymbol}/${shortTokenSymbol}`);
 
     const longTokenDecimals = await longTokenContract.decimals();
     const shortTokenDecimals = await shortTokenContract.decimals();

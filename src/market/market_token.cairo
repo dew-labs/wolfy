@@ -33,9 +33,9 @@ mod MarketToken {
 
     use super::IMarketToken;
 
-    const NAME: felt252 = 'Satoru Market';
-    const SYMBOL: felt252 = 'GM';
-    const DECIMALS: u8 = 6;
+    const NAME: felt252 = 'Wolfy Market';
+    const SYMBOL: felt252 = 'WM';
+    const DECIMALS: u8 = 18;
 
     #[storage]
     struct Storage {

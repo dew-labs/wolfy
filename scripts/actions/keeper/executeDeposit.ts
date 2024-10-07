@@ -15,6 +15,7 @@ import {
     SatoruContract,
     toStarknetHexString,
 } from "satoru-sdk";
+import { shortString } from "starknet";
 
 async function executeDeposit() {
     const { ask, doneAsking } = createAsker();
@@ -47,6 +48,13 @@ async function executeDeposit() {
 
     const shortTokenContract = createTokenContract(chainId, shortToken);
     const shortTokenDecimals = await shortTokenContract.decimals();
+
+    const longTokenSymbol = shortString.decodeShortString(String(await longTokenContract.symbol()));
+    const shortTokenSymbol = shortString.decodeShortString(
+        String(await shortTokenContract.symbol())
+    );
+
+    console.log(`Market: ${longTokenSymbol}/${shortTokenSymbol}`);
 
     const depositHandlerContract = createSatoruContract(
         chainId,

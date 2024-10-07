@@ -81,7 +81,7 @@ fn given_normal_conditions_when_get_open_interest_then_works() {
 
     // Get the name of the market token.
     let market_token_name = market_token.name();
-    assert(market_token_name == 'Satoru Market', 'wrong market token name');
+    assert(market_token_name == 'Wolfy Market', 'wrong market token name');
 
     // *********************************************************************************************
     // *                              TEARDOWN                                                     *

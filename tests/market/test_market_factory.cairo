@@ -64,7 +64,7 @@ fn given_normal_conditions_when_create_market_then_market_is_created() {
     let market_token = IMarketTokenDispatcher { contract_address: market_token_deployed_address };
     // Query the name of the market token.
     let market_token_name = market_token.name();
-    assert(market_token_name == 'Satoru Market', 'bad_market_token_name');
+    assert(market_token_name == 'Wolfy Market', 'bad_market_token_name');
 
     // *********************************************************************************************
     // *                              TEARDOWN                                                     *
