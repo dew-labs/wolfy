@@ -211,12 +211,34 @@ fn execute_deposit(params: ExecuteDepositParams) {
         DepositError::MIN_MARKET_TOKENS(cache.received_market_tokens, deposit.min_market_tokens);
     }
 
+    // validate that internal state changes are correct before calling external callbacks
     market_utils::validate_market_token_balance_check(params.data_store, market);
 
     (params.event_emitter)
         .emit_deposit_executed(
             params.key, cache.long_token_amount, cache.short_token_amount, cache.received_market_tokens,
         );
+
+    // MarketPoolValueInfo.Props memory poolValueInfo = MarketUtils.getPoolValueInfo(
+    //     params.dataStore,
+    //     market,
+    //     prices.indexTokenPrice,
+    //     prices.longTokenPrice,
+    //     prices.shortTokenPrice,
+    //     Keys.MAX_PNL_FACTOR_FOR_DEPOSITS,
+    //     true
+    // );
+
+    // uint256 marketTokensSupply = MarketUtils.getMarketTokenSupply(MarketToken(payable(market.marketToken)));
+
+    // MarketEventUtils.emitMarketPoolValueUpdated(
+    //     params.eventEmitter,
+    //     params.key,
+    //     market.marketToken,
+    //     poolValueInfo,
+    //     marketTokensSupply
+    // );
+
     // let mut event_data: LogData = Default::default();
     // event_data.uint_dict.insert_single('received_market_tokens', cache.received_market_tokens);
     // after_deposit_execution(params.key, deposit, event_data);
@@ -243,7 +265,7 @@ fn execute_deposit_helper(params: @ExecuteDepositParams, ref _params: _ExecuteDe
         *params.data_store,
         _params.market.market_token,
         _params.amount,
-        _params.price_impact_usd > Zeroable::zero(),
+        _params.price_impact_usd > Zeroable::zero(), // forPositiveImpact
         _params.ui_fee_receiver,
     );
 
@@ -433,7 +455,7 @@ fn swap(
             data_store: *params.data_store,
             event_emitter: *params.event_emitter,
             oracle: *params.oracle,
-            bank: IBankDispatcher { contract_address: market },
+            bank: IBankDispatcher { contract_address: *params.deposit_vault.contract_address },
             key: *params.key,
             token_in: initial_token,
             amount_in: input_amount,

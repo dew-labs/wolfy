@@ -168,14 +168,6 @@ fn deposit_setup(
 
     // data_store.set_bool('REENTRANCY_GUARD_STATUS', false);
 
-    'fill the pool'.print();
-    // Fill the pool.
-    IERC20Dispatcher { contract_address: market.long_token }
-        .mint(market.market_token, 50000000000000000000000000000000000000); // 5 ETH
-    IERC20Dispatcher { contract_address: market.short_token }
-        .mint(market.market_token, 25000000000000000000000000000000000000000); // 25000 USDC
-    'filled pool'.print();
-
     // Fill the account
     IERC20Dispatcher { contract_address: market.long_token }.mint(caller_address, 9999999999999000000); // 9.999 ETH
     IERC20Dispatcher { contract_address: market.short_token }
