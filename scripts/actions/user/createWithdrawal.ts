@@ -9,7 +9,7 @@ import {
     settingUp,
 } from "@freyr/shared/utils";
 import { createCall, createTokenContract, executeAndWait, toStarknetHexString } from "satoru-sdk";
-import { CairoUint256 } from "starknet";
+import { CairoUint256, shortString } from "starknet";
 
 async function createWithdrawal() {
     const contracts = getContracts();
@@ -26,60 +26,48 @@ async function createWithdrawal() {
 
     const market = await dataStoreContract.get_market(marketToken);
 
+    const longTokenAddress = toStarknetHexString(market.long_token);
+    const shortTokenAddress = toStarknetHexString(market.short_token);
+
+    const longTokenContract = createTokenContract(chainId, longTokenAddress);
+    const shortTokenContract = createTokenContract(chainId, shortTokenAddress);
+
+    const longTokenSymbol = shortString.decodeShortString(String(await longTokenContract.symbol()));
+    const shortTokenSymbol = shortString.decodeShortString(
+        String(await shortTokenContract.symbol())
+    );
+
+    console.log(`Market: ${longTokenSymbol}/${shortTokenSymbol}`);
+
     const marketTokenAddress = toStarknetHexString(market.market_token);
     const marketTokenContract = createTokenContract(chainId, marketTokenAddress);
     const marketTokenDecimals = await marketTokenContract.decimals();
 
     const marketTokenAmount = expandDecimals(
-        (await ask("Enter market amount (default 5000)")) || 5000,
+        (await ask("Enter market token amount (default 5000)")) || 5000,
         marketTokenDecimals
     );
 
     const exchangeRouterContract = getExchangeRouterContract(chainId, account);
+    console.log("Approving and sending market token to the withdrawal vault...");
 
-    console.log("Mint, approve and sending market token to the withdrawal vault..."); // The mint step is to make sure account have enough balance
-
-    console.log("Minting market token...");
-    await executeAndWait(account, [
-        createCall(marketTokenContract, "mint", [
-            account.address,
-            new CairoUint256(marketTokenAmount),
-        ]),
-    ]);
-
-    console.log("Approving market token...");
+    // TODO: why can't we use exchangeRouterContract?
     await executeAndWait(account, [
         createCall(marketTokenContract, "approve", [
             account.address,
+            // exchangeRouterContract.address,
             new CairoUint256(marketTokenAmount),
         ]),
-    ]);
-
-    console.log(marketTokenAmount, marketTokenDecimals);
-    console.log("Sending market token to the withdrawal vault...");
-    await executeAndWait(account, [
-        createCall(exchangeRouterContract, "send_tokens", [
-            marketTokenAddress,
+        createCall(marketTokenContract, "transfer", [
             withdrawalVaultAddress,
             new CairoUint256(marketTokenAmount),
         ]),
+        // createCall(exchangeRouterContract, "send_tokens", [
+        //     marketTokenAddress,
+        //     withdrawalVaultAddress,
+        //     new CairoUint256(marketTokenAmount),
+        // ]),
     ]);
-
-    // await executeAndWait(account, [
-    //     createCall(marketTokenContract, "mint", [
-    //         account.address,
-    //         new CairoUint256(marketTokenAmount),
-    //     ]),
-    //     createCall(marketTokenContract, "approve", [
-    //         account.address,
-    //         new CairoUint256(marketTokenAmount),
-    //     ]),
-    //     createCall(exchangeRouterContract, "send_tokens", [
-    //         marketTokenAddress,
-    //         withdrawalVaultAddress,
-    //         new CairoUint256(marketTokenAmount),
-    //     ]),
-    // ]);
 
     console.log("Creating Withdrawal...");
 
