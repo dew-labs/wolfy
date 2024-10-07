@@ -1,12 +1,6 @@
 import { createCall } from "satoru-sdk";
 
-import {
-    createSatoruContract,
-    createTokenContract,
-    executeAndWait,
-    MarketFactoryABI,
-    SatoruContract,
-} from "satoru-sdk";
+import { createSatoruContract, executeAndWait, MarketFactoryABI, SatoruContract } from "satoru-sdk";
 import { CairoUint256, type Account } from "starknet";
 
 export default async function createMarket(
@@ -23,9 +17,6 @@ export default async function createMarket(
         MarketFactoryABI,
         account
     );
-
-    const longTokenContract = createTokenContract(chainId, longTokenAddress);
-    const shortTokenContract = createTokenContract(chainId, shortTokenAddress);
 
     // BEGIN create market
 
@@ -55,22 +46,7 @@ export default async function createMarket(
 
     // END create market
 
-    await executeAndWait(account, [
-        // BEGIN Fill the pool, this is the initial amount that depositors will put in the pool
-        // Mint long token to the market
-        createCall(longTokenContract, "mint", [
-            marketTokenAddress,
-            new CairoUint256(50000000000000000000000000000000000000),
-        ]),
-        // Mint short token to the market
-        createCall(shortTokenContract, "mint", [
-            marketTokenAddress,
-            new CairoUint256(25000000000000000000000000000000000000000),
-        ]),
-        // END Fill the pool
-    ]);
-
-    console.log("All mint done.");
+    console.log("Created market.");
 
     return marketTokenAddress;
 }

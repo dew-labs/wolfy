@@ -36,12 +36,11 @@ async function createDeposit() {
     const shortTokenDecimals = await shortTokenContract.decimals();
 
     const longTokenAmount = expandDecimals(await ask("Enter long amount"), longTokenDecimals);
-
     const shortTokenAmount = expandDecimals(await ask("Enter short amount"), shortTokenDecimals);
 
     const exchangeRouterContract = getExchangeRouterContract(chainId, account);
 
-    console.log("Mint, approve and sending tokens to the deposit vault..."); // The mint step is to make sure account have enough balance
+    console.log("Approve and sending tokens to the deposit vault..."); // The mint step is to make sure account have enough balance
 
     await executeAndWait(account, [
         createCall(longTokenContract, "approve", [

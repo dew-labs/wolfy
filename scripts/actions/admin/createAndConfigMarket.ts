@@ -1,71 +1,79 @@
-import { settingUp } from "@freyr/shared/utils";
+import { getTokens, settingUp } from "@freyr/shared/utils";
 import configMarket from "./utils/configMarket";
 import createMarket from "./utils/createMarket";
 
+const tokens = getTokens();
+
 // NOTE: Should update based on tokens.<net>.json
 const TOKENS = {
-    wfUSD: "0x0585593986c67a9802555dab7c7728270b603da6721ed6f754063eb8fd51f0aa",
-    DUSD: "0x07d2da5ff2548727ecdc1c2ec8c9c3b552cbe7a9800abc1f69579e75c01b90a5",
-    wfETH: "0x0161304979f98530f4c3d6659e0a43cad96ceb71531482c7aaba90e07f150315",
-    wfSTRK: "0x0257f31f11fa095874ded95a8ad6c8dca9fb851557df83e7cd384bde65c4d1c4",
-    wfBTC: "0x07e3b6dce9c3b052e96a63d63f26aa129a1c5342343a7bb9a20754812bf4e614",
+    wfUSD: tokens.find((token) => token.symbol === "wfUSD")!,
+    DUSD: tokens.find((token) => token.symbol === "DUSD")!,
+    wfETH: tokens.find((token) => token.symbol === "wfETH")!,
+    wfSTRK: tokens.find((token) => token.symbol === "wfSTRK")!,
+    wfBTC: tokens.find((token) => token.symbol === "wfBTC")!,
 };
+
+for (const token of Object.values(TOKENS)) {
+    if (!token) {
+        throw new Error(`Token not found: ${token}`);
+    }
+}
 
 const MARKETS_TO_DEPLOY = [
     // ETH/USD (wfETH/wfUSD)
     {
         marketName: "ETH/USD",
-        indexTokenAddress: TOKENS.wfETH,
-        longTokenAddress: TOKENS.wfETH,
-        shortTokenAddress: TOKENS.wfUSD,
-        maxLongTokenPoolAmount: 5000,
-        maxShortTokenPoolAmount: 10000000,
+        indexTokenAddress: TOKENS.wfETH.address,
+        longTokenAddress: TOKENS.wfETH.address,
+        shortTokenAddress: TOKENS.wfUSD.address,
+        maxLongTokenPoolAmount: 5000, // 5000 ETH
+        maxShortTokenPoolAmount: 10000000, // 10,000,000 wfUSD
     },
-    // // ETH/USD (wfETH/DUSD)
-    // {
-    //     marketName: "ETH/USD",
-    //     indexTokenAddress: TOKENS.wfETH,
-    //     longTokenAddress: TOKENS.wfETH,
-    //     shortTokenAddress: TOKENS.DUSD,
-    //     maxLongTokenPoolAmount: 5000,
-    //     maxShortTokenPoolAmount: 10000000,
-    // },
-    // // STRK/USD (wfSTRK/wfUSD)
-    // {
-    //     marketName: "STRK/USD",
-    //     indexTokenAddress: TOKENS.wfSTRK,
-    //     longTokenAddress: TOKENS.wfSTRK,
-    //     shortTokenAddress: TOKENS.wfUSD,
-    //     maxLongTokenPoolAmount: 24000000,
-    //     maxShortTokenPoolAmount: 10000000,
-    // },
-    // // STRK/USD (wfSTRK/DUSD)
-    // {
-    //     marketName: "STRK/USD",
-    //     indexTokenAddress: TOKENS.wfSTRK,
-    //     longTokenAddress: TOKENS.wfSTRK,
-    //     shortTokenAddress: TOKENS.DUSD,
-    //     maxLongTokenPoolAmount: 24000000,
-    //     maxShortTokenPoolAmount: 10000000,
-    // },
-    // // BTC/USD (wfBTC/wfUSD)
-    // {
-    //     marketName: "BTC/USD",
-    //     indexTokenAddress: TOKENS.wfBTC,
-    //     longTokenAddress: TOKENS.wfBTC,
-    //     shortTokenAddress: TOKENS.wfUSD,
-    //     maxLongTokenPoolAmount: 160,
-    //     maxShortTokenPoolAmount: 10000000,
-    // },
-    // // BTC/USD (wfBTC/DUSD)
-    // {
-    //     marketName: "BTC/USD",
-    //     indexTokenAddress: TOKENS.wfBTC,
-    //     longTokenAddress: TOKENS.wfBTC,
-    //     shortTokenAddress: TOKENS.DUSD,
-    //     maxLongTokenPoolAmount: 160,
-    //     maxShortTokenPoolAmount: 10000000,
-    // },
+    // ETH/USD (wfETH/DUSD)
+    {
+        marketName: "ETH/USD",
+        indexTokenAddress: TOKENS.wfETH.address,
+        longTokenAddress: TOKENS.wfETH.address,
+        shortTokenAddress: TOKENS.DUSD.address,
+        maxLongTokenPoolAmount: 5000, // 5000 ETH
+        maxShortTokenPoolAmount: 10000000, // 10,000,000 DUSD
+    },
+    // STRK/USD (wfSTRK/wfUSD)
+    {
+        marketName: "STRK/USD",
+        indexTokenAddress: TOKENS.wfSTRK.address,
+        longTokenAddress: TOKENS.wfSTRK.address,
+        shortTokenAddress: TOKENS.wfUSD.address,
+        maxLongTokenPoolAmount: 24000000, // 24,000,000 wfSTRK
+        maxShortTokenPoolAmount: 10000000, // 10,000,000 wfUSD
+    },
+    // STRK/USD (wfSTRK/DUSD)
+    {
+        marketName: "STRK/USD",
+        indexTokenAddress: TOKENS.wfSTRK.address,
+        longTokenAddress: TOKENS.wfSTRK.address,
+        shortTokenAddress: TOKENS.DUSD.address,
+        maxLongTokenPoolAmount: 24000000, // 24,000,000 wfSTRK
+        maxShortTokenPoolAmount: 10000000, // 10,000,000 DUSD
+    },
+    // BTC/USD (wfBTC/wfUSD)
+    {
+        marketName: "BTC/USD",
+        indexTokenAddress: TOKENS.wfBTC.address,
+        longTokenAddress: TOKENS.wfBTC.address,
+        shortTokenAddress: TOKENS.wfUSD.address,
+        maxLongTokenPoolAmount: 160, // 160 wfBTC
+        maxShortTokenPoolAmount: 10000000, // 10,000,000 wfUSD
+    },
+    // BTC/USD (wfBTC/DUSD)
+    {
+        marketName: "BTC/USD",
+        indexTokenAddress: TOKENS.wfBTC.address,
+        longTokenAddress: TOKENS.wfBTC.address,
+        shortTokenAddress: TOKENS.DUSD.address,
+        maxLongTokenPoolAmount: 160, // 160 wfBTC
+        maxShortTokenPoolAmount: 10000000, // 10,000,000 DUSD,
+    },
 ];
 
 async function createMarketWithReusedTokens() {
