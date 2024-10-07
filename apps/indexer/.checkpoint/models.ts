@@ -16,6 +16,7 @@ export class Order extends Model {
     this.initialSet('index_token_decimals', 0);
     this.initialSet('trigger_price', "");
     this.initialSet('acceptable_price', "");
+    this.initialSet('is_executed', false);
     this.initialSet('tx_hash', "");
     this.initialSet('created_at', 0);
     this.initialSet('created_at_block', 0);
@@ -116,6 +117,14 @@ export class Order extends Model {
 
   set acceptable_price(value: string) {
     this.set('acceptable_price', value);
+  }
+
+  get is_executed(): boolean {
+    return this.get('is_executed');
+  }
+
+  set is_executed(value: boolean) {
+    this.set('is_executed', value);
   }
 
   get tx_hash(): string {
