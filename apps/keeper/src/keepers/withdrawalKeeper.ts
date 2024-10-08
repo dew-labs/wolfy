@@ -10,10 +10,11 @@ import {
     type SatoruEventHandler,
 } from "satoru-sdk";
 
-import { getDepositHandlerContract } from "@freyr/shared/contracts";
+import { getWithdrawalHandlerContract } from "@freyr/shared/contracts";
 import {
     createLogger,
     executeAndGetResult,
+    getDataStoreContract,
     getNetworkConfig,
     getSetPriceParams,
     measureExecutionTime,
@@ -21,12 +22,12 @@ import {
 
 import { getOraclePrice } from "../services/pythPriceOracleService";
 
-const logger = createLogger("DepositKeeper");
+const logger = createLogger("WithdrawalKeeper");
 
-const executeDeposit = async (
+const executeWithdrawal = async (
     account: Account,
     chainId: StarknetChainId,
-    depositKey: string,
+    withdrawalKey: string,
     longTokenAddress: string,
     shortTokenAddress: string,
     executionLongPrice: bigint,
@@ -38,38 +39,48 @@ const executeDeposit = async (
             [shortTokenAddress, executionShortPrice],
         ]);
 
-        const depositHandlerContract = getDepositHandlerContract(chainId, account);
+        const withdrawalHandlerContract = getWithdrawalHandlerContract(chainId, account);
 
-        logger.debug(`Deposit ${depositKey}: Executing ...`);
+        logger.debug(`Withdrawal ${withdrawalKey}: Executing ...`);
 
         await executeAndGetResult(
             account,
-            createCall(depositHandlerContract, "execute_deposit", [depositKey, priceParams]),
+            createCall(withdrawalHandlerContract, "execute_withdrawal", [
+                withdrawalKey,
+                priceParams,
+            ]),
             (receipt) => {
-                logger.debug(`Deposit ${depositKey}: Transaction key ${receipt.transaction_hash}`);
+                logger.debug(
+                    `Withdrawal ${withdrawalKey}: Transaction key ${receipt.transaction_hash}`
+                );
             },
-            `Deposit ${depositKey}: Failed to execute`
+            `Withdrawal ${withdrawalKey}: Failed to execute`
         );
-    }, `Deposit ${depositKey}: Executed`);
+    }, `Withdrawal ${withdrawalKey}: Executed`);
 };
 
-const onDepositCreatedHandler =
-    (account: Account, chainId: StarknetChainId): SatoruEventHandler<SatoruEvent.DepositCreated> =>
+const onWithdrawalCreatedHandler =
+    (
+        account: Account,
+        chainId: StarknetChainId
+    ): SatoruEventHandler<SatoruEvent.WithdrawalCreated> =>
     async (event) => {
-        const { key, initial_long_token, initial_short_token } = event;
+        const { key, market: marketKey } = event;
+        const dataStoreContract = getDataStoreContract(chainId, account);
 
-        const depositKey = toStarknetHexString(key);
-        const longTokenAddress = toStarknetHexString(initial_long_token);
-        const shortTokenAddress = toStarknetHexString(initial_short_token);
+        const withdrawalKey = toStarknetHexString(key);
+        const market = await dataStoreContract.get_market(toStarknetHexString(marketKey));
+        const longTokenAddress = toStarknetHexString(market.long_token);
+        const shortTokenAddress = toStarknetHexString(market.short_token);
 
         const executionLongPrice = getOraclePrice(longTokenAddress);
         const executionShortPrice = getOraclePrice(shortTokenAddress);
 
         // TODO: retry
-        await executeDeposit(
+        await executeWithdrawal(
             account,
             chainId,
-            depositKey,
+            withdrawalKey,
             longTokenAddress,
             shortTokenAddress,
             executionLongPrice,
@@ -83,8 +94,8 @@ const run = async (account: Account, chainId: StarknetChainId): Promise<void> =>
         wssProvider.onClose(() => run(account, chainId));
 
         await wssProvider.subscribeTo(
-            SatoruEvent.DepositCreated,
-            onDepositCreatedHandler(account, chainId)
+            SatoruEvent.WithdrawalCreated,
+            onWithdrawalCreatedHandler(account, chainId)
         );
     } catch (error) {
         logger.error(error, "Failed to start");
@@ -92,7 +103,7 @@ const run = async (account: Account, chainId: StarknetChainId): Promise<void> =>
     }
 };
 
-export const createDepositKeeper = () => {
+export const createWithdrawalKeeper = () => {
     const { account, chainId } = getNetworkConfig();
     return {
         run: () => run(account, chainId),
