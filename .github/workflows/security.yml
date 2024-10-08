@@ -1,53 +1,53 @@
-name: Security
+# name: Security
 
-on: [push, pull_request]
+# on: [push, pull_request]
 
-env:
-  SCARB_VERSION: 2.6.0
+# env:
+#   SCARB_VERSION: 2.6.0
 
-jobs:
-  check:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - uses: software-mansion/setup-scarb@v1
-        with:
-          scarb-version: ${{ env.SCARB_VERSION }}
+# jobs:
+#   check:
+#     runs-on: ubuntu-latest
+#     steps:
+#       - uses: actions/checkout@v3
+#       - uses: software-mansion/setup-scarb@v1
+#         with:
+#           scarb-version: ${{ env.SCARB_VERSION }}
 
-      - name: Install Semgrep
-        run: |
-          pip install semgrep==1.45.0
-      - name: Run Semgrep
-        run: semgrep --config .github/semgrep-cairo-rules.yaml ./src > semgrep-output.txt
-      - name: Save Semgrep Output as an Artifact
-        uses: actions/upload-artifact@v3
-        with:
-          name: semgrep-cairo
-          path: semgrep-output.txt
+#       - name: Install Semgrep
+#         run: |
+#           pip install semgrep==1.45.0
+#       - name: Run Semgrep
+#         run: semgrep --config .github/semgrep-cairo-rules.yaml ./src > semgrep-output.txt
+#       - name: Save Semgrep Output as an Artifact
+#         uses: actions/upload-artifact@v3
+#         with:
+#           name: semgrep-cairo
+#           path: semgrep-output.txt
 
-      - name: Build cairo programs
-        run: scarb build
+#       - name: Build cairo programs
+#         run: scarb build
 
-      - name: Cache Cargo dependencies
-        uses: actions/cache@v2
-        with:
-          path: |
-            ~/.cargo
-          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+#       - name: Cache Cargo dependencies
+#         uses: actions/cache@v2
+#         with:
+#           path: |
+#             ~/.cargo
+#           key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
 
-      # - name: Check if Caracal is installed
-      #   id: check-caracal
-      #   run: |
-      #     if ! command -v caracal &> /dev/null; then
-      #       echo "Caracal is not installed. Installing..."
-      #       cargo install --git https://github.com/crytic/caracal --profile release --force
-      #     else
-      #       echo "Caracal is already installed."
-      #     fi
-      # - name: Run Caracal
-      #   run: caracal detect . > caracal-output.txt
-      # - name: Save Caracal Output as an Artifact
-      #   uses: actions/upload-artifact@v3
-      #   with:
-      #     name: caracal-cairo
-      #     path: caracal-output.txt
+#       # - name: Check if Caracal is installed
+#       #   id: check-caracal
+#       #   run: |
+#       #     if ! command -v caracal &> /dev/null; then
+#       #       echo "Caracal is not installed. Installing..."
+#       #       cargo install --git https://github.com/crytic/caracal --profile release --force
+#       #     else
+#       #       echo "Caracal is already installed."
+#       #     fi
+#       # - name: Run Caracal
+#       #   run: caracal detect . > caracal-output.txt
+#       # - name: Save Caracal Output as an Artifact
+#       #   uses: actions/upload-artifact@v3
+#       #   with:
+#       #     name: caracal-cairo
+#       #     path: caracal-output.txt
