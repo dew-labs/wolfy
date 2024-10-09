@@ -92,6 +92,10 @@
                 "label": "indexer"
             },
             {
+                "value": "backend",
+                "label": "backend"
+            },
+            {
                 "value": "shared",
                 "label": "shared"
             },
