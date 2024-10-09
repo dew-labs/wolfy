@@ -20,7 +20,7 @@ import {
     measureExecutionTime,
 } from "@freyr/shared/utils";
 
-import { getDataStoreContract} from "@freyr/shared/contracts"
+import { getDataStoreContract } from "@freyr/shared/contracts";
 
 import { getExchangeRouterContract } from "@freyr/shared/contracts";
 import { EventHandlerTypes, type Order } from "@freyr/shared/interfaces";
@@ -30,9 +30,44 @@ import { getOraclePrice } from "../services/pythPriceOracleService";
 
 const logger = createLogger("OrderExecutionKeeper");
 
-const isLimitOrderExecutable = (order: Order, executionPrice: bigint): boolean => {
+const shouldTrigerOrderExecution = (order: Order, latestPrice: bigint): boolean => {
+    const triggerPrice = order.triggerPrice;
+    if (!triggerPrice) {
+        logger.error(`Order ${order.key}: No trigger price`);
+        return false;
+    }
+
+    switch (order.orderType) {
+        case OrderType.LimitIncrease: // Open Position
+            return order.isLong ? latestPrice <= triggerPrice : latestPrice >= triggerPrice;
+        case OrderType.StopLossDecrease: // Stop Loss
+            return order.isLong ? latestPrice <= triggerPrice : latestPrice >= triggerPrice;
+        case OrderType.LimitDecrease: // Take Profit
+            return order.isLong ? latestPrice >= triggerPrice : latestPrice <= triggerPrice;
+        default:
+            return false;
+    }
+};
+
+const isOrderExecutable = (order: Order, executionPrice: bigint): boolean => {
     const acceptablePrice = order.acceptablePrice;
-    return order.isLong ? executionPrice <= acceptablePrice : executionPrice >= acceptablePrice;
+
+    switch (order.orderType) {
+        case OrderType.LimitIncrease: // Open Position
+            return order.isLong
+                ? executionPrice <= acceptablePrice
+                : executionPrice >= acceptablePrice;
+        case OrderType.StopLossDecrease: // Stop Loss
+            return order.isLong
+                ? executionPrice <= acceptablePrice
+                : executionPrice >= acceptablePrice;
+        case OrderType.LimitDecrease: // Take Profit
+            return order.isLong
+                ? executionPrice >= acceptablePrice
+                : executionPrice <= acceptablePrice;
+        default:
+            return false;
+    }
 };
 
 const isMarketOrder = (orderType: OrderType): boolean =>
@@ -112,9 +147,9 @@ export function createOrderKeeper(emitter: Emitter) {
         if (isMarketOrder(orderType)) {
             await executeOrder(order);
         } else {
-            const executionIndexPrice = getOraclePrice(indexTokenAddress);
+            const latestPrice = getOraclePrice(indexTokenAddress);
 
-            if (isLimitOrderExecutable(order, executionIndexPrice)) {
+            if (shouldTrigerOrderExecution(order, latestPrice)) {
                 await executeOrder(order);
             } else {
                 saveOrder(order, indexTokenAddress);
@@ -143,7 +178,10 @@ export function createOrderKeeper(emitter: Emitter) {
             try {
                 await pRetry(
                     async () => {
+                        // TODO: execution prices should be the oracle price at the block timestamp, not latest (for market order only)
                         const executionIndexPrice = getOraclePrice(indexTokenAddress);
+                        isOrderExecutable(order, executionIndexPrice);
+
                         const executionLongPrice = getOraclePrice(longTokenAddress);
                         const executionShortPrice = getOraclePrice(shortTokenAddress);
 
@@ -197,7 +235,7 @@ export function createOrderKeeper(emitter: Emitter) {
     const executeLimitOrdersIfExecutable = async (
         limitOrders: Order[],
         indexTokenAddress: string,
-        executionPrice: bigint
+        latestPrice: bigint
     ) => {
         Promise.allSettled(
             limitOrders.map(async (order) => {
@@ -205,7 +243,7 @@ export function createOrderKeeper(emitter: Emitter) {
 
                 executingLimitOrders = addExecutingLimitOrder(order.key, executingLimitOrders);
 
-                if (isLimitOrderExecutable(order, executionPrice)) {
+                if (shouldTrigerOrderExecution(order, latestPrice)) {
                     try {
                         await executeOrder(order);
                         executingLimitOrders = removeExecutingLimitOrder(
