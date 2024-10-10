@@ -13,9 +13,8 @@ export class Order extends Model {
     this.initialSet('order_type', "");
     this.initialSet('is_long', false);
     this.initialSet('index_token_address', "");
-    this.initialSet('index_token_decimals', 0);
-    this.initialSet('trigger_price', "");
-    this.initialSet('acceptable_price', "");
+    this.initialSet('trigger_price', "0");
+    this.initialSet('acceptable_price', "0");
     this.initialSet('is_executed', false);
     this.initialSet('tx_hash', "");
     this.initialSet('created_at', 0);
@@ -93,14 +92,6 @@ export class Order extends Model {
 
   set index_token_address(value: string) {
     this.set('index_token_address', value);
-  }
-
-  get index_token_decimals(): number {
-    return this.get('index_token_decimals');
-  }
-
-  set index_token_decimals(value: number) {
-    this.set('index_token_decimals', value);
   }
 
   get trigger_price(): string {

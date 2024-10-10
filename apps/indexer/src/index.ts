@@ -2,7 +2,7 @@ import fs from "node:fs";
 import { ApolloServer } from "@apollo/server";
 import { startStandaloneServer } from "@apollo/server/standalone";
 import Checkpoint, { createGetLoader, starknet } from "@snapshot-labs/checkpoint";
-import { config, options } from "./config";
+import { getConfig, options } from "./config";
 import * as writers from "./writers";
 import { createLogger } from "@freyr/shared/utils";
 import { StarknetIndexer } from "@snapshot-labs/checkpoint/dist/src/providers/starknet";
@@ -12,8 +12,11 @@ const logger = createLogger("Indexer");
 const schema = fs.readFileSync(`${__dirname}/schema.gql`, "utf8");
 
 const createIndexer = () => new starknet.StarknetIndexer(writers);
-const createCheckpoint = (indexer: StarknetIndexer) =>
-    new Checkpoint(config, indexer, schema, options);
+const createCheckpoint = (indexer: StarknetIndexer) => {
+    const config = getConfig();
+
+    return new Checkpoint(config, indexer, schema, options);
+};
 
 const initializeCheckpoint = async (checkpoint: Checkpoint) => {
     if (process.env.NET === "sepolia") {
