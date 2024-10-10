@@ -1,3 +1,5 @@
+scalar UInt256
+
 type Order {
     id: ID!
     author: String!
@@ -6,9 +8,8 @@ type Order {
     order_type: String!
     is_long: Boolean!
     index_token_address: String!
-    index_token_decimals: Int!
-    trigger_price: String!
-    acceptable_price: String!
+    trigger_price: UInt256!
+    acceptable_price: UInt256!
     is_executed: Boolean!
     tx_hash: String!
     created_at: Int!

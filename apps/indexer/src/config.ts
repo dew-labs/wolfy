@@ -4,7 +4,7 @@ import { EventEmitterABI } from "satoru-sdk";
 import fs from "node:fs";
 import { setup } from "@freyr/shared/utils";
 
-const getConfig = () => {
+export const getConfig = () => {
     setup();
 
     const networkNodeUrl = process.env.PROVIDER_URL;
@@ -39,6 +39,12 @@ const getConfig = () => {
                 events,
             },
         ],
+        decimal_types: {
+            UInt256: {
+                p: 78,
+                d: 0,
+            },
+        },
     };
 
     fs.writeFileSync("./src/config.json", JSON.stringify(config, null, 2));
@@ -46,7 +52,6 @@ const getConfig = () => {
     return config;
 };
 
-export const config = getConfig();
 export const options = {
     logLevel: LogLevel.Info,
     prettifyLogs: true,
