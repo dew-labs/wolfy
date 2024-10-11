@@ -15,7 +15,7 @@ import {
 
 import {
     createLogger,
-    executeOrder as executeOrderUtil,
+    executeOrder as utilExecuteOrder,
     getNetworkConfig,
     measureExecutionTime,
 } from "@freyr/shared/utils";
@@ -174,7 +174,6 @@ export function createOrderKeeper(emitter: Emitter) {
             const longTokenAddress = toStarknetHexString(market.long_token);
             const shortTokenAddress = toStarknetHexString(market.short_token);
 
-            let shouldCancel = false;
             try {
                 await pRetry(
                     async () => {
@@ -185,8 +184,7 @@ export function createOrderKeeper(emitter: Emitter) {
                         const executionLongPrice = getOraclePrice(longTokenAddress);
                         const executionShortPrice = getOraclePrice(shortTokenAddress);
 
-                        await executeOrderUtil(
-                            account,
+                        await utilExecuteOrder(
                             order,
                             indexTokenAddress,
                             longTokenAddress,
@@ -211,36 +209,8 @@ export function createOrderKeeper(emitter: Emitter) {
                 );
             } catch (error) {
                 logger.error(error, `Order ${order.key}: Failed to execute`);
-                if (isMarketOrder(order.orderType)) {
-                    shouldCancel = true;
-                }
             }
-
-            // TODO: verify cancel flow
-            // if (shouldCancel) {
-            //     await cancelOrder(order.key);
-            // }
         }, `${order.orderType} Order ${order.key}: Executed`);
-    };
-
-    const cancelOrder = async (orderKey: string): Promise<void> => {
-        return await measureExecutionTime(async () => {
-            logger.info(`Order ${orderKey}: Canceling ...`);
-
-            try {
-                const executeOrderReceipt = await executeAndWait(
-                    account,
-                    createCall(exchangeRouterContract, "cancel_order", [orderKey])
-                );
-
-                if (!executeOrderReceipt.isSuccess()) {
-                    throw new Error("Order cancellation failed");
-                }
-            } catch (error) {
-                logger.error(error, `Order ${orderKey}: Failed to cancel`);
-                throw error;
-            }
-        }, `Order ${orderKey}: Cancelled`);
     };
 
     const executeLimitOrdersIfExecutable = async (

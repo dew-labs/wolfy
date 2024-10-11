@@ -5,7 +5,7 @@ import {
     getDataStoreContract,
     settingUp,
     USD_DECIMALS,
-    executeOrder as utilExecuteOrder,
+    executeOrder as executeOrderUtil,
 } from "@freyr/shared/utils";
 import {
     cairoIntToBigInt,
@@ -115,8 +115,7 @@ async function executeOrder() {
         shortTokenContractPrice = executionContractPrice;
     }
 
-    await utilExecuteOrder(
-        account,
+    await executeOrderUtil(
         executeOrder,
         indexTokenAddress,
         longTokenAddress,
