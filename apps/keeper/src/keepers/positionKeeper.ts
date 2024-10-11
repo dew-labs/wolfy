@@ -1,4 +1,5 @@
 import {
+    cairoIntToBigInt,
     getProvider,
     ProviderType,
     SatoruContract,
@@ -8,7 +9,12 @@ import {
     type SatoruEventHandler,
 } from "satoru-sdk";
 
-import { createLogger, getNetworkConfig } from "@freyr/shared/utils";
+import {
+    createLogger,
+    getNetworkConfig,
+    getPosition,
+    type ContractPosition,
+} from "@freyr/shared/utils";
 
 import { getDataStoreContract } from "@freyr/shared/contracts";
 import type { TypedContractV2 } from "starknet";
@@ -24,8 +30,8 @@ const decreasePosition = async (
     dataStoreContract: TypedContractV2<SatoruContractAbi<SatoruContract.DataStore>>
 ) => {
     const positionKey = toStarknetHexString(event.position_key as bigint);
-    const position = await dataStoreContract.get_position(positionKey);
-    if (position.size_in_usd >= event.size_delta_usd) {
+    const position: ContractPosition = await getPosition(dataStoreContract, positionKey);
+    if (cairoIntToBigInt(position.size_in_usd) > 0n) {
         return;
     }
 

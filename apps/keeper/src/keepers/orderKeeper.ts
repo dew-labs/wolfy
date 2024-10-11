@@ -196,7 +196,18 @@ export function createOrderKeeper(emitter: Emitter) {
                             executionShortPrice
                         );
                     },
-                    { retries: 3, minTimeout: 0, maxTimeout: 0 }
+                    // TODO: put options to somewhere else
+                    {
+                        retries: 3,
+                        onFailedAttempt: (error) => {
+                            logger.error(
+                                `Attempt ${error.attemptNumber} failed. There are ${error.retriesLeft} retries left.`
+                            );
+                            logger.error(error.message);
+                        },
+                        minTimeout: 0,
+                        maxTimeout: 0,
+                    }
                 );
             } catch (error) {
                 logger.error(error, `Order ${order.key}: Failed to execute`);

@@ -17,9 +17,11 @@ import {
     getContracts,
     getMarket,
     getNetworkConfig,
+    getPosition,
     getSetPriceParams,
     measureExecutionTime,
     type ContractMarket,
+    type ContractPosition,
 } from "@freyr/shared/utils";
 
 import { loadPositions } from "../services/positionPersistenceService";
@@ -59,13 +61,6 @@ const setupContracts = (): ContractSetup => {
         referralStorageAddress,
     };
 };
-
-const getPosition = async (
-    dataStoreContract: TypedContractV2<SatoruContractAbi<SatoruContract.DataStore>>,
-    positionKey: string
-) => await dataStoreContract.get_position(positionKey);
-
-type ContractPosition = Awaited<ReturnType<typeof getPosition>>;
 
 const checkIfLiquidable = async (
     readerContract: TypedContractV2<SatoruContractAbi<SatoruContract.Reader>>,
