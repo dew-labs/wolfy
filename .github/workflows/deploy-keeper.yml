@@ -3,6 +3,10 @@ on:
   push:
     branches:
       - main
+    paths:
+      - apps/keeper/**
+      - packages/shared/**
+
 jobs:
   deploy:
     name: Deploy Keeper

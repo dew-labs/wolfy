@@ -3,6 +3,10 @@ on:
   push:
     branches:
       - main
+    paths:
+      - apps/indexer/**
+      - packages/shared/**
+
 jobs:
   deploy:
     name: Deploy Indexer
