@@ -164,7 +164,7 @@ export function createOrderKeeper(emitter: Emitter) {
 
         const orderKey = toStarknetHexString(key);
 
-        cancelOrder(orderKey);
+        // TODO: handle limit order to be removed from JSON
     };
 
     const executeOrder = async (order: Order): Promise<void> => {
