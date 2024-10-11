@@ -18,6 +18,3 @@ dist
 .env
 .env.*
 !.env.example
-
-# Checkpoint Config
-src/config.json
