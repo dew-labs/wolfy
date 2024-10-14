@@ -70,7 +70,7 @@ fn create_liquidation_order(
     };
     let nonce_key = get_next_key(data_store);
     data_store.set_order(nonce_key, order);
-    event_emitter.emit_order_updated(nonce_key, size_delta_usd, acceptable_price, trigger_price, min_output_amount);
+    event_emitter.emit_order_created(nonce_key, order);
 
     nonce_key
 }
