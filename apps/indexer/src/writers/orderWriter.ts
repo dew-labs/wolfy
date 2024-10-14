@@ -12,7 +12,7 @@ import { starknet } from "@snapshot-labs/checkpoint";
 
 import { Order } from "../../.checkpoint/models";
 
-const logger = createLogger("OrderLimitWriter");
+const logger = createLogger("OrderWriter");
 
 export const handleOrderCreated: starknet.Writer = async ({ block, tx, rawEvent, event }) => {
     if (!block || !event || !rawEvent) return;
@@ -65,6 +65,7 @@ export const handleOrderExecuted: starknet.Writer = async ({ block, tx, rawEvent
     }
 
     order.is_executed = true;
+    order.tx_hash = tx.transaction_hash;
 
     await order.save();
 

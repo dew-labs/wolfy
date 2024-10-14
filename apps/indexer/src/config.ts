@@ -26,6 +26,18 @@ export const getConfig = () => {
             name: "OrderExecuted",
             fn: "handleOrderExecuted",
         },
+        {
+            name: "PositionIncrease",
+            fn: "handlePositionIncrease",
+        },
+        {
+            name: "PositionDecrease",
+            fn: "handlePositionDecrease",
+        },
+        {
+            name: "PositionFeesCollected",
+            fn: "handlePositionFeesCollected",
+        },
     ];
 
     const config: CheckpointConfig = {
