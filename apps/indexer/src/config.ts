@@ -1,7 +1,6 @@
 import { getContracts } from "@freyr/shared/utils";
-import { LogLevel } from "@snapshot-labs/checkpoint";
+import { LogLevel, type CheckpointConfig } from "@snapshot-labs/checkpoint";
 import { EventEmitterABI } from "satoru-sdk";
-import fs from "node:fs";
 import { setup } from "@freyr/shared/utils";
 
 export const getConfig = () => {
@@ -27,9 +26,21 @@ export const getConfig = () => {
             name: "OrderExecuted",
             fn: "handleOrderExecuted",
         },
+        {
+            name: "PositionIncrease",
+            fn: "handlePositionIncrease",
+        },
+        {
+            name: "PositionDecrease",
+            fn: "handlePositionDecrease",
+        },
+        {
+            name: "PositionFeesCollected",
+            fn: "handlePositionFeesCollected",
+        },
     ];
 
-    const config = {
+    const config: CheckpointConfig = {
         network_node_url: networkNodeUrl,
         sources: [
             {
@@ -46,8 +57,6 @@ export const getConfig = () => {
             },
         },
     };
-
-    fs.writeFileSync("./src/config.json", JSON.stringify(config, null, 2));
 
     return config;
 };

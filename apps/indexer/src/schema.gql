@@ -15,3 +15,21 @@ type Order {
     created_at: Int!
     created_at_block: Int!
 }
+
+type Position {
+    id: ID!
+    author: String!
+    key: String!
+    market: String!
+    is_long: Boolean!
+    collateral_amount: String!
+    collateral_token: String!
+    size_in_usd: UInt256!
+    size_delta_usd: UInt256!
+    size_in_tokens: UInt256!
+    is_closed: Boolean!
+    is_liquidated: Boolean!
+    tx_hash: String!
+    created_at: Int!
+    created_at_block: Int!
+}
