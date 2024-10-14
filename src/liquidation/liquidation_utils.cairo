@@ -31,8 +31,9 @@ fn create_liquidation_order(
     collateral_token: ContractAddress,
     is_long: bool
 ) -> felt252 {
-    let key = get_position_key(account, market, collateral_token, is_long);
-    let position = data_store.get_position(key);
+    let position_key = get_position_key(account, market, collateral_token, is_long);
+    let position = data_store.get_position(position_key);
+
     let callback_contract = get_saved_callback_contract(data_store, account, market);
     let acceptable_price = if position.is_long {
         0
@@ -46,8 +47,10 @@ fn create_liquidation_order(
     let trigger_price = 0;
     let min_output_amount = 0;
 
+    let nonce_key = get_next_key(data_store);
+
     let order = Order {
-        key,
+        key: nonce_key,
         order_type: OrderType::Liquidation,
         decrease_position_swap_type: DecreasePositionSwapType::SwapPnlTokenToCollateralToken,
         account,
@@ -68,7 +71,7 @@ fn create_liquidation_order(
         is_long: position.is_long,
         is_frozen: false,
     };
-    let nonce_key = get_next_key(data_store);
+
     data_store.set_order(nonce_key, order);
     event_emitter.emit_order_created(nonce_key, order);
 
