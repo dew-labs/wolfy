@@ -1,17 +1,6 @@
-import type { Contracts, Order, Token } from "@freyr/shared/interfaces";
+import { findUpSync } from "find-up";
 import fs from "node:fs";
 import readline from "node:readline";
-import {
-    createCall,
-    createSatoruContract,
-    executeAndWait,
-    getProvider,
-    OrderHandlerABI,
-    ProviderType,
-    SatoruContract,
-    StarknetChainId,
-    type SatoruContractAbi,
-} from "satoru-sdk";
 import {
     Account,
     CallData,
@@ -26,9 +15,22 @@ import {
     type RawArgs,
     type TypedContractV2,
 } from "starknet";
+import {
+    createCall,
+    createSatoruContract,
+    executeAndWait,
+    getProvider,
+    OrderHandlerABI,
+    ProviderType,
+    SatoruContract,
+    StarknetChainId,
+    type SatoruContractAbi,
+} from "satoru-sdk";
+
+import type { Contracts, Order, Token } from "@freyr/shared/interfaces";
+
 import { createLogger } from "./logger";
 import { setup } from "./setup";
-import { findUpSync } from "find-up";
 
 const logger = createLogger("Utils");
 
@@ -179,6 +181,22 @@ export function getNetworkConfig() {
     const account = new Account(provider, accountAddress, privateKey);
 
     return { net, chainId, account, hermesUrl };
+}
+
+export function getAccountFromProviders() {
+    const { chainId } = getNetAndChainId();
+
+    const provider = getProvider(ProviderType.HTTP, chainId);
+
+    if (!process.env.ACCOUNT_PRIVATE || !process.env.ACCOUNT_PUBLIC)
+        throw new Error("Missing required environment variables");
+
+    // Connect to account
+    const privateKey0: string = process.env.ACCOUNT_PRIVATE;
+    const account0Address: string = process.env.ACCOUNT_PUBLIC;
+    const account0 = new Account(provider, account0Address!, privateKey0!);
+
+    return account0;
 }
 
 export async function settingUp() {
@@ -445,7 +463,6 @@ export async function getSetPriceParams(account: Account, tokensWithPrices: [str
 }
 
 export async function executeOrder(
-    account: Account,
     order: Order,
     indexTokenAddress: string,
     longTokenAddress: string,
@@ -455,6 +472,7 @@ export async function executeOrder(
     executionShortPrice: bigint
 ): Promise<void> {
     const { chainId } = getNetAndChainId();
+    const account = getAccountFromProviders();
     const priceParams = await getSetPriceParams(account, [
         [indexTokenAddress, executionIndexPrice],
         [longTokenAddress, executionLongPrice],
