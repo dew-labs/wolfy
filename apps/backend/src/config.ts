@@ -1,21 +1,34 @@
-import { z } from "zod";
+import { createLogger } from "@freyr/shared/utils";
+import { t } from "elysia";
+import { TypeCompiler } from "elysia/type-system";
 
-const envSchema = z.object({
-  NET: z.enum(["main", "sepolia"]),
-  PORT: z.coerce.number().default(3002),
-  DATABASE_URL: z.string(),
+const logger = createLogger("BackendConfig");
+
+const envSchema = t.Object({
+    NET: t.Union([t.Literal("main"), t.Literal("sepolia")]),
+    BACKEND_PORT: t.String(),
+    DATABASE_URL: t.String(),
 });
 
-const envServer = envSchema.safeParse({
-  NET: process.env.NET,
-  PORT: process.env.BACKEND_PORT,
-  DATABASE_URL: process.env.DATABASE_URL,
-});
-
-if (!envServer.success) {
-  console.error(envServer.error.issues);
-  throw new Error("There is an error with the server environment variables");
-  process.exit(1);
+const compiler = TypeCompiler.Compile(envSchema);
+if (!compiler.Check(process.env)) {
+    const errors = [...compiler.Errors(process.env)];
+    const computedErrorMessages: Record<string, string[]> = {};
+    for (const { path, message } of errors) {
+        const envVarName = path.replace(/^\//, "");
+        if (!computedErrorMessages[envVarName]) {
+            computedErrorMessages[envVarName] = [];
+        }
+        computedErrorMessages[envVarName].push(message);
+    }
+    const errorTextParts: string[] = [
+        "Invalid environment variables",
+        ...Object.entries(computedErrorMessages).map(
+            ([varName, messages]) => `  ${varName} : ${messages.join(", ")}`
+        ),
+    ];
+    logger.error(errorTextParts.join("\n"));
+    process.exit(1);
 }
 
-export const config = envServer.data;
+export const config = compiler.Decode(process.env);

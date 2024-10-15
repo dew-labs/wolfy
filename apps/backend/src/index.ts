@@ -1,14 +1,16 @@
 import { Elysia } from "elysia";
 import { config } from "./config";
-import { tradesGroup } from "./groups/trades";
-import { orm } from "./orm";
+import { tradeRoute } from "./routes";
 
-const app = new Elysia().decorate("orm", orm);
+const app = new Elysia({ prefix: "/api/v1" })
+    .onAfterHandle(
+        ({ response }) =>
+            new Response(
+                JSON.stringify(response, (_, v) => (typeof v === "bigint" ? v.toString() : v)),
+                {}
+            )
+    )
+    .use(tradeRoute)
+    .listen(config.BACKEND_PORT);
 
-app.group("api", (api) => api.group("trades", tradesGroup));
-
-app.listen(config.PORT);
-
-console.log(
-  `🦊 Backend is running at ${app.server?.hostname}:${app.server?.port}`
-);
+console.log(`🦊 Backend is running at ${app.server?.hostname}:${app.server?.port}`);

@@ -7,9 +7,9 @@
   },
   "dependencies": {
     "elysia": "latest",
-    "zod": "^3.21.4",
     "drizzle-orm": "0.34.1",
-    "pg": "^8.10.0"
+    "pg": "^8.10.0",
+    "postgres-range": "^1.0.0"
   },
   "devDependencies": {
     "drizzle-kit": "0.25.0",
