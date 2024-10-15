@@ -1,0 +1,19 @@
+{
+  "name": "backend",
+  "scripts": {
+    "dev": "bun run --watch src/index.ts",
+    "sepolia:db:pull": "MISE_ENV=sepolia mise x -- bun run drizzle-kit pull",
+    "sepolia:dev": "MISE_ENV=sepolia mise x -- bun run dev"
+  },
+  "dependencies": {
+    "elysia": "latest",
+    "drizzle-orm": "0.34.1",
+    "pg": "^8.10.0",
+    "postgres-range": "^1.0.0"
+  },
+  "devDependencies": {
+    "drizzle-kit": "0.25.0",
+    "@types/pg": "8.11.10"
+  },
+  "module": "src/index.js"
+}
