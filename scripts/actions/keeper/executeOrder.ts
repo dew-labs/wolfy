@@ -100,7 +100,7 @@ async function executeOrder() {
     if (longTokenAddress !== indexTokenAddress) {
         const longTokenPriceInput = await ask("Long token price (usd)");
         longTokenContractPrice =
-            expandDecimals(BigInt(longTokenPriceInput), USD_DECIMALS) /
+            expandDecimals(longTokenPriceInput, USD_DECIMALS) /
             expandDecimals(1, longTokenDecimals);
     } else {
         longTokenContractPrice = executionContractPrice;
@@ -109,7 +109,7 @@ async function executeOrder() {
     if (shortTokenAddress !== indexTokenAddress) {
         const shortTokenPriceInput = await ask("Short token price (usd)");
         shortTokenContractPrice =
-            expandDecimals(BigInt(shortTokenPriceInput), USD_DECIMALS) /
+            expandDecimals(shortTokenPriceInput, USD_DECIMALS) /
             expandDecimals(1, shortTokenDecimals);
     } else {
         shortTokenContractPrice = executionContractPrice;
