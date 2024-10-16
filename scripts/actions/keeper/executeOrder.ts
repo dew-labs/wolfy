@@ -60,9 +60,10 @@ async function executeOrder() {
         key: orderKey,
         market: order.market,
         orderType,
+        isLong: order.is_long,
+        indexTokenAddress,
         triggerPrice,
         acceptablePrice,
-        isLong: order.is_long,
         sizeDeltaUsd,
     };
 
