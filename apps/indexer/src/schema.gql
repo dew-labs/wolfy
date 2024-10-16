@@ -3,7 +3,7 @@ scalar UInt256
 type Order {
     id: ID!
     account: String!
-    action: Int!
+    action: Int
     key: String!
     market: String!
     order_type: String!

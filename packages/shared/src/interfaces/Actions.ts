@@ -27,5 +27,4 @@ export enum Action {
     CancelStopLossOrder,
     FailedStopLossOrder,
     Liquidation,
-    None,
 }

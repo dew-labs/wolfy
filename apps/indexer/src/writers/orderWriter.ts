@@ -78,7 +78,7 @@ export const handleOrderExecuted: starknet.Writer = async ({ block, tx, rawEvent
 };
 
 
-const getOrderAction = (orderType: OrderType, isExecuted: boolean): Action => {
+const getOrderAction = (orderType: OrderType, isExecuted: boolean): Action | null => {
     switch (orderType) {
         case OrderType.MarketIncrease:
             return isExecuted ? Action.MarketIncrease : Action.RequestMarketIncrease;
@@ -88,6 +88,6 @@ const getOrderAction = (orderType: OrderType, isExecuted: boolean): Action => {
             return Action.Liquidation;
         default:
             // TODO: Update later for other actions
-            return Action.None;
+            return null;
     }
 }
