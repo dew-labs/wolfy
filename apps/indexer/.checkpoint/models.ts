@@ -8,7 +8,7 @@ export class Order extends Model {
 
     this.initialSet('id', id);
     this.initialSet('account', "");
-    this.initialSet('action', "");
+    this.initialSet('action', 0);
     this.initialSet('key', "");
     this.initialSet('market', "");
     this.initialSet('order_type', "");
@@ -56,11 +56,11 @@ export class Order extends Model {
     this.set('account', value);
   }
 
-  get action(): string {
+  get action(): number {
     return this.get('action');
   }
 
-  set action(value: string) {
+  set action(value: number) {
     this.set('action', value);
   }
 
