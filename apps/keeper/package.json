@@ -2,6 +2,8 @@
     "name": "keeper",
     "dependencies": {
         "@pythnetwork/hermes-client": "^1.0.4",
+        "graphql": "^16.9.0",
+        "graphql-request": "^7.1.0",
         "nanoevents": "^9.0.0",
         "p-retry": "^6.2.0"
     },
