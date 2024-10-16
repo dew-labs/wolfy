@@ -1,5 +1,4 @@
 import { cairoIntToBigInt, OrderType, toStarknetHexString } from "satoru-sdk";
-import { validateAndParseAddress } from "starknet";
 
 import { createLogger } from "@freyr/shared/utils";
 import { starknet } from "@snapshot-labs/checkpoint";
@@ -11,9 +10,9 @@ const logger = createLogger("PositionWriter");
 export const handlePositionIncrease: starknet.Writer = async ({ block, tx, rawEvent, event }) => {
     if (!block || !event || !rawEvent) return;
 
-    const author = validateAndParseAddress(rawEvent.from_address);
     const {
         position_key,
+        account,
         market: marketAddress,
         is_long,
         collateral_amount,
@@ -23,11 +22,11 @@ export const handlePositionIncrease: starknet.Writer = async ({ block, tx, rawEv
         size_in_tokens,
     } = event;
 
-    const positionKey = toStarknetHexString(position_key as bigint);
+    const positionKey = toStarknetHexString(position_key);
     const position = new Position(positionKey);
 
     Object.assign(position, {
-        author,
+        account: toStarknetHexString(account),
         key: positionKey,
         market: toStarknetHexString(marketAddress),
         is_long,
@@ -103,13 +102,14 @@ export const handlePositionFeesCollected: starknet.Writer = async ({
         logger.error(`Order not found for key: ${orderKey}`);
         return;
     }
-    const position = await Position.loadEntity(positionKey);
-    if (!position) {
-        logger.error(`Position not found for key: ${positionKey}`);
-        return;
-    }
 
     if (order.order_type === OrderType.Liquidation) {
+        const position = await Position.loadEntity(positionKey);
+        if (!position) {
+            logger.error(`Position not found for key: ${positionKey}`);
+            return;
+        }
+
         position.is_liquidated = true;
         await position.save();
 
