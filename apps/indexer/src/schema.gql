@@ -2,12 +2,13 @@ scalar UInt256
 
 type Order {
     id: ID!
-    author: String!
+    account: String!
     key: String!
     market: String!
     order_type: String!
     is_long: Boolean!
     index_token_address: String!
+    size_delta_usd: UInt256!
     trigger_price: UInt256!
     acceptable_price: UInt256!
     is_executed: Boolean!
@@ -18,7 +19,7 @@ type Order {
 
 type Position {
     id: ID!
-    author: String!
+    account: String!
     key: String!
     market: String!
     is_long: Boolean!

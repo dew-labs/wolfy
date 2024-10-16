@@ -7,12 +7,13 @@ export class Order extends Model {
     super(Order.tableName);
 
     this.initialSet('id', id);
-    this.initialSet('author', "");
+    this.initialSet('account', "");
     this.initialSet('key', "");
     this.initialSet('market', "");
     this.initialSet('order_type', "");
     this.initialSet('is_long', false);
     this.initialSet('index_token_address', "");
+    this.initialSet('size_delta_usd', "0");
     this.initialSet('trigger_price', "0");
     this.initialSet('acceptable_price', "0");
     this.initialSet('is_executed', false);
@@ -46,12 +47,12 @@ export class Order extends Model {
     this.set('id', value);
   }
 
-  get author(): string {
-    return this.get('author');
+  get account(): string {
+    return this.get('account');
   }
 
-  set author(value: string) {
-    this.set('author', value);
+  set account(value: string) {
+    this.set('account', value);
   }
 
   get key(): string {
@@ -92,6 +93,14 @@ export class Order extends Model {
 
   set index_token_address(value: string) {
     this.set('index_token_address', value);
+  }
+
+  get size_delta_usd(): string {
+    return this.get('size_delta_usd');
+  }
+
+  set size_delta_usd(value: string) {
+    this.set('size_delta_usd', value);
   }
 
   get trigger_price(): string {
@@ -150,7 +159,7 @@ export class Position extends Model {
     super(Position.tableName);
 
     this.initialSet('id', id);
-    this.initialSet('author', "");
+    this.initialSet('account', "");
     this.initialSet('key', "");
     this.initialSet('market', "");
     this.initialSet('is_long', false);
@@ -191,12 +200,12 @@ export class Position extends Model {
     this.set('id', value);
   }
 
-  get author(): string {
-    return this.get('author');
+  get account(): string {
+    return this.get('account');
   }
 
-  set author(value: string) {
-    this.set('author', value);
+  set account(value: string) {
+    this.set('account', value);
   }
 
   get key(): string {

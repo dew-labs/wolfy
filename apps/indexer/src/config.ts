@@ -1,3 +1,4 @@
+import fs from "node:fs";
 import { getContracts } from "@freyr/shared/utils";
 import { LogLevel, type CheckpointConfig } from "@snapshot-labs/checkpoint";
 import { EventEmitterABI } from "satoru-sdk";
@@ -57,6 +58,8 @@ export const getConfig = () => {
             },
         },
     };
+
+    fs.writeFileSync("src/config.json", JSON.stringify(config, null, 2));
 
     return config;
 };
