@@ -2,6 +2,9 @@ FROM oven/bun:alpine AS base
 
 WORKDIR /satoru
 
+ARG NET
+ENV NET=${NET}
+
 RUN mkdir apps
 
 COPY package.json ./
@@ -21,6 +24,7 @@ WORKDIR /satoru/apps/backend
 
 COPY apps/backend/src ./src
 COPY apps/backend/tsconfig.json ./tsconfig.json
+COPY apps/backend/drizzle ./drizzle
 
 ENV NODE_ENV=production
 CMD ["bun", "src/index.ts"]
