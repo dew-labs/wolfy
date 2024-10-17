@@ -1,8 +1,15 @@
 import fs from "node:fs";
 import { getContracts } from "@freyr/shared/utils";
 import { LogLevel, type CheckpointConfig } from "@snapshot-labs/checkpoint";
-import { EventEmitterABI } from "satoru-sdk";
+import { EventEmitterABI, SatoruEvent } from "satoru-sdk";
 import { setup } from "@freyr/shared/utils";
+import {
+    handleOrderCreated,
+    handleOrderExecuted,
+    handleOrderCancelled,
+    handlePositionDecrease,
+    handlePositionIncrease,
+} from "./writers";
 
 export const getConfig = () => {
     setup();
@@ -18,30 +25,27 @@ export const getConfig = () => {
     if (!eventEmitterAddress) {
         throw new Error("Missing required contracts: EventEmitter");
     }
+
     const events = [
         {
-            name: "OrderCreated",
-            fn: "handleOrderCreated",
+            name: SatoruEvent.OrderCreated,
+            fn: handleOrderCreated.name,
         },
         {
-            name: "OrderExecuted",
-            fn: "handleOrderExecuted",
+            name: SatoruEvent.OrderExecuted,
+            fn: handleOrderExecuted.name,
         },
         {
-            name: "OrderCancelled",
-            fn: "handleOrderCancelled",
+            name: SatoruEvent.OrderCancelled,
+            fn: handleOrderCancelled.name,
         },
         {
-            name: "PositionIncrease",
-            fn: "handlePositionIncrease",
+            name: SatoruEvent.PositionIncrease,
+            fn: handlePositionIncrease.name,
         },
         {
-            name: "PositionDecrease",
-            fn: "handlePositionDecrease",
-        },
-        {
-            name: "PositionFeesCollected",
-            fn: "handlePositionFeesCollected",
+            name: SatoruEvent.PositionDecrease,
+            fn: handlePositionDecrease.name,
         },
     ];
 

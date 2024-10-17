@@ -8,11 +8,11 @@ type Order {
     market: String!
     order_type: String!
     is_long: Boolean!
+    initial_collateral_token: String!
     index_token_address: String!
     size_delta_usd: UInt256!
     trigger_price: UInt256!
     acceptable_price: UInt256!
-    is_executed: Boolean!
     tx_hash: String!
     created_at: Int!
     created_at_block: Int!
@@ -29,8 +29,23 @@ type Position {
     size_in_usd: UInt256!
     size_delta_usd: UInt256!
     size_in_tokens: UInt256!
-    is_closed: Boolean!
-    is_liquidated: Boolean!
+    tx_hash: String!
+    created_at: Int!
+    created_at_block: Int!
+}
+
+type TradeHistory {
+    id: ID!
+    account: String!
+    key: String!
+    action: Int!
+    market: String!
+    is_long: Boolean!
+    order_size_usd: UInt256 # for Order
+    order_price: UInt256 # for Order
+    deposit_long_token_amount: UInt256 # for Deposit
+    deposit_short_token_amount: UInt256 # for Deposit
+    pool_market_token_amount: UInt256 # for Deposit and Withdrawal
     tx_hash: String!
     created_at: Int!
     created_at_block: Int!

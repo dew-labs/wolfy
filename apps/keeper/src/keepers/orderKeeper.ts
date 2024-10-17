@@ -18,6 +18,7 @@ import {
     measureExecutionTime,
     getTokenAddressToOrdersMap,
     setTokenAddressToOrdersMap,
+    isMarketOrder,
 } from "@freyr/shared/utils";
 
 import { getDataStoreContract } from "@freyr/shared/contracts";
@@ -68,9 +69,6 @@ const isOrderExecutable = (order: Order, executionPrice: bigint): boolean => {
             return false;
     }
 };
-
-const isMarketOrder = (orderType: OrderType): boolean =>
-    [OrderType.MarketDecrease, OrderType.MarketIncrease, OrderType.MarketSwap].includes(orderType);
 
 const addExecutingLimitOrder = (
     orderKey: string,
