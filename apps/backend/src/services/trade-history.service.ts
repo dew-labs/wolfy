@@ -30,7 +30,7 @@ export const getTradeHistory = async (
     }
 
     const [count, tradeHistory] = await Promise.all([
-        orm.$count(orders, or(...filters)),
+        orm.$count(orders, and(...filters)),
         orm.query.orders.findMany({
             columns: {
                 id: true,
