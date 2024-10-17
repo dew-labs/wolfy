@@ -2,11 +2,6 @@
 
 Keeper is a backend service designed to detect specific conditions, such as price changes or liquidation thresholds, and triggering automated actions in response
 
-## Tools
-
--   bun 1.1.26
--   mise (package manager)
-
 ## Local Environment Setup
 
 ### Setup steps
