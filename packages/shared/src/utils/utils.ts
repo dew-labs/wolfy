@@ -21,9 +21,12 @@ import {
     executeAndWait,
     getProvider,
     OrderHandlerABI,
+    OrderType,
+    poseidonHash,
     ProviderType,
     SatoruContract,
     StarknetChainId,
+    type Hashable,
     type SatoruContractAbi,
 } from "satoru-sdk";
 
@@ -508,4 +511,19 @@ export const measureExecutionTime = async <T>(
     const executionTime = endTime - startTime;
     logger.debug(`${logMessage} (in ${executionTime.toFixed(2)} ms)`);
     return result;
+};
+
+export const isMarketOrder = (orderType: OrderType): boolean =>
+    [OrderType.MarketDecrease, OrderType.MarketIncrease, OrderType.MarketSwap].includes(orderType);
+
+export const isLiquidationOrder = (orderType: OrderType): boolean =>
+    orderType === OrderType.Liquidation;
+
+export const hashPositionKey = (
+    account: Hashable,
+    market: Hashable,
+    collateralToken: Hashable,
+    isLong: boolean
+) => {
+    return poseidonHash([account, market, collateralToken, isLong]);
 };
