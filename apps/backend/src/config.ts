@@ -6,7 +6,7 @@ const logger = createLogger("BackendConfig");
 
 const envSchema = t.Object({
     NET: t.Union([t.Literal("main"), t.Literal("sepolia")]),
-    BACKEND_PORT: t.String(),
+    BACKEND_PORT: t.Optional(t.String()),
     DATABASE_URL: t.String(),
 });
 
