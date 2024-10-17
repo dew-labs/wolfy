@@ -1,1 +1,1 @@
-export * from './trades.route';
+export * from './trade-history.route';

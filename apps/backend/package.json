@@ -6,8 +6,9 @@
     "sepolia:dev": "MISE_ENV=sepolia mise x -- bun run dev"
   },
   "dependencies": {
-    "elysia": "latest",
+    "@elysiajs/swagger": "^1.1.5",
     "drizzle-orm": "0.34.1",
+    "elysia": "latest",
     "pg": "^8.10.0",
     "postgres-range": "^1.0.0"
   },

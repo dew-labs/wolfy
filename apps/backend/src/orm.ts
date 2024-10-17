@@ -8,6 +8,8 @@ const pool = new Pool({
     connectionString: config.DATABASE_URL,
 });
 
-const orm = drizzle(pool, { schema });
+const orm = drizzle(pool, { schema, logger: true });
+
+export type Orm = typeof orm;
 
 export const ormPlugin = new Elysia({ name: "orm" }).decorate("orm", orm);

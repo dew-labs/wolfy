@@ -1,15 +1,20 @@
+import { swagger } from "@elysiajs/swagger";
 import { Elysia } from "elysia";
 import { config } from "./config";
 import { tradeRoute } from "./routes";
 
-const app = new Elysia({ prefix: "/api/v1" })
-    .onAfterHandle(
-        ({ response }) =>
-            new Response(
-                JSON.stringify(response, (_, v) => (typeof v === "bigint" ? v.toString() : v)),
-                {}
-            )
-    )
+const app = new Elysia()
+    .use(swagger({
+        documentation: {
+            info: {
+                title: "Wolfy Backend",
+                version: "1.0.0",
+            },
+            tags: [
+                { name: "Trade History", description: "Trade history endpoints" },
+            ]
+        }
+    }))
     .use(tradeRoute)
     .listen(config.BACKEND_PORT);
 
