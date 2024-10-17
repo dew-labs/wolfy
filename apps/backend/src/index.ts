@@ -16,6 +16,6 @@ const app = new Elysia()
         })
     )
     .group("/api/v1", (app) => app.use(accountRoute))
-    .listen(config.BACKEND_PORT || 3000);
+    .listen(config.BACKEND_PORT || 3002);
 
 console.log(`🦊 Backend is running at ${app.server?.hostname}:${app.server?.port}`);
