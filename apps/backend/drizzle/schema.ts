@@ -19,6 +19,7 @@ export const orders = pgTable(
         blockRange: int8range("block_range").notNull(),
         id: varchar({ length: 256 }).notNull(),
         account: varchar({ length: 256 }).notNull(),
+        action: integer(),
         key: varchar({ length: 256 }).notNull(),
         market: varchar({ length: 256 }).notNull(),
         orderType: varchar("order_type", { length: 256 }).notNull(),
@@ -36,6 +37,7 @@ export const orders = pgTable(
         return {
             acceptablePriceIdx: index().using("btree", table.acceptablePrice.asc().nullsLast()),
             accountIdx: index().using("btree", table.account.asc().nullsLast()),
+            actionIdx: index().using("btree", table.action.asc().nullsLast()),
             createdAtBlockIdx: index().using("btree", table.createdAtBlock.asc().nullsLast()),
             createdAtIdx: index().using("btree", table.createdAt.asc().nullsLast()),
             idIdx: index().using("btree", table.id.asc().nullsLast()),
