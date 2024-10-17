@@ -1,22 +1,14 @@
-# fly.toml app configuration file generated for wolfy-backend-sepolia on 2024-10-17T20:23:16+07:00
-#
-# See https://fly.io/docs/reference/configuration/ for information about how to use this file.
-#
-
 app = 'wolfy-backend-sepolia'
 primary_region = 'iad'
 
 [build]
   dockerfile = './Dockerfile'
 
-  [build.args]
-    NET = 'sepolia'
-
 [http_service]
   internal_port = 3002
+  force_https = true
   auto_start_machines = true
   min_machines_running = 1
-  processes = ['app']
 
 [[vm]]
   memory = '1gb'

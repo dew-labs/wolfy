@@ -20,8 +20,8 @@ FROM base AS backend
 WORKDIR /satoru/apps/backend
 
 COPY apps/backend/src ./src
-COPY apps/backend/tsconfig.json ./tsconfig.json
 COPY apps/backend/drizzle ./drizzle
+COPY apps/backend/tsconfig.json ./tsconfig.json
 
 ENV NODE_ENV=production
 CMD ["bun", "src/index.ts"]
