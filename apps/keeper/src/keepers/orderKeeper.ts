@@ -2,8 +2,6 @@ import type { Emitter } from "nanoevents";
 import pRetry from "p-retry";
 import {
     cairoIntToBigInt,
-    createCall,
-    executeAndWait,
     getProvider,
     OrderType,
     parseOrderType,
@@ -18,15 +16,16 @@ import {
     executeOrder as utilExecuteOrder,
     getNetworkConfig,
     measureExecutionTime,
+    getTokenAddressToOrdersMap,
+    setTokenAddressToOrdersMap,
 } from "@freyr/shared/utils";
 
 import { getDataStoreContract } from "@freyr/shared/contracts";
 
-import { getExchangeRouterContract } from "@freyr/shared/contracts";
 import { EventHandlerTypes, type Order } from "@freyr/shared/interfaces";
 
-import { loadOrders, removeOrder, saveOrder } from "../services/orderPersistenceService";
 import { getOraclePrice } from "../services/pythPriceOracleService";
+import { fetchCreatedTriggerOrders } from "../graphql/services/orderService";
 
 const logger = createLogger("OrderExecutionKeeper");
 
@@ -73,41 +72,80 @@ const isOrderExecutable = (order: Order, executionPrice: bigint): boolean => {
 const isMarketOrder = (orderType: OrderType): boolean =>
     [OrderType.MarketDecrease, OrderType.MarketIncrease, OrderType.MarketSwap].includes(orderType);
 
-// TODO: immutable
 const addExecutingLimitOrder = (
     orderKey: string,
     executingLimitOrders: Set<string>
 ): Set<string> => {
-    return executingLimitOrders.add(orderKey);
+    return new Set(executingLimitOrders).add(orderKey);
 };
 
-// TODO: immutable
 const removeExecutingLimitOrder = (
     orderKey: string,
     executingLimitOrders: Set<string>
 ): Set<string> => {
-    executingLimitOrders.delete(orderKey);
-    return executingLimitOrders;
+    const newExecutingLimitOrders = new Set(executingLimitOrders);
+    newExecutingLimitOrders.delete(orderKey);
+    return newExecutingLimitOrders;
+};
+
+const addCreatedTriggerOrder = (order: Order): void => {
+    const indexTokenAddress = order.indexTokenAddress;
+    const tokenAddressToOrdersMap = getTokenAddressToOrdersMap();
+    if (!tokenAddressToOrdersMap[indexTokenAddress]) {
+        tokenAddressToOrdersMap[indexTokenAddress] = [];
+    }
+    tokenAddressToOrdersMap[indexTokenAddress].push(order);
+    setTokenAddressToOrdersMap(tokenAddressToOrdersMap);
+};
+
+const removeCreatedTriggerOrder = (orderKey: string, indexTokenAddress: string): void => {
+    const tokenAddressToOrdersMap = getTokenAddressToOrdersMap();
+    if (!tokenAddressToOrdersMap[indexTokenAddress]) {
+        logger.error(`Order ${orderKey}: No orders for token ${indexTokenAddress}`);
+        return;
+    }
+    tokenAddressToOrdersMap[indexTokenAddress] = tokenAddressToOrdersMap[indexTokenAddress].filter(
+        (order) => order.key !== orderKey
+    );
+    setTokenAddressToOrdersMap(tokenAddressToOrdersMap);
 };
 
 const isExecutingLimitOrder = (orderKey: string, executingLimitOrders: Set<string>): boolean => {
     return executingLimitOrders.has(orderKey);
 };
 
+const initializeCreatedTriggerOrders = async (): Promise<void> => {
+    const createdTriggerOrders = await fetchCreatedTriggerOrders();
+
+    const tokenAddressToOrdersMap = getTokenAddressToOrdersMap();
+    createdTriggerOrders.forEach((order) => {
+        const indexTokenAddress = order.indexTokenAddress;
+        if (!tokenAddressToOrdersMap[indexTokenAddress]) {
+            tokenAddressToOrdersMap[indexTokenAddress] = [];
+        }
+        tokenAddressToOrdersMap[indexTokenAddress].push(order);
+    });
+    setTokenAddressToOrdersMap(tokenAddressToOrdersMap);
+};
+
 export function createOrderKeeper(emitter: Emitter) {
     const { account, chainId } = getNetworkConfig();
 
     const dataStoreContract = getDataStoreContract(chainId, account);
-    const exchangeRouterContract = getExchangeRouterContract(chainId, account);
 
     let executingLimitOrders = new Set<string>();
+    initializeCreatedTriggerOrders();
 
     const onPriceChangedHandler = async (indexTokenAddress: string, oraclePrice: bigint) => {
-        const limitOrders: Record<string, Order[]> = loadOrders();
-        if (!limitOrders[indexTokenAddress] || limitOrders[indexTokenAddress].length === 0) return;
+        const tokenAddressToOrdersMap = getTokenAddressToOrdersMap();
+        if (
+            !tokenAddressToOrdersMap[indexTokenAddress] ||
+            tokenAddressToOrdersMap[indexTokenAddress].length === 0
+        )
+            return;
 
         await executeLimitOrdersIfExecutable(
-            limitOrders[indexTokenAddress],
+            tokenAddressToOrdersMap[indexTokenAddress],
             indexTokenAddress,
             oraclePrice
         );
@@ -137,6 +175,7 @@ export function createOrderKeeper(emitter: Emitter) {
         const order: Order = {
             key: orderKey,
             market: marketKeyString,
+            indexTokenAddress,
             orderType,
             isLong: is_long,
             sizeDeltaUsd,
@@ -152,19 +191,9 @@ export function createOrderKeeper(emitter: Emitter) {
             if (shouldTrigerOrderExecution(order, latestPrice)) {
                 await executeOrder(order);
             } else {
-                saveOrder(order, indexTokenAddress);
+                addCreatedTriggerOrder(order);
             }
         }
-    };
-
-    const onOrderCancelledHandler: SatoruEventHandler<SatoruEvent.OrderCancelled> = async (
-        event
-    ) => {
-        const { key, reason } = event;
-
-        const orderKey = toStarknetHexString(key);
-
-        // TODO: handle limit order to be removed from JSON
     };
 
     const executeOrder = async (order: Order): Promise<void> => {
@@ -231,7 +260,7 @@ export function createOrderKeeper(emitter: Emitter) {
                             order.key,
                             executingLimitOrders
                         );
-                        removeOrder(order.key, indexTokenAddress);
+                        removeCreatedTriggerOrder(order.key, indexTokenAddress);
                     } catch (error) {
                         logger.error(error, `Order ${order.key}: Failed to execute`);
                     }
@@ -248,7 +277,6 @@ export function createOrderKeeper(emitter: Emitter) {
             emitter.on(EventHandlerTypes.PriceChanged, onPriceChangedHandler);
 
             await wssProvider.subscribeTo(SatoruEvent.OrderCreated, onOrderCreatedHandler);
-            await wssProvider.subscribeTo(SatoruEvent.OrderCancelled, onOrderCancelledHandler);
         } catch (error) {
             logger.error(error, "Failed to start");
             throw error;

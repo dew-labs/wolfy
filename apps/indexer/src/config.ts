@@ -28,6 +28,10 @@ export const getConfig = () => {
             fn: "handleOrderExecuted",
         },
         {
+            name: "OrderCancelled",
+            fn: "handleOrderCancelled",
+        },
+        {
             name: "PositionIncrease",
             fn: "handlePositionIncrease",
         },

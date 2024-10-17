@@ -1,13 +1,17 @@
-import { cairoIntToBigInt, OrderType, toStarknetHexString } from "satoru-sdk";
-
 import { createLogger } from "@freyr/shared/utils";
-import { starknet } from "@snapshot-labs/checkpoint";
+import { cairoIntToBigInt, OrderType, SatoruEvent, toStarknetHexString } from "satoru-sdk";
 
 import { Order, Position } from "../../.checkpoint/models";
+import type { SatoruEventWriter } from "./type";
 
 const logger = createLogger("PositionWriter");
 
-export const handlePositionIncrease: starknet.Writer = async ({ block, tx, rawEvent, event }) => {
+export const handlePositionIncrease: SatoruEventWriter<SatoruEvent.PositionIncrease> = async ({
+    block,
+    tx,
+    rawEvent,
+    event,
+}) => {
     if (!block || !event || !rawEvent) return;
 
     const {
@@ -45,7 +49,12 @@ export const handlePositionIncrease: starknet.Writer = async ({ block, tx, rawEv
     logger.info(`Position created: ${position.id}`);
 };
 
-export const handlePositionDecrease: starknet.Writer = async ({ block, tx, rawEvent, event }) => {
+export const handlePositionDecrease: SatoruEventWriter<SatoruEvent.PositionDecrease> = async ({
+    block,
+    tx,
+    rawEvent,
+    event,
+}) => {
     if (!block || !event || !rawEvent) return;
 
     const {
@@ -57,7 +66,7 @@ export const handlePositionDecrease: starknet.Writer = async ({ block, tx, rawEv
         size_in_tokens,
     } = event;
 
-    const positionKey = toStarknetHexString(position_key as bigint);
+    const positionKey = toStarknetHexString(position_key);
     const position = await Position.loadEntity(positionKey);
     if (!position) {
         logger.error(`Position not found for key: ${positionKey}`);
@@ -73,7 +82,7 @@ export const handlePositionDecrease: starknet.Writer = async ({ block, tx, rawEv
         tx_hash: tx.transaction_hash,
     });
 
-    if (size_in_usd > 0) {
+    if (cairoIntToBigInt(size_in_usd) > 0) {
         await position.save();
 
         logger.info(`Position updated: ${position.id}`);
@@ -85,17 +94,14 @@ export const handlePositionDecrease: starknet.Writer = async ({ block, tx, rawEv
     }
 };
 
-export const handlePositionFeesCollected: starknet.Writer = async ({
-    block,
-    tx,
-    rawEvent,
-    event,
-}) => {
+export const handlePositionFeesCollected: SatoruEventWriter<
+    SatoruEvent.PositionFeesCollected
+> = async ({ block, tx, rawEvent, event }) => {
     if (!block || !event || !rawEvent) return;
 
     const { order_key, position_key } = event;
-    const orderKey = toStarknetHexString(order_key as bigint);
-    const positionKey = toStarknetHexString(position_key as bigint);
+    const orderKey = toStarknetHexString(order_key);
+    const positionKey = toStarknetHexString(position_key);
 
     const order = await Order.loadEntity(orderKey);
     if (!order) {

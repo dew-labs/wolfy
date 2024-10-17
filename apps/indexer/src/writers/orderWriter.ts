@@ -1,4 +1,10 @@
-import { cairoIntToBigInt, OrderType, parseOrderType, toStarknetHexString } from "satoru-sdk";
+import {
+    cairoIntToBigInt,
+    OrderType,
+    parseOrderType,
+    SatoruEvent,
+    toStarknetHexString,
+} from "satoru-sdk";
 
 import {
     type ContractMarket,
@@ -7,14 +13,19 @@ import {
     getMarket,
     getNetworkConfig,
 } from "@freyr/shared/utils";
-import { starknet } from "@snapshot-labs/checkpoint";
 
 import { Order } from "../../.checkpoint/models";
-import { Action } from "@freyr/shared/interfaces";
+import type { SatoruEventWriter } from "./type";
+import { Action } from "packages/shared/src/interfaces";
 
 const logger = createLogger("OrderWriter");
 
-export const handleOrderCreated: starknet.Writer = async ({ block, tx, rawEvent, event }) => {
+export const handleOrderCreated: SatoruEventWriter<SatoruEvent.OrderCreated> = async ({
+    block,
+    tx,
+    rawEvent,
+    event,
+}) => {
     if (!block || !event || !rawEvent) return;
 
     const {
@@ -22,10 +33,10 @@ export const handleOrderCreated: starknet.Writer = async ({ block, tx, rawEvent,
         account: accountAddress,
         order_type,
         market: marketAddress,
+        is_long,
         size_delta_usd,
         trigger_price,
         acceptable_price,
-        is_long,
     } = event.order;
 
     const orderKey = toStarknetHexString(key);
@@ -35,7 +46,7 @@ export const handleOrderCreated: starknet.Writer = async ({ block, tx, rawEvent,
 
     const market: ContractMarket = await getMarket(dataStoreContract, marketAddress);
 
-    const orderType = parseOrderType(order_type)
+    const orderType = parseOrderType(order_type);
 
     Object.assign(order, {
         account: toStarknetHexString(accountAddress),
@@ -44,6 +55,7 @@ export const handleOrderCreated: starknet.Writer = async ({ block, tx, rawEvent,
         market: toStarknetHexString(marketAddress),
         order_type: orderType,
         is_long,
+        index_token_address: toStarknetHexString(market.index_token),
         size_delta_usd: cairoIntToBigInt(size_delta_usd),
         trigger_price: cairoIntToBigInt(trigger_price),
         acceptable_price: cairoIntToBigInt(acceptable_price),
@@ -57,7 +69,12 @@ export const handleOrderCreated: starknet.Writer = async ({ block, tx, rawEvent,
     logger.info(`Order created: ${order.id}`);
 };
 
-export const handleOrderExecuted: starknet.Writer = async ({ block, tx, rawEvent, event }) => {
+export const handleOrderExecuted: SatoruEventWriter<SatoruEvent.OrderExecuted> = async ({
+    block,
+    tx,
+    rawEvent,
+    event,
+}) => {
     if (!block || !event || !rawEvent) return;
 
     const key = toStarknetHexString(event.key);
@@ -77,6 +94,26 @@ export const handleOrderExecuted: starknet.Writer = async ({ block, tx, rawEvent
     logger.info(`Order executed: ${order.id}`);
 };
 
+export const handleOrderCancelled: SatoruEventWriter<SatoruEvent.OrderCancelled> = async ({
+    block,
+    tx,
+    rawEvent,
+    event,
+}) => {
+    if (!block || !event || !rawEvent) return;
+
+    const key = toStarknetHexString(event.key);
+
+    const order = await Order.loadEntity(key);
+    if (!order) {
+        logger.error(`Order not found for key: ${key}`);
+        return;
+    }
+
+    await order.delete();
+
+    logger.info(`Order cancelled: ${order.id}`);
+};
 
 const getOrderAction = (orderType: OrderType, isExecuted: boolean): Action | null => {
     switch (orderType) {
@@ -90,4 +127,4 @@ const getOrderAction = (orderType: OrderType, isExecuted: boolean): Action | nul
             // TODO: Update later for other actions
             return null;
     }
-}
+};

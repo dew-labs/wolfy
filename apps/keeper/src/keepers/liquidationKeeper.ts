@@ -17,6 +17,7 @@ import {
     getContracts,
     getMarket,
     getNetworkConfig,
+    getOpenPositionKeys,
     getPosition,
     getSetPriceParams,
     measureExecutionTime,
@@ -24,7 +25,6 @@ import {
     type ContractPosition,
 } from "@freyr/shared/utils";
 
-import { loadPositions } from "../services/positionPersistenceService";
 import { getOraclePrice } from "../services/pythPriceOracleService";
 
 const logger = createLogger("LiquidationKeeper");
@@ -179,9 +179,9 @@ const checkAndLiquidatePositions = async (contractSetup: ContractSetup) => {
     logger.debug("Checking positions...");
 
     try {
-        const positions = loadPositions();
+        const positionKeys = await getOpenPositionKeys();
         await Promise.allSettled(
-            positions.map((position) => processPosition(position, contractSetup))
+            positionKeys.map((positionKey) => processPosition(positionKey, contractSetup))
         );
     } catch (error) {
         logger.error(error, "Error during position check:");
