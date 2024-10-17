@@ -2,9 +2,6 @@ FROM oven/bun:alpine AS base
 
 WORKDIR /satoru
 
-ARG NET
-ENV NET=${NET}
-
 RUN mkdir apps
 
 COPY package.json ./
