@@ -1,4 +1,3 @@
-import { int8range } from "apps/backend/drizzle/types/int8Range";
 import {
     bigint,
     boolean,
@@ -10,6 +9,7 @@ import {
     uuid,
     varchar,
 } from "drizzle-orm/pg-core";
+import { int8range } from "./types/int8Range";
 
 export const orders = pgTable(
     "orders",
