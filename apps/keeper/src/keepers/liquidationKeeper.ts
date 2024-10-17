@@ -17,6 +17,7 @@ import {
     getContracts,
     getMarket,
     getNetworkConfig,
+    getOpenPositionKeys,
     getPosition,
     getSetPriceParams,
     measureExecutionTime,
@@ -25,7 +26,6 @@ import {
 } from "@freyr/shared/utils";
 
 import { getOraclePrice } from "../services/pythPriceOracleService";
-import { fetchOpenPositionKeys } from "../graphql/services/positionService";
 
 const logger = createLogger("LiquidationKeeper");
 
@@ -180,7 +180,7 @@ const checkAndLiquidatePositions = async (contractSetup: ContractSetup) => {
 
     try {
         // TODO: improve performance here
-        const positionKeys = await fetchOpenPositionKeys();
+        const positionKeys = await getOpenPositionKeys();
         await Promise.allSettled(
             positionKeys.map((positionKey) => processPosition(positionKey, contractSetup))
         );

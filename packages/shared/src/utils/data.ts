@@ -14,3 +14,13 @@ export const setTokenAddressToOrdersMap = (data: Record<string, Order[]>) => {
 export const getTokenAddressToOrdersMap = () => {
     return tokenAddressToOrdersMap;
 };
+
+let openPositionKeys: string[] = [];
+
+export const setOpenPositionKeys = (data: string[]) => {
+    openPositionKeys = data;
+};
+
+export const getOpenPositionKeys = () => {
+    return openPositionKeys;
+};
