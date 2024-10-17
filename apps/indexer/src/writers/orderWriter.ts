@@ -1,4 +1,4 @@
-import { cairoIntToBigInt, parseOrderType, toStarknetHexString } from "satoru-sdk";
+import { cairoIntToBigInt, OrderType, parseOrderType, toStarknetHexString } from "satoru-sdk";
 
 import {
     type ContractMarket,
@@ -10,6 +10,7 @@ import {
 import { starknet } from "@snapshot-labs/checkpoint";
 
 import { Order } from "../../.checkpoint/models";
+import { Action } from "@freyr/shared/interfaces";
 
 const logger = createLogger("OrderWriter");
 
@@ -34,11 +35,14 @@ export const handleOrderCreated: starknet.Writer = async ({ block, tx, rawEvent,
 
     const market: ContractMarket = await getMarket(dataStoreContract, marketAddress);
 
+    const orderType = parseOrderType(order_type)
+
     Object.assign(order, {
         account: toStarknetHexString(accountAddress),
+        action: getOrderAction(orderType, false),
         key: orderKey,
         market: toStarknetHexString(marketAddress),
-        order_type: parseOrderType(order_type),
+        order_type: orderType,
         is_long,
         size_delta_usd: cairoIntToBigInt(size_delta_usd),
         trigger_price: cairoIntToBigInt(trigger_price),
@@ -66,8 +70,24 @@ export const handleOrderExecuted: starknet.Writer = async ({ block, tx, rawEvent
 
     order.is_executed = true;
     order.tx_hash = tx.transaction_hash;
+    order.action = getOrderAction(order.order_type as OrderType, true);
 
     await order.save();
 
     logger.info(`Order executed: ${order.id}`);
 };
+
+
+const getOrderAction = (orderType: OrderType, isExecuted: boolean): Action | null => {
+    switch (orderType) {
+        case OrderType.MarketIncrease:
+            return isExecuted ? Action.MarketIncrease : Action.RequestMarketIncrease;
+        case OrderType.MarketDecrease:
+            return isExecuted ? Action.MarketDecrease : Action.RequestMarketDecrease;
+        case OrderType.Liquidation:
+            return Action.Liquidation;
+        default:
+            // TODO: Update later for other actions
+            return null;
+    }
+}
