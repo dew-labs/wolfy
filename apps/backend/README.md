@@ -34,3 +34,30 @@ bun install
 ```bash
 bun run sepolia:dev
 ```
+
+## Deployment
+
+### 1. Change the directory to root
+
+### 2. Build Docker image (for testing )
+
+```bash
+docker build -f apps/backend/Dockerfile -t backend .
+```
+
+### 3. Deploy onto Fly.io
+
+```bash
+# Launch
+fly launch --org dew-labs --config apps/backend/fly.sepolia.toml
+
+# Inject secrets
+flyctl secrets import --app wolfy-backend-sepolia < .env.sepolia
+
+# Deploy
+fly deploy --config apps/backend/fly.sepolia.toml
+
+# Tail logs
+fly logs --app wolfy-backend-sepolia
+
+```
