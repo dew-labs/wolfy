@@ -12,10 +12,11 @@ const logger = createLogger("OrderService");
 
 export const fetchCreatedTriggerOrders = async () => {
     try {
-        const response = (await client.request(
+        // TODO: use typebox to validate the response
+        const response = await client.request<CreatedTriggerOrdersQueryResponse>(
             CREATED_TRIGGER_ORDERS_QUERY,
             CREATED_TRIGGER_ORDERS_QUERY_VARIABLES
-        )) as CreatedTriggerOrdersQueryResponse;
+        );
 
         const orders: Order[] = response.orders.map((order) => {
             return {

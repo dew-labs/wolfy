@@ -11,10 +11,11 @@ const logger = createLogger("OrderService");
 
 export const fetchOpenPositionKeys = async () => {
     try {
-        const response = (await client.request(
+        // TODO: use typebox to validate the response
+        const response = await client.request<OpenPositionsQueryResponse>(
             OPEN_POSITIONS_QUERY,
             OPEN_POSITIONS_QUERY_VARIABLES
-        )) as OpenPositionsQueryResponse;
+        );
 
         const positionKeys = response.positions.map((position) => position.key);
         return positionKeys;

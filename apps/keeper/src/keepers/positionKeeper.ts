@@ -49,14 +49,14 @@ const initializeOpenPositionKeys = async (): Promise<void> => {
 };
 
 const onPositionIncreasedHandler: SatoruEventHandler<SatoruEvent.PositionIncrease> = (event) => {
-    const positionKey = toStarknetHexString(event.position_key as bigint);
+    const positionKey = toStarknetHexString(event.position_key);
     addOpenPositionKey(positionKey);
 };
 
 const onPositionDecreasedHandler: (
     dataStoreContract: TypedContractV2<SatoruContractAbi<SatoruContract.DataStore>>
 ) => SatoruEventHandler<SatoruEvent.PositionDecrease> = (dataStoreContract) => async (event) => {
-    const positionKey = toStarknetHexString(event.position_key as bigint);
+    const positionKey = toStarknetHexString(event.position_key);
     const position: ContractPosition = await getPosition(dataStoreContract, positionKey);
     if (cairoIntToBigInt(position.size_in_usd) > 0n) {
         return;

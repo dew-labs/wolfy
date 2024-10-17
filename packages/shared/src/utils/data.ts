@@ -2,10 +2,13 @@ import { type Order } from "../interfaces";
 import { getTokens } from "./utils";
 
 const tokens = getTokens();
-let tokenAddressToOrdersMap: Record<string, Order[]> = tokens.reduce((acc, token) => {
-    acc[token.address] = [];
-    return acc;
-}, {} as Record<string, Order[]>);
+let tokenAddressToOrdersMap: Record<string, Order[]> = tokens.reduce<Record<string, Order[]>>(
+    (acc, token) => {
+        acc[token.address] = [];
+        return acc;
+    },
+    {}
+);
 
 export const setTokenAddressToOrdersMap = (data: Record<string, Order[]>) => {
     tokenAddressToOrdersMap = data;

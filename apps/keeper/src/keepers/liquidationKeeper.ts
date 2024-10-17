@@ -179,7 +179,6 @@ const checkAndLiquidatePositions = async (contractSetup: ContractSetup) => {
     logger.debug("Checking positions...");
 
     try {
-        // TODO: improve performance here
         const positionKeys = await getOpenPositionKeys();
         await Promise.allSettled(
             positionKeys.map((positionKey) => processPosition(positionKey, contractSetup))

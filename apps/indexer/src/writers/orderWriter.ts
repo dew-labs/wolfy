@@ -1,4 +1,10 @@
-import { cairoIntToBigInt, OrderType, parseOrderType, toStarknetHexString } from "satoru-sdk";
+import {
+    cairoIntToBigInt,
+    OrderType,
+    parseOrderType,
+    SatoruEvent,
+    toStarknetHexString,
+} from "satoru-sdk";
 
 import {
     type ContractMarket,
@@ -7,14 +13,19 @@ import {
     getMarket,
     getNetworkConfig,
 } from "@freyr/shared/utils";
-import { starknet } from "@snapshot-labs/checkpoint";
 
 import { Order } from "../../.checkpoint/models";
-import { Action } from "@freyr/shared/interfaces";
+import type { SatoruEventWriter } from "./type";
+import { Action } from "packages/shared/src/interfaces";
 
 const logger = createLogger("OrderWriter");
 
-export const handleOrderCreated: starknet.Writer = async ({ block, tx, rawEvent, event }) => {
+export const handleOrderCreated: SatoruEventWriter<SatoruEvent.OrderCreated> = async ({
+    block,
+    tx,
+    rawEvent,
+    event,
+}) => {
     if (!block || !event || !rawEvent) return;
 
     const {
@@ -58,7 +69,12 @@ export const handleOrderCreated: starknet.Writer = async ({ block, tx, rawEvent,
     logger.info(`Order created: ${order.id}`);
 };
 
-export const handleOrderExecuted: starknet.Writer = async ({ block, tx, rawEvent, event }) => {
+export const handleOrderExecuted: SatoruEventWriter<SatoruEvent.OrderExecuted> = async ({
+    block,
+    tx,
+    rawEvent,
+    event,
+}) => {
     if (!block || !event || !rawEvent) return;
 
     const key = toStarknetHexString(event.key);
@@ -78,7 +94,12 @@ export const handleOrderExecuted: starknet.Writer = async ({ block, tx, rawEvent
     logger.info(`Order executed: ${order.id}`);
 };
 
-export const handleOrderCancelled: starknet.Writer = async ({ block, tx, rawEvent, event }) => {
+export const handleOrderCancelled: SatoruEventWriter<SatoruEvent.OrderCancelled> = async ({
+    block,
+    tx,
+    rawEvent,
+    event,
+}) => {
     if (!block || !event || !rawEvent) return;
 
     const key = toStarknetHexString(event.key);
