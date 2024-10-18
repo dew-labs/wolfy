@@ -5,13 +5,17 @@ import Checkpoint, { createGetLoader, starknet } from "@snapshot-labs/checkpoint
 import { getConfig, options } from "./config";
 import * as writers from "./writers";
 import { createLogger } from "@freyr/shared/utils";
-import { StarknetIndexer } from "@snapshot-labs/checkpoint/dist/src/providers/starknet";
+import {
+    StarknetIndexer,
+    type Writer,
+} from "@snapshot-labs/checkpoint/dist/src/providers/starknet";
 
 const logger = createLogger("Indexer");
 
 const schema = fs.readFileSync(`${__dirname}/schema.gql`, "utf8");
 
-const createIndexer = () => new starknet.StarknetIndexer(writers);
+const createIndexer = () =>
+    new starknet.StarknetIndexer(writers as unknown as Record<string, Writer>);
 const createCheckpoint = (indexer: StarknetIndexer) => {
     const config = getConfig();
 
