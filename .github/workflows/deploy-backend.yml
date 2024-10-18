@@ -10,7 +10,7 @@ on:
 
 jobs:
   deploy:
-    name: Deploy Indexer
+    name: Deploy Backend
     runs-on: ubuntu-latest
     concurrency: deploy-group # optional: ensure only one action runs at a time
     steps:
