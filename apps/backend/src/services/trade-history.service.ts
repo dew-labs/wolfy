@@ -1,5 +1,6 @@
 import { and, desc, eq, gte, inArray, lte } from "drizzle-orm";
 import { tradehistories } from "../../drizzle/schema";
+import { lower } from '../../drizzle/utils';
 import type { TradeHistoryQuery, TradeHistoryResponse } from "../models/trade-history.model";
 import type { Orm } from "../orm";
 
@@ -8,7 +9,7 @@ export const getTradeHistory = async (
     address: string,
     { actions, markets, from, to, page, limit, isLong }: TradeHistoryQuery
 ): Promise<TradeHistoryResponse> => {
-    const filters = [eq(tradehistories.account, address)];
+    const filters = [eq(lower(tradehistories.account),  address.toLowerCase())];
 
     if (actions) {
         const actionFilter = actions
