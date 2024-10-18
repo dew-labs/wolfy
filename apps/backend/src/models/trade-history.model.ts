@@ -1,5 +1,6 @@
 import { t } from "elysia";
 import Paginate from "./pagination.model";
+import { TradeHistoryAction } from "packages/shared/src/interfaces";
 
 const tradeHistoryQuery = t.Object({
     actions: t.Optional(
@@ -26,7 +27,7 @@ const tradeHistoryEntry = t.Object({
     depositShortTokenAmount: t.Nullable(t.String()),
     poolMarketTokenAmount: t.Nullable(t.String()),
     isLong: t.Boolean(),
-    action: t.Number(),
+    action: t.Enum(TradeHistoryAction),
     market: t.String(),
 });
 
