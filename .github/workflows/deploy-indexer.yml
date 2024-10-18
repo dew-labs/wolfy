@@ -6,6 +6,7 @@ on:
     paths:
       - apps/indexer/**
       - packages/shared/**
+  workflow_dispatch:
 
 jobs:
   deploy:

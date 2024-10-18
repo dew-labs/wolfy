@@ -6,6 +6,7 @@ on:
     paths:
       - apps/keeper/**
       - packages/shared/**
+  workflow_dispatch:
 
 jobs:
   deploy:
