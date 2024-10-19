@@ -13,6 +13,9 @@ const app = new Elysia()
                 },
                 tags: [{ name: "Account", description: "Account endpoints" }],
             },
+            scalarConfig: {
+                proxy: "",
+            },
         })
     )
     .group("/api/v1", (app) => app.use(accountRoute))
