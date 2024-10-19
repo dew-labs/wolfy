@@ -3,3 +3,7 @@ export * from "./order/orderCreated";
 export * from "./order/orderExecuted";
 export * from "./position/positionDecrease";
 export * from "./position/positionIncrease";
+export * from "./deposit/depositCreated";
+export * from "./deposit/depositExecuted";
+export * from "./withdrawal/withdrawalCreated";
+export * from "./withdrawal/withdrawalExecuted";

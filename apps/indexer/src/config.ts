@@ -9,6 +9,10 @@ import {
     handleOrderCancelled,
     handlePositionDecrease,
     handlePositionIncrease,
+    handleDepositExecuted,
+    handleDepositCreated,
+    handleWithdrawalExecuted,
+    handleWithdrawalCreated,
 } from "./writers";
 
 export const getConfig = () => {
@@ -46,6 +50,22 @@ export const getConfig = () => {
         {
             name: SatoruEvent.PositionDecrease,
             fn: handlePositionDecrease.name,
+        },
+        {
+            name: SatoruEvent.DepositCreated,
+            fn: handleDepositCreated.name,
+        },
+        {
+            name: SatoruEvent.DepositExecuted,
+            fn: handleDepositExecuted.name,
+        },
+        {
+            name: SatoruEvent.WithdrawalCreated,
+            fn: handleWithdrawalCreated.name,
+        },
+        {
+            name: SatoruEvent.WithdrawalExecuted,
+            fn: handleWithdrawalExecuted.name,
         },
     ];
 
