@@ -26,8 +26,8 @@ const MARKETS_TO_DEPLOY = [
         indexTokenAddress: TOKENS.wfETH.address,
         longTokenAddress: TOKENS.wfETH.address,
         shortTokenAddress: TOKENS.wfUSD.address,
-        maxLongTokenPoolAmount: 5000, // 5000 ETH
-        maxShortTokenPoolAmount: 10000000, // 10,000,000 wfUSD
+        maxLongTokenPoolAmount: 500000, // 500,000 ETH
+        maxShortTokenPoolAmount: 1000000000, // 1,000,000,000 wfUSD
     },
     // ETH/USD (wfETH/DUSD)
     {
@@ -35,8 +35,8 @@ const MARKETS_TO_DEPLOY = [
         indexTokenAddress: TOKENS.wfETH.address,
         longTokenAddress: TOKENS.wfETH.address,
         shortTokenAddress: TOKENS.DUSD.address,
-        maxLongTokenPoolAmount: 5000, // 5000 ETH
-        maxShortTokenPoolAmount: 10000000, // 10,000,000 DUSD
+        maxLongTokenPoolAmount: 500000, // 500,000 ETH
+        maxShortTokenPoolAmount: 1000000000, // 1,000,000,000 DUSD
     },
     // STRK/USD (wfSTRK/wfUSD)
     {
@@ -44,8 +44,8 @@ const MARKETS_TO_DEPLOY = [
         indexTokenAddress: TOKENS.wfSTRK.address,
         longTokenAddress: TOKENS.wfSTRK.address,
         shortTokenAddress: TOKENS.wfUSD.address,
-        maxLongTokenPoolAmount: 24000000, // 24,000,000 wfSTRK
-        maxShortTokenPoolAmount: 10000000, // 10,000,000 wfUSD
+        maxLongTokenPoolAmount: 2400000000, // 2,400,000,000 wfSTRK
+        maxShortTokenPoolAmount: 1000000000, // 1,000,000,000 wfUSD
     },
     // STRK/USD (wfSTRK/DUSD)
     {
@@ -53,8 +53,8 @@ const MARKETS_TO_DEPLOY = [
         indexTokenAddress: TOKENS.wfSTRK.address,
         longTokenAddress: TOKENS.wfSTRK.address,
         shortTokenAddress: TOKENS.DUSD.address,
-        maxLongTokenPoolAmount: 24000000, // 24,000,000 wfSTRK
-        maxShortTokenPoolAmount: 10000000, // 10,000,000 DUSD
+        maxLongTokenPoolAmount: 2400000000, // 2,400,000,000 wfSTRK
+        maxShortTokenPoolAmount: 1000000000, // 1,000,000,000 DUSD
     },
     // BTC/USD (wfBTC/wfUSD)
     {
@@ -62,8 +62,8 @@ const MARKETS_TO_DEPLOY = [
         indexTokenAddress: TOKENS.wfBTC.address,
         longTokenAddress: TOKENS.wfBTC.address,
         shortTokenAddress: TOKENS.wfUSD.address,
-        maxLongTokenPoolAmount: 160, // 160 wfBTC
-        maxShortTokenPoolAmount: 10000000, // 10,000,000 wfUSD
+        maxLongTokenPoolAmount: 16000, // 16,000 wfBTC
+        maxShortTokenPoolAmount: 1000000000, // 1,000,000,000 wfUSD
     },
     // BTC/USD (wfBTC/DUSD)
     {
@@ -71,8 +71,8 @@ const MARKETS_TO_DEPLOY = [
         indexTokenAddress: TOKENS.wfBTC.address,
         longTokenAddress: TOKENS.wfBTC.address,
         shortTokenAddress: TOKENS.DUSD.address,
-        maxLongTokenPoolAmount: 160, // 160 wfBTC
-        maxShortTokenPoolAmount: 10000000, // 10,000,000 DUSD,
+        maxLongTokenPoolAmount: 16000, // 16,000 wfBTC
+        maxShortTokenPoolAmount: 1000000000, // 1,000,000,000 DUSD,
     },
 ];
 
