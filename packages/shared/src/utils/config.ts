@@ -1,2 +1,2 @@
 export const USD_DECIMALS = 30;
-export const LIQUIDATION_INTERVAL_MINUTES = 0.1;
+export const LIQUIDATION_INTERVAL_MINUTES = 0.5;

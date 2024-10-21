@@ -96,15 +96,26 @@ const addCreatedTriggerOrder = (order: Order): void => {
     setTokenAddressToOrdersMap(tokenAddressToOrdersMap);
 };
 
-const removeCreatedTriggerOrder = (orderKey: string, indexTokenAddress: string): void => {
+const removeCreatedTriggerOrder = (orderKey: string, indexTokenAddress?: string): void => {
     const tokenAddressToOrdersMap = getTokenAddressToOrdersMap();
-    if (!tokenAddressToOrdersMap[indexTokenAddress]) {
-        logger.error(`Order ${orderKey}: No orders for token ${indexTokenAddress}`);
-        return;
+    if (indexTokenAddress) {
+        if (!tokenAddressToOrdersMap[indexTokenAddress]) {
+            logger.error(`Order ${orderKey}: No orders for token ${indexTokenAddress}`);
+            return;
+        }
+        tokenAddressToOrdersMap[indexTokenAddress] = tokenAddressToOrdersMap[
+            indexTokenAddress
+        ].filter((order) => order.key !== orderKey);
+    } else {
+        Object.keys(tokenAddressToOrdersMap).forEach((tokenAddress) => {
+            const orders = tokenAddressToOrdersMap[tokenAddress];
+            if (!orders) return;
+            tokenAddressToOrdersMap[tokenAddress] = orders.filter(
+                (order) => order.key !== orderKey
+            );
+        });
     }
-    tokenAddressToOrdersMap[indexTokenAddress] = tokenAddressToOrdersMap[indexTokenAddress].filter(
-        (order) => order.key !== orderKey
-    );
+
     setTokenAddressToOrdersMap(tokenAddressToOrdersMap);
 };
 
@@ -194,6 +205,16 @@ export function createOrderKeeper(emitter: Emitter) {
         }
     };
 
+    const onOrderCancelledHandler: SatoruEventHandler<SatoruEvent.OrderCancelled> = async (
+        event
+    ) => {
+        const { key } = event;
+
+        const orderKey = toStarknetHexString(key);
+
+        removeCreatedTriggerOrder(orderKey);
+    };
+
     const executeOrder = async (order: Order): Promise<void> => {
         return await measureExecutionTime(async () => {
             const market = await dataStoreContract.get_market(order.market);
@@ -249,10 +270,12 @@ export function createOrderKeeper(emitter: Emitter) {
             limitOrders.map(async (order) => {
                 if (isExecutingLimitOrder(order.key, executingLimitOrders)) return;
 
-                executingLimitOrders = addExecutingLimitOrder(order.key, executingLimitOrders);
-
                 if (shouldTrigerOrderExecution(order, latestPrice)) {
                     try {
+                        executingLimitOrders = addExecutingLimitOrder(
+                            order.key,
+                            executingLimitOrders
+                        );
                         await executeOrder(order);
                         executingLimitOrders = removeExecutingLimitOrder(
                             order.key,
@@ -275,6 +298,7 @@ export function createOrderKeeper(emitter: Emitter) {
             emitter.on(EventHandlerTypes.PriceChanged, onPriceChangedHandler);
 
             await wssProvider.subscribeTo(SatoruEvent.OrderCreated, onOrderCreatedHandler);
+            await wssProvider.subscribeTo(SatoruEvent.OrderCancelled, onOrderCancelledHandler);
         } catch (error) {
             logger.error(error, "Failed to start");
             throw error;

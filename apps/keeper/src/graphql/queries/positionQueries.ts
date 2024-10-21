@@ -14,6 +14,4 @@ export const OPEN_POSITIONS_QUERY = gql`
     }
 `;
 
-export const OPEN_POSITIONS_QUERY_VARIABLES = {
-    where: { is_closed: false },
-};
+export const OPEN_POSITIONS_QUERY_VARIABLES = {};
