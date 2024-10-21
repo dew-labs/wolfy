@@ -35,7 +35,6 @@ const addOpenPositionKey = (key: string): void => {
 const removeOpenPositionKey = (key: string): void => {
     const openPositionKeys = getOpenPositionKeys();
     const index = openPositionKeys.indexOf(key);
-    console.log("🚀 ~ removeOpenPositionKey ~ index:", index);
     if (index > -1) {
         openPositionKeys.splice(index, 1);
     }

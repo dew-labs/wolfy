@@ -7,6 +7,7 @@ import {
     CREATED_TRIGGER_ORDERS_QUERY_VARIABLES,
     type CreatedTriggerOrdersQueryResponse,
 } from "../queries/orderQueries";
+import { cairoIntToBigInt } from "satoru-sdk";
 
 const logger = createLogger("OrderService");
 
@@ -25,15 +26,15 @@ export const fetchCreatedTriggerOrders = async () => {
                 orderType: order.order_type,
                 isLong: order.is_long,
                 indexTokenAddress: order.index_token_address,
-                sizeDeltaUsd: order.size_delta_usd,
-                triggerPrice: order.trigger_price,
-                acceptablePrice: order.acceptable_price,
+                sizeDeltaUsd: cairoIntToBigInt(order.size_delta_usd),
+                triggerPrice: cairoIntToBigInt(order.trigger_price),
+                acceptablePrice: cairoIntToBigInt(order.acceptable_price),
             };
         });
 
         return orders;
     } catch (error) {
-        logger.error("Error fetching created trigger orders:", error);
+        logger.error(error, "Error fetching created trigger orders:");
         return [];
     }
 };

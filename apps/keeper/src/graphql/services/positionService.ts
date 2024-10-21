@@ -20,7 +20,7 @@ export const fetchOpenPositionKeys = async () => {
         const positionKeys = response.positions.map((position) => position.key);
         return positionKeys;
     } catch (error) {
-        logger.error("Error fetching open positions:", error);
+        logger.error(error, "Error fetching open positions:");
         return [];
     }
 };

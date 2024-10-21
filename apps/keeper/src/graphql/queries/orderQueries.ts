@@ -31,7 +31,6 @@ export const CREATED_TRIGGER_ORDERS_QUERY = gql`
 
 export const CREATED_TRIGGER_ORDERS_QUERY_VARIABLES = {
     where: {
-        is_executed: false,
         order_type_in: [
             OrderType.LimitIncrease,
             OrderType.LimitDecrease,
