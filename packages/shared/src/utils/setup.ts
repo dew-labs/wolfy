@@ -8,17 +8,19 @@ import { getContracts, getNetAndChainId } from "./utils";
 
 function registerHttpProviders() {
     const { chainId } = getNetAndChainId();
-    const providerUrl = process.env.PROVIDER_URL;
+    const providerUrls = process.env.KEEPER_HTTP_PROVIDER_URLS;
 
-    if (!providerUrl) throw new Error("Missing PROVIDER_URL environment variable");
+    if (!providerUrls) throw new Error("Missing KEEPER_HTTP_PROVIDER_URLS environment variable");
 
-    registerProvider(ProviderType.HTTP, chainId, providerUrl);
+    providerUrls.split(",").forEach((url) => {
+        registerProvider(ProviderType.HTTP, chainId, url);
+    });
 }
 
 function registerWssProviders() {
     const { chainId } = getNetAndChainId();
-    const providerUrl = process.env.WSS_PROVIDER_URL;
-    if (!providerUrl) throw new Error("Missing WSS_PROVIDER_URL environment variable");
+    const providerUrl = process.env.KEEPER_WSS_PROVIDER_URL;
+    if (!providerUrl) throw new Error("Missing KEEPER_WSS_PROVIDER_URL environment variable");
     registerProvider(ProviderType.WSS, chainId, providerUrl);
 }
 

@@ -18,10 +18,10 @@ import {
 export const getConfig = () => {
     setup();
 
-    const networkNodeUrl = process.env.PROVIDER_URL;
+    const networkNodeUrl = process.env.INDEXER_PROVIDER_URL;
 
     if (!networkNodeUrl) {
-        throw new Error("Missing required environment variables: PROVIDER_URL");
+        throw new Error("Missing required environment variables: INDEXER_PROVIDER_URL");
     }
 
     const contracts = getContracts();
