@@ -8,7 +8,7 @@ use satoru::utils::i256::{i256, i256_new};
 #[test]
 fn test_apply_factor_u256() {
     let value: u256 = 10;
-    let factor: u256 = 1_000_000_000_000_000_000_000_000;
+    let factor: u256 = 1_0000000000000000000000000000000000;
     let result = precision::apply_factor_u256(value, factor);
     assert(result == 100000, 'should be 100000.');
 }
@@ -16,15 +16,15 @@ fn test_apply_factor_u256() {
 #[test]
 fn test_apply_factor_i256() {
     let value: u256 = 10;
-    let factor: i256 = i256_new(1_000_000_000_000_000_000_000_000, true);
+    let factor: i256 = i256_new(1_0000000000000000000000000000000000, true);
     let result = precision::apply_factor_i256(value, factor);
-    assert(result == i256_new(100000, true), 'should be -1OOO0O.');
+    assert(result == i256_new(100000, true), 'should be -100000.');
 }
 
 #[test]
 fn test_apply_factor_roundup_magnitude_positive() {
     let value: u256 = 15;
-    let factor: i256 = i256_new(30_000_000_000_000_000_000, false);
+    let factor: i256 = i256_new(30_0000000000000000000000000000, false);
     let roundup_magnitude = true;
     let result = precision::apply_factor_roundup_magnitude(value, factor, roundup_magnitude);
     assert(result == i256_new(5, false), 'should be 5.');
@@ -33,7 +33,7 @@ fn test_apply_factor_roundup_magnitude_positive() {
 #[test]
 fn test_apply_factor_roundup_magnitude_negative() {
     let value: u256 = 15;
-    let factor: i256 = i256_new(30_000_000_000_000_000_000, true);
+    let factor: i256 = i256_new(30_0000000000000000000000000000, true);
     let roundup_magnitude = true;
     let result = precision::apply_factor_roundup_magnitude(value, factor, roundup_magnitude);
     assert(result == i256_new(5, true), 'should be -5.');
@@ -42,7 +42,7 @@ fn test_apply_factor_roundup_magnitude_negative() {
 #[test]
 fn test_apply_factor_roundup_magnitude_no_rounding() {
     let value: u256 = 15;
-    let factor: i256 = i256_new(30_000_000_000_000_000_000, true);
+    let factor: i256 = i256_new(30_0000000000000000000000000000, true);
     let roundup_magnitude = false;
     let result = precision::apply_factor_roundup_magnitude(value, factor, roundup_magnitude);
     assert(result == i256_new(4, true), 'should be -4.');
@@ -182,7 +182,7 @@ fn test_apply_exponent_factor() {
 #[test]
 fn test_to_factor_roundup() {
     let value: u256 = 450000;
-    let divisor: u256 = 20_000_000_000_000_000_000_000_000; //2*10^25
+    let divisor: u256 = 20_0000000000000000000000000000000000; //2*10^35
     let roundup_magnitude = true;
     let result = precision::to_factor_roundup(value, divisor, roundup_magnitude);
     assert(result == 3, 'should be 3.');
@@ -191,7 +191,7 @@ fn test_to_factor_roundup() {
 #[test]
 fn test_to_factor() {
     let value: u256 = 450000;
-    let divisor: u256 = 20_000_000_000_000_000_000_000_000; // 2*10^25
+    let divisor: u256 = 20_0000000000000000000000000000000000; // 2*10^35
     let result = precision::to_factor(value, divisor);
     assert(result == 2, 'should be 2.');
 }
@@ -199,7 +199,7 @@ fn test_to_factor() {
 #[test]
 fn test_to_factor_ival_positive() {
     let value: i256 = i256_new(450000, false);
-    let divisor: u256 = 20_000_000_000_000_000_000_000_000; // 2*10^25
+    let divisor: u256 = 20_0000000000000000000000000000000000; // 2*10^35
     let result = precision::to_factor_ival(value, divisor);
     assert(result == i256_new(2, false), 'from positive integer value.');
 }
@@ -207,7 +207,7 @@ fn test_to_factor_ival_positive() {
 #[test]
 fn test_to_factor_ival_negative() {
     let value: i256 = i256_new(450000, true);
-    let divisor: u256 = 20_000_000_000_000_000_000_000_000; // 2*10^25
+    let divisor: u256 = 20_0000000000000000000000000000000000; // 2*10^35
     let result = precision::to_factor_ival(value, divisor);
     assert(result == i256_new(2, true), 'should be -2.');
 }
@@ -221,7 +221,7 @@ fn test_float_to_wei() {
 
 #[test]
 fn test_wei_to_float() {
-    let wei_value: u256 = 10_000_000_000_000_000_000_000_000; //10^25
+    let wei_value: u256 = 10_000000000000000000000000; //10^25
     let result = precision::wei_to_float(wei_value);
     assert(result == 10_000_000_000_000_000_000_000_000_000_000_000_000, 'should be 10^37');
 }
@@ -230,5 +230,5 @@ fn test_wei_to_float() {
 fn test_basis_points_to_float() {
     let basis_point: u256 = 1000;
     let result = precision::basis_points_to_float(basis_point);
-    assert(result == 10_000_000_000_000_000_000, 'should be 10^19');
+    assert(result == 10_0000000000000000000000000000, 'should be 10^29');
 }

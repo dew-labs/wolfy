@@ -39,6 +39,8 @@ use satoru::oracle::oracle::{IOracleDispatcher, IOracleDispatcherTrait};
 use satoru::swap::swap_handler::{ISwapHandlerDispatcher, ISwapHandlerDispatcherTrait};
 use satoru::order::base_order_utils::ExecuteOrderParamsContracts;
 use satoru::utils::i256::{i256, i256_new};
+use debug::PrintTrait;
+
 #[test]
 fn given_normal_conditions_when_get_position_key_then_works() {
     //
@@ -466,7 +468,7 @@ fn given_initial_total_borrowing_when_updating_then_correct_total_borrowing() {
     //Test
 
     //Update total borrowing
-    let next_position_size_in_usd: u256 = 1000000000000000;
+    let next_position_size_in_usd: u256 = 10000000000000000000000000;
     let next_position_borrowing_factor: u256 = 20000000;
 
     position_utils::update_total_borrowing(params, next_position_size_in_usd, next_position_borrowing_factor);
