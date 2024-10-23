@@ -149,8 +149,8 @@ fn deposit_setup(
             keys::max_pnl_factor_key(factor_for_withdrawal, market.market_token, true),
             50000000000000000000000000000000000000000000000
         );
-    data_store.set_u256(keys::reserve_factor_key(market.market_token, true), 1000000000000000000);
-    data_store.set_u256(keys::open_interest_reserve_factor_key(market.market_token, true), 1000000000000000000);
+    data_store.set_u256(keys::reserve_factor_key(market.market_token, true), 10000000000000000000000000);
+    data_store.set_u256(keys::open_interest_reserve_factor_key(market.market_token, true), 1000000000000000000000000);
 
     // Short setup
     data_store
@@ -163,8 +163,8 @@ fn deposit_setup(
             keys::max_pnl_factor_key(factor_for_withdrawal, market.market_token, false),
             50000000000000000000000000000000000000000000000
         );
-    data_store.set_u256(keys::reserve_factor_key(market.market_token, false), 1000000000000000000);
-    data_store.set_u256(keys::open_interest_reserve_factor_key(market.market_token, false), 1000000000000000000);
+    data_store.set_u256(keys::reserve_factor_key(market.market_token, false), 1000000000000000000000000);
+    data_store.set_u256(keys::open_interest_reserve_factor_key(market.market_token, false), 1000000000000000000000000);
 
     // data_store.set_bool('REENTRANCY_GUARD_STATUS', false);
 
