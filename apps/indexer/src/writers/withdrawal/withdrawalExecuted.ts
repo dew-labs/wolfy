@@ -1,11 +1,10 @@
-import { TradeHistory } from "apps/indexer/.checkpoint/models";
+import { Withdrawal } from "apps/indexer/.checkpoint/models";
 import { createLogger } from "@freyr/shared/utils";
-import { cairoIntToBigInt, OrderType, toStarknetHexString } from "satoru-sdk";
+import { OrderType, toStarknetHexString } from "satoru-sdk";
 
 import { type SatoruEventWriter } from "../type";
 
-import type { ParsedSatoruEvent, SatoruEvent } from "satoru-sdk";
-import type { FullBlock, Transaction } from "@snapshot-labs/checkpoint/dist/src/providers/starknet";
+import type { SatoruEvent } from "satoru-sdk";
 import { getTradeHistoryAction } from "../utils";
 import { TradeHistoryEvent } from "@freyr/shared/interfaces";
 
@@ -19,31 +18,15 @@ export const handleWithdrawalExecuted: SatoruEventWriter<SatoruEvent.WithdrawalE
 }) => {
     if (!block || !event || !rawEvent) return;
 
-    await saveOrRemovePosition(event, tx, block);
-};
-
-const saveOrRemovePosition = async (
-    event: ParsedSatoruEvent<SatoruEvent.WithdrawalExecuted>,
-    tx: Transaction,
-    block: FullBlock
-) => {
-    await saveTradeHistory(event, tx, block);
-};
-
-const saveTradeHistory = async (
-    event: ParsedSatoruEvent<SatoruEvent.WithdrawalExecuted>,
-    tx: Transaction,
-    block: FullBlock
-) => {
-    const { key } = event;
-
-    const tradeHistory = await TradeHistory.loadEntity(toStarknetHexString(key));
-    if (!tradeHistory) {
-        logger.error(`Trade history not found for key: ${key}`);
+    const key = toStarknetHexString(event.key);
+    const withdrawal = await Withdrawal.loadEntity(key);
+    if (!withdrawal) {
+        logger.error(`Withdrawal not found for key: ${key}`);
         return;
     }
 
-    Object.assign(tradeHistory, {
+    Object.assign(withdrawal, {
+        key,
         action: getTradeHistoryAction(
             TradeHistoryEvent.WithdrawalExecuted,
             OrderType.MarketDecrease
@@ -53,7 +36,7 @@ const saveTradeHistory = async (
         created_at_block: block.block_number,
     });
 
-    await tradeHistory.save();
+    await withdrawal.save();
 
-    logger.info(`Trade history created: ${tradeHistory.id}`);
+    logger.info(`WITHDRAWAL EXECUTED: ${withdrawal.id}`);
 };

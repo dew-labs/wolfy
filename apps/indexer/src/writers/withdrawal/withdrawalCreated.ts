@@ -1,11 +1,10 @@
-import { TradeHistory } from "apps/indexer/.checkpoint/models";
+import { Withdrawal } from "apps/indexer/.checkpoint/models";
 import { createLogger } from "@freyr/shared/utils";
 import { cairoIntToBigInt, OrderType, toStarknetHexString } from "satoru-sdk";
 
 import { type SatoruEventWriter } from "../type";
 
-import type { ParsedSatoruEvent, SatoruEvent } from "satoru-sdk";
-import type { FullBlock, Transaction } from "@snapshot-labs/checkpoint/dist/src/providers/starknet";
+import type { SatoruEvent } from "satoru-sdk";
 import { getTradeHistoryAction } from "../utils";
 import { TradeHistoryEvent } from "@freyr/shared/interfaces";
 
@@ -19,42 +18,31 @@ export const handleWithdrawalCreated: SatoruEventWriter<SatoruEvent.WithdrawalCr
 }) => {
     if (!block || !event || !rawEvent) return;
 
-    await saveOrRemovePosition(event, tx, block);
-};
+    const withdrawal = new Withdrawal(toStarknetHexString(event.key));
 
-const saveOrRemovePosition = async (
-    event: ParsedSatoruEvent<SatoruEvent.WithdrawalCreated>,
-    tx: Transaction,
-    block: FullBlock
-) => {
-    await saveTradeHistory(event, tx, block);
-};
-
-const saveTradeHistory = async (
-    event: ParsedSatoruEvent<SatoruEvent.WithdrawalCreated>,
-    tx: Transaction,
-    block: FullBlock
-) => {
-    const { key, account, market, market_token_amount } = event;
-
-    const tradeHistory = new TradeHistory(toStarknetHexString(key));
-
-    Object.assign(tradeHistory, {
-        account: toStarknetHexString(account),
-        key: toStarknetHexString(key),
+    Object.assign(withdrawal, {
+        key: toStarknetHexString(event.key),
+        account: toStarknetHexString(event.account),
+        receiver: toStarknetHexString(event.receiver),
+        market: toStarknetHexString(event.market),
         action: getTradeHistoryAction(
             TradeHistoryEvent.WithdrawalCreated,
             OrderType.MarketDecrease
         ),
-        market: toStarknetHexString(market),
-        is_long: false,
-        pool_market_token_amount: cairoIntToBigInt(market_token_amount),
+        min_long_token_amount: cairoIntToBigInt(event.min_long_token_amount),
+        min_short_token_amount: cairoIntToBigInt(event.min_short_token_amount),
+        long_token_swap_path: event.long_token_swap_path.snapshot.map(toStarknetHexString),
+        short_token_swap_path: event.short_token_swap_path.snapshot.map(toStarknetHexString),
+        market_token_amount: cairoIntToBigInt(event.market_token_amount),
+        execution_fee: cairoIntToBigInt(event.execution_fee),
+        callback_contract: toStarknetHexString(event.callback_contract),
+        callback_gas_limit: cairoIntToBigInt(event.callback_gas_limit),
         tx_hash: tx.transaction_hash,
         created_at: block.timestamp,
         created_at_block: block.block_number,
     });
 
-    await tradeHistory.save();
+    await withdrawal.save();
 
-    logger.info(`Trade history created: ${tradeHistory.id}`);
+    logger.info(`WITHDRAWAL CREATED: ${withdrawal.id}`);
 };

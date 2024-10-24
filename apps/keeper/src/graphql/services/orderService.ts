@@ -3,9 +3,9 @@ import type { Order } from "@freyr/shared/interfaces";
 
 import { client } from "../client";
 import {
-    CREATED_TRIGGER_ORDERS_QUERY,
-    CREATED_TRIGGER_ORDERS_QUERY_VARIABLES,
-    type CreatedTriggerOrdersQueryResponse,
+    TRIGGER_ORDERS_QUERY,
+    TRIGGER_ORDERS_QUERY_VARIABLES,
+    type TriggerOrdersQueryResponse,
 } from "../queries/orderQueries";
 import { cairoIntToBigInt } from "satoru-sdk";
 
@@ -14,9 +14,9 @@ const logger = createLogger("OrderService");
 export const fetchCreatedTriggerOrders = async () => {
     try {
         // TODO: use typebox to validate the response
-        const response = await client.request<CreatedTriggerOrdersQueryResponse>(
-            CREATED_TRIGGER_ORDERS_QUERY,
-            CREATED_TRIGGER_ORDERS_QUERY_VARIABLES
+        const response = await client.request<TriggerOrdersQueryResponse>(
+            TRIGGER_ORDERS_QUERY,
+            TRIGGER_ORDERS_QUERY_VARIABLES
         );
 
         const orders: Order[] = response.orders.map((order) => {

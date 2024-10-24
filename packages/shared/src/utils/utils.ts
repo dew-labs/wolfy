@@ -190,7 +190,6 @@ export function getAccountFromProviders() {
     const { chainId } = getNetAndChainId();
 
     const provider = getProvider(ProviderType.HTTP, chainId);
-    console.log("🚀 ~ getAccountFromProviders ~ provider:", provider.channel.nodeUrl);
 
     if (!process.env.ACCOUNT_PRIVATE || !process.env.ACCOUNT_PUBLIC)
         throw new Error("Missing required environment variables");

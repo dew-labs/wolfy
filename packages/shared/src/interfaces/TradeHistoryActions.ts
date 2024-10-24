@@ -62,6 +62,10 @@ export enum TradeHistoryAction {
 
     // Liquidation,
     Liquidation,
+
+    // Position
+    PositionIncrease,
+    PositionDecrease,
 }
 
 export enum TradeHistoryEvent {
@@ -83,4 +87,8 @@ export enum TradeHistoryEvent {
     WithdrawalExecuted,
     WithdrawalFailed,
     WithdrawalCancelled,
+
+    // Position
+    PositionIncrease,
+    PositionDecrease,
 }
