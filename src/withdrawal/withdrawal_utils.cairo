@@ -199,9 +199,9 @@ fn execute_withdrawal(
         WithdrawalError::INSUFFICIENT_MARKET_TOKENS(market_token_balance, withdrawal.market_token_amount);
     }
 
-    let _result = execute_withdrawal_(@params, withdrawal);
+    let result = execute_withdrawal_(@params, withdrawal);
 
-    params.event_emitter.emit_withdrawal_executed(params.key);
+    params.event_emitter.emit_withdrawal_executed(params.key, result.output_token, result.output_amount, result.secondary_output_token, result.secondary_output_amount);
 // TODO fix pay execution fees
 // gas_utils::pay_execution_fee_withdrawal(
 //     params.data_store,
