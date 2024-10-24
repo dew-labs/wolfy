@@ -18,7 +18,12 @@ export const handlePositionIncrease: SatoruEventWriter<SatoruEvent.PositionIncre
 }) => {
     if (!block || !event || !rawEvent) return;
 
-    const position = new Position(toStarknetHexString(event.position_key));
+    let position;
+    const key = toStarknetHexString(event.position_key);
+    position = await Position.loadEntity(key);
+    if (!position) {
+        position = new Position(key);
+    }
 
     Object.assign(position, {
         key: toStarknetHexString(event.position_key),
