@@ -2,6 +2,7 @@ import { Order } from "apps/indexer/.checkpoint/models";
 import { createLogger } from "@freyr/shared/utils";
 import {
     cairoIntToBigInt,
+    OrderType,
     parseDecreasePositionSwapType,
     parseOrderType,
     toStarknetHexString,
@@ -26,6 +27,10 @@ export const handleOrderCreated: SatoruEventWriter<SatoruEvent.OrderCreated> = a
     const key = toStarknetHexString(event.key);
     const order = new Order(key);
     const orderType = parseOrderType(event.order.order_type);
+
+    if (orderType === OrderType.Liquidation) {
+        return;
+    }
 
     Object.assign(order, {
         key,
