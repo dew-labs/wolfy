@@ -85,11 +85,9 @@ fn process_collateral(
     // e.g. if the originally calculated price impact is -$100, but the capped price impact is -$80
     // then priceImpactDiffUsd would be $20
 
-    //TODO uncomment this and should calculate price_impact_usd_ etc..
-    // let (price_impact_usd_, price_impact_diff_usd_, execution_price_) = get_execution_price(
-    //     params, cache.prices.index_token_price
-    // );
-    let (price_impact_usd_, price_impact_diff_usd_, execution_price_) = (i256_new(0, false), 0, 0);
+    let (price_impact_usd_, price_impact_diff_usd_, execution_price_) = get_execution_price(
+        params, cache.prices.index_token_price
+    );
 
     values.price_impact_usd = price_impact_usd_;
     values.price_impact_diff_usd = price_impact_diff_usd_;
