@@ -6,8 +6,10 @@ import {
     OrderType,
     parseOrderType,
     ProviderType,
+    SatoruContract,
     SatoruEvent,
     toStarknetHexString,
+    type SatoruContractAbi,
     type SatoruEventHandler,
 } from "satoru-sdk";
 
@@ -19,6 +21,7 @@ import {
     getTokenAddressToOrdersMap,
     setTokenAddressToOrdersMap,
     isMarketOrder,
+    getMarket,
 } from "@freyr/shared/utils";
 
 import { getDataStoreContract } from "@freyr/shared/contracts";
@@ -27,6 +30,7 @@ import { EventHandlerTypes, type Order } from "@freyr/shared/interfaces";
 
 import { getOraclePrice } from "../services/pythPriceOracleService";
 import { fetchCreatedTriggerOrders } from "../graphql/services/orderService";
+import type { TypedContractV2 } from "starknet";
 
 const logger = createLogger("OrderExecutionKeeper");
 
@@ -86,8 +90,7 @@ const removeExecutingLimitOrder = (
     return newExecutingLimitOrders;
 };
 
-const addCreatedTriggerOrder = (order: Order): void => {
-    const indexTokenAddress = order.indexTokenAddress;
+const addCreatedTriggerOrder = (order: Order, indexTokenAddress: string): void => {
     const tokenAddressToOrdersMap = getTokenAddressToOrdersMap();
     if (!tokenAddressToOrdersMap[indexTokenAddress]) {
         tokenAddressToOrdersMap[indexTokenAddress] = [];
@@ -98,23 +101,12 @@ const addCreatedTriggerOrder = (order: Order): void => {
 
 const removeCreatedTriggerOrder = (orderKey: string, indexTokenAddress?: string): void => {
     const tokenAddressToOrdersMap = getTokenAddressToOrdersMap();
-    if (indexTokenAddress) {
-        if (!tokenAddressToOrdersMap[indexTokenAddress]) {
-            logger.error(`Order ${orderKey}: No orders for token ${indexTokenAddress}`);
-            return;
-        }
-        tokenAddressToOrdersMap[indexTokenAddress] = tokenAddressToOrdersMap[
-            indexTokenAddress
-        ].filter((order) => order.key !== orderKey);
-    } else {
-        Object.keys(tokenAddressToOrdersMap).forEach((tokenAddress) => {
-            const orders = tokenAddressToOrdersMap[tokenAddress];
-            if (!orders) return;
-            tokenAddressToOrdersMap[tokenAddress] = orders.filter(
-                (order) => order.key !== orderKey
-            );
-        });
-    }
+
+    Object.keys(tokenAddressToOrdersMap).forEach((tokenAddress) => {
+        const orders = tokenAddressToOrdersMap[tokenAddress];
+        if (!orders) return;
+        tokenAddressToOrdersMap[tokenAddress] = orders.filter((order) => order.key !== orderKey);
+    });
 
     setTokenAddressToOrdersMap(tokenAddressToOrdersMap);
 };
@@ -123,12 +115,15 @@ const isExecutingLimitOrder = (orderKey: string, executingLimitOrders: Set<strin
     return executingLimitOrders.has(orderKey);
 };
 
-const initializeCreatedTriggerOrders = async (): Promise<void> => {
+const initializeCreatedTriggerOrders = async (
+    dataStoreContract: TypedContractV2<SatoruContractAbi<SatoruContract.DataStore>>
+): Promise<void> => {
     const createdTriggerOrders = await fetchCreatedTriggerOrders();
 
     const tokenAddressToOrdersMap = getTokenAddressToOrdersMap();
-    createdTriggerOrders.forEach((order) => {
-        const indexTokenAddress = order.indexTokenAddress;
+    createdTriggerOrders.forEach(async (order) => {
+        const market = await getMarket(dataStoreContract, order.market);
+        const indexTokenAddress = toStarknetHexString(market.index_token);
         if (!tokenAddressToOrdersMap[indexTokenAddress]) {
             tokenAddressToOrdersMap[indexTokenAddress] = [];
         }
@@ -143,7 +138,7 @@ export function createOrderKeeper(emitter: Emitter) {
     const dataStoreContract = getDataStoreContract(chainId, account);
 
     let executingLimitOrders = new Set<string>();
-    initializeCreatedTriggerOrders();
+    initializeCreatedTriggerOrders(dataStoreContract);
 
     const onPriceChangedHandler = async (indexTokenAddress: string, oraclePrice: bigint) => {
         const tokenAddressToOrdersMap = getTokenAddressToOrdersMap();
@@ -184,7 +179,6 @@ export function createOrderKeeper(emitter: Emitter) {
         const order: Order = {
             key: orderKey,
             market: marketKeyString,
-            indexTokenAddress,
             orderType,
             isLong: is_long,
             sizeDeltaUsd,
@@ -200,7 +194,7 @@ export function createOrderKeeper(emitter: Emitter) {
             if (shouldTrigerOrderExecution(order, latestPrice)) {
                 await executeOrder(order);
             } else {
-                addCreatedTriggerOrder(order);
+                addCreatedTriggerOrder(order, indexTokenAddress);
             }
         }
     };

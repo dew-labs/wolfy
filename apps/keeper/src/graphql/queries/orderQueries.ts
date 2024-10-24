@@ -21,7 +21,6 @@ export const TRIGGER_ORDERS_QUERY = gql`
             market
             order_type
             is_long
-            index_token_address
             size_delta_usd
             trigger_price
             acceptable_price
