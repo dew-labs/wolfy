@@ -4,9 +4,9 @@ import invariant from "tiny-invariant";
 
 export const getTradeHistoryAction = (
     event: TradeHistoryEvent,
-    type: OrderType
+    type: OrderType | ""
 ): TradeHistoryAction => {
-    const mapping: Partial<Record<`${TradeHistoryEvent}-${OrderType}`, TradeHistoryAction>> = {
+    const mapping: Partial<Record<`${typeof event}-${typeof type}`, TradeHistoryAction>> = {
         // Market Order
         // Market Increase
         [`${TradeHistoryEvent.OrderCreated}-${OrderType.MarketIncrease}`]:
@@ -111,6 +111,10 @@ export const getTradeHistoryAction = (
         // Liquidation
         [`${TradeHistoryEvent.OrderExecuted}-${OrderType.Liquidation}`]:
             TradeHistoryAction.Liquidation,
+
+        // Position
+        [`${TradeHistoryEvent.PositionIncrease}-`]: TradeHistoryAction.PositionIncrease,
+        [`${TradeHistoryEvent.PositionDecrease}-`]: TradeHistoryAction.PositionDecrease,
     };
 
     const action = mapping[`${event}-${type}`];
@@ -121,9 +125,9 @@ export const getTradeHistoryAction = (
 
 export const getTradeHistoryAndOrderType = (
     action: TradeHistoryAction
-): { event: TradeHistoryEvent; type: OrderType } => {
+): { event: TradeHistoryEvent; type: OrderType | "" } => {
     const mapping: Partial<
-        Record<TradeHistoryAction, { event: TradeHistoryEvent; type: OrderType }>
+        Record<TradeHistoryAction, { event: TradeHistoryEvent; type: OrderType | "" }>
     > = {
         // Market Order
         // Market Increase
@@ -310,6 +314,16 @@ export const getTradeHistoryAndOrderType = (
         [TradeHistoryAction.Liquidation]: {
             event: TradeHistoryEvent.OrderExecuted,
             type: OrderType.Liquidation,
+        },
+
+        // Position
+        [TradeHistoryAction.PositionIncrease]: {
+            event: TradeHistoryEvent.PositionIncrease,
+            type: "",
+        },
+        [TradeHistoryAction.PositionDecrease]: {
+            event: TradeHistoryEvent.PositionDecrease,
+            type: "",
         },
     };
 

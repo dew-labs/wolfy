@@ -1,18 +1,28 @@
-scalar UInt256
+scalar Int256
 
 type Order {
     id: ID!
-    account: String!
-    action: Int
     key: String!
+    account: String!
+    receiver: String!
     market: String!
+    action: Int!
     order_type: String!
     is_long: Boolean!
+    trigger_price: Int256!
+    acceptable_price: Int256!
+    size_delta_usd: Int256!
     initial_collateral_token: String!
-    index_token_address: String!
-    size_delta_usd: UInt256!
-    trigger_price: UInt256!
-    acceptable_price: UInt256!
+    initial_collateral_delta_amount: Int256!
+    is_frozen: Boolean!
+    swap_path: [String]!
+    decrease_position_swap_type: String!
+    execution_fee: Int256!
+    ui_fee_receiver: String!
+    callback_contract: String!
+    callback_gas_limit: Int256!
+    min_output_amount: Int256!
+    cancelled_reason: String
     tx_hash: String!
     created_at: Int!
     created_at_block: Int!
@@ -20,32 +30,76 @@ type Order {
 
 type Position {
     id: ID!
-    account: String!
     key: String!
+    order_key: Order!
+    account: String!
     market: String!
-    is_long: Boolean!
-    collateral_amount: String!
+    action: Int!
+    is_long: String!
+    execution_price: Int256!
+    base_pnl_usd: Int256
+    uncapped_base_pnl_usd: Int256
+    size_in_tokens: Int256!
+    size_in_usd: Int256!
+    size_delta_in_tokens: Int256!
+    size_delta_usd: Int256!
+    index_token_price_min: Int256!
+    index_token_price_max: Int256!
     collateral_token: String!
-    size_in_usd: UInt256!
-    size_delta_usd: UInt256!
-    size_in_tokens: UInt256!
+    collateral_token_price_min: Int256!
+    collateral_token_price_max: Int256!
+    collateral_amount: Int256!
+    collateral_delta_amount: Int256!
+    price_impact_amount: Int256!
+    price_impact_usd: Int256!
+    price_impact_diff_usd: Int256
+    borrowing_factor: Int256!
+    funding_fee_amount_per_size: Int256!
+    long_token_claimable_funding_amount_per_size: Int256!
+    short_token_claimable_funding_amount_per_size: Int256!
     tx_hash: String!
     created_at: Int!
     created_at_block: Int!
 }
 
-type TradeHistory {
+type Deposit {
     id: ID!
-    account: String!
     key: String!
-    action: Int!
+    account: String!
+    receiver: String!
     market: String!
-    is_long: Boolean!
-    order_size_usd: UInt256 # for Order
-    order_price: UInt256 # for Order
-    deposit_long_token_amount: UInt256 # for Deposit
-    deposit_short_token_amount: UInt256 # for Deposit
-    pool_market_token_amount: UInt256 # for Deposit and Withdrawal
+    action: Int!
+    long_token: String!
+    short_token: String!
+    long_token_amount: Int256!
+    short_token_amount: Int256!
+    long_token_swap_path: [String]!
+    short_token_swap_path: [String]!
+    min_market_tokens: Int256!
+    received_market_tokens: Int256
+    execution_fee: Int256!
+    callback_contract: String!
+    callback_gas_limit: Int256!
+    tx_hash: String!
+    created_at: Int!
+    created_at_block: Int!
+}
+
+type Withdrawal {
+    id: ID!
+    key: String!
+    account: String!
+    receiver: String!
+    market: String!
+    action: Int!
+    min_long_token_amount: Int256!
+    min_short_token_amount: Int256!
+    long_token_swap_path: [String]!
+    short_token_swap_path: [String]!
+    market_token_amount: Int256!
+    execution_fee: String!
+    callback_contract: String!
+    callback_gas_limit: String!
     tx_hash: String!
     created_at: Int!
     created_at_block: Int!

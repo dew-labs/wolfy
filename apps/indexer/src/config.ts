@@ -80,7 +80,7 @@ export const getConfig = () => {
             },
         ],
         decimal_types: {
-            UInt256: {
+            Int256: {
                 p: 78,
                 d: 0,
             },

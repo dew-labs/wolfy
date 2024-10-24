@@ -1,7 +1,7 @@
 import { gql } from "graphql-request";
 import { OrderType } from "satoru-sdk";
 
-export type CreatedTriggerOrdersQueryResponse = {
+export type TriggerOrdersQueryResponse = {
     orders: {
         key: string;
         market: string;
@@ -14,8 +14,8 @@ export type CreatedTriggerOrdersQueryResponse = {
     }[];
 };
 
-export const CREATED_TRIGGER_ORDERS_QUERY = gql`
-    query PendingOrders($where: Order_filter) {
+export const TRIGGER_ORDERS_QUERY = gql`
+    query TriggerOrders($where: Order_filter) {
         orders(where: $where) {
             key
             market
@@ -29,7 +29,7 @@ export const CREATED_TRIGGER_ORDERS_QUERY = gql`
     }
 `;
 
-export const CREATED_TRIGGER_ORDERS_QUERY_VARIABLES = {
+export const TRIGGER_ORDERS_QUERY_VARIABLES = {
     where: {
         order_type_in: [
             OrderType.LimitIncrease,

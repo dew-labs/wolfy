@@ -1,22 +1,17 @@
-import { Order, TradeHistory } from "apps/indexer/.checkpoint/models";
-import { TradeHistoryEvent } from "packages/shared/src/interfaces";
+import { Order } from "apps/indexer/.checkpoint/models";
+import { createLogger } from "@freyr/shared/utils";
 import {
-    createLogger,
-    getDataStoreContract,
-    getMarket,
-    getNetworkConfig,
-    isLiquidationOrder,
-    isMarketOrder,
-} from "packages/shared/src/utils";
-import { cairoIntToBigInt, parseOrderType, toStarknetHexString } from "satoru-sdk";
+    cairoIntToBigInt,
+    parseDecreasePositionSwapType,
+    parseOrderType,
+    toStarknetHexString,
+} from "satoru-sdk";
 
 import { type SatoruEventWriter } from "../type";
+
+import type { SatoruEvent } from "satoru-sdk";
 import { getTradeHistoryAction } from "../utils";
-
-import type { ContractMarket } from "packages/shared/src/utils";
-
-import type { ParsedSatoruEvent, SatoruEvent } from "satoru-sdk";
-import type { FullBlock, Transaction } from "@snapshot-labs/checkpoint/dist/src/providers/starknet";
+import { TradeHistoryEvent } from "@freyr/shared/interfaces";
 
 const logger = createLogger("OrderCreatedWriter");
 
@@ -28,52 +23,35 @@ export const handleOrderCreated: SatoruEventWriter<SatoruEvent.OrderCreated> = a
 }) => {
     if (!block || !event || !rawEvent) return;
 
-    await Promise.all([saveOrder(event, tx, block), saveTradeHistory(event, tx, block)]);
-};
-
-const saveOrder = async (
-    event: ParsedSatoruEvent<SatoruEvent.OrderCreated>,
-    tx: Transaction,
-    block: FullBlock
-) => {
-    const {
-        key,
-        account: accountAddress,
-        order_type,
-        market: marketAddress,
-        initial_collateral_token,
-        is_long,
-        size_delta_usd,
-        trigger_price,
-        acceptable_price,
-    } = event.order;
-
-    const orderType = parseOrderType(order_type);
-
-    // Not save order if it's a market order or liquidation order
-    if (isMarketOrder(orderType) || isLiquidationOrder(orderType)) {
-        return;
-    }
-
-    const orderKey = toStarknetHexString(key);
-    const order = new Order(orderKey);
-    const { chainId, account } = getNetworkConfig();
-    const dataStoreContract = getDataStoreContract(chainId, account);
-
-    const market: ContractMarket = await getMarket(dataStoreContract, marketAddress);
+    const key = toStarknetHexString(event.key);
+    const order = new Order(key);
+    const orderType = parseOrderType(event.order.order_type);
 
     Object.assign(order, {
-        account: toStarknetHexString(accountAddress),
+        key,
+        account: toStarknetHexString(event.order.account),
+        receiver: toStarknetHexString(event.order.receiver),
+        market: toStarknetHexString(event.order.market),
         action: getTradeHistoryAction(TradeHistoryEvent.OrderCreated, orderType),
-        key: orderKey,
-        market: toStarknetHexString(marketAddress),
         order_type: orderType,
-        is_long,
-        initial_collateral_token,
-        index_token_address: toStarknetHexString(market.index_token),
-        size_delta_usd: cairoIntToBigInt(size_delta_usd),
-        trigger_price: cairoIntToBigInt(trigger_price),
-        acceptable_price: cairoIntToBigInt(acceptable_price),
+        is_long: event.order.is_long,
+        trigger_price: cairoIntToBigInt(event.order.trigger_price),
+        acceptable_price: cairoIntToBigInt(event.order.acceptable_price),
+        size_delta_usd: cairoIntToBigInt(event.order.size_delta_usd),
+        initial_collateral_token: toStarknetHexString(event.order.initial_collateral_token),
+        initial_collateral_delta_amount: cairoIntToBigInt(
+            event.order.initial_collateral_delta_amount
+        ),
+        is_frozen: event.order.is_frozen,
+        swap_path: event.order.swap_path.snapshot.map(toStarknetHexString),
+        decrease_position_swap_type: parseDecreasePositionSwapType(
+            event.order.decrease_position_swap_type
+        ),
+        execution_fee: cairoIntToBigInt(event.order.execution_fee),
+        ui_fee_receiver: toStarknetHexString(event.order.ui_fee_receiver),
+        callback_contract: toStarknetHexString(event.order.callback_contract),
+        callback_gas_limit: cairoIntToBigInt(event.order.callback_gas_limit),
+        min_output_amount: cairoIntToBigInt(event.order.min_output_amount),
         tx_hash: tx.transaction_hash,
         created_at: block.timestamp,
         created_at_block: block.block_number,
@@ -81,40 +59,5 @@ const saveOrder = async (
 
     await order.save();
 
-    logger.info(`Order created: ${order.id}`);
-};
-
-const saveTradeHistory = async (
-    event: ParsedSatoruEvent<SatoruEvent.OrderCreated>,
-    tx: Transaction,
-    block: FullBlock
-) => {
-    const { key, account, order_type, market, is_long, size_delta_usd, trigger_price } =
-        event.order;
-
-    const orderType = parseOrderType(order_type);
-
-    // Not save trade history if it's a liquidation order, save it when order is executed
-    if (isLiquidationOrder(orderType)) {
-        return;
-    }
-
-    const tradeHistory = new TradeHistory(toStarknetHexString(key));
-
-    Object.assign(tradeHistory, {
-        account: toStarknetHexString(account),
-        key: toStarknetHexString(key),
-        action: getTradeHistoryAction(TradeHistoryEvent.OrderCreated, orderType),
-        market: toStarknetHexString(market),
-        is_long,
-        order_size_usd: cairoIntToBigInt(size_delta_usd),
-        order_price: cairoIntToBigInt(trigger_price),
-        tx_hash: tx.transaction_hash,
-        created_at: block.timestamp,
-        created_at_block: block.block_number,
-    });
-
-    await tradeHistory.save();
-
-    logger.info(`Trade history created: ${tradeHistory.id}`);
+    logger.info(`ORDER CREATED: ${order.id}`);
 };
