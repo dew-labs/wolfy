@@ -75,13 +75,16 @@ fn given_normal_conditions_when_emit_withdrawal_executed_then_works() {
     // Create dummy data.
     let key: felt252 = 100;
 
+    let output_token = contract_address_const::<'output_token'>();
+    let secondary_output_token = contract_address_const::<'secondary_output_token'>();
+
     // Emit the event.
-    event_emitter.emit_withdrawal_executed(key);
+    event_emitter.emit_withdrawal_executed(key, output_token, 0, secondary_output_token, 0);
 
     // Assert the event was emitted.
     spy
         .assert_emitted(
-            @array![(contract_address, EventEmitter::Event::WithdrawalExecuted(WithdrawalExecuted { key: key, }))]
+            @array![(contract_address, EventEmitter::Event::WithdrawalExecuted(WithdrawalExecuted { key: key, output_token, output_amount: 0, secondary_output_token, secondary_output_amount: 0 }))]
         );
     // Assert there are no more events.
     assert(spy.get_events().events.len() == 1, 'There should be no events');
