@@ -180,6 +180,7 @@ const checkAndLiquidatePositions = async (contractSetup: ContractSetup) => {
 
     try {
         const positionKeys = await getOpenPositionKeys();
+        logger.debug(positionKeys, `Found ${positionKeys.length} positions to check`);
         await Promise.allSettled(
             positionKeys.map((positionKey) => processPosition(positionKey, contractSetup))
         );
