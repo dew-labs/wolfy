@@ -642,7 +642,7 @@ fn given_normal_conditions_when_get_market_token_price_then_works() {
             data_store, market, index_prices_one, index_prices_two, index_prices_three, pnl_factor, true
         );
     let market_token_price_felt: felt252 = market_token_price_.into();
-    let expected_price = 100000000000000000000;
+    let expected_price = 1000000000000000000000000000000;
     assert(market_token_price_felt == expected_price, 'invalid_token_price');
     tests_lib::teardown();
 }

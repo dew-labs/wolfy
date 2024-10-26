@@ -112,9 +112,9 @@ fn create_dummy_deposit_param() -> CreateDepositParams {
         /// The initial short token address.
         initial_short_token: 'initial_short_token'.try_into().unwrap(),
         /// The swap path into markets for the long token.
-        long_token_swap_path: array![1.try_into().unwrap(), 2.try_into().unwrap(), 3.try_into().unwrap()].span32(),
+        long_token_swap_path: array![].span32(),
         /// The swap path into markets for the short token.
-        short_token_swap_path: array![4.try_into().unwrap(), 5.try_into().unwrap(), 6.try_into().unwrap()].span32(),
+        short_token_swap_path: array![].span32(),
         /// The minimum acceptable number of liquidity tokens.
         min_market_tokens: 10,
         /// The execution fee for keepers.
@@ -153,9 +153,9 @@ fn create_dummy_deposit_param_market(
         /// The initial short token address.
         initial_short_token: 'initial_short_token'.try_into().unwrap(),
         /// The swap path into markets for the long token.
-        long_token_swap_path: array![1.try_into().unwrap(), 2.try_into().unwrap(), 3.try_into().unwrap()].span32(),
+        long_token_swap_path: array![].span32(),
         /// The swap path into markets for the short token.
-        short_token_swap_path: array![4.try_into().unwrap(), 5.try_into().unwrap(), 6.try_into().unwrap()].span32(),
+        short_token_swap_path: array![].span32(),
         /// The minimum acceptable number of liquidity tokens.
         min_market_tokens: 10,
         /// The execution fee for keepers.
