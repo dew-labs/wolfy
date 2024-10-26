@@ -1048,14 +1048,18 @@ mod DataStore {
 
         fn get_position(self: @ContractState, key: felt252) -> Position {
             let offsetted_index: usize = self.position_indexes.read(key);
+
+            let mut pos: Position = Default::default();
+            pos.key = key;
+
             if offsetted_index == 0 {
-                return Default::default();
+                return pos;
             }
             let positions: List<Position> = self.positions.read();
             let position_maybe = positions.get(offsetted_index - 1).unwrap();
             match position_maybe {
                 Option::Some(position) => { position },
-                Option::None => { Default::default() }
+                Option::None => { pos }
             }
         }
 

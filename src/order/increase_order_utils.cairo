@@ -139,6 +139,7 @@ mod IncreaseOrderUtils {
             let mut position = params.contracts.data_store.get_position(position_key);
             // Initialize position
             if position.account.is_zero() {
+                position.key = position_key;
                 position.account = params.order.account;
                 if !position.market.is_zero() || !position.collateral_token.is_zero() {
                     panic_with_felt252(PositionError::UNEXPECTED_POSITION_STATE);
