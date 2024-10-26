@@ -12,4 +12,5 @@ trait IERC20<TState> {
     fn transfer_from(ref self: TState, sender: ContractAddress, recipient: ContractAddress, amount: u256) -> bool;
     fn approve(ref self: TState, spender: ContractAddress, amount: u256) -> bool;
     fn mint(ref self: TState, recipient: ContractAddress, amount: u256);
+    fn burn(ref self: TState, amount: u256);
 }
