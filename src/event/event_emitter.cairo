@@ -129,7 +129,7 @@ trait IEventEmitter<TContractState> {
     fn emit_withdrawal_created(ref self: TContractState, key: felt252, withdrawal: Withdrawal);
 
     /// Emits the `WithdrawalExecuted` event.
-    fn emit_withdrawal_executed(ref self: TContractState, key: felt252);
+    fn emit_withdrawal_executed(ref self: TContractState, key: felt252, output_token: ContractAddress, output_amount: u256, secondary_output_token: ContractAddress, secondary_output_amount: u256);
 
     /// Emits the `WithdrawalCancelled` event.
     fn emit_withdrawal_cancelled(ref self: TContractState, key: felt252, reason: felt252, reason_bytes: Span<felt252>);
@@ -804,7 +804,11 @@ mod EventEmitter {
 
     #[derive(Drop, starknet::Event)]
     struct WithdrawalExecuted {
-        key: felt252
+        key: felt252,
+        output_token: ContractAddress,
+        output_amount: u256,
+        secondary_output_token: ContractAddress,
+        secondary_output_amount: u256
     }
 
     #[derive(Drop, starknet::Event)]
@@ -1633,8 +1637,8 @@ mod EventEmitter {
         }
 
         /// Emits the `WithdrawalExecuted` event.
-        fn emit_withdrawal_executed(ref self: ContractState, key: felt252) {
-            self.emit(WithdrawalExecuted { key });
+        fn emit_withdrawal_executed(ref self: ContractState, key: felt252, output_token: ContractAddress, output_amount: u256, secondary_output_token: ContractAddress, secondary_output_amount: u256) {
+            self.emit(WithdrawalExecuted { key, output_token, output_amount, secondary_output_token, secondary_output_amount });
         }
 
         /// Emits the `WithdrawalCancelled` event.
