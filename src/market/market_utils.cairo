@@ -160,6 +160,7 @@ fn get_pool_usd_without_pnl(
     // note that if it is a single token market, the poolAmount returned will be
     // the amount of tokens in the pool divided by 2
     let pool_amount = get_pool_amount(data_store, market, token);
+
     let token_price = if maximize {
         if is_long {
             prices.long_token_price.max
@@ -173,6 +174,7 @@ fn get_pool_usd_without_pnl(
             prices.short_token_price.min
         }
     };
+
     pool_amount * (*token_price)
 }
 
@@ -268,8 +270,10 @@ fn get_capped_pnl(
     if pnl < Zeroable::zero() {
         return pnl;
     }
+
     let max_pnl_factor = get_max_pnl_factor(data_store, pnl_factor_type, market, is_long);
     let max_pnl = calc::to_signed(precision::apply_factor_u256(pool_usd, max_pnl_factor), true);
+
     if pnl > max_pnl {
         max_pnl
     } else {
@@ -342,6 +346,7 @@ fn increment_claimable_collateral_amount(
 ) {
     let divisor = data_store.get_u256(keys::claimable_collateral_time_divisor());
     error_utils::check_division_by_zero(divisor, 'increment_claimable_collateral');
+
     // Get current timestamp.
     let current_timestamp = get_block_timestamp().into();
     let time_key = current_timestamp / divisor;
@@ -949,7 +954,8 @@ fn get_swap_impact_amount_with_cap(
     // negative impact: maximize impactAmount, use tokenPrice.min
     if price_impact_usd > Zeroable::zero() {
         // round positive impactAmount down, this will be deducted from the swap impact pool for the user
-        let _price = to_signed(token_price.max, true);
+        let price = to_signed(token_price.max, true);
+        impact_amount = price_impact_usd / price;
 
         let max_impact_amount = to_signed(get_swap_impact_pool_amount(data_store, market, token), true);
 
@@ -1922,6 +1928,7 @@ fn validate_market_token_balance_with_token(data_store: IDataStoreDispatcher, ma
     );
     let balance: u256 = IERC20Dispatcher { contract_address: token }.balance_of(market.market_token).low.into();
     let expected_min_balance: u256 = get_expected_min_token_balance(data_store, market, token);
+
     assert(balance >= expected_min_balance, MarketError::INVALID_MARKET_TOKEN_BALANCE);
 
     // funding fees can be claimed even if the collateral for positions that should pay funding fees
