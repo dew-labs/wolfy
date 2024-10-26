@@ -122,6 +122,11 @@ mod ERC20 {
         fn mint(ref self: ContractState, recipient: ContractAddress, amount: u256) {
             self._mint(recipient, amount);
         }
+
+        fn burn(ref self: ContractState, amount: u256) {
+            let caller = get_caller_address();
+            self._burn(caller, amount);
+        }
     }
 
     #[external(v0)]
