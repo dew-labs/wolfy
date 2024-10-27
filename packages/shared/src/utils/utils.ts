@@ -35,6 +35,7 @@ import type { Contracts, Order, Token } from "@freyr/shared/interfaces";
 import { createLogger } from "./logger";
 import { setup } from "./setup";
 import invariant from "tiny-invariant";
+import { toStarknetHexString } from "satoru-sdk";
 
 const logger = createLogger("Utils");
 
@@ -57,7 +58,7 @@ export function getClassHashFromSierra(compiledSierra: CompiledSierra) {
 }
 
 export function getClassHash(path: string) {
-    return hash.computeSierraContractClassHash(getCompiledSierra(path));
+    return toStarknetHexString(hash.computeSierraContractClassHash(getCompiledSierra(path)));
 }
 
 export function getClassHashFromCasm(compiledContract: CompiledContract | string) {

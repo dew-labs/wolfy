@@ -19,7 +19,7 @@ test = "snforge test"
 [[target.starknet-contract]]
 sierra = true
 casm = true
-allowed-libfuncs-list.name = "experimental"
+allowed-libfuncs-deny = true
 
 [cairo]
 sierra-replace-ids = false

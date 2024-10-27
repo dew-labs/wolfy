@@ -42,6 +42,10 @@ async function deploy() {
 
     // -------------------------------------------------------------------------
 
+    const governableClassHash = await ensureDeclared(account, "Governable");
+
+    // -------------------------------------------------------------------------
+
     const baseOrderHandlerClassHash = await ensureDeclared(account, "BaseOrderHandler");
 
     // -------------------------------------------------------------------------
@@ -128,6 +132,7 @@ async function deploy() {
         "ReferralStorage",
         {
             event_emitter_address: eventEmitter.address,
+            governable_class_hash: governableClassHash,
         }
     );
 
