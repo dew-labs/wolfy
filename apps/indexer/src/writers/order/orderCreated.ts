@@ -28,10 +28,6 @@ export const handleOrderCreated: SatoruEventWriter<SatoruEvent.OrderCreated> = a
     const order = new Order(key);
     const orderType = parseOrderType(event.order.order_type);
 
-    if (orderType === OrderType.Liquidation) {
-        return;
-    }
-
     Object.assign(order, {
         key,
         account: toStarknetHexString(event.order.account),

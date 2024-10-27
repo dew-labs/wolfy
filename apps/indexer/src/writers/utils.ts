@@ -109,7 +109,7 @@ export const getTradeHistoryAction = (
             TradeHistoryAction.CancelWithdraw,
 
         // Liquidation
-        [`${TradeHistoryEvent.OrderExecuted}-${OrderType.Liquidation}`]:
+        [`${TradeHistoryEvent.OrderCreated}-${OrderType.Liquidation}`]:
             TradeHistoryAction.Liquidation,
 
         // Position
@@ -312,7 +312,7 @@ export const getTradeHistoryAndOrderType = (
 
         // Liquidation
         [TradeHistoryAction.Liquidation]: {
-            event: TradeHistoryEvent.OrderExecuted,
+            event: TradeHistoryEvent.OrderCreated,
             type: OrderType.Liquidation,
         },
 

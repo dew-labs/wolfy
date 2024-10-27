@@ -1,10 +1,10 @@
 import { Order } from "apps/indexer/.checkpoint/models";
-import { createLogger } from "@freyr/shared/utils";
-import { toStarknetHexString } from "satoru-sdk";
+import { createLogger, isLiquidationOrder } from "@freyr/shared/utils";
+import { parseOrderType, toStarknetHexString } from "satoru-sdk";
 
 import { type SatoruEventWriter } from "../type";
 
-import type { OrderType, SatoruEvent } from "satoru-sdk";
+import { OrderType, type SatoruEvent } from "satoru-sdk";
 import { getTradeHistoryAction } from "../utils";
 import { TradeHistoryEvent } from "@freyr/shared/interfaces";
 
@@ -25,6 +25,11 @@ export const handleOrderExecuted: SatoruEventWriter<SatoruEvent.OrderExecuted> =
         return;
     }
 
+    if (isLiquidationOrder(parseOrderType(order.order_type))) {
+        order.delete();
+        return;
+    }
+
     Object.assign(order, {
         action: getTradeHistoryAction(
             TradeHistoryEvent.OrderExecuted,
@@ -38,5 +43,5 @@ export const handleOrderExecuted: SatoruEventWriter<SatoruEvent.OrderExecuted> =
     await order.save();
     order.delete();
 
-    logger.info(`ORDER CANCELLED: ${order.id}`);
+    logger.info(`ORDER EXECUTED: ${order.id}`);
 };
