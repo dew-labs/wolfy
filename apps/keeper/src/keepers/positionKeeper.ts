@@ -36,12 +36,6 @@ const removeOpenPositionKey = (key: string): void => {
     setOpenPositionKeys(openPositionKeys);
 };
 
-const initializeOpenPositionKeys = async (): Promise<void> => {
-    const openPositionKeys = await fetchOpenPositionKeys();
-
-    setOpenPositionKeys(openPositionKeys);
-};
-
 const onPositionIncreasedHandler: SatoruEventHandler<SatoruEvent.PositionIncrease> = (event) => {
     const positionKey = toStarknetHexString(event.position_key);
     addOpenPositionKey(positionKey);
@@ -56,8 +50,6 @@ const onPositionDecreasedHandler: SatoruEventHandler<SatoruEvent.PositionDecreas
 
 export function createPositionKeeper() {
     const { chainId } = getNetworkConfig();
-
-    initializeOpenPositionKeys();
 
     const run = async () => {
         try {

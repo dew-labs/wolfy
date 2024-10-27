@@ -119,6 +119,7 @@ const isExecutingLimitOrder = (orderKey: string, executingLimitOrders: Set<strin
 const initializeCreatedTriggerOrders = async (
     dataStoreContract: TypedContractV2<SatoruContractAbi<SatoruContract.DataStore>>
 ): Promise<void> => {
+    // TODO: refactor to not use data store contract
     const createdTriggerOrders = await fetchCreatedTriggerOrders();
 
     const tokenAddressToOrdersMap = getTokenAddressToOrdersMap();
@@ -139,6 +140,7 @@ export function createOrderKeeper(emitter: Emitter) {
     const dataStoreContract = getDataStoreContract(chainId, account);
 
     let executingLimitOrders = new Set<string>();
+
     initializeCreatedTriggerOrders(dataStoreContract);
 
     const onPriceChangedHandler = async (indexTokenAddress: string, oraclePrice: bigint) => {

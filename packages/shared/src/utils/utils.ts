@@ -34,6 +34,7 @@ import type { Contracts, Order, Token } from "@freyr/shared/interfaces";
 
 import { createLogger } from "./logger";
 import { setup } from "./setup";
+import invariant from "tiny-invariant";
 
 const logger = createLogger("Utils");
 
@@ -184,22 +185,6 @@ export function getNetworkConfig() {
     const account = new Account(provider, accountAddress, privateKey);
 
     return { net, chainId, account, hermesUrl };
-}
-
-export function getAccountFromProviders() {
-    const { chainId } = getNetAndChainId();
-
-    const provider = getProvider(ProviderType.HTTP, chainId);
-
-    if (!process.env.ACCOUNT_PRIVATE || !process.env.ACCOUNT_PUBLIC)
-        throw new Error("Missing required environment variables");
-
-    // Connect to account
-    const privateKey0: string = process.env.ACCOUNT_PRIVATE;
-    const account0Address: string = process.env.ACCOUNT_PUBLIC;
-    const account0 = new Account(provider, account0Address!, privateKey0!);
-
-    return account0;
 }
 
 export async function settingUp() {
@@ -474,8 +459,7 @@ export async function executeOrder(
     executionLongPrice: bigint,
     executionShortPrice: bigint
 ): Promise<void> {
-    const { chainId } = getNetAndChainId();
-    const account = getAccountFromProviders();
+    const { account, chainId } = getNetworkConfig();
     const priceParams = await getSetPriceParams(account, [
         [indexTokenAddress, executionIndexPrice],
         [longTokenAddress, executionLongPrice],
@@ -526,4 +510,11 @@ export const hashPositionKey = (
     isLong: boolean
 ) => {
     return poseidonHash([account, market, collateralToken, isLong]);
+};
+
+export const getEnvVariable = (name: string): string => {
+    const value = process.env[name];
+    invariant(value, `${name} environment variable required`);
+
+    return value;
 };
