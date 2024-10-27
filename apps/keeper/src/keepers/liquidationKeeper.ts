@@ -1,11 +1,5 @@
 import pRetry from "p-retry";
-import {
-    SatoruContract,
-    StarknetChainId,
-    toStarknetHexString,
-    type SatoruContractAbi,
-} from "satoru-sdk";
-import { type Account, type TypedContractV2 } from "starknet";
+import { toStarknetHexString } from "satoru-sdk";
 
 import {
     getDataStoreContract,
@@ -21,55 +15,31 @@ import {
     getPosition,
     getSetPriceParams,
     measureExecutionTime,
+    setOpenPositionKeys,
     type ContractMarket,
     type ContractPosition,
 } from "@freyr/shared/utils";
 
 import { getOraclePrice } from "../services/pythPriceOracleService";
+import invariant from "tiny-invariant";
+import { fetchOpenPositionKeys } from "../graphql/services/positionService";
 
 const logger = createLogger("LiquidationKeeper");
 
-type ContractSetup = {
-    account: Account;
-    chainId: StarknetChainId;
-    hermesUrl: string;
-    dataStoreContract: TypedContractV2<SatoruContractAbi<SatoruContract.DataStore>>;
-    readerContract: TypedContractV2<SatoruContractAbi<SatoruContract.Reader>>;
-    liquidationHandlerContract: TypedContractV2<
-        SatoruContractAbi<SatoruContract.LiquidationHandler>
-    >;
-    referralStorageAddress: string;
-};
+const checkIfLiquidable = async (positionKey: string) => {
+    const { chainId } = getNetworkConfig();
 
-const setupContracts = (): ContractSetup => {
+    // TODO: refactor
     const contracts = getContracts();
     const referralStorageAddress = contracts.ReferralStorage;
-    if (!referralStorageAddress) throw new Error("ReferralStorage contract required");
+    invariant(referralStorageAddress, "ReferralStorage contract required");
 
-    const { account, chainId, hermesUrl } = getNetworkConfig();
-    const dataStoreContract = getDataStoreContract(chainId, account);
+    const dataStoreContract = getDataStoreContract(chainId);
     const readerContract = getReaderContract(chainId);
-    const liquidationHandlerContract = getLiquidationHandlerContract(chainId, account);
 
-    return {
-        account,
-        chainId,
-        hermesUrl,
-        dataStoreContract,
-        readerContract,
-        liquidationHandlerContract,
-        referralStorageAddress,
-    };
-};
+    const position = await getPosition(dataStoreContract, positionKey);
+    const market: ContractMarket = await getMarket(dataStoreContract, position.market);
 
-const checkIfLiquidable = async (
-    readerContract: TypedContractV2<SatoruContractAbi<SatoruContract.Reader>>,
-    dataStoreContract: TypedContractV2<SatoruContractAbi<SatoruContract.DataStore>>,
-    referralStorageAddress: string,
-    position: ContractPosition,
-    market: ContractMarket,
-    hermesUrl: string
-) => {
     const indexTokenAddress = toStarknetHexString(market.index_token);
     const longTokenAddress = toStarknetHexString(market.long_token);
     const shortTokenAddress = toStarknetHexString(market.short_token);
@@ -91,14 +61,18 @@ const checkIfLiquidable = async (
         true
     );
 
-    return { shouldBeLiquidated, indexTokenPrice, longTokenPrice, shortTokenPrice };
+    logger.debug({ shouldBeLiquidated, indexTokenPrice, longTokenPrice, shortTokenPrice });
+    return {
+        position,
+        market,
+        shouldBeLiquidated,
+        indexTokenPrice,
+        longTokenPrice,
+        shortTokenPrice,
+    };
 };
 
 const executeLiquidation = async (
-    liquidationHandlerContract: TypedContractV2<
-        SatoruContractAbi<SatoruContract.LiquidationHandler>
-    >,
-    account: Account,
     position: ContractPosition,
     market: ContractMarket,
     indexTokenPrice: bigint,
@@ -106,11 +80,15 @@ const executeLiquidation = async (
     shortTokenPrice: bigint
 ) => {
     return await measureExecutionTime(async () => {
+        const { account, chainId } = getNetworkConfig();
+
         const priceParams = await getSetPriceParams(account, [
             [market.index_token, indexTokenPrice],
             [market.long_token, longTokenPrice],
             [market.short_token, shortTokenPrice],
         ]);
+
+        const liquidationHandlerContract = getLiquidationHandlerContract(chainId, account);
 
         await liquidationHandlerContract.execute_liquidation(
             position.account,
@@ -122,30 +100,15 @@ const executeLiquidation = async (
     }, `Position ${position.key}: Liquidated`);
 };
 
-const processPosition = async (positionKey: string, contractSetup: ContractSetup) => {
+const processPosition = async (positionKey: string) => {
     const {
-        dataStoreContract,
-        readerContract,
-        liquidationHandlerContract,
-        account,
-        referralStorageAddress,
-        hermesUrl,
-    } = contractSetup;
-
-    const position = await getPosition(dataStoreContract, positionKey);
-    const market: ContractMarket = await getMarket(dataStoreContract, position.market);
-
-    const { shouldBeLiquidated, indexTokenPrice, longTokenPrice, shortTokenPrice } =
-        await checkIfLiquidable(
-            readerContract,
-            dataStoreContract,
-            referralStorageAddress,
-            position,
-            market,
-            hermesUrl
-        );
-
-    logger.debug({ shouldBeLiquidated, indexTokenPrice, longTokenPrice, shortTokenPrice });
+        position,
+        market,
+        shouldBeLiquidated,
+        indexTokenPrice,
+        longTokenPrice,
+        shortTokenPrice,
+    } = await checkIfLiquidable(positionKey);
 
     if (shouldBeLiquidated) {
         logger.debug(`Position ${positionKey}: SHOULD BE liquidated`);
@@ -153,8 +116,6 @@ const processPosition = async (positionKey: string, contractSetup: ContractSetup
             await pRetry(
                 async () =>
                     await executeLiquidation(
-                        liquidationHandlerContract,
-                        account,
                         position,
                         market,
                         indexTokenPrice,
@@ -163,6 +124,12 @@ const processPosition = async (positionKey: string, contractSetup: ContractSetup
                     ),
                 {
                     retries: 3,
+                    onFailedAttempt: (error) => {
+                        logger.error(
+                            `Attempt ${error.attemptNumber} failed. There are ${error.retriesLeft} retries left.`
+                        );
+                        logger.error(error.message);
+                    },
                     minTimeout: 0,
                     maxTimeout: 0,
                 }
@@ -175,31 +142,34 @@ const processPosition = async (positionKey: string, contractSetup: ContractSetup
     }
 };
 
-const checkAndLiquidatePositions = async (contractSetup: ContractSetup) => {
+const checkAndLiquidatePositions = async () => {
     logger.debug("Checking positions...");
 
     try {
-        const positionKeys = await getOpenPositionKeys();
+        const positionKeys = getOpenPositionKeys();
         logger.debug(positionKeys, `Found ${positionKeys.length} positions to check`);
-        await Promise.allSettled(
-            positionKeys.map((positionKey) => processPosition(positionKey, contractSetup))
-        );
+        await Promise.allSettled(positionKeys.map((positionKey) => processPosition(positionKey)));
     } catch (error) {
         logger.error(error, "Error during position check:");
     }
     logger.debug(`Positions checked`);
 };
 
+const initializeOpenPositionKeys = async (): Promise<void> => {
+    const openPositionKeys = await fetchOpenPositionKeys();
+
+    setOpenPositionKeys(openPositionKeys);
+};
+
 export const createLiquidationKeeper = (intervalMinutes: number) => {
     const intervalMs = intervalMinutes * 60 * 1000;
 
     logger.info(`Checking positions every ${intervalMinutes} minutes`);
-    const contractSetup = setupContracts();
+
+    initializeOpenPositionKeys();
 
     const run = () => {
-        const go = () => checkAndLiquidatePositions(contractSetup);
-        setInterval(go, intervalMs);
-        go();
+        setInterval(checkAndLiquidatePositions, intervalMs);
     };
 
     return { run };
