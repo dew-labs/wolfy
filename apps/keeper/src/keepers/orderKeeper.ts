@@ -22,6 +22,7 @@ import {
     setTokenAddressToOrdersMap,
     isMarketOrder,
     getMarket,
+    isLiquidationOrder,
 } from "@freyr/shared/utils";
 
 import { getDataStoreContract } from "@freyr/shared/contracts";
@@ -173,6 +174,11 @@ export function createOrderKeeper(emitter: Emitter) {
         const acceptablePrice = cairoIntToBigInt(acceptable_price);
         const sizeDeltaUsd = cairoIntToBigInt(size_delta_usd);
 
+        if (isLiquidationOrder(orderType)) {
+            return;
+        }
+
+        // TODO: call to indexer to get market
         const market = await dataStoreContract.get_market(marketKey);
         const indexTokenAddress = toStarknetHexString(market.index_token);
 
