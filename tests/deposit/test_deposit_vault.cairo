@@ -51,7 +51,7 @@ fn given_normal_conditions_when_transfer_out_then_works() {
 }
 
 #[test]
-#[should_panic(expected: ('u256_sub Overflow',))]
+#[should_panic(expected: ('ERC20: insufficient balance',))]
 fn given_not_enough_token_when_transfer_out_then_fails() {
     let (_, receiver_address, _, _data_store, deposit_vault, erc20) = setup();
 
