@@ -107,8 +107,10 @@ fn setup(
     role_store.grant_role(caller_address, role::ROUTER_PLUGIN);
     stop_cheat_caller_address(role_store_address);
 
+    let role_module_class = tests_lib::declare_role_module();
+
     // Deploy the router contract.
-    let router_address = tests_lib::deploy_router(role_store_address);
+    let router_address = tests_lib::deploy_router(role_store_address, role_module_class.class_hash);
     // Create a dispatcher to interact with the contract.
     let router = IRouterDispatcher { contract_address: router_address };
 

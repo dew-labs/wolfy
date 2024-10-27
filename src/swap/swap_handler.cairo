@@ -28,14 +28,16 @@ mod SwapHandler {
     //                               IMPORTS
     // *************************************************************************
     // Core lib imports
-    use starknet::ContractAddress;
+    use starknet::{ContractAddress, ClassHash};
 
     // Local imports.
     use satoru::swap::swap_utils::SwapParams;
     use satoru::swap::swap_utils;
     use satoru::role::role_module::{RoleModule, IRoleModule};
     use satoru::utils::i256::i256;
-    use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
+    use satoru::role::role_store::{IRoleStoreDispatcher};
+    use satoru::role::role;
+    use satoru::role::role_module::{IRoleModuleLibraryDispatcher, IRoleModuleDispatcherTrait};
 
     use openzeppelin::security::ReentrancyGuardComponent;
 
@@ -51,8 +53,7 @@ mod SwapHandler {
     struct Storage {
         #[substorage(v0)]
         reentrancy_guard: ReentrancyGuardComponent::Storage,
-        /// Interface to interact with the `DataStore` contract.
-        data_store: IDataStoreDispatcher
+        role_module: IRoleModuleLibraryDispatcher,
     }
 
     // *************************************************************************
@@ -72,9 +73,9 @@ mod SwapHandler {
 
     /// Constructor of the contract.
     #[constructor]
-    fn constructor(ref self: ContractState, role_store_address: ContractAddress,) {
-        let mut role_module: RoleModule::ContractState = RoleModule::unsafe_new_contract_state();
-        IRoleModule::initialize(ref role_module, role_store_address);
+    fn constructor(ref self: ContractState, role_store_address: ContractAddress, role_module_class_hash: ClassHash,) {
+        self.role_module.write(IRoleModuleLibraryDispatcher { class_hash: role_module_class_hash });
+        self.role_module.read().initialize(role_store_address);
     }
 
 
@@ -84,8 +85,7 @@ mod SwapHandler {
     #[abi(embed_v0)]
     impl SwapHandler of super::ISwapHandler<ContractState> {
         fn swap(ref self: ContractState, params: SwapParams) -> (ContractAddress, u256) {
-            let mut role_module: RoleModule::ContractState = RoleModule::unsafe_new_contract_state();
-            role_module.only_controller();
+            self.role_module.read().only_controller();
 
             self.reentrancy_guard.start();
 

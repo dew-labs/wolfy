@@ -6,7 +6,7 @@
 
 // Core lib imports.
 use core::traits::Into;
-use starknet::ContractAddress;
+use starknet::{ContractAddress, ClassHash};
 
 // Local imports.
 use satoru::oracle::oracle_utils::{SetPricesParams, SimulatePricesParams};
@@ -59,11 +59,10 @@ mod DepositHandler {
     // *************************************************************************
 
     // Core lib imports.
-    use starknet::{get_caller_address, get_contract_address, ContractAddress};
+    use starknet::{get_caller_address, get_contract_address, ContractAddress, ClassHash};
 
     // Local imports.
     use super::IDepositHandler;
-    use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
     use satoru::role::role_module::{RoleModule, IRoleModule};
     use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
     use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
@@ -86,6 +85,9 @@ mod DepositHandler {
     use satoru::deposit::execute_deposit_utils;
     use satoru::oracle::oracle_utils;
     use satoru::utils::global_reentrancy_guard;
+    use satoru::role::role_store::{IRoleStoreDispatcher};
+    use satoru::role::role;
+    use satoru::role::role_module::{IRoleModuleLibraryDispatcher, IRoleModuleDispatcherTrait};
 
     // *************************************************************************
     //                              STORAGE
@@ -94,14 +96,13 @@ mod DepositHandler {
     struct Storage {
         /// Interface to interact with the `DataStore` contract.
         data_store: IDataStoreDispatcher,
-        /// Interface to interact with the `RoleStore` contract.
-        role_store: IRoleStoreDispatcher,
         /// Interface to interact with the `EventEmitter` contract.
         event_emitter: IEventEmitterDispatcher,
         /// Interface to interact with the `DepositVault` contract.
         deposit_vault: IDepositVaultDispatcher,
         /// Interface to interact with the `Oracle` contract.
-        oracle: IOracleDispatcher
+        oracle: IOracleDispatcher,
+        role_module: IRoleModuleLibraryDispatcher,
     }
 
     // *************************************************************************
@@ -123,12 +124,14 @@ mod DepositHandler {
         event_emitter_address: ContractAddress,
         deposit_vault_address: ContractAddress,
         oracle_address: ContractAddress,
+        role_module_class_hash: ClassHash,
     ) {
         self.data_store.write(IDataStoreDispatcher { contract_address: data_store_address });
-        self.role_store.write(IRoleStoreDispatcher { contract_address: role_store_address });
         self.event_emitter.write(IEventEmitterDispatcher { contract_address: event_emitter_address });
         self.deposit_vault.write(IDepositVaultDispatcher { contract_address: deposit_vault_address });
         self.oracle.write(IOracleDispatcher { contract_address: oracle_address });
+        self.role_module.write(IRoleModuleLibraryDispatcher { class_hash: role_module_class_hash });
+        self.role_module.read().initialize(role_store_address);
     }
 
 
@@ -138,8 +141,7 @@ mod DepositHandler {
     #[abi(embed_v0)]
     impl DepositHandlerImpl of super::IDepositHandler<ContractState> {
         fn create_deposit(ref self: ContractState, account: ContractAddress, params: CreateDepositParams) -> felt252 {
-            let state: RoleModule::ContractState = RoleModule::unsafe_new_contract_state();
-            IRoleModule::only_controller(@state);
+            self.role_module.read().only_controller();
 
             let data_store = self.data_store.read();
             global_reentrancy_guard::non_reentrant_before(data_store);
@@ -158,8 +160,7 @@ mod DepositHandler {
         }
 
         fn cancel_deposit(ref self: ContractState, key: felt252) {
-            let state: RoleModule::ContractState = RoleModule::unsafe_new_contract_state();
-            IRoleModule::only_controller(@state);
+            self.role_module.read().only_controller();
 
             let data_store = self.data_store.read();
             global_reentrancy_guard::non_reentrant_before(data_store);
@@ -188,8 +189,7 @@ mod DepositHandler {
         }
 
         fn execute_deposit(ref self: ContractState, key: felt252, oracle_params: SetPricesParams) {
-            let state: RoleModule::ContractState = RoleModule::unsafe_new_contract_state();
-            IRoleModule::only_order_keeper(@state);
+            self.role_module.read().only_order_keeper();
 
             let data_store = self.data_store.read();
             let oracle = self.oracle.read();
@@ -207,8 +207,7 @@ mod DepositHandler {
         }
 
         fn simulate_execute_deposit(ref self: ContractState, key: felt252, params: SimulatePricesParams) {
-            let state: RoleModule::ContractState = RoleModule::unsafe_new_contract_state();
-            IRoleModule::only_controller(@state);
+            self.role_module.read().only_controller();
 
             let data_store = self.data_store.read();
             let oracle = self.oracle.read();

@@ -1,4 +1,4 @@
-use starknet::{ContractAddress, get_caller_address, Felt252TryIntoContractAddress, contract_address_const};
+use starknet::{ContractAddress, get_caller_address, Felt252TryIntoContractAddress, contract_address_const, ClassHash};
 use snforge_std::{declare, start_cheat_caller_address, stop_cheat_caller_address, ContractClassTrait};
 
 use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
@@ -41,14 +41,14 @@ fn given_wrong_inputs_when_fee_handler_then_fails() {
 }
 
 fn deploy_fee_handler(
-    role_store_address: ContractAddress, data_store_address: ContractAddress, event_emitter_address: ContractAddress
+    role_store_address: ContractAddress, data_store_address: ContractAddress, event_emitter_address: ContractAddress, role_module_class_hash: ClassHash,
 ) -> ContractAddress {
     let contract = declare("FeeHandler").unwrap();
     let caller_address: ContractAddress = tests_lib::get_c4ller_address();
     let deployed_contract_address = contract_address_const::<'fee_handler'>();
     start_cheat_caller_address(deployed_contract_address, caller_address);
     let constructor_calldata = array![
-        data_store_address.into(), role_store_address.into(), event_emitter_address.into()
+        data_store_address.into(), role_store_address.into(), event_emitter_address.into(), role_module_class_hash.into(),
     ];
     let (contract_address, _) = contract.deploy_at(@constructor_calldata, deployed_contract_address).unwrap();
     contract_address
@@ -62,6 +62,9 @@ fn setup() -> (ContractAddress, IDataStoreDispatcher, IEventEmitterDispatcher, I
         _decrease_order_class,
         _swap_order_class,
         _order_utils_class,
+        role_module_class,
+        _bank_class,
+        _governable_class,
         _market_factory,
         role_store,
         data_store,
@@ -85,7 +88,7 @@ fn setup() -> (ContractAddress, IDataStoreDispatcher, IEventEmitterDispatcher, I
         tests_lib::setup();
 
     let fee_handler_address = deploy_fee_handler(
-        role_store.contract_address, data_store.contract_address, event_emitter.contract_address
+        role_store.contract_address, data_store.contract_address, event_emitter.contract_address, role_module_class.class_hash
     );
     let fee_handler = IFeeHandlerDispatcher { contract_address: fee_handler_address };
     role_store.grant_role(caller_address, role::FEE_KEEPER);

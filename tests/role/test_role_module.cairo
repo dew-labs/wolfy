@@ -454,7 +454,7 @@ fn given_not_adl_keeper_when_only_adl_keeper_then_works() {
 
 fn setup() -> ( // This caller address will be used with `start_cheat_caller_address` cheatcode to mock the caller address.,
     IRoleStoreDispatcher, // Interface to interact with the `MarketToken` contract.
-     IRoleModuleDispatcher,
+    IRoleModuleDispatcher,
 ) {
     let role_store = IRoleStoreDispatcher { contract_address: tests_lib::deploy_role_store() };
     let role_module = IRoleModuleDispatcher { contract_address: deploy_role_module(role_store.contract_address) };
@@ -468,8 +468,8 @@ fn deploy_role_module(role_store_address: ContractAddress) -> ContractAddress {
     let caller_address: ContractAddress = tests_lib::get_c4ller_address();
     let deployed_contract_address = contract_address_const::<'role_module'>();
     start_cheat_caller_address(deployed_contract_address, caller_address);
-    let mut constructor_calldata = array![];
-    constructor_calldata.append(role_store_address.into());
-    let (contract_address, _) = contract.deploy_at(@constructor_calldata, deployed_contract_address).unwrap();
+    let (contract_address, _) = contract.deploy_at(@array![], deployed_contract_address).unwrap();
+    let role_module = IRoleModuleDispatcher { contract_address };
+    role_module.initialize(role_store_address);
     contract_address
 }

@@ -28,7 +28,9 @@ fn setup_contracts() -> (
     IRoleStoreDispatcher, // Interface to interact with the `DataStore` contract.
     IDataStoreDispatcher, // Interface to interact with the `Bank` contract.
     IBankDispatcher, // Interface to interact with the `StrictBank` contract.
-    IStrictBankDispatcher
+    IStrictBankDispatcher,
+    ContractClass,
+    ContractClass,
 ) {
     let (
         caller_address,
@@ -37,6 +39,9 @@ fn setup_contracts() -> (
         _decrease_order_class,
         _swap_order_class,
         _order_utils_class,
+        role_module_class,
+        bank_class,
+        _governable_class,
         _market_factory,
         role_store,
         data_store,
@@ -61,7 +66,7 @@ fn setup_contracts() -> (
 
     let receiver_address = contract_address_const::<'dummy_receiver'>();
 
-    (caller_address, receiver_address, role_store, data_store, bank, strict_bank)
+    (caller_address, receiver_address, role_store, data_store, bank, strict_bank, role_module_class, bank_class)
 }
 
 
@@ -77,15 +82,15 @@ fn teardown(data_store: IDataStoreDispatcher, strict_bank: IStrictBankDispatcher
 #[test]
 #[should_panic(expected: ('already_initialized',))]
 fn given_already_initialized_contract_when_initializing_then_fail() {
-    let (_caller_address, _receiver_address, role_store, data_store, _bank, strict_bank) = setup_contracts();
+    let (_caller_address, _receiver_address, role_store, data_store, _bank, strict_bank, role_module_class, bank_class) = setup_contracts();
     // try initializing after previously initializing in setup
-    strict_bank.initialize(data_store.contract_address, role_store.contract_address);
+    strict_bank.initialize(data_store.contract_address, role_store.contract_address, bank_class.class_hash, role_module_class.class_hash);
     teardown(data_store, strict_bank);
 }
 
 #[test]
 fn given_normal_conditions_when_transfer_out_then_works() {
-    let (_caller_address, receiver_address, _role_store, data_store, _bank, strict_bank) = setup_contracts();
+    let (_caller_address, receiver_address, _role_store, data_store, _bank, strict_bank, _, _) = setup_contracts();
 
     // deploy erc20 token
     let erc20_contract_address = tests_lib::deploy_erc20_token(strict_bank.contract_address);
@@ -106,7 +111,7 @@ fn given_normal_conditions_when_transfer_out_then_works() {
 #[test]
 #[should_panic(expected: ('unauthorized_access',))]
 fn given_caller_has_no_controller_role_when_transfer_out_then_fails() {
-    let (caller_address, receiver_address, _role_store, data_store, _bank, strict_bank) = setup_contracts();
+    let (caller_address, receiver_address, _role_store, data_store, _bank, strict_bank, _, _) = setup_contracts();
 
     // *********************************************************************************************
     // *                              TEST LOGIC                                                   *
@@ -127,7 +132,7 @@ fn given_caller_has_no_controller_role_when_transfer_out_then_fails() {
 #[test]
 #[should_panic(expected: ('self_transfer_not_supported',))]
 fn given_receiver_is_contract_when_transfer_out_then_fails() {
-    let (_caller_address, _receiver_address, _role_store, data_store, _bank, strict_bank) = setup_contracts();
+    let (_caller_address, _receiver_address, _role_store, data_store, _bank, strict_bank, _, _) = setup_contracts();
 
     // deploy erc20 token. Mint to bank since we call transfer out in bank contract which restricts sending to self
     let erc20_contract_address = tests_lib::deploy_erc20_token(strict_bank.contract_address);
@@ -141,7 +146,7 @@ fn given_receiver_is_contract_when_transfer_out_then_fails() {
 
 #[test]
 fn given_normal_conditions_when_record_transfer_in_works() {
-    let (caller_address, _receiver_address, _role_store, data_store, _bank, strict_bank) = setup_contracts();
+    let (caller_address, _receiver_address, _role_store, data_store, _bank, strict_bank, _, _) = setup_contracts();
 
     // *********************************************************************************************
     // *                              TEST LOGIC                                                   *
@@ -167,7 +172,7 @@ fn given_normal_conditions_when_record_transfer_in_works() {
 #[test]
 #[should_panic(expected: ('unauthorized_access',))]
 fn given_caller_has_no_controller_role_when_record_transfer_in_then_fails() {
-    let (_caller_address, receiver_address, _role_store, data_store, _bank, strict_bank) = setup_contracts();
+    let (_caller_address, receiver_address, _role_store, data_store, _bank, strict_bank, _, _) = setup_contracts();
 
     // *********************************************************************************************
     // *                              TEST LOGIC                                                   *
@@ -187,7 +192,7 @@ fn given_caller_has_no_controller_role_when_record_transfer_in_then_fails() {
 
 #[test]
 fn given_normal_conditions_when_sync_token_balance_passes() {
-    let (caller_address, _receiver_address, _role_store, data_store, _bank, strict_bank) = setup_contracts();
+    let (caller_address, _receiver_address, _role_store, data_store, _bank, strict_bank, _, _) = setup_contracts();
 
     // *********************************************************************************************
     // *                              TEST LOGIC                                                   *
@@ -211,7 +216,7 @@ fn given_normal_conditions_when_sync_token_balance_passes() {
 #[test]
 #[should_panic(expected: ('unauthorized_access',))]
 fn given_caller_has_no_controller_role_when_sync_token_balance_then_fails() {
-    let (caller_address, receiver_address, _role_store, data_store, _bank, strict_bank) = setup_contracts();
+    let (caller_address, receiver_address, _role_store, data_store, _bank, strict_bank, _, _) = setup_contracts();
 
     // *********************************************************************************************
     // *                              TEST LOGIC                                                   *

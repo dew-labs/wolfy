@@ -59,7 +59,6 @@ fn given_already_intialized_state_when_initialize_then_fails() {
     BaseOrderHandler::BaseOrderHandlerImpl::initialize(
         ref base_order_handler_state,
         data_store.contract_address,
-        role_store.contract_address,
         event_emitter.contract_address,
         order_vault.contract_address,
         oracle.contract_address,
@@ -101,7 +100,7 @@ fn given_normal_conditions_when_get_execute_order_params_then_works() {
     start_mock_call(data_store.contract_address, 'get_order', mock_order);
 
     // test call
-    let execute_order_params = BaseOrderHandler::InternalImpl::get_execute_order_params(
+    let execute_order_params = BaseOrderHandler::BaseOrderHandlerImpl::get_execute_order_params(
         ref base_order_handler_state, key, set_prices_params, caller_address, starting_gas, secondary_order_type
     );
 
@@ -152,7 +151,7 @@ fn given_non_found_order_when_get_execute_order_params_then_returns_empty_order(
     let starting_gas = 10000;
     let secondary_order_type = SecondaryOrderType::Adl(());
 
-    let execute_order_params = BaseOrderHandler::InternalImpl::get_execute_order_params(
+    let execute_order_params = BaseOrderHandler::BaseOrderHandlerImpl::get_execute_order_params(
         ref base_order_handler_state, key, set_prices_params, caller_address, starting_gas, secondary_order_type
     );
 
@@ -284,6 +283,9 @@ fn setup_contracts() -> (
         decrease_order_class,
         swap_order_class,
         order_utils_class,
+        _role_module_class,
+        _bank_class,
+        _governable_class,
         _market_factory,
         role_store,
         data_store,
@@ -311,7 +313,6 @@ fn setup_contracts() -> (
     BaseOrderHandler::BaseOrderHandlerImpl::initialize(
         ref base_order_handler_state,
         data_store.contract_address,
-        role_store.contract_address,
         event_emitter.contract_address,
         order_vault.contract_address,
         oracle.contract_address,

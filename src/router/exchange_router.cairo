@@ -11,7 +11,6 @@ use core::zeroable::Zeroable;
 
 
 // Local imports.
-use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
 use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
 use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
 use satoru::router::router::{IRouterDispatcher, IRouterDispatcherTrait};
@@ -173,7 +172,6 @@ mod ExchangeRouter {
 
 
     // Local imports.
-    use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
     use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
     use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
     use satoru::router::router::{IRouterDispatcher, IRouterDispatcherTrait};
@@ -213,19 +211,11 @@ mod ExchangeRouter {
     struct Storage {
         #[substorage(v0)]
         reentrancy_guard: ReentrancyGuardComponent::Storage,
-        /// Interface to interact with the `Router` contract.
         router: IRouterDispatcher,
-        /// Interface to interact with the `DataStore` contract.
         data_store: IDataStoreDispatcher,
-        /// Interface to interact with the `RoleStore` contract.
-        role_store: IRoleStoreDispatcher,
-        /// Interface to interact with the `EventEmitter` contract.
         event_emitter: IEventEmitterDispatcher,
-        /// Interface to interact with the `DepositHandler` contract.
         deposit_handler: IDepositHandlerDispatcher,
-        /// Interface to interact with the `WithdrawalHandler` contract.
         withdrawal_handler: IWithdrawalHandlerDispatcher,
-        /// Interface to interact with the `OrderHandler` contract.
         order_handler: IOrderHandlerDispatcher
     }
 
@@ -247,7 +237,6 @@ mod ExchangeRouter {
     /// # Arguments
     /// * `router_address` - The address of the router contract.
     /// * `data_store_address` - The address of the data store contract.
-    /// * `role_store_address` - The address of the role store contract.
     /// * `event_emitter_address` - The address of the event emitter contract.
     /// * `deposit_handler_address` - The address of the deposit handler contract.
     /// * `withdrawal_handler_address` - The address of the withdrawal handler contract.
@@ -257,7 +246,6 @@ mod ExchangeRouter {
         ref self: ContractState,
         router_address: ContractAddress,
         data_store_address: ContractAddress,
-        role_store_address: ContractAddress,
         event_emitter_address: ContractAddress,
         deposit_handler_address: ContractAddress,
         withdrawal_handler_address: ContractAddress,
@@ -265,7 +253,6 @@ mod ExchangeRouter {
     ) {
         self.router.write(IRouterDispatcher { contract_address: router_address });
         self.data_store.write(IDataStoreDispatcher { contract_address: data_store_address });
-        self.role_store.write(IRoleStoreDispatcher { contract_address: role_store_address });
         self.event_emitter.write(IEventEmitterDispatcher { contract_address: event_emitter_address });
         self.deposit_handler.write(IDepositHandlerDispatcher { contract_address: deposit_handler_address });
         self.withdrawal_handler.write(IWithdrawalHandlerDispatcher { contract_address: withdrawal_handler_address });

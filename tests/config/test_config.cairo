@@ -6,7 +6,7 @@
 
 use result::ResultTrait;
 use traits::{TryInto, Into};
-use starknet::{ContractAddress, get_caller_address, contract_address_const, ClassHash,};
+use starknet::{ContractAddress, get_caller_address, contract_address_const, ClassHash};
 use snforge_std::{declare, start_cheat_caller_address, stop_cheat_caller_address, ContractClassTrait};
 
 // Local imports.
@@ -170,6 +170,9 @@ fn setup() -> (
         _decrease_order_class,
         _swap_order_class,
         _order_utils_class,
+        role_module_class,
+        _bank_class,
+        _governable_class,
         _market_factory,
         role_store,
         data_store,
@@ -196,7 +199,7 @@ fn setup() -> (
 
     // Deploy the `Config` contract.
     let config_address = deploy_config(
-        data_store.contract_address, role_store.contract_address, event_emitter.contract_address
+        data_store.contract_address, role_store.contract_address, event_emitter.contract_address, role_module_class.class_hash
     );
 
     // Create a safe dispatcher to interact with the contract.
@@ -209,7 +212,7 @@ fn setup() -> (
 
 /// Utility function to deploy a market factory contract and return its address.
 fn deploy_config(
-    data_store_address: ContractAddress, role_store_address: ContractAddress, event_emitter_address: ContractAddress,
+    data_store_address: ContractAddress, role_store_address: ContractAddress, event_emitter_address: ContractAddress, role_module_class_hash: ClassHash,
 ) -> ContractAddress {
     let contract = declare("Config").unwrap();
     let caller_address = tests_lib::get_c4ller_address();
@@ -219,6 +222,7 @@ fn deploy_config(
     constructor_calldata.append(role_store_address.into());
     constructor_calldata.append(data_store_address.into());
     constructor_calldata.append(event_emitter_address.into());
+    constructor_calldata.append(role_module_class_hash.into());
     let (contract_addresss, _) = contract.deploy_at(@constructor_calldata, config_address).unwrap();
     contract_addresss
 }

@@ -12,14 +12,6 @@ use starknet::ContractAddress;
 // *************************************************************************
 #[starknet::interface]
 trait IOracleStore<TContractState> {
-    /// Initialize the contract.
-    /// # Arguments
-    /// * `role_store_address` - The address of the role store contract.
-    /// * `event_emitter_address` - The address of the event emitter contract.
-    fn initialize(
-        ref self: TContractState, role_store_address: ContractAddress, event_emitter_address: ContractAddress,
-    );
-
     /// Adds a signer.
     /// # Arguments
     /// * `signer` - account address of the signer to add.
@@ -67,7 +59,6 @@ mod OracleStore {
     use result::ResultTrait;
 
     // Local imports.
-    use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
     use satoru::event::event_emitter::{IEventEmitterDispatcher};
     use satoru::oracle::error::OracleError;
     use super::IOracleStore;
@@ -77,8 +68,6 @@ mod OracleStore {
     // *************************************************************************
     #[storage]
     struct Storage {
-        /// Interface to interact with the `RoleStore` contract.
-        role_store: IRoleStoreDispatcher,
         /// Interface to interact with the `EventEmitter` contract.
         event_emitter: IEventEmitterDispatcher,
         // NOTE: temporarily implemented to complete oracle tests.
@@ -89,16 +78,11 @@ mod OracleStore {
     // *************************************************************************
     //                              CONSTRUCTOR
     // *************************************************************************
-
-    /// Constructor of the contract.
-    /// # Arguments
-    /// * `role_store_address` - The address of the role store contract.
-    /// * `event_emitter_address` - The address of the event emitter contract.
     #[constructor]
     fn constructor(
-        ref self: ContractState, role_store_address: ContractAddress, event_emitter_address: ContractAddress,
+        ref self: ContractState, event_emitter_address: ContractAddress,
     ) {
-        self.initialize(role_store_address, event_emitter_address);
+        self.event_emitter.write(IEventEmitterDispatcher { contract_address: event_emitter_address });
     }
 
 
@@ -107,15 +91,6 @@ mod OracleStore {
     // *************************************************************************
     #[abi(embed_v0)]
     impl OracleStoreImpl of super::IOracleStore<ContractState> {
-        fn initialize(
-            ref self: ContractState, role_store_address: ContractAddress, event_emitter_address: ContractAddress,
-        ) {
-            // Make sure the contract is not already initialized.
-            assert(self.event_emitter.read().contract_address.is_zero(), OracleError::ALREADY_INITIALIZED);
-            self.event_emitter.write(IEventEmitterDispatcher { contract_address: event_emitter_address });
-            self.role_store.write(IRoleStoreDispatcher { contract_address: role_store_address });
-        }
-
         fn add_signer(ref self: ContractState, account: ContractAddress) {
             let mut signers = self.signers.read();
             let index = signers.len();
