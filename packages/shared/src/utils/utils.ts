@@ -160,6 +160,10 @@ export function getNetAndChainId() {
                 return StarknetChainId.SN_MAIN;
             case "sepolia":
                 return StarknetChainId.SN_SEPOLIA;
+            case "dev":
+                return StarknetChainId.SN_SEPOLIA;
+            case "dev-local":
+                return StarknetChainId.SN_KATANA;
             default:
                 return StarknetChainId.SN_SEPOLIA;
         }
@@ -219,6 +223,7 @@ export async function settingUp() {
         net,
         chainId,
         account: account0,
+        provider,
         hermesUrl: process.env.HERMES_URL,
         feeToken: process.env.FEE_TOKEN,
     };
