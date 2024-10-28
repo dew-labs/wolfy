@@ -1,5 +1,94 @@
 import { Model } from '@snapshot-labs/checkpoint';
 
+export class Market extends Model {
+  static tableName = 'markets';
+
+  constructor(id: string) {
+    super(Market.tableName);
+
+    this.initialSet('id', id);
+    this.initialSet('creator', "");
+    this.initialSet('market_token', "");
+    this.initialSet('index_token', "");
+    this.initialSet('long_token', "");
+    this.initialSet('short_token', "");
+    this.initialSet('market_type', "");
+  }
+
+  static async loadEntity(id: string): Promise<Market | null> {
+    const entity = await super._loadEntity(Market.tableName, id);
+    if (!entity) return null;
+
+    const model = new Market(id);
+    model.setExists();
+
+    for (const key in entity) {
+      const value = entity[key] !== null && typeof entity[key] === 'object'
+        ? JSON.stringify(entity[key])
+        : entity[key];
+      model.set(key, value);
+    }
+
+    return model;
+  }
+
+  get id(): string {
+    return this.get('id');
+  }
+
+  set id(value: string) {
+    this.set('id', value);
+  }
+
+  get creator(): string {
+    return this.get('creator');
+  }
+
+  set creator(value: string) {
+    this.set('creator', value);
+  }
+
+  get market_token(): string {
+    return this.get('market_token');
+  }
+
+  set market_token(value: string) {
+    this.set('market_token', value);
+  }
+
+  get index_token(): string {
+    return this.get('index_token');
+  }
+
+  set index_token(value: string) {
+    this.set('index_token', value);
+  }
+
+  get long_token(): string {
+    return this.get('long_token');
+  }
+
+  set long_token(value: string) {
+    this.set('long_token', value);
+  }
+
+  get short_token(): string {
+    return this.get('short_token');
+  }
+
+  set short_token(value: string) {
+    this.set('short_token', value);
+  }
+
+  get market_type(): string {
+    return this.get('market_type');
+  }
+
+  set market_type(value: string) {
+    this.set('market_type', value);
+  }
+}
+
 export class Order extends Model {
   static tableName = 'orders';
 

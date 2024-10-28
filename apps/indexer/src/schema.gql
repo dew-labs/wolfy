@@ -1,5 +1,15 @@
 scalar Int256
 
+type Market {
+    id: ID!
+    creator: String!
+    market_token: String!
+    index_token: String!
+    long_token: String!
+    short_token: String!
+    market_type: String!
+}
+
 type Order {
     id: ID!
     key: String!
