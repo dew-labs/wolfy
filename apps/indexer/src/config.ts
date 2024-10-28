@@ -13,6 +13,7 @@ import {
     handleDepositCreated,
     handleWithdrawalExecuted,
     handleWithdrawalCreated,
+    handleMarketCreated,
 } from "./writers";
 
 export const getConfig = () => {
@@ -31,6 +32,10 @@ export const getConfig = () => {
     }
 
     const events = [
+        {
+            name: SatoruEvent.MarketCreated,
+            fn: handleMarketCreated.name,
+        },
         {
             name: SatoruEvent.OrderCreated,
             fn: handleOrderCreated.name,

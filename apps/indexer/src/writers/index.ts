@@ -7,3 +7,4 @@ export * from "./deposit/depositCreated";
 export * from "./deposit/depositExecuted";
 export * from "./withdrawal/withdrawalCreated";
 export * from "./withdrawal/withdrawalExecuted";
+export * from "./market/marketCreated";
