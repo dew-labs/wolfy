@@ -45,7 +45,7 @@ type Position {
     account: String!
     market: String!
     action: Int!
-    is_long: String!
+    is_long: Boolean!
     execution_price: Int256!
     base_pnl_usd: Int256
     uncapped_base_pnl_usd: Int256

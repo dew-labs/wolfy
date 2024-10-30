@@ -21,11 +21,8 @@ type TradeHistoryQuery = typeof tradeHistoryQuery.static;
 
 const tradeHistoryEntry = t.Object({
     id: t.String(),
-    orderPrice: t.Nullable(t.String()),
-    orderSizeUsd: t.Nullable(t.String()),
-    depositLongTokenAmount: t.Nullable(t.String()),
-    depositShortTokenAmount: t.Nullable(t.String()),
-    poolMarketTokenAmount: t.Nullable(t.String()),
+    price: t.String(),
+    size: t.String(),
     isLong: t.Boolean(),
     action: t.Enum(TradeHistoryAction),
     market: t.String(),
@@ -34,7 +31,6 @@ const tradeHistoryEntry = t.Object({
 const tradeHistoryResponse = Paginate(tradeHistoryEntry);
 
 type TradeHistoryResponse = typeof tradeHistoryResponse.static;
-
 
 export { tradeHistoryQuery, tradeHistoryResponse };
 export type { TradeHistoryQuery, TradeHistoryResponse };

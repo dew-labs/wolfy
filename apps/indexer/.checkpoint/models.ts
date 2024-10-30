@@ -352,7 +352,7 @@ export class Position extends Model {
     this.initialSet('account', "");
     this.initialSet('market', "");
     this.initialSet('action', 0);
-    this.initialSet('is_long', "");
+    this.initialSet('is_long', false);
     this.initialSet('execution_price', "0");
     this.initialSet('base_pnl_usd', null);
     this.initialSet('uncapped_base_pnl_usd', null);
@@ -444,11 +444,11 @@ export class Position extends Model {
     this.set('action', value);
   }
 
-  get is_long(): string {
+  get is_long(): boolean {
     return this.get('is_long');
   }
 
-  set is_long(value: string) {
+  set is_long(value: boolean) {
     this.set('is_long', value);
   }
 
