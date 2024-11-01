@@ -1,6 +1,6 @@
 import { orders, positions } from "apps/backend/drizzle/schema";
 import { lower } from "apps/backend/drizzle/utils";
-import { arrayStringToNumberArray, isNotEmptyArray } from "apps/backend/src/utils/utils";
+import { isNotEmptyArray } from "apps/backend/src/utils/utils";
 import { and, desc, eq, gte, lte, sql } from "drizzle-orm";
 import type { TradeHistoryQuery, TradeHistoryResponse } from "../models/trade-history.model";
 import type { Orm } from "../orm";
@@ -13,7 +13,7 @@ type TradeHistoryQueryWithoutPagination = {
         | Omit<TradeHistoryQuery, "page" | "limit" | "actions" | "markets">[k]
         | undefined;
 } & {
-    actions: string[];
+    actions: number[];
     markets: string[];
 };
 
@@ -93,9 +93,7 @@ const buildQueryPlaceholder = ({
     to,
     isLong,
 }: TradeHistoryQueryWithoutPagination) => ({
-    ...(isNotEmptyArray(arrayStringToNumberArray(actions)) && {
-        actions: arrayStringToNumberArray(actions),
-    }),
+    ...(isNotEmptyArray(actions) && { actions }),
     ...(isNotEmptyArray(markets) && { markets }),
     ...(from && { from }),
     ...(to && { to }),
@@ -108,7 +106,7 @@ const buildFilters =
         [
             buildAccountFilter(table),
             isNotEmptyArray(markets) ? buildMarketFilter(table) : null,
-            isNotEmptyArray(arrayStringToNumberArray(actions)) ? buildActionFilter(table) : null,
+            isNotEmptyArray(actions) ? buildActionFilter(table) : null,
             from ? buildFromDateFilter(table) : null,
             to ? buildToDateFilter(table) : null,
             isLong !== undefined ? buildDirectionFilter(table) : null,

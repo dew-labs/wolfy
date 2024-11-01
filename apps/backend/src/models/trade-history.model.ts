@@ -3,7 +3,7 @@ import { TradeHistoryAction } from "packages/shared/src/interfaces";
 import Paginate from "./pagination.model";
 
 const tradeHistoryQuery = t.Object({
-    actions: t.Array(t.String(), { default: [] }),
+    actions: t.Array(t.Numeric(), { default: [] }),
     markets: t.Array(t.String(), { default: [] }),
     page: t.Number({ minimum: 1, default: 1 }),
     limit: t.Number({ minimum: 1, default: 10 }),
