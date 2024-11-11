@@ -1,6 +1,7 @@
 import { swagger } from "@elysiajs/swagger";
 import { Elysia } from "elysia";
 import { config } from "./config";
+import { cors } from "@elysiajs/cors";
 import { accountRoute } from "./routes";
 
 const app = new Elysia()
@@ -18,6 +19,7 @@ const app = new Elysia()
             },
         })
     )
+    .use(cors())
     .group("/api/v1", (app) => app.use(accountRoute))
     .listen(config.BACKEND_PORT || 3002);
 

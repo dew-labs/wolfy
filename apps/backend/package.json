@@ -6,6 +6,7 @@
     "sepolia:dev": "MISE_ENV=sepolia mise x -- bun run dev"
   },
   "dependencies": {
+    "@elysiajs/cors": "^1.1.1",
     "@elysiajs/swagger": "^1.1.5",
     "drizzle-orm": "0.34.1",
     "elysia": "latest",
