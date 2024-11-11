@@ -1,5 +1,6 @@
 import { orders, positions } from "apps/backend/drizzle/schema";
 import { lower } from "apps/backend/drizzle/utils";
+import { isNotEmptyArray } from "apps/backend/src/utils/utils";
 import { and, desc, eq, gte, lte, sql } from "drizzle-orm";
 import type { TradeHistoryQuery, TradeHistoryResponse } from "../models/trade-history.model";
 import type { Orm } from "../orm";
@@ -8,9 +9,12 @@ export const tradeHistoryTables = [orders, positions] as const;
 export type TradeHistoryTable = (typeof tradeHistoryTables)[number];
 
 type TradeHistoryQueryWithoutPagination = {
-    [k in keyof Omit<TradeHistoryQuery, "page" | "limit">]:
-        | Omit<TradeHistoryQuery, "page" | "limit">[k]
+    [k in keyof Omit<TradeHistoryQuery, "page" | "limit" | "actions" | "markets">]:
+        | Omit<TradeHistoryQuery, "page" | "limit" | "actions" | "markets">[k]
         | undefined;
+} & {
+    actions: number[];
+    markets: string[];
 };
 
 export const getTradeHistory = async (
@@ -89,13 +93,8 @@ const buildQueryPlaceholder = ({
     to,
     isLong,
 }: TradeHistoryQueryWithoutPagination) => ({
-    ...(actions && {
-        actions: actions
-            .split(",")
-            .map((action) => parseInt(action))
-            .filter((action) => !isNaN(action)),
-    }),
-    ...(markets && { markets: markets.split(",") }),
+    ...(isNotEmptyArray(actions) && { actions }),
+    ...(isNotEmptyArray(markets) && { markets }),
     ...(from && { from }),
     ...(to && { to }),
     ...(isLong !== undefined && { isLong }),
@@ -106,8 +105,8 @@ const buildFilters =
     (table: TradeHistoryTable) =>
         [
             buildAccountFilter(table),
-            markets ? buildMarketFilter(table) : null,
-            actions ? buildActionFilter(table) : null,
+            isNotEmptyArray(markets) ? buildMarketFilter(table) : null,
+            isNotEmptyArray(actions) ? buildActionFilter(table) : null,
             from ? buildFromDateFilter(table) : null,
             to ? buildToDateFilter(table) : null,
             isLong !== undefined ? buildDirectionFilter(table) : null,
@@ -129,3 +128,4 @@ const buildFromDateFilter = (table: TradeHistoryTable) =>
     gte(table.createdAt, sql.placeholder("from"));
 
 const buildToDateFilter = (table: TradeHistoryTable) => lte(table.createdAt, sql.placeholder("to"));
+
