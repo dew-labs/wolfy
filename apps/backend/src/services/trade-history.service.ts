@@ -83,7 +83,15 @@ const buildSelectClause = (table: TradeHistoryTable) => ({
     isLong: table.isLong,
     action: table.action,
     market: table.market,
-    created_at: table.createdAt,
+    rpnl:
+        "basePnlUsd" in table
+            ? sql<string>`${table.basePnlUsd}`.as("rpnl")
+            : sql<null>`null`.as("rpnl"),
+    fee:
+        "executionFee" in table
+            ? sql<string>`${table.executionFee}`.as("fee")
+            : sql<null>`null`.as("fee"),
+    createdAt: table.createdAt,
 });
 
 const buildQueryPlaceholder = ({
@@ -128,4 +136,3 @@ const buildFromDateFilter = (table: TradeHistoryTable) =>
     gte(table.createdAt, sql.placeholder("from"));
 
 const buildToDateFilter = (table: TradeHistoryTable) => lte(table.createdAt, sql.placeholder("to"));
-

@@ -21,6 +21,9 @@ const tradeHistoryEntry = t.Object({
     isLong: t.Boolean(),
     action: t.Enum(TradeHistoryAction),
     market: t.String(),
+    rpnl: t.Nullable(t.String()),
+    fee: t.Nullable(t.String()),
+    createdAt: t.Integer(),
 });
 
 const tradeHistoryResponse = Paginate(tradeHistoryEntry);
