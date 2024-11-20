@@ -419,8 +419,8 @@ mod Oracle {
                     // otherwise the new token is appended to the list. This is to avoid the list
                     // to grow indefinitely.
                     match index_of_zero {
-                        Option::Some(i) => { tokens_with_prices.set(i, token); },
-                        Option::None => { tokens_with_prices.append(token); }
+                        Option::Some(i) => { tokens_with_prices.set(i, token).unwrap(); },
+                        Option::None => { tokens_with_prices.append(token).unwrap(); }
                     }
                 }
             }
@@ -432,7 +432,7 @@ mod Oracle {
         fn remove_primary_price(ref self: ContractState, token: ContractAddress) {
             self.primary_prices.write(token, Zeroable::zero());
             let mut tokens_prices = self.tokens_with_prices.read();
-            tokens_prices.pop_front().unwrap();
+            tokens_prices.pop_front().unwrap().unwrap();
             self.tokens_with_prices.write(tokens_prices);
         }
 

@@ -822,13 +822,13 @@ mod DataStore {
             if offsetted_index == 0 {
                 // Valid indexes start from 1.
                 self.market_indexes.write(key, markets.len() + 1);
-                markets.append(market);
+                markets.append(market).unwrap();
                 self.set_address(self.get_market_salt_hash(salt), key);
                 return;
             }
             let index = offsetted_index - 1;
             self.set_address(self.get_market_salt_hash(salt), key);
-            markets.set(index, market);
+            markets.set(index, market).unwrap();
         }
 
         fn remove_market(ref self: ContractState, key: ContractAddress) {
@@ -844,7 +844,7 @@ mod DataStore {
             // Specifically handle case where there is only one market
             let last_market_index = markets.len() - 1;
             if index == last_market_index {
-                markets.pop_front().unwrap();
+                markets.pop_front().unwrap().unwrap();
                 self.market_indexes.write(key, 0);
                 return;
             }
@@ -852,7 +852,7 @@ mod DataStore {
             let mut last_market_maybe = markets.pop_front().unwrap();
             match last_market_maybe {
                 Option::Some(last_market) => {
-                    markets.set(index, last_market);
+                    markets.set(index, last_market).unwrap();
                     self.market_indexes.write(last_market.market_token.into(), offsetted_index);
                     self.market_indexes.write(key, 0);
                 },
@@ -945,13 +945,13 @@ mod DataStore {
             if offsetted_index == 0 {
                 // Valid indexes start from 1.
                 self.order_indexes.write(key, orders.len() + 1);
-                account_orders.append(key);
-                orders.append(order);
+                account_orders.append(key).unwrap();
+                orders.append(order).unwrap();
                 return;
             }
             let index = offsetted_index - 1;
 
-            orders.set(index, order);
+            orders.set(index, order).unwrap();
         }
 
         fn remove_order(ref self: ContractState, key: felt252, account: ContractAddress) {
@@ -967,7 +967,7 @@ mod DataStore {
             // Specifically handle case where there is only one order
             let last_order_index = orders.len() - 1;
             if index == last_order_index {
-                orders.pop_front().unwrap();
+                orders.pop_front().unwrap().unwrap();
                 self.order_indexes.write(key, 0);
                 self._remove_account_order(key, account);
                 return;
@@ -976,7 +976,7 @@ mod DataStore {
             let mut last_order_maybe = orders.pop_front().unwrap();
             match last_order_maybe {
                 Option::Some(last_order) => {
-                    orders.set(index, last_order);
+                    orders.set(index, last_order).unwrap();
                     self.order_indexes.write(last_order.key, offsetted_index);
                     self.order_indexes.write(key, 0);
                     self._remove_account_order(key, account)
@@ -1084,13 +1084,13 @@ mod DataStore {
             if offsetted_index == 0 {
                 // Valid indexes start from 1.
                 self.position_indexes.write(key, positions.len() + 1);
-                account_positions.append(key);
-                positions.append(position);
+                account_positions.append(key).unwrap();
+                positions.append(position).unwrap();
                 return;
             }
             let index = offsetted_index - 1;
 
-            positions.set(index, position);
+            positions.set(index, position).unwrap();
         }
 
         fn remove_position(ref self: ContractState, key: felt252, account: ContractAddress) {
@@ -1106,7 +1106,7 @@ mod DataStore {
             // Specifically handle case where there is only one position
             let last_position_index = positions.len() - 1;
             if index == last_position_index {
-                positions.pop_front().unwrap();
+                positions.pop_front().unwrap().unwrap();
                 self.position_indexes.write(key, 0);
                 self._remove_account_position(key, account);
                 return;
@@ -1115,7 +1115,7 @@ mod DataStore {
             let mut last_position_maybe = positions.pop_front().unwrap();
             match last_position_maybe {
                 Option::Some(last_position) => {
-                    positions.set(index, last_position);
+                    positions.set(index, last_position).unwrap();
                     self.position_indexes.write(last_position.key, offsetted_index);
                     self.position_indexes.write(key, 0);
                     self._remove_account_position(key, account)
@@ -1219,13 +1219,13 @@ mod DataStore {
             if offsetted_index == 0 {
                 // Valid indexes start from 1.
                 self.withdrawal_indexes.write(key, withdrawals.len() + 1);
-                account_withdrawals.append(key);
-                withdrawals.append(withdrawal);
+                account_withdrawals.append(key).unwrap();
+                withdrawals.append(withdrawal).unwrap();
                 return;
             }
             let index = offsetted_index - 1;
 
-            withdrawals.set(index, withdrawal);
+            withdrawals.set(index, withdrawal).unwrap();
         }
 
         fn remove_withdrawal(ref self: ContractState, key: felt252, account: ContractAddress) {
@@ -1241,7 +1241,7 @@ mod DataStore {
             // Specifically handle case where there is only one withdrawal
             let last_withdrawal_index = withdrawals.len() - 1;
             if index == last_withdrawal_index {
-                withdrawals.pop_front().unwrap();
+                withdrawals.pop_front().unwrap().unwrap();
                 self.withdrawal_indexes.write(key, 0);
                 self._remove_account_withdrawal(key, account);
                 return;
@@ -1250,7 +1250,7 @@ mod DataStore {
             let mut last_withdrawal_maybe = withdrawals.pop_front().unwrap();
             match last_withdrawal_maybe {
                 Option::Some(last_withdrawal) => {
-                    withdrawals.set(index, last_withdrawal);
+                    withdrawals.set(index, last_withdrawal).unwrap();
                     self.withdrawal_indexes.write(last_withdrawal.key, offsetted_index);
                     self.withdrawal_indexes.write(key, 0);
                     self._remove_account_withdrawal(key, account)
@@ -1354,12 +1354,12 @@ mod DataStore {
             if offsetted_index == 0 {
                 // Valid indexes start from 1.
                 self.deposit_indexes.write(key, deposits.len() + 1);
-                account_deposits.append(key);
-                deposits.append(deposit);
+                account_deposits.append(key).unwrap();
+                deposits.append(deposit).unwrap();
                 return;
             }
             let index = offsetted_index - 1;
-            deposits.set(index, deposit);
+            deposits.set(index, deposit).unwrap();
         }
 
         fn remove_deposit(ref self: ContractState, key: felt252, account: ContractAddress) {
@@ -1375,7 +1375,7 @@ mod DataStore {
             // Specifically handle case where there is only one deposit
             let last_deposit_index = deposits.len() - 1;
             if index == last_deposit_index {
-                deposits.pop_front().unwrap();
+                deposits.pop_front().unwrap().unwrap();
                 self.deposit_indexes.write(key, 0);
                 self._remove_account_deposit(key, account);
                 return;
@@ -1384,7 +1384,7 @@ mod DataStore {
             let mut last_deposit_maybe = deposits.pop_front().unwrap();
             match last_deposit_maybe {
                 Option::Some(last_deposit) => {
-                    deposits.set(index, last_deposit);
+                    deposits.set(index, last_deposit).unwrap();
                     self.deposit_indexes.write(last_deposit.key, offsetted_index);
                     self.deposit_indexes.write(key, 0);
                     self._remove_account_deposit(key, account)
@@ -1476,7 +1476,7 @@ mod DataStore {
                             if last_key == withdrawal_key {
                                 break;
                             }
-                            account_withdrawals.set(i, last_key);
+                            account_withdrawals.set(i, last_key).unwrap();
                         },
                         Option::None => {
                             // This case should never happen, because index is always < length
@@ -1508,7 +1508,7 @@ mod DataStore {
                             if last_key == order_key {
                                 break;
                             }
-                            account_orders.set(i, last_key);
+                            account_orders.set(i, last_key).unwrap();
                         },
                         Option::None => {
                             // This case should never happen, because index is always < length
@@ -1540,7 +1540,7 @@ mod DataStore {
                             if last_key == deposit_key {
                                 break;
                             }
-                            account_deposits.set(i, last_key);
+                            account_deposits.set(i, last_key).unwrap();
                         },
                         Option::None => {
                             // This case should never happen, because index is always < length
@@ -1572,7 +1572,7 @@ mod DataStore {
                             if last_key == position_key {
                                 break;
                             }
-                            account_positions.set(i, last_key);
+                            account_positions.set(i, last_key).unwrap();
                         },
                         Option::None => {
                             // This case should never happen, because index is always < length

@@ -52,7 +52,7 @@ impl StoreContractAddressArray of Store<Array<ContractAddress>> {
     ) -> SyscallResult<()> {
         // // Store the length of the array in the first storage slot.
         let len: u8 = value.len().try_into().expect('Storage - Span too large');
-        Store::<u8>::write_at_offset(address_domain, base, offset, len);
+        Store::<u8>::write_at_offset(address_domain, base, offset, len).unwrap();
         offset += 1;
 
         // Store the array elements sequentially
@@ -110,7 +110,7 @@ impl StoreMarketArray of Store<Array<Market>> {
     ) -> SyscallResult<()> {
         // // Store the length of the array in the first storage slot.
         let len: u8 = value.len().try_into().expect('Storage - Span too large');
-        Store::<u8>::write_at_offset(address_domain, base, offset, len);
+        Store::<u8>::write_at_offset(address_domain, base, offset, len).unwrap();
         offset += 1;
 
         // Store the array elements sequentially
@@ -168,7 +168,7 @@ impl StoreMarketSpan of Store<Span<Market>> {
     ) -> SyscallResult<()> {
         // Store the length of the array in the first storage slot.
         let len: u8 = value.len().try_into().expect('Storage - Span too large');
-        Store::<u8>::write_at_offset(address_domain, base, offset, len);
+        Store::<u8>::write_at_offset(address_domain, base, offset, len).unwrap();
         offset += 1;
 
         // Store the array elements sequentially
@@ -226,7 +226,7 @@ impl StorePriceArray of Store<Array<Price>> {
     ) -> SyscallResult<()> {
         // // Store the length of the array in the first storage slot.
         let len: u8 = value.len().try_into().expect('Storage - Span too large');
-        Store::<u8>::write_at_offset(address_domain, base, offset, len);
+        Store::<u8>::write_at_offset(address_domain, base, offset, len).unwrap();
         offset += 1;
 
         // Store the array elements sequentially
@@ -284,7 +284,7 @@ impl StoreU256Array of Store<Array<u256>> {
     ) -> SyscallResult<()> {
         // // Store the length of the array in the first storage slot.
         let len: u8 = value.len().try_into().expect('Storage - Span too large');
-        Store::<u8>::write_at_offset(address_domain, base, offset, len);
+        Store::<u8>::write_at_offset(address_domain, base, offset, len).unwrap();
         offset += 1;
 
         // Store the array elements sequentially
@@ -342,7 +342,7 @@ impl StoreU64Array of Store<Array<u64>> {
     ) -> SyscallResult<()> {
         // // Store the length of the array in the first storage slot.
         let len: u8 = value.len().try_into().expect('Storage - Span too large');
-        Store::<u8>::write_at_offset(address_domain, base, offset, len);
+        Store::<u8>::write_at_offset(address_domain, base, offset, len).unwrap();
         offset += 1;
 
         // Store the array elements sequentially
@@ -400,7 +400,7 @@ impl StoreFelt252Array of Store<Array<felt252>> {
     ) -> SyscallResult<()> {
         // // Store the length of the array in the first storage slot.
         let len: u8 = value.len().try_into().expect('Storage - Span too large');
-        Store::<u8>::write_at_offset(address_domain, base, offset, len);
+        Store::<u8>::write_at_offset(address_domain, base, offset, len).unwrap();
         offset += 1;
 
         // Store the array elements sequentially
