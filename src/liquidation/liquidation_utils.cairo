@@ -66,7 +66,7 @@ fn create_liquidation_order(
         acceptable_price,
         execution_fee: 0,
         callback_gas_limit,
-        min_output_amount: 0,
+        min_output_amount,
         updated_at_block,
         is_long: position.is_long,
         is_frozen: false,

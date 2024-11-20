@@ -1,5 +1,5 @@
 [tools]
-scarb = '2.8.4'
-starknet-foundry = '0.32.0'
+scarb = '2.8.5'
+starknet-foundry = '0.33.0'
 bun = '1.1.26'
 dojo = "1.0.0-alpha.19"
