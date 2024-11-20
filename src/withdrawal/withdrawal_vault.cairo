@@ -52,6 +52,7 @@ mod WithdrawalVault {
     // Core lib imports.
     use core::zeroable::Zeroable;
     use starknet::{ContractAddress, ClassHash};
+    use starknet::storage::Map;
 
     // Local imports.
     use satoru::withdrawal::error::WithdrawalError;
@@ -68,7 +69,7 @@ mod WithdrawalVault {
     struct Storage {
         strict_bank: IStrictBankLibraryDispatcher,
         // StrictBank storage
-        // token_balances: LegacyMap::<ContractAddress, u256>,
+        // token_balances: Map::<ContractAddress, u256>,
         // bank: IBankLibraryDispatcher,
         // data_store: IDataStoreDispatcher,
         // role_module: IRoleModuleLibraryDispatcher,

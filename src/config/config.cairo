@@ -43,6 +43,7 @@ mod Config {
     use core::clone::Clone;
     use starknet::{get_caller_address, ContractAddress, contract_address_const, ClassHash};
     use poseidon::poseidon_hash_span;
+    use starknet::storage::Map;
 
 
     // Local imports.
@@ -62,7 +63,7 @@ mod Config {
     struct Storage {
         data_store: IDataStoreDispatcher,
         event_emitter: IEventEmitterDispatcher,
-        allowed_based_keys: LegacyMap<felt252, bool>,
+        allowed_based_keys: Map<felt252, bool>,
         role_module: IRoleModuleLibraryDispatcher,
     }
 

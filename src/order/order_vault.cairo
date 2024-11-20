@@ -49,6 +49,7 @@ mod OrderVault {
 
     // Core lib imports.
     use starknet::{get_caller_address, ContractAddress, contract_address_const, ClassHash};
+    use starknet::storage::Map;
 
     // Local imports.
     use satoru::bank::strict_bank::{IStrictBankLibraryDispatcher, IStrictBankDispatcherTrait};
@@ -65,7 +66,7 @@ mod OrderVault {
     struct Storage {
         strict_bank: IStrictBankLibraryDispatcher,
         // StrictBank storage
-        // token_balances: LegacyMap::<ContractAddress, u256>,
+        // token_balances: Map::<ContractAddress, u256>,
         // bank: IBankLibraryDispatcher,
         // data_store: IDataStoreDispatcher,
         // role_module: IRoleModuleLibraryDispatcher,

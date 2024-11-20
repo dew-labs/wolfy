@@ -52,6 +52,7 @@ mod OracleStore {
     // Core lib imports.
     use core::option::OptionTrait;
     use core::zeroable::Zeroable;
+    use starknet::storage::Map;
     use starknet::{ContractAddress, contract_address_const};
 
     use alexandria_storage::list::{ListTrait, List};
@@ -72,7 +73,7 @@ mod OracleStore {
         event_emitter: IEventEmitterDispatcher,
         // NOTE: temporarily implemented to complete oracle tests.
         signers: List<ContractAddress>,
-        signers_indexes: LegacyMap<ContractAddress, u32>
+        signers_indexes: Map<ContractAddress, u32>
     }
 
     // *************************************************************************

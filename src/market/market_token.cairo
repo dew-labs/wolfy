@@ -25,6 +25,7 @@ mod MarketToken {
     use integer::BoundedInt;
     use starknet::{ContractAddress, ClassHash};
     use starknet::get_caller_address;
+    use starknet::storage::Map;
     use zeroable::Zeroable;
 
     use satoru::bank::bank::{IBankLibraryDispatcher, IBankDispatcherTrait};
@@ -43,8 +44,8 @@ mod MarketToken {
         name: felt252,
         symbol: felt252,
         total_supply: u256,
-        balances: LegacyMap<ContractAddress, u256>,
-        allowances: LegacyMap<(ContractAddress, ContractAddress), u256>,
+        balances: Map<ContractAddress, u256>,
+        allowances: Map<(ContractAddress, ContractAddress), u256>,
         bank: IBankLibraryDispatcher,
         // Bank storage
         role_module: IRoleModuleLibraryDispatcher,

@@ -68,6 +68,7 @@ mod RoleStore {
     // Core lib imports.
     use core::zeroable::Zeroable;
     use starknet::{ContractAddress, get_caller_address, contract_address_const};
+    use starknet::storage::Map;
 
     // Local imports.
     use satoru::role::{role, error::RoleError};
@@ -79,17 +80,17 @@ mod RoleStore {
     #[storage]
     struct Storage {
         /// Maps accounts to their roles.
-        has_role: LegacyMap::<(felt252, ContractAddress), bool>,
+        has_role: Map::<(felt252, ContractAddress), bool>,
         /// Stores the number of the indexes used to a specific role.
-        role_members_count: LegacyMap::<felt252, u32>,
+        role_members_count: Map::<felt252, u32>,
         /// Stores all the account that have a specific role.
-        role_members: LegacyMap::<(felt252, u32), ContractAddress>,
+        role_members: Map::<(felt252, u32), ContractAddress>,
         /// Stores unique role names.
-        role_names: LegacyMap::<felt252, bool>,
+        role_names: Map::<felt252, bool>,
         /// Store the number of indexes of the roles.
         roles_count: u32,
         /// List of all role keys.
-        roles: LegacyMap::<u32, felt252>,
+        roles: Map::<u32, felt252>,
     }
 
     // *************************************************************************

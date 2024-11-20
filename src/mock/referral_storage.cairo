@@ -118,6 +118,7 @@ mod ReferralStorage {
 
     // Core lib imports.
     use starknet::{get_caller_address, ContractAddress, contract_address_const, ClassHash};
+    use starknet::storage::Map;
     use result::ResultTrait;
 
     // Local imports.
@@ -131,12 +132,12 @@ mod ReferralStorage {
     // *************************************************************************
     #[storage]
     struct Storage {
-        referrer_discount_shares: LegacyMap<ContractAddress, u256>,
-        referrer_tiers: LegacyMap<ContractAddress, u256>,
-        tiers: LegacyMap<u256, ReferralTier>,
-        is_handler: LegacyMap<ContractAddress, bool>,
-        code_owners: LegacyMap<felt252, ContractAddress>,
-        trader_referral_codes: LegacyMap<ContractAddress, felt252>,
+        referrer_discount_shares: Map<ContractAddress, u256>,
+        referrer_tiers: Map<ContractAddress, u256>,
+        tiers: Map<u256, ReferralTier>,
+        is_handler: Map<ContractAddress, bool>,
+        code_owners: Map<felt252, ContractAddress>,
+        trader_referral_codes: Map<ContractAddress, felt252>,
         governable: IGovernableLibraryDispatcher,
         // Governable storage
         event_emitter: IEventEmitterDispatcher,

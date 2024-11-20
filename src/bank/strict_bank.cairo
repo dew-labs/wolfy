@@ -51,6 +51,7 @@ mod StrictBank {
     // Core lib imports.
     use core::traits::TryInto;
     use starknet::{get_caller_address, get_contract_address, ContractAddress, ClassHash, contract_address_const};
+    use starknet::storage::Map;
 
     // Local imports.
     use satoru::bank::bank::{IBankLibraryDispatcher, IBankDispatcherTrait};
@@ -66,7 +67,7 @@ mod StrictBank {
     // *************************************************************************
     #[storage]
     struct Storage {
-        token_balances: LegacyMap::<ContractAddress, u256>,
+        token_balances: Map::<ContractAddress, u256>,
         bank: IBankLibraryDispatcher,
         // Bank storage
         // data_store: IDataStoreDispatcher,

@@ -4,6 +4,7 @@ mod ERC20 {
     use starknet::ContractAddress;
     use starknet::get_caller_address;
     use zeroable::Zeroable;
+    use starknet::storage::Map;
     use debug::PrintTrait;
 
     use satoru::token::erc20::interface::IERC20;
@@ -13,8 +14,8 @@ mod ERC20 {
         _name: felt252,
         _symbol: felt252,
         _total_supply: u256,
-        _balances: LegacyMap<ContractAddress, u256>,
-        _allowances: LegacyMap<(ContractAddress, ContractAddress), u256>,
+        _balances: Map<ContractAddress, u256>,
+        _allowances: Map<(ContractAddress, ContractAddress), u256>,
         _decimals: u8,
     }
 

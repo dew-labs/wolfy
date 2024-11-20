@@ -188,6 +188,7 @@ mod Oracle {
     use starknet::syscalls::get_block_hash_syscall;
     use starknet::SyscallResultTrait;
     use starknet::storage_access::storage_base_address_from_felt252;
+    use starknet::storage::Map;
 
     use alexandria_math::BitShift;
     use alexandria_storage::list::{ListTrait, List};
@@ -235,7 +236,7 @@ mod Oracle {
         /// List of Prices related to a token.
         tokens_with_prices: List<ContractAddress>,
         /// Mapping between tokens and prices.
-        primary_prices: LegacyMap::<ContractAddress, Price>,
+        primary_prices: Map::<ContractAddress, Price>,
         role_module: IRoleModuleLibraryDispatcher,
     }
 

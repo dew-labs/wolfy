@@ -463,6 +463,7 @@ mod DataStore {
     use nullable::NullableTrait;
     use zeroable::Zeroable;
     use alexandria_storage::list::{ListTrait, List};
+    use starknet::storage::Map;
     use poseidon::poseidon_hash_span;
 
     // Local imports.
@@ -483,34 +484,34 @@ mod DataStore {
     // *************************************************************************
     #[storage]
     struct Storage {
-        felt252_values: LegacyMap::<felt252, felt252>,
-        u256_values: LegacyMap::<felt252, u256>,
-        i256_values: LegacyMap::<felt252, i256>,
-        address_values: LegacyMap::<felt252, ContractAddress>,
-        bool_values: LegacyMap::<felt252, bool>,
+        felt252_values: Map::<felt252, felt252>,
+        u256_values: Map::<felt252, u256>,
+        i256_values: Map::<felt252, i256>,
+        address_values: Map::<felt252, ContractAddress>,
+        bool_values: Map::<felt252, bool>,
         /// Market storage
-        market_values: LegacyMap::<ContractAddress, Market>,
+        market_values: Map::<ContractAddress, Market>,
         markets: List<Market>,
-        market_indexes: LegacyMap::<ContractAddress, usize>,
+        market_indexes: Map::<ContractAddress, usize>,
         /// Oracle storage
-        tokens_ids: LegacyMap::<ContractAddress, felt252>,
+        tokens_ids: Map::<ContractAddress, felt252>,
         /// Order storage
-        order_values: LegacyMap::<felt252, Order>,
+        order_values: Map::<felt252, Order>,
         orders: List<Order>,
-        account_orders: LegacyMap<ContractAddress, List<felt252>>,
-        order_indexes: LegacyMap::<felt252, usize>,
+        account_orders: Map<ContractAddress, List<felt252>>,
+        order_indexes: Map::<felt252, usize>,
         /// Position storage
         positions: List<Position>,
-        account_positions: LegacyMap<ContractAddress, List<felt252>>,
-        position_indexes: LegacyMap::<felt252, usize>,
+        account_positions: Map<ContractAddress, List<felt252>>,
+        position_indexes: Map::<felt252, usize>,
         /// Withdrawal storage
         withdrawals: List<Withdrawal>,
-        account_withdrawals: LegacyMap<ContractAddress, List<felt252>>,
-        withdrawal_indexes: LegacyMap::<felt252, usize>,
+        account_withdrawals: Map<ContractAddress, List<felt252>>,
+        withdrawal_indexes: Map::<felt252, usize>,
         /// Deposit storage
         deposits: List<Deposit>,
-        account_deposits: LegacyMap<ContractAddress, List<felt252>>,
-        deposit_indexes: LegacyMap::<felt252, usize>,
+        account_deposits: Map<ContractAddress, List<felt252>>,
+        deposit_indexes: Map::<felt252, usize>,
         role_module: IRoleModuleLibraryDispatcher,
     }
 
