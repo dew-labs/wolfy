@@ -210,11 +210,11 @@ use starknet::{ContractAddress, StorageBaseAddress, SyscallResult, Store};
 
 impl StoreContractAddressSpan of Store<Span<ContractAddress>> {
     fn read(address_domain: u32, base: StorageBaseAddress) -> SyscallResult<Span<ContractAddress>> {
-        StoreContractAddressSpan::read_at_offset(address_domain, base, 0)
+        Self::read_at_offset(address_domain, base, 0)
     }
 
     fn write(address_domain: u32, base: StorageBaseAddress, value: Span<ContractAddress>) -> SyscallResult<()> {
-        StoreContractAddressSpan::write_at_offset(address_domain, base, 0, value)
+        Self::write_at_offset(address_domain, base, 0, value)
     }
 
     fn read_at_offset(

@@ -98,11 +98,11 @@ impl Array32<T> of Array32Trait<T> {
 
 impl StoreContractAddressSpan32 of Store<Span32<ContractAddress>> {
     fn read(address_domain: u32, base: StorageBaseAddress) -> SyscallResult<Span32<ContractAddress>> {
-        StoreContractAddressSpan32::read_at_offset(address_domain, base, 0)
+        Self::read_at_offset(address_domain, base, 0)
     }
 
     fn write(address_domain: u32, base: StorageBaseAddress, value: Span32<ContractAddress>) -> SyscallResult<()> {
-        StoreContractAddressSpan32::write_at_offset(address_domain, base, 0, value)
+        Self::write_at_offset(address_domain, base, 0, value)
     }
 
     fn read_at_offset(

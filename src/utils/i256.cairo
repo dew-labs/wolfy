@@ -390,11 +390,11 @@ impl i256Zeroable of Zeroable<i256> {
     }
     #[inline(always)]
     fn is_zero(self: i256) -> bool {
-        self == i256Zeroable::zero()
+        self == Self::zero()
     }
     #[inline(always)]
     fn is_non_zero(self: i256) -> bool {
-        self != i256Zeroable::zero()
+        self != Self::zero()
     }
 }
 

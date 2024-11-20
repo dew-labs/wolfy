@@ -14,11 +14,11 @@ use satoru::price::price::{Price};
 
 impl StoreContractAddressArray of Store<Array<ContractAddress>> {
     fn read(address_domain: u32, base: StorageBaseAddress) -> SyscallResult<Array<ContractAddress>> {
-        StoreContractAddressArray::read_at_offset(address_domain, base, 0)
+        Self::read_at_offset(address_domain, base, 0)
     }
 
     fn write(address_domain: u32, base: StorageBaseAddress, value: Array<ContractAddress>) -> SyscallResult<()> {
-        StoreContractAddressArray::write_at_offset(address_domain, base, 0, value)
+        Self::write_at_offset(address_domain, base, 0, value)
     }
 
     fn read_at_offset(
@@ -75,11 +75,11 @@ impl StoreContractAddressArray of Store<Array<ContractAddress>> {
 
 impl StoreMarketArray of Store<Array<Market>> {
     fn read(address_domain: u32, base: StorageBaseAddress) -> SyscallResult<Array<Market>> {
-        StoreMarketArray::read_at_offset(address_domain, base, 0)
+        Self::read_at_offset(address_domain, base, 0)
     }
 
     fn write(address_domain: u32, base: StorageBaseAddress, value: Array<Market>) -> SyscallResult<()> {
-        StoreMarketArray::write_at_offset(address_domain, base, 0, value)
+        Self::write_at_offset(address_domain, base, 0, value)
     }
 
     fn read_at_offset(address_domain: u32, base: StorageBaseAddress, mut offset: u8) -> SyscallResult<Array<Market>> {
@@ -133,11 +133,11 @@ impl StoreMarketArray of Store<Array<Market>> {
 
 impl StoreMarketSpan of Store<Span<Market>> {
     fn read(address_domain: u32, base: StorageBaseAddress) -> SyscallResult<Span<Market>> {
-        StoreMarketSpan::read_at_offset(address_domain, base, 0)
+        Self::read_at_offset(address_domain, base, 0)
     }
 
     fn write(address_domain: u32, base: StorageBaseAddress, value: Span<Market>) -> SyscallResult<()> {
-        StoreMarketSpan::write_at_offset(address_domain, base, 0, value)
+        Self::write_at_offset(address_domain, base, 0, value)
     }
 
     fn read_at_offset(address_domain: u32, base: StorageBaseAddress, mut offset: u8) -> SyscallResult<Span<Market>> {
@@ -191,11 +191,11 @@ impl StoreMarketSpan of Store<Span<Market>> {
 
 impl StorePriceArray of Store<Array<Price>> {
     fn read(address_domain: u32, base: StorageBaseAddress) -> SyscallResult<Array<Price>> {
-        StorePriceArray::read_at_offset(address_domain, base, 0)
+        Self::read_at_offset(address_domain, base, 0)
     }
 
     fn write(address_domain: u32, base: StorageBaseAddress, value: Array<Price>) -> SyscallResult<()> {
-        StorePriceArray::write_at_offset(address_domain, base, 0, value)
+        Self::write_at_offset(address_domain, base, 0, value)
     }
 
     fn read_at_offset(address_domain: u32, base: StorageBaseAddress, mut offset: u8) -> SyscallResult<Array<Price>> {
@@ -249,11 +249,11 @@ impl StorePriceArray of Store<Array<Price>> {
 
 impl StoreU256Array of Store<Array<u256>> {
     fn read(address_domain: u32, base: StorageBaseAddress) -> SyscallResult<Array<u256>> {
-        StoreU256Array::read_at_offset(address_domain, base, 0)
+        Self::read_at_offset(address_domain, base, 0)
     }
 
     fn write(address_domain: u32, base: StorageBaseAddress, value: Array<u256>) -> SyscallResult<()> {
-        StoreU256Array::write_at_offset(address_domain, base, 0, value)
+        Self::write_at_offset(address_domain, base, 0, value)
     }
 
     fn read_at_offset(address_domain: u32, base: StorageBaseAddress, mut offset: u8) -> SyscallResult<Array<u256>> {
@@ -307,11 +307,11 @@ impl StoreU256Array of Store<Array<u256>> {
 
 impl StoreU64Array of Store<Array<u64>> {
     fn read(address_domain: u32, base: StorageBaseAddress) -> SyscallResult<Array<u64>> {
-        StoreU64Array::read_at_offset(address_domain, base, 0)
+        Self::read_at_offset(address_domain, base, 0)
     }
 
     fn write(address_domain: u32, base: StorageBaseAddress, value: Array<u64>) -> SyscallResult<()> {
-        StoreU64Array::write_at_offset(address_domain, base, 0, value)
+        Self::write_at_offset(address_domain, base, 0, value)
     }
 
     fn read_at_offset(address_domain: u32, base: StorageBaseAddress, mut offset: u8) -> SyscallResult<Array<u64>> {
@@ -365,11 +365,11 @@ impl StoreU64Array of Store<Array<u64>> {
 
 impl StoreFelt252Array of Store<Array<felt252>> {
     fn read(address_domain: u32, base: StorageBaseAddress) -> SyscallResult<Array<felt252>> {
-        StoreFelt252Array::read_at_offset(address_domain, base, 0)
+        Self::read_at_offset(address_domain, base, 0)
     }
 
     fn write(address_domain: u32, base: StorageBaseAddress, value: Array<felt252>) -> SyscallResult<()> {
-        StoreFelt252Array::write_at_offset(address_domain, base, 0, value)
+        Self::write_at_offset(address_domain, base, 0, value)
     }
 
     fn read_at_offset(address_domain: u32, base: StorageBaseAddress, mut offset: u8) -> SyscallResult<Array<felt252>> {
