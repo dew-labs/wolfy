@@ -3,7 +3,8 @@
 // *************************************************************************
 // Core lib imports.
 use alexandria_math::pow;
-use integer::{u256_wide_mul, u512_safe_div_rem_by_u256, BoundedU256, u256_try_as_non_zero, U256TryIntoFelt252};
+use integer::{u512_safe_div_rem_by_u256, BoundedU256, u256_try_as_non_zero, U256TryIntoFelt252};
+use core::num::traits::WideMul;
 use satoru::utils::i256::{i256, i256_neg};
 use core::traits::TryInto;
 use core::option::Option;
@@ -53,7 +54,7 @@ fn apply_factor_roundup_magnitude(value: u256, factor: i256, roundup_magnitude: 
 /// * `numerator` - The numerator that multiplies value.
 /// * `divisor` - The denominator that divides value.
 fn mul_div(value: u256, numerator: u256, denominator: u256) -> u256 {
-    let product = u256_wide_mul(value, numerator);
+    let product = WideMul::wide_mul(value, numerator);
     let (q, _) = u512_safe_div_rem_by_u256(product, u256_try_as_non_zero(denominator).expect('MulDivByZero'));
     assert(q.limb2 == 0 && q.limb3 == 0, 'MulDivOverflow');
     u256 { low: q.limb0, high: q.limb1 }
@@ -120,7 +121,7 @@ fn mul_div_inum_roundup(value: u256, numerator: i256, denominator: u256, roundup
 /// * `numerator` - The numerator that multiplies value.
 /// * `divisor` - The denominator that divides value.
 fn mul_div_roundup(value: u256, numerator: u256, denominator: u256, roundup_magnitude: bool) -> u256 {
-    let product = u256_wide_mul(value, numerator);
+    let product = WideMul::wide_mul(value, numerator);
     let (q, r) = u512_safe_div_rem_by_u256(product, u256_try_as_non_zero(denominator).expect('MulDivByZero'));
     if roundup_magnitude && r > 0 {
         let result = u256 { low: q.limb0, high: q.limb1 };

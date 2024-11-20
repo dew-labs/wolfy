@@ -186,7 +186,7 @@ trait IntegerTrait<T, U> {
     fn min(self: T, other: T) -> T;
 }
 
-use integer::{u256_wide_mul};
+use core::num::traits::WideMul;
 use core::num::traits::Bounded;
 use satoru::utils::felt_math::{felt_abs, felt_sign};
 // ====================== INT 256 ======================
@@ -495,7 +495,7 @@ fn i256_mul(a: i256, b: i256) -> i256 {
     // The sign of the product is the XOR of the signs of the operands.
     let sign = a.sign ^ b.sign;
     // The product is the product of the absolute values of the operands.
-    let mag_512 = u256_wide_mul(a.mag, b.mag);
+    let mag_512 = WideMul::wide_mul(a.mag, b.mag);
     assert(mag_512.limb2 == 0 && mag_512.limb3 == 0, 'mul i256 overflow');
 
     let result = u256 { low: mag_512.limb0, high: mag_512.limb1 };
