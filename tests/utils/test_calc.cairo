@@ -1,4 +1,4 @@
-use integer::BoundedInt;
+use core::num::traits::Bounded;
 
 use satoru::role::role;
 use satoru::utils::calc::{
@@ -78,9 +78,9 @@ fn given_normal_conditions_when_sum_return_uint_256_then_works() {
     assert(sum_return_uint_256(12, i256_new(3, true)) == 9, 'Should be 9');
     assert(sum_return_uint_256(0, i256_new(3, false)) == 3, 'Should be 3');
     assert(sum_return_uint_256(12, i256_new(0, false)) == 12, 'Should be 12');
-    assert(sum_return_uint_256(BoundedInt::max(), i256_new(0, false)) == BoundedInt::max(), 'Should be max');
+    assert(sum_return_uint_256(Bounded::MAX, i256_new(0, false)) == Bounded::MAX, 'Should be max');
 
-    assert(sum_return_uint_256(BoundedInt::max(), i256_new(1, true)) == BoundedInt::max() - 1, 'Should be max - 1');
+    assert(sum_return_uint_256(Bounded::MAX, i256_new(1, true)) == Bounded::MAX - 1, 'Should be max - 1');
 
     assert(sum_return_uint_256(0, max_i256()) == max_i256_as_u256(), 'Should be max/2 (2)');
 }
@@ -88,7 +88,7 @@ fn given_normal_conditions_when_sum_return_uint_256_then_works() {
 #[test]
 #[should_panic(expected: ('u256_add Overflow',))]
 fn given_add_overflow_when_sum_return_uint_256_then_fails() {
-    sum_return_uint_256(BoundedInt::max(), i256_new(1, false));
+    sum_return_uint_256(Bounded::MAX, i256_new(1, false));
 }
 
 #[test]
@@ -136,7 +136,7 @@ fn given_normal_conditions_when_diff_then_works() {
     assert(diff(6, 0) == 6, 'Should be 6');
     assert(diff(3, 3) == 0, 'Should be 0 (1)');
 
-    let max = BoundedInt::max();
+    let max = Bounded::MAX;
     assert(diff(max, max) == 0, 'Should be 0 (2)');
     assert(diff(max - 1, max) == 1, 'Should be 1 (1))');
     assert(diff(max, max - 1) == 1, 'Should be 1 (2)');
@@ -205,14 +205,14 @@ fn given_normal_conditions_when_to_signed_then_works() {
 #[test]
 #[should_panic(expected: ('i256 Overflow',))]
 fn given_i256_overflow_when_to_signed_then_fails() {
-    to_signed(BoundedInt::max(), true);
+    to_signed(Bounded::MAX, true);
 }
 
 
 #[test]
 #[should_panic(expected: ('u256_add Overflow',))]
 fn given_i256_overflow_neg_when_to_signed_then_fails() {
-    to_signed(BoundedInt::max() + 1, false);
+    to_signed(Bounded::MAX + 1, false);
 }
 
 #[test]
@@ -252,5 +252,5 @@ fn given_large_exponent_when_pow_u64_then_works() {
 #[test]
 #[should_panic(expected: ('u64_mul Overflow',))]
 fn given_u64_max_when_pow_u64_then_fails() {
-    pow_u64(BoundedInt::max(), BoundedInt::max());
+    pow_u64(Bounded::MAX, Bounded::MAX);
 }

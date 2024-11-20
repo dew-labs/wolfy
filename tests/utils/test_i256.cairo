@@ -1,13 +1,13 @@
 mod TestInteger256 {
     mod New {
-        use integer::BoundedInt;
+        use core::num::traits::Bounded;
 
         use satoru::utils::i256::{i256, IntegerTrait};
 
         // Test new i256 max
         #[test]
         fn test_i256_max() {
-            let i256_max = BoundedInt::max() / 2;
+            let i256_max = Bounded::MAX / 2;
             let a = IntegerTrait::<i256>::new(i256_max - 1, false);
 
             assert(a.mag == i256_max - 1, 'new max pos value error');
@@ -32,7 +32,7 @@ mod TestInteger256 {
     }
 
     mod Add {
-        use integer::BoundedInt;
+        use core::num::traits::Bounded;
 
         use satoru::utils::i256::{i256, IntegerTrait};
 
@@ -90,7 +90,7 @@ mod TestInteger256 {
         #[test]
         #[should_panic]
         fn test_overflow() {
-            let i256_max = BoundedInt::max();
+            let i256_max = Bounded::MAX;
             let a = IntegerTrait::<i256>::new(i256_max - 1, false);
             let b = IntegerTrait::<i256>::new(1, false);
             let _result = a + b;
@@ -98,7 +98,7 @@ mod TestInteger256 {
     }
 
     mod Sub {
-        use integer::BoundedInt;
+        use core::num::traits::Bounded;
 
         use satoru::utils::i256::{i256, IntegerTrait};
 
@@ -196,7 +196,7 @@ mod TestInteger256 {
         #[test]
         #[should_panic]
         fn test_overflow() {
-            let i256_max = BoundedInt::max();
+            let i256_max = Bounded::MAX;
             let a = IntegerTrait::<i256>::new(i256_max, true);
             let b = IntegerTrait::<i256>::new(1, false);
             let _result = a - b;
@@ -204,7 +204,7 @@ mod TestInteger256 {
     }
 
     mod Mul {
-        use integer::BoundedInt;
+        use core::num::traits::Bounded;
 
         use satoru::utils::i256::{i256, IntegerTrait};
 
@@ -262,7 +262,7 @@ mod TestInteger256 {
         #[test]
         #[should_panic]
         fn test_overflow() {
-            let i256_max = BoundedInt::max();
+            let i256_max = Bounded::MAX;
             let a = IntegerTrait::<i256>::new(i256_max - 1, false);
             let b = IntegerTrait::<i256>::new(2, false);
             let _result = a * b;
@@ -270,7 +270,7 @@ mod TestInteger256 {
     }
 
     mod DivRem {
-        use integer::BoundedInt;
+        use core::num::traits::Bounded;
 
         use satoru::utils::i256::{i256, IntegerTrait};
 
@@ -421,7 +421,7 @@ mod TestInteger256 {
     }
 
     mod i256IntoU256 {
-        use integer::BoundedInt;
+        use core::num::traits::Bounded;
 
         use satoru::utils::i256::{i256, IntegerTrait};
 
@@ -441,9 +441,9 @@ mod TestInteger256 {
 
         #[test]
         fn test_positive_conversion_i256_max() {
-            let val = IntegerTrait::<i256>::new(BoundedInt::max() / 2 - 1, false);
+            let val = IntegerTrait::<i256>::new(Bounded::MAX / 2 - 1, false);
             let result: u256 = val.try_into().unwrap();
-            assert(result == BoundedInt::max() / 2 - 1, 'result should be max');
+            assert(result == Bounded::MAX / 2 - 1, 'result should be max');
         }
 
         #[test]
@@ -455,7 +455,7 @@ mod TestInteger256 {
     }
 
     mod TwoComplementTests {
-        use integer::BoundedInt;
+        use core::num::traits::Bounded;
 
         use satoru::utils::i256::{i256, two_complement_if_nec, IntegerTrait};
 
@@ -478,9 +478,9 @@ mod TestInteger256 {
 
         #[test]
         fn test_positive_max_mag() {
-            let input = IntegerTrait::<i256>::new(BoundedInt::max() / 2 - 1, false);
+            let input = IntegerTrait::<i256>::new(Bounded::MAX / 2 - 1, false);
             let actual = two_complement_if_nec(input);
-            let expected = i256 { mag: BoundedInt::max() / 2 - 1, sign: false };
+            let expected = i256 { mag: Bounded::MAX / 2 - 1, sign: false };
 
             assert(actual == expected, 'positive max wrong value');
         }
@@ -489,14 +489,14 @@ mod TestInteger256 {
         fn test_negative_min_mag() {
             let input = IntegerTrait::<i256>::new(1, true);
             let actual = two_complement_if_nec(input);
-            let expected = i256 { mag: BoundedInt::max(), sign: true };
+            let expected = i256 { mag: Bounded::MAX, sign: true };
 
             assert(actual == expected, 'negative min wrong val');
         }
 
         #[test]
         fn test_negative_max_mag() {
-            let input = IntegerTrait::<i256>::new(BoundedInt::max() / 2, true);
+            let input = IntegerTrait::<i256>::new(Bounded::MAX / 2, true);
             let actual = two_complement_if_nec(input);
             let expected = i256 {
                 mag: 57896044618658097711785492504343953926634992332820282019728792003956564819969, sign: true

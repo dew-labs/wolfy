@@ -186,7 +186,8 @@ trait IntegerTrait<T, U> {
     fn min(self: T, other: T) -> T;
 }
 
-use integer::{BoundedInt, u256_wide_mul};
+use integer::{u256_wide_mul};
+use core::num::traits::Bounded;
 use satoru::utils::felt_math::{felt_abs, felt_sign};
 // ====================== INT 256 ======================
 
@@ -410,9 +411,9 @@ fn i256_check_sign_zero(x: i256) {
 /// Cf: IntegerTrait::new docstring
 fn i256_new(mag: u256, sign: bool) -> i256 {
     if sign == true {
-        assert(mag <= BoundedInt::<u256>::max(), 'i256 Overflow');
+        assert(mag <= Bounded::<u256>::MAX, 'i256 Overflow');
     } else {
-        assert(mag <= (BoundedInt::<u256>::max() - 1), 'i256 Overflow');
+        assert(mag <= (Bounded::<u256>::MAX - 1), 'i256 Overflow');
     }
     i256 { mag, sign }
 }

@@ -14,7 +14,7 @@
 // *************************************************************************
 // Core lib imports.
 use starknet::{get_caller_address, ContractAddress, contract_address_const};
-use integer::BoundedInt;
+use core::num::traits::Bounded;
 // Local imports.
 use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
 use satoru::event::{event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait},};
@@ -147,7 +147,7 @@ fn create_adl_order(params: CreateAdlOrderParams) -> felt252 {
     let acceptable_price_: u256 = if position.is_long {
         0_u256
     } else {
-        BoundedInt::max()
+        Bounded::MAX
     };
     let key = nonce_utils::get_next_key(params.data_store);
     let order = Order {

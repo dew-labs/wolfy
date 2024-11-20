@@ -14,11 +14,11 @@
 /// min - Returns the minimum between two `signed_integer`
 trait IntegerTrait<T, U> {
     /// # IntegerTrait::new
-    /// 
+    ///
     /// ```rust
     /// fn new(mag: U, sign: bool) -> T;
     /// ```
-    /// 
+    ///
     /// Returns a new signed integer.
     ///
     /// ## Args
@@ -33,36 +33,36 @@ trait IntegerTrait<T, U> {
     /// Panics if `mag` is out of range.
     ///
     /// ## Returns
-    /// 
+    ///
     /// A new signed integer.
-    /// 
+    ///
     /// ## Examples
-    /// 
+    ///
     /// ```rust
     /// fn new_i8_example() -> i8 {
     ///     IntegerTrait::<i8>::new(42_u8, true)
     /// }
     /// >>> {mag: 42, sign: true} // = -42
     /// ```
-    /// 
+    ///
     /// ```rust
     /// fn panic_i8_example() -> i8 {
     ///     IntegerTrait::<i8>::new(129_u8, true)
     /// }
     /// >>> panics with "int: out of range"
     /// ```
-    /// 
+    ///
     fn new(mag: U, sign: bool) -> T;
     /// # int.div_rem
-    /// 
+    ///
     /// ```rust
     /// fn div_rem(self: T, other: T) -> (T, T);
     /// ```
-    /// 
+    ///
     /// Computes signed\_integer division and modulus simultaneously
     ///
     /// ## Args
-    /// 
+    ///
     /// * `self`(`T`) - The dividend
     /// * `other`(`T`) - The divisor
     ///
@@ -75,13 +75,13 @@ trait IntegerTrait<T, U> {
     /// A tuple of signed integer `<T>`, containing the quotient and the remainder of the division.
     ///
     /// ## Examples
-    /// 
+    ///
     /// ```rust
     /// fn div_rem_example() -> (i32, i32) {
     ///     // We instantiate signed integers here.
     ///     let a = IntegerTrait::<i32>::new(13, false);
     ///     let b = IntegerTrait::<i32>::new(5, false);
-    ///     
+    ///
     ///     // We can call `div_rem` function as follows.
     ///     a.div_rem(b)
     /// }
@@ -89,12 +89,12 @@ trait IntegerTrait<T, U> {
     /// ```
     ///
     fn div_rem(self: T, other: T) -> (T, T);
-    /// # int.abs 
-    /// 
+    /// # int.abs
+    ///
     /// ```rust
     /// fn abs(self: T) -> T;
     /// ```
-    /// 
+    ///
     /// Computes the absolute value of a signed\_integer.
     ///
     /// ## Args
@@ -111,7 +111,7 @@ trait IntegerTrait<T, U> {
     /// fn abs_example() -> i32 {
     ///     // We instantiate signed integers here.
     ///     let int = IntegerTrait::<i32>::new(42, true);
-    ///     
+    ///
     ///     // We can call `abs` function as follows.
     ///     a.abs()
     /// }
@@ -120,11 +120,11 @@ trait IntegerTrait<T, U> {
     ///
     fn abs(self: T) -> T;
     /// # int.max
-    /// 
+    ///
     /// ```rust
     /// fn max(self: T, other: T) -> T;
     /// ```
-    /// 
+    ///
     /// Returns the maximum between two signed\_integer.
     ///
     /// ## Args
@@ -137,13 +137,13 @@ trait IntegerTrait<T, U> {
     /// A signed integer `<T>`, The maximum between `self` and `other`.
     ///
     /// ## Examples
-    /// 
+    ///
     /// ```rust
     /// fn max_example() -> i32 {
     ///     // We instantiate signed integer here.
     ///     let a = IntegerTrait::<i32>::new(42, true);
     ///     let b = IntegerTrait::<i32>::new(13, false);
-    ///     
+    ///
     ///     // We can call `max` function as follows.
     ///     a.max(b)
     /// }
@@ -152,11 +152,11 @@ trait IntegerTrait<T, U> {
     ///
     fn max(self: T, other: T) -> T;
     /// # int.min
-    /// 
+    ///
     /// ```rust
     /// fn min(self: T, other: T) -> T;
     /// ```
-    /// 
+    ///
     /// Returns the minimum between two signed\_integer.
     ///
     /// ## Args
@@ -169,20 +169,20 @@ trait IntegerTrait<T, U> {
     /// A signed integer `<T>`, The minimum between `self` and `other`.
     ///
     /// ## Examples
-    /// 
-    /// 
+    ///
+    ///
     /// ```rust
     /// fn min_example() -> i32 {
     ///     // We instantiate signed integer here.
     ///     let a = IntegerTrait::<i32>::new(42, true);
     ///     let b = IntegerTrait::<i32>::new(13, false);
-    ///     
+    ///
     ///     // We can call `max` function as follows.
     ///     a.min(b)
     /// }
     /// >>> {mag: 42, sign: true} // as -42 < 13
     /// ```
-    /// 
+    ///
     fn min(self: T, other: T) -> T;
 }
 
@@ -191,7 +191,7 @@ use starknet::{
     storage_access::{Store, StorageBaseAddress},
     {SyscallResult, syscalls::{storage_read_syscall, storage_write_syscall}}
 };
-use integer::BoundedInt;
+use core::num::traits::Bounded;
 
 
 // ====================== INT 128 ======================
@@ -418,7 +418,7 @@ fn i128_add(a: i128, b: i128) -> i128 {
     i128_check_sign_zero(a);
     i128_check_sign_zero(b);
 
-    // If both integers have the same sign, 
+    // If both integers have the same sign,
     // the sum of their absolute values can be returned.
     if a.sign == b.sign {
         let sum = a.mag + b.mag;
@@ -427,7 +427,7 @@ fn i128_add(a: i128, b: i128) -> i128 {
         }
         return ensure_non_negative_zero(sum, a.sign);
     } else {
-        // If the integers have different signs, 
+        // If the integers have different signs,
         // the larger absolute value is subtracted from the smaller one.
         let (larger, smaller) = if a.mag >= b.mag {
             (a, b)
@@ -463,7 +463,7 @@ fn i128_sub(a: i128, b: i128) -> i128 {
 }
 
 // Multiplies two i128 integers.
-// 
+//
 // # Arguments
 //
 // * `a` - The first i128 to multiply.

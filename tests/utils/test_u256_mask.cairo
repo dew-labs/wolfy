@@ -1,5 +1,5 @@
 use satoru::utils::u256_mask::validate_unique_and_set_index;
-use integer::BoundedInt;
+use core::num::traits::Bounded;
 use debug::PrintTrait;
 
 #[test]
