@@ -192,7 +192,7 @@ use starknet::{
     {SyscallResult, syscalls::{storage_read_syscall, storage_write_syscall}}
 };
 use core::num::traits::Bounded;
-
+use core::ops::{AddAssign, SubAssign, MulAssign, DivAssign, RemAssign};
 
 // ====================== INT 128 ======================
 
@@ -276,10 +276,10 @@ impl i128Add of Add<i128> {
     }
 }
 
-// Implements the AddEq trait for i128.
-impl i128AddEq of AddEq<i128> {
-    fn add_eq(ref self: i128, other: i128) {
-        self = Add::add(self, other);
+// Implements the AddAssign trait for i128.
+impl i128AddAssign of AddAssign<i128, i128> {
+    fn add_assign(ref self: i128, rhs: i128) {
+        self = Add::add(self, rhs);
     }
 }
 
@@ -290,10 +290,10 @@ impl i128Sub of Sub<i128> {
     }
 }
 
-// Implements the SubEq trait for i128.
-impl i128SubEq of SubEq<i128> {
-    fn sub_eq(ref self: i128, other: i128) {
-        self = Sub::sub(self, other);
+// Implements the SubAssign trait for i128.
+impl i128SubAssign of SubAssign<i128, i128> {
+    fn sub_assign(ref self: i128, rhs: i128) {
+        self = Sub::sub(self, rhs);
     }
 }
 
@@ -304,10 +304,10 @@ impl i128Mul of Mul<i128> {
     }
 }
 
-// Implements the MulEq trait for i128.
-impl i128MulEq of MulEq<i128> {
-    fn mul_eq(ref self: i128, other: i128) {
-        self = Mul::mul(self, other);
+// Implements the MulAssign trait for i128.
+impl i128MulAssign of MulAssign<i128, i128> {
+    fn mul_assign(ref self: i128, rhs: i128) {
+        self = Mul::mul(self, rhs);
     }
 }
 
@@ -318,10 +318,10 @@ impl i128Div of Div<i128> {
     }
 }
 
-// Implements the DivEq trait for i128.
-impl i128DivEq of DivEq<i128> {
-    fn div_eq(ref self: i128, other: i128) {
-        self = Div::div(self, other);
+// Implements the DivAssign trait for i128.
+impl i128DivAssign of DivAssign<i128, i128> {
+    fn div_assign(ref self: i128, rhs: i128) {
+        self = Div::div(self, rhs);
     }
 }
 
@@ -332,10 +332,10 @@ impl i128Rem of Rem<i128> {
     }
 }
 
-// Implements the RemEq trait for i128.
-impl i128RemEq of RemEq<i128> {
-    fn rem_eq(ref self: i128, other: i128) {
-        self = Rem::rem(self, other);
+// Implements the RemAssign trait for i128.
+impl i128RemAssign of RemAssign<i128, i128> {
+    fn rem_assign(ref self: i128, rhs: i128) {
+        self = Rem::rem(self, rhs);
     }
 }
 

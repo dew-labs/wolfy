@@ -188,6 +188,7 @@ trait IntegerTrait<T, U> {
 
 use core::num::traits::WideMul;
 use core::num::traits::Bounded;
+use core::ops::{AddAssign, SubAssign, MulAssign, DivAssign, RemAssign};
 use satoru::utils::felt_math::{felt_abs, felt_sign};
 // ====================== INT 256 ======================
 
@@ -236,10 +237,10 @@ impl i256Add of Add<i256> {
 }
 
 // Implements the AddEq trait for i256.
-impl i256AddEq of AddEq<i256> {
+impl i256AddAssign of AddAssign<i256, i256> {
     #[inline(always)]
-    fn add_eq(ref self: i256, other: i256) {
-        self = Add::add(self, other);
+    fn add_assign(ref self: i256, rhs: i256) {
+        self = Add::add(self, rhs);
     }
 }
 
@@ -250,11 +251,11 @@ impl i256Sub of Sub<i256> {
     }
 }
 
-// Implements the SubEq trait for i256.
-impl i256SubEq of SubEq<i256> {
+// Implements the SubAssign trait for i256.
+impl i256SubAssign of SubAssign<i256, i256> {
     #[inline(always)]
-    fn sub_eq(ref self: i256, other: i256) {
-        self = Sub::sub(self, other);
+    fn sub_assign(ref self: i256, rhs: i256) {
+        self = Sub::sub(self, rhs);
     }
 }
 
@@ -265,11 +266,11 @@ impl i256Mul of Mul<i256> {
     }
 }
 
-// Implements the MulEq trait for i256.
-impl i256MulEq of MulEq<i256> {
+// Implements the MulAssign trait for i256.
+impl i256MulAssign of MulAssign<i256, i256> {
     #[inline(always)]
-    fn mul_eq(ref self: i256, other: i256) {
-        self = Mul::mul(self, other);
+    fn mul_assign(ref self: i256, rhs: i256) {
+        self = Mul::mul(self, rhs);
     }
 }
 
@@ -280,11 +281,11 @@ impl i256Div of Div<i256> {
     }
 }
 
-// Implements the DivEq trait for i256.
-impl i256DivEq of DivEq<i256> {
+// Implements the DivAssign trait for i256.
+impl i256DivAssign of DivAssign<i256, i256> {
     #[inline(always)]
-    fn div_eq(ref self: i256, other: i256) {
-        self = Div::div(self, other);
+    fn div_assign(ref self: i256, rhs: i256) {
+        self = Div::div(self, rhs);
     }
 }
 
@@ -295,11 +296,11 @@ impl i256Rem of Rem<i256> {
     }
 }
 
-// Implements the RemEq trait for i256.
-impl i256RemEq of RemEq<i256> {
+// Implements the RemAssign trait for i256.
+impl i256RemAssign of RemAssign<i256, i256> {
     #[inline(always)]
-    fn rem_eq(ref self: i256, other: i256) {
-        self = Rem::rem(self, other);
+    fn rem_assign(ref self: i256, rhs: i256) {
+        self = Rem::rem(self, rhs);
     }
 }
 
