@@ -13,7 +13,7 @@ import {
 } from "starknet";
 import fs from "node:fs";
 import invariant from "tiny-invariant";
-import { toStarknetHexString } from "satoru-sdk";
+import { toStarknetHexString } from "wolfy-sdk";
 
 // Argent X account v0.4.0
 const ARGENT_X_ACCOUNT_CLASS_HASH =

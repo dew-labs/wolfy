@@ -17,25 +17,25 @@ import {
 } from "starknet";
 import {
     createCall,
-    createSatoruContract,
+    createWolfyContract,
     executeAndWait,
     getProvider,
     OrderHandlerABI,
     OrderType,
     poseidonHash,
     ProviderType,
-    SatoruContract,
+    WolfyContract,
     StarknetChainId,
     type Hashable,
-    type SatoruContractAbi,
-} from "satoru-sdk";
+    type WolfyContractAbi,
+} from "wolfy-sdk";
 
 import type { Contracts, Order, Token } from "@freyr/shared/interfaces";
 
 import { createLogger } from "./logger";
 import { setup } from "./setup";
 import invariant from "tiny-invariant";
-import { toStarknetHexString } from "satoru-sdk";
+import { toStarknetHexString } from "wolfy-sdk";
 
 const logger = createLogger("Utils");
 
@@ -474,8 +474,8 @@ export async function executeOrder(
         [shortTokenAddress, executionShortPrice],
     ]);
 
-    const orderHandlerContract: TypedContractV2<SatoruContractAbi<SatoruContract.OrderHandler>> =
-        createSatoruContract(chainId, SatoruContract.OrderHandler, OrderHandlerABI, account);
+    const orderHandlerContract: TypedContractV2<WolfyContractAbi<WolfyContract.OrderHandler>> =
+        createWolfyContract(chainId, WolfyContract.OrderHandler, OrderHandlerABI, account);
 
     logger.info(
         `Order ${order.key} [${order.orderType}]: Executing with price: ${executionIndexPrice} (acceptable: ${order.acceptablePrice})`

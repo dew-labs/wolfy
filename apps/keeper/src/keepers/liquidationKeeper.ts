@@ -1,5 +1,5 @@
 import pRetry from "p-retry";
-import { toStarknetHexString } from "satoru-sdk";
+import { toStarknetHexString } from "wolfy-sdk";
 
 import {
     getDataStoreContract,

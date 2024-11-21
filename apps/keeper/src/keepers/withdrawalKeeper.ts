@@ -4,11 +4,11 @@ import {
     createCall,
     getProvider,
     ProviderType,
-    SatoruEvent,
+    WolfyEvent,
     StarknetChainId,
     toStarknetHexString,
-    type SatoruEventHandler,
-} from "satoru-sdk";
+    type WolfyEventHandler,
+} from "wolfy-sdk";
 
 import { getWithdrawalHandlerContract } from "@freyr/shared/contracts";
 import {
@@ -60,10 +60,7 @@ const executeWithdrawal = async (
 };
 
 const onWithdrawalCreatedHandler =
-    (
-        account: Account,
-        chainId: StarknetChainId
-    ): SatoruEventHandler<SatoruEvent.WithdrawalCreated> =>
+    (account: Account, chainId: StarknetChainId): WolfyEventHandler<WolfyEvent.WithdrawalCreated> =>
     async (event) => {
         const { key, market: marketKey } = event;
         const dataStoreContract = getDataStoreContract(chainId, account);
@@ -94,7 +91,7 @@ const run = async (account: Account, chainId: StarknetChainId): Promise<void> =>
         wssProvider.onClose(() => run(account, chainId));
 
         await wssProvider.subscribeTo(
-            SatoruEvent.WithdrawalCreated,
+            WolfyEvent.WithdrawalCreated,
             onWithdrawalCreatedHandler(account, chainId)
         );
     } catch (error) {

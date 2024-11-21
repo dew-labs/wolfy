@@ -7,14 +7,14 @@ import {
 } from "@freyr/shared/utils";
 import {
     createCall,
-    createSatoruContract,
+    createWolfyContract,
     DataStoreABI,
     executeAndWait,
     grantRole,
     poseidonHash,
-    SatoruContract,
-    SatoruRole,
-} from "satoru-sdk";
+    WolfyContract,
+    WolfyRole,
+} from "wolfy-sdk";
 
 import type { Contracts } from "@freyr/shared/interfaces";
 import fs from "node:fs";
@@ -410,18 +410,18 @@ async function grantRoles(additionAdmins?: string[]) {
     // -------------------------------------------------------------------------
 
     const ADMIN_ROLEs = [
-        SatoruRole.CONTROLLER,
-        SatoruRole.ORDER_KEEPER,
-        SatoruRole.MARKET_KEEPER,
-        SatoruRole.FROZEN_ORDER_KEEPER,
-        SatoruRole.FEE_KEEPER,
-        SatoruRole.CONFIG_KEEPER,
-        SatoruRole.LIQUIDATION_KEEPER,
-        SatoruRole.ADL_KEEPER,
-        // SatoruRole.TIMELOCK_ADMIN
-        // SatoruRole.TIMELOCK_MULTISIG
+        WolfyRole.CONTROLLER,
+        WolfyRole.ORDER_KEEPER,
+        WolfyRole.MARKET_KEEPER,
+        WolfyRole.FROZEN_ORDER_KEEPER,
+        WolfyRole.FEE_KEEPER,
+        WolfyRole.CONFIG_KEEPER,
+        WolfyRole.LIQUIDATION_KEEPER,
+        WolfyRole.ADL_KEEPER,
+        // WolfyRole.TIMELOCK_ADMIN
+        // WolfyRole.TIMELOCK_MULTISIG
         // router plugin role is sus?
-        SatoruRole.ROUTER_PLUGIN,
+        WolfyRole.ROUTER_PLUGIN,
     ];
 
     // Grant roles to Account0 (deployment account)
@@ -429,7 +429,7 @@ async function grantRoles(additionAdmins?: string[]) {
         chainId,
         account,
         account.address,
-        [SatoruRole.ROLE_ADMIN, ...ADMIN_ROLEs],
+        [WolfyRole.ROLE_ADMIN, ...ADMIN_ROLEs],
         "Account0"
     );
 
@@ -452,24 +452,24 @@ async function grantRoles(additionAdmins?: string[]) {
         chainId,
         account,
         increaseOrderUtilsAddress,
-        SatoruRole.CONTROLLER,
+        WolfyRole.CONTROLLER,
         "IncreaseOrderUtils"
     );
     await grantRole(
         chainId,
         account,
         decreaseOrderUtilsAddress,
-        SatoruRole.CONTROLLER,
+        WolfyRole.CONTROLLER,
         "DecreaseOrderUtils"
     );
     await grantRole(
         chainId,
         account,
         swapOrderUtilsAddress,
-        SatoruRole.CONTROLLER,
+        WolfyRole.CONTROLLER,
         "SwapOrderUtils"
     );
-    await grantRole(chainId, account, orderUtilsAddress, SatoruRole.CONTROLLER, "OrderUtils");
+    await grantRole(chainId, account, orderUtilsAddress, WolfyRole.CONTROLLER, "OrderUtils");
 
     // -------------------------------------------------------------------------
 
@@ -478,33 +478,33 @@ async function grantRoles(additionAdmins?: string[]) {
         chainId,
         account,
         depositHandlerAddress,
-        SatoruRole.CONTROLLER,
+        WolfyRole.CONTROLLER,
         "DepositHandler"
     );
     await grantRole(
         chainId,
         account,
         withdrawalHandlerAddress,
-        SatoruRole.CONTROLLER,
+        WolfyRole.CONTROLLER,
         "WithdrawalHandler"
     );
-    await grantRole(chainId, account, swapHandlerAddress, SatoruRole.CONTROLLER, "SwapHandler");
+    await grantRole(chainId, account, swapHandlerAddress, WolfyRole.CONTROLLER, "SwapHandler");
     await grantRole(
         chainId,
         account,
         liquidationHandlerAddress,
-        SatoruRole.CONTROLLER,
+        WolfyRole.CONTROLLER,
         "LiquidationHandler"
     );
-    await grantRole(chainId, account, adlHandlerAddress, SatoruRole.CONTROLLER, "AdlHandler");
+    await grantRole(chainId, account, adlHandlerAddress, WolfyRole.CONTROLLER, "AdlHandler");
     await grantRole(
         chainId,
         account,
         orderHandlerAddress,
         [
-            SatoruRole.CONTROLLER,
+            WolfyRole.CONTROLLER,
             // frozen keeper role is sus?
-            SatoruRole.FROZEN_ORDER_KEEPER,
+            WolfyRole.FROZEN_ORDER_KEEPER,
         ],
         "OrderHandler"
     );
@@ -517,10 +517,10 @@ async function grantRoles(additionAdmins?: string[]) {
         account,
         exchangeRouterAddress,
         [
-            SatoruRole.CONTROLLER,
-            SatoruRole.ROUTER_PLUGIN,
+            WolfyRole.CONTROLLER,
+            WolfyRole.ROUTER_PLUGIN,
             // Order keeper role is sus?
-            SatoruRole.ORDER_KEEPER,
+            WolfyRole.ORDER_KEEPER,
         ],
         "ExchangeRouter"
     );
@@ -532,7 +532,7 @@ async function grantRoles(additionAdmins?: string[]) {
         chainId,
         account,
         marketFactoryAddress,
-        [SatoruRole.MARKET_KEEPER, SatoruRole.CONTROLLER],
+        [WolfyRole.MARKET_KEEPER, WolfyRole.CONTROLLER],
         "MarketFactory"
     );
 
@@ -544,7 +544,7 @@ async function grantRoles(additionAdmins?: string[]) {
 async function config() {
     const { account, chainId, feeToken } = await settingUp();
 
-    const dataStoreContract = createSatoruContract(chainId, SatoruContract.DataStore, DataStoreABI);
+    const dataStoreContract = createWolfyContract(chainId, WolfyContract.DataStore, DataStoreABI);
 
     await executeAndWait(account, [
         // set fee token

@@ -1,7 +1,7 @@
 import fs from "node:fs";
 import { getContracts } from "@freyr/shared/utils";
 import { LogLevel, type CheckpointConfig } from "@snapshot-labs/checkpoint";
-import { EventEmitterABI, SatoruEvent } from "satoru-sdk";
+import { EventEmitterABI, WolfyEvent } from "wolfy-sdk";
 import { setup } from "@freyr/shared/utils";
 import {
     handleOrderCreated,
@@ -33,43 +33,43 @@ export const getConfig = () => {
 
     const events = [
         {
-            name: SatoruEvent.MarketCreated,
+            name: WolfyEvent.MarketCreated,
             fn: handleMarketCreated.name,
         },
         {
-            name: SatoruEvent.OrderCreated,
+            name: WolfyEvent.OrderCreated,
             fn: handleOrderCreated.name,
         },
         {
-            name: SatoruEvent.OrderExecuted,
+            name: WolfyEvent.OrderExecuted,
             fn: handleOrderExecuted.name,
         },
         {
-            name: SatoruEvent.OrderCancelled,
+            name: WolfyEvent.OrderCancelled,
             fn: handleOrderCancelled.name,
         },
         {
-            name: SatoruEvent.PositionIncrease,
+            name: WolfyEvent.PositionIncrease,
             fn: handlePositionIncrease.name,
         },
         {
-            name: SatoruEvent.PositionDecrease,
+            name: WolfyEvent.PositionDecrease,
             fn: handlePositionDecrease.name,
         },
         {
-            name: SatoruEvent.DepositCreated,
+            name: WolfyEvent.DepositCreated,
             fn: handleDepositCreated.name,
         },
         {
-            name: SatoruEvent.DepositExecuted,
+            name: WolfyEvent.DepositExecuted,
             fn: handleDepositExecuted.name,
         },
         {
-            name: SatoruEvent.WithdrawalCreated,
+            name: WolfyEvent.WithdrawalCreated,
             fn: handleWithdrawalCreated.name,
         },
         {
-            name: SatoruEvent.WithdrawalExecuted,
+            name: WolfyEvent.WithdrawalExecuted,
             fn: handleWithdrawalExecuted.name,
         },
     ];

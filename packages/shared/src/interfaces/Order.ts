@@ -1,5 +1,5 @@
 import { Type, type Static } from "@sinclair/typebox";
-import { OrderType } from "satoru-sdk";
+import { OrderType } from "wolfy-sdk";
 
 export interface Order {
     key: string;

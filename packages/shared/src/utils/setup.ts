@@ -1,9 +1,9 @@
 import {
     ProviderType,
-    registerSatoruContractAddress,
+    registerWolfyContractAddress,
     registerProvider,
-    isSatoruContract,
-} from "satoru-sdk";
+    isWolfyContract,
+} from "wolfy-sdk";
 import { getContracts, getNetAndChainId } from "./utils";
 
 function registerHttpProviders() {
@@ -29,8 +29,8 @@ function registerContractAddresses() {
     const { chainId } = getNetAndChainId();
 
     Object.entries(contracts).forEach(([contract, address]) => {
-        if (address && isSatoruContract(contract))
-            registerSatoruContractAddress(chainId, contract, address);
+        if (address && isWolfyContract(contract))
+            registerWolfyContractAddress(chainId, contract, address);
     });
 }
 

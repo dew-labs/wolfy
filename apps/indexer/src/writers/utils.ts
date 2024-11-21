@@ -1,4 +1,4 @@
-import { OrderType } from "satoru-sdk";
+import { OrderType } from "wolfy-sdk";
 import { TradeHistoryEvent, TradeHistoryAction } from "packages/shared/src/interfaces";
 import invariant from "tiny-invariant";
 

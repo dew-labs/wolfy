@@ -1,6 +1,6 @@
-import { SatoruContract } from "satoru-sdk";
+import { WolfyContract } from "wolfy-sdk";
 
-enum InternalSatoruContract {
+enum InternalWolfyContract {
     Pragma = "Pragma",
     IncreaseOrderUtils = "IncreaseOrderUtils",
     DecreaseOrderUtils = "DecreaseOrderUtils",
@@ -10,10 +10,10 @@ enum InternalSatoruContract {
     Oracle = "Oracle",
 }
 
-export type AllSatoruContract = SatoruContract | InternalSatoruContract;
-export const AllSatoruContract = {
-    ...SatoruContract,
-    ...InternalSatoruContract,
+export type AllWolfyContract = WolfyContract | InternalWolfyContract;
+export const AllWolfyContract = {
+    ...WolfyContract,
+    ...InternalWolfyContract,
 };
 
-export type Contracts = Partial<Record<AllSatoruContract, string | undefined>>;
+export type Contracts = Partial<Record<AllWolfyContract, string | undefined>>;

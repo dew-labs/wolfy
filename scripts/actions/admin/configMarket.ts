@@ -1,17 +1,12 @@
 import { createAsker, settingUp } from "@freyr/shared/utils";
 
-import {
-    createSatoruContract,
-    DataStoreABI,
-    SatoruContract,
-    toStarknetHexString,
-} from "satoru-sdk";
+import { createWolfyContract, DataStoreABI, WolfyContract, toStarknetHexString } from "wolfy-sdk";
 import configMarket from "./utils/configMarket";
 
 async function promptConfigMarket() {
     const { account, chainId } = await settingUp();
 
-    const dataStoreContract = createSatoruContract(chainId, SatoruContract.DataStore, DataStoreABI);
+    const dataStoreContract = createWolfyContract(chainId, WolfyContract.DataStore, DataStoreABI);
 
     const { ask, doneAsking } = createAsker();
 

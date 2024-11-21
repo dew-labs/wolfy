@@ -6,12 +6,12 @@ import {
     settingUp,
 } from "@freyr/shared/utils";
 import {
-    createSatoruContract,
+    createWolfyContract,
     LiquidationHandlerABI,
     ReaderABI,
-    SatoruContract,
+    WolfyContract,
     toStarknetHexString,
-} from "satoru-sdk";
+} from "wolfy-sdk";
 import { shortString } from "starknet";
 
 async function executeLiquidation() {
@@ -36,7 +36,7 @@ async function executeLiquidation() {
 
     const market = await dataStoreContract.get_market(toStarknetHexString(position.market));
 
-    const readerContract = createSatoruContract(chainId, SatoruContract.Reader, ReaderABI);
+    const readerContract = createWolfyContract(chainId, WolfyContract.Reader, ReaderABI);
 
     const indexTokenPrice = 2000_000000000000n; // 30 (USD_DECIMALS) - 18 decimals (indexToken decimals)
     const longTokenPrice = indexTokenPrice;
@@ -78,9 +78,9 @@ async function executeLiquidation() {
 
     // -----------------------------------------------------------------------------------------------------------------
 
-    const liquidationHandlerContract = createSatoruContract(
+    const liquidationHandlerContract = createWolfyContract(
         chainId,
-        SatoruContract.LiquidationHandler,
+        WolfyContract.LiquidationHandler,
         LiquidationHandlerABI,
         account
     );

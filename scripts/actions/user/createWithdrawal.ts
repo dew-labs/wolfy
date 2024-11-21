@@ -8,7 +8,7 @@ import {
     getExchangeRouterContract,
     settingUp,
 } from "@freyr/shared/utils";
-import { createCall, createTokenContract, executeAndWait, toStarknetHexString } from "satoru-sdk";
+import { createCall, createTokenContract, executeAndWait, toStarknetHexString } from "wolfy-sdk";
 import { CairoUint256, shortString } from "starknet";
 
 async function createWithdrawal() {

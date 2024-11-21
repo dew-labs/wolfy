@@ -14,7 +14,7 @@ import {
     OrderType,
     toCairoCustomEnum,
     toStarknetHexString,
-} from "satoru-sdk";
+} from "wolfy-sdk";
 import { CairoUint256 } from "starknet";
 
 // TODO: update this script

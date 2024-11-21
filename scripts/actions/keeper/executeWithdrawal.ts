@@ -9,12 +9,12 @@ import {
 } from "@freyr/shared/utils";
 import {
     createCall,
-    createSatoruContract,
+    createWolfyContract,
     createTokenContract,
     WithdrawalHandlerABI,
-    SatoruContract,
+    WolfyContract,
     toStarknetHexString,
-} from "satoru-sdk";
+} from "wolfy-sdk";
 import { shortString } from "starknet";
 
 async function executeWithdrawal() {
@@ -62,9 +62,9 @@ async function executeWithdrawal() {
 
     console.log(`Market: ${longTokenSymbol}/${shortTokenSymbol}`);
 
-    const withdrawalHandlerContract = createSatoruContract(
+    const withdrawalHandlerContract = createWolfyContract(
         chainId,
-        SatoruContract.WithdrawalHandler,
+        WolfyContract.WithdrawalHandler,
         WithdrawalHandlerABI,
         account
     );

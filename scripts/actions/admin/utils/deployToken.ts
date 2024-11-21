@@ -1,7 +1,7 @@
 import { ensureDeployed } from "packages/shared/src/utils";
 import type { Account } from "starknet";
 import fs from "node:fs";
-import { createTokenContract, toStarknetHexString } from "satoru-sdk";
+import { createTokenContract, toStarknetHexString } from "wolfy-sdk";
 
 export default async function deployToken(
     net: string,

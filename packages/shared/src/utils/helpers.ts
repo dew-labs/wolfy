@@ -1,27 +1,22 @@
 import {
-    createSatoruContract,
+    createWolfyContract,
     DataStoreABI,
     ExchangeRouterABI,
     executeAndWait,
-    SatoruContract,
+    WolfyContract,
     toStarknetHexString,
     type StarknetChainId,
-} from "satoru-sdk";
+} from "wolfy-sdk";
 import type { Account, Call, SuccessfulTransactionReceiptResponse } from "starknet";
 
 // TODO: uss contracts/getters.ts instead
 export function getDataStoreContract(chainId: StarknetChainId, connectTo?: Account) {
-    return createSatoruContract(chainId, SatoruContract.DataStore, DataStoreABI, connectTo);
+    return createWolfyContract(chainId, WolfyContract.DataStore, DataStoreABI, connectTo);
 }
 
 // TODO: uss contracts/getters.ts instead
 export function getExchangeRouterContract(chainId: StarknetChainId, connectTo?: Account) {
-    return createSatoruContract(
-        chainId,
-        SatoruContract.ExchangeRouter,
-        ExchangeRouterABI,
-        connectTo
-    );
+    return createWolfyContract(chainId, WolfyContract.ExchangeRouter, ExchangeRouterABI, connectTo);
 }
 
 export async function askOrLatestMarketToken(

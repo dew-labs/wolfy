@@ -9,12 +9,12 @@ import {
 } from "@freyr/shared/utils";
 import {
     createCall,
-    createSatoruContract,
+    createWolfyContract,
     createTokenContract,
     DepositHandlerABI,
-    SatoruContract,
+    WolfyContract,
     toStarknetHexString,
-} from "satoru-sdk";
+} from "wolfy-sdk";
 import { shortString } from "starknet";
 
 async function executeDeposit() {
@@ -56,9 +56,9 @@ async function executeDeposit() {
 
     console.log(`Market: ${longTokenSymbol}/${shortTokenSymbol}`);
 
-    const depositHandlerContract = createSatoruContract(
+    const depositHandlerContract = createWolfyContract(
         chainId,
-        SatoruContract.DepositHandler,
+        WolfyContract.DepositHandler,
         DepositHandlerABI,
         account
     );

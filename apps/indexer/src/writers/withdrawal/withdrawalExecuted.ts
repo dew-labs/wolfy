@@ -1,16 +1,16 @@
 import { Withdrawal } from "apps/indexer/.checkpoint/models";
 import { createLogger } from "@freyr/shared/utils";
-import { OrderType, toStarknetHexString } from "satoru-sdk";
+import { OrderType, toStarknetHexString } from "wolfy-sdk";
 
-import { type SatoruEventWriter } from "../type";
+import { type WolfyEventWriter } from "../type";
 
-import type { SatoruEvent } from "satoru-sdk";
+import type { WolfyEvent } from "wolfy-sdk";
 import { getTradeHistoryAction } from "../utils";
 import { TradeHistoryEvent } from "@freyr/shared/interfaces";
 
 const logger = createLogger("WithdrawalExecutedWriter");
 
-export const handleWithdrawalExecuted: SatoruEventWriter<SatoruEvent.WithdrawalExecuted> = async ({
+export const handleWithdrawalExecuted: WolfyEventWriter<WolfyEvent.WithdrawalExecuted> = async ({
     block,
     tx,
     rawEvent,

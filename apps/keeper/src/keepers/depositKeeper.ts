@@ -4,11 +4,11 @@ import {
     createCall,
     getProvider,
     ProviderType,
-    SatoruEvent,
+    WolfyEvent,
     StarknetChainId,
     toStarknetHexString,
-    type SatoruEventHandler,
-} from "satoru-sdk";
+    type WolfyEventHandler,
+} from "wolfy-sdk";
 
 import { getDepositHandlerContract } from "@freyr/shared/contracts";
 import {
@@ -54,7 +54,7 @@ const executeDeposit = async (
 };
 
 const onDepositCreatedHandler =
-    (account: Account, chainId: StarknetChainId): SatoruEventHandler<SatoruEvent.DepositCreated> =>
+    (account: Account, chainId: StarknetChainId): WolfyEventHandler<WolfyEvent.DepositCreated> =>
     async (event) => {
         const { key, initial_long_token, initial_short_token } = event;
 
@@ -83,7 +83,7 @@ const run = async (account: Account, chainId: StarknetChainId): Promise<void> =>
         wssProvider.onClose(() => run(account, chainId));
 
         await wssProvider.subscribeTo(
-            SatoruEvent.DepositCreated,
+            WolfyEvent.DepositCreated,
             onDepositCreatedHandler(account, chainId)
         );
     } catch (error) {
