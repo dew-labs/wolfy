@@ -9,7 +9,7 @@
 // *************************************************************************
 
 // Core lib imports.
-use starknet::ContractAddress;
+use pragma_lib::types::{DataType, PragmaPricesResponse};
 
 // Local imports
 use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
@@ -19,7 +19,7 @@ use satoru::oracle::{
     error::OracleError,
 };
 use satoru::price::price::Price;
-use pragma_lib::types::{DataType, PragmaPricesResponse};
+use starknet::ContractAddress;
 
 
 // *************************************************************************
@@ -179,38 +179,36 @@ mod Oracle {
     // *************************************************************************
 
     // Core lib imports.
-    use core::traits::Into;
-    use core::traits::TryInto;
-    use core::zeroable::Zeroable;
-    use starknet::{ContractAddress, ClassHash};
-    use starknet::contract_address_const;
-    use starknet::info::{get_block_timestamp, get_block_number};
-    use starknet::syscalls::get_block_hash_syscall;
-    use starknet::SyscallResultTrait;
-    use starknet::storage_access::storage_base_address_from_felt252;
-    use starknet::storage::Map;
 
     use alexandria_math::BitShift;
     use alexandria_storage::list::{ListTrait, List};
+    use core::traits::Into;
+    use core::traits::TryInto;
+    use core::zeroable::Zeroable;
     use poseidon::poseidon_hash_span;
+
+    use pragma_lib::abi::{IPragmaABIDispatcher, IPragmaABIDispatcherTrait};
+    use pragma_lib::types::{DataType, PragmaPricesResponse};
     // Local imports.
     use satoru::data::{data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait}, keys};
     use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
-    use satoru::price::price::Price;
     use satoru::oracle::{
         oracle_store::{IOracleStoreDispatcher, IOracleStoreDispatcherTrait}, oracle_utils,
         oracle_utils::{SetPricesParams, ReportInfo}, error::OracleError,
     };
-    use satoru::role::role_module::{
-        IRoleModule, RoleModule
-    };
-    use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
+    use satoru::price::price::Price;
+    use satoru::role::role_module::{IRoleModule, RoleModule};
     use satoru::role::role_module::{IRoleModuleLibraryDispatcher, IRoleModuleDispatcherTrait};
-    use satoru::utils::{arrays, arrays::pow, bits, calc, precision};
+    use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
     use satoru::utils::u256_mask::{Mask, MaskTrait, validate_unique_and_set_index};
-
-    use pragma_lib::abi::{IPragmaABIDispatcher, IPragmaABIDispatcherTrait};
-    use pragma_lib::types::{DataType, PragmaPricesResponse};
+    use satoru::utils::{arrays, arrays::pow, bits, calc, precision};
+    use starknet::SyscallResultTrait;
+    use starknet::contract_address_const;
+    use starknet::info::{get_block_timestamp, get_block_number};
+    use starknet::storage::Map;
+    use starknet::storage_access::storage_base_address_from_felt252;
+    use starknet::syscalls::get_block_hash_syscall;
+    use starknet::{ContractAddress, ClassHash};
 
     use super::{IOracle, SetPricesCache, SetPricesInnerCache, ValidatedPrice};
 
@@ -297,7 +295,7 @@ mod Oracle {
                 self.set_primary_price_(token, price);
                 i += 1;
             };
-        // end for testing
+            // end for testing
         // self.set_prices_(data_store, event_emitter, params); // TODO uncomment
         }
 
@@ -322,9 +320,11 @@ mod Oracle {
         }
 
         //USAGE/
-        // let KEY :felt252 = 18669995996566340; // felt252 conversion of "BTC/USD", can also write const KEY : felt252 = 'BTC/USD';
+        // let KEY :felt252 = 18669995996566340; // felt252 conversion of "BTC/USD", can also write const KEY : felt252
+        // = 'BTC/USD';
         // Sepolia contract address : 0x36031daa264c24520b11d93af622c848b2499b66b41d611bac95e13cfca131a
-        // let oracle_address : ContractAddress = contract_address_const::<0x06df335982dddce41008e4c03f2546fa27276567b5274c7d0c1262f3c2b5d167>();
+        // let oracle_address : ContractAddress =
+        // contract_address_const::<0x06df335982dddce41008e4c03f2546fa27276567b5274c7d0c1262f3c2b5d167>();
         // let price = get_asset_price_median(DataType::SpotEntry(KEY));
 
         fn get_tokens_with_prices_count(self: @ContractState) -> u32 {

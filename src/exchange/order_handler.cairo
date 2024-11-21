@@ -5,10 +5,10 @@
 // *************************************************************************
 
 // Core lib imports.
-use starknet::ContractAddress;
 // Local imports.
 use satoru::oracle::oracle_utils::{SetPricesParams, SimulatePricesParams};
 use satoru::order::{base_order_utils::CreateOrderParams, order::Order};
+use starknet::ContractAddress;
 
 // *************************************************************************
 //                  Interface of the `OrderHandler` contract.
@@ -95,60 +95,53 @@ mod OrderHandler {
     // *************************************************************************
 
     // Core lib imports.
-    use satoru::order::order_utils::IOrderUtilsDispatcherTrait;
+    use array::ArrayTrait;
     use core::starknet::SyscallResultTrait;
     use core::traits::Into;
-    use starknet::ContractAddress;
-    use starknet::{get_caller_address, get_contract_address, ClassHash};
-    use array::ArrayTrait;
     use debug::PrintTrait;
-
-    // Local imports.
-    use super::IOrderHandler;
-    use satoru::oracle::oracle_modules;
-
-    use satoru::oracle::oracle_utils::{SetPricesParams, SimulatePricesParams};
-    use satoru::order::{
-        base_order_utils::CreateOrderParams, order_utils::{IOrderUtilsDispatcher},
-    };
-    use satoru::order::base_order_utils;
+    use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
+    use satoru::data::keys::{create_order_feature_disabled_key, execute_order_feature_disabled_key};
+    use satoru::data::keys;
+    use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
+    use satoru::exchange::base_order_handler::{IBaseOrderHandler, BaseOrderHandler};
+    use satoru::exchange::base_order_handler::{IBaseOrderHandlerLibraryDispatcher, IBaseOrderHandlerDispatcherTrait};
     // use satoru::market::error::MarketError;
     // use satoru::position::error::PositionError;
     // use satoru::feature::error::FeatureError;
     use satoru::exchange::exchange_utils;
-    use satoru::exchange::base_order_handler::{IBaseOrderHandler, BaseOrderHandler};
     use satoru::feature::feature_utils::{validate_feature};
-    use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
-    use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
-    use satoru::data::keys::{create_order_feature_disabled_key, execute_order_feature_disabled_key};
-    use satoru::data::keys;
-    use satoru::role::role::FROZEN_ORDER_KEEPER;
-    use satoru::role::role_module::{RoleModule, IRoleModule};
-    use satoru::token::token_utils;
     use satoru::gas::gas_utils;
-    use satoru::utils::global_reentrancy_guard::{non_reentrant_before, non_reentrant_after};
-    use satoru::utils::error_utils;
-    use satoru::token::erc20::interface::{IERC20, IERC20Dispatcher, IERC20DispatcherTrait};
-    use starknet::contract_address_const;
-    use satoru::role::role_store::{IRoleStoreDispatcher};
+    use satoru::mock::referral_storage::{IReferralStorageDispatcher, IReferralStorageDispatcherTrait};
+    use satoru::oracle::oracle_modules;
+
+    use satoru::oracle::oracle_utils::{SetPricesParams, SimulatePricesParams};
+    use satoru::oracle::{oracle::{IOracleDispatcher, IOracleDispatcherTrait},};
+    use satoru::order::base_order_utils;
+    use satoru::order::order_utils::IOrderUtilsDispatcherTrait;
+    use satoru::order::{
+        error::OrderError, order::{SecondaryOrderType, OrderType, Order, OrderTrait, DecreasePositionSwapType},
+        order_vault::{IOrderVaultDispatcher, IOrderVaultDispatcherTrait},
+        base_order_utils::{ExecuteOrderParams, ExecuteOrderParamsContracts}, order_utils::IOrderUtilsLibraryDispatcher,
+        increase_order_utils::IIncreaseOrderUtilsLibraryDispatcher,
+        decrease_order_utils::IDecreaseOrderUtilsLibraryDispatcher, swap_order_utils::ISwapOrderUtilsLibraryDispatcher
+    };
+    use satoru::order::{base_order_utils::CreateOrderParams, order_utils::{IOrderUtilsDispatcher},};
+    use satoru::role::role::FROZEN_ORDER_KEEPER;
     use satoru::role::role;
     use satoru::role::role_module::{IRoleModuleLibraryDispatcher, IRoleModuleDispatcherTrait};
-    use satoru::exchange::base_order_handler::{IBaseOrderHandlerLibraryDispatcher, IBaseOrderHandlerDispatcherTrait};
-    use satoru::oracle::{
-        oracle::{IOracleDispatcher, IOracleDispatcherTrait},
-    };
+    use satoru::role::role_module::{RoleModule, IRoleModule};
+    use satoru::role::role_store::{IRoleStoreDispatcher};
     use satoru::swap::swap_handler::{ISwapHandlerDispatcher, ISwapHandlerDispatcherTrait};
-    use satoru::mock::referral_storage::{IReferralStorageDispatcher, IReferralStorageDispatcherTrait};
-    use satoru::order::{
-        error::OrderError,
-        order::{SecondaryOrderType, OrderType, Order, OrderTrait, DecreasePositionSwapType},
-        order_vault::{IOrderVaultDispatcher, IOrderVaultDispatcherTrait},
-        base_order_utils::{ExecuteOrderParams, ExecuteOrderParamsContracts},
-        order_utils::IOrderUtilsLibraryDispatcher,
-        increase_order_utils::IIncreaseOrderUtilsLibraryDispatcher,
-        decrease_order_utils::IDecreaseOrderUtilsLibraryDispatcher,
-        swap_order_utils::ISwapOrderUtilsLibraryDispatcher
-    };
+    use satoru::token::erc20::interface::{IERC20, IERC20Dispatcher, IERC20DispatcherTrait};
+    use satoru::token::token_utils;
+    use satoru::utils::error_utils;
+    use satoru::utils::global_reentrancy_guard::{non_reentrant_before, non_reentrant_after};
+    use starknet::ContractAddress;
+    use starknet::contract_address_const;
+    use starknet::{get_caller_address, get_contract_address, ClassHash};
+
+    // Local imports.
+    use super::IOrderHandler;
 
     // *************************************************************************
     //                              STORAGE
@@ -201,18 +194,21 @@ mod OrderHandler {
         base_order_handler_class_hash: ClassHash,
     ) {
         self.base_order_handler.write(IBaseOrderHandlerLibraryDispatcher { class_hash: base_order_handler_class_hash });
-        self.base_order_handler.read().initialize(
-            data_store_address,
-            event_emitter_address,
-            order_vault_address,
-            oracle_address,
-            swap_handler_address,
-            referral_storage_address,
-            order_utils_class_hash,
-            increase_order_utils_class_hash,
-            decrease_order_utils_class_hash,
-            swap_order_utils_class_hash
-        );
+        self
+            .base_order_handler
+            .read()
+            .initialize(
+                data_store_address,
+                event_emitter_address,
+                order_vault_address,
+                oracle_address,
+                swap_handler_address,
+                referral_storage_address,
+                order_utils_class_hash,
+                increase_order_utils_class_hash,
+                decrease_order_utils_class_hash,
+                swap_order_utils_class_hash
+            );
         self.role_module.write(IRoleModuleLibraryDispatcher { class_hash: role_module_class_hash });
         self.role_module.read().initialize(role_store_address);
     }
@@ -409,10 +405,7 @@ mod OrderHandler {
             let data_store = self.data_store.read();
             non_reentrant_before(data_store);
             oracle_modules::with_oracle_prices_before(
-                self.oracle.read(),
-                data_store,
-                self.event_emitter.read(),
-                @oracle_params
+                self.oracle.read(), data_store, self.event_emitter.read(), @oracle_params
             );
             // TODO: Did not implement starting gas and try / catch logic as not available in Cairo
             self._execute_order(key, oracle_params, get_contract_address());
@@ -459,7 +452,9 @@ mod OrderHandler {
         fn _execute_order(self: @ContractState, key: felt252, oracle_params: SetPricesParams, keeper: ContractAddress) {
             let starting_gas: u256 = 100000; // TODO: Get starting gas from Cairo.
 
-            let params = self.base_order_handler.read()
+            let params = self
+                .base_order_handler
+                .read()
                 .get_execute_order_params(key, oracle_params, keeper, starting_gas, SecondaryOrderType::None(()),);
 
             if params.order.is_frozen || params.order.order_type == OrderType::LimitSwap(()) {

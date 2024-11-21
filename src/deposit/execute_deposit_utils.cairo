@@ -5,7 +5,6 @@
 //                                  IMPORTS
 // *************************************************************************
 // Core lib imports.
-use starknet::ContractAddress;
 use result::ResultTrait;
 
 // Local imports.
@@ -18,7 +17,6 @@ use satoru::data::{
 use satoru::deposit::{deposit_vault::{IDepositVaultDispatcher, IDepositVaultDispatcherTrait}, error::DepositError};
 use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
 use satoru::event::event_utils::{LogData, LogDataTrait, ContractAddressDictValue, I256252DictValue};
-use satoru::utils::serializable_dict::{SerializableFelt252Dict, SerializableFelt252DictTrait};
 use satoru::fee::fee_utils;
 use satoru::gas::gas_utils::pay_execution_fee_deposit;
 use satoru::market::{market::Market, market_token::{IMarketTokenDispatcher, IMarketTokenDispatcherTrait}, market_utils};
@@ -26,13 +24,15 @@ use satoru::mock::referral_storage::{IReferralStorageDispatcher, IReferralStorag
 use satoru::oracle::{oracle::{IOracleDispatcher, IOracleDispatcherTrait}, oracle_utils};
 use satoru::price::price::{Price, PriceTrait};
 use satoru::pricing::swap_pricing_utils::{get_swap_fees, get_price_impact_usd, GetPriceImpactUsdParams};
-use satoru::swap::swap_utils;
 use satoru::swap::error::SwapError;
+use satoru::swap::swap_utils;
+use satoru::token::erc20::interface::{IERC20, IERC20Dispatcher, IERC20DispatcherTrait};
+use satoru::utils::serializable_dict::{SerializableFelt252Dict, SerializableFelt252DictTrait};
 use satoru::utils::{
     calc::{to_unsigned, to_signed}, i256::{i256, i256_new, i256_neg}, precision, span32::Span32,
     starknet_utils::{sn_gasleft, sn_gasprice}
 };
-use satoru::token::erc20::interface::{IERC20, IERC20Dispatcher, IERC20DispatcherTrait};
+use starknet::ContractAddress;
 
 /// Struct used in executeDeposit to avoid stack too deep errors
 #[derive(Drop, Serde)]

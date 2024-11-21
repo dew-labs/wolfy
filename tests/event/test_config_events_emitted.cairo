@@ -1,11 +1,12 @@
-use starknet::{ContractAddress, contract_address_const};
-use snforge_std::{declare, ContractClassTrait, DeclareResultTrait, spy_events, EventSpy, EventSpyTrait, Event, EventSpyAssertionsTrait};
-
-use satoru::test_utils::tests_lib::deploy_event_emitter;
+use satoru::event::event_emitter::EventEmitter::{SetBool, SetAddress, SetFelt252, SetUint, SetInt};
 
 use satoru::event::event_emitter::{EventEmitter, IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
 
-use satoru::event::event_emitter::EventEmitter::{SetBool, SetAddress, SetFelt252, SetUint, SetInt};
+use satoru::test_utils::tests_lib::deploy_event_emitter;
+use snforge_std::{
+    declare, ContractClassTrait, DeclareResultTrait, spy_events, EventSpy, EventSpyTrait, Event, EventSpyAssertionsTrait
+};
+use starknet::{ContractAddress, contract_address_const};
 
 #[test]
 fn given_normal_conditions_when_emit_set_bool_then_works() {

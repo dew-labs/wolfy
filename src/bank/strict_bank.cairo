@@ -5,9 +5,9 @@
 // *************************************************************************
 
 // Core lib imports.
-use traits::{Into, TryInto};
-use starknet::{ContractAddress, ClassHash, get_contract_address};
 use satoru::token::erc20::interface::{IERC20, IERC20Dispatcher, IERC20DispatcherTrait};
+use starknet::{ContractAddress, ClassHash, get_contract_address};
+use traits::{Into, TryInto};
 
 // *************************************************************************
 //                  Interface of the `StrictBank` contract.
@@ -16,7 +16,11 @@ use satoru::token::erc20::interface::{IERC20, IERC20Dispatcher, IERC20Dispatcher
 trait IStrictBank<TContractState> {
     /// Initialize the contract.
     fn initialize(
-        ref self: TContractState, data_store_address: ContractAddress, role_store_address: ContractAddress, bank_class_hash: ClassHash, role_module_class_hash: ClassHash,
+        ref self: TContractState,
+        data_store_address: ContractAddress,
+        role_store_address: ContractAddress,
+        bank_class_hash: ClassHash,
+        role_module_class_hash: ClassHash,
     );
 
     /// Transfer tokens from this contract to a receiver.
@@ -50,17 +54,17 @@ mod StrictBank {
 
     // Core lib imports.
     use core::traits::TryInto;
-    use starknet::{get_caller_address, get_contract_address, ContractAddress, ClassHash, contract_address_const};
-    use starknet::storage::Map;
+    use debug::PrintTrait;
 
     // Local imports.
     use satoru::bank::bank::{IBankLibraryDispatcher, IBankDispatcherTrait};
-    use super::IStrictBank;
-    use satoru::token::erc20::interface::{IERC20, IERC20Dispatcher, IERC20DispatcherTrait};
+    use satoru::data::data_store::{IDataStoreDispatcher};
     use satoru::role::role_module::{IRoleModuleLibraryDispatcher, IRoleModuleDispatcherTrait};
     use satoru::role::role_store::{IRoleStoreDispatcher};
-    use satoru::data::data_store::{IDataStoreDispatcher};
-    use debug::PrintTrait;
+    use satoru::token::erc20::interface::{IERC20, IERC20Dispatcher, IERC20DispatcherTrait};
+    use starknet::storage::Map;
+    use starknet::{get_caller_address, get_contract_address, ContractAddress, ClassHash, contract_address_const};
+    use super::IStrictBank;
 
     // *************************************************************************
     //                              STORAGE
@@ -81,7 +85,11 @@ mod StrictBank {
     #[abi(embed_v0)]
     impl StrictBank of super::IStrictBank<ContractState> {
         fn initialize(
-            ref self: ContractState, data_store_address: ContractAddress, role_store_address: ContractAddress, bank_class_hash: ClassHash, role_module_class_hash: ClassHash,
+            ref self: ContractState,
+            data_store_address: ContractAddress,
+            role_store_address: ContractAddress,
+            bank_class_hash: ClassHash,
+            role_module_class_hash: ClassHash,
         ) {
             self.bank.write(IBankLibraryDispatcher { class_hash: bank_class_hash });
             self.bank.read().initialize(data_store_address, role_store_address, role_module_class_hash);

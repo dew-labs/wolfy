@@ -23,17 +23,17 @@ trait IMarketToken<TState> {
 #[starknet::contract]
 mod MarketToken {
     use core::num::traits::Bounded;
-    use starknet::{ContractAddress, ClassHash};
-    use starknet::get_caller_address;
-    use starknet::storage::Map;
-    use zeroable::Zeroable;
 
     use satoru::bank::bank::{IBankLibraryDispatcher, IBankDispatcherTrait};
+    use satoru::data::data_store::{IDataStoreDispatcher};
     use satoru::role::role_module::{IRoleModuleLibraryDispatcher, IRoleModuleDispatcherTrait};
     use satoru::role::role_store::{IRoleStoreDispatcher};
-    use satoru::data::data_store::{IDataStoreDispatcher};
+    use starknet::get_caller_address;
+    use starknet::storage::Map;
+    use starknet::{ContractAddress, ClassHash};
 
     use super::IMarketToken;
+    use zeroable::Zeroable;
 
     const NAME: felt252 = 'Wolfy Market';
     const SYMBOL: felt252 = 'WM';
@@ -74,7 +74,13 @@ mod MarketToken {
     }
 
     #[constructor]
-    fn constructor(ref self: ContractState, role_store_address: ContractAddress, data_store_address: ContractAddress, bank_class_hash: ClassHash, role_module_class_hash: ClassHash) {
+    fn constructor(
+        ref self: ContractState,
+        role_store_address: ContractAddress,
+        data_store_address: ContractAddress,
+        bank_class_hash: ClassHash,
+        role_module_class_hash: ClassHash
+    ) {
         self._initializer(NAME, SYMBOL);
         self.bank.write(IBankLibraryDispatcher { class_hash: bank_class_hash });
         self.bank.read().initialize(data_store_address, role_store_address, role_module_class_hash);

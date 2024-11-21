@@ -4,35 +4,36 @@
 //                                  IMPORTS
 // *************************************************************************
 // Core lib imports.
-use starknet::{ContractAddress, get_caller_address, Felt252TryIntoContractAddress, contract_address_const};
-use snforge_std::{
-    declare, start_cheat_caller_address, stop_cheat_caller_address, start_mock_call, test_address, ContractClassTrait, DeclareResultTrait, ContractClass, start_cheat_block_number
-};
-use traits::Default;
-use poseidon::poseidon_hash_span;
 use debug::PrintTrait;
-// Local imports.
-use satoru::role::role;
-use satoru::test_utils::tests_lib;
-
-use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
+use poseidon::poseidon_hash_span;
 use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
-use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
 use satoru::data::keys;
-use satoru::order::order::{Order, OrderType, SecondaryOrderType, DecreasePositionSwapType};
-use satoru::order::order_vault::{IOrderVaultDispatcher, IOrderVaultDispatcherTrait};
-use satoru::order::base_order_utils::{CreateOrderParams};
-use satoru::oracle::oracle_store::{IOracleStoreDispatcher, IOracleStoreDispatcherTrait};
-use satoru::oracle::oracle::{IOracleDispatcher, IOracleDispatcherTrait};
-use satoru::oracle::oracle_utils::SetPricesParams;
-use satoru::swap::swap_handler::{ISwapHandlerDispatcher, ISwapHandlerDispatcherTrait};
-use satoru::mock::referral_storage::{IReferralStorageDispatcher, IReferralStorageDispatcherTrait};
-use satoru::utils::span32::{Span32, Array32Trait};
+use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
+use satoru::exchange::order_handler::{OrderHandler, IOrderHandlerDispatcher, IOrderHandlerDispatcherTrait};
 use satoru::market::{
     market::{Market, UniqueIdMarketImpl}, market_factory::{IMarketFactoryDispatcher, IMarketFactoryDispatcherTrait}
 };
-use satoru::exchange::order_handler::{OrderHandler, IOrderHandlerDispatcher, IOrderHandlerDispatcherTrait};
+use satoru::mock::referral_storage::{IReferralStorageDispatcher, IReferralStorageDispatcherTrait};
+use satoru::oracle::oracle::{IOracleDispatcher, IOracleDispatcherTrait};
+use satoru::oracle::oracle_store::{IOracleStoreDispatcher, IOracleStoreDispatcherTrait};
+use satoru::oracle::oracle_utils::SetPricesParams;
+use satoru::order::base_order_utils::{CreateOrderParams};
+use satoru::order::order::{Order, OrderType, SecondaryOrderType, DecreasePositionSwapType};
+use satoru::order::order_vault::{IOrderVaultDispatcher, IOrderVaultDispatcherTrait};
+// Local imports.
+use satoru::role::role;
+
+use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
+use satoru::swap::swap_handler::{ISwapHandlerDispatcher, ISwapHandlerDispatcherTrait};
+use satoru::test_utils::tests_lib;
 use satoru::token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
+use satoru::utils::span32::{Span32, Array32Trait};
+use snforge_std::{
+    declare, start_cheat_caller_address, stop_cheat_caller_address, start_mock_call, test_address, ContractClassTrait,
+    DeclareResultTrait, ContractClass, start_cheat_block_number
+};
+use starknet::{ContractAddress, get_caller_address, Felt252TryIntoContractAddress, contract_address_const};
+use traits::Default;
 
 // *********************************************************************************************
 // *                                      TESTS                                                *

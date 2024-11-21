@@ -3,31 +3,31 @@
 // *************************************************************************
 
 // Core lib imports.
-use starknet::{ContractAddress, contract_address_const};
-
-// Local imports.
-use satoru::oracle::oracle::{IOracleDispatcher, IOracleDispatcherTrait};
+use satoru::bank::bank::{IBankDispatcher, IBankDispatcherTrait};
 use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
 use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
-use satoru::oracle::oracle_utils;
-use satoru::position::decrease_position_utils::DecreasePositionResult;
-use satoru::position::decrease_position_utils;
-use satoru::order::{base_order_utils::ExecuteOrderParams, order::Order, order::OrderType, error::OrderError, order};
-use satoru::bank::bank::{IBankDispatcher, IBankDispatcherTrait};
-
-use satoru::utils::arrays;
-use satoru::market::market_utils;
-use satoru::position::position_utils;
-use satoru::position::position::Position;
-use satoru::swap::swap_utils::{SwapParams};
-use satoru::position::position_utils::UpdatePositionParams;
 use satoru::event::event_utils::{
     Felt252IntoContractAddress, ContractAddressDictValue, I256252DictValue, U256252DictValue, U256IntoFelt252
 };
-use satoru::utils::serializable_dict::{SerializableFelt252Dict, SerializableFelt252DictTrait};
 use satoru::market::market_token::{IMarketTokenDispatcher, IMarketTokenDispatcherTrait};
-use satoru::utils::span32::{Span32, Array32Trait};
+use satoru::market::market_utils;
+
+// Local imports.
+use satoru::oracle::oracle::{IOracleDispatcher, IOracleDispatcherTrait};
+use satoru::oracle::oracle_utils;
+use satoru::order::{base_order_utils::ExecuteOrderParams, order::Order, order::OrderType, error::OrderError, order};
+use satoru::position::decrease_position_utils::DecreasePositionResult;
+use satoru::position::decrease_position_utils;
+use satoru::position::position::Position;
+use satoru::position::position_utils::UpdatePositionParams;
+use satoru::position::position_utils;
 use satoru::swap::swap_handler::{ISwapHandlerDispatcher, ISwapHandlerDispatcherTrait};
+use satoru::swap::swap_utils::{SwapParams};
+
+use satoru::utils::arrays;
+use satoru::utils::serializable_dict::{SerializableFelt252Dict, SerializableFelt252DictTrait};
+use satoru::utils::span32::{Span32, Array32Trait};
+use starknet::{ContractAddress, contract_address_const};
 
 // *************************************************************************
 //                  Interface of the `OrderUtils` contract.
@@ -74,7 +74,7 @@ trait IDecreaseOrderUtils<TContractState> {
         secondary_output_amount: u256,
         min_output_amount: u256
     );
-// fn handle_swap_error(
+    // fn handle_swap_error(
 //     ref self: TContractState,
 //     oracle: IOracleDispatcher,
 //     order: Order,
@@ -88,31 +88,31 @@ trait IDecreaseOrderUtils<TContractState> {
 #[starknet::contract]
 mod DecreaseOrderUtils {
     // Core lib imports.
-    use starknet::{ContractAddress, contract_address_const};
-
-    // Local imports.
-    use satoru::oracle::oracle::{IOracleDispatcher, IOracleDispatcherTrait};
+    use satoru::bank::bank::{IBankDispatcher, IBankDispatcherTrait};
     use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
     use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
-    use satoru::oracle::oracle_utils;
-    use satoru::position::decrease_position_utils::DecreasePositionResult;
-    use satoru::position::decrease_position_utils;
-    use satoru::order::{base_order_utils::ExecuteOrderParams, order::Order, order::OrderType, error::OrderError, order};
-    use satoru::bank::bank::{IBankDispatcher, IBankDispatcherTrait};
-
-    use satoru::utils::arrays;
-    use satoru::market::market_utils;
-    use satoru::position::position_utils;
-    use satoru::position::position::Position;
-    use satoru::swap::swap_utils::{SwapParams};
-    use satoru::position::position_utils::UpdatePositionParams;
     use satoru::event::event_utils::{
         Felt252IntoContractAddress, ContractAddressDictValue, I256252DictValue, U256252DictValue, U256IntoFelt252
     };
-    use satoru::utils::serializable_dict::{SerializableFelt252Dict, SerializableFelt252DictTrait};
     use satoru::market::market_token::{IMarketTokenDispatcher, IMarketTokenDispatcherTrait};
-    use satoru::utils::span32::{Span32, Array32Trait};
+    use satoru::market::market_utils;
+
+    // Local imports.
+    use satoru::oracle::oracle::{IOracleDispatcher, IOracleDispatcherTrait};
+    use satoru::oracle::oracle_utils;
+    use satoru::order::{base_order_utils::ExecuteOrderParams, order::Order, order::OrderType, error::OrderError, order};
+    use satoru::position::decrease_position_utils::DecreasePositionResult;
+    use satoru::position::decrease_position_utils;
+    use satoru::position::position::Position;
+    use satoru::position::position_utils::UpdatePositionParams;
+    use satoru::position::position_utils;
     use satoru::swap::swap_handler::{ISwapHandlerDispatcher, ISwapHandlerDispatcherTrait};
+    use satoru::swap::swap_utils::{SwapParams};
+
+    use satoru::utils::arrays;
+    use satoru::utils::serializable_dict::{SerializableFelt252Dict, SerializableFelt252DictTrait};
+    use satoru::utils::span32::{Span32, Array32Trait};
+    use starknet::{ContractAddress, contract_address_const};
 
     #[storage]
     struct Storage {}
@@ -183,11 +183,11 @@ mod DecreaseOrderUtils {
 
                 return;
                 // return get_output_event_data(
-                //     result.output_token,
-                //     result.output_amount,
-                //     result.secondary_output_token,
-                //     result.secondary_output_amount
-                // );
+            //     result.output_token,
+            //     result.output_amount,
+            //     result.secondary_output_token,
+            //     result.secondary_output_amount
+            // );
             }
 
             let swap_param: SwapParams = SwapParams {
@@ -211,7 +211,7 @@ mod DecreaseOrderUtils {
                 .validate_output_amount(
                     params.contracts.oracle, token_out, swap_output_amount, order.min_output_amount
                 );
-        // return get_output_event_data(token_out, swap_output_amount, contract_address_const::<0>(), 0);
+            // return get_output_event_data(token_out, swap_output_amount, contract_address_const::<0>(), 0);
         }
 
 
@@ -304,7 +304,7 @@ mod DecreaseOrderUtils {
                 OrderError::INSUFFICIENT_OUTPUT_AMOUNT(output_usd, output_token_price);
             }
         }
-    // fn handle_swap_error(
+        // fn handle_swap_error(
     //     ref self: ContractState,
     //     oracle: IOracleDispatcher,
     //     order: Order,
@@ -315,12 +315,12 @@ mod DecreaseOrderUtils {
     // ) {
     //     event_emitter.emit_swap_reverted(reason, reason_bytes);
 
-    //     self
+        //     self
     //         .validate_output_amount(
     //             oracle, result.output_token, result.output_amount, order.min_output_amount
     //         );
 
-    //     IMarketTokenDispatcher { contract_address: order.market }
+        //     IMarketTokenDispatcher { contract_address: order.market }
     //         .transfer_out(
     //             order.market, result.output_token, order.receiver, result.output_amount
     //         );
@@ -335,13 +335,13 @@ mod DecreaseOrderUtils {
     // ) { //-> LogData {
     //     let mut log_data: LogData = Default::default();
 
-    //     log_data.address_dict.insert_single('output_token', output_token);
+        //     log_data.address_dict.insert_single('output_token', output_token);
     //     log_data.address_dict.insert_single('secondary_output_token', secondary_output_token);
 
-    //     log_data.uint_dict.insert_single('output_amount', output_amount);
+        //     log_data.uint_dict.insert_single('output_amount', output_amount);
     //     log_data.uint_dict.insert_single('secondary_output_amount', secondary_output_amount);
 
-    //     //log_data
+        //     //log_data
     // }
     }
 }

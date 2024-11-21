@@ -1,10 +1,10 @@
-use starknet::{ContractAddress, contract_address_const};
+use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
 
 use satoru::order::order::{Order, OrderType, OrderTrait};
 use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
-use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
 use satoru::test_utils::tests_lib;
 use satoru::utils::i256::{i256, i256_new};
+use starknet::{ContractAddress, contract_address_const};
 
 
 #[test]

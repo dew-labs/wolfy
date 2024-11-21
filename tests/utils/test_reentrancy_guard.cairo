@@ -1,6 +1,6 @@
 use satoru::data::data_store::IDataStoreDispatcherTrait;
-use satoru::utils::global_reentrancy_guard::{non_reentrant_before, non_reentrant_after};
 use satoru::test_utils::tests_lib;
+use satoru::utils::global_reentrancy_guard::{non_reentrant_before, non_reentrant_after};
 
 #[test]
 fn given_normal_conditions_when_non_reentrancy_before_and_after_then_works() {

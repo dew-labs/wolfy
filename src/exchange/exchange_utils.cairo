@@ -3,10 +3,10 @@
 // *************************************************************************
 //                                  IMPORTS
 // *************************************************************************
-use starknet::info::get_block_number;
-use satoru::exchange::error::ExchangeError;
-use satoru::data::keys;
 use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
+use satoru::data::keys;
+use satoru::exchange::error::ExchangeError;
+use starknet::info::get_block_number;
 
 /// Validates that request age is lower than request age expiration.
 /// # Arguments

@@ -6,10 +6,10 @@
 
 // Core lib imports.
 use core::traits::Into;
-use starknet::{ContractAddress, contract_address_const, ClassHash};
 
 use satoru::oracle::oracle_utils::SetPricesParams;
 use satoru::order::{order::SecondaryOrderType, base_order_utils::ExecuteOrderParams};
+use starknet::{ContractAddress, contract_address_const, ClassHash};
 
 // *************************************************************************
 //                  Interface of the `BaseOrderHandler` contract.
@@ -48,19 +48,16 @@ mod BaseOrderHandler {
 
     // Core lib imports.
     use core::option::OptionTrait;
-    use core::zeroable::Zeroable;
     use core::traits::Into;
-    use starknet::{get_caller_address, ContractAddress, contract_address_const, ClassHash};
+    use core::zeroable::Zeroable;
 
     use result::ResultTrait;
 
-    // Local imports.
-    use super::IBaseOrderHandler;
-    use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
-    use satoru::role::role_module::{IRoleModuleDispatcher, IRoleModuleDispatcherTrait, RoleModule, IRoleModule};
-
     use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
     use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
+    use satoru::exchange::error::ExchangeError;
+    use satoru::market::{market::Market, market_utils};
+    use satoru::mock::referral_storage::{IReferralStorageDispatcher, IReferralStorageDispatcherTrait};
     use satoru::oracle::{
         oracle::{IOracleDispatcher, IOracleDispatcherTrait},
         oracle_modules::{with_oracle_prices_before, with_oracle_prices_after},
@@ -73,11 +70,14 @@ mod BaseOrderHandler {
         increase_order_utils::IIncreaseOrderUtilsLibraryDispatcher,
         decrease_order_utils::IDecreaseOrderUtilsLibraryDispatcher, swap_order_utils::ISwapOrderUtilsLibraryDispatcher
     };
+    use satoru::role::role_module::{IRoleModuleDispatcher, IRoleModuleDispatcherTrait, RoleModule, IRoleModule};
+    use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
     use satoru::swap::swap_handler::{ISwapHandlerDispatcher, ISwapHandlerDispatcherTrait};
-    use satoru::exchange::error::ExchangeError;
-    use satoru::market::{market::Market, market_utils};
-    use satoru::mock::referral_storage::{IReferralStorageDispatcher, IReferralStorageDispatcherTrait};
     use satoru::utils::span32::Array32Trait;
+    use starknet::{get_caller_address, ContractAddress, contract_address_const, ClassHash};
+
+    // Local imports.
+    use super::IBaseOrderHandler;
 
     // *************************************************************************
     //                              STORAGE

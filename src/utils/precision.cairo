@@ -2,13 +2,17 @@
 //                                  IMPORTS
 // *************************************************************************
 // Core lib imports.
+
+//use starknet::cairo::common::cairo_builtins::bitwise_and;
+//use starknet::{*};
+use alexandria_math::BitShift;
 use alexandria_math::pow;
-use integer::{u512_safe_div_rem_by_u256, BoundedU256, u256_try_as_non_zero, U256TryIntoFelt252};
 use core::num::traits::WideMul;
-use satoru::utils::i256::{i256, i256_neg};
-use core::traits::TryInto;
 use core::option::Option;
+use core::traits::TryInto;
+use integer::{u512_safe_div_rem_by_u256, BoundedU256, u256_try_as_non_zero, U256TryIntoFelt252};
 use satoru::utils::calc::{roundup_division, roundup_magnitude_division};
+use satoru::utils::i256::{i256, i256_neg};
 
 const FLOAT_PRECISION: u256 = 1_000000000000000000000000000000; // 10^30
 const FLOAT_PRECISION_SQRT: u256 = 1_000000000000000; // 10^15
@@ -151,12 +155,8 @@ fn apply_exponent_factor(float_value: u256, exponent_factor: u256) -> u256 {
     let wei_u256: u256 = wei_result.try_into().unwrap();
     let float_result = wei_to_float(wei_u256);
     float_result
-//0
+    //0
 }
-
-//use starknet::cairo::common::cairo_builtins::bitwise_and;
-//use starknet::{*};
-use alexandria_math::BitShift;
 
 fn exp2(mut x: u256) -> u256 {
     let EXP2_MAX_INPUT = 192 * 1000000000000000000 - 1;
@@ -174,8 +174,8 @@ fn exp2(mut x: u256) -> u256 {
     //
     // 1. Intermediate results will not overflow, as the starting point is 2^191 and all magic factors are under 2^65.
     // 2. The rationale for organizing the if statements into groups of 8 is gas savings. If the result of performing
-    // a bitwise AND operation between x and any value in the array [0x80; 0x40; 0x20; 0x10; 0x08; 0x04; 0x02; 0x01] is 1,
-    // we know that `x & 0xFF` is also 1.
+    // a bitwise AND operation between x and any value in the array [0x80; 0x40; 0x20; 0x10; 0x08; 0x04; 0x02; 0x01] is
+    // 1, we know that `x & 0xFF` is also 1.
 
     if (x & 0xFF00000000000000 > 0) {
         if (x & 0x8000000000000000 > 0) {

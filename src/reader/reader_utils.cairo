@@ -6,30 +6,30 @@
 //                                  IMPORTS
 // *************************************************************************
 // Core lib imports.
-use starknet::{ContractAddress, contract_address_const};
 use core::traits::TryInto;
 use result::ResultTrait;
-
-// Local imports.
-use satoru::position::position::Position;
-use satoru::pricing::position_pricing_utils::PositionFees;
-use satoru::reader::reader_pricing_utils::ExecutionPriceResult;
 use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
 use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
 use satoru::market::{
     market_utils, market::Market, market_utils::PositionType, market_utils::MarketPrices, market_utils::CollateralType,
     market_utils::GetNextFundingAmountPerSizeResult
 };
-use satoru::position::position_utils;
-use satoru::reader::reader_pricing_utils;
-use satoru::price::price::Price;
-use satoru::pricing::position_pricing_utils;
-use satoru::pricing::position_pricing_utils::PositionBorrowingFees;
-use satoru::pricing::position_pricing_utils::PositionReferralFees;
-use satoru::pricing::position_pricing_utils::PositionFundingFees;
-use satoru::pricing::position_pricing_utils::PositionUiFees;
 use satoru::mock::referral_storage::{IReferralStorageDispatcher, IReferralStorageDispatcherTrait};
+
+// Local imports.
+use satoru::position::position::Position;
+use satoru::position::position_utils;
+use satoru::price::price::Price;
+use satoru::pricing::position_pricing_utils::PositionBorrowingFees;
+use satoru::pricing::position_pricing_utils::PositionFees;
+use satoru::pricing::position_pricing_utils::PositionFundingFees;
+use satoru::pricing::position_pricing_utils::PositionReferralFees;
+use satoru::pricing::position_pricing_utils::PositionUiFees;
+use satoru::pricing::position_pricing_utils;
+use satoru::reader::reader_pricing_utils::ExecutionPriceResult;
+use satoru::reader::reader_pricing_utils;
 use satoru::utils::{calc, i256::i256};
+use starknet::{ContractAddress, contract_address_const};
 
 #[derive(Default, Drop, starknet::Store, Serde)]
 struct PositionInfo {
@@ -54,10 +54,12 @@ struct BaseFundingValues {
     claimable_funding_amount_per_size: PositionType,
 }
 
-/// Designed to calculate and return the next borrowing fees that a specific position within a market is expected to incur.
+/// Designed to calculate and return the next borrowing fees that a specific position within a market is expected to
+/// incur.
 /// # Arguments
 /// * `data_store` - The `DataStore` contract dispatcher.
-/// * `position` - Struct representing the properties of the specific position for which borrowing fees are being calculated.
+/// * `position` - Struct representing the properties of the specific position for which borrowing fees are being
+/// calculated.
 /// * `market` - The market.
 /// * `prices` - Price of the market token.
 /// # Returns

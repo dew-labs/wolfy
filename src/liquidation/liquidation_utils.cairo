@@ -2,18 +2,18 @@
 //                                  IMPORTS
 // *************************************************************************
 // Core lib imports.
-use starknet::ContractAddress;
+use core::num::traits::Bounded;
+use satoru::callback::callback_utils::get_saved_callback_contract;
 
 // Local imports.
 use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
 use satoru::data::keys;
 use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
-use satoru::position::position_utils::get_position_key;
-use satoru::order::order::{SecondaryOrderType, OrderType, Order, DecreasePositionSwapType};
-use satoru::callback::callback_utils::get_saved_callback_contract;
-use satoru::utils::span32::{Span32, Array32Trait};
 use satoru::nonce::nonce_utils::get_next_key;
-use core::num::traits::Bounded;
+use satoru::order::order::{SecondaryOrderType, OrderType, Order, DecreasePositionSwapType};
+use satoru::position::position_utils::get_position_key;
+use satoru::utils::span32::{Span32, Array32Trait};
+use starknet::ContractAddress;
 
 /// Creates a liquidation order for a position.
 /// # Arguments

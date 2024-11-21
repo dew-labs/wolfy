@@ -1,6 +1,6 @@
 // Satoru imports
-use satoru::withdrawal::withdrawal::Withdrawal;
 use satoru::event::event_utils::LogData;
+use satoru::withdrawal::withdrawal::Withdrawal;
 
 // *************************************************************************
 //                  Interface of the `WithdrawalCallbackReceiver` contract.

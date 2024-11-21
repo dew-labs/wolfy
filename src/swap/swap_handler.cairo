@@ -4,10 +4,10 @@
 //                                  IMPORTS
 // *************************************************************************
 // Core lib imports.
-use starknet::ContractAddress;
 
 // Local imports.
 use satoru::swap::swap_utils::{SwapParams};
+use starknet::ContractAddress;
 
 // *************************************************************************
 //                  Interface of the `SwapHandler` contract.
@@ -28,18 +28,18 @@ mod SwapHandler {
     //                               IMPORTS
     // *************************************************************************
     // Core lib imports
-    use starknet::{ContractAddress, ClassHash};
+
+    use openzeppelin::security::ReentrancyGuardComponent;
+    use satoru::role::role;
+    use satoru::role::role_module::{IRoleModuleLibraryDispatcher, IRoleModuleDispatcherTrait};
+    use satoru::role::role_module::{RoleModule, IRoleModule};
+    use satoru::role::role_store::{IRoleStoreDispatcher};
 
     // Local imports.
     use satoru::swap::swap_utils::SwapParams;
     use satoru::swap::swap_utils;
-    use satoru::role::role_module::{RoleModule, IRoleModule};
     use satoru::utils::i256::i256;
-    use satoru::role::role_store::{IRoleStoreDispatcher};
-    use satoru::role::role;
-    use satoru::role::role_module::{IRoleModuleLibraryDispatcher, IRoleModuleDispatcherTrait};
-
-    use openzeppelin::security::ReentrancyGuardComponent;
+    use starknet::{ContractAddress, ClassHash};
 
     component!(path: ReentrancyGuardComponent, storage: reentrancy_guard, event: ReentrancyGuardEvent);
 

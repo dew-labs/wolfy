@@ -1,25 +1,25 @@
 // Core lib imports.
-use snforge_std::{declare, ContractClassTrait, DeclareResultTrait, start_cheat_caller_address, ContractClass};
 use array::ArrayTrait;
 use core::traits::Into;
-use starknet::{get_caller_address, ContractAddress, contract_address_const,};
+use debug::PrintTrait;
+use satoru::bank::bank::{IBankDispatcher, IBankDispatcherTrait};
+use satoru::data::{data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait}, keys};
+use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
+use satoru::market::market::Market;
+use satoru::market::market_factory::{IMarketFactoryDispatcher, IMarketFactoryDispatcherTrait};
+use satoru::market::market_token::{IMarketTokenDispatcher, IMarketTokenDispatcherTrait};
+use satoru::oracle::oracle::{IOracleDispatcher, IOracleDispatcherTrait};
+use satoru::price::price::{Price, PriceTrait};
+use satoru::role::role;
+use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
+use satoru::swap::swap_handler::{ISwapHandlerDispatcher, ISwapHandlerDispatcherTrait};
+use satoru::swap::swap_utils::SwapParams;
 
 // Local imports.
 use satoru::test_utils::tests_lib;
-use satoru::swap::swap_handler::{ISwapHandlerDispatcher, ISwapHandlerDispatcherTrait};
-use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
-use satoru::data::{data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait}, keys};
-use satoru::oracle::oracle::{IOracleDispatcher, IOracleDispatcherTrait};
-use satoru::bank::bank::{IBankDispatcher, IBankDispatcherTrait};
 use satoru::token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
-use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
-use satoru::swap::swap_utils::SwapParams;
-use satoru::role::role;
-use satoru::market::market::Market;
-use satoru::market::market_token::{IMarketTokenDispatcher, IMarketTokenDispatcherTrait};
-use satoru::price::price::{Price, PriceTrait};
-use satoru::market::market_factory::{IMarketFactoryDispatcher, IMarketFactoryDispatcherTrait};
-use debug::PrintTrait;
+use snforge_std::{declare, ContractClassTrait, DeclareResultTrait, start_cheat_caller_address, ContractClass};
+use starknet::{get_caller_address, ContractAddress, contract_address_const,};
 
 
 //TODO Tests need to be added after implementation of swap_utils

@@ -1,21 +1,21 @@
 //! Test file for `src/deposit/deposit_utils.cairo`.
-use starknet::{ContractAddress, contract_address_const};
 
 use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
-use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
-use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
 use satoru::data::keys;
-use satoru::market::market::Market;
-use satoru::role::role;
-use satoru::test_utils::tests_lib;
-use satoru::utils::span32::{Span32, Array32Trait};
 use satoru::deposit::{
     deposit::Deposit, deposit_utils::CreateDepositParams, deposit_utils::create_deposit, deposit_utils::cancel_deposit,
     deposit_vault::{IDepositVaultDispatcher, IDepositVaultDispatcherTrait}
 };
+use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
+use satoru::market::market::Market;
+use satoru::role::role;
+use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
+use satoru::test_utils::tests_lib;
+use satoru::utils::span32::{Span32, Array32Trait};
 
 
 use snforge_std::{declare, start_cheat_caller_address, ContractClassTrait, DeclareResultTrait};
+use starknet::{ContractAddress, contract_address_const};
 
 
 #[test]

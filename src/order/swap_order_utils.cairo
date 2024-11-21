@@ -3,23 +3,23 @@
 // *************************************************************************
 
 // Core lib imports.
-use starknet::{ContractAddress, contract_address_const};
-
-// Local imports.
-use satoru::order::base_order_utils::ExecuteOrderParams;
-use satoru::order::order::OrderType;
-use satoru::oracle::oracle_utils;
-use satoru::utils::arrays::are_gte_u64;
-use satoru::swap::swap_utils;
+use satoru::bank::bank::{IBankDispatcher, IBankDispatcherTrait};
 use satoru::event::event_utils::{
     Felt252IntoContractAddress, ContractAddressDictValue, I256252DictValue, U256252DictValue, U256IntoFelt252
 };
-use satoru::utils::serializable_dict::{SerializableFelt252Dict, SerializableFelt252DictTrait};
-use satoru::order::error::OrderError;
-use satoru::bank::bank::{IBankDispatcher, IBankDispatcherTrait};
-use satoru::utils::span32::{Span32, DefaultSpan32};
 use satoru::oracle::error::OracleError;
+use satoru::oracle::oracle_utils;
+
+// Local imports.
+use satoru::order::base_order_utils::ExecuteOrderParams;
+use satoru::order::error::OrderError;
+use satoru::order::order::OrderType;
+use satoru::swap::swap_utils;
 use satoru::token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
+use satoru::utils::arrays::are_gte_u64;
+use satoru::utils::serializable_dict::{SerializableFelt252Dict, SerializableFelt252DictTrait};
+use satoru::utils::span32::{Span32, DefaultSpan32};
+use starknet::{ContractAddress, contract_address_const};
 
 // *************************************************************************
 //                  Interface of the `OrderUtils` contract.
@@ -45,25 +45,25 @@ trait ISwapOrderUtils<TContractState> {
 #[starknet::contract]
 mod SwapOrderUtils {
     // Core lib imports.
-    use starknet::{ContractAddress, contract_address_const};
 
     use debug::PrintTrait;
-
-    // Local imports.
-    use satoru::order::base_order_utils::ExecuteOrderParams;
-    use satoru::order::order::OrderType;
-    use satoru::oracle::oracle_utils;
-    use satoru::utils::arrays::are_gte_u64;
-    use satoru::swap::swap_utils;
+    use satoru::bank::bank::{IBankDispatcher, IBankDispatcherTrait};
     use satoru::event::event_utils::{
         Felt252IntoContractAddress, ContractAddressDictValue, I256252DictValue, U256252DictValue, U256IntoFelt252
     };
-    use satoru::utils::serializable_dict::{SerializableFelt252Dict, SerializableFelt252DictTrait};
-    use satoru::order::error::OrderError;
-    use satoru::bank::bank::{IBankDispatcher, IBankDispatcherTrait};
-    use satoru::utils::span32::{Span32, DefaultSpan32};
     use satoru::oracle::error::OracleError;
+    use satoru::oracle::oracle_utils;
+
+    // Local imports.
+    use satoru::order::base_order_utils::ExecuteOrderParams;
+    use satoru::order::error::OrderError;
+    use satoru::order::order::OrderType;
+    use satoru::swap::swap_utils;
     use satoru::token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
+    use satoru::utils::arrays::are_gte_u64;
+    use satoru::utils::serializable_dict::{SerializableFelt252Dict, SerializableFelt252DictTrait};
+    use satoru::utils::span32::{Span32, DefaultSpan32};
+    use starknet::{ContractAddress, contract_address_const};
 
     #[storage]
     struct Storage {}
@@ -98,12 +98,12 @@ mod SwapOrderUtils {
                     ui_fee_receiver: params.order.ui_fee_receiver,
                 }
             );
-        // let mut log_data: LogData = Default::default();
+            // let mut log_data: LogData = Default::default();
 
-        // log_data.address_dict.insert_single('output_token', output_token);
+            // log_data.address_dict.insert_single('output_token', output_token);
         // log_data.uint_dict.insert_single('output_amount', output_amount);
 
-        // log_data
+            // log_data
         }
 
 

@@ -4,19 +4,19 @@
 //                                  IMPORTS
 // *************************************************************************
 // Core lib imports.
-use starknet::{ContractAddress, contract_address_const};
+use debug::PrintTrait;
 use result::ResultTrait;
-// Local imports.
-use satoru::position::{position_utils, decrease_position_swap_utils, error};
-use satoru::pricing::position_pricing_utils;
-use satoru::market::market_utils;
-use satoru::price::price::{Price, PriceTrait};
-use satoru::order::{base_order_utils, order};
-use satoru::utils::{i256::{i256, i256_neg, i256_new}, calc, precision};
 use satoru::data::{keys, data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait}};
 use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
 use satoru::fee::fee_utils;
-use debug::PrintTrait;
+use satoru::market::market_utils;
+use satoru::order::{base_order_utils, order};
+// Local imports.
+use satoru::position::{position_utils, decrease_position_swap_utils, error};
+use satoru::price::price::{Price, PriceTrait};
+use satoru::pricing::position_pricing_utils;
+use satoru::utils::{i256::{i256, i256_neg, i256_new}, calc, precision};
+use starknet::{ContractAddress, contract_address_const};
 
 /// Struct used in process_collateral function as cache.
 #[derive(Drop, starknet::Store, Serde, Default, Copy)]
@@ -81,8 +81,8 @@ fn process_collateral(
             || params.secondary_order_type == order::SecondaryOrderType::Adl(()));
     // in case price impact is too high it is capped and the difference is made to be claimable
     // the execution price is based on the capped price impact so it may be a better price than what it should be
-    // price_impact_diff_usd is the difference between the maximum price impact and the originally calculated price impact
-    // e.g. if the originally calculated price impact is -$100, but the capped price impact is -$80
+    // price_impact_diff_usd is the difference between the maximum price impact and the originally calculated price
+    // impact e.g. if the originally calculated price impact is -$100, but the capped price impact is -$80
     // then priceImpactDiffUsd would be $20
 
     let (price_impact_usd_, price_impact_diff_usd_, execution_price_) = get_execution_price(

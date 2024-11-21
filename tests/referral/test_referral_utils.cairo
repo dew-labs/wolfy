@@ -1,24 +1,23 @@
-use starknet::{ContractAddress, contract_address_const, ClassHash};
-
 use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
-use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
-use satoru::mock::referral_storage::{IReferralStorageDispatcher, IReferralStorageDispatcherTrait};
-use satoru::event::event_emitter::{EventEmitter, IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
-use satoru::event::event_emitter::EventEmitter::{AffiliateRewardUpdated, AffiliateRewardClaimed};
-use satoru::mock::governable::{IGovernableDispatcher, IGovernableDispatcherTrait};
-use snforge_std::{
-    declare, ContractClass, ContractClassTrait, DeclareResultTrait, spy_events, EventSpy, Event, start_cheat_caller_address,
-    stop_cheat_caller_address, EventSpyAssertionsTrait, EventSpyTrait
-};
-use satoru::role::role;
-use satoru::deposit::deposit::Deposit;
-use satoru::utils::span32::{Span32, Array32Trait};
-use satoru::referral::referral_utils;
 use satoru::data::keys;
-use satoru::utils::precision;
+use satoru::deposit::deposit::Deposit;
+use satoru::event::event_emitter::EventEmitter::{AffiliateRewardUpdated, AffiliateRewardClaimed};
+use satoru::event::event_emitter::{EventEmitter, IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
 use satoru::market::market_token::{IMarketTokenDispatcher, IMarketTokenDispatcherTrait};
-use satoru::token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
+use satoru::mock::governable::{IGovernableDispatcher, IGovernableDispatcherTrait};
+use satoru::mock::referral_storage::{IReferralStorageDispatcher, IReferralStorageDispatcherTrait};
+use satoru::referral::referral_utils;
+use satoru::role::role;
+use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
 use satoru::test_utils::tests_lib;
+use satoru::token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
+use satoru::utils::precision;
+use satoru::utils::span32::{Span32, Array32Trait};
+use snforge_std::{
+    declare, ContractClass, ContractClassTrait, DeclareResultTrait, spy_events, EventSpy, Event,
+    start_cheat_caller_address, stop_cheat_caller_address, EventSpyAssertionsTrait, EventSpyTrait
+};
+use starknet::{ContractAddress, contract_address_const, ClassHash};
 
 #[test]
 fn given_normal_conditions_when_trader_referral_codes_then_works() {
@@ -321,7 +320,9 @@ fn deploy_market_token(
 ) -> ContractAddress {
     let deployed_contract_address = contract_address_const::<'market_token'>();
     start_cheat_caller_address(deployed_contract_address, caller_address);
-    let constructor_calldata: Array<felt252> = array![role_store_address.into(), data_store_address.into(), bank_class_hash.into(), role_module_class_hash.into()];
+    let constructor_calldata: Array<felt252> = array![
+        role_store_address.into(), data_store_address.into(), bank_class_hash.into(), role_module_class_hash.into()
+    ];
     let (contract_address, _) = contract.deploy_at(@constructor_calldata, deployed_contract_address).unwrap();
     contract_address
 }
@@ -379,7 +380,12 @@ fn setup() -> (
         tests_lib::setup();
 
     let market_token_address = deploy_market_token(
-        market_token_class, caller_address, role_store.contract_address, data_store.contract_address, bank_class.class_hash, role_module_class.class_hash
+        market_token_class,
+        caller_address,
+        role_store.contract_address,
+        data_store.contract_address,
+        bank_class.class_hash,
+        role_module_class.class_hash
     );
     let market_token = IMarketTokenDispatcher { contract_address: market_token_address };
 

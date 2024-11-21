@@ -1,19 +1,21 @@
-use starknet::{ContractAddress, contract_address_const};
-use satoru::price::price::Price;
-use satoru::position::position::Position;
-use satoru::pricing::position_pricing_utils;
-use satoru::mock::referral_storage::{IReferralStorageDispatcher, IReferralStorageDispatcherTrait};
-use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
-use satoru::mock::governable::{IGovernableDispatcher, IGovernableDispatcherTrait};
 use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
-use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
-use satoru::role::role;
+use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
 use satoru::market::market::Market;
+use satoru::mock::governable::{IGovernableDispatcher, IGovernableDispatcherTrait};
+use satoru::mock::referral_storage::{IReferralStorageDispatcher, IReferralStorageDispatcherTrait};
+use satoru::position::position::Position;
+use satoru::price::price::Price;
 use satoru::pricing::position_pricing_utils::{GetPositionFeesParams, PositionFundingFees, GetPriceImpactUsdParams};
-use snforge_std::{declare, start_cheat_caller_address, stop_cheat_caller_address, ContractClassTrait, DeclareResultTrait};
-use satoru::utils::precision::{FLOAT_PRECISION, FLOAT_PRECISION_SQRT};
-use satoru::utils::i256::{i256, i256_new};
+use satoru::pricing::position_pricing_utils;
+use satoru::role::role;
+use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
 use satoru::test_utils::tests_lib;
+use satoru::utils::i256::{i256, i256_new};
+use satoru::utils::precision::{FLOAT_PRECISION, FLOAT_PRECISION_SQRT};
+use snforge_std::{
+    declare, start_cheat_caller_address, stop_cheat_caller_address, ContractClassTrait, DeclareResultTrait
+};
+use starknet::{ContractAddress, contract_address_const};
 
 // TODO add asserts for each test when possible
 

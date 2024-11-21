@@ -1,6 +1,7 @@
 //! Define the roles that an account can have.
 //! Notes:
-//! - Consider using a hash of the role name as the role key. The problem is that right now only literal constants are supported.
+//! - Consider using a hash of the role name as the role key. The problem is that right now only literal constants are
+//! supported.
 
 const ROLE_ADMIN: felt252 = 'ADMIN';
 

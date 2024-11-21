@@ -5,30 +5,30 @@
 // *************************************************************************
 
 // Core lib imports.
-use starknet::ContractAddress;
 use core::traits::TryInto;
 use result::ResultTrait;
 
 // Local imports.
 
 use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
-use satoru::mock::referral_storage::{IReferralStorageDispatcher, IReferralStorageDispatcherTrait};
+use satoru::deposit::deposit::Deposit;
 use satoru::market::{
     market_utils::GetNextFundingAmountPerSizeResult, market::Market, market_utils::MarketPrices,
     market_pool_value_info::MarketPoolValueInfo,
 };
-use satoru::price::price::Price;
+use satoru::mock::referral_storage::{IReferralStorageDispatcher, IReferralStorageDispatcherTrait};
 use satoru::order::order::{Order};
+use satoru::position::{position_utils, position::Position};
+use satoru::price::price::Price;
+use satoru::pricing::swap_pricing_utils::SwapFees;
 
 use satoru::reader::{
     reader_utils::PositionInfo, reader_utils::BaseFundingValues, reader_pricing_utils::ExecutionPriceResult,
 };
+use satoru::utils::i256::i256;
 
 use satoru::withdrawal::withdrawal::Withdrawal;
-use satoru::position::{position_utils, position::Position};
-use satoru::pricing::swap_pricing_utils::SwapFees;
-use satoru::deposit::deposit::Deposit;
-use satoru::utils::i256::i256;
+use starknet::ContractAddress;
 
 #[derive(Drop, starknet::Store, Serde)]
 struct VirtualInventory {
@@ -102,7 +102,8 @@ trait IReader<TContractState> {
     /// Returns a struct representing order-related information.
     fn get_order(self: @TContractState, data_store: IDataStoreDispatcher, key: felt252) -> Order;
 
-    /// Intended to calculate and return various metrics related to the profit and loss (PNL) of a position within a market.
+    /// Intended to calculate and return various metrics related to the profit and loss (PNL) of a position within a
+    /// market.
     /// # Arguments
     /// * `data_store` - The `DataStore` contract dispatcher.
     /// * `market` - Market to check.
@@ -158,7 +159,8 @@ trait IReader<TContractState> {
     /// * `prices` - Price of the market token.
     /// * `size_delta_usd` - Representing the change in position size in USD.
     /// * `ui_fee_receiver` - The ui fee receiver.
-    /// * `use_position_size_as_size_delta_usd` - Indicates whether to use the position's current size as the size delta in USD calculation.
+    /// * `use_position_size_as_size_delta_usd` - Indicates whether to use the position's current size as the size delta
+    /// in USD calculation.
     /// # Returns
     /// Returns a struct representing comprehensive information about the specified position.
     fn get_position_info(
@@ -178,7 +180,8 @@ trait IReader<TContractState> {
     /// * `start` - Representing the starting point in the order key range.
     /// * `end` - Representing the ending point in the order key range.
     /// # Returns
-    /// Returns an array of Order structs representing the properties of orders associated with the specified account within the specified range.
+    /// Returns an array of Order structs representing the properties of orders associated with the specified account
+    /// within the specified range.
     fn get_account_orders(
         self: @TContractState, data_store: IDataStoreDispatcher, account: ContractAddress, start: u32, end: u32
     ) -> Array<Order>;
@@ -192,14 +195,17 @@ trait IReader<TContractState> {
     /// Returns an array of Market structs representing the properties of markets within the specified range.
     fn get_markets(self: @TContractState, data_store: IDataStoreDispatcher, start: u32, end: u32) -> Array<Market>;
 
-    /// Retrieve an array of MarketInfo structures, which contain comprehensive information about multiple markets within a specified range of market keys.
+    /// Retrieve an array of MarketInfo structures, which contain comprehensive information about multiple markets
+    /// within a specified range of market keys.
     /// # Arguments
     /// * `data_store` - The `DataStore` contract dispatcher.
-    /// * `market_price_list` - An array of MarketPrices structures representing market prices for the corresponding markets.
+    /// * `market_price_list` - An array of MarketPrices structures representing market prices for the corresponding
+    /// markets.
     /// * `start` - Representing the starting point in the market key range.
     /// * `end` - Representing the ending point in the market key range.
     /// # Returns
-    /// Returns an array of MarketInfo structures representing comprehensive information about multiple markets within the specified range.
+    /// Returns an array of MarketInfo structures representing comprehensive information about multiple markets within
+    /// the specified range.
     fn get_market_info_list(
         self: @TContractState,
         data_store: IDataStoreDispatcher,
@@ -212,7 +218,8 @@ trait IReader<TContractState> {
     /// # Arguments
     /// * `data_store` - The `DataStore` contract dispatcher.
     /// * `prices` - Price of the market token.
-    /// * `market_key` - An address parameter representing the unique identifier of the market for which information is being retrieved.
+    /// * `market_key` - An address parameter representing the unique identifier of the market for which information is
+    /// being retrieved.
     /// # Returns
     /// Returns MarketInfo struct containing comprehensive information about the specified market.
     fn get_market_info(
@@ -229,7 +236,8 @@ trait IReader<TContractState> {
     /// * `pnl_factor_type` - The pnl factor type.
     /// * `maximize` - Whether to maximize or minimize the net PNL.
     /// # Returns
-    /// Returns an integer representing the calculated market token price and MarketPoolValueInfo struct containing additional information related to market pool value.
+    /// Returns an integer representing the calculated market token price and MarketPoolValueInfo struct containing
+    /// additional information related to market pool value.
     fn get_market_token_price(
         self: @TContractState,
         data_store: IDataStoreDispatcher,
@@ -257,7 +265,8 @@ trait IReader<TContractState> {
         maximize: bool
     ) -> i256;
 
-    /// Calculate and return the profit and loss (PnL) for a specific market position, either long or short, based on various input parameters.
+    /// Calculate and return the profit and loss (PnL) for a specific market position, either long or short, based on
+    /// various input parameters.
     /// # Arguments
     /// * `data_store` - The `DataStore` contract dispatcher.
     /// * `market` - Market to check.
@@ -281,7 +290,8 @@ trait IReader<TContractState> {
     /// * `index_token_price` - Price of the market's index token.
     /// * `is_long` - Indicates whether to check the long or short side of the market.
     /// # Returns
-    /// Returns an integer representing the calculated open interest with profit and loss (PnL) for the specified market position.
+    /// Returns an integer representing the calculated open interest with profit and loss (PnL) for the specified market
+    /// position.
     fn get_open_interest_with_pnl(
         self: @TContractState,
         data_store: IDataStoreDispatcher,
@@ -299,7 +309,8 @@ trait IReader<TContractState> {
     /// * `prices` - Price of the market token.
     /// * `is_long` - Indicates whether to check the long or short side of the market.
     /// # Returns
-    /// Returns an integer representing the calculated profit and loss (PnL) to pool factor for the specified market position.
+    /// Returns an integer representing the calculated profit and loss (PnL) to pool factor for the specified market
+    /// position.
     fn get_pnl_to_pool_factor(
         self: @TContractState,
         data_store: IDataStoreDispatcher,
@@ -309,7 +320,8 @@ trait IReader<TContractState> {
         maximize: bool
     ) -> i256;
 
-    /// Calculate and return various values related to a swap operation, including the amount of the output token, fees associated with the swap, and other information.
+    /// Calculate and return various values related to a swap operation, including the amount of the output token, fees
+    /// associated with the swap, and other information.
     /// # Arguments
     /// * `data_store` - The `DataStore` contract dispatcher.
     /// * `market` - Market to check.
@@ -318,9 +330,10 @@ trait IReader<TContractState> {
     /// * `amount_in` - The amount of the input token.
     /// * `ui_fee_receiver` - The ui fee receiver.
     /// # Returns
-    /// Returns an unsigned integer representing the calculated amount of the output token resulting from the swap operation,
-    /// a signed integer representing the fees associated with the swap operation and SwapFees struct containing additional information related to swap fees,
-    /// which may include factors and values used in fee calculations.
+    /// Returns an unsigned integer representing the calculated amount of the output token resulting from the swap
+    /// operation, a signed integer representing the fees associated with the swap operation and SwapFees struct
+    /// containing additional information related to swap fees, which may include factors and values used in fee
+    /// calculations.
     fn get_swap_amount_out(
         self: @TContractState,
         data_store: IDataStoreDispatcher,
@@ -344,14 +357,16 @@ trait IReader<TContractState> {
     /// Calculate and return information related to the execution price for a specific market position.
     /// # Arguments
     /// * `data_store` - The `DataStore` contract dispatcher.
-    /// * `market_key` - An address parameter representing the unique identifier of the market for which information is being retrieved.
+    /// * `market_key` - An address parameter representing the unique identifier of the market for which information is
+    /// being retrieved.
     /// * `index_token_price` - Price of the market's index token.
     /// * `position_size_in_usd` - Representing the size of the position in USD.
     /// * `position_size_in_token` - Representing the size of the position in tokens.
     /// * `size_delta_usd` - Representing the change in position size in USD.
     /// * `is_long` - Indicates whether to check the long or short side of the market.
     /// # Returns
-    /// Returns ExecutionPriceResult struct containing detailed information related to the execution price for the specified market position.
+    /// Returns ExecutionPriceResult struct containing detailed information related to the execution price for the
+    /// specified market position.
     fn get_execution_price(
         self: @TContractState,
         data_store: IDataStoreDispatcher,
@@ -366,14 +381,16 @@ trait IReader<TContractState> {
     /// Calculate and return the price impact of a swap operation between two tokens within a specific market.
     /// # Arguments
     /// * `data_store` - The `DataStore` contract dispatcher.
-    /// * `market_key` - An address parameter representing the unique identifier of the market for which information is being retrieved.
+    /// * `market_key` - An address parameter representing the unique identifier of the market for which information is
+    /// being retrieved.
     /// * `index_token_price` - Price of the market's index token.
     /// * `position_size_in_usd` - Representing the size of the position in USD.
     /// * `position_size_in_token` - Representing the size of the position in tokens.
     /// * `size_delta_usd` - Representing the change in position size in USD.
     /// * `is_long` - Indicates whether to check the long or short side of the market.
     /// # Returns
-    /// Returns an integer representing the price impact of the swap operation and an integer representing the slippage, which is another way to measure the price impact.
+    /// Returns an integer representing the price impact of the swap operation and an integer representing the slippage,
+    /// which is another way to measure the price impact.
     fn get_swap_price_impact(
         self: @TContractState,
         data_store: IDataStoreDispatcher,
@@ -385,15 +402,17 @@ trait IReader<TContractState> {
         token_out_price: Price
     ) -> (i256, i256);
 
-    /// Retrieve and return the state of the Account Deleveraging (ADL) system for a specific market and position (either long or short).
+    /// Retrieve and return the state of the Account Deleveraging (ADL) system for a specific market and position
+    /// (either long or short).
     /// # Arguments
     /// * `data_store` - The `DataStore` contract dispatcher.
     /// * `market` - Market to check.
     /// * `is_long` - Indicates whether to check the long or short side of the market.
     /// * `prices` - Price of the market token.
     /// # Returns
-    /// Returns an unsigned integer representing the latest ADL block, a boolean value indicating whether ADL should be enabled for the specified market and position, 
-    /// signed integer representing the PnL to pool factor, which is a metric used to assess the position's impact on the and an unsigned integer representing the maximum PnL factor.
+    /// Returns an unsigned integer representing the latest ADL block, a boolean value indicating whether ADL should be
+    /// enabled for the specified market and position, signed integer representing the PnL to pool factor, which is a
+    /// metric used to assess the position's impact on the and an unsigned integer representing the maximum PnL factor.
     fn get_adl_state(
         self: @TContractState,
         data_store: IDataStoreDispatcher,
@@ -420,34 +439,34 @@ mod Reader {
     // *************************************************************************
 
     // Core lib imports.
-    use starknet::ContractAddress;
+    use core::option::OptionTrait;
 
     use core::traits::TryInto;
     use result::ResultTrait;
-    use core::option::OptionTrait;
-
-
-    // Local imports.
-    use super::{MarketInfo, VirtualInventory, IDataStoreDispatcher, IDataStoreDispatcherTrait};
-    use satoru::mock::referral_storage::{IReferralStorageDispatcher, IReferralStorageDispatcherTrait};
+    use satoru::adl::adl_utils;
+    use satoru::data::keys;
+    use satoru::deposit::deposit::Deposit;
     use satoru::market::{
         market_utils, market_utils::GetNextFundingAmountPerSizeResult, market::Market, market_utils::MarketPrices,
         market_pool_value_info::MarketPoolValueInfo,
     };
-    use satoru::utils::i256::i256;
-    use satoru::withdrawal::withdrawal::Withdrawal;
-    use satoru::position::{position_utils, position::Position};
-    use satoru::pricing::swap_pricing_utils::SwapFees;
-    use satoru::deposit::deposit::Deposit;
-    use satoru::price::price::Price;
+    use satoru::mock::referral_storage::{IReferralStorageDispatcher, IReferralStorageDispatcherTrait};
     use satoru::order::order::{Order};
-    use satoru::data::keys;
-    use satoru::adl::adl_utils;
+    use satoru::position::{position_utils, position::Position};
+    use satoru::price::price::Price;
+    use satoru::pricing::swap_pricing_utils::SwapFees;
 
     use satoru::reader::{
         reader_utils, reader_utils::PositionInfo, reader_utils::BaseFundingValues, reader_pricing_utils,
         reader_pricing_utils::ExecutionPriceResult,
     };
+    use satoru::utils::i256::i256;
+    use satoru::withdrawal::withdrawal::Withdrawal;
+    use starknet::ContractAddress;
+
+
+    // Local imports.
+    use super::{MarketInfo, VirtualInventory, IDataStoreDispatcher, IDataStoreDispatcherTrait};
 
     // *************************************************************************
     //                              STORAGE

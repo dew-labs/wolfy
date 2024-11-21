@@ -26,12 +26,12 @@ mod Governable {
 
     // Core lib imports.
     use core::zeroable::Zeroable;
-    use starknet::{get_caller_address, ContractAddress};
     use result::ResultTrait;
 
     // Local imports.
     use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
     use satoru::mock::error::MockError;
+    use starknet::{get_caller_address, ContractAddress};
 
     // *************************************************************************
     //                              STORAGE

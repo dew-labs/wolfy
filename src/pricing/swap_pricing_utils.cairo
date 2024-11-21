@@ -4,20 +4,20 @@
 //                                  IMPORTS
 // *************************************************************************
 // Core lib imports.
-use starknet::ContractAddress;
 use result::ResultTrait;
 
 // Local imports.
 use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
-use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
 use satoru::data::keys;
+use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
 use satoru::market::market::Market;
 use satoru::market::market_utils;
 use satoru::pricing::error::PricingError;
 use satoru::pricing::pricing_utils;
 use satoru::utils::calc;
-use satoru::utils::precision;
 use satoru::utils::i256::{i256, i256_neg};
+use satoru::utils::precision;
+use starknet::ContractAddress;
 
 
 /// Struct used in get_price_impact_usd.
@@ -254,7 +254,8 @@ fn get_swap_fees(
     // and the negative price impact factor may be larger than the positive impact factor
     // it is possible for the balance to be improved overall but for the price impact to still be negative
     // in this case the fee factor for the negative price impact would be charged
-    // a user could split the order into two, to incur a smaller fee, reducing the fee through this should not be a large issue
+    // a user could split the order into two, to incur a smaller fee, reducing the fee through this should not be a
+    // large issue
 
     let fee_factor = data_store.get_u256(keys::swap_fee_factor_key(market_token, for_positive_impact));
     let swap_fee_receiver_factor = data_store.get_u256(keys::swap_fee_receiver_factor());

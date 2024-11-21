@@ -28,17 +28,17 @@ mod FeeHandler {
 
     // Core lib imports.
     use core::zeroable::Zeroable;
-    use starknet::{get_caller_address, ContractAddress, contract_address_const, ClassHash};
+    use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
+    use satoru::data::keys;
+    use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
+    use satoru::fee::error::FeeError;
+    use satoru::fee::fee_utils;
 
 
     // Local imports.
     use satoru::role::role_module::{IRoleModuleLibraryDispatcher, IRoleModuleDispatcherTrait};
-    use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
-    use satoru::data::keys;
-    use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
+    use starknet::{get_caller_address, ContractAddress, contract_address_const, ClassHash};
     use super::IFeeHandler;
-    use satoru::fee::error::FeeError;
-    use satoru::fee::fee_utils;
 
     // *************************************************************************
     //                              STORAGE

@@ -1,15 +1,17 @@
-use snforge_std::{declare, start_cheat_caller_address, stop_cheat_caller_address, ContractClassTrait, DeclareResultTrait, ContractClass};
-use starknet::{ContractAddress, contract_address_const, ClassHash, Felt252TryIntoContractAddress};
-use traits::Default;
-
 use satoru::deposit::deposit_utils::CreateDepositParams;
-use satoru::oracle::oracle_utils::SetPricesParams;
 use satoru::exchange::deposit_handler::{IDepositHandlerDispatcher, IDepositHandlerDispatcherTrait};
-use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
+use satoru::oracle::oracle_utils::SetPricesParams;
 use satoru::role::role;
 use satoru::role::role_module::{IRoleModuleDispatcher, IRoleModuleDispatcherTrait};
-use satoru::utils::span32::{Span32, Array32Trait};
+use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
 use satoru::test_utils::tests_lib;
+use satoru::utils::span32::{Span32, Array32Trait};
+use snforge_std::{
+    declare, start_cheat_caller_address, stop_cheat_caller_address, ContractClassTrait, DeclareResultTrait,
+    ContractClass
+};
+use starknet::{ContractAddress, contract_address_const, ClassHash, Felt252TryIntoContractAddress};
+use traits::Default;
 
 // TODO add assert and tests when deposit_vault will be implemented
 

@@ -5,28 +5,28 @@
 //                                  IMPORTS
 // *************************************************************************
 // Core lib imports.
-use starknet::ContractAddress;
-use starknet::info::get_block_number;
 use result::ResultTrait;
+use satoru::callback::callback_utils::{validate_callback_gas_limit, after_deposit_cancellation};
+use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
+use satoru::deposit::deposit_vault::{IDepositVaultDispatcher, IDepositVaultDispatcherTrait};
+use satoru::deposit::{deposit::Deposit, error::DepositError};
+use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
+use satoru::event::event_utils::LogData;
+use satoru::gas::{error::GasError, gas_utils};
+use satoru::market::market_utils;
+use satoru::nonce::nonce_utils;
+use satoru::token::token_utils;
 use satoru::utils::traits::ContractAddressDefault;
-use traits::Default;
 
 // Local imports.
 use satoru::utils::{
     starknet_utils, store_arrays::StoreContractAddressArray, account_utils::validate_account,
     account_utils::validate_receiver, span32::Span32
 };
-use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
-use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
-use satoru::deposit::deposit_vault::{IDepositVaultDispatcher, IDepositVaultDispatcherTrait};
-use satoru::deposit::{deposit::Deposit, error::DepositError};
-use satoru::market::market_utils;
-use satoru::gas::{error::GasError, gas_utils};
-use satoru::callback::callback_utils::{validate_callback_gas_limit, after_deposit_cancellation};
-use satoru::nonce::nonce_utils;
-use satoru::token::token_utils;
+use starknet::ContractAddress;
 use starknet::contract_address::ContractAddressZeroable;
-use satoru::event::event_utils::LogData;
+use starknet::info::get_block_number;
+use traits::Default;
 
 /// Helps with deposit creation.
 #[derive(Drop, starknet::Store, Serde)]

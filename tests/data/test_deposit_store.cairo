@@ -1,13 +1,12 @@
-use starknet::{ContractAddress, contract_address_const};
-
 use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
-use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
-use satoru::role::role;
 use satoru::deposit::deposit::Deposit;
+use satoru::role::role;
+use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
 use satoru::test_utils::tests_lib;
 use satoru::utils::span32::{Span32, Array32Trait};
 
 use snforge_std::{declare, start_cheat_caller_address, ContractClassTrait, DeclareResultTrait};
+use starknet::{ContractAddress, contract_address_const};
 
 /// Utility function to setup the test environment.
 ///

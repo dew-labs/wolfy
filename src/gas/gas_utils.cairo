@@ -2,27 +2,27 @@
 //                                  IMPORTS
 // *************************************************************************
 // Core lib imports.
-use starknet::ContractAddress;
+use satoru::bank::bank::{IBankDispatcher, IBankDispatcherTrait};
+use satoru::bank::strict_bank::{IStrictBankDispatcher, IStrictBankDispatcherTrait};
 
 // Local imports.
 use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
 use satoru::data::keys;
+use satoru::deposit::deposit::Deposit;
+use satoru::deposit::deposit_vault::{IDepositVaultDispatcher, IDepositVaultDispatcherTrait};
 use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
-use satoru::bank::bank::{IBankDispatcher, IBankDispatcherTrait};
-use satoru::bank::strict_bank::{IStrictBankDispatcher, IStrictBankDispatcherTrait};
+use satoru::gas::error::GasError;
 use satoru::order::{
     order_vault::{IOrderVaultDispatcher, IOrderVaultDispatcherTrait}, order::{Order, DecreasePositionSwapType},
     base_order_utils::{is_increase_order, is_decrease_order, is_swap_order, OrderError}
 };
-use satoru::deposit::deposit::Deposit;
+use satoru::token::token_utils;
+use satoru::utils::span32::{Span32, Span32Trait};
+use satoru::utils::{precision, starknet_utils::{sn_gasleft, sn_gasprice}};
 use satoru::withdrawal::{
     withdrawal::Withdrawal, withdrawal_vault::{IWithdrawalVaultDispatcher, IWithdrawalVaultDispatcherTrait}
 };
-use satoru::deposit::deposit_vault::{IDepositVaultDispatcher, IDepositVaultDispatcherTrait};
-use satoru::utils::{precision, starknet_utils::{sn_gasleft, sn_gasprice}};
-use satoru::utils::span32::{Span32, Span32Trait};
-use satoru::token::token_utils;
-use satoru::gas::error::GasError;
+use starknet::ContractAddress;
 
 /// Get the minimal gas to handle execution.
 /// # Arguments

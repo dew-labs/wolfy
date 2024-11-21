@@ -1,5 +1,5 @@
-use starknet::ContractAddress;
 use snforge_std::{declare, ContractClassTrait, DeclareResultTrait};
+use starknet::ContractAddress;
 
 #[starknet::interface]
 trait ICallbackMock<TContractState> {

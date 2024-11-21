@@ -4,41 +4,42 @@
 
 // Core lib imports.
 
-use result::ResultTrait;
-
-use traits::{TryInto, Into};
-use starknet::{ContractAddress, get_caller_address, Felt252TryIntoContractAddress, contract_address_const, ClassHash,};
-use snforge_std::{
-    declare, start_cheat_caller_address, stop_cheat_caller_address, start_cheat_block_timestamp, ContractClassTrait, DeclareResultTrait, ContractClass
-};
+use debug::PrintTrait;
 use poseidon::poseidon_hash_span;
-use zeroable::Zeroable;
+use result::ResultTrait;
 // Local imports.
 use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
-use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
+use satoru::data::keys;
 use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
 use satoru::market::market::{Market, UniqueIdMarket, IntoMarketToken};
-use satoru::market::{market_utils::MarketPrices};
 use satoru::market::market_token::{IMarketTokenDispatcher, IMarketTokenDispatcherTrait};
-use satoru::data::keys;
-use satoru::role::role;
-use satoru::price::price::{Price, PriceTrait};
-use satoru::position::{
-    position::Position, position_utils::UpdatePositionParams, position_utils::WillPositionCollateralBeSufficientValues,
-    position_utils
-};
-use satoru::test_utils::tests_lib;
+use satoru::market::{market_utils::MarketPrices};
 use satoru::mock::referral_storage::{IReferralStorageDispatcher, IReferralStorageDispatcherTrait};
-use satoru::pricing::position_pricing_utils::{PositionFees, PositionReferralFees};
+use satoru::oracle::oracle::{IOracleDispatcher, IOracleDispatcherTrait};
+use satoru::order::base_order_utils::ExecuteOrderParamsContracts;
 use satoru::order::{
     order::{Order, SecondaryOrderType, OrderType, DecreasePositionSwapType},
     order_vault::{IOrderVaultDispatcher, IOrderVaultDispatcherTrait}
 };
-use satoru::oracle::oracle::{IOracleDispatcher, IOracleDispatcherTrait};
+use satoru::position::{
+    position::Position, position_utils::UpdatePositionParams, position_utils::WillPositionCollateralBeSufficientValues,
+    position_utils
+};
+use satoru::price::price::{Price, PriceTrait};
+use satoru::pricing::position_pricing_utils::{PositionFees, PositionReferralFees};
+use satoru::role::role;
+use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
 use satoru::swap::swap_handler::{ISwapHandlerDispatcher, ISwapHandlerDispatcherTrait};
-use satoru::order::base_order_utils::ExecuteOrderParamsContracts;
+use satoru::test_utils::tests_lib;
 use satoru::utils::i256::{i256, i256_new};
-use debug::PrintTrait;
+use snforge_std::{
+    declare, start_cheat_caller_address, stop_cheat_caller_address, start_cheat_block_timestamp, ContractClassTrait,
+    DeclareResultTrait, ContractClass
+};
+use starknet::{ContractAddress, get_caller_address, Felt252TryIntoContractAddress, contract_address_const, ClassHash,};
+
+use traits::{TryInto, Into};
+use zeroable::Zeroable;
 
 #[test]
 fn given_normal_conditions_when_get_position_key_then_works() {
@@ -148,7 +149,8 @@ fn given_minimum_position_size_when_validate_position_then_fails() {
     position.size_in_usd = 100;
     position.size_in_tokens = 10;
 
-    // Set valid market colleteral tokens  (positon.collateral_token == market.long_token || token == market.short_token;)
+    // Set valid market colleteral tokens  (positon.collateral_token == market.long_token || token ==
+    // market.short_token;)
     position.collateral_token = token;
     market.long_token = token;
     market.market_token = contract_address_const::<'market_token'>();

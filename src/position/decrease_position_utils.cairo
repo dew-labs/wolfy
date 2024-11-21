@@ -4,23 +4,23 @@
 //                                  IMPORTS
 // *************************************************************************
 // Core lib imports.
-use starknet::{ContractAddress, contract_address_const};
 use result::ResultTrait;
-
-// Local imports
-use satoru::utils::traits::ContractAddressDefault;
+use satoru::data::{data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait}, keys};
+use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
+use satoru::market::market_utils;
+use satoru::order::base_order_utils;
+use satoru::order::order::{OrderType, DecreasePositionSwapType};
+use satoru::position::error::PositionError;
 use satoru::position::{
     position_utils, decrease_position_collateral_utils, decrease_position_swap_utils,
     position_utils::{UpdatePositionParams, DecreasePositionCache}
 };
 use satoru::utils::calc::to_signed;
-use satoru::data::{data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait}, keys};
 use satoru::utils::precision;
-use satoru::market::market_utils;
-use satoru::order::order::{OrderType, DecreasePositionSwapType};
-use satoru::order::base_order_utils;
-use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
-use satoru::position::error::PositionError;
+
+// Local imports
+use satoru::utils::traits::ContractAddressDefault;
+use starknet::{ContractAddress, contract_address_const};
 
 /// Struct used as result for decrease_position_function output.
 #[derive(Drop, Default, Copy, starknet::Store, Serde)]

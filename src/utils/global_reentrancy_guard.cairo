@@ -2,12 +2,12 @@
 //                                  IMPORTS
 // *************************************************************************
 // Core lib imports.
-use starknet::ContractAddress;
-use starknet::SyscallResultTrait;
 
 // Satoru imports
 use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
 use satoru::utils::error::ReentrancyGuardError;
+use starknet::ContractAddress;
+use starknet::SyscallResultTrait;
 
 const REENTRANCY_GUARD_STATUS: felt252 = 'REENTRANCY_GUARD_STATUS';
 

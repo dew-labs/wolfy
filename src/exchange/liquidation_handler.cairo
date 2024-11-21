@@ -6,10 +6,10 @@
 
 // Core lib imports.
 use core::traits::Into;
-use starknet::{ContractAddress, ClassHash};
 
 // Local imports.
 use satoru::oracle::oracle_utils::SetPricesParams;
+use starknet::{ContractAddress, ClassHash};
 
 // *************************************************************************
 //                  Interface of the `LiquidationHandler` contract.
@@ -40,17 +40,19 @@ mod LiquidationHandler {
     // *************************************************************************
 
     // Core lib imports.
-    use starknet::{ContractAddress, get_caller_address, get_contract_address, ClassHash};
-
-    // Local imports.
-    use super::ILiquidationHandler;
-    use satoru::role::role_store::{IRoleStoreSafeDispatcher, IRoleStoreSafeDispatcherTrait};
-    use satoru::role::role_module::{RoleModule, IRoleModule};
 
     use satoru::data::{
         data_store::{IDataStoreSafeDispatcher, IDataStoreSafeDispatcherTrait, DataStore},
         keys::execute_order_feature_disabled_key
     };
+    use satoru::data::{keys, data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait}};
+    use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
+    use satoru::exchange::base_order_handler::{IBaseOrderHandlerLibraryDispatcher, IBaseOrderHandlerDispatcherTrait};
+    use satoru::feature::feature_utils::validate_feature;
+
+    use satoru::liquidation::liquidation_utils::create_liquidation_order;
+    use satoru::market::market::Market;
+    use satoru::mock::referral_storage::{IReferralStorageDispatcher, IReferralStorageDispatcherTrait};
     use satoru::oracle::{
         oracle::{IOracleDispatcher, IOracleDispatcherTrait},
         oracle_modules::{with_oracle_prices_before, with_oracle_prices_after}, oracle_utils::SetPricesParams
@@ -59,25 +61,21 @@ mod LiquidationHandler {
         order_utils::{IOrderUtilsDispatcher}, order::{SecondaryOrderType, OrderType, Order},
         order_vault::{IOrderVaultDispatcher, IOrderVaultDispatcherTrait}, base_order_utils::{ExecuteOrderParams}
     };
-    use satoru::swap::swap_handler::{ISwapHandlerDispatcher, ISwapHandlerDispatcherTrait};
-    use satoru::market::market::Market;
-
-    use satoru::liquidation::liquidation_utils::create_liquidation_order;
-    use satoru::feature::feature_utils::validate_feature;
-    use satoru::utils::{starknet_utils, global_reentrancy_guard};
-    use satoru::role::role_store::{IRoleStoreDispatcher};
+    use satoru::order::{order_utils::{IOrderUtilsLibraryDispatcher, IOrderUtilsDispatcherTrait}};
     use satoru::role::role;
     use satoru::role::role_module::{IRoleModuleLibraryDispatcher, IRoleModuleDispatcherTrait};
-    use satoru::exchange::base_order_handler::{IBaseOrderHandlerLibraryDispatcher, IBaseOrderHandlerDispatcherTrait};
-    use satoru::order::{
-        order_utils::{IOrderUtilsLibraryDispatcher, IOrderUtilsDispatcherTrait}
-    };
+    use satoru::role::role_module::{RoleModule, IRoleModule};
+    use satoru::role::role_store::{IRoleStoreDispatcher};
+    use satoru::role::role_store::{IRoleStoreSafeDispatcher, IRoleStoreSafeDispatcherTrait};
+    use satoru::swap::swap_handler::{ISwapHandlerDispatcher, ISwapHandlerDispatcherTrait};
+    use satoru::utils::{starknet_utils, global_reentrancy_guard};
     use starknet::storage::{
         StorageMapReadAccess, StorageMapWriteAccess, StoragePointerReadAccess, StoragePointerWriteAccess
     };
-    use satoru::data::{keys, data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait}};
-    use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
-    use satoru::mock::referral_storage::{IReferralStorageDispatcher, IReferralStorageDispatcherTrait};
+    use starknet::{ContractAddress, get_caller_address, get_contract_address, ClassHash};
+
+    // Local imports.
+    use super::ILiquidationHandler;
 
     // *************************************************************************
     //                              STORAGE
@@ -96,8 +94,8 @@ mod LiquidationHandler {
         referral_storage: IReferralStorageDispatcher,
         order_utils_lib: IOrderUtilsLibraryDispatcher,
         // increase_order_utils_lib: IIncreaseOrderUtilsLibraryDispatcher,
-        // decrease_order_utils_lib: IDecreaseOrderUtilsLibraryDispatcher,
-        // swap_order_utils_lib: ISwapOrderUtilsLibraryDispatcher
+    // decrease_order_utils_lib: IDecreaseOrderUtilsLibraryDispatcher,
+    // swap_order_utils_lib: ISwapOrderUtilsLibraryDispatcher
     }
 
     // *************************************************************************
@@ -130,18 +128,21 @@ mod LiquidationHandler {
         base_order_handler_class_hash: ClassHash,
     ) {
         self.base_order_handler.write(IBaseOrderHandlerLibraryDispatcher { class_hash: base_order_handler_class_hash });
-        self.base_order_handler.read().initialize(
-            data_store_address,
-            event_emitter_address,
-            order_vault_address,
-            oracle_address,
-            swap_handler_address,
-            referral_storage_address,
-            order_utils_class_hash,
-            increase_order_utils_class_hash,
-            decrease_order_utils_class_hash,
-            swap_order_utils_class_hash
-        );
+        self
+            .base_order_handler
+            .read()
+            .initialize(
+                data_store_address,
+                event_emitter_address,
+                order_vault_address,
+                oracle_address,
+                swap_handler_address,
+                referral_storage_address,
+                order_utils_class_hash,
+                increase_order_utils_class_hash,
+                decrease_order_utils_class_hash,
+                swap_order_utils_class_hash
+            );
         self.role_module.write(IRoleModuleLibraryDispatcher { class_hash: role_module_class_hash });
         self.role_module.read().initialize(role_store_address);
     }
@@ -172,17 +173,15 @@ mod LiquidationHandler {
             let starting_gas: u256 = 0;
 
             let key: felt252 = create_liquidation_order(
-                self.data_store.read(),
-                self.event_emitter.read(),
-                account,
-                market,
-                collateral_token,
-                is_long
+                self.data_store.read(), self.event_emitter.read(), account, market, collateral_token, is_long
             );
             let tmp_oracle_params: SetPricesParams = oracle_params.clone();
-            let params: ExecuteOrderParams = self.base_order_handler.read().get_execute_order_params(
-                key, tmp_oracle_params, get_caller_address(), starting_gas, SecondaryOrderType::None
-            );
+            let params: ExecuteOrderParams = self
+                .base_order_handler
+                .read()
+                .get_execute_order_params(
+                    key, tmp_oracle_params, get_caller_address(), starting_gas, SecondaryOrderType::None
+                );
             validate_feature(
                 params.contracts.data_store,
                 execute_order_feature_disabled_key(get_contract_address(), params.order.order_type)

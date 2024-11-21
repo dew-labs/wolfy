@@ -4,6 +4,8 @@
 // Core lib imports.
 use satoru::utils::{error_utils, calc};
 
+use starknet::{ContractAddress, StorageBaseAddress, SyscallResult, Store};
+
 /// Gets the value of the element at the specified index in the given array. If the index is out of bounds, returns 0.
 /// # Arguments
 /// * `arr` - the array to get the element of.
@@ -58,7 +60,8 @@ fn are_gt(mut arr: Span<u256>, value: u256) -> bool {
     }
 }
 
-/// For u64 typed array determines whether all of the elements in the given array are greater than or equal to the specified value.
+/// For u64 typed array determines whether all of the elements in the given array are greater than or equal to the
+/// specified value.
 /// # Arguments
 /// * `arr` - the array to check the elements of.
 /// * `value` - The value to compare the elements to.
@@ -205,8 +208,6 @@ fn pow(x: u256, n: usize) -> u256 {
         pow(x * x, n / 2)
     }
 }
-
-use starknet::{ContractAddress, StorageBaseAddress, SyscallResult, Store};
 
 impl StoreContractAddressSpan of Store<Span<ContractAddress>> {
     fn read(address_domain: u32, base: StorageBaseAddress) -> SyscallResult<Span<ContractAddress>> {

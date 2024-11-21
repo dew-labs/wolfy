@@ -51,16 +51,16 @@ mod WithdrawalVault {
 
     // Core lib imports.
     use core::zeroable::Zeroable;
-    use starknet::{ContractAddress, ClassHash};
-    use starknet::storage::Map;
+    use satoru::bank::bank::{IBankLibraryDispatcher};
+    use satoru::bank::strict_bank::{IStrictBankLibraryDispatcher, IStrictBankDispatcherTrait};
+    use satoru::data::data_store::{IDataStoreDispatcher};
+    use satoru::role::role_module::{IRoleModuleLibraryDispatcher};
+    use satoru::role::role_store::{IRoleStoreDispatcher};
 
     // Local imports.
     use satoru::withdrawal::error::WithdrawalError;
-    use satoru::role::role_store::{IRoleStoreDispatcher};
-    use satoru::data::data_store::{IDataStoreDispatcher};
-    use satoru::bank::strict_bank::{IStrictBankLibraryDispatcher, IStrictBankDispatcherTrait};
-    use satoru::bank::bank::{IBankLibraryDispatcher};
-    use satoru::role::role_module::{IRoleModuleLibraryDispatcher};
+    use starknet::storage::Map;
+    use starknet::{ContractAddress, ClassHash};
 
     // *************************************************************************
     //                              STORAGE
@@ -69,11 +69,11 @@ mod WithdrawalVault {
     struct Storage {
         strict_bank: IStrictBankLibraryDispatcher,
         // StrictBank storage
-        // token_balances: Map::<ContractAddress, u256>,
-        // bank: IBankLibraryDispatcher,
-        // data_store: IDataStoreDispatcher,
-        // role_module: IRoleModuleLibraryDispatcher,
-        // role_store: IRoleStoreDispatcher,
+    // token_balances: Map::<ContractAddress, u256>,
+    // bank: IBankLibraryDispatcher,
+    // data_store: IDataStoreDispatcher,
+    // role_module: IRoleModuleLibraryDispatcher,
+    // role_store: IRoleStoreDispatcher,
     }
 
     // *************************************************************************
@@ -85,9 +85,19 @@ mod WithdrawalVault {
     /// * `role_store_address` - The address of the role store contract.
     /// * `data_store_address` - The address of the data store contract.
     #[constructor]
-    fn constructor(ref self: ContractState, data_store_address: ContractAddress, role_store_address: ContractAddress, strict_bank_class_hash: ClassHash, bank_class_hash: ClassHash, role_module_class_hash: ClassHash) {
+    fn constructor(
+        ref self: ContractState,
+        data_store_address: ContractAddress,
+        role_store_address: ContractAddress,
+        strict_bank_class_hash: ClassHash,
+        bank_class_hash: ClassHash,
+        role_module_class_hash: ClassHash
+    ) {
         self.strict_bank.write(IStrictBankLibraryDispatcher { class_hash: strict_bank_class_hash });
-        self.strict_bank.read().initialize(data_store_address, role_store_address, bank_class_hash, role_module_class_hash);
+        self
+            .strict_bank
+            .read()
+            .initialize(data_store_address, role_store_address, bank_class_hash, role_module_class_hash);
     }
 
     // *************************************************************************

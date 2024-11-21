@@ -2,15 +2,15 @@
 //                                  IMPORTS
 // *************************************************************************
 // Core lib imports.
-use starknet::ContractAddress;
 
 // Local imports.
 use satoru::bank::bank::{IBankDispatcher, IBankDispatcherTrait};
 use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
+use satoru::data::keys;
 use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
 use satoru::market::{market, market_utils::validate_market_token_balance_with_address};
-use satoru::data::keys;
 use satoru::utils::account_utils::validate_receiver;
+use starknet::ContractAddress;
 
 /// Increment the claimable fee amount for the specified market.
 /// # Arguments

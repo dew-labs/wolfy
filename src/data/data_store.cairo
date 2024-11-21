@@ -4,13 +4,13 @@
 //                                  IMPORTS
 // *************************************************************************
 use core::traits::Into;
-use starknet::ContractAddress;
+use satoru::deposit::deposit::Deposit;
 use satoru::market::market::Market;
 use satoru::order::order::Order;
 use satoru::position::position::Position;
-use satoru::withdrawal::withdrawal::Withdrawal;
-use satoru::deposit::deposit::Deposit;
 use satoru::utils::i256::i256;
+use satoru::withdrawal::withdrawal::Withdrawal;
+use starknet::ContractAddress;
 
 // *************************************************************************
 //                  Interface of the `DataStore` contract.
@@ -457,27 +457,27 @@ mod DataStore {
     // *************************************************************************
 
     // Core lib imports.
+    use alexandria_storage::list::{ListTrait, List};
     use core::option::OptionTrait;
     use core::traits::TryInto;
-    use starknet::{get_caller_address, ContractAddress, contract_address_const, ClassHash};
     use nullable::NullableTrait;
-    use zeroable::Zeroable;
-    use alexandria_storage::list::{ListTrait, List};
-    use starknet::storage::Map;
     use poseidon::poseidon_hash_span;
+    use satoru::data::error::DataError;
 
     // Local imports.
     use satoru::data::keys;
-    use satoru::role::role_module::{IRoleModuleLibraryDispatcher, IRoleModuleDispatcherTrait};
+    use satoru::deposit::{deposit::Deposit, error::DepositError};
     use satoru::market::{market::{Market, ValidateMarket}, error::MarketError};
-    use satoru::data::error::DataError;
     use satoru::order::{order::Order, error::OrderError};
     use satoru::position::{position::Position, error::PositionError};
-    use satoru::withdrawal::{withdrawal::Withdrawal, error::WithdrawalError};
-    use satoru::deposit::{deposit::Deposit, error::DepositError};
+    use satoru::role::role_module::{IRoleModuleLibraryDispatcher, IRoleModuleDispatcherTrait};
     use satoru::utils::calc::{sum_return_uint_256, to_signed, to_unsigned};
     use satoru::utils::calc;
     use satoru::utils::i256::{i256, i256_neg};
+    use satoru::withdrawal::{withdrawal::Withdrawal, error::WithdrawalError};
+    use starknet::storage::Map;
+    use starknet::{get_caller_address, ContractAddress, contract_address_const, ClassHash};
+    use zeroable::Zeroable;
 
     // *************************************************************************
     //                              STORAGE

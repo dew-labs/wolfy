@@ -2,20 +2,20 @@
 //                                  IMPORTS
 // *************************************************************************
 // Core lib imports.
-use starknet::ContractAddress;
-use result::ResultTrait;
 use array::ArrayTrait;
+use result::ResultTrait;
+use satoru::bank::bank::{IBankDispatcher, IBankDispatcherTrait};
+use satoru::market::market::Market;
+use satoru::order::order::DecreasePositionSwapType;
 
 // Local imports.
 use satoru::position::{
     error::PositionError,
     position_utils::{DecreasePositionCollateralValues, UpdatePositionParams, DecreasePositionCollateralValuesOutput}
 };
-use satoru::order::order::DecreasePositionSwapType;
 use satoru::swap::swap_handler::{ISwapHandlerDispatcher, ISwapHandlerDispatcherTrait};
-use satoru::bank::bank::{IBankDispatcher, IBankDispatcherTrait};
 use satoru::swap::swap_utils::{SwapParams};
-use satoru::market::market::Market;
+use starknet::ContractAddress;
 
 /// Swap the withdrawn collateral from collateral_token to pnl_token if needed.
 fn swap_withdrawn_collateral_to_pnl_token(

@@ -6,11 +6,11 @@
 
 // Core lib imports.
 use core::traits::Into;
-use starknet::{ContractAddress, ClassHash};
+use satoru::deposit::deposit_utils::CreateDepositParams;
 
 // Local imports.
 use satoru::oracle::oracle_utils::{SetPricesParams, SimulatePricesParams};
-use satoru::deposit::deposit_utils::CreateDepositParams;
+use starknet::{ContractAddress, ClassHash};
 
 // *************************************************************************
 //                  Interface of the `DepositHandler` contract.
@@ -59,35 +59,35 @@ mod DepositHandler {
     // *************************************************************************
 
     // Core lib imports.
-    use starknet::{get_caller_address, get_contract_address, ContractAddress, ClassHash};
-
-    // Local imports.
-    use super::IDepositHandler;
-    use satoru::role::role_module::{RoleModule, IRoleModule};
     use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
+    use satoru::data::keys;
+    use satoru::deposit::deposit_utils;
+    use satoru::deposit::execute_deposit_utils;
+    use satoru::deposit::{
+        deposit_utils::CreateDepositParams, deposit_vault::{IDepositVaultDispatcher, IDepositVaultDispatcherTrait}
+    };
     use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
+    use satoru::exchange::exchange_utils;
+    use satoru::feature::feature_utils;
+    use satoru::gas::gas_utils;
+    use satoru::market::market::Market;
+    use satoru::oracle::oracle_utils;
     use satoru::oracle::{
         oracle::{IOracleDispatcher, IOracleDispatcherTrait}, oracle_modules,
         oracle_modules::{with_oracle_prices_before, with_oracle_prices_after},
         oracle_utils::{SetPricesParams, SimulatePricesParams}
     };
     use satoru::order::base_order_utils::{ExecuteOrderParams};
-    use satoru::swap::swap_handler::{ISwapHandlerDispatcher, ISwapHandlerDispatcherTrait};
-    use satoru::market::market::Market;
-    use satoru::deposit::{
-        deposit_utils::CreateDepositParams, deposit_vault::{IDepositVaultDispatcher, IDepositVaultDispatcherTrait}
-    };
-    use satoru::deposit::deposit_utils;
-    use satoru::feature::feature_utils;
-    use satoru::gas::gas_utils;
-    use satoru::data::keys;
-    use satoru::exchange::exchange_utils;
-    use satoru::deposit::execute_deposit_utils;
-    use satoru::oracle::oracle_utils;
-    use satoru::utils::global_reentrancy_guard;
-    use satoru::role::role_store::{IRoleStoreDispatcher};
     use satoru::role::role;
     use satoru::role::role_module::{IRoleModuleLibraryDispatcher, IRoleModuleDispatcherTrait};
+    use satoru::role::role_module::{RoleModule, IRoleModule};
+    use satoru::role::role_store::{IRoleStoreDispatcher};
+    use satoru::swap::swap_handler::{ISwapHandlerDispatcher, ISwapHandlerDispatcherTrait};
+    use satoru::utils::global_reentrancy_guard;
+    use starknet::{get_caller_address, get_contract_address, ContractAddress, ClassHash};
+
+    // Local imports.
+    use super::IDepositHandler;
 
     // *************************************************************************
     //                              STORAGE
@@ -253,7 +253,7 @@ mod DepositHandler {
             execute_deposit_utils::execute_deposit(params);
         }
     }
-/// TODO no try catch, we need to find alternative
+    /// TODO no try catch, we need to find alternative
 // // *************************************************************************
 // //                          INTERNAL FUNCTIONS
 // // *************************************************************************

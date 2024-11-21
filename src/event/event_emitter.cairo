@@ -4,20 +4,20 @@
 //                                  IMPORTS
 // *************************************************************************
 // Core lib imports.
-use starknet::{ContractAddress, ClassHash};
 
 // Local imports.
 use satoru::deposit::deposit::Deposit;
-use satoru::withdrawal::withdrawal::Withdrawal;
 use satoru::market::market_pool_value_info::MarketPoolValueInfo;
-use satoru::pricing::swap_pricing_utils::SwapFees;
+use satoru::order::order::{Order, SecondaryOrderType, OrderType};
 use satoru::position::{
     position::Position, position_event_utils::PositionIncreaseParams, position_utils::DecreasePositionCollateralValues
 };
 use satoru::price::price::Price;
 use satoru::pricing::position_pricing_utils::PositionFees;
-use satoru::order::order::{Order, SecondaryOrderType, OrderType};
+use satoru::pricing::swap_pricing_utils::SwapFees;
 use satoru::utils::{i256::i256, span32::{Span32, DefaultSpan32}};
+use satoru::withdrawal::withdrawal::Withdrawal;
+use starknet::{ContractAddress, ClassHash};
 
 // *************************************************************************
 //                  Interface of the `EventEmitter` contract.
@@ -129,7 +129,14 @@ trait IEventEmitter<TContractState> {
     fn emit_withdrawal_created(ref self: TContractState, key: felt252, withdrawal: Withdrawal);
 
     /// Emits the `WithdrawalExecuted` event.
-    fn emit_withdrawal_executed(ref self: TContractState, key: felt252, output_token: ContractAddress, output_amount: u256, secondary_output_token: ContractAddress, secondary_output_amount: u256);
+    fn emit_withdrawal_executed(
+        ref self: TContractState,
+        key: felt252,
+        output_token: ContractAddress,
+        output_amount: u256,
+        secondary_output_token: ContractAddress,
+        secondary_output_amount: u256
+    );
 
     /// Emits the `WithdrawalCancelled` event.
     fn emit_withdrawal_cancelled(ref self: TContractState, key: felt252, reason: felt252, reason_bytes: Span<felt252>);
@@ -543,22 +550,22 @@ mod EventEmitter {
     // *************************************************************************
 
     // Core lib imports.
-    use starknet::{ContractAddress, ClassHash, get_caller_address};
 
     // Local imports.
     use satoru::deposit::deposit::Deposit;
-    use satoru::withdrawal::withdrawal::Withdrawal;
-    use satoru::position::position::Position;
     use satoru::market::market_pool_value_info::MarketPoolValueInfo;
-    use satoru::pricing::swap_pricing_utils::SwapFees;
+    use satoru::order::order::OrderType;
+    use satoru::order::order::{Order, SecondaryOrderType};
+    use satoru::position::position::Position;
     use satoru::position::position_event_utils::PositionIncreaseParams;
     use satoru::position::position_utils::DecreasePositionCollateralValues;
-    use satoru::order::order::OrderType;
     use satoru::price::price::Price;
     use satoru::pricing::position_pricing_utils::PositionFees;
-    use satoru::order::order::{Order, SecondaryOrderType};
-    use satoru::utils::span32::{Span32, DefaultSpan32};
+    use satoru::pricing::swap_pricing_utils::SwapFees;
     use satoru::utils::i256::i256;
+    use satoru::utils::span32::{Span32, DefaultSpan32};
+    use satoru::withdrawal::withdrawal::Withdrawal;
+    use starknet::{ContractAddress, ClassHash, get_caller_address};
 
     // *************************************************************************
     //                              STORAGE
@@ -1637,8 +1644,20 @@ mod EventEmitter {
         }
 
         /// Emits the `WithdrawalExecuted` event.
-        fn emit_withdrawal_executed(ref self: ContractState, key: felt252, output_token: ContractAddress, output_amount: u256, secondary_output_token: ContractAddress, secondary_output_amount: u256) {
-            self.emit(WithdrawalExecuted { key, output_token, output_amount, secondary_output_token, secondary_output_amount });
+        fn emit_withdrawal_executed(
+            ref self: ContractState,
+            key: felt252,
+            output_token: ContractAddress,
+            output_amount: u256,
+            secondary_output_token: ContractAddress,
+            secondary_output_amount: u256
+        ) {
+            self
+                .emit(
+                    WithdrawalExecuted {
+                        key, output_token, output_amount, secondary_output_token, secondary_output_amount
+                    }
+                );
         }
 
         /// Emits the `WithdrawalCancelled` event.

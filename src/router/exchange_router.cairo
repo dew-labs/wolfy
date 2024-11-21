@@ -6,23 +6,23 @@
 // *************************************************************************
 
 // Core lib imports.
-use starknet::ContractAddress;
 use core::zeroable::Zeroable;
+use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
+use satoru::deposit::deposit_utils::CreateDepositParams;
 
 
 // Local imports.
 use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
-use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
-use satoru::router::router::{IRouterDispatcher, IRouterDispatcherTrait};
-use satoru::deposit::deposit_utils::CreateDepositParams;
-use satoru::withdrawal::withdrawal_utils::CreateWithdrawalParams;
-use satoru::order::base_order_utils::CreateOrderParams;
-use satoru::oracle::oracle_utils::SimulatePricesParams;
 use satoru::exchange::{
     deposit_handler::{IDepositHandlerDispatcher, IDepositHandlerDispatcherTrait},
     withdrawal_handler::{IWithdrawalHandlerDispatcher, IWithdrawalHandlerDispatcherTrait},
     order_handler::{IOrderHandlerDispatcher, IOrderHandlerDispatcherTrait},
 };
+use satoru::oracle::oracle_utils::SimulatePricesParams;
+use satoru::order::base_order_utils::CreateOrderParams;
+use satoru::router::router::{IRouterDispatcher, IRouterDispatcherTrait};
+use satoru::withdrawal::withdrawal_utils::CreateWithdrawalParams;
+use starknet::ContractAddress;
 
 // *************************************************************************
 //                  Interface of the `ExchangeRouter` contract.
@@ -69,7 +69,8 @@ trait IExchangeRouter<TContractState> {
     /// Set a callback contract address for a specific market and user account.
     /// # Arguments
     /// * `market` - Address of the market to check.
-    /// * `callback_contract` - The address of the callback contract to be associated with the specified market and user account.
+    /// * `callback_contract` - The address of the callback contract to be associated with the specified market and user
+    /// account.
     fn set_saved_callback_contract(
         ref self: TContractState, market: ContractAddress, callback_contract: ContractAddress
     );
@@ -138,7 +139,8 @@ trait IExchangeRouter<TContractState> {
         receiver: ContractAddress
     ) -> Array<u256>;
 
-    /// Claims affiliate rewards for the given markets and tokens on behalf of the caller, and sends the rewards to the specified receiver.
+    /// Claims affiliate rewards for the given markets and tokens on behalf of the caller, and sends the rewards to the
+    /// specified receiver.
     /// # Arguments
     /// * `market` - An array of market addresses.
     /// * `tokens` - An array of token addresses, corresponding to the given markets.
@@ -167,38 +169,38 @@ mod ExchangeRouter {
     // *************************************************************************
 
     // Core lib imports.
-    use starknet::{get_caller_address, ContractAddress, contract_address_const, get_contract_address};
     use core::zeroable::Zeroable;
+    use debug::PrintTrait;
+
+    use openzeppelin::security::ReentrancyGuardComponent;
+    use satoru::callback::callback_utils;
+    use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
+    use satoru::data::keys;
+    use satoru::deposit::deposit::Deposit;
+    use satoru::deposit::deposit_utils::CreateDepositParams;
 
 
     // Local imports.
     use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
-    use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
-    use satoru::router::router::{IRouterDispatcher, IRouterDispatcherTrait};
     use satoru::exchange::{
         deposit_handler::{IDepositHandlerDispatcher, IDepositHandlerDispatcherTrait},
         withdrawal_handler::{IWithdrawalHandlerDispatcher, IWithdrawalHandlerDispatcherTrait},
         order_handler::{IOrderHandlerDispatcher, IOrderHandlerDispatcherTrait},
     };
+    use satoru::feature::feature_utils;
+    use satoru::fee::fee_utils;
+    use satoru::market::market_utils;
+    use satoru::oracle::oracle_utils::SimulatePricesParams;
+    use satoru::order::base_order_utils::CreateOrderParams;
+    use satoru::order::order::Order;
+    use satoru::referral::referral_utils;
+    use satoru::router::error::RouterError;
+    use satoru::router::router::{IRouterDispatcher, IRouterDispatcherTrait};
+    use satoru::utils::account_utils;
+    use satoru::withdrawal::{withdrawal::Withdrawal, withdrawal_utils::CreateWithdrawalParams};
+    use starknet::{get_caller_address, ContractAddress, contract_address_const, get_contract_address};
 
     use super::IExchangeRouter;
-    use satoru::deposit::deposit_utils::CreateDepositParams;
-    use satoru::withdrawal::{withdrawal::Withdrawal, withdrawal_utils::CreateWithdrawalParams};
-    use satoru::order::base_order_utils::CreateOrderParams;
-    use satoru::oracle::oracle_utils::SimulatePricesParams;
-    use satoru::utils::account_utils;
-    use satoru::router::error::RouterError;
-    use satoru::deposit::deposit::Deposit;
-    use satoru::order::order::Order;
-    use satoru::callback::callback_utils;
-    use satoru::feature::feature_utils;
-    use satoru::market::market_utils;
-    use satoru::data::keys;
-    use satoru::referral::referral_utils;
-    use satoru::fee::fee_utils;
-    use debug::PrintTrait;
-
-    use openzeppelin::security::ReentrancyGuardComponent;
 
     component!(path: ReentrancyGuardComponent, storage: reentrancy_guard, event: ReentrancyGuardEvent);
 

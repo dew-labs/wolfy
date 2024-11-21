@@ -2,15 +2,16 @@
 //                                  IMPORTS
 // *************************************************************************
 // Core lib imports.
-use starknet::ContractAddress;
-use result::ResultTrait;
-use traits::Default;
-use hash::LegacyHash;
+
+// External imports.
+use alexandria_data_structures::span_ext::SpanTraitExt;
 use ecdsa::recover_public_key;
+use hash::LegacyHash;
+use result::ResultTrait;
+use satoru::bank::bank::{IBankDispatcher, IBankDispatcherTrait};
 // Local imports.
 use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
 use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
-use satoru::bank::bank::{IBankDispatcher, IBankDispatcherTrait};
 use satoru::market::market::{Market};
 use satoru::oracle::{
     oracle::{SetPricesCache, SetPricesInnerCache}, error::OracleError,
@@ -22,9 +23,8 @@ use satoru::utils::{
     arrays::{are_lte_u64, are_gte_u64, get_uncompacted_value, get_uncompacted_value_u64},
     bits::{BITMASK_8, BITMASK_16, BITMASK_32, BITMASK_64}
 };
-
-// External imports.
-use alexandria_data_structures::span_ext::SpanTraitExt;
+use starknet::ContractAddress;
+use traits::Default;
 
 
 /// SetPricesParams struct for values required in Oracle.set_prices.
@@ -298,7 +298,8 @@ fn validate_signer(salt: felt252, info: ReportInfo, signature: Span<felt252>, ex
     digest = LegacyHash::<u256>::hash(digest, info.min_price);
     digest = LegacyHash::<u256>::hash(digest, info.max_price);
 
-    // We now need to hash message_hash with the size of the array: (change_owner selector, chainid, contract address, old_owner)
+    // We now need to hash message_hash with the size of the array: (change_owner selector, chainid, contract address,
+    // old_owner)
     // https://github.com/starkware-libs/cairo-lang/blob/b614d1867c64f3fb2cf4a4879348cfcf87c3a5a7/src/starkware/cairo/common/hash_state.py#L6
     digest = LegacyHash::<felt252>::hash(digest, 10);
 

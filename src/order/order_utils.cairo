@@ -3,15 +3,15 @@
 // *************************************************************************
 
 // Core lib imports.
-use starknet::ContractAddress;
-// Local imports.
-use satoru::oracle::oracle_utils::{SetPricesParams, SimulatePricesParams};
-use satoru::order::{base_order_utils::{CreateOrderParams, ExecuteOrderParams}, order::Order};
-use satoru::order::order_vault::{IOrderVaultDispatcher, IOrderVaultDispatcherTrait};
 use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
 use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
-use satoru::mock::referral_storage::{IReferralStorageDispatcher, IReferralStorageDispatcherTrait};
 use satoru::event::event_utils::{Felt252IntoContractAddress, ContractAddressDictValue, I256252DictValue};
+use satoru::mock::referral_storage::{IReferralStorageDispatcher, IReferralStorageDispatcherTrait};
+// Local imports.
+use satoru::oracle::oracle_utils::{SetPricesParams, SimulatePricesParams};
+use satoru::order::order_vault::{IOrderVaultDispatcher, IOrderVaultDispatcherTrait};
+use satoru::order::{base_order_utils::{CreateOrderParams, ExecuteOrderParams}, order::Order};
+use starknet::ContractAddress;
 // *************************************************************************
 //                  Interface of the `OrderUtils` contract.
 // *************************************************************************
@@ -95,35 +95,35 @@ trait IOrderUtils<TContractState> {
 #[starknet::contract]
 mod OrderUtils {
     // Core lib imports.
-    use satoru::order::swap_order_utils::ISwapOrderUtilsDispatcherTrait;
-    use satoru::order::decrease_order_utils::IDecreaseOrderUtilsDispatcherTrait;
-    use satoru::order::increase_order_utils::IIncreaseOrderUtilsDispatcherTrait;
-    use starknet::{ContractAddress, contract_address_const, ClassHash};
     use clone::Clone;
+    use satoru::callback::callback_utils;
+    use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
+    use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
+    use satoru::event::event_utils::{Felt252IntoContractAddress, ContractAddressDictValue, I256252DictValue};
+    use satoru::gas::gas_utils;
+    use satoru::market::market_utils;
+    use satoru::mock::referral_storage::{IReferralStorageDispatcher, IReferralStorageDispatcherTrait};
+    use satoru::nonce::nonce_utils;
     // Local imports.
     use satoru::order::base_order_utils::{ExecuteOrderParams, CreateOrderParams};
     use satoru::order::base_order_utils;
-    use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
-    use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
-    use satoru::order::order_vault::{IOrderVaultDispatcher, IOrderVaultDispatcherTrait};
-    use satoru::mock::referral_storage::{IReferralStorageDispatcher, IReferralStorageDispatcherTrait};
-    use satoru::market::market_utils;
-    use satoru::nonce::nonce_utils;
-    use satoru::utils::account_utils;
-    use satoru::referral::referral_utils;
-    use satoru::token::token_utils;
-    use satoru::callback::callback_utils;
-    use satoru::gas::gas_utils;
-    use satoru::order::order::{Order, OrderType, OrderTrait};
-    use satoru::event::event_utils::{Felt252IntoContractAddress, ContractAddressDictValue, I256252DictValue};
-    use satoru::utils::serializable_dict::{SerializableFelt252Dict, SerializableFelt252DictTrait};
+    use satoru::order::decrease_order_utils::IDecreaseOrderUtilsDispatcherTrait;
+    use satoru::order::decrease_order_utils::IDecreaseOrderUtilsLibraryDispatcher;
     use satoru::order::error::OrderError;
+    use satoru::order::increase_order_utils::IIncreaseOrderUtilsDispatcherTrait;
 
     use satoru::order::increase_order_utils::IIncreaseOrderUtilsLibraryDispatcher;
-    use satoru::order::decrease_order_utils::IDecreaseOrderUtilsLibraryDispatcher;
+    use satoru::order::order::{Order, OrderType, OrderTrait};
+    use satoru::order::order_vault::{IOrderVaultDispatcher, IOrderVaultDispatcherTrait};
+    use satoru::order::swap_order_utils::ISwapOrderUtilsDispatcherTrait;
     use satoru::order::swap_order_utils::ISwapOrderUtilsLibraryDispatcher;
+    use satoru::referral::referral_utils;
 
     use satoru::token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
+    use satoru::token::token_utils;
+    use satoru::utils::account_utils;
+    use satoru::utils::serializable_dict::{SerializableFelt252Dict, SerializableFelt252DictTrait};
+    use starknet::{ContractAddress, contract_address_const, ClassHash};
 
     #[storage]
     struct Storage {
@@ -311,9 +311,9 @@ mod OrderUtils {
             market_utils::validate_market_token_balance_array(params.contracts.data_store, params.swap_path_markets);
 
             params.contracts.event_emitter.emit_order_executed(params.key, params.secondary_order_type);
-        // callback_utils::after_order_execution(params.key, params.order, event_data);
+            // callback_utils::after_order_execution(params.key, params.order, event_data);
 
-        // the order.executionFee for liquidation / adl orders is zero
+            // the order.executionFee for liquidation / adl orders is zero
         // gas costs for liquidations / adl is subsidised by the treasury
         // TODO crashing
         // gas_utils::pay_execution_fee_order(
@@ -385,10 +385,10 @@ mod OrderUtils {
             }
 
             event_emitter.emit_order_cancelled(key, reason, reason_bytes.span());
-        // let mut event_data: LogData = Default::default();
+            // let mut event_data: LogData = Default::default();
         // callback_utils::after_order_cancellation(key, order, event_data);
 
-        // TODO: enable when gas utils is ready
+            // TODO: enable when gas utils is ready
         // gas_utils::pay_execution_fee_order(
         //     data_store, event_emitter, order_vault, order.execution_fee, starting_gas, keeper, order.account
         // );
@@ -433,10 +433,10 @@ mod OrderUtils {
             data_store.set_order(key, order);
 
             event_emitter.emit_order_frozen(key, reason, reason_bytes.span());
-        // let mut event_data: LogData = Default::default();
+            // let mut event_data: LogData = Default::default();
         // callback_utils::after_order_frozen(key, order, event_data);
 
-        // TODO: enable when gas utils is ready
+            // TODO: enable when gas utils is ready
         // gas_utils::pay_execution_fee_order(
         //     data_store, event_emitter, order_vault, execution_fee, starting_gas, keeper, order.account
         // );

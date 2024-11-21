@@ -1,17 +1,18 @@
-use starknet::{ContractAddress, contract_address_const};
-use snforge_std::{declare, ContractClassTrait, DeclareResultTrait, spy_events, EventSpy, EventSpyTrait, Event, EventSpyAssertionsTrait};
-
-use satoru::event::event_emitter::{EventEmitter, IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
-
 use satoru::event::event_emitter::EventEmitter::{
     OrderCreated, OrderExecuted, OrderUpdated, OrderSizeDeltaAutoUpdated, OrderCollateralDeltaAmountAutoUpdated,
     OrderCancelled, OrderFrozen,
 };
 
+use satoru::event::event_emitter::{EventEmitter, IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
+
 
 use satoru::order::order::{Order, OrderType, SecondaryOrderType, DecreasePositionSwapType};
 use satoru::test_utils::tests_lib::deploy_event_emitter;
 use satoru::utils::span32::{Span32, Array32Trait};
+use snforge_std::{
+    declare, ContractClassTrait, DeclareResultTrait, spy_events, EventSpy, EventSpyTrait, Event, EventSpyAssertionsTrait
+};
+use starknet::{ContractAddress, contract_address_const};
 
 #[test]
 fn given_normal_conditions_when_emit_order_created_then_works() {

@@ -1,6 +1,6 @@
+use array::ArrayTrait;
 use dict::Felt252Dict;
 use dict::Felt252DictTrait;
-use array::ArrayTrait;
 use starknet::ContractAddress;
 
 #[derive(Destruct, Default)]

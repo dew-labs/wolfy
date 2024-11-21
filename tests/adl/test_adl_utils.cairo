@@ -1,24 +1,24 @@
 // Core libe imports.
-use starknet::{ContractAddress, get_caller_address, Felt252TryIntoContractAddress, contract_address_const};
+use satoru::adl::adl_utils;
 
 // Local imports.
 use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
-use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
 use satoru::event::event_emitter::{EventEmitter, IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
-use satoru::role::role;
+use satoru::market::market::{Market};
+use satoru::oracle::oracle::{IOracleDispatcher, IOracleDispatcherTrait};
 use satoru::order::order::{Order, OrderType, OrderTrait, DecreasePositionSwapType};
-use satoru::test_utils::tests_lib;
 use satoru::position::position::{Position};
+use satoru::price::price::{Price, PriceTrait};
+use satoru::role::role;
+use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
+use satoru::test_utils::tests_lib;
+use satoru::utils::i256::{i256, i256_new};
 
 use snforge_std::{
-    declare, start_cheat_caller_address, stop_cheat_caller_address, ContractClassTrait, DeclareResultTrait, spy_events, EventSpy,
-    EventSpyAssertionsTrait, Event, EventSpyTrait, start_mock_call
+    declare, start_cheat_caller_address, stop_cheat_caller_address, ContractClassTrait, DeclareResultTrait, spy_events,
+    EventSpy, EventSpyAssertionsTrait, Event, EventSpyTrait, start_mock_call
 };
-use satoru::adl::adl_utils;
-use satoru::utils::i256::{i256, i256_new};
-use satoru::market::market::{Market};
-use satoru::price::price::{Price, PriceTrait};
-use satoru::oracle::oracle::{IOracleDispatcher, IOracleDispatcherTrait};
+use starknet::{ContractAddress, get_caller_address, Felt252TryIntoContractAddress, contract_address_const};
 
 #[test]
 fn given_normal_conditions_when_set_latest_adl_block_then_works() {

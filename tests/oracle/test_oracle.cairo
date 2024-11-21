@@ -1,7 +1,3 @@
-use starknet::{ContractAddress, contract_address_const};
-
-use snforge_std::{declare, start_cheat_caller_address, stop_cheat_caller_address, ContractClassTrait, DeclareResultTrait};
-
 use satoru::data::data_store::{DataStore, IDataStoreDispatcher, IDataStoreDispatcherTrait};
 use satoru::data::keys;
 use satoru::event::event_emitter::{EventEmitter, IEventEmitterDispatcher};
@@ -9,10 +5,15 @@ use satoru::oracle::oracle::{Oracle, IOracleDispatcher, IOracleDispatcherTrait, 
 use satoru::oracle::oracle_store::{IOracleStoreDispatcher, IOracleStoreDispatcherTrait};
 use satoru::oracle::price_feed::PriceFeed;
 use satoru::price::price::Price;
-use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
 use satoru::role::role;
-use satoru::utils::precision;
+use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
 use satoru::test_utils::tests_lib;
+use satoru::utils::precision;
+
+use snforge_std::{
+    declare, start_cheat_caller_address, stop_cheat_caller_address, ContractClassTrait, DeclareResultTrait
+};
+use starknet::{ContractAddress, contract_address_const};
 
 fn setup() -> (IDataStoreDispatcher, IOracleDispatcher) {
     let (

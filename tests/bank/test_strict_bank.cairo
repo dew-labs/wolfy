@@ -4,21 +4,24 @@
 
 // Core lib imports.
 
-use result::ResultTrait;
-use traits::{TryInto, Into};
-use starknet::{ContractAddress, get_caller_address, contract_address_const, ClassHash,};
-use integer::u256_from_felt252;
-use snforge_std::{declare, start_cheat_caller_address, stop_cheat_caller_address, ContractClassTrait, DeclareResultTrait, ContractClass};
 use debug::PrintTrait;
+use integer::u256_from_felt252;
+use result::ResultTrait;
 
 // Local imports.
 use satoru::bank::bank::{IBankDispatcherTrait, IBankDispatcher};
 use satoru::bank::strict_bank::{IStrictBankDispatcher, IStrictBankDispatcherTrait};
-use satoru::token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
 use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
-use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
 use satoru::role::role;
+use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
 use satoru::test_utils::tests_lib;
+use satoru::token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
+use snforge_std::{
+    declare, start_cheat_caller_address, stop_cheat_caller_address, ContractClassTrait, DeclareResultTrait,
+    ContractClass
+};
+use starknet::{ContractAddress, get_caller_address, contract_address_const, ClassHash,};
+use traits::{TryInto, Into};
 
 /// Setup required contracts.
 fn setup_contracts() -> (
@@ -82,9 +85,18 @@ fn teardown(data_store: IDataStoreDispatcher, strict_bank: IStrictBankDispatcher
 #[test]
 #[should_panic(expected: ('already_initialized',))]
 fn given_already_initialized_contract_when_initializing_then_fail() {
-    let (_caller_address, _receiver_address, role_store, data_store, _bank, strict_bank, role_module_class, bank_class) = setup_contracts();
+    let (
+        _caller_address, _receiver_address, role_store, data_store, _bank, strict_bank, role_module_class, bank_class
+    ) =
+        setup_contracts();
     // try initializing after previously initializing in setup
-    strict_bank.initialize(data_store.contract_address, role_store.contract_address, bank_class.class_hash, role_module_class.class_hash);
+    strict_bank
+        .initialize(
+            data_store.contract_address,
+            role_store.contract_address,
+            bank_class.class_hash,
+            role_module_class.class_hash
+        );
     teardown(data_store, strict_bank);
 }
 

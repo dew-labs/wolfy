@@ -2,15 +2,15 @@
 //                                  IMPORTS
 // *************************************************************************
 // Core lib imports.
-use starknet::{ContractAddress, get_block_timestamp, contract_address_const};
 
 // Local imports.
 use satoru::bank::{bank::{IBankDispatcher, IBankDispatcherTrait},};
-use satoru::data::{data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait}, keys};
 use satoru::callback::callback_utils;
+use satoru::data::{data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait}, keys};
 use satoru::event::{event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait}};
 use satoru::fee::fee_utils;
 use satoru::gas::gas_utils;
+use satoru::market::market_utils::validate_enabled_market_check;
 use satoru::market::{
     market::Market, market_token::{IMarketTokenDispatcher, IMarketTokenDispatcherTrait}, market_utils,
     market_utils::MarketPrices
@@ -27,7 +27,7 @@ use satoru::withdrawal::{
     error::WithdrawalError, withdrawal::Withdrawal,
     withdrawal_vault::{IWithdrawalVaultDispatcher, IWithdrawalVaultDispatcherTrait}
 };
-use satoru::market::market_utils::validate_enabled_market_check;
+use starknet::{ContractAddress, get_block_timestamp, contract_address_const};
 
 #[derive(Drop, starknet::Store, Serde)]
 struct CreateWithdrawalParams {
@@ -201,8 +201,16 @@ fn execute_withdrawal(
 
     let result = execute_withdrawal_(@params, withdrawal);
 
-    params.event_emitter.emit_withdrawal_executed(params.key, result.output_token, result.output_amount, result.secondary_output_token, result.secondary_output_amount);
-// TODO fix pay execution fees
+    params
+        .event_emitter
+        .emit_withdrawal_executed(
+            params.key,
+            result.output_token,
+            result.output_amount,
+            result.secondary_output_token,
+            result.secondary_output_amount
+        );
+    // TODO fix pay execution fees
 // gas_utils::pay_execution_fee_withdrawal(
 //     params.data_store,
 //     params.event_emitter,

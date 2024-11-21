@@ -3,16 +3,16 @@
 // *************************************************************************
 
 // Core lib imports.
-use starknet::ContractAddress;
+use satoru::bank::bank::{IBankDispatcher, IBankDispatcherTrait};
+use satoru::data::{data_store::IDataStoreDispatcherTrait, error::DataError};
+use satoru::market::market_utils;
+use satoru::oracle::{oracle_utils, error::OracleError};
 
 // Local imports.
 use satoru::order::{base_order_utils::ExecuteOrderParams, order::{Order, OrderType}, error::OrderError};
-use satoru::data::{data_store::IDataStoreDispatcherTrait, error::DataError};
-use satoru::oracle::{oracle_utils, error::OracleError};
-use satoru::market::market_utils;
-use satoru::swap::swap_utils;
-use satoru::bank::bank::{IBankDispatcher, IBankDispatcherTrait};
 use satoru::position::{position_utils, error::PositionError, increase_position_utils};
+use satoru::swap::swap_utils;
+use starknet::ContractAddress;
 
 // *************************************************************************
 //                  Interface of the `OrderUtils` contract.
@@ -46,16 +46,20 @@ trait IIncreaseOrderUtils<TContractState> {
 #[starknet::contract]
 mod IncreaseOrderUtils {
     // Core lib imports.
-    use starknet::ContractAddress;
+
+    // External imports.
+    use alexandria_data_structures::span_ext::SpanTraitExt;
+    use core::integer::U64PartialOrd;
+    use satoru::bank::bank::{IBankDispatcher, IBankDispatcherTrait};
+    use satoru::data::{data_store::IDataStoreDispatcherTrait, error::DataError};
+    use satoru::market::market_utils;
+    use satoru::oracle::{oracle_utils, error::OracleError};
 
     // Local imports.
     use satoru::order::{base_order_utils::ExecuteOrderParams, order::{Order, OrderType}, error::OrderError};
-    use satoru::data::{data_store::IDataStoreDispatcherTrait, error::DataError};
-    use satoru::oracle::{oracle_utils, error::OracleError};
-    use satoru::market::market_utils;
-    use satoru::swap::swap_utils;
-    use satoru::bank::bank::{IBankDispatcher, IBankDispatcherTrait};
     use satoru::position::{position_utils, error::PositionError, increase_position_utils};
+    use satoru::swap::swap_utils;
+    use starknet::ContractAddress;
 
     fn validate_oracle_block_numbers(
         min_oracle_block_numbers: Span<u64>,
@@ -91,10 +95,6 @@ mod IncreaseOrderUtils {
 
         panic(array![OrderError::UNSUPPORTED_ORDER_TYPE]);
     }
-
-    // External imports.
-    use alexandria_data_structures::span_ext::SpanTraitExt;
-    use core::integer::U64PartialOrd;
 
     #[storage]
     struct Storage {}

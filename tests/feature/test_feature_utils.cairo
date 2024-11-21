@@ -1,9 +1,10 @@
-use starknet::ContractAddress;
-use snforge_std::{declare, start_cheat_caller_address, stop_cheat_caller_address, ContractClassTrait, DeclareResultTrait};
-
 use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
 use satoru::feature::feature_utils::{is_feature_disabled, validate_feature};
 use satoru::test_utils::tests_lib;
+use snforge_std::{
+    declare, start_cheat_caller_address, stop_cheat_caller_address, ContractClassTrait, DeclareResultTrait
+};
+use starknet::ContractAddress;
 
 #[test]
 fn given_normal_conditions_when_nonexist_feature_then_works() {

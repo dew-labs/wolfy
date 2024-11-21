@@ -1,30 +1,30 @@
-use satoru::test_utils::tests_lib;
-use satoru::swap::swap_handler::{ISwapHandlerDispatcher, ISwapHandlerDispatcherTrait};
-use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
-use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
-use satoru::oracle::oracle::{IOracleDispatcher, IOracleDispatcherTrait};
-use satoru::bank::bank::{IBankDispatcher, IBankDispatcherTrait};
-use satoru::role::{role, role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait}};
-use satoru::swap::swap_utils::SwapParams;
+use array::ArrayTrait;
 use core::traits::Into;
+use debug::PrintTrait;
+use satoru::bank::bank::{IBankDispatcher, IBankDispatcherTrait};
+use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
+use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
 use satoru::market::market::Market;
-use satoru::position::{
-    position::Position, decrease_position_swap_utils,
-    position_utils::{UpdatePositionParams, DecreasePositionCollateralValues, DecreasePositionCollateralValuesOutput}
-};
+use satoru::mock::referral_storage::{IReferralStorageDispatcher, IReferralStorageDispatcherTrait};
+use satoru::oracle::oracle::{IOracleDispatcher, IOracleDispatcherTrait};
 use satoru::order::{
     order::{SecondaryOrderType, OrderType, Order, DecreasePositionSwapType},
     order_vault::{IOrderVaultDispatcher, IOrderVaultDispatcherTrait},
     base_order_utils::{ExecuteOrderParams, ExecuteOrderParamsContracts}, order_utils
 };
-use satoru::mock::referral_storage::{IReferralStorageDispatcher, IReferralStorageDispatcherTrait};
+use satoru::position::{
+    position::Position, decrease_position_swap_utils,
+    position_utils::{UpdatePositionParams, DecreasePositionCollateralValues, DecreasePositionCollateralValuesOutput}
+};
+use satoru::role::{role, role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait}};
+use satoru::swap::swap_handler::{ISwapHandlerDispatcher, ISwapHandlerDispatcherTrait};
+use satoru::swap::swap_utils::SwapParams;
+use satoru::test_utils::tests_lib;
+use satoru::utils::i256::{i256, i256_new};
 use satoru::utils::span32::{Span32, Array32Trait};
 
 use snforge_std::{declare, ContractClassTrait, DeclareResultTrait, start_cheat_caller_address};
 use starknet::{get_caller_address, ContractAddress, contract_address_const};
-use array::ArrayTrait;
-use satoru::utils::i256::{i256, i256_new};
-use debug::PrintTrait;
 
 //TODO Tests need to be added after implementation of decrease_position_swap_utils
 

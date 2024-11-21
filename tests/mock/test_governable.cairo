@@ -1,17 +1,16 @@
-use starknet::{ContractAddress, contract_address_const};
-
 use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
-use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
-use satoru::mock::referral_storage::{IReferralStorageDispatcher, IReferralStorageDispatcherTrait};
+use satoru::deposit::deposit::Deposit;
 use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
 use satoru::mock::governable::{IGovernableDispatcher, IGovernableDispatcherTrait};
+use satoru::mock::referral_storage::{IReferralStorageDispatcher, IReferralStorageDispatcherTrait};
+use satoru::referral::referral_utils;
 use satoru::role::role;
-use satoru::deposit::deposit::Deposit;
+use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
 use satoru::test_utils::tests_lib;
 use satoru::utils::span32::{Span32, Array32Trait};
-use satoru::referral::referral_utils;
 
 use snforge_std::{declare, start_cheat_caller_address, ContractClassTrait, ContractClass};
+use starknet::{ContractAddress, contract_address_const};
 
 fn deploy_governable(contract: ContractClass, event_emitter_address: ContractAddress) -> ContractAddress {
     let caller_address: ContractAddress = tests_lib::get_c4ller_address();

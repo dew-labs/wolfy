@@ -2,9 +2,9 @@
 //                                  IMPORTS
 // *************************************************************************
 // Core lib imports.
+use array::ArrayTrait;
 use integer::Felt252IntoU256;
 use option::OptionTrait;
-use array::ArrayTrait;
 
 /// gasleft() mock implementation.
 /// Accepts Array<felt252> because we don't know how many parameters we need in future.

@@ -4,25 +4,25 @@
 //                                  IMPORTS
 // *************************************************************************
 // Core lib imports.
-use starknet::{ContractAddress, contract_address_const};
 use result::ResultTrait;
-use zeroable::Zeroable;
 
 // Local imports.
 use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
+use satoru::data::keys;
 use satoru::market::market::Market;
-use satoru::price::price::Price;
-use satoru::position::position::Position;
 
 
 use satoru::market::market_utils;
-use satoru::pricing::pricing_utils;
-use satoru::data::keys;
 use satoru::mock::referral_storage::{IReferralStorageDispatcher, IReferralStorageDispatcherTrait};
-use satoru::utils::{calc, precision};
+use satoru::position::position::Position;
+use satoru::price::price::Price;
 use satoru::pricing::error::PricingError;
+use satoru::pricing::pricing_utils;
 use satoru::referral::referral_utils;
+use satoru::utils::{calc, precision};
 use satoru::utils::{i256::{i256, i256_neg}, error_utils, calc::to_signed, default::DefaultContractAddress,};
+use starknet::{ContractAddress, contract_address_const};
+use zeroable::Zeroable;
 
 /// Struct used in get_position_fees.
 #[derive(Drop, starknet::Store, Serde)]
@@ -550,7 +550,8 @@ fn get_position_fees_after_referral(
     /// and the negative price impact factor may be larger than the positive impact factor
     /// it is possible for the balance to be improved overall but for the price impact to still be negative
     /// in this case the fee factor for the negative price impact would be charged
-    /// a user could split the order into two, to incur a smaller fee, reducing the fee through this should not be a large issue
+    /// a user could split the order into two, to incur a smaller fee, reducing the fee through this should not be a
+    /// large issue
     fees.position_fee_factor = data_store.get_u256(keys::position_fee_factor_key(market, for_positive_impact));
     error_utils::check_division_by_zero(collateral_token_price.min, 'collateral_token_price.min');
     fees.position_fee_amount = precision::apply_factor_u256(size_delta_usd, fees.position_fee_factor)

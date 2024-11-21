@@ -2,34 +2,34 @@
 //                                  IMPORTS
 // *************************************************************************
 // Core lib imports.
-use starknet::{ContractAddress, get_caller_address, get_block_timestamp, contract_address_const};
-// Local imports.
-use satoru::utils::calc::roundup_magnitude_division;
+use debug::PrintTrait;
 use satoru::bank::bank::{IBankDispatcher, IBankDispatcherTrait};
 use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
-use satoru::token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
-use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
+use satoru::data::keys::{skip_borrowing_fee_for_smaller_side, max_swap_path_length};
 use satoru::data::keys;
+use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
 use satoru::event::event_emitter;
 use satoru::market::{
     market::Market, error::MarketError, market_pool_value_info::MarketPoolValueInfo, market_store_utils,
     market_token::{IMarketTokenDispatcher, IMarketTokenDispatcherTrait}
 };
-use satoru::utils::span32::{Span32, Span32Trait};
 use satoru::oracle::oracle::{IOracleDispatcher, IOracleDispatcherTrait};
 use satoru::oracle::oracle::{Oracle, SetPricesParams};
 use satoru::oracle::oracle_store::{IOracleStoreDispatcher, IOracleStoreDispatcherTrait};
+use satoru::position::position::Position;
 use satoru::price::price::{Price, PriceTrait};
+use satoru::token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
+// Local imports.
+use satoru::utils::calc::roundup_magnitude_division;
+use satoru::utils::calc::{roundup_division, to_signed, sum_return_int_256, to_unsigned};
 use satoru::utils::calc;
 use satoru::utils::precision::{FLOAT_PRECISION, FLOAT_PRECISION_SQRT};
+use satoru::utils::precision::{apply_exponent_factor, float_to_wei, mul_div};
 use satoru::utils::precision::{mul_div_roundup, to_factor_ival, apply_factor_u256, to_factor};
 use satoru::utils::precision;
-use satoru::utils::calc::{roundup_division, to_signed, sum_return_int_256, to_unsigned};
-use satoru::position::position::Position;
+use satoru::utils::span32::{Span32, Span32Trait};
 use satoru::utils::{i256::{i256, i256_neg}, error_utils};
-use satoru::utils::precision::{apply_exponent_factor, float_to_wei, mul_div};
-use satoru::data::keys::{skip_borrowing_fee_for_smaller_side, max_swap_path_length};
-use debug::PrintTrait;
+use starknet::{ContractAddress, get_caller_address, get_block_timestamp, contract_address_const};
 
 #[derive(Default, Drop, Copy, starknet::Store, Serde)]
 struct MarketPrices {
@@ -308,8 +308,10 @@ fn get_pnl(
     let open_interest_value = calc::to_signed(open_interest_in_tokens * price, true);
 
     // Return the PNL.
-    // If `is_long` is true, then the PNL is the difference between the current worth of all positions and the cost of all positions.
-    // If `is_long` is false, then the PNL is the difference between the cost of all positions and the current worth of all positions.
+    // If `is_long` is true, then the PNL is the difference between the current worth of all positions and the cost of
+    // all positions.
+    // If `is_long` is false, then the PNL is the difference between the cost of all positions and the current worth of
+    // all positions.
     if is_long {
         open_interest_value - open_interest
     } else {
@@ -537,7 +539,8 @@ fn get_adjusted_position_impact_factors(data_store: IDataStoreDispatcher, market
     (positive_impact_factor, negative_impact_factor)
 }
 
-/// Cap the input priceImpactUsd by the available amount in the swap impact pool and the max positive swap impact factor.
+/// Cap the input priceImpactUsd by the available amount in the swap impact pool and the max positive swap impact
+/// factor.
 fn get_capped_position_impact_usd(
     data_store: IDataStoreDispatcher,
     market: ContractAddress,
@@ -826,13 +829,15 @@ fn get_next_funding_amount_per_size(
     // when the fundingFeeAmountPerSize value is incremented, it would be incremented twice:
     // 4 / 100,000 + 4 / 100,000 = 8 / 100,000
     //
-    // since the actual long open interest is $200,000, this would result in a total of 8 / 100,000 * 200,000 = $16 being charged
+    // since the actual long open interest is $200,000, this would result in a total of 8 / 100,000 * 200,000 = $16
+    // being charged
     //
     // when the claimableFundingAmountPerSize value is incremented, it would similarly be incremented twice:
     // 4 / 100,000 + 4 / 100,000 = 8 / 100,000
     //
-    // when calculating the amount to be claimed, the longTokenClaimableFundingAmountPerSize and shortTokenClaimableFundingAmountPerSize
-    // are compared against the market's claimableFundingAmountPerSize for the longToken and claimableFundingAmountPerSize for the shortToken
+    // when calculating the amount to be claimed, the longTokenClaimableFundingAmountPerSize and
+    // shortTokenClaimableFundingAmountPerSize are compared against the market's claimableFundingAmountPerSize for the
+    // longToken and claimableFundingAmountPerSize for the shortToken
     //
     // since both these values will be duplicated, the amount claimable would be:
     // (8 / 100,000 + 8 / 100,000) * 100,000 = $16
@@ -847,10 +852,11 @@ fn get_next_funding_amount_per_size(
     result.longs_pay_shorts = long_open_interest > short_open_interest;
 
     // split the fundingUsd value by long and short collateral
-    // e.g. if the fundingUsd value is $500, and there is $1000 of long open interest using long collateral and $4000 of long open interest
-    // with short collateral, then $100 of funding fees should be paid from long positions using long collateral, $400 of funding fees
-    // should be paid from long positions using short collateral
-    // short positions should receive $100 of funding fees in long collateral and $400 of funding fees in short collateral
+    // e.g. if the fundingUsd value is $500, and there is $1000 of long open interest using long collateral and $4000 of
+    // long open interest with short collateral, then $100 of funding fees should be paid from long positions using long
+    // collateral, $400 of funding fees should be paid from long positions using short collateral
+    // short positions should receive $100 of funding fees in long collateral and $400 of funding fees in short
+    // collateral
     let funding_usd_for_long_collateral = if result.longs_pay_shorts {
         precision::mul_div(funding_usd, open_interest.long.long_token, long_open_interest)
     } else {
@@ -864,14 +870,16 @@ fn get_next_funding_amount_per_size(
     };
 
     // calculate the change in funding amount per size values
-    // for example, if the fundingUsdForLongCollateral is $100, the longToken price is $2000, the longOpenInterest is $10,000, shortOpenInterest is $5000
-    // if longs pay shorts then the fundingFeeAmountPerSize.long.longToken should be increased by 0.05 tokens per $10,000 or 0.000005 tokens per $1
-    // the claimableFundingAmountPerSize.short.longToken should be increased by 0.05 tokens per $5000 or 0.00001 tokens per $1
+    // for example, if the fundingUsdForLongCollateral is $100, the longToken price is $2000, the longOpenInterest is
+    // $10,000, shortOpenInterest is $5000 if longs pay shorts then the fundingFeeAmountPerSize.long.longToken should be
+    // increased by 0.05 tokens per $10,000 or 0.000005 tokens per $1 the claimableFundingAmountPerSize.short.longToken
+    // should be increased by 0.05 tokens per $5000 or 0.00001 tokens per $1
     if result.longs_pay_shorts {
         // use the same longTokenPrice.max and shortTokenPrice.max to calculate the amount to be paid and received
         // positions only pay funding in the position's collateral token
-        // so the fundingUsdForLongCollateral is divided by the total long open interest for long positions using the longToken as collateral
-        // and the fundingUsdForShortCollateral is divided by the total long open interest for long positions using the shortToken as collateral
+        // so the fundingUsdForLongCollateral is divided by the total long open interest for long positions using the
+        // longToken as collateral and the fundingUsdForShortCollateral is divided by the total long open interest for
+        // long positions using the shortToken as collateral
         let amount = get_funding_amount_per_size_delta(
             funding_usd_for_long_collateral,
             open_interest.long.long_token,
@@ -889,7 +897,8 @@ fn get_next_funding_amount_per_size(
         result.funding_fee_amount_per_size_delta.long.short_token = amount;
 
         // positions receive funding in both the longToken and shortToken
-        // so the fundingUsdForLongCollateral and fundingUsdForShortCollateral is divided by the total short open interest
+        // so the fundingUsdForLongCollateral and fundingUsdForShortCollateral is divided by the total short open
+        // interest
         let amount = get_funding_amount_per_size_delta(
             funding_usd_for_long_collateral, short_open_interest, prices.long_token_price.max, false // roundUpMagnitude
         );
@@ -905,8 +914,9 @@ fn get_next_funding_amount_per_size(
     } else {
         // use the same longTokenPrice.max and shortTokenPrice.max to calculate the amount to be paid and received
         // positions only pay funding in the position's collateral token
-        // so the fundingUsdForLongCollateral is divided by the total short open interest for short positions using the longToken as collateral
-        // and the fundingUsdForShortCollateral is divided by the total short open interest for short positions using the shortToken as collateral
+        // so the fundingUsdForLongCollateral is divided by the total short open interest for short positions using the
+        // longToken as collateral and the fundingUsdForShortCollateral is divided by the total short open interest for
+        // short positions using the shortToken as collateral
         let amount = get_funding_amount_per_size_delta(
             funding_usd_for_long_collateral,
             open_interest.short.long_token,
@@ -924,7 +934,8 @@ fn get_next_funding_amount_per_size(
         result.funding_fee_amount_per_size_delta.short.short_token = amount;
 
         // positions receive funding in both the longToken and shortToken
-        // so the fundingUsdForLongCollateral and fundingUsdForShortCollateral is divided by the total long open interest
+        // so the fundingUsdForLongCollateral and fundingUsdForShortCollateral is divided by the total long open
+        // interest
         let amount = get_funding_amount_per_size_delta(
             funding_usd_for_long_collateral, long_open_interest, prices.long_token_price.max, false // roundUpMagnitude
         );
@@ -1948,8 +1959,8 @@ fn validate_market_token_balance_with_token(data_store: IDataStoreDispatcher, ma
     let claimable_funding_fee_amount = data_store
         .get_u256(keys::claimable_funding_amount_key(market.market_token, token));
 
-    // in case of late liquidations, it may be possible for the claimableFundingFeeAmount to exceed the market token balance
-    // but this should be very rare
+    // in case of late liquidations, it may be possible for the claimableFundingFeeAmount to exceed the market token
+    // balance but this should be very rare
     if (balance < claimable_funding_fee_amount) {
         MarketError::INVALID_MARKET_TOKEN_BALANCE_FOR_CLAIMABLE_FUNDING(balance, claimable_funding_fee_amount);
     }

@@ -4,10 +4,10 @@
 //                                  IMPORTS
 // *************************************************************************
 // Core lib imports.
-use starknet::ContractAddress;
 
 // Local imports.
 use satoru::referral::referral_tier::ReferralTier;
+use starknet::ContractAddress;
 
 // *************************************************************************
 //                  Interface of the `ReferralStorage` contract.
@@ -117,15 +117,15 @@ mod ReferralStorage {
     // *************************************************************************
 
     // Core lib imports.
-    use starknet::{get_caller_address, ContractAddress, contract_address_const, ClassHash};
-    use starknet::storage::Map;
     use result::ResultTrait;
 
     // Local imports.
     use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
-    use satoru::referral::referral_tier::ReferralTier;
     use satoru::mock::error::MockError;
     use satoru::mock::governable::{IGovernableLibraryDispatcher, IGovernableDispatcherTrait};
+    use satoru::referral::referral_tier::ReferralTier;
+    use starknet::storage::Map;
+    use starknet::{get_caller_address, ContractAddress, contract_address_const, ClassHash};
 
     // *************************************************************************
     //                              STORAGE

@@ -1,12 +1,12 @@
+use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
 use satoru::data::keys;
+use satoru::market::market::Market;
 use satoru::pricing::swap_pricing_utils::{
     GetPriceImpactUsdParams, get_price_impact_usd_, get_price_impact_usd, get_next_pool_amount_usd, get_swap_fees
 };
-use satoru::market::market::Market;
-use satoru::utils::calc;
 use satoru::test_utils::tests_lib;
+use satoru::utils::calc;
 use satoru::utils::i256::{i256, i256_new};
-use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
 
 #[test]
 fn given_normal_conditions_when_swap_pricing_utils_functions_then_works() {

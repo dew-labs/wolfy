@@ -6,11 +6,11 @@
 
 // Core lib imports.
 use core::traits::Into;
-use starknet::ContractAddress;
 
 // Local imports.
 use satoru::oracle::oracle_utils::SetPricesParams;
 use satoru::utils::i256::i256;
+use starknet::ContractAddress;
 
 
 // *************************************************************************
@@ -58,32 +58,31 @@ mod AdlHandler {
     // *************************************************************************
 
     // Core lib imports.
-    use starknet::{ContractAddress, get_caller_address, get_contract_address, SyscallResultTrait, ClassHash};
-
-    // Local imports.
-    use super::IAdlHandler;
     use satoru::adl::adl_utils;
-    use satoru::exchange::base_order_handler::{IBaseOrderHandlerLibraryDispatcher, IBaseOrderHandlerDispatcherTrait};
     use satoru::data::{keys, data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait}};
     use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
+    use satoru::exchange::base_order_handler::{IBaseOrderHandlerLibraryDispatcher, IBaseOrderHandlerDispatcherTrait};
     use satoru::feature::feature_utils;
     use satoru::market::{market::Market, market_utils};
+    use satoru::mock::referral_storage::{IReferralStorageDispatcher, IReferralStorageDispatcherTrait};
+    use satoru::oracle::oracle_utils::SetPricesParams;
 
     use satoru::oracle::{
         oracle::{IOracleDispatcher, IOracleDispatcherTrait},
         oracle_modules::{with_oracle_prices_before, with_oracle_prices_after}, oracle_utils
     };
-    use satoru::oracle::oracle_utils::SetPricesParams;
     use satoru::order::{
         order::{SecondaryOrderType, OrderType, Order}, order_vault::{IOrderVaultDispatcher, IOrderVaultDispatcherTrait},
-        base_order_utils::{ExecuteOrderParams},
-        order_utils::{IOrderUtilsLibraryDispatcher, IOrderUtilsDispatcherTrait},
+        base_order_utils::{ExecuteOrderParams}, order_utils::{IOrderUtilsLibraryDispatcher, IOrderUtilsDispatcherTrait},
     };
     use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
     use satoru::swap::swap_handler::{ISwapHandlerDispatcher, ISwapHandlerDispatcherTrait};
-    use satoru::utils::{store_arrays::StoreU64Array, calc::to_signed};
     use satoru::utils::i256::i256;
-    use satoru::mock::referral_storage::{IReferralStorageDispatcher, IReferralStorageDispatcherTrait};
+    use satoru::utils::{store_arrays::StoreU64Array, calc::to_signed};
+    use starknet::{ContractAddress, get_caller_address, get_contract_address, SyscallResultTrait, ClassHash};
+
+    // Local imports.
+    use super::IAdlHandler;
 
 
     /// ExecuteAdlCache struct used in execute_adl.
@@ -125,8 +124,8 @@ mod AdlHandler {
         referral_storage: IReferralStorageDispatcher,
         order_utils_lib: IOrderUtilsLibraryDispatcher,
         // increase_order_utils_lib: IIncreaseOrderUtilsLibraryDispatcher,
-        // decrease_order_utils_lib: IDecreaseOrderUtilsLibraryDispatcher,
-        // swap_order_utils_lib: ISwapOrderUtilsLibraryDispatcher
+    // decrease_order_utils_lib: IDecreaseOrderUtilsLibraryDispatcher,
+    // swap_order_utils_lib: ISwapOrderUtilsLibraryDispatcher
     }
 
 
@@ -159,18 +158,21 @@ mod AdlHandler {
         base_order_handler_class_hash: ClassHash,
     ) {
         self.base_order_handler.write(IBaseOrderHandlerLibraryDispatcher { class_hash: base_order_handler_class_hash });
-        self.base_order_handler.read().initialize(
-            data_store_address,
-            event_emitter_address,
-            order_vault_address,
-            oracle_address,
-            swap_handler_address,
-            referral_storage_address,
-            order_utils_class_hash,
-            increase_order_utils_class_hash,
-            decrease_order_utils_class_hash,
-            swap_order_utils_class_hash
-        );
+        self
+            .base_order_handler
+            .read()
+            .initialize(
+                data_store_address,
+                event_emitter_address,
+                order_vault_address,
+                oracle_address,
+                swap_handler_address,
+                referral_storage_address,
+                order_utils_class_hash,
+                increase_order_utils_class_hash,
+                decrease_order_utils_class_hash,
+                swap_order_utils_class_hash
+            );
     }
 
     // *************************************************************************
@@ -256,13 +258,12 @@ mod AdlHandler {
                         }
                     );
 
-            let params: ExecuteOrderParams = self.base_order_handler.read().get_execute_order_params(
-                cache.key,
-                oracle_params,
-                get_caller_address(),
-                cache.starting_gas,
-                SecondaryOrderType::Adl(())
-            );
+            let params: ExecuteOrderParams = self
+                .base_order_handler
+                .read()
+                .get_execute_order_params(
+                    cache.key, oracle_params, get_caller_address(), cache.starting_gas, SecondaryOrderType::Adl(())
+                );
 
             // let order_type: felt252 = params.order.order_type.into();
             feature_utils::validate_feature(

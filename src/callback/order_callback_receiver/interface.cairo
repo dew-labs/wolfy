@@ -1,6 +1,6 @@
 // Satoru imports
-use satoru::order::order::Order;
 use satoru::event::event_utils::LogData;
+use satoru::order::order::Order;
 
 // *************************************************************************
 //                  Interface of the `OrderCallbackReceiver` contract.

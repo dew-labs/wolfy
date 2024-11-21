@@ -67,11 +67,11 @@ mod RoleStore {
 
     // Core lib imports.
     use core::zeroable::Zeroable;
-    use starknet::{ContractAddress, get_caller_address, contract_address_const};
-    use starknet::storage::Map;
 
     // Local imports.
     use satoru::role::{role, error::RoleError};
+    use starknet::storage::Map;
+    use starknet::{ContractAddress, get_caller_address, contract_address_const};
 
 
     // *************************************************************************
@@ -133,7 +133,7 @@ mod RoleStore {
     fn constructor(ref self: ContractState, admin: ContractAddress) {
         // Grant the caller admin role.
         self._grant_role(admin, role::ROLE_ADMIN);
-    // Initialize the role_count to 1 due to the line just above.
+        // Initialize the role_count to 1 due to the line just above.
     }
 
     // *************************************************************************

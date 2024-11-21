@@ -2,7 +2,6 @@
 //                                  IMPORTS
 // *************************************************************************
 // Core lib imports.
-use starknet::ContractAddress;
 
 // Local imports.
 
@@ -12,6 +11,7 @@ use satoru::position::{position_utils::DecreasePositionCollateralValues, positio
 use satoru::price::price::Price;
 use satoru::pricing::position_pricing_utils::PositionFees;
 use satoru::utils::i256::i256;
+use starknet::ContractAddress;
 
 
 /// Struct to store a position increase parameters.

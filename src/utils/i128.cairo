@@ -5,6 +5,14 @@
 // The original source code is subject to the Apache 2.0 license, the terms of which can be found here:
 // http://www.apache.org/licenses/LICENSE-2.0
 
+use core::num::traits::Bounded;
+use core::ops::{AddAssign, SubAssign, MulAssign, DivAssign, RemAssign};
+
+/// Core lib imports.
+use starknet::{
+    storage_access::{Store, StorageBaseAddress},
+    {SyscallResult, syscalls::{storage_read_syscall, storage_write_syscall}}
+};
 /// Trait
 ///
 /// new - Constructs a new `signed_integer
@@ -185,14 +193,6 @@ trait IntegerTrait<T, U> {
     ///
     fn min(self: T, other: T) -> T;
 }
-
-/// Core lib imports.
-use starknet::{
-    storage_access::{Store, StorageBaseAddress},
-    {SyscallResult, syscalls::{storage_read_syscall, storage_write_syscall}}
-};
-use core::num::traits::Bounded;
-use core::ops::{AddAssign, SubAssign, MulAssign, DivAssign, RemAssign};
 
 // ====================== INT 128 ======================
 

@@ -4,19 +4,19 @@
 //                                  IMPORTS
 // *************************************************************************
 // Core lib imports.
-use starknet::{ContractAddress, contract_address_const};
 use result::ResultTrait;
+use satoru::bank::bank;
+use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
+use satoru::data::keys;
+use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
+use satoru::market::market_token::{IMarketTokenDispatcher, IMarketTokenDispatcherTrait};
+use satoru::market::market_utils;
 
 // Local imports.
 use satoru::mock::referral_storage::{IReferralStorageDispatcher, IReferralStorageDispatcherTrait};
-use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
-use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
-use satoru::market::market_token::{IMarketTokenDispatcher, IMarketTokenDispatcherTrait};
-use satoru::bank::bank;
-use satoru::utils::precision;
-use satoru::market::market_utils;
-use satoru::data::keys;
 use satoru::referral::referral_tier::ReferralTier;
+use satoru::utils::precision;
+use starknet::{ContractAddress, contract_address_const};
 
 
 /// Set the referral code for a trader.

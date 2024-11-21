@@ -42,17 +42,17 @@ mod MarketFactory {
 
     // Core lib imports.
     use core::result::ResultTrait;
-    use starknet::{get_caller_address, ContractAddress, contract_address_const, ClassHash};
-    use starknet::syscalls::deploy_syscall;
     use poseidon::poseidon_hash_span;
+    use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
+    use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
+    use satoru::market::market::{Market, UniqueIdMarket};
+    use satoru::role::role_module::{IRoleModuleLibraryDispatcher, IRoleModuleDispatcherTrait};
 
 
     // Local imports.
     use satoru::role::role_store::{IRoleStoreDispatcher};
-    use satoru::role::role_module::{IRoleModuleLibraryDispatcher, IRoleModuleDispatcherTrait};
-    use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
-    use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
-    use satoru::market::market::{Market, UniqueIdMarket};
+    use starknet::syscalls::deploy_syscall;
+    use starknet::{get_caller_address, ContractAddress, contract_address_const, ClassHash};
 
     // *************************************************************************
     //                              STORAGE
@@ -123,7 +123,10 @@ mod MarketFactory {
             // Deploy the `MarketToken` contract.
             // Contructor arguments: [role_store_address, data_store_address].
             let mut constructor_calldata: Array<felt252> = array![
-                self.role_store.read().contract_address.into(), self.data_store.read().contract_address.into(), self.bank_class_hash.read().into(), self.role_module_class_hash.read().into()
+                self.role_store.read().contract_address.into(),
+                self.data_store.read().contract_address.into(),
+                self.bank_class_hash.read().into(),
+                self.role_module_class_hash.read().into()
             ];
             // Deploy the contract with the `deploy_syscall`.
             let (market_token_deployed_address, _return_data) = deploy_syscall(

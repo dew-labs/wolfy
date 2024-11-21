@@ -1,9 +1,4 @@
 use result::ResultTrait;
-use traits::TryInto;
-use starknet::{ContractAddress, contract_address_const};
-use starknet::Felt252TryIntoContractAddress;
-use snforge_std::{declare, start_cheat_caller_address, ContractClassTrait, DeclareResultTrait};
-use satoru::test_utils::tests_lib;
 
 use satoru::role::{
     role_module::{IRoleModuleDispatcher, IRoleModuleDispatcherTrait},
@@ -13,6 +8,11 @@ use satoru::role::{
         FEE_KEEPER, ORDER_KEEPER, FROZEN_ORDER_KEEPER, LIQUIDATION_KEEPER, ADL_KEEPER
     }
 };
+use satoru::test_utils::tests_lib;
+use snforge_std::{declare, start_cheat_caller_address, ContractClassTrait, DeclareResultTrait};
+use starknet::Felt252TryIntoContractAddress;
+use starknet::{ContractAddress, contract_address_const};
+use traits::TryInto;
 
 #[test]
 fn given_normal_conditions_when_only_self_then_works() {
@@ -454,7 +454,7 @@ fn given_not_adl_keeper_when_only_adl_keeper_then_works() {
 
 fn setup() -> ( // This caller address will be used with `start_cheat_caller_address` cheatcode to mock the caller address.,
     IRoleStoreDispatcher, // Interface to interact with the `MarketToken` contract.
-    IRoleModuleDispatcher,
+     IRoleModuleDispatcher,
 ) {
     let role_store = IRoleStoreDispatcher { contract_address: tests_lib::deploy_role_store() };
     let role_module = IRoleModuleDispatcher { contract_address: deploy_role_module(role_store.contract_address) };

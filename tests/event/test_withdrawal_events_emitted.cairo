@@ -1,13 +1,14 @@
-use starknet::{ContractAddress, contract_address_const};
-use snforge_std::{declare, ContractClassTrait, DeclareResultTrait, spy_events, EventSpy, EventSpyTrait, Event, EventSpyAssertionsTrait};
+use satoru::event::event_emitter::EventEmitter::{WithdrawalCreated, WithdrawalExecuted, WithdrawalCancelled};
 
 use satoru::event::event_emitter::{EventEmitter, IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
-
-use satoru::event::event_emitter::EventEmitter::{WithdrawalCreated, WithdrawalExecuted, WithdrawalCancelled};
+use satoru::test_utils::tests_lib::deploy_event_emitter;
 
 
 use satoru::withdrawal::withdrawal::Withdrawal;
-use satoru::test_utils::tests_lib::deploy_event_emitter;
+use snforge_std::{
+    declare, ContractClassTrait, DeclareResultTrait, spy_events, EventSpy, EventSpyTrait, Event, EventSpyAssertionsTrait
+};
+use starknet::{ContractAddress, contract_address_const};
 
 #[test]
 fn given_normal_conditions_when_emit_withdrawal_created_then_works() {
@@ -84,7 +85,16 @@ fn given_normal_conditions_when_emit_withdrawal_executed_then_works() {
     // Assert the event was emitted.
     spy
         .assert_emitted(
-            @array![(contract_address, EventEmitter::Event::WithdrawalExecuted(WithdrawalExecuted { key: key, output_token, output_amount: 0, secondary_output_token, secondary_output_amount: 0 }))]
+            @array![
+                (
+                    contract_address,
+                    EventEmitter::Event::WithdrawalExecuted(
+                        WithdrawalExecuted {
+                            key: key, output_token, output_amount: 0, secondary_output_token, secondary_output_amount: 0
+                        }
+                    )
+                )
+            ]
         );
     // Assert there are no more events.
     assert(spy.get_events().events.len() == 1, 'There should be no events');

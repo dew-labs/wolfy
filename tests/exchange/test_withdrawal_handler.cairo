@@ -1,23 +1,23 @@
-use starknet::{ContractAddress, get_caller_address, Felt252TryIntoContractAddress, contract_address_const};
+use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
+use satoru::data::keys;
+use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
+use satoru::exchange::withdrawal_handler::{IWithdrawalHandlerDispatcher, IWithdrawalHandlerDispatcherTrait};
+use satoru::fee::fee_handler::{IFeeHandlerDispatcher, IFeeHandlerDispatcherTrait};
+use satoru::market::market::Market;
+use satoru::oracle::oracle_utils::{SetPricesParams, SimulatePricesParams};
+use satoru::role::role;
+use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
+use satoru::test_utils::tests_lib;
+use satoru::token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
+use satoru::utils::span32::{Span32, Span32Trait};
+use satoru::withdrawal::withdrawal::Withdrawal;
+use satoru::withdrawal::withdrawal_utils::CreateWithdrawalParams;
+use satoru::withdrawal::withdrawal_vault::{IWithdrawalVaultDispatcher, IWithdrawalVaultDispatcherTrait};
 use snforge_std::{
     declare, start_cheat_caller_address, stop_cheat_caller_address, start_mock_call, stop_mock_call, ContractClassTrait
 };
-use satoru::utils::span32::{Span32, Span32Trait};
-use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
-use satoru::exchange::withdrawal_handler::{IWithdrawalHandlerDispatcher, IWithdrawalHandlerDispatcherTrait};
-use satoru::withdrawal::withdrawal_vault::{IWithdrawalVaultDispatcher, IWithdrawalVaultDispatcherTrait};
-use satoru::token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
-use satoru::fee::fee_handler::{IFeeHandlerDispatcher, IFeeHandlerDispatcherTrait};
-use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
-use satoru::data::keys;
-use satoru::oracle::oracle_utils::{SetPricesParams, SimulatePricesParams};
-use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
-use satoru::role::role;
-use satoru::withdrawal::withdrawal_utils::CreateWithdrawalParams;
-use satoru::withdrawal::withdrawal::Withdrawal;
-use satoru::market::market::Market;
+use starknet::{ContractAddress, get_caller_address, Felt252TryIntoContractAddress, contract_address_const};
 use traits::Default;
-use satoru::test_utils::tests_lib;
 
 // This tests check withdrawal creation under normal condition
 // It calls withdrawal_handler.create_withdrawal

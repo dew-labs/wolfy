@@ -6,11 +6,11 @@
 
 // Core lib imports.
 use core::traits::Into;
-use starknet::ContractAddress;
 
 // Local imports.
 use satoru::oracle::oracle_utils::{SetPricesParams, SimulatePricesParams};
 use satoru::withdrawal::withdrawal_utils::CreateWithdrawalParams;
+use starknet::ContractAddress;
 
 // *************************************************************************
 //                  Interface of the `WithdrawalHandler` contract.
@@ -50,35 +50,35 @@ mod WithdrawalHandler {
     // *************************************************************************
 
     // Core lib imports.
-    use starknet::{ContractAddress, get_contract_address, get_caller_address, ClassHash};
-    use traits::Default;
     use clone::Clone;
-    // Local imports.
-    use super::IWithdrawalHandler;
-    use satoru::role::role_store::{IRoleStoreDispatcher};
-    use satoru::role::role;
-    use satoru::role::role_module::{IRoleModuleLibraryDispatcher, IRoleModuleDispatcherTrait};
     use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
     use satoru::data::keys;
     use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
+    use satoru::exchange::exchange_utils;
+    use satoru::feature::feature_utils;
+    use satoru::gas::gas_utils;
+    use satoru::market::market::Market;
     use satoru::oracle::{
         oracle::{IOracleDispatcher, IOracleDispatcherTrait},
         oracle_modules::{with_oracle_prices_before, with_oracle_prices_after},
         oracle_utils::{SetPricesParams, SimulatePricesParams}
     };
+    use satoru::oracle::{oracle_modules, oracle_utils};
     use satoru::order::base_order_utils::{ExecuteOrderParams};
+    use satoru::role::role;
+    use satoru::role::role_module::{IRoleModuleLibraryDispatcher, IRoleModuleDispatcherTrait};
+    use satoru::role::role_store::{IRoleStoreDispatcher};
     use satoru::swap::swap_handler::{ISwapHandlerDispatcher, ISwapHandlerDispatcherTrait};
-    use satoru::market::market::Market;
+    use satoru::utils::global_reentrancy_guard;
+    use satoru::utils::starknet_utils;
     use satoru::withdrawal::{
         withdrawal_utils, withdrawal_utils::{CreateWithdrawalParams, create_withdrawal, cancel_withdrawal},
         withdrawal_vault::{IWithdrawalVaultDispatcher, IWithdrawalVaultDispatcherTrait}
     };
-    use satoru::feature::feature_utils;
-    use satoru::utils::starknet_utils;
-    use satoru::utils::global_reentrancy_guard;
-    use satoru::exchange::exchange_utils;
-    use satoru::gas::gas_utils;
-    use satoru::oracle::{oracle_modules, oracle_utils};
+    use starknet::{ContractAddress, get_contract_address, get_caller_address, ClassHash};
+    // Local imports.
+    use super::IWithdrawalHandler;
+    use traits::Default;
 
     // *************************************************************************
     //                              STORAGE

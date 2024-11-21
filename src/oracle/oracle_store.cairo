@@ -50,18 +50,18 @@ mod OracleStore {
     // *************************************************************************
 
     // Core lib imports.
-    use core::option::OptionTrait;
-    use core::zeroable::Zeroable;
-    use starknet::storage::Map;
-    use starknet::{ContractAddress, contract_address_const};
 
     use alexandria_storage::list::{ListTrait, List};
+    use core::option::OptionTrait;
+    use core::zeroable::Zeroable;
 
     use result::ResultTrait;
 
     // Local imports.
     use satoru::event::event_emitter::{IEventEmitterDispatcher};
     use satoru::oracle::error::OracleError;
+    use starknet::storage::Map;
+    use starknet::{ContractAddress, contract_address_const};
     use super::IOracleStore;
 
     // *************************************************************************
@@ -80,9 +80,7 @@ mod OracleStore {
     //                              CONSTRUCTOR
     // *************************************************************************
     #[constructor]
-    fn constructor(
-        ref self: ContractState, event_emitter_address: ContractAddress,
-    ) {
+    fn constructor(ref self: ContractState, event_emitter_address: ContractAddress,) {
         self.event_emitter.write(IEventEmitterDispatcher { contract_address: event_emitter_address });
     }
 
@@ -101,7 +99,7 @@ mod OracleStore {
 
         fn remove_signer(ref self: ContractState, account: ContractAddress) {
             let mut signers = self.signers.read();
-            let last_signer = signers.get(signers.len() -1).expect('failed to get last signer').unwrap();
+            let last_signer = signers.get(signers.len() - 1).expect('failed to get last signer').unwrap();
             let signer_to_remove_index = self.signers_indexes.read(account);
             signers.set(signer_to_remove_index, last_signer).unwrap();
             self.signers_indexes.write(last_signer, signer_to_remove_index);

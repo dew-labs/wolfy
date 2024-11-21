@@ -2,10 +2,10 @@
 //                                  IMPORTS
 // *************************************************************************
 // Core lib imports.
-use starknet::ContractAddress;
 
 // Local imports.
 use satoru::utils::error::UtilsError;
+use starknet::ContractAddress;
 
 /// Validates an account.
 /// # Arguments

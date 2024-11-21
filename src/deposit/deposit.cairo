@@ -1,9 +1,9 @@
 // Core Lib imports
-use starknet::{ContractAddress, contract_address_const};
+use satoru::utils::span32::{Span32, Array32Trait, DefaultSpan32};
 
 // Satoru imports
 use satoru::utils::store_arrays::StoreContractAddressArray;
-use satoru::utils::span32::{Span32, Array32Trait, DefaultSpan32};
+use starknet::{ContractAddress, contract_address_const};
 
 /// Deposit
 #[derive(Copy, Drop, starknet::Store, Serde, PartialEq)]
@@ -34,7 +34,8 @@ struct Deposit {
     initial_short_token_amount: u256,
     /// The minimum acceptable number of liquidity tokens.
     min_market_tokens: u256,
-    /// The block that the deposit was last updated at sending funds back to the user in case the deposit gets cancelled.
+    /// The block that the deposit was last updated at sending funds back to the user in case the deposit gets
+    /// cancelled.
     updated_at_block: u64,
     /// The execution fee for keepers.
     execution_fee: u256,

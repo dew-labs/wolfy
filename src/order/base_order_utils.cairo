@@ -3,26 +3,26 @@
 // *************************************************************************
 // Core lib imports.
 use core::num::traits::Bounded;
-use starknet::ContractAddress;
 // Local imports.
 use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
 use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
+use satoru::market::market::Market;
+use satoru::mock::referral_storage::{IReferralStorageDispatcher, IReferralStorageDispatcherTrait};
 use satoru::oracle::oracle::{IOracleDispatcher, IOracleDispatcherTrait};
-use satoru::swap::swap_handler::{ISwapHandlerDispatcher, ISwapHandlerDispatcherTrait};
 use satoru::order::{
     error::OrderError, order::{Order, SecondaryOrderType, OrderType, DecreasePositionSwapType},
     order_vault::{IOrderVaultDispatcher, IOrderVaultDispatcherTrait}
 };
 use satoru::price::price::{Price, PriceTrait};
-use satoru::market::market::Market;
-use satoru::utils::precision;
-use satoru::utils::store_arrays::{StoreMarketArray, StoreU64Array, StoreContractAddressArray};
-use satoru::mock::referral_storage::{IReferralStorageDispatcher, IReferralStorageDispatcherTrait};
-use satoru::utils::span32::Span32;
+use satoru::swap::swap_handler::{ISwapHandlerDispatcher, ISwapHandlerDispatcherTrait};
 use satoru::utils::calc;
 
 
 use satoru::utils::i256::{i256, i256_neg};
+use satoru::utils::precision;
+use satoru::utils::span32::Span32;
+use satoru::utils::store_arrays::{StoreMarketArray, StoreU64Array, StoreContractAddressArray};
+use starknet::ContractAddress;
 
 #[derive(Drop, starknet::Store, Serde)]
 struct ExecuteOrderParams {
@@ -350,25 +350,28 @@ fn get_execution_price_for_decrease(
     // realized pnl is calculated as totalPositionPnl * sizeDeltaInTokens / position.sizeInTokens
     // totalPositionPnl: position.sizeInTokens * executionPrice - position.sizeInUsd
     // sizeDeltaInTokens: position.sizeInTokens * sizeDeltaUsd / position.sizeInUsd
-    // realized pnl: (position.sizeInTokens * executionPrice - position.sizeInUsd) * (position.sizeInTokens * sizeDeltaUsd / position.sizeInUsd) / position.sizeInTokens
-    // realized pnl: (position.sizeInTokens * executionPrice - position.sizeInUsd) * (sizeDeltaUsd / position.sizeInUsd)
+    // realized pnl: (position.sizeInTokens * executionPrice - position.sizeInUsd) * (position.sizeInTokens *
+    // sizeDeltaUsd / position.sizeInUsd) / position.sizeInTokens realized pnl: (position.sizeInTokens * executionPrice
+    // - position.sizeInUsd) * (sizeDeltaUsd / position.sizeInUsd)
     // priceImpactUsd should adjust the execution price such that:
     // [(position.sizeInTokens * executionPrice - position.sizeInUsd) * (sizeDeltaUsd / position.sizeInUsd)] -
     // [(position.sizeInTokens * price - position.sizeInUsd) * (sizeDeltaUsd / position.sizeInUsd)] = priceImpactUsd
     //
-    // (position.sizeInTokens * executionPrice - position.sizeInUsd) - (position.sizeInTokens * price - position.sizeInUsd)
+    // (position.sizeInTokens * executionPrice - position.sizeInUsd) - (position.sizeInTokens * price -
+    // position.sizeInUsd)
     // = priceImpactUsd / (sizeDeltaUsd / position.sizeInUsd)
     // = priceImpactUsd * position.sizeInUsd / sizeDeltaUsd
     //
-    // position.sizeInTokens * executionPrice - position.sizeInTokens * price = priceImpactUsd * position.sizeInUsd / sizeDeltaUsd
-    // position.sizeInTokens * (executionPrice - price) = priceImpactUsd * position.sizeInUsd / sizeDeltaUsd
-    // executionPrice - price = (priceImpactUsd * position.sizeInUsd) / (sizeDeltaUsd * position.sizeInTokens)
+    // position.sizeInTokens * executionPrice - position.sizeInTokens * price = priceImpactUsd * position.sizeInUsd /
+    // sizeDeltaUsd position.sizeInTokens * (executionPrice - price) = priceImpactUsd * position.sizeInUsd /
+    // sizeDeltaUsd executionPrice - price = (priceImpactUsd * position.sizeInUsd) / (sizeDeltaUsd *
+    // position.sizeInTokens)
     // executionPrice = price + (priceImpactUsd * position.sizeInUsd) / (sizeDeltaUsd * position.sizeInTokens)
     // executionPrice = price + (priceImpactUsd / sizeDeltaUsd) * (position.sizeInUsd / position.sizeInTokens)
     // executionPrice = price + (priceImpactUsd * position.sizeInUsd / position.sizeInTokens) / sizeDeltaUsd
     //
-    // e.g. if price is $2000, sizeDeltaUsd is $5000, priceImpactUsd is -$1000, position.sizeInUsd is $10,000, position.sizeInTokens is 5
-    // executionPrice = 2000 + (-1000 * 10,000 / 5) / 5000 = 1600
+    // e.g. if price is $2000, sizeDeltaUsd is $5000, priceImpactUsd is -$1000, position.sizeInUsd is $10,000,
+    // position.sizeInTokens is 5 executionPrice = 2000 + (-1000 * 10,000 / 5) / 5000 = 1600
     // realizedPnl based on price, without price impact: 0
     // realizedPnl based on executionPrice, with price impact: (5 * 1600 - 10,000) * (5 * 5000 / 10,000) / 5 => -1000
 

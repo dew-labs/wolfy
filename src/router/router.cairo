@@ -36,17 +36,17 @@ mod Router {
 
     // Core lib imports.
     use core::zeroable::Zeroable;
-
-    use starknet::{ContractAddress, get_caller_address, ClassHash};
+    use satoru::role::role;
+    use satoru::role::role_module::{IRoleModuleLibraryDispatcher, IRoleModuleDispatcherTrait};
 
 
     // Local imports.
     use satoru::role::role_store::{IRoleStoreDispatcher};
-    use satoru::role::role;
-    use satoru::role::role_module::{IRoleModuleLibraryDispatcher, IRoleModuleDispatcherTrait};
-    use super::IRouter;
     use satoru::router::error::RouterError;
     use satoru::token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
+
+    use starknet::{ContractAddress, get_caller_address, ClassHash};
+    use super::IRouter;
 
     // *************************************************************************
     //                              STORAGE

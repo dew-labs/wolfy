@@ -1,58 +1,63 @@
 // Core lib imports.
-use result::ResultTrait;
-use debug::PrintTrait;
 use core::traits::{TryInto, Into};
-use starknet::{ContractAddress, get_caller_address, Felt252TryIntoContractAddress, contract_address_const, ClassHash, ClassHashIntoFelt252};
-use snforge_std::{
-    declare, start_cheat_caller_address, stop_cheat_caller_address, start_cheat_block_number, ContractClassTrait, DeclareResultTrait, ContractClass
-};
+use debug::PrintTrait;
+use result::ResultTrait;
+use satoru::bank::bank::{IBankDispatcherTrait, IBankDispatcher};
+use satoru::bank::strict_bank::{IStrictBankDispatcher, IStrictBankDispatcherTrait};
 
 // Local imports.
 use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
-use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
-use satoru::order::order_utils::{IOrderUtilsDispatcher, IOrderUtilsDispatcherTrait};
-use satoru::market::market_factory::{IMarketFactoryDispatcher, IMarketFactoryDispatcherTrait};
-use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
-use satoru::deposit::deposit_vault::{IDepositVaultDispatcher, IDepositVaultDispatcherTrait};
-use satoru::deposit::deposit::Deposit;
-use satoru::withdrawal::withdrawal::Withdrawal;
-use satoru::exchange::withdrawal_handler::{IWithdrawalHandlerDispatcher, IWithdrawalHandlerDispatcherTrait};
-use satoru::exchange::deposit_handler::{IDepositHandlerDispatcher, IDepositHandlerDispatcherTrait};
-use satoru::router::exchange_router::{IExchangeRouterDispatcher, IExchangeRouterDispatcherTrait};
-use satoru::mock::referral_storage::{IReferralStorageDispatcher, IReferralStorageDispatcherTrait};
-use satoru::reader::reader::{IReaderDispatcher, IReaderDispatcherTrait};
-use satoru::market::market::{Market, UniqueIdMarket};
-use satoru::market::market_token::{IMarketTokenDispatcher, IMarketTokenDispatcherTrait};
-use satoru::role::role;
-use satoru::oracle::oracle_utils::SetPricesParams;
-use satoru::deposit::deposit_utils::CreateDepositParams;
-use satoru::utils::span32::{Span32, DefaultSpan32, Array32Trait};
-use satoru::deposit::deposit_utils;
-use satoru::bank::bank::{IBankDispatcherTrait, IBankDispatcher};
-use satoru::bank::strict_bank::{IStrictBankDispatcher, IStrictBankDispatcherTrait};
-use satoru::token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
-use satoru::oracle::oracle::{IOracleDispatcher, IOracleDispatcherTrait};
-use satoru::withdrawal::withdrawal_vault::{IWithdrawalVaultDispatcher, IWithdrawalVaultDispatcherTrait};
 use satoru::data::keys;
-use satoru::market::market_utils;
-use satoru::price::price::{Price, PriceTrait};
-use satoru::position::position_utils;
-use satoru::withdrawal::withdrawal_utils;
+use satoru::deposit::deposit::Deposit;
+use satoru::deposit::deposit_utils::CreateDepositParams;
+use satoru::deposit::deposit_utils;
+use satoru::deposit::deposit_vault::{IDepositVaultDispatcher, IDepositVaultDispatcherTrait};
+use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
+use satoru::exchange::deposit_handler::{IDepositHandlerDispatcher, IDepositHandlerDispatcherTrait};
 use satoru::exchange::liquidation_handler::{ILiquidationHandlerDispatcher, ILiquidationHandlerDispatcherTrait};
-use satoru::order::order::{Order, OrderType, SecondaryOrderType, DecreasePositionSwapType};
-use satoru::order::order_vault::{IOrderVaultDispatcher, IOrderVaultDispatcherTrait};
-use satoru::order::base_order_utils::{CreateOrderParams};
-use satoru::oracle::oracle_store::{IOracleStoreDispatcher, IOracleStoreDispatcherTrait};
-use satoru::swap::swap_handler::{ISwapHandlerDispatcher, ISwapHandlerDispatcherTrait};
-use satoru::market::{market::{UniqueIdMarketImpl},};
 use satoru::exchange::order_handler::{OrderHandler, IOrderHandlerDispatcher, IOrderHandlerDispatcherTrait};
+use satoru::exchange::withdrawal_handler::{IWithdrawalHandlerDispatcher, IWithdrawalHandlerDispatcherTrait};
+use satoru::market::market::{Market, UniqueIdMarket};
+use satoru::market::market_factory::{IMarketFactoryDispatcher, IMarketFactoryDispatcherTrait};
+use satoru::market::market_token::{IMarketTokenDispatcher, IMarketTokenDispatcherTrait};
+use satoru::market::market_utils;
+use satoru::market::{market::{UniqueIdMarketImpl},};
+use satoru::mock::referral_storage::{IReferralStorageDispatcher, IReferralStorageDispatcherTrait};
+use satoru::oracle::oracle::{IOracleDispatcher, IOracleDispatcherTrait};
+use satoru::oracle::oracle_store::{IOracleStoreDispatcher, IOracleStoreDispatcherTrait};
+use satoru::oracle::oracle_utils::SetPricesParams;
+use satoru::order::base_order_utils::{CreateOrderParams};
+use satoru::order::order::{Order, OrderType, SecondaryOrderType, DecreasePositionSwapType};
+use satoru::order::order_utils::{IOrderUtilsDispatcher, IOrderUtilsDispatcherTrait};
+use satoru::order::order_vault::{IOrderVaultDispatcher, IOrderVaultDispatcherTrait};
+use satoru::position::position_utils;
+use satoru::price::price::{Price, PriceTrait};
+use satoru::reader::reader::{IReaderDispatcher, IReaderDispatcherTrait};
+use satoru::role::role;
+use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
+use satoru::router::exchange_router::{IExchangeRouterDispatcher, IExchangeRouterDispatcherTrait};
+use satoru::swap::swap_handler::{ISwapHandlerDispatcher, ISwapHandlerDispatcherTrait};
+use satoru::token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
+use satoru::utils::span32::{Span32, DefaultSpan32, Array32Trait};
+use satoru::withdrawal::withdrawal::Withdrawal;
+use satoru::withdrawal::withdrawal_utils;
+use satoru::withdrawal::withdrawal_vault::{IWithdrawalVaultDispatcher, IWithdrawalVaultDispatcherTrait};
+use snforge_std::{
+    declare, start_cheat_caller_address, stop_cheat_caller_address, start_cheat_block_number, ContractClassTrait,
+    DeclareResultTrait, ContractClass
+};
+use starknet::{
+    ContractAddress, get_caller_address, Felt252TryIntoContractAddress, contract_address_const, ClassHash,
+    ClassHashIntoFelt252
+};
 
 // constants
 const INITIAL_TOKENS_MINTED: felt252 = 1000;
 
 // Not used in setup
 fn declare_mock_account() -> @ContractClass {
-    declare("MockAccount").unwrap().contract_class()}
+    declare("MockAccount").unwrap().contract_class()
+}
 
 // Not used in setup
 fn deploy_mock_account() -> ContractAddress {
@@ -81,12 +86,14 @@ fn deploy_tokens() -> (ContractAddress, ContractAddress) {
 
     let eth_address = get_ETH_address();
     let constructor_calldata: Array<felt252> = array!['Ethereum', 'ETH', 18, 1000000, 0, caller_address.into()];
-    // let constructor_calldata: Array<felt252> = array!['Ethereum', 'ETH', 10000000000000000000, 0, caller_address.into()];
+    // let constructor_calldata: Array<felt252> = array!['Ethereum', 'ETH', 10000000000000000000, 0,
+    // caller_address.into()];
     contract.deploy_at(@constructor_calldata, eth_address).unwrap();
 
     let usdc_address = get_USDC_address();
     let constructor_calldata: Array<felt252> = array!['usdc', 'USDC', 18, 1000000, 0, caller_address.into()];
-    // let constructor_calldata: Array<felt252> = array!['usdc', 'USDC', 100000000000000000000000, 0, caller_address.into()];
+    // let constructor_calldata: Array<felt252> = array!['usdc', 'USDC', 100000000000000000000000, 0,
+    // caller_address.into()];
     contract.deploy_at(@constructor_calldata, usdc_address).unwrap();
     (eth_address, usdc_address)
 }
@@ -300,14 +307,20 @@ fn setup_contracts() -> (
     // Deploy and initialize strict bank
     let (strict_bank_address, strict_bank_class) = deploy_strict_bank();
     let strict_bank = IStrictBankDispatcher { contract_address: strict_bank_address };
-    strict_bank.initialize(data_store_address, role_store_address, *bank_class.class_hash, *role_module_class.class_hash);
+    strict_bank
+        .initialize(data_store_address, role_store_address, *bank_class.class_hash, *role_module_class.class_hash);
 
     // Deploy the router contract.
     let router_address = deploy_router(role_store_address, role_module_class.class_hash);
 
     // Deploy the market factory.
     let market_factory_address = deploy_market_factory(
-        data_store_address, role_store_address, event_emitter_address, market_token_class.class_hash, bank_class.class_hash, role_module_class.class_hash
+        data_store_address,
+        role_store_address,
+        event_emitter_address,
+        market_token_class.class_hash,
+        bank_class.class_hash,
+        role_module_class.class_hash
     );
     let market_factory = IMarketFactoryDispatcher { contract_address: market_factory_address };
 
@@ -319,31 +332,61 @@ fn setup_contracts() -> (
     let pragma_address = deploy_price_feed();
 
     // Deploy the oracle
-    let oracle_address = deploy_oracle(role_store_address, oracle_store_address, pragma_address, role_module_class.class_hash);
+    let oracle_address = deploy_oracle(
+        role_store_address, oracle_store_address, pragma_address, role_module_class.class_hash
+    );
     let oracle = IOracleDispatcher { contract_address: oracle_address };
 
     // Deploy the deposit vault
-    let deposit_vault_address = deploy_deposit_vault(role_store_address, data_store_address, strict_bank_class.class_hash, bank_class.class_hash, role_module_class.class_hash);
+    let deposit_vault_address = deploy_deposit_vault(
+        role_store_address,
+        data_store_address,
+        strict_bank_class.class_hash,
+        bank_class.class_hash,
+        role_module_class.class_hash
+    );
     let deposit_vault = IDepositVaultDispatcher { contract_address: deposit_vault_address };
 
     // Deploy the deposit handler
     let deposit_handler_address = deploy_deposit_handler(
-        data_store_address, role_store_address, event_emitter_address, deposit_vault_address, oracle_address, role_module_class.class_hash
+        data_store_address,
+        role_store_address,
+        event_emitter_address,
+        deposit_vault_address,
+        oracle_address,
+        role_module_class.class_hash
     );
     let deposit_handler = IDepositHandlerDispatcher { contract_address: deposit_handler_address };
 
     // Deploy the withdrawal vault
-    let withdrawal_vault_address = deploy_withdrawal_vault(data_store_address, role_store_address, strict_bank_class.class_hash, bank_class.class_hash, role_module_class.class_hash);
+    let withdrawal_vault_address = deploy_withdrawal_vault(
+        data_store_address,
+        role_store_address,
+        strict_bank_class.class_hash,
+        bank_class.class_hash,
+        role_module_class.class_hash
+    );
     let withdrawal_vault = IWithdrawalVaultDispatcher { contract_address: withdrawal_vault_address };
 
     // Deploy the withdrawal handler
     let withdrawal_handler_address = deploy_withdrawal_handler(
-        data_store_address, role_store_address, event_emitter_address, withdrawal_vault_address, oracle_address, *role_module_class.class_hash
+        data_store_address,
+        role_store_address,
+        event_emitter_address,
+        withdrawal_vault_address,
+        oracle_address,
+        *role_module_class.class_hash
     );
     let withdrawal_handler = IWithdrawalHandlerDispatcher { contract_address: withdrawal_handler_address };
 
     // Deply the order vault
-    let order_vault_address = deploy_order_vault(data_store.contract_address, role_store.contract_address, *strict_bank_class.class_hash, *bank_class.class_hash, *role_module_class.class_hash);
+    let order_vault_address = deploy_order_vault(
+        data_store.contract_address,
+        role_store.contract_address,
+        *strict_bank_class.class_hash,
+        *bank_class.class_hash,
+        *role_module_class.class_hash
+    );
     let order_vault = IOrderVaultDispatcher { contract_address: order_vault_address };
 
     // Deploy te swap handler
@@ -541,9 +584,7 @@ fn deploy_deposit_handler(
     contract_address
 }
 
-fn deploy_oracle_store(
-    event_emitter_address: ContractAddress,
-) -> ContractAddress {
+fn deploy_oracle_store(event_emitter_address: ContractAddress,) -> ContractAddress {
     let contract = declare("OracleStore").unwrap().contract_class();
     let caller_address: ContractAddress = get_c4ller_address();
     let deployed_contract_address = get_oracle_store_address();
@@ -555,7 +596,10 @@ fn deploy_oracle_store(
 }
 
 fn deploy_oracle(
-    role_store_address: ContractAddress, oracle_store_address: ContractAddress, pragma_address: ContractAddress, role_module_class_hash: @ClassHash,
+    role_store_address: ContractAddress,
+    oracle_store_address: ContractAddress,
+    pragma_address: ContractAddress,
+    role_module_class_hash: @ClassHash,
 ) -> ContractAddress {
     let contract = declare("Oracle").unwrap().contract_class();
     let caller_address: ContractAddress = get_c4ller_address();
@@ -563,26 +607,40 @@ fn deploy_oracle(
     start_cheat_caller_address(deployed_contract_address, caller_address);
     let (contract_address, _) = contract
         .deploy_at(
-            @array![role_store_address.into(), oracle_store_address.into(), pragma_address.into(), (*role_module_class_hash).into()],
+            @array![
+                role_store_address.into(),
+                oracle_store_address.into(),
+                pragma_address.into(),
+                (*role_module_class_hash).into()
+            ],
             deployed_contract_address
         )
         .unwrap();
     contract_address
 }
 
-fn deploy_deposit_vault(role_store_address: ContractAddress, data_store_address: ContractAddress, strict_bank_class_hash: @ClassHash, bank_class_hash: @ClassHash, role_module_class_hash: @ClassHash) -> ContractAddress {
+fn deploy_deposit_vault(
+    role_store_address: ContractAddress,
+    data_store_address: ContractAddress,
+    strict_bank_class_hash: @ClassHash,
+    bank_class_hash: @ClassHash,
+    role_module_class_hash: @ClassHash
+) -> ContractAddress {
     let contract = declare("DepositVault").unwrap().contract_class();
     let caller_address: ContractAddress = get_c4ller_address();
     let deployed_contract_address = get_deposit_vault_address();
     start_cheat_caller_address(deployed_contract_address, caller_address);
     let (contract_address, _) = contract
-        .deploy_at(@array![
-            data_store_address.into(),
-            role_store_address.into(),
-            (*strict_bank_class_hash).into(),
-            (*bank_class_hash).into(),
-            (*role_module_class_hash).into(),
-        ], deployed_contract_address)
+        .deploy_at(
+            @array![
+                data_store_address.into(),
+                role_store_address.into(),
+                (*strict_bank_class_hash).into(),
+                (*bank_class_hash).into(),
+                (*role_module_class_hash).into(),
+            ],
+            deployed_contract_address
+        )
         .unwrap();
     contract_address
 }
@@ -612,7 +670,11 @@ fn deploy_withdrawal_handler(
 }
 
 fn deploy_withdrawal_vault(
-    data_store_address: ContractAddress, role_store_address: ContractAddress, strict_bank_class_hash: @ClassHash, bank_class_hash: @ClassHash, role_module_class_hash: @ClassHash
+    data_store_address: ContractAddress,
+    role_store_address: ContractAddress,
+    strict_bank_class_hash: @ClassHash,
+    bank_class_hash: @ClassHash,
+    role_module_class_hash: @ClassHash
 ) -> ContractAddress {
     let contract = declare("WithdrawalVault").unwrap().contract_class();
     let caller_address: ContractAddress = get_c4ller_address();
@@ -715,7 +777,9 @@ fn deploy_swap_handler(role_store_address: ContractAddress, role_module_class_ha
     contract_address
 }
 
-fn deploy_referral_storage(event_emitter_address: ContractAddress, governable_class_hash: @ClassHash) -> ContractAddress {
+fn deploy_referral_storage(
+    event_emitter_address: ContractAddress, governable_class_hash: @ClassHash
+) -> ContractAddress {
     let contract = declare("ReferralStorage").unwrap().contract_class();
     let caller_address: ContractAddress = get_c4ller_address();
     let deployed_contract_address = get_referral_storage_address();
@@ -749,7 +813,13 @@ fn deploy_exchange_router(
     contract_address
 }
 
-fn deploy_order_vault(data_store_address: ContractAddress, role_store_address: ContractAddress, strict_bank_class_hash: ClassHash, bank_class_hash: ClassHash, role_module_class_hash: ClassHash) -> ContractAddress {
+fn deploy_order_vault(
+    data_store_address: ContractAddress,
+    role_store_address: ContractAddress,
+    strict_bank_class_hash: ClassHash,
+    bank_class_hash: ClassHash,
+    role_module_class_hash: ClassHash
+) -> ContractAddress {
     let contract = declare("OrderVault").unwrap().contract_class();
     let caller_address: ContractAddress = get_c4ller_address();
     let deployed_contract_address = get_order_vault_address();

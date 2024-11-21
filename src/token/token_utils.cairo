@@ -1,12 +1,12 @@
 // ! Library for token functions, helps with transferring of tokens and native token functions
-use starknet::ContractAddress;
-use starknet::contract_address::ContractAddressZeroable;
+use debug::PrintTrait;
+use satoru::bank::error::BankError;
 use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
 use satoru::data::keys;
 use satoru::token::erc20::interface::{IERC20, IERC20Dispatcher, IERC20DispatcherTrait};
 use satoru::utils::account_utils::validate_receiver;
-use satoru::bank::error::BankError;
-use debug::PrintTrait;
+use starknet::ContractAddress;
+use starknet::contract_address::ContractAddressZeroable;
 
 fn fee_token(data_store: IDataStoreDispatcher) -> ContractAddress {
     data_store.get_address(keys::fee_token())
@@ -33,12 +33,12 @@ fn transfer(data_store: IDataStoreDispatcher, token: ContractAddress, receiver: 
         return;
     }
 
-    // in case transfers to the receiver fail due to blacklisting or other reasons send the tokens to a holding address to avoid possible gaming through reverting transfers
+    // in case transfers to the receiver fail due to blacklisting or other reasons send the tokens to a holding address
+    // to avoid possible gaming through reverting transfers
     let holding_address = data_store.get_address(keys::holding_address());
     assert(!holding_address.is_zero(), 'empty_holding_address');
 
-    let success1 = IERC20Dispatcher { contract_address: token }
-        .transfer(holding_address, amount);
+    let success1 = IERC20Dispatcher { contract_address: token }.transfer(holding_address, amount);
 
     if (success1 == true) {
         return;

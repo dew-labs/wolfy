@@ -2,23 +2,23 @@
 //                                  IMPORTS
 // *************************************************************************
 // Core lib imports.
-use starknet::{ContractAddress, contract_address_const};
+use debug::PrintTrait;
+use satoru::bank::bank::{IBankDispatcher, IBankDispatcherTrait};
 
 // Local imports.
 use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
-use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
-use satoru::bank::bank::{IBankDispatcher, IBankDispatcherTrait};
-use satoru::market::{market::Market, market_utils};
-use satoru::fee::fee_utils;
-use satoru::utils::{calc, store_arrays::StoreMarketSpan, traits::ContractAddressDefault};
-use satoru::utils::i256::{i256, i256_neg};
-use satoru::oracle::oracle::{IOracleDispatcher, IOracleDispatcherTrait};
-use satoru::swap::error::SwapError;
 use satoru::data::keys;
-use satoru::pricing::swap_pricing_utils;
+use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
+use satoru::fee::fee_utils;
+use satoru::market::{market::Market, market_utils};
+use satoru::oracle::oracle::{IOracleDispatcher, IOracleDispatcherTrait};
 use satoru::price::price::{Price, PriceTrait, PriceDefault};
+use satoru::pricing::swap_pricing_utils;
+use satoru::swap::error::SwapError;
 use satoru::token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
-use debug::PrintTrait;
+use satoru::utils::i256::{i256, i256_neg};
+use satoru::utils::{calc, store_arrays::StoreMarketSpan, traits::ContractAddressDefault};
+use starknet::{ContractAddress, contract_address_const};
 
 
 /// Parameters to execute a swap.

@@ -1,12 +1,15 @@
 use result::ResultTrait;
-use traits::{TryInto, Into};
-use starknet::{ContractAddress, get_caller_address, contract_address_const};
-use snforge_std::{declare, start_cheat_caller_address, stop_cheat_caller_address, ContractClassTrait, DeclareResultTrait, ContractClass};
-use satoru::router::router::{IRouterDispatcher, IRouterDispatcherTrait};
-use satoru::token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
-use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
 use satoru::role::role;
+use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
+use satoru::router::router::{IRouterDispatcher, IRouterDispatcherTrait};
 use satoru::test_utils::tests_lib;
+use satoru::token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
+use snforge_std::{
+    declare, start_cheat_caller_address, stop_cheat_caller_address, ContractClassTrait, DeclareResultTrait,
+    ContractClass
+};
+use starknet::{ContractAddress, get_caller_address, contract_address_const};
+use traits::{TryInto, Into};
 
 #[test]
 fn given_normal_conditions_when_transfer_then_expected_results() {

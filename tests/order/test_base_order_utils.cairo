@@ -1,23 +1,24 @@
-use starknet::{ContractAddress, contract_address_const};
-use snforge_std::{declare, start_cheat_caller_address, stop_cheat_caller_address, ContractClassTrait, DeclareResultTrait};
-use satoru::test_utils::tests_lib;
-
-use satoru::order::{order::{OrderType, Order},};
-use satoru::price::price::{Price, PriceTrait};
+use satoru::data::data_store::{DataStore, IDataStoreDispatcher, IDataStoreDispatcherTrait};
+use satoru::event::event_emitter::{EventEmitter, IEventEmitterDispatcher};
+use satoru::oracle::oracle::{Oracle, IOracleDispatcher, IOracleDispatcherTrait, SetPricesParams};
+use satoru::oracle::oracle_store::{IOracleStoreDispatcher, IOracleStoreDispatcherTrait};
+use satoru::oracle::price_feed::PriceFeed;
 use satoru::order::base_order_utils::{
     is_market_order, is_limit_order, is_swap_order, is_position_order, is_increase_order, is_decrease_order,
     is_liquidation_order, validate_order_trigger_price, get_execution_price_for_increase,
     get_execution_price_for_decrease, validate_non_empty_order
 };
 
-use satoru::data::data_store::{DataStore, IDataStoreDispatcher, IDataStoreDispatcherTrait};
-use satoru::event::event_emitter::{EventEmitter, IEventEmitterDispatcher};
-use satoru::oracle::oracle::{Oracle, IOracleDispatcher, IOracleDispatcherTrait, SetPricesParams};
-use satoru::oracle::oracle_store::{IOracleStoreDispatcher, IOracleStoreDispatcherTrait};
-use satoru::oracle::price_feed::PriceFeed;
-use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
+use satoru::order::{order::{OrderType, Order},};
+use satoru::price::price::{Price, PriceTrait};
 use satoru::role::role;
+use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
+use satoru::test_utils::tests_lib;
 use satoru::utils::i256::{i256, i256_new};
+use snforge_std::{
+    declare, start_cheat_caller_address, stop_cheat_caller_address, ContractClassTrait, DeclareResultTrait
+};
+use starknet::{ContractAddress, contract_address_const};
 
 #[test]
 fn given_normal_conditions_when_is_market_order_then_works() {

@@ -1,15 +1,15 @@
 use result::ResultTrait;
-use traits::TryInto;
-use starknet::{ContractAddress, contract_address_const};
-use starknet::Felt252TryIntoContractAddress;
-use snforge_std::{declare, start_cheat_caller_address, ContractClassTrait, DeclareResultTrait};
-use satoru::test_utils::tests_lib;
-
-use satoru::role::role::ROLE_ADMIN;
 use satoru::role::role::CONTROLLER;
 use satoru::role::role::MARKET_KEEPER;
+
+use satoru::role::role::ROLE_ADMIN;
 use satoru::role::role_store::IRoleStoreDispatcher;
 use satoru::role::role_store::IRoleStoreDispatcherTrait;
+use satoru::test_utils::tests_lib;
+use snforge_std::{declare, start_cheat_caller_address, ContractClassTrait, DeclareResultTrait};
+use starknet::Felt252TryIntoContractAddress;
+use starknet::{ContractAddress, contract_address_const};
+use traits::TryInto;
 
 #[test]
 fn given_normal_conditions_when_has_role_after_grant_then_works() {

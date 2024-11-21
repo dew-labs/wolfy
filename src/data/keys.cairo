@@ -1,11 +1,11 @@
 //! Key management for the values in the `DataStore` contract.
 
 // IMPORTS
-use satoru::utils::hash::hash_poseidon_single;
-use satoru::order::order::OrderType;
-use starknet::ContractAddress;
 
 use poseidon::poseidon_hash_span;
+use satoru::order::order::OrderType;
+use satoru::utils::hash::hash_poseidon_single;
+use starknet::ContractAddress;
 
 // *************************************************************************
 // *                        CONSTANT KEYS                                  *

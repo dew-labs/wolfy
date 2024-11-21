@@ -1,14 +1,15 @@
-use starknet::{ContractAddress, contract_address_const};
-use snforge_std::{declare, ContractClassTrait, DeclareResultTrait, spy_events, EventSpy, EventSpyTrait, Event, EventSpyAssertionsTrait};
-use satoru::test_utils::tests_lib::deploy_event_emitter;
+use satoru::event::event_emitter::EventEmitter::{SwapInfo, SwapFeesCollected};
 
 use satoru::event::event_emitter::{EventEmitter, IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
 
-use satoru::event::event_emitter::EventEmitter::{SwapInfo, SwapFeesCollected};
-
 
 use satoru::pricing::swap_pricing_utils::SwapFees;
+use satoru::test_utils::tests_lib::deploy_event_emitter;
 use satoru::utils::i256::{i256, i256_new};
+use snforge_std::{
+    declare, ContractClassTrait, DeclareResultTrait, spy_events, EventSpy, EventSpyTrait, Event, EventSpyAssertionsTrait
+};
+use starknet::{ContractAddress, contract_address_const};
 
 #[test]
 fn given_normal_conditions_when_emit_swap_info_then_works() {

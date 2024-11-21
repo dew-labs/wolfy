@@ -1,13 +1,13 @@
 #[starknet::contract]
 mod ERC20 {
     use core::num::traits::Bounded;
-    use starknet::ContractAddress;
-    use starknet::get_caller_address;
-    use zeroable::Zeroable;
-    use starknet::storage::Map;
     use debug::PrintTrait;
 
     use satoru::token::erc20::interface::IERC20;
+    use starknet::ContractAddress;
+    use starknet::get_caller_address;
+    use starknet::storage::Map;
+    use zeroable::Zeroable;
 
     #[storage]
     struct Storage {

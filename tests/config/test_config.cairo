@@ -5,18 +5,20 @@
 // Core lib imports.
 
 use result::ResultTrait;
-use traits::{TryInto, Into};
-use starknet::{ContractAddress, get_caller_address, contract_address_const, ClassHash,};
-use snforge_std::{declare, start_cheat_caller_address, stop_cheat_caller_address, ContractClassTrait, DeclareResultTrait};
+use satoru::config::config::{IConfigDispatcher, IConfigDispatcherTrait};
 
 // Local imports.
 use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
 use satoru::data::keys;
-use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
-use satoru::role::role;
 use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
-use satoru::config::config::{IConfigDispatcher, IConfigDispatcherTrait};
+use satoru::role::role;
+use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
 use satoru::test_utils::tests_lib;
+use snforge_std::{
+    declare, start_cheat_caller_address, stop_cheat_caller_address, ContractClassTrait, DeclareResultTrait
+};
+use starknet::{ContractAddress, get_caller_address, contract_address_const, ClassHash,};
+use traits::{TryInto, Into};
 
 #[test]
 fn given_normal_conditions_when_set_bool_then_works() {
@@ -199,7 +201,10 @@ fn setup() -> (
 
     // Deploy the `Config` contract.
     let config_address = deploy_config(
-        data_store.contract_address, role_store.contract_address, event_emitter.contract_address, role_module_class.class_hash
+        data_store.contract_address,
+        role_store.contract_address,
+        event_emitter.contract_address,
+        role_module_class.class_hash
     );
 
     // Create a safe dispatcher to interact with the contract.
@@ -212,7 +217,10 @@ fn setup() -> (
 
 /// Utility function to deploy a market factory contract and return its address.
 fn deploy_config(
-    data_store_address: ContractAddress, role_store_address: ContractAddress, event_emitter_address: ContractAddress, role_module_class_hash: ClassHash,
+    data_store_address: ContractAddress,
+    role_store_address: ContractAddress,
+    event_emitter_address: ContractAddress,
+    role_module_class_hash: ClassHash,
 ) -> ContractAddress {
     let contract = declare("Config").unwrap().contract_class();
     let caller_address = tests_lib::get_c4ller_address();

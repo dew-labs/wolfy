@@ -2,14 +2,19 @@
 //                                  IMPORTS
 // *************************************************************************
 // Core lib imports.
-use starknet::ContractAddress;
 use core::traits::TryInto;
+
+use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
+use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
 
 // Local imports.
 use satoru::market::market::Market;
 use satoru::market::market_utils::{
     MarketPrices, get_opposite_token, get_cached_token_price, get_swap_impact_amount_with_cap, validate_swap_market
 };
+use satoru::mock::referral_storage::{IReferralStorageDispatcher, IReferralStorageDispatcherTrait};
+
+use satoru::oracle::oracle::{IOracleDispatcher, IOracleDispatcherTrait};
 
 use satoru::order::{
     order::{SecondaryOrderType, OrderType, Order, DecreasePositionSwapType},
@@ -25,16 +30,11 @@ use satoru::pricing::{
     swap_pricing_utils::{SwapFees, get_swap_fees, get_price_impact_usd, GetPriceImpactUsdParams}
 };
 use satoru::reader::error::ReaderError;
+use satoru::swap::{swap_utils::SwapCache, swap_handler::{ISwapHandlerDispatcher, ISwapHandlerDispatcherTrait}};
 use satoru::utils::calc;
 use satoru::utils::span32::{Span32, Array32Trait};
-use satoru::swap::{swap_utils::SwapCache, swap_handler::{ISwapHandlerDispatcher, ISwapHandlerDispatcherTrait}};
-
-use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
-use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
-
-use satoru::oracle::oracle::{IOracleDispatcher, IOracleDispatcherTrait};
-use satoru::mock::referral_storage::{IReferralStorageDispatcher, IReferralStorageDispatcherTrait};
 use satoru::utils::{i256::{i256, i256_neg}, error_utils};
+use starknet::ContractAddress;
 
 #[derive(Default, Drop, starknet::Store, Serde)]
 struct ExecutionPriceResult {
@@ -70,7 +70,8 @@ struct GetPositionInfoCache {
 /// * `amount_in` - The amount of the input token.
 /// * `ui_fee_receiver` - The ui fee receiver.
 /// # Returns
-/// Returns The output amount of tokens after the swap, the amount impacted due to price changes and the swap fees associated with the swap
+/// Returns The output amount of tokens after the swap, the amount impacted due to price changes and the swap fees
+/// associated with the swap
 fn get_swap_amount_out(
     data_store: IDataStoreDispatcher,
     market: Market,

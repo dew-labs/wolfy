@@ -4,27 +4,27 @@
 //                                  IMPORTS
 // *************************************************************************
 // Core lib imports.
-use starknet::{ContractAddress, contract_address_const};
 use poseidon::poseidon_hash_span;
 // Local imports.
 use satoru::data::{data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait}, keys};
 use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
-use satoru::oracle::oracle::{IOracleDispatcher, IOracleDispatcherTrait};
-use satoru::swap::swap_handler::{ISwapHandlerDispatcher, ISwapHandlerDispatcherTrait};
 use satoru::market::{market::Market, market_utils::MarketPrices, market_utils};
-use satoru::position::{position::Position, error::PositionError};
-use satoru::pricing::{
-    position_pricing_utils, position_pricing_utils::PositionFees, position_pricing_utils::GetPriceImpactUsdParams,
-    position_pricing_utils::GetPositionFeesParams
-};
+use satoru::mock::referral_storage::{IReferralStorageDispatcher, IReferralStorageDispatcherTrait};
+use satoru::oracle::oracle::{IOracleDispatcher, IOracleDispatcherTrait};
 use satoru::order::{
     order::{Order, SecondaryOrderType}, base_order_utils::ExecuteOrderParamsContracts,
     order_vault::{IOrderVaultDispatcher, IOrderVaultDispatcherTrait}
 };
-use satoru::mock::referral_storage::{IReferralStorageDispatcher, IReferralStorageDispatcherTrait};
+use satoru::position::{position::Position, error::PositionError};
 use satoru::price::price::{Price, PriceTrait};
-use satoru::utils::{calc, precision, i256::i256, default::DefaultContractAddress, error_utils};
+use satoru::pricing::{
+    position_pricing_utils, position_pricing_utils::PositionFees, position_pricing_utils::GetPriceImpactUsdParams,
+    position_pricing_utils::GetPositionFeesParams
+};
 use satoru::referral::referral_utils;
+use satoru::swap::swap_handler::{ISwapHandlerDispatcher, ISwapHandlerDispatcherTrait};
+use satoru::utils::{calc, precision, i256::i256, default::DefaultContractAddress, error_utils};
+use starknet::{ContractAddress, contract_address_const};
 
 /// Struct used in increasePosition and decreasePosition.
 #[derive(Drop, Copy, starknet::Store, Serde)]
@@ -499,7 +499,8 @@ fn is_position_liquiditable(
     cache.min_collateral_factor = market_utils::get_min_collateral_factor(data_store, market.market_token);
     // validate if (remaining collateral) / position.size is less than the min collateral factor (max leverage exceeded)
     // this validation includes the position fee to be paid when closing the position
-    // i.e. if the position does not have sufficient collateral after closing fees it is considered a liquidatable position
+    // i.e. if the position does not have sufficient collateral after closing fees it is considered a liquidatable
+    // position
     cache
         .min_collateral_usd_for_leverage =
             calc::to_signed(precision::apply_factor_u256(position.size_in_usd, cache.min_collateral_factor), true);

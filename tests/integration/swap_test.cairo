@@ -4,57 +4,58 @@
 
 // Core lib imports.
 
-use result::ResultTrait;
 use debug::PrintTrait;
-use traits::{TryInto, Into};
-use starknet::{ContractAddress, get_caller_address, Felt252TryIntoContractAddress, contract_address_const, ClassHash,};
-use snforge_std::{
-    declare, start_cheat_caller_address, stop_cheat_caller_address, start_cheat_block_number, ContractClassTrait, DeclareResultTrait, ContractClass
-};
+use result::ResultTrait;
+use satoru::bank::bank::{IBankDispatcherTrait, IBankDispatcher};
+use satoru::bank::strict_bank::{IStrictBankDispatcher, IStrictBankDispatcherTrait};
 
 
 // Local imports.
 use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
-use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
-use satoru::order::order_utils::{IOrderUtilsDispatcher, IOrderUtilsDispatcherTrait};
-use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
-use satoru::deposit::deposit_vault::{IDepositVaultDispatcher, IDepositVaultDispatcherTrait};
-use satoru::deposit::deposit::Deposit;
-use satoru::withdrawal::withdrawal::Withdrawal;
-
-use satoru::exchange::withdrawal_handler::{IWithdrawalHandlerDispatcher, IWithdrawalHandlerDispatcherTrait};
-use satoru::exchange::deposit_handler::{IDepositHandlerDispatcher, IDepositHandlerDispatcherTrait};
-use satoru::router::exchange_router::{IExchangeRouterDispatcher, IExchangeRouterDispatcherTrait};
-use satoru::mock::referral_storage::{IReferralStorageDispatcher, IReferralStorageDispatcherTrait};
-use satoru::reader::reader::{IReaderDispatcher, IReaderDispatcherTrait};
-use satoru::market::market::{Market, UniqueIdMarket};
-use satoru::market::market_token::{IMarketTokenDispatcher, IMarketTokenDispatcherTrait};
-use satoru::role::role;
-use satoru::oracle::oracle_utils::SetPricesParams;
-use satoru::test_utils::tests_lib;
-use satoru::deposit::deposit_utils::CreateDepositParams;
-use satoru::utils::span32::{Span32, DefaultSpan32, Array32Trait};
-use satoru::deposit::deposit_utils;
-use satoru::bank::bank::{IBankDispatcherTrait, IBankDispatcher};
-use satoru::bank::strict_bank::{IStrictBankDispatcher, IStrictBankDispatcherTrait};
-use satoru::token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
-use satoru::oracle::oracle::{IOracleDispatcher, IOracleDispatcherTrait};
-use satoru::withdrawal::withdrawal_vault::{IWithdrawalVaultDispatcher, IWithdrawalVaultDispatcherTrait};
 use satoru::data::keys;
-use satoru::market::market_utils;
-use satoru::price::price::{Price, PriceTrait};
-use satoru::position::position_utils;
-use satoru::withdrawal::withdrawal_utils;
+use satoru::deposit::deposit::Deposit;
+use satoru::deposit::deposit_utils::CreateDepositParams;
+use satoru::deposit::deposit_utils;
+use satoru::deposit::deposit_vault::{IDepositVaultDispatcher, IDepositVaultDispatcherTrait};
+use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
+use satoru::exchange::deposit_handler::{IDepositHandlerDispatcher, IDepositHandlerDispatcherTrait};
 
 use satoru::exchange::liquidation_handler::{ILiquidationHandlerDispatcher, ILiquidationHandlerDispatcherTrait};
-use satoru::order::order::{Order, OrderType, SecondaryOrderType, DecreasePositionSwapType};
-use satoru::order::order_vault::{IOrderVaultDispatcher, IOrderVaultDispatcherTrait};
-use satoru::order::base_order_utils::{CreateOrderParams};
-use satoru::oracle::oracle_store::{IOracleStoreDispatcher, IOracleStoreDispatcherTrait};
-use satoru::swap::swap_handler::{ISwapHandlerDispatcher, ISwapHandlerDispatcherTrait};
-use satoru::market::{market::{UniqueIdMarketImpl},};
 use satoru::exchange::order_handler::{OrderHandler, IOrderHandlerDispatcher, IOrderHandlerDispatcherTrait};
+
+use satoru::exchange::withdrawal_handler::{IWithdrawalHandlerDispatcher, IWithdrawalHandlerDispatcherTrait};
+use satoru::market::market::{Market, UniqueIdMarket};
+use satoru::market::market_token::{IMarketTokenDispatcher, IMarketTokenDispatcherTrait};
+use satoru::market::market_utils;
+use satoru::market::{market::{UniqueIdMarketImpl},};
+use satoru::mock::referral_storage::{IReferralStorageDispatcher, IReferralStorageDispatcherTrait};
+use satoru::oracle::oracle::{IOracleDispatcher, IOracleDispatcherTrait};
+use satoru::oracle::oracle_store::{IOracleStoreDispatcher, IOracleStoreDispatcherTrait};
+use satoru::oracle::oracle_utils::SetPricesParams;
+use satoru::order::base_order_utils::{CreateOrderParams};
+use satoru::order::order::{Order, OrderType, SecondaryOrderType, DecreasePositionSwapType};
+use satoru::order::order_utils::{IOrderUtilsDispatcher, IOrderUtilsDispatcherTrait};
+use satoru::order::order_vault::{IOrderVaultDispatcher, IOrderVaultDispatcherTrait};
+use satoru::position::position_utils;
+use satoru::price::price::{Price, PriceTrait};
+use satoru::reader::reader::{IReaderDispatcher, IReaderDispatcherTrait};
+use satoru::role::role;
+use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
+use satoru::router::exchange_router::{IExchangeRouterDispatcher, IExchangeRouterDispatcherTrait};
+use satoru::swap::swap_handler::{ISwapHandlerDispatcher, ISwapHandlerDispatcherTrait};
 use satoru::test_utils::deposit_setup::deposit_setup;
+use satoru::test_utils::tests_lib;
+use satoru::token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
+use satoru::utils::span32::{Span32, DefaultSpan32, Array32Trait};
+use satoru::withdrawal::withdrawal::Withdrawal;
+use satoru::withdrawal::withdrawal_utils;
+use satoru::withdrawal::withdrawal_vault::{IWithdrawalVaultDispatcher, IWithdrawalVaultDispatcherTrait};
+use snforge_std::{
+    declare, start_cheat_caller_address, stop_cheat_caller_address, start_cheat_block_number, ContractClassTrait,
+    DeclareResultTrait, ContractClass
+};
+use starknet::{ContractAddress, get_caller_address, Felt252TryIntoContractAddress, contract_address_const, ClassHash,};
+use traits::{TryInto, Into};
 const INITIAL_TOKENS_MINTED: felt252 = 1000;
 
 #[test]
@@ -112,7 +113,8 @@ fn test_swap_market() {
     // 100 000 USDC
     assert(pool_value_info.short_token_amount == 100000000000000000000000, 'wrong short_token balance');
 
-    // // --------------------------------------------------SWAP TEST ETH->USDC --------------------------------------------------
+    // // --------------------------------------------------SWAP TEST ETH->USDC
+    // --------------------------------------------------
     'Swap ETH to USDC'.print();
 
     let balance_ETH_before_swap = ETH.balance_of(caller_address);

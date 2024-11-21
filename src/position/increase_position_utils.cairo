@@ -4,30 +4,30 @@
 //                                  IMPORTS
 // *************************************************************************
 // Core lib imports.
-use starknet::{ContractAddress, contract_address_const};
 use result::ResultTrait;
+use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
+use satoru::data::keys;
+use satoru::event::{event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait},};
+use satoru::fee::fee_utils;
+use satoru::market::market_utils;
+use satoru::order::base_order_utils;
+use satoru::position::error::PositionError;
 // Local imports
 use satoru::position::position_utils::UpdatePositionParams;
+use satoru::position::{
+    position::Position, position_utils, position_utils::WillPositionCollateralBeSufficientValues, position_event_utils
+};
+
+use satoru::price::price::{Price, PriceTrait};
 use satoru::pricing::position_pricing_utils::{
     PositionFees, PositionBorrowingFees, PositionFundingFees, PositionReferralFees, PositionUiFees,
     GetPositionFeesParams, get_position_fees, get_price_impact_usd, GetPriceImpactUsdParams
 };
-
-use satoru::price::price::{Price, PriceTrait};
-use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
-use satoru::event::{event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait},};
-use satoru::market::market_utils;
-use satoru::position::{
-    position::Position, position_utils, position_utils::WillPositionCollateralBeSufficientValues, position_event_utils
-};
-use satoru::position::error::PositionError;
 use satoru::utils::{
     calc::{to_unsigned, to_signed, sum_return_uint_256, roundup_magnitude_division, roundup_division},
     i256::{i256, i256_neg}
 };
-use satoru::fee::fee_utils;
-use satoru::data::keys;
-use satoru::order::base_order_utils;
+use starknet::{ContractAddress, contract_address_const};
 
 #[derive(Drop, starknet::Store, Serde, Default, Copy)]
 struct IncreasePositionCache {

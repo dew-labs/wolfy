@@ -1,9 +1,9 @@
 // IMPORTS
-use satoru::utils::precision;
+use satoru::utils::i256::{i256, i256_new};
 use satoru::utils::precision::{
     FLOAT_PRECISION, FLOAT_PRECISION_SQRT, WEI_PRECISION, BASIS_POINTS_DIVISOR, FLOAT_TO_WEI_DIVISOR
 };
-use satoru::utils::i256::{i256, i256_new};
+use satoru::utils::precision;
 
 #[test]
 fn test_apply_factor_u256() {

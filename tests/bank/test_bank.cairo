@@ -2,22 +2,31 @@
 // *************************************************************************
 
 // Core lib imports.
-use starknet::{ContractAddress, contract_address_const};
 use integer::u256_from_felt252;
-use snforge_std::{declare, start_cheat_caller_address, stop_cheat_caller_address, ContractClassTrait, DeclareResultTrait, ContractClass};
 // Local imports.
 use satoru::bank::bank::{IBankDispatcherTrait, IBankDispatcher};
-use satoru::role::role_store::{IRoleStoreDispatcherTrait, IRoleStoreDispatcher};
 use satoru::data::data_store::{IDataStoreDispatcherTrait, IDataStoreDispatcher};
-use satoru::token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
 use satoru::role::role;
+use satoru::role::role_store::{IRoleStoreDispatcherTrait, IRoleStoreDispatcher};
 use satoru::test_utils::tests_lib;
+use satoru::token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
+use snforge_std::{
+    declare, start_cheat_caller_address, stop_cheat_caller_address, ContractClassTrait, DeclareResultTrait,
+    ContractClass
+};
+use starknet::{ContractAddress, contract_address_const};
 
 // *********************************************************************************************
 // *                              SETUP                                                        *
 // *********************************************************************************************
 fn setup() -> (
-    ContractAddress, ContractAddress, IRoleStoreDispatcher, IDataStoreDispatcher, IBankDispatcher, IERC20Dispatcher, ContractClass,
+    ContractAddress,
+    ContractAddress,
+    IRoleStoreDispatcher,
+    IDataStoreDispatcher,
+    IBankDispatcher,
+    IERC20Dispatcher,
+    ContractClass,
 ) {
     let (
         caller_address,
@@ -55,7 +64,13 @@ fn setup() -> (
     let receiver_address = contract_address_const::<'dummy_receiver'>();
 
     return (
-        caller_address, receiver_address, role_store, data_store, bank, IERC20Dispatcher { contract_address: erc20 }, role_module_class
+        caller_address,
+        receiver_address,
+        role_store,
+        data_store,
+        bank,
+        IERC20Dispatcher { contract_address: erc20 },
+        role_module_class
     );
 }
 

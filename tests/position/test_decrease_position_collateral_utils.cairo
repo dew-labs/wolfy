@@ -1,8 +1,8 @@
 // Core lib imports.
 use array::ArrayTrait;
 use core::traits::{Into, TryInto};
-use snforge_std::{declare, ContractClassTrait, DeclareResultTrait, start_cheat_caller_address};
-use starknet::{ContractAddress, contract_address_const};
+
+use debug::PrintTrait;
 
 // Local imports.
 use satoru::data::{data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait}, keys};
@@ -19,12 +19,12 @@ use satoru::position::{
     decrease_position_collateral_utils
 };
 use satoru::price::price::Price;
+use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
 use satoru::swap::swap_handler::ISwapHandlerDispatcher;
 use satoru::test_utils::tests_lib;
 use satoru::utils::span32::{Span32, Array32Trait};
-use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
-
-use debug::PrintTrait;
+use snforge_std::{declare, ContractClassTrait, DeclareResultTrait, start_cheat_caller_address};
+use starknet::{ContractAddress, contract_address_const};
 
 fn setup() -> (
     ContractAddress,

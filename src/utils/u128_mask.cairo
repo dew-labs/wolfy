@@ -1,9 +1,9 @@
 // *************************************************************************
 //                                  IMPORTS
 // *************************************************************************
-use satoru::utils::error::UtilsError;
 use alexandria_math::BitShift;
 use debug::PrintTrait;
+use satoru::utils::error::UtilsError;
 // Core lib imports.
 
 /// Validate that the index is unique.

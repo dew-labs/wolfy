@@ -17,7 +17,12 @@ trait IBank<TContractState> {
     /// # Arguments
     /// * `data_store_address` - The address of the data store contract.
     /// * `role_store_address` - The address of the role store contract.
-    fn initialize(ref self: TContractState, data_store_address: ContractAddress, role_store_address: ContractAddress, role_module_class_hash: ClassHash);
+    fn initialize(
+        ref self: TContractState,
+        data_store_address: ContractAddress,
+        role_store_address: ContractAddress,
+        role_module_class_hash: ClassHash
+    );
 
     /// Transfer tokens from this contract to a receiver.
     /// # Arguments
@@ -41,17 +46,17 @@ mod Bank {
 
     // Core lib imports.
     use core::zeroable::Zeroable;
-    use starknet::{get_caller_address, get_contract_address, ContractAddress, ClassHash};
+    use satoru::bank::error::BankError;
 
     // Local imports.
     use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
-    use satoru::role::role_store::{IRoleStoreDispatcher};
     use satoru::role::role;
     use satoru::role::role_module::{IRoleModuleLibraryDispatcher, IRoleModuleDispatcherTrait};
-    use super::IBank;
-    use satoru::bank::error::BankError;
-    use satoru::token::token_utils::transfer;
+    use satoru::role::role_store::{IRoleStoreDispatcher};
     use satoru::token::erc20::interface::{IERC20, IERC20Dispatcher, IERC20DispatcherTrait};
+    use satoru::token::token_utils::transfer;
+    use starknet::{get_caller_address, get_contract_address, ContractAddress, ClassHash};
+    use super::IBank;
 
     // *************************************************************************
     //                              STORAGE
@@ -61,7 +66,7 @@ mod Bank {
         data_store: IDataStoreDispatcher,
         role_module: IRoleModuleLibraryDispatcher,
         // RoleModule storage
-        // role_store: IRoleStoreDispatcher,
+    // role_store: IRoleStoreDispatcher,
     }
 
     // *************************************************************************
@@ -69,7 +74,12 @@ mod Bank {
     // *************************************************************************
     #[abi(embed_v0)]
     impl BankImpl of super::IBank<ContractState> {
-        fn initialize(ref self: ContractState, data_store_address: ContractAddress, role_store_address: ContractAddress, role_module_class_hash: ClassHash) {
+        fn initialize(
+            ref self: ContractState,
+            data_store_address: ContractAddress,
+            role_store_address: ContractAddress,
+            role_module_class_hash: ClassHash
+        ) {
             // Make sure the contract is not already initialized.
             assert(self.data_store.read().contract_address.is_zero(), BankError::ALREADY_INITIALIZED);
 

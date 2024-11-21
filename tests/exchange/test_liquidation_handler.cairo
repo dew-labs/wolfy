@@ -1,42 +1,41 @@
-use snforge_std::{
-    declare, start_cheat_caller_address, stop_cheat_caller_address, start_cheat_block_number, ContractClassTrait, DeclareResultTrait, ContractClass
-};
+use satoru::data::{data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait}, keys};
+
+use satoru::event::event_emitter::{IEventEmitterDispatcher};
+use satoru::exchange::base_order_handler::{IBaseOrderHandler};
 
 use satoru::exchange::liquidation_handler::{
     LiquidationHandler, ILiquidationHandlerDispatcher, ILiquidationHandler, ILiquidationHandlerDispatcherTrait
 };
-use starknet::{
-    ContractAddress, contract_address_const, contract_address_to_felt252, ClassHash, Felt252TryIntoContractAddress
-};
-use satoru::mock::referral_storage;
-use traits::Default;
-
-use satoru::role::{
-    role, role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait},
-    role_module::{IRoleModuleDispatcher, IRoleModuleDispatcherTrait}
-};
-
-use satoru::order::order::{Order, OrderType, OrderTrait, DecreasePositionSwapType};
-use satoru::utils::span32::{Span32, Array32Trait};
-use satoru::position::{position::Position, position_utils::get_position_key};
 use satoru::liquidation::liquidation_utils::create_liquidation_order;
-use satoru::exchange::base_order_handler::{
-    IBaseOrderHandler
-};
-
-use satoru::event::event_emitter::{IEventEmitterDispatcher};
-use satoru::data::{data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait}, keys};
+use satoru::market::market::{Market};
+use satoru::mock::referral_storage;
+use satoru::nonce::nonce_utils;
 use satoru::oracle::{
     oracle::{Oracle, IOracleDispatcher, IOracleDispatcherTrait},
     oracle_store::{IOracleStoreDispatcher, IOracleStoreDispatcherTrait},
     interfaces::account::{IAccount, IAccountDispatcher, IAccountDispatcherTrait}, oracle_utils::SetPricesParams
 };
 
-use satoru::utils::precision;
+use satoru::order::order::{Order, OrderType, OrderTrait, DecreasePositionSwapType};
+use satoru::position::{position::Position, position_utils::get_position_key};
 use satoru::price::price::Price;
-use satoru::market::market::{Market};
-use satoru::nonce::nonce_utils;
+
+use satoru::role::{
+    role, role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait},
+    role_module::{IRoleModuleDispatcher, IRoleModuleDispatcherTrait}
+};
 use satoru::test_utils::tests_lib;
+
+use satoru::utils::precision;
+use satoru::utils::span32::{Span32, Array32Trait};
+use snforge_std::{
+    declare, start_cheat_caller_address, stop_cheat_caller_address, start_cheat_block_number, ContractClassTrait,
+    DeclareResultTrait, ContractClass
+};
+use starknet::{
+    ContractAddress, contract_address_const, contract_address_to_felt252, ClassHash, Felt252TryIntoContractAddress
+};
+use traits::Default;
 
 const max_u256: u256 = 340282366920938463463374607431768211455;
 
@@ -417,7 +416,9 @@ fn deploy_signers(signer1: ContractAddress, signer2: ContractAddress) -> (Contra
 fn setup_tokens() -> (ContractAddress, ContractAddress, ContractAddress) {
     let contract = declare("ERC20").unwrap().contract_class();
     let deployed_contract_address: ContractAddress = contract_address_const::<'USDC'>();
-    let mut constructor_calldata: Array<felt252> = array!['USDC', 'USDC', 18, 10000000000000000000000000000, 0, admin().into()];
+    let mut constructor_calldata: Array<felt252> = array![
+        'USDC', 'USDC', 18, 10000000000000000000000000000, 0, admin().into()
+    ];
 
     let (usdc_address, _) = contract.deploy_at(@constructor_calldata, deployed_contract_address).unwrap();
 
