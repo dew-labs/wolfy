@@ -1,10 +1,10 @@
 // ! Library for token functions, helps with transferring of tokens and native token functions
 use debug::PrintTrait;
-use satoru::bank::error::BankError;
-use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
-use satoru::data::keys;
-use satoru::token::erc20::interface::{IERC20, IERC20Dispatcher, IERC20DispatcherTrait};
-use satoru::utils::account_utils::validate_receiver;
+use freyr::bank::error::BankError;
+use freyr::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
+use freyr::data::keys;
+use freyr::token::erc20::interface::{IERC20, IERC20Dispatcher, IERC20DispatcherTrait};
+use freyr::utils::account_utils::validate_receiver;
 use starknet::ContractAddress;
 use starknet::contract_address::ContractAddressZeroable;
 

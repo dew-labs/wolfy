@@ -4,7 +4,7 @@
 // Core lib imports.
 
 // Local imports.
-use satoru::utils::error::UtilsError;
+use freyr::utils::error::UtilsError;
 use starknet::ContractAddress;
 
 /// Validates an account.

@@ -2,7 +2,7 @@
 //                                  IMPORTS
 // *************************************************************************
 use alexandria_math::BitShift;
-use satoru::utils::error::UtilsError;
+use freyr::utils::error::UtilsError;
 // Core lib imports.
 
 /// Validate that the index is unique.

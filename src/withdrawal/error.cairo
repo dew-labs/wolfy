@@ -1,5 +1,5 @@
 mod WithdrawalError {
-    use satoru::utils::i256::i256;
+    use freyr::utils::i256::i256;
 
     const ALREADY_INITIALIZED: felt252 = 'already_initialized';
     const NOT_FOUND: felt252 = 'withdrawal not found';

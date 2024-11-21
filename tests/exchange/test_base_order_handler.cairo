@@ -5,27 +5,27 @@
 // *************************************************************************
 // Core lib imports.
 use poseidon::poseidon_hash_span;
-use satoru::bank::strict_bank::{IStrictBankDispatcher, IStrictBankDispatcherTrait};
-use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
-use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
+use freyr::bank::strict_bank::{IStrictBankDispatcher, IStrictBankDispatcherTrait};
+use freyr::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
+use freyr::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
 
-use satoru::exchange::base_order_handler::BaseOrderHandler;
-use satoru::exchange::base_order_handler::{IBaseOrderHandlerDispatcher, IBaseOrderHandlerDispatcherTrait};
-use satoru::market::market::{Market, UniqueIdMarketImpl};
-use satoru::mock::referral_storage::{IReferralStorageDispatcher, IReferralStorageDispatcherTrait};
-use satoru::oracle::oracle::{IOracleDispatcher, IOracleDispatcherTrait};
-use satoru::oracle::oracle_store::{IOracleStoreDispatcher, IOracleStoreDispatcherTrait};
-use satoru::oracle::oracle_utils::SetPricesParams;
-use satoru::order::base_order_utils::ExecuteOrderParamsContracts;
-use satoru::order::order::{Order, OrderType, SecondaryOrderType, DecreasePositionSwapType};
-use satoru::order::order_vault::{IOrderVaultDispatcher, IOrderVaultDispatcherTrait};
+use freyr::exchange::base_order_handler::BaseOrderHandler;
+use freyr::exchange::base_order_handler::{IBaseOrderHandlerDispatcher, IBaseOrderHandlerDispatcherTrait};
+use freyr::market::market::{Market, UniqueIdMarketImpl};
+use freyr::mock::referral_storage::{IReferralStorageDispatcher, IReferralStorageDispatcherTrait};
+use freyr::oracle::oracle::{IOracleDispatcher, IOracleDispatcherTrait};
+use freyr::oracle::oracle_store::{IOracleStoreDispatcher, IOracleStoreDispatcherTrait};
+use freyr::oracle::oracle_utils::SetPricesParams;
+use freyr::order::base_order_utils::ExecuteOrderParamsContracts;
+use freyr::order::order::{Order, OrderType, SecondaryOrderType, DecreasePositionSwapType};
+use freyr::order::order_vault::{IOrderVaultDispatcher, IOrderVaultDispatcherTrait};
 // Local imports.
-use satoru::role::role;
+use freyr::role::role;
 
-use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
-use satoru::swap::swap_handler::{ISwapHandlerDispatcher, ISwapHandlerDispatcherTrait};
-use satoru::test_utils::tests_lib;
-use satoru::utils::span32::{Span32, Array32};
+use freyr::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
+use freyr::swap::swap_handler::{ISwapHandlerDispatcher, ISwapHandlerDispatcherTrait};
+use freyr::test_utils::tests_lib;
+use freyr::utils::span32::{Span32, Array32};
 use snforge_std::{
     declare, start_cheat_caller_address, stop_cheat_caller_address, start_mock_call, test_address, ContractClass,
     ContractClassTrait

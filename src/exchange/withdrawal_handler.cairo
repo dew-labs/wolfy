@@ -8,8 +8,8 @@
 use core::traits::Into;
 
 // Local imports.
-use satoru::oracle::oracle_utils::{SetPricesParams, SimulatePricesParams};
-use satoru::withdrawal::withdrawal_utils::CreateWithdrawalParams;
+use freyr::oracle::oracle_utils::{SetPricesParams, SimulatePricesParams};
+use freyr::withdrawal::withdrawal_utils::CreateWithdrawalParams;
 use starknet::ContractAddress;
 
 // *************************************************************************
@@ -51,27 +51,27 @@ mod WithdrawalHandler {
 
     // Core lib imports.
     use clone::Clone;
-    use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
-    use satoru::data::keys;
-    use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
-    use satoru::exchange::exchange_utils;
-    use satoru::feature::feature_utils;
-    use satoru::gas::gas_utils;
-    use satoru::market::market::Market;
-    use satoru::oracle::{
+    use freyr::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
+    use freyr::data::keys;
+    use freyr::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
+    use freyr::exchange::exchange_utils;
+    use freyr::feature::feature_utils;
+    use freyr::gas::gas_utils;
+    use freyr::market::market::Market;
+    use freyr::oracle::{
         oracle::{IOracleDispatcher, IOracleDispatcherTrait},
         oracle_modules::{with_oracle_prices_before, with_oracle_prices_after},
         oracle_utils::{SetPricesParams, SimulatePricesParams}
     };
-    use satoru::oracle::{oracle_modules, oracle_utils};
-    use satoru::order::base_order_utils::{ExecuteOrderParams};
-    use satoru::role::role;
-    use satoru::role::role_module::{IRoleModuleLibraryDispatcher, IRoleModuleDispatcherTrait};
-    use satoru::role::role_store::{IRoleStoreDispatcher};
-    use satoru::swap::swap_handler::{ISwapHandlerDispatcher, ISwapHandlerDispatcherTrait};
-    use satoru::utils::global_reentrancy_guard;
-    use satoru::utils::starknet_utils;
-    use satoru::withdrawal::{
+    use freyr::oracle::{oracle_modules, oracle_utils};
+    use freyr::order::base_order_utils::{ExecuteOrderParams};
+    use freyr::role::role;
+    use freyr::role::role_module::{IRoleModuleLibraryDispatcher, IRoleModuleDispatcherTrait};
+    use freyr::role::role_store::{IRoleStoreDispatcher};
+    use freyr::swap::swap_handler::{ISwapHandlerDispatcher, ISwapHandlerDispatcherTrait};
+    use freyr::utils::global_reentrancy_guard;
+    use freyr::utils::starknet_utils;
+    use freyr::withdrawal::{
         withdrawal_utils, withdrawal_utils::{CreateWithdrawalParams, create_withdrawal, cancel_withdrawal},
         withdrawal_vault::{IWithdrawalVaultDispatcher, IWithdrawalVaultDispatcherTrait}
     };

@@ -4,12 +4,12 @@
 //                                  IMPORTS
 // *************************************************************************
 use core::traits::Into;
-use satoru::deposit::deposit::Deposit;
-use satoru::market::market::Market;
-use satoru::order::order::Order;
-use satoru::position::position::Position;
-use satoru::utils::i256::i256;
-use satoru::withdrawal::withdrawal::Withdrawal;
+use freyr::deposit::deposit::Deposit;
+use freyr::market::market::Market;
+use freyr::order::order::Order;
+use freyr::position::position::Position;
+use freyr::utils::i256::i256;
+use freyr::withdrawal::withdrawal::Withdrawal;
 use starknet::ContractAddress;
 
 // *************************************************************************
@@ -462,19 +462,19 @@ mod DataStore {
     use core::traits::TryInto;
     use nullable::NullableTrait;
     use poseidon::poseidon_hash_span;
-    use satoru::data::error::DataError;
+    use freyr::data::error::DataError;
 
     // Local imports.
-    use satoru::data::keys;
-    use satoru::deposit::{deposit::Deposit, error::DepositError};
-    use satoru::market::{market::{Market, ValidateMarket}, error::MarketError};
-    use satoru::order::{order::Order, error::OrderError};
-    use satoru::position::{position::Position, error::PositionError};
-    use satoru::role::role_module::{IRoleModuleLibraryDispatcher, IRoleModuleDispatcherTrait};
-    use satoru::utils::calc::{sum_return_uint_256, to_signed, to_unsigned};
-    use satoru::utils::calc;
-    use satoru::utils::i256::{i256, i256_neg};
-    use satoru::withdrawal::{withdrawal::Withdrawal, error::WithdrawalError};
+    use freyr::data::keys;
+    use freyr::deposit::{deposit::Deposit, error::DepositError};
+    use freyr::market::{market::{Market, ValidateMarket}, error::MarketError};
+    use freyr::order::{order::Order, error::OrderError};
+    use freyr::position::{position::Position, error::PositionError};
+    use freyr::role::role_module::{IRoleModuleLibraryDispatcher, IRoleModuleDispatcherTrait};
+    use freyr::utils::calc::{sum_return_uint_256, to_signed, to_unsigned};
+    use freyr::utils::calc;
+    use freyr::utils::i256::{i256, i256_neg};
+    use freyr::withdrawal::{withdrawal::Withdrawal, error::WithdrawalError};
     use starknet::storage::Map;
     use starknet::{get_caller_address, ContractAddress, contract_address_const, ClassHash};
     use zeroable::Zeroable;

@@ -4,7 +4,7 @@ The Chain module provides functionalities to query chain-specific variables. It 
 
 This module contains the following Cairo library file:
 
-- [chain.cairo](https://github.com/keep-starknet-strange/satoru/blob/main/src/chain/chain.cairo)
+- [chain.cairo](https://github.com/dew-labs/wolfy/blob/main/src/chain/chain.cairo)
 
 ## Functions
 

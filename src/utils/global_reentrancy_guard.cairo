@@ -3,9 +3,9 @@
 // *************************************************************************
 // Core lib imports.
 
-// Satoru imports
-use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
-use satoru::utils::error::ReentrancyGuardError;
+// Wolfy imports
+use freyr::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
+use freyr::utils::error::ReentrancyGuardError;
 use starknet::ContractAddress;
 use starknet::SyscallResultTrait;
 

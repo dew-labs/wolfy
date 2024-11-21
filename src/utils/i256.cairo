@@ -9,7 +9,7 @@ use core::num::traits::Bounded;
 
 use core::num::traits::WideMul;
 use core::ops::{AddAssign, SubAssign, MulAssign, DivAssign, RemAssign};
-use satoru::utils::felt_math::{felt_abs, felt_sign};
+use freyr::utils::felt_math::{felt_abs, felt_sign};
 /// Trait
 ///
 /// new - Constructs a new `signed_integer

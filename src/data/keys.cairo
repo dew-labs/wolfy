@@ -3,8 +3,8 @@
 // IMPORTS
 
 use poseidon::poseidon_hash_span;
-use satoru::order::order::OrderType;
-use satoru::utils::hash::hash_poseidon_single;
+use freyr::order::order::OrderType;
+use freyr::utils::hash::hash_poseidon_single;
 use starknet::ContractAddress;
 
 // *************************************************************************

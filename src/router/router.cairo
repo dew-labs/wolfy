@@ -36,14 +36,14 @@ mod Router {
 
     // Core lib imports.
     use core::zeroable::Zeroable;
-    use satoru::role::role;
-    use satoru::role::role_module::{IRoleModuleLibraryDispatcher, IRoleModuleDispatcherTrait};
+    use freyr::role::role;
+    use freyr::role::role_module::{IRoleModuleLibraryDispatcher, IRoleModuleDispatcherTrait};
 
 
     // Local imports.
-    use satoru::role::role_store::{IRoleStoreDispatcher};
-    use satoru::router::error::RouterError;
-    use satoru::token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
+    use freyr::role::role_store::{IRoleStoreDispatcher};
+    use freyr::router::error::RouterError;
+    use freyr::token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
 
     use starknet::{ContractAddress, get_caller_address, ClassHash};
     use super::IRouter;

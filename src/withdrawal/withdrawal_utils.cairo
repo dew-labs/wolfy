@@ -4,26 +4,26 @@
 // Core lib imports.
 
 // Local imports.
-use satoru::bank::{bank::{IBankDispatcher, IBankDispatcherTrait},};
-use satoru::callback::callback_utils;
-use satoru::data::{data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait}, keys};
-use satoru::event::{event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait}};
-use satoru::fee::fee_utils;
-use satoru::gas::gas_utils;
-use satoru::market::market_utils::validate_enabled_market_check;
-use satoru::market::{
+use freyr::bank::{bank::{IBankDispatcher, IBankDispatcherTrait},};
+use freyr::callback::callback_utils;
+use freyr::data::{data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait}, keys};
+use freyr::event::{event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait}};
+use freyr::fee::fee_utils;
+use freyr::gas::gas_utils;
+use freyr::market::market_utils::validate_enabled_market_check;
+use freyr::market::{
     market::Market, market_token::{IMarketTokenDispatcher, IMarketTokenDispatcherTrait}, market_utils,
     market_utils::MarketPrices
 };
-use satoru::nonce::nonce_utils;
-use satoru::oracle::{oracle::{IOracleDispatcher, IOracleDispatcherTrait}, oracle_utils};
-use satoru::pricing::{swap_pricing_utils, swap_pricing_utils::SwapFees};
-use satoru::swap::{swap_utils, swap_utils::SwapParams};
-use satoru::utils::{
+use freyr::nonce::nonce_utils;
+use freyr::oracle::{oracle::{IOracleDispatcher, IOracleDispatcherTrait}, oracle_utils};
+use freyr::pricing::{swap_pricing_utils, swap_pricing_utils::SwapFees};
+use freyr::swap::{swap_utils, swap_utils::SwapParams};
+use freyr::utils::{
     calc, account_utils, error_utils, precision, starknet_utils, span32::Span32,
     store_arrays::{StoreContractAddressArray, StoreU256Array}
 };
-use satoru::withdrawal::{
+use freyr::withdrawal::{
     error::WithdrawalError, withdrawal::Withdrawal,
     withdrawal_vault::{IWithdrawalVaultDispatcher, IWithdrawalVaultDispatcherTrait}
 };

@@ -6,10 +6,10 @@
 
 // Core lib imports.
 use core::traits::Into;
-use satoru::deposit::deposit_utils::CreateDepositParams;
+use freyr::deposit::deposit_utils::CreateDepositParams;
 
 // Local imports.
-use satoru::oracle::oracle_utils::{SetPricesParams, SimulatePricesParams};
+use freyr::oracle::oracle_utils::{SetPricesParams, SimulatePricesParams};
 use starknet::{ContractAddress, ClassHash};
 
 // *************************************************************************
@@ -59,31 +59,31 @@ mod DepositHandler {
     // *************************************************************************
 
     // Core lib imports.
-    use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
-    use satoru::data::keys;
-    use satoru::deposit::deposit_utils;
-    use satoru::deposit::execute_deposit_utils;
-    use satoru::deposit::{
+    use freyr::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
+    use freyr::data::keys;
+    use freyr::deposit::deposit_utils;
+    use freyr::deposit::execute_deposit_utils;
+    use freyr::deposit::{
         deposit_utils::CreateDepositParams, deposit_vault::{IDepositVaultDispatcher, IDepositVaultDispatcherTrait}
     };
-    use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
-    use satoru::exchange::exchange_utils;
-    use satoru::feature::feature_utils;
-    use satoru::gas::gas_utils;
-    use satoru::market::market::Market;
-    use satoru::oracle::oracle_utils;
-    use satoru::oracle::{
+    use freyr::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
+    use freyr::exchange::exchange_utils;
+    use freyr::feature::feature_utils;
+    use freyr::gas::gas_utils;
+    use freyr::market::market::Market;
+    use freyr::oracle::oracle_utils;
+    use freyr::oracle::{
         oracle::{IOracleDispatcher, IOracleDispatcherTrait}, oracle_modules,
         oracle_modules::{with_oracle_prices_before, with_oracle_prices_after},
         oracle_utils::{SetPricesParams, SimulatePricesParams}
     };
-    use satoru::order::base_order_utils::{ExecuteOrderParams};
-    use satoru::role::role;
-    use satoru::role::role_module::{IRoleModuleLibraryDispatcher, IRoleModuleDispatcherTrait};
-    use satoru::role::role_module::{RoleModule, IRoleModule};
-    use satoru::role::role_store::{IRoleStoreDispatcher};
-    use satoru::swap::swap_handler::{ISwapHandlerDispatcher, ISwapHandlerDispatcherTrait};
-    use satoru::utils::global_reentrancy_guard;
+    use freyr::order::base_order_utils::{ExecuteOrderParams};
+    use freyr::role::role;
+    use freyr::role::role_module::{IRoleModuleLibraryDispatcher, IRoleModuleDispatcherTrait};
+    use freyr::role::role_module::{RoleModule, IRoleModule};
+    use freyr::role::role_store::{IRoleStoreDispatcher};
+    use freyr::swap::swap_handler::{ISwapHandlerDispatcher, ISwapHandlerDispatcherTrait};
+    use freyr::utils::global_reentrancy_guard;
     use starknet::{get_caller_address, get_contract_address, ContractAddress, ClassHash};
 
     // Local imports.

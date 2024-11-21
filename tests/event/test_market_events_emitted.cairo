@@ -1,4 +1,4 @@
-use satoru::event::event_emitter::EventEmitter::{
+use freyr::event::event_emitter::EventEmitter::{
     MarketPoolValueInfoEvent, PoolAmountUpdated, SwapImpactPoolAmountUpdated, PositionImpactPoolAmountUpdated,
     OpenInterestInTokensUpdated, OpenInterestUpdated, VirtualSwapInventoryUpdated, VirtualPositionInventoryUpdated,
     CollateralSumUpdated, CumulativeBorrowingFactorUpdated, FundingFeeAmountPerSizeUpdated,
@@ -6,12 +6,12 @@ use satoru::event::event_emitter::EventEmitter::{
     CollateralClaimed, UiFeeFactorUpdated, MarketCreated
 };
 
-use satoru::event::event_emitter::{EventEmitter, IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
+use freyr::event::event_emitter::{EventEmitter, IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
 
-use satoru::market::market_pool_value_info::MarketPoolValueInfo;
+use freyr::market::market_pool_value_info::MarketPoolValueInfo;
 
-use satoru::test_utils::tests_lib::deploy_event_emitter;
-use satoru::utils::i256::{i256, i256_new};
+use freyr::test_utils::tests_lib::deploy_event_emitter;
+use freyr::utils::i256::{i256, i256_new};
 use snforge_std::{
     declare, ContractClassTrait, DeclareResultTrait, spy_events, EventSpy, EventSpyTrait, EventSpyAssertionsTrait, Event
 };

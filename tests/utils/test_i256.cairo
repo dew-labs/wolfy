@@ -2,7 +2,7 @@ mod TestInteger256 {
     mod New {
         use core::num::traits::Bounded;
 
-        use satoru::utils::i256::{i256, IntegerTrait};
+        use freyr::utils::i256::{i256, IntegerTrait};
 
         // Test new i256 max
         #[test]
@@ -34,7 +34,7 @@ mod TestInteger256 {
     mod Add {
         use core::num::traits::Bounded;
 
-        use satoru::utils::i256::{i256, IntegerTrait};
+        use freyr::utils::i256::{i256, IntegerTrait};
 
         // Test addition of two positive integers
         #[test]
@@ -100,7 +100,7 @@ mod TestInteger256 {
     mod Sub {
         use core::num::traits::Bounded;
 
-        use satoru::utils::i256::{i256, IntegerTrait};
+        use freyr::utils::i256::{i256, IntegerTrait};
 
         // Test subtraction of two positive integers with larger first
         #[test]
@@ -206,7 +206,7 @@ mod TestInteger256 {
     mod Mul {
         use core::num::traits::Bounded;
 
-        use satoru::utils::i256::{i256, IntegerTrait};
+        use freyr::utils::i256::{i256, IntegerTrait};
 
         // Test multiplication of positive integers
         #[test]
@@ -272,7 +272,7 @@ mod TestInteger256 {
     mod DivRem {
         use core::num::traits::Bounded;
 
-        use satoru::utils::i256::{i256, IntegerTrait};
+        use freyr::utils::i256::{i256, IntegerTrait};
 
         // Test division and remainder of positive integers
         #[test]
@@ -423,7 +423,7 @@ mod TestInteger256 {
     mod i256IntoU256 {
         use core::num::traits::Bounded;
 
-        use satoru::utils::i256::{i256, IntegerTrait};
+        use freyr::utils::i256::{i256, IntegerTrait};
 
         #[test]
         fn test_positive_conversion_within_range() {
@@ -457,7 +457,7 @@ mod TestInteger256 {
     mod TwoComplementTests {
         use core::num::traits::Bounded;
 
-        use satoru::utils::i256::{i256, two_complement_if_nec, IntegerTrait};
+        use freyr::utils::i256::{i256, two_complement_if_nec, IntegerTrait};
 
         // Some expected values where calculated in Python with a script
 

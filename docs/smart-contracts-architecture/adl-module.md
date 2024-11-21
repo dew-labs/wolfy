@@ -4,7 +4,7 @@ The ADL Module helps with automatic reduction of leverage in specific markets. T
 
 It contains the following Cairo library files:
 
-- [adl.cairo](https://github.com/keep-starknet-strange/satoru/blob/main/src/adl/adl_utils.cairo)
+- [adl.cairo](https://github.com/dew-labs/wolfy/blob/main/src/adl/adl_utils.cairo)
 
 ## Structures and Types
 
@@ -52,7 +52,7 @@ Emits ADL state update events to notify about changes in the ADL state, includin
 The module defines an `AdlError` to handle ADL-specific errors. Each constant in the `AdlError` module represents a specific error case in the ADL module. Here are the defined errors:
 
 - `ORACLE_BLOCK_NUMBERS_ARE_SMALLER_THAN_REQUIRED`: This error is thrown when the block numbers from the oracle are smaller than required. It ensures that the data being used is recent enough to be reliable.
-  
+
 - `INVALID_SIZE_DELTA_FOR_ADL`: Triggered when the size of the position to be reduced is invalid, for example, if it's larger than the current position size. It ensures that the ADL order size is valid and can be executed.
 
 - `ADL_NOT_ENABLED`: This error occurs if an ADL operation is attempted when ADL is not enabled for the specified market. It serves as a guard to prevent unwanted ADL operations.

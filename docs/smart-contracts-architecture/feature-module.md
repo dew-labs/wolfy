@@ -3,7 +3,7 @@
 The Feature Module checks if different parts of the system are turned on or off. It’s really important for keeping the system stable and working correctly.
 
 It encompasses the following smart contracts:
-- [feature_utils.cairo](https://github.com/keep-starknet-strange/satoru/blob/main/src/feature/feature_utils.cairo): Central to the module, this contract is responsible for validating the operational status of a feature, determining whether it is enabled or disabled.
+- [feature_utils.cairo](https://github.com/dew-labs/wolfy/blob/main/src/feature/feature_utils.cairo): Central to the module, this contract is responsible for validating the operational status of a feature, determining whether it is enabled or disabled.
 
 ## ⚠️ Warning
 Disabling a feature should be performed with extreme caution and only in absolutely necessary situations, as it can lead to unexpected and potentially harmful effects, such as operational discrepancies and system instability.

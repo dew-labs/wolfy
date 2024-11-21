@@ -1,8 +1,8 @@
-use satoru::event::event_emitter::EventEmitter::{ExecutionFeeRefund, KeeperExecutionFee};
+use freyr::event::event_emitter::EventEmitter::{ExecutionFeeRefund, KeeperExecutionFee};
 
-use satoru::event::event_emitter::{EventEmitter, IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
+use freyr::event::event_emitter::{EventEmitter, IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
 
-use satoru::test_utils::tests_lib::deploy_event_emitter;
+use freyr::test_utils::tests_lib::deploy_event_emitter;
 use snforge_std::{
     declare, ContractClassTrait, DeclareResultTrait, spy_events, EventSpy, EventSpyTrait, Event, EventSpyAssertionsTrait
 };

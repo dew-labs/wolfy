@@ -6,20 +6,20 @@
 // *************************************************************************
 // Core lib imports.
 use result::ResultTrait;
-use satoru::callback::callback_utils::{validate_callback_gas_limit, after_deposit_cancellation};
-use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
-use satoru::deposit::deposit_vault::{IDepositVaultDispatcher, IDepositVaultDispatcherTrait};
-use satoru::deposit::{deposit::Deposit, error::DepositError};
-use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
-use satoru::event::event_utils::LogData;
-use satoru::gas::{error::GasError, gas_utils};
-use satoru::market::market_utils;
-use satoru::nonce::nonce_utils;
-use satoru::token::token_utils;
-use satoru::utils::traits::ContractAddressDefault;
+use freyr::callback::callback_utils::{validate_callback_gas_limit, after_deposit_cancellation};
+use freyr::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
+use freyr::deposit::deposit_vault::{IDepositVaultDispatcher, IDepositVaultDispatcherTrait};
+use freyr::deposit::{deposit::Deposit, error::DepositError};
+use freyr::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
+use freyr::event::event_utils::LogData;
+use freyr::gas::{error::GasError, gas_utils};
+use freyr::market::market_utils;
+use freyr::nonce::nonce_utils;
+use freyr::token::token_utils;
+use freyr::utils::traits::ContractAddressDefault;
 
 // Local imports.
-use satoru::utils::{
+use freyr::utils::{
     starknet_utils, store_arrays::StoreContractAddressArray, account_utils::validate_account,
     account_utils::validate_receiver, span32::Span32
 };

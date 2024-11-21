@@ -41,14 +41,16 @@ const logger = createLogger("Utils");
 
 export function getCompiledSierra(contractPath: string) {
     return json.parse(
-        fs.readFileSync(`./target/dev/satoru_${contractPath}.contract_class.json`).toString("ascii")
+        fs
+            .readFileSync(`./target/release/freyr_${contractPath}.contract_class.json`)
+            .toString("ascii")
     ) as CompiledSierra;
 }
 
 export function getCompiledCasm(contractPath: string) {
     return json.parse(
         fs
-            .readFileSync(`./target/dev/satoru_${contractPath}.compiled_contract_class.json`)
+            .readFileSync(`./target/release/freyr_${contractPath}.compiled_contract_class.json`)
             .toString("ascii")
     ) as CairoAssembly;
 }

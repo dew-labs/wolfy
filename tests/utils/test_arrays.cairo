@@ -1,4 +1,4 @@
-use satoru::utils::arrays;
+use freyr::utils::arrays;
 
 #[test]
 fn given_normal_conditions_when_arrays_get_then_works() {

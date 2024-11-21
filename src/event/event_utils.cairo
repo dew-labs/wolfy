@@ -1,9 +1,9 @@
 use alexandria_data_structures::span_ext::SpanTraitExt;
 use array::ArrayTrait;
-use satoru::utils::i256::i256;
+use freyr::utils::i256::i256;
 
-use satoru::utils::serializable_dict::{SerializableFelt252Dict, SerializableFelt252DictTrait};
-use satoru::utils::traits::ContractAddressDefault;
+use freyr::utils::serializable_dict::{SerializableFelt252Dict, SerializableFelt252DictTrait};
+use freyr::utils::traits::ContractAddressDefault;
 use starknet::{
     get_caller_address, ContractAddress, Felt252TryIntoContractAddress, ContractAddressIntoFelt252,
     contract_address_const

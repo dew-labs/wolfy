@@ -4,17 +4,17 @@
 // Core lib imports.
 use array::ArrayTrait;
 use result::ResultTrait;
-use satoru::bank::bank::{IBankDispatcher, IBankDispatcherTrait};
-use satoru::market::market::Market;
-use satoru::order::order::DecreasePositionSwapType;
+use freyr::bank::bank::{IBankDispatcher, IBankDispatcherTrait};
+use freyr::market::market::Market;
+use freyr::order::order::DecreasePositionSwapType;
 
 // Local imports.
-use satoru::position::{
+use freyr::position::{
     error::PositionError,
     position_utils::{DecreasePositionCollateralValues, UpdatePositionParams, DecreasePositionCollateralValuesOutput}
 };
-use satoru::swap::swap_handler::{ISwapHandlerDispatcher, ISwapHandlerDispatcherTrait};
-use satoru::swap::swap_utils::{SwapParams};
+use freyr::swap::swap_handler::{ISwapHandlerDispatcher, ISwapHandlerDispatcherTrait};
+use freyr::swap::swap_utils::{SwapParams};
 use starknet::ContractAddress;
 
 /// Swap the withdrawn collateral from collateral_token to pnl_token if needed.

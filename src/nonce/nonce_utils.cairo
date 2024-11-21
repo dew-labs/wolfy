@@ -1,8 +1,8 @@
 use poseidon::poseidon_hash_span;
-use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
+use freyr::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
 
 // Local imports.
-use satoru::data::keys;
+use freyr::data::keys;
 use starknet::ContractAddress;
 
 /// Get the current nonce value.

@@ -2,7 +2,7 @@
 //                                  IMPORTS
 // *************************************************************************
 // Core lib imports.
-use satoru::utils::{error_utils, calc};
+use freyr::utils::{error_utils, calc};
 
 use starknet::{ContractAddress, StorageBaseAddress, SyscallResult, Store};
 

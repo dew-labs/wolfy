@@ -1,18 +1,18 @@
-use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
-use satoru::data::keys;
-use satoru::deposit::deposit::Deposit;
-use satoru::event::event_emitter::EventEmitter::{AffiliateRewardUpdated, AffiliateRewardClaimed};
-use satoru::event::event_emitter::{EventEmitter, IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
-use satoru::market::market_token::{IMarketTokenDispatcher, IMarketTokenDispatcherTrait};
-use satoru::mock::governable::{IGovernableDispatcher, IGovernableDispatcherTrait};
-use satoru::mock::referral_storage::{IReferralStorageDispatcher, IReferralStorageDispatcherTrait};
-use satoru::referral::referral_utils;
-use satoru::role::role;
-use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
-use satoru::test_utils::tests_lib;
-use satoru::token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
-use satoru::utils::precision;
-use satoru::utils::span32::{Span32, Array32Trait};
+use freyr::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
+use freyr::data::keys;
+use freyr::deposit::deposit::Deposit;
+use freyr::event::event_emitter::EventEmitter::{AffiliateRewardUpdated, AffiliateRewardClaimed};
+use freyr::event::event_emitter::{EventEmitter, IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
+use freyr::market::market_token::{IMarketTokenDispatcher, IMarketTokenDispatcherTrait};
+use freyr::mock::governable::{IGovernableDispatcher, IGovernableDispatcherTrait};
+use freyr::mock::referral_storage::{IReferralStorageDispatcher, IReferralStorageDispatcherTrait};
+use freyr::referral::referral_utils;
+use freyr::role::role;
+use freyr::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
+use freyr::test_utils::tests_lib;
+use freyr::token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
+use freyr::utils::precision;
+use freyr::utils::span32::{Span32, Array32Trait};
 use snforge_std::{
     declare, ContractClass, ContractClassTrait, DeclareResultTrait, spy_events, EventSpy, Event,
     start_cheat_caller_address, stop_cheat_caller_address, EventSpyAssertionsTrait, EventSpyTrait

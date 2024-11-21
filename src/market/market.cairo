@@ -32,8 +32,8 @@
 use poseidon::poseidon_hash_span;
 
 // Local imports.
-use satoru::market::error::MarketError;
-use satoru::market::market_token::{IMarketTokenDispatcher, IMarketTokenDispatcherTrait};
+use freyr::market::error::MarketError;
+use freyr::market::market_token::{IMarketTokenDispatcher, IMarketTokenDispatcherTrait};
 use starknet::{ContractAddress, contract_address_const};
 
 

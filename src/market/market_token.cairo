@@ -24,10 +24,10 @@ trait IMarketToken<TState> {
 mod MarketToken {
     use core::num::traits::Bounded;
 
-    use satoru::bank::bank::{IBankLibraryDispatcher, IBankDispatcherTrait};
-    use satoru::data::data_store::{IDataStoreDispatcher};
-    use satoru::role::role_module::{IRoleModuleLibraryDispatcher, IRoleModuleDispatcherTrait};
-    use satoru::role::role_store::{IRoleStoreDispatcher};
+    use freyr::bank::bank::{IBankLibraryDispatcher, IBankDispatcherTrait};
+    use freyr::data::data_store::{IDataStoreDispatcher};
+    use freyr::role::role_module::{IRoleModuleLibraryDispatcher, IRoleModuleDispatcherTrait};
+    use freyr::role::role_store::{IRoleStoreDispatcher};
     use starknet::get_caller_address;
     use starknet::storage::Map;
     use starknet::{ContractAddress, ClassHash};

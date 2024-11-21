@@ -45,14 +45,14 @@ mod Config {
     use alexandria_data_structures::array_ext::ArrayTraitExt;
     use core::clone::Clone;
     use poseidon::poseidon_hash_span;
-    use satoru::config::error::ConfigError;
-    use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
-    use satoru::data::keys;
-    use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
+    use freyr::config::error::ConfigError;
+    use freyr::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
+    use freyr::data::keys;
+    use freyr::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
 
 
     // Local imports.
-    use satoru::role::role_module::{IRoleModuleLibraryDispatcher, IRoleModuleDispatcherTrait};
+    use freyr::role::role_module::{IRoleModuleLibraryDispatcher, IRoleModuleDispatcherTrait};
     use starknet::storage::Map;
     use starknet::{get_caller_address, ContractAddress, contract_address_const, ClassHash};
 

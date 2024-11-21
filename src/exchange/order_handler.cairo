@@ -6,8 +6,8 @@
 
 // Core lib imports.
 // Local imports.
-use satoru::oracle::oracle_utils::{SetPricesParams, SimulatePricesParams};
-use satoru::order::{base_order_utils::CreateOrderParams, order::Order};
+use freyr::oracle::oracle_utils::{SetPricesParams, SimulatePricesParams};
+use freyr::order::{base_order_utils::CreateOrderParams, order::Order};
 use starknet::ContractAddress;
 
 // *************************************************************************
@@ -99,43 +99,43 @@ mod OrderHandler {
     use core::starknet::SyscallResultTrait;
     use core::traits::Into;
     use debug::PrintTrait;
-    use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
-    use satoru::data::keys::{create_order_feature_disabled_key, execute_order_feature_disabled_key};
-    use satoru::data::keys;
-    use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
-    use satoru::exchange::base_order_handler::{IBaseOrderHandler, BaseOrderHandler};
-    use satoru::exchange::base_order_handler::{IBaseOrderHandlerLibraryDispatcher, IBaseOrderHandlerDispatcherTrait};
-    // use satoru::market::error::MarketError;
-    // use satoru::position::error::PositionError;
-    // use satoru::feature::error::FeatureError;
-    use satoru::exchange::exchange_utils;
-    use satoru::feature::feature_utils::{validate_feature};
-    use satoru::gas::gas_utils;
-    use satoru::mock::referral_storage::{IReferralStorageDispatcher, IReferralStorageDispatcherTrait};
-    use satoru::oracle::oracle_modules;
+    use freyr::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
+    use freyr::data::keys::{create_order_feature_disabled_key, execute_order_feature_disabled_key};
+    use freyr::data::keys;
+    use freyr::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
+    use freyr::exchange::base_order_handler::{IBaseOrderHandler, BaseOrderHandler};
+    use freyr::exchange::base_order_handler::{IBaseOrderHandlerLibraryDispatcher, IBaseOrderHandlerDispatcherTrait};
+    // use freyr::market::error::MarketError;
+    // use freyr::position::error::PositionError;
+    // use freyr::feature::error::FeatureError;
+    use freyr::exchange::exchange_utils;
+    use freyr::feature::feature_utils::{validate_feature};
+    use freyr::gas::gas_utils;
+    use freyr::mock::referral_storage::{IReferralStorageDispatcher, IReferralStorageDispatcherTrait};
+    use freyr::oracle::oracle_modules;
 
-    use satoru::oracle::oracle_utils::{SetPricesParams, SimulatePricesParams};
-    use satoru::oracle::{oracle::{IOracleDispatcher, IOracleDispatcherTrait},};
-    use satoru::order::base_order_utils;
-    use satoru::order::order_utils::IOrderUtilsDispatcherTrait;
-    use satoru::order::{
+    use freyr::oracle::oracle_utils::{SetPricesParams, SimulatePricesParams};
+    use freyr::oracle::{oracle::{IOracleDispatcher, IOracleDispatcherTrait},};
+    use freyr::order::base_order_utils;
+    use freyr::order::order_utils::IOrderUtilsDispatcherTrait;
+    use freyr::order::{
         error::OrderError, order::{SecondaryOrderType, OrderType, Order, OrderTrait, DecreasePositionSwapType},
         order_vault::{IOrderVaultDispatcher, IOrderVaultDispatcherTrait},
         base_order_utils::{ExecuteOrderParams, ExecuteOrderParamsContracts}, order_utils::IOrderUtilsLibraryDispatcher,
         increase_order_utils::IIncreaseOrderUtilsLibraryDispatcher,
         decrease_order_utils::IDecreaseOrderUtilsLibraryDispatcher, swap_order_utils::ISwapOrderUtilsLibraryDispatcher
     };
-    use satoru::order::{base_order_utils::CreateOrderParams, order_utils::{IOrderUtilsDispatcher},};
-    use satoru::role::role::FROZEN_ORDER_KEEPER;
-    use satoru::role::role;
-    use satoru::role::role_module::{IRoleModuleLibraryDispatcher, IRoleModuleDispatcherTrait};
-    use satoru::role::role_module::{RoleModule, IRoleModule};
-    use satoru::role::role_store::{IRoleStoreDispatcher};
-    use satoru::swap::swap_handler::{ISwapHandlerDispatcher, ISwapHandlerDispatcherTrait};
-    use satoru::token::erc20::interface::{IERC20, IERC20Dispatcher, IERC20DispatcherTrait};
-    use satoru::token::token_utils;
-    use satoru::utils::error_utils;
-    use satoru::utils::global_reentrancy_guard::{non_reentrant_before, non_reentrant_after};
+    use freyr::order::{base_order_utils::CreateOrderParams, order_utils::{IOrderUtilsDispatcher},};
+    use freyr::role::role::FROZEN_ORDER_KEEPER;
+    use freyr::role::role;
+    use freyr::role::role_module::{IRoleModuleLibraryDispatcher, IRoleModuleDispatcherTrait};
+    use freyr::role::role_module::{RoleModule, IRoleModule};
+    use freyr::role::role_store::{IRoleStoreDispatcher};
+    use freyr::swap::swap_handler::{ISwapHandlerDispatcher, ISwapHandlerDispatcherTrait};
+    use freyr::token::erc20::interface::{IERC20, IERC20Dispatcher, IERC20DispatcherTrait};
+    use freyr::token::token_utils;
+    use freyr::utils::error_utils;
+    use freyr::utils::global_reentrancy_guard::{non_reentrant_before, non_reentrant_after};
     use starknet::ContractAddress;
     use starknet::contract_address_const;
     use starknet::{get_caller_address, get_contract_address, ClassHash};

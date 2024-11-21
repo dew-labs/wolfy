@@ -1,17 +1,17 @@
-use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
-use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
-use satoru::market::market::Market;
-use satoru::mock::governable::{IGovernableDispatcher, IGovernableDispatcherTrait};
-use satoru::mock::referral_storage::{IReferralStorageDispatcher, IReferralStorageDispatcherTrait};
-use satoru::position::position::Position;
-use satoru::price::price::Price;
-use satoru::pricing::position_pricing_utils::{GetPositionFeesParams, PositionFundingFees, GetPriceImpactUsdParams};
-use satoru::pricing::position_pricing_utils;
-use satoru::role::role;
-use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
-use satoru::test_utils::tests_lib;
-use satoru::utils::i256::{i256, i256_new};
-use satoru::utils::precision::{FLOAT_PRECISION, FLOAT_PRECISION_SQRT};
+use freyr::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
+use freyr::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
+use freyr::market::market::Market;
+use freyr::mock::governable::{IGovernableDispatcher, IGovernableDispatcherTrait};
+use freyr::mock::referral_storage::{IReferralStorageDispatcher, IReferralStorageDispatcherTrait};
+use freyr::position::position::Position;
+use freyr::price::price::Price;
+use freyr::pricing::position_pricing_utils::{GetPositionFeesParams, PositionFundingFees, GetPriceImpactUsdParams};
+use freyr::pricing::position_pricing_utils;
+use freyr::role::role;
+use freyr::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
+use freyr::test_utils::tests_lib;
+use freyr::utils::i256::{i256, i256_new};
+use freyr::utils::precision::{FLOAT_PRECISION, FLOAT_PRECISION_SQRT};
 use snforge_std::{
     declare, start_cheat_caller_address, stop_cheat_caller_address, ContractClassTrait, DeclareResultTrait
 };

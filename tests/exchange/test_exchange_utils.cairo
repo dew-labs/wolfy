@@ -1,8 +1,8 @@
-use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
+use freyr::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
 
-use satoru::data::keys;
-use satoru::exchange::exchange_utils::validate_request_cancellation;
-use satoru::test_utils::tests_lib;
+use freyr::data::keys;
+use freyr::exchange::exchange_utils::validate_request_cancellation;
+use freyr::test_utils::tests_lib;
 use snforge_std::{
     declare, start_cheat_caller_address, stop_cheat_caller_address, start_cheat_block_number, ContractClassTrait
 };

@@ -7,20 +7,20 @@
 use result::ResultTrait;
 
 // Local imports.
-use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
-use satoru::data::keys;
-use satoru::market::market::Market;
+use freyr::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
+use freyr::data::keys;
+use freyr::market::market::Market;
 
 
-use satoru::market::market_utils;
-use satoru::mock::referral_storage::{IReferralStorageDispatcher, IReferralStorageDispatcherTrait};
-use satoru::position::position::Position;
-use satoru::price::price::Price;
-use satoru::pricing::error::PricingError;
-use satoru::pricing::pricing_utils;
-use satoru::referral::referral_utils;
-use satoru::utils::{calc, precision};
-use satoru::utils::{i256::{i256, i256_neg}, error_utils, calc::to_signed, default::DefaultContractAddress,};
+use freyr::market::market_utils;
+use freyr::mock::referral_storage::{IReferralStorageDispatcher, IReferralStorageDispatcherTrait};
+use freyr::position::position::Position;
+use freyr::price::price::Price;
+use freyr::pricing::error::PricingError;
+use freyr::pricing::pricing_utils;
+use freyr::referral::referral_utils;
+use freyr::utils::{calc, precision};
+use freyr::utils::{i256::{i256, i256_neg}, error_utils, calc::to_signed, default::DefaultContractAddress,};
 use starknet::{ContractAddress, contract_address_const};
 use zeroable::Zeroable;
 

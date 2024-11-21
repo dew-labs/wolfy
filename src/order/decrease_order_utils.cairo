@@ -3,30 +3,30 @@
 // *************************************************************************
 
 // Core lib imports.
-use satoru::bank::bank::{IBankDispatcher, IBankDispatcherTrait};
-use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
-use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
-use satoru::event::event_utils::{
+use freyr::bank::bank::{IBankDispatcher, IBankDispatcherTrait};
+use freyr::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
+use freyr::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
+use freyr::event::event_utils::{
     Felt252IntoContractAddress, ContractAddressDictValue, I256252DictValue, U256252DictValue, U256IntoFelt252
 };
-use satoru::market::market_token::{IMarketTokenDispatcher, IMarketTokenDispatcherTrait};
-use satoru::market::market_utils;
+use freyr::market::market_token::{IMarketTokenDispatcher, IMarketTokenDispatcherTrait};
+use freyr::market::market_utils;
 
 // Local imports.
-use satoru::oracle::oracle::{IOracleDispatcher, IOracleDispatcherTrait};
-use satoru::oracle::oracle_utils;
-use satoru::order::{base_order_utils::ExecuteOrderParams, order::Order, order::OrderType, error::OrderError, order};
-use satoru::position::decrease_position_utils::DecreasePositionResult;
-use satoru::position::decrease_position_utils;
-use satoru::position::position::Position;
-use satoru::position::position_utils::UpdatePositionParams;
-use satoru::position::position_utils;
-use satoru::swap::swap_handler::{ISwapHandlerDispatcher, ISwapHandlerDispatcherTrait};
-use satoru::swap::swap_utils::{SwapParams};
+use freyr::oracle::oracle::{IOracleDispatcher, IOracleDispatcherTrait};
+use freyr::oracle::oracle_utils;
+use freyr::order::{base_order_utils::ExecuteOrderParams, order::Order, order::OrderType, error::OrderError, order};
+use freyr::position::decrease_position_utils::DecreasePositionResult;
+use freyr::position::decrease_position_utils;
+use freyr::position::position::Position;
+use freyr::position::position_utils::UpdatePositionParams;
+use freyr::position::position_utils;
+use freyr::swap::swap_handler::{ISwapHandlerDispatcher, ISwapHandlerDispatcherTrait};
+use freyr::swap::swap_utils::{SwapParams};
 
-use satoru::utils::arrays;
-use satoru::utils::serializable_dict::{SerializableFelt252Dict, SerializableFelt252DictTrait};
-use satoru::utils::span32::{Span32, Array32Trait};
+use freyr::utils::arrays;
+use freyr::utils::serializable_dict::{SerializableFelt252Dict, SerializableFelt252DictTrait};
+use freyr::utils::span32::{Span32, Array32Trait};
 use starknet::{ContractAddress, contract_address_const};
 
 // *************************************************************************
@@ -88,30 +88,30 @@ trait IDecreaseOrderUtils<TContractState> {
 #[starknet::contract]
 mod DecreaseOrderUtils {
     // Core lib imports.
-    use satoru::bank::bank::{IBankDispatcher, IBankDispatcherTrait};
-    use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
-    use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
-    use satoru::event::event_utils::{
+    use freyr::bank::bank::{IBankDispatcher, IBankDispatcherTrait};
+    use freyr::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
+    use freyr::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
+    use freyr::event::event_utils::{
         Felt252IntoContractAddress, ContractAddressDictValue, I256252DictValue, U256252DictValue, U256IntoFelt252
     };
-    use satoru::market::market_token::{IMarketTokenDispatcher, IMarketTokenDispatcherTrait};
-    use satoru::market::market_utils;
+    use freyr::market::market_token::{IMarketTokenDispatcher, IMarketTokenDispatcherTrait};
+    use freyr::market::market_utils;
 
     // Local imports.
-    use satoru::oracle::oracle::{IOracleDispatcher, IOracleDispatcherTrait};
-    use satoru::oracle::oracle_utils;
-    use satoru::order::{base_order_utils::ExecuteOrderParams, order::Order, order::OrderType, error::OrderError, order};
-    use satoru::position::decrease_position_utils::DecreasePositionResult;
-    use satoru::position::decrease_position_utils;
-    use satoru::position::position::Position;
-    use satoru::position::position_utils::UpdatePositionParams;
-    use satoru::position::position_utils;
-    use satoru::swap::swap_handler::{ISwapHandlerDispatcher, ISwapHandlerDispatcherTrait};
-    use satoru::swap::swap_utils::{SwapParams};
+    use freyr::oracle::oracle::{IOracleDispatcher, IOracleDispatcherTrait};
+    use freyr::oracle::oracle_utils;
+    use freyr::order::{base_order_utils::ExecuteOrderParams, order::Order, order::OrderType, error::OrderError, order};
+    use freyr::position::decrease_position_utils::DecreasePositionResult;
+    use freyr::position::decrease_position_utils;
+    use freyr::position::position::Position;
+    use freyr::position::position_utils::UpdatePositionParams;
+    use freyr::position::position_utils;
+    use freyr::swap::swap_handler::{ISwapHandlerDispatcher, ISwapHandlerDispatcherTrait};
+    use freyr::swap::swap_utils::{SwapParams};
 
-    use satoru::utils::arrays;
-    use satoru::utils::serializable_dict::{SerializableFelt252Dict, SerializableFelt252DictTrait};
-    use satoru::utils::span32::{Span32, Array32Trait};
+    use freyr::utils::arrays;
+    use freyr::utils::serializable_dict::{SerializableFelt252Dict, SerializableFelt252DictTrait};
+    use freyr::utils::span32::{Span32, Array32Trait};
     use starknet::{ContractAddress, contract_address_const};
 
     #[storage]

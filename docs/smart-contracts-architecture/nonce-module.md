@@ -4,7 +4,7 @@ The Nonce Module keeps track of a number that goes up one at a time, which is cr
 
 It contains the following smart contract:
 
-- [NonceUtils.cairo](https://github.com/keep-starknet-strange/satoru/blob/main/src/nonce/nonce_utils.cairo): The principal smart contract in the module, responsible for sustaining an incrementing nonce value crucial for key generation.
+- [NonceUtils.cairo](https://github.com/dew-labs/wolfy/blob/main/src/nonce/nonce_utils.cairo): The principal smart contract in the module, responsible for sustaining an incrementing nonce value crucial for key generation.
 
 ## Structures and Types
 
@@ -46,7 +46,7 @@ It contains the following smart contract:
 
 ## Errors
 
-The module defines specific errors to handle nonce-specific anomalies and invalid operations, ensuring smooth and accurate operations within the module. 
+The module defines specific errors to handle nonce-specific anomalies and invalid operations, ensuring smooth and accurate operations within the module.
 
 ## Usage Example
 

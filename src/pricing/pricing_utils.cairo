@@ -3,8 +3,8 @@
 // *************************************************************************
 //                                  IMPORTS
 // *************************************************************************
-use satoru::utils::i256::i256;
-use satoru::utils::{precision, calc};
+use freyr::utils::i256::i256;
+use freyr::utils::{precision, calc};
 
 /// Get the price impact USD if there is no crossover in balance
 /// a crossover in balance is for example if the long open interest is larger

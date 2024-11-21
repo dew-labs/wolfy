@@ -51,14 +51,14 @@ mod WithdrawalVault {
 
     // Core lib imports.
     use core::zeroable::Zeroable;
-    use satoru::bank::bank::{IBankLibraryDispatcher};
-    use satoru::bank::strict_bank::{IStrictBankLibraryDispatcher, IStrictBankDispatcherTrait};
-    use satoru::data::data_store::{IDataStoreDispatcher};
-    use satoru::role::role_module::{IRoleModuleLibraryDispatcher};
-    use satoru::role::role_store::{IRoleStoreDispatcher};
+    use freyr::bank::bank::{IBankLibraryDispatcher};
+    use freyr::bank::strict_bank::{IStrictBankLibraryDispatcher, IStrictBankDispatcherTrait};
+    use freyr::data::data_store::{IDataStoreDispatcher};
+    use freyr::role::role_module::{IRoleModuleLibraryDispatcher};
+    use freyr::role::role_store::{IRoleStoreDispatcher};
 
     // Local imports.
-    use satoru::withdrawal::error::WithdrawalError;
+    use freyr::withdrawal::error::WithdrawalError;
     use starknet::storage::Map;
     use starknet::{ContractAddress, ClassHash};
 

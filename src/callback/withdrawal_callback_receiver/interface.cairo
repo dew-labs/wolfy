@@ -1,6 +1,6 @@
-// Satoru imports
-use satoru::event::event_utils::LogData;
-use satoru::withdrawal::withdrawal::Withdrawal;
+// Wolfy imports
+use freyr::event::event_utils::LogData;
+use freyr::withdrawal::withdrawal::Withdrawal;
 
 // *************************************************************************
 //                  Interface of the `WithdrawalCallbackReceiver` contract.

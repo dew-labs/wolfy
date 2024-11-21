@@ -1,17 +1,17 @@
 //! Test file for `src/deposit/deposit_utils.cairo`.
 
-use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
-use satoru::data::keys;
-use satoru::deposit::{
+use freyr::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
+use freyr::data::keys;
+use freyr::deposit::{
     deposit::Deposit, deposit_utils::CreateDepositParams, deposit_utils::create_deposit, deposit_utils::cancel_deposit,
     deposit_vault::{IDepositVaultDispatcher, IDepositVaultDispatcherTrait}
 };
-use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
-use satoru::market::market::Market;
-use satoru::role::role;
-use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
-use satoru::test_utils::tests_lib;
-use satoru::utils::span32::{Span32, Array32Trait};
+use freyr::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
+use freyr::market::market::Market;
+use freyr::role::role;
+use freyr::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
+use freyr::test_utils::tests_lib;
+use freyr::utils::span32::{Span32, Array32Trait};
 
 
 use snforge_std::{declare, start_cheat_caller_address, ContractClassTrait, DeclareResultTrait};

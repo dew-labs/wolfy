@@ -1,4 +1,4 @@
-use satoru::utils::i256::i256;
+use freyr::utils::i256::i256;
 
 /// Struct to store MarketPoolValue infos.
 #[derive(Default, Drop, Copy, starknet::Store, Serde)]

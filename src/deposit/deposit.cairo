@@ -1,8 +1,8 @@
 // Core Lib imports
-use satoru::utils::span32::{Span32, Array32Trait, DefaultSpan32};
+use freyr::utils::span32::{Span32, Array32Trait, DefaultSpan32};
 
-// Satoru imports
-use satoru::utils::store_arrays::StoreContractAddressArray;
+// Wolfy imports
+use freyr::utils::store_arrays::StoreContractAddressArray;
 use starknet::{ContractAddress, contract_address_const};
 
 /// Deposit

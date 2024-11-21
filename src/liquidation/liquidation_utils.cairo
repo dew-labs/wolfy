@@ -3,16 +3,16 @@
 // *************************************************************************
 // Core lib imports.
 use core::num::traits::Bounded;
-use satoru::callback::callback_utils::get_saved_callback_contract;
+use freyr::callback::callback_utils::get_saved_callback_contract;
 
 // Local imports.
-use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
-use satoru::data::keys;
-use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
-use satoru::nonce::nonce_utils::get_next_key;
-use satoru::order::order::{SecondaryOrderType, OrderType, Order, DecreasePositionSwapType};
-use satoru::position::position_utils::get_position_key;
-use satoru::utils::span32::{Span32, Array32Trait};
+use freyr::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
+use freyr::data::keys;
+use freyr::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
+use freyr::nonce::nonce_utils::get_next_key;
+use freyr::order::order::{SecondaryOrderType, OrderType, Order, DecreasePositionSwapType};
+use freyr::position::position_utils::get_position_key;
+use freyr::utils::span32::{Span32, Array32Trait};
 use starknet::ContractAddress;
 
 /// Creates a liquidation order for a position.

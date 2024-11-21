@@ -38,5 +38,5 @@ Prices are provided by an off-chain oracle system:
 
 It contains the following smart contracts:
 
-- [Router](https://github.com/keep-starknet-strange/satoru/blob/main/src/router/router.cairo): Users will approve this router for token expenditures.
-- [ExchangeRouter](https://github.com/keep-starknet-strange/satoru/blob/main/src/router/exchange_router.cairo): Router for exchange functions, supports functions which require token transfers from the user.
+- [Router](https://github.com/dew-labs/wolfy/blob/main/src/router/router.cairo): Users will approve this router for token expenditures.
+- [ExchangeRouter](https://github.com/dew-labs/wolfy/blob/main/src/router/exchange_router.cairo): Router for exchange functions, supports functions which require token transfers from the user.

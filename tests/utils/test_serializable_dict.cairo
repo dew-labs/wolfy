@@ -7,16 +7,16 @@
 use alexandria_data_structures::array_ext::ArrayTraitExt;
 use array::ArrayTrait;
 use array::SpanTrait;
-use satoru::event::event_utils::{
+use freyr::event::event_utils::{
     Felt252IntoBool, Felt252IntoContractAddress, I256252DictValue, ContractAddressDictValue, U256252DictValue,
     U256IntoFelt252
 };
-use satoru::utils::serializable_dict::{
+use freyr::utils::serializable_dict::{
     Item, ItemTrait, SerializableFelt252Dict, SerializableFelt252DictTrait, SerializableFelt252DictTraitImpl
 };
 
 // Local imports.
-use satoru::utils::traits::ContractAddressDefault;
+use freyr::utils::traits::ContractAddressDefault;
 use serde::Serde;
 use starknet::{
     get_caller_address, ContractAddress, Felt252TryIntoContractAddress, ContractAddressIntoFelt252,

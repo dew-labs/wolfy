@@ -1,6 +1,6 @@
-// Satoru imports
-use satoru::deposit::deposit::Deposit;
-use satoru::event::event_utils::LogData;
+// Wolfy imports
+use freyr::deposit::deposit::Deposit;
+use freyr::event::event_utils::LogData;
 
 // *************************************************************************
 //                  Interface of the `DepositCallbackReceiver` contract.

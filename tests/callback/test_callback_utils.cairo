@@ -1,14 +1,14 @@
-use satoru::callback::callback_utils::{
+use freyr::callback::callback_utils::{
     validate_callback_gas_limit, set_saved_callback_contract, get_saved_callback_contract, after_deposit_execution
 };
-use satoru::callback::mocks::{ICallbackMockDispatcherTrait, deploy_callback_mock};
+use freyr::callback::mocks::{ICallbackMockDispatcherTrait, deploy_callback_mock};
 
-use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
-use satoru::data::keys;
-use satoru::deposit::deposit::Deposit;
-use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
-use satoru::event::event_utils::{LogData, LogDataTrait};
-use satoru::test_utils::tests_lib;
+use freyr::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
+use freyr::data::keys;
+use freyr::deposit::deposit::Deposit;
+use freyr::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
+use freyr::event::event_utils::{LogData, LogDataTrait};
+use freyr::test_utils::tests_lib;
 use snforge_std::{
     declare, start_cheat_caller_address, stop_cheat_caller_address, ContractClassTrait, DeclareResultTrait
 };

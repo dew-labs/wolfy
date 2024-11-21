@@ -7,21 +7,21 @@
 
 // Core lib imports.
 use core::zeroable::Zeroable;
-use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
-use satoru::deposit::deposit_utils::CreateDepositParams;
+use freyr::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
+use freyr::deposit::deposit_utils::CreateDepositParams;
 
 
 // Local imports.
-use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
-use satoru::exchange::{
+use freyr::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
+use freyr::exchange::{
     deposit_handler::{IDepositHandlerDispatcher, IDepositHandlerDispatcherTrait},
     withdrawal_handler::{IWithdrawalHandlerDispatcher, IWithdrawalHandlerDispatcherTrait},
     order_handler::{IOrderHandlerDispatcher, IOrderHandlerDispatcherTrait},
 };
-use satoru::oracle::oracle_utils::SimulatePricesParams;
-use satoru::order::base_order_utils::CreateOrderParams;
-use satoru::router::router::{IRouterDispatcher, IRouterDispatcherTrait};
-use satoru::withdrawal::withdrawal_utils::CreateWithdrawalParams;
+use freyr::oracle::oracle_utils::SimulatePricesParams;
+use freyr::order::base_order_utils::CreateOrderParams;
+use freyr::router::router::{IRouterDispatcher, IRouterDispatcherTrait};
+use freyr::withdrawal::withdrawal_utils::CreateWithdrawalParams;
 use starknet::ContractAddress;
 
 // *************************************************************************
@@ -173,31 +173,31 @@ mod ExchangeRouter {
     use debug::PrintTrait;
 
     use openzeppelin::security::ReentrancyGuardComponent;
-    use satoru::callback::callback_utils;
-    use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
-    use satoru::data::keys;
-    use satoru::deposit::deposit::Deposit;
-    use satoru::deposit::deposit_utils::CreateDepositParams;
+    use freyr::callback::callback_utils;
+    use freyr::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
+    use freyr::data::keys;
+    use freyr::deposit::deposit::Deposit;
+    use freyr::deposit::deposit_utils::CreateDepositParams;
 
 
     // Local imports.
-    use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
-    use satoru::exchange::{
+    use freyr::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
+    use freyr::exchange::{
         deposit_handler::{IDepositHandlerDispatcher, IDepositHandlerDispatcherTrait},
         withdrawal_handler::{IWithdrawalHandlerDispatcher, IWithdrawalHandlerDispatcherTrait},
         order_handler::{IOrderHandlerDispatcher, IOrderHandlerDispatcherTrait},
     };
-    use satoru::feature::feature_utils;
-    use satoru::fee::fee_utils;
-    use satoru::market::market_utils;
-    use satoru::oracle::oracle_utils::SimulatePricesParams;
-    use satoru::order::base_order_utils::CreateOrderParams;
-    use satoru::order::order::Order;
-    use satoru::referral::referral_utils;
-    use satoru::router::error::RouterError;
-    use satoru::router::router::{IRouterDispatcher, IRouterDispatcherTrait};
-    use satoru::utils::account_utils;
-    use satoru::withdrawal::{withdrawal::Withdrawal, withdrawal_utils::CreateWithdrawalParams};
+    use freyr::feature::feature_utils;
+    use freyr::fee::fee_utils;
+    use freyr::market::market_utils;
+    use freyr::oracle::oracle_utils::SimulatePricesParams;
+    use freyr::order::base_order_utils::CreateOrderParams;
+    use freyr::order::order::Order;
+    use freyr::referral::referral_utils;
+    use freyr::router::error::RouterError;
+    use freyr::router::router::{IRouterDispatcher, IRouterDispatcherTrait};
+    use freyr::utils::account_utils;
+    use freyr::withdrawal::{withdrawal::Withdrawal, withdrawal_utils::CreateWithdrawalParams};
     use starknet::{get_caller_address, ContractAddress, contract_address_const, get_contract_address};
 
     use super::IExchangeRouter;

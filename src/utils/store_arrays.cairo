@@ -6,9 +6,9 @@
 
 use result::ResultTrait;
 
-// Satoru imports
-use satoru::market::market::{Market};
-use satoru::price::price::{Price};
+// Wolfy imports
+use freyr::market::market::{Market};
+use freyr::price::price::{Price};
 use starknet::storage_access::{Store, StorageBaseAddress,};
 use starknet::{ContractAddress, SyscallResult,};
 

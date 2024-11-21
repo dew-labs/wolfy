@@ -49,13 +49,13 @@ mod OrderVault {
 
     // Core lib imports.
     use debug::PrintTrait;
-    use satoru::bank::bank::{IBankLibraryDispatcher};
+    use freyr::bank::bank::{IBankLibraryDispatcher};
 
     // Local imports.
-    use satoru::bank::strict_bank::{IStrictBankLibraryDispatcher, IStrictBankDispatcherTrait};
-    use satoru::data::data_store::{IDataStoreDispatcher};
-    use satoru::role::role_module::{IRoleModuleLibraryDispatcher};
-    use satoru::role::role_store::{IRoleStoreDispatcher};
+    use freyr::bank::strict_bank::{IStrictBankLibraryDispatcher, IStrictBankDispatcherTrait};
+    use freyr::data::data_store::{IDataStoreDispatcher};
+    use freyr::role::role_module::{IRoleModuleLibraryDispatcher};
+    use freyr::role::role_store::{IRoleStoreDispatcher};
     use starknet::storage::Map;
     use starknet::{get_caller_address, ContractAddress, contract_address_const, ClassHash};
 

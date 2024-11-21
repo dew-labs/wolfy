@@ -3,14 +3,14 @@
 // *************************************************************************
 
 // Core lib imports.
-use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
-use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
-use satoru::event::event_utils::{Felt252IntoContractAddress, ContractAddressDictValue, I256252DictValue};
-use satoru::mock::referral_storage::{IReferralStorageDispatcher, IReferralStorageDispatcherTrait};
+use freyr::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
+use freyr::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
+use freyr::event::event_utils::{Felt252IntoContractAddress, ContractAddressDictValue, I256252DictValue};
+use freyr::mock::referral_storage::{IReferralStorageDispatcher, IReferralStorageDispatcherTrait};
 // Local imports.
-use satoru::oracle::oracle_utils::{SetPricesParams, SimulatePricesParams};
-use satoru::order::order_vault::{IOrderVaultDispatcher, IOrderVaultDispatcherTrait};
-use satoru::order::{base_order_utils::{CreateOrderParams, ExecuteOrderParams}, order::Order};
+use freyr::oracle::oracle_utils::{SetPricesParams, SimulatePricesParams};
+use freyr::order::order_vault::{IOrderVaultDispatcher, IOrderVaultDispatcherTrait};
+use freyr::order::{base_order_utils::{CreateOrderParams, ExecuteOrderParams}, order::Order};
 use starknet::ContractAddress;
 // *************************************************************************
 //                  Interface of the `OrderUtils` contract.
@@ -96,33 +96,33 @@ trait IOrderUtils<TContractState> {
 mod OrderUtils {
     // Core lib imports.
     use clone::Clone;
-    use satoru::callback::callback_utils;
-    use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
-    use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
-    use satoru::event::event_utils::{Felt252IntoContractAddress, ContractAddressDictValue, I256252DictValue};
-    use satoru::gas::gas_utils;
-    use satoru::market::market_utils;
-    use satoru::mock::referral_storage::{IReferralStorageDispatcher, IReferralStorageDispatcherTrait};
-    use satoru::nonce::nonce_utils;
+    use freyr::callback::callback_utils;
+    use freyr::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
+    use freyr::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
+    use freyr::event::event_utils::{Felt252IntoContractAddress, ContractAddressDictValue, I256252DictValue};
+    use freyr::gas::gas_utils;
+    use freyr::market::market_utils;
+    use freyr::mock::referral_storage::{IReferralStorageDispatcher, IReferralStorageDispatcherTrait};
+    use freyr::nonce::nonce_utils;
     // Local imports.
-    use satoru::order::base_order_utils::{ExecuteOrderParams, CreateOrderParams};
-    use satoru::order::base_order_utils;
-    use satoru::order::decrease_order_utils::IDecreaseOrderUtilsDispatcherTrait;
-    use satoru::order::decrease_order_utils::IDecreaseOrderUtilsLibraryDispatcher;
-    use satoru::order::error::OrderError;
-    use satoru::order::increase_order_utils::IIncreaseOrderUtilsDispatcherTrait;
+    use freyr::order::base_order_utils::{ExecuteOrderParams, CreateOrderParams};
+    use freyr::order::base_order_utils;
+    use freyr::order::decrease_order_utils::IDecreaseOrderUtilsDispatcherTrait;
+    use freyr::order::decrease_order_utils::IDecreaseOrderUtilsLibraryDispatcher;
+    use freyr::order::error::OrderError;
+    use freyr::order::increase_order_utils::IIncreaseOrderUtilsDispatcherTrait;
 
-    use satoru::order::increase_order_utils::IIncreaseOrderUtilsLibraryDispatcher;
-    use satoru::order::order::{Order, OrderType, OrderTrait};
-    use satoru::order::order_vault::{IOrderVaultDispatcher, IOrderVaultDispatcherTrait};
-    use satoru::order::swap_order_utils::ISwapOrderUtilsDispatcherTrait;
-    use satoru::order::swap_order_utils::ISwapOrderUtilsLibraryDispatcher;
-    use satoru::referral::referral_utils;
+    use freyr::order::increase_order_utils::IIncreaseOrderUtilsLibraryDispatcher;
+    use freyr::order::order::{Order, OrderType, OrderTrait};
+    use freyr::order::order_vault::{IOrderVaultDispatcher, IOrderVaultDispatcherTrait};
+    use freyr::order::swap_order_utils::ISwapOrderUtilsDispatcherTrait;
+    use freyr::order::swap_order_utils::ISwapOrderUtilsLibraryDispatcher;
+    use freyr::referral::referral_utils;
 
-    use satoru::token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
-    use satoru::token::token_utils;
-    use satoru::utils::account_utils;
-    use satoru::utils::serializable_dict::{SerializableFelt252Dict, SerializableFelt252DictTrait};
+    use freyr::token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
+    use freyr::token::token_utils;
+    use freyr::utils::account_utils;
+    use freyr::utils::serializable_dict::{SerializableFelt252Dict, SerializableFelt252DictTrait};
     use starknet::{ContractAddress, contract_address_const, ClassHash};
 
     #[storage]

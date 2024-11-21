@@ -10,24 +10,24 @@ use result::ResultTrait;
 
 // Local imports.
 
-use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
-use satoru::deposit::deposit::Deposit;
-use satoru::market::{
+use freyr::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
+use freyr::deposit::deposit::Deposit;
+use freyr::market::{
     market_utils::GetNextFundingAmountPerSizeResult, market::Market, market_utils::MarketPrices,
     market_pool_value_info::MarketPoolValueInfo,
 };
-use satoru::mock::referral_storage::{IReferralStorageDispatcher, IReferralStorageDispatcherTrait};
-use satoru::order::order::{Order};
-use satoru::position::{position_utils, position::Position};
-use satoru::price::price::Price;
-use satoru::pricing::swap_pricing_utils::SwapFees;
+use freyr::mock::referral_storage::{IReferralStorageDispatcher, IReferralStorageDispatcherTrait};
+use freyr::order::order::{Order};
+use freyr::position::{position_utils, position::Position};
+use freyr::price::price::Price;
+use freyr::pricing::swap_pricing_utils::SwapFees;
 
-use satoru::reader::{
+use freyr::reader::{
     reader_utils::PositionInfo, reader_utils::BaseFundingValues, reader_pricing_utils::ExecutionPriceResult,
 };
-use satoru::utils::i256::i256;
+use freyr::utils::i256::i256;
 
-use satoru::withdrawal::withdrawal::Withdrawal;
+use freyr::withdrawal::withdrawal::Withdrawal;
 use starknet::ContractAddress;
 
 #[derive(Drop, starknet::Store, Serde)]
@@ -443,25 +443,25 @@ mod Reader {
 
     use core::traits::TryInto;
     use result::ResultTrait;
-    use satoru::adl::adl_utils;
-    use satoru::data::keys;
-    use satoru::deposit::deposit::Deposit;
-    use satoru::market::{
+    use freyr::adl::adl_utils;
+    use freyr::data::keys;
+    use freyr::deposit::deposit::Deposit;
+    use freyr::market::{
         market_utils, market_utils::GetNextFundingAmountPerSizeResult, market::Market, market_utils::MarketPrices,
         market_pool_value_info::MarketPoolValueInfo,
     };
-    use satoru::mock::referral_storage::{IReferralStorageDispatcher, IReferralStorageDispatcherTrait};
-    use satoru::order::order::{Order};
-    use satoru::position::{position_utils, position::Position};
-    use satoru::price::price::Price;
-    use satoru::pricing::swap_pricing_utils::SwapFees;
+    use freyr::mock::referral_storage::{IReferralStorageDispatcher, IReferralStorageDispatcherTrait};
+    use freyr::order::order::{Order};
+    use freyr::position::{position_utils, position::Position};
+    use freyr::price::price::Price;
+    use freyr::pricing::swap_pricing_utils::SwapFees;
 
-    use satoru::reader::{
+    use freyr::reader::{
         reader_utils, reader_utils::PositionInfo, reader_utils::BaseFundingValues, reader_pricing_utils,
         reader_pricing_utils::ExecutionPriceResult,
     };
-    use satoru::utils::i256::i256;
-    use satoru::withdrawal::withdrawal::Withdrawal;
+    use freyr::utils::i256::i256;
+    use freyr::withdrawal::withdrawal::Withdrawal;
     use starknet::ContractAddress;
 
 

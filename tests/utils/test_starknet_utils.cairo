@@ -1,5 +1,5 @@
-use satoru::data::data_store::IDataStoreDispatcherTrait;
-use satoru::utils::starknet_utils::{sn_gasleft, sn_gasprice};
+use freyr::data::data_store::IDataStoreDispatcherTrait;
+use freyr::utils::starknet_utils::{sn_gasleft, sn_gasprice};
 use traits::Into;
 
 #[test]

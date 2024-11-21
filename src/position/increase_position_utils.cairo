@@ -5,25 +5,25 @@
 // *************************************************************************
 // Core lib imports.
 use result::ResultTrait;
-use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
-use satoru::data::keys;
-use satoru::event::{event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait},};
-use satoru::fee::fee_utils;
-use satoru::market::market_utils;
-use satoru::order::base_order_utils;
-use satoru::position::error::PositionError;
+use freyr::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
+use freyr::data::keys;
+use freyr::event::{event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait},};
+use freyr::fee::fee_utils;
+use freyr::market::market_utils;
+use freyr::order::base_order_utils;
+use freyr::position::error::PositionError;
 // Local imports
-use satoru::position::position_utils::UpdatePositionParams;
-use satoru::position::{
+use freyr::position::position_utils::UpdatePositionParams;
+use freyr::position::{
     position::Position, position_utils, position_utils::WillPositionCollateralBeSufficientValues, position_event_utils
 };
 
-use satoru::price::price::{Price, PriceTrait};
-use satoru::pricing::position_pricing_utils::{
+use freyr::price::price::{Price, PriceTrait};
+use freyr::pricing::position_pricing_utils::{
     PositionFees, PositionBorrowingFees, PositionFundingFees, PositionReferralFees, PositionUiFees,
     GetPositionFeesParams, get_position_fees, get_price_impact_usd, GetPriceImpactUsdParams
 };
-use satoru::utils::{
+use freyr::utils::{
     calc::{to_unsigned, to_signed, sum_return_uint_256, roundup_magnitude_division, roundup_division},
     i256::{i256, i256_neg}
 };

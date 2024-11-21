@@ -5,12 +5,12 @@
 
 // Local imports.
 
-use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
-use satoru::order::order::OrderType;
-use satoru::position::{position_utils::DecreasePositionCollateralValues, position::Position,};
-use satoru::price::price::Price;
-use satoru::pricing::position_pricing_utils::PositionFees;
-use satoru::utils::i256::i256;
+use freyr::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
+use freyr::order::order::OrderType;
+use freyr::position::{position_utils::DecreasePositionCollateralValues, position::Position,};
+use freyr::price::price::Price;
+use freyr::pricing::position_pricing_utils::PositionFees;
+use freyr::utils::i256::i256;
 use starknet::ContractAddress;
 
 

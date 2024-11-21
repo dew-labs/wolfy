@@ -1,5 +1,5 @@
 mod PricingError {
-    use satoru::utils::i256::i256;
+    use freyr::utils::i256::i256;
 
     fn USD_DELTA_EXCEEDS_LONG_OPEN_INTEREST(usd_delta: i256, long_open_interest: u256) {
         let mut data = array!['usd delta exceeds long interest'];

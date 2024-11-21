@@ -5,7 +5,7 @@ The Liquidation Module is designed to facilitate and manage liquidations within 
 ## Overview
 
 This module contains the following Cairo library file:
-- [liquidation_utils.cairo](https://github.com/keep-starknet-strange/satoru/blob/main/src/liquidation/liquidation_utils.cairo): Entrusted with managing liquidations in the network.
+- [liquidation_utils.cairo](https://github.com/dew-labs/wolfy/blob/main/src/liquidation/liquidation_utils.cairo): Entrusted with managing liquidations in the network.
 
 ## Structures and Types
 

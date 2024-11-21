@@ -1,33 +1,33 @@
-use satoru::data::{data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait}, keys};
+use freyr::data::{data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait}, keys};
 
-use satoru::event::event_emitter::{IEventEmitterDispatcher};
-use satoru::exchange::base_order_handler::{IBaseOrderHandler};
+use freyr::event::event_emitter::{IEventEmitterDispatcher};
+use freyr::exchange::base_order_handler::{IBaseOrderHandler};
 
-use satoru::exchange::liquidation_handler::{
+use freyr::exchange::liquidation_handler::{
     LiquidationHandler, ILiquidationHandlerDispatcher, ILiquidationHandler, ILiquidationHandlerDispatcherTrait
 };
-use satoru::liquidation::liquidation_utils::create_liquidation_order;
-use satoru::market::market::{Market};
-use satoru::mock::referral_storage;
-use satoru::nonce::nonce_utils;
-use satoru::oracle::{
+use freyr::liquidation::liquidation_utils::create_liquidation_order;
+use freyr::market::market::{Market};
+use freyr::mock::referral_storage;
+use freyr::nonce::nonce_utils;
+use freyr::oracle::{
     oracle::{Oracle, IOracleDispatcher, IOracleDispatcherTrait},
     oracle_store::{IOracleStoreDispatcher, IOracleStoreDispatcherTrait},
     interfaces::account::{IAccount, IAccountDispatcher, IAccountDispatcherTrait}, oracle_utils::SetPricesParams
 };
 
-use satoru::order::order::{Order, OrderType, OrderTrait, DecreasePositionSwapType};
-use satoru::position::{position::Position, position_utils::get_position_key};
-use satoru::price::price::Price;
+use freyr::order::order::{Order, OrderType, OrderTrait, DecreasePositionSwapType};
+use freyr::position::{position::Position, position_utils::get_position_key};
+use freyr::price::price::Price;
 
-use satoru::role::{
+use freyr::role::{
     role, role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait},
     role_module::{IRoleModuleDispatcher, IRoleModuleDispatcherTrait}
 };
-use satoru::test_utils::tests_lib;
+use freyr::test_utils::tests_lib;
 
-use satoru::utils::precision;
-use satoru::utils::span32::{Span32, Array32Trait};
+use freyr::utils::precision;
+use freyr::utils::span32::{Span32, Array32Trait};
 use snforge_std::{
     declare, start_cheat_caller_address, stop_cheat_caller_address, start_cheat_block_number, ContractClassTrait,
     DeclareResultTrait, ContractClass

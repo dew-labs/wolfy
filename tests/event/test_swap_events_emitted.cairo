@@ -1,11 +1,11 @@
-use satoru::event::event_emitter::EventEmitter::{SwapReverted};
+use freyr::event::event_emitter::EventEmitter::{SwapReverted};
 
-use satoru::event::event_emitter::{EventEmitter, IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
+use freyr::event::event_emitter::{EventEmitter, IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
 
-use satoru::pricing::position_pricing_utils::{
+use freyr::pricing::position_pricing_utils::{
     PositionFees, PositionUiFees, PositionBorrowingFees, PositionReferralFees, PositionFundingFees
 };
-use satoru::test_utils::tests_lib::deploy_event_emitter;
+use freyr::test_utils::tests_lib::deploy_event_emitter;
 use snforge_std::{
     declare, ContractClassTrait, DeclareResultTrait, spy_events, EventSpy, EventSpyTrait, Event, EventSpyAssertionsTrait
 };

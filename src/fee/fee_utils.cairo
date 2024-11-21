@@ -4,12 +4,12 @@
 // Core lib imports.
 
 // Local imports.
-use satoru::bank::bank::{IBankDispatcher, IBankDispatcherTrait};
-use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
-use satoru::data::keys;
-use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
-use satoru::market::{market, market_utils::validate_market_token_balance_with_address};
-use satoru::utils::account_utils::validate_receiver;
+use freyr::bank::bank::{IBankDispatcher, IBankDispatcherTrait};
+use freyr::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
+use freyr::data::keys;
+use freyr::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
+use freyr::market::{market, market_utils::validate_market_token_balance_with_address};
+use freyr::utils::account_utils::validate_receiver;
 use starknet::ContractAddress;
 
 /// Increment the claimable fee amount for the specified market.

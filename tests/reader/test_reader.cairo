@@ -1,30 +1,30 @@
 use debug::PrintTrait;
 use poseidon::poseidon_hash_span;
 
-use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
-use satoru::data::keys;
-use satoru::deposit::deposit::{Deposit};
-use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
-use satoru::market::market::{Market};
-use satoru::market::market_pool_value_info::{MarketPoolValueInfo};
-use satoru::market::market_token::{IMarketTokenDispatcher, IMarketTokenDispatcherTrait};
-use satoru::market::market_utils::{get_capped_pnl, MarketPrices};
-use satoru::mock::referral_storage::{IReferralStorageDispatcher, IReferralStorageDispatcherTrait};
-use satoru::order::order::{Order, OrderType, OrderTrait, DecreasePositionSwapType};
-use satoru::position::position::{Position};
-use satoru::price::price::{Price, PriceTrait};
-use satoru::reader::reader::{IReaderDispatcher, IReaderDispatcherTrait, MarketInfo};
+use freyr::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
+use freyr::data::keys;
+use freyr::deposit::deposit::{Deposit};
+use freyr::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
+use freyr::market::market::{Market};
+use freyr::market::market_pool_value_info::{MarketPoolValueInfo};
+use freyr::market::market_token::{IMarketTokenDispatcher, IMarketTokenDispatcherTrait};
+use freyr::market::market_utils::{get_capped_pnl, MarketPrices};
+use freyr::mock::referral_storage::{IReferralStorageDispatcher, IReferralStorageDispatcherTrait};
+use freyr::order::order::{Order, OrderType, OrderTrait, DecreasePositionSwapType};
+use freyr::position::position::{Position};
+use freyr::price::price::{Price, PriceTrait};
+use freyr::reader::reader::{IReaderDispatcher, IReaderDispatcherTrait, MarketInfo};
 
-use satoru::reader::{
+use freyr::reader::{
     reader_utils::PositionInfo, reader_utils::BaseFundingValues, reader_pricing_utils::ExecutionPriceResult,
     reader::VirtualInventory
 };
-use satoru::role::role;
-use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
-use satoru::test_utils::tests_lib;
-use satoru::utils::i256::{i256, i256_new};
-use satoru::utils::span32::{Span32, Array32Trait};
-use satoru::withdrawal::withdrawal::{Withdrawal};
+use freyr::role::role;
+use freyr::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
+use freyr::test_utils::tests_lib;
+use freyr::utils::i256::{i256, i256_new};
+use freyr::utils::span32::{Span32, Array32Trait};
+use freyr::withdrawal::withdrawal::{Withdrawal};
 use snforge_std::{
     declare, start_cheat_caller_address, stop_cheat_caller_address, ContractClass, ContractClassTrait,
     DeclareResultTrait
@@ -100,8 +100,8 @@ fn given_normal_conditions_when_get_market_by_salt_then_works() {
         short_token: 8901234.try_into().unwrap(),
     };
 
-    let salt: felt252 = 'satoru_market';
-    let salt2: felt252 = 'satoru_market2';
+    let salt: felt252 = 'freyr_market';
+    let salt2: felt252 = 'freyr_market2';
 
     // Test logic
 

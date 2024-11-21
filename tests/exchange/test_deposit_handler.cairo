@@ -1,11 +1,11 @@
-use satoru::deposit::deposit_utils::CreateDepositParams;
-use satoru::exchange::deposit_handler::{IDepositHandlerDispatcher, IDepositHandlerDispatcherTrait};
-use satoru::oracle::oracle_utils::SetPricesParams;
-use satoru::role::role;
-use satoru::role::role_module::{IRoleModuleDispatcher, IRoleModuleDispatcherTrait};
-use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
-use satoru::test_utils::tests_lib;
-use satoru::utils::span32::{Span32, Array32Trait};
+use freyr::deposit::deposit_utils::CreateDepositParams;
+use freyr::exchange::deposit_handler::{IDepositHandlerDispatcher, IDepositHandlerDispatcherTrait};
+use freyr::oracle::oracle_utils::SetPricesParams;
+use freyr::role::role;
+use freyr::role::role_module::{IRoleModuleDispatcher, IRoleModuleDispatcherTrait};
+use freyr::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
+use freyr::test_utils::tests_lib;
+use freyr::utils::span32::{Span32, Array32Trait};
 use snforge_std::{
     declare, start_cheat_caller_address, stop_cheat_caller_address, ContractClassTrait, DeclareResultTrait,
     ContractClass

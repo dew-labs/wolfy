@@ -11,7 +11,7 @@ mod MockAccount {
     use result::ResultTrait;
 
     // Local imports.
-    use satoru::oracle::{interfaces::account::{IAccount, IAccountDispatcher, IAccountDispatcherTrait}};
+    use freyr::oracle::{interfaces::account::{IAccount, IAccountDispatcher, IAccountDispatcherTrait}};
     use starknet::{get_caller_address, ContractAddress};
 
 

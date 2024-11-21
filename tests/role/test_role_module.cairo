@@ -1,6 +1,6 @@
 use result::ResultTrait;
 
-use satoru::role::{
+use freyr::role::{
     role_module::{IRoleModuleDispatcher, IRoleModuleDispatcherTrait},
     role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait},
     role::{
@@ -8,7 +8,7 @@ use satoru::role::{
         FEE_KEEPER, ORDER_KEEPER, FROZEN_ORDER_KEEPER, LIQUIDATION_KEEPER, ADL_KEEPER
     }
 };
-use satoru::test_utils::tests_lib;
+use freyr::test_utils::tests_lib;
 use snforge_std::{declare, start_cheat_caller_address, ContractClassTrait, DeclareResultTrait};
 use starknet::Felt252TryIntoContractAddress;
 use starknet::{ContractAddress, contract_address_const};

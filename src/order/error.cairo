@@ -1,7 +1,7 @@
 mod OrderError {
-    use satoru::order::order::OrderType;
-    use satoru::price::price::Price;
-    use satoru::utils::i256::i256;
+    use freyr::order::order::OrderType;
+    use freyr::price::price::Price;
+    use freyr::utils::i256::i256;
 
     const EMPTY_ORDER: felt252 = 'empty_order';
     const INVALID_ORDER_PRICES: felt252 = 'invalid_order_prices';

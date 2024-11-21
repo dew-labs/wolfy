@@ -4,12 +4,12 @@
 // Core lib imports.
 use integer::u256_from_felt252;
 // Local imports.
-use satoru::bank::bank::{IBankDispatcherTrait, IBankDispatcher};
-use satoru::data::data_store::{IDataStoreDispatcherTrait, IDataStoreDispatcher};
-use satoru::role::role;
-use satoru::role::role_store::{IRoleStoreDispatcherTrait, IRoleStoreDispatcher};
-use satoru::test_utils::tests_lib;
-use satoru::token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
+use freyr::bank::bank::{IBankDispatcherTrait, IBankDispatcher};
+use freyr::data::data_store::{IDataStoreDispatcherTrait, IDataStoreDispatcher};
+use freyr::role::role;
+use freyr::role::role_store::{IRoleStoreDispatcherTrait, IRoleStoreDispatcher};
+use freyr::test_utils::tests_lib;
+use freyr::token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
 use snforge_std::{
     declare, start_cheat_caller_address, stop_cheat_caller_address, ContractClassTrait, DeclareResultTrait,
     ContractClass

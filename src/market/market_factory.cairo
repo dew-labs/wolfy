@@ -43,14 +43,14 @@ mod MarketFactory {
     // Core lib imports.
     use core::result::ResultTrait;
     use poseidon::poseidon_hash_span;
-    use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
-    use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
-    use satoru::market::market::{Market, UniqueIdMarket};
-    use satoru::role::role_module::{IRoleModuleLibraryDispatcher, IRoleModuleDispatcherTrait};
+    use freyr::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
+    use freyr::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
+    use freyr::market::market::{Market, UniqueIdMarket};
+    use freyr::role::role_module::{IRoleModuleLibraryDispatcher, IRoleModuleDispatcherTrait};
 
 
     // Local imports.
-    use satoru::role::role_store::{IRoleStoreDispatcher};
+    use freyr::role::role_store::{IRoleStoreDispatcher};
     use starknet::syscalls::deploy_syscall;
     use starknet::{get_caller_address, ContractAddress, contract_address_const, ClassHash};
 
@@ -186,7 +186,7 @@ mod MarketFactory {
             market_type: felt252,
         ) -> felt252 {
             let mut data = array![];
-            data.append('SATORU_MARKET');
+            data.append('WOLFY_MARKET');
             data.append(index_token.into());
             data.append(long_token.into());
             data.append(short_token.into());

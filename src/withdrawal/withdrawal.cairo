@@ -4,11 +4,11 @@
 
 // Core lib imports.
 use alexandria_storage::list::List;
-use satoru::utils::arrays::StoreContractAddressSpan;
-use satoru::utils::span32::{Span32, DefaultSpan32};
+use freyr::utils::arrays::StoreContractAddressSpan;
+use freyr::utils::span32::{Span32, DefaultSpan32};
 
 // Local imports.
-use satoru::utils::store_arrays::StoreContractAddressArray;
+use freyr::utils::store_arrays::StoreContractAddressArray;
 use starknet::{ContractAddress, contract_address_const};
 
 /// Struct for withdrawals.

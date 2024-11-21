@@ -1,32 +1,43 @@
 import { json } from "starknet";
 import fs from "node:fs";
 
+const PROJECT_NAME = "freyr";
+
 const CONTRACTS = [
-    ["RoleStore", "./target/dev/satoru_RoleStore.contract_class.json"],
-    ["DataStore", "./target/dev/satoru_DataStore.contract_class.json"],
-    ["EventEmitter", "./target/dev/satoru_EventEmitter.contract_class.json"],
-    ["OracleStore", "./target/dev/satoru_OracleStore.contract_class.json"],
-    ["Oracle", "./target/dev/satoru_Oracle.contract_class.json"],
-    ["OrderVault", "./target/dev/satoru_OrderVault.contract_class.json"],
-    ["IncreaseOrderUtils", "./target/dev/satoru_IncreaseOrderUtils.contract_class.json"],
-    ["DecreaseOrderUtils", "./target/dev/satoru_DecreaseOrderUtils.contract_class.json"],
-    ["SwapOrderUtils", "./target/dev/satoru_SwapOrderUtils.contract_class.json"],
-    ["OrderUtils", "./target/dev/satoru_OrderUtils.contract_class.json"],
-    ["OrderHandler", "./target/dev/satoru_OrderHandler.contract_class.json"],
-    ["DepositVault", "./target/dev/satoru_DepositVault.contract_class.json"],
-    ["DepositHandler", "./target/dev/satoru_DepositHandler.contract_class.json"],
-    ["WithdrawalVault", "./target/dev/satoru_WithdrawalVault.contract_class.json"],
-    ["WithdrawalHandler", "./target/dev/satoru_WithdrawalHandler.contract_class.json"],
-    ["LiquidationHandler", "./target/dev/satoru_LiquidationHandler.contract_class.json"],
-    ["AdlHandler", "./target/dev/satoru_AdlHandler.contract_class.json"],
-    ["FeeHandler", "./target/dev/satoru_FeeHandler.contract_class.json"],
-    ["SwapHandler", "./target/dev/satoru_SwapHandler.contract_class.json"],
-    ["MarketFactory", "./target/dev/satoru_MarketFactory.contract_class.json"],
-    ["Reader", "./target/dev/satoru_Reader.contract_class.json"],
-    ["Router", "./target/dev/satoru_Router.contract_class.json"],
-    ["ExchangeRouter", "./target/dev/satoru_ExchangeRouter.contract_class.json"],
-    ["ReferralStorage", "./target/dev/satoru_ReferralStorage.contract_class.json"],
-    ["ERC20", "./target/dev/satoru_ERC20.contract_class.json"],
+    ["RoleStore", `./target/release/${PROJECT_NAME}_RoleStore.contract_class.json`],
+    ["DataStore", `./target/release/${PROJECT_NAME}_DataStore.contract_class.json`],
+    ["EventEmitter", `./target/release/${PROJECT_NAME}_EventEmitter.contract_class.json`],
+    ["OracleStore", `./target/release/${PROJECT_NAME}_OracleStore.contract_class.json`],
+    ["Oracle", `./target/release/${PROJECT_NAME}_Oracle.contract_class.json`],
+    ["OrderVault", `./target/release/${PROJECT_NAME}_OrderVault.contract_class.json`],
+    [
+        "IncreaseOrderUtils",
+        `./target/release/${PROJECT_NAME}_IncreaseOrderUtils.contract_class.json`,
+    ],
+    [
+        "DecreaseOrderUtils",
+        `./target/release/${PROJECT_NAME}_DecreaseOrderUtils.contract_class.json`,
+    ],
+    ["SwapOrderUtils", `./target/release/${PROJECT_NAME}_SwapOrderUtils.contract_class.json`],
+    ["OrderUtils", `./target/release/${PROJECT_NAME}_OrderUtils.contract_class.json`],
+    ["OrderHandler", `./target/release/${PROJECT_NAME}_OrderHandler.contract_class.json`],
+    ["DepositVault", `./target/release/${PROJECT_NAME}_DepositVault.contract_class.json`],
+    ["DepositHandler", `./target/release/${PROJECT_NAME}_DepositHandler.contract_class.json`],
+    ["WithdrawalVault", `./target/release/${PROJECT_NAME}_WithdrawalVault.contract_class.json`],
+    ["WithdrawalHandler", `./target/release/${PROJECT_NAME}_WithdrawalHandler.contract_class.json`],
+    [
+        "LiquidationHandler",
+        `./target/release/${PROJECT_NAME}_LiquidationHandler.contract_class.json`,
+    ],
+    ["AdlHandler", `./target/release/${PROJECT_NAME}_AdlHandler.contract_class.json`],
+    ["FeeHandler", `./target/release/${PROJECT_NAME}_FeeHandler.contract_class.json`],
+    ["SwapHandler", `./target/release/${PROJECT_NAME}_SwapHandler.contract_class.json`],
+    ["MarketFactory", `./target/release/${PROJECT_NAME}_MarketFactory.contract_class.json`],
+    ["Reader", `./target/release/${PROJECT_NAME}_Reader.contract_class.json`],
+    ["Router", `./target/release/${PROJECT_NAME}_Router.contract_class.json`],
+    ["ExchangeRouter", `./target/release/${PROJECT_NAME}_ExchangeRouter.contract_class.json`],
+    ["ReferralStorage", `./target/release/${PROJECT_NAME}_ReferralStorage.contract_class.json`],
+    ["ERC20", `./target/release/${PROJECT_NAME}_ERC20.contract_class.json`],
 ] as const;
 
 function genAbis() {

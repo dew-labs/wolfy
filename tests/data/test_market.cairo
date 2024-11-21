@@ -1,10 +1,10 @@
 use poseidon::poseidon_hash_span;
 
-use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
-use satoru::market::market::{Market};
-use satoru::role::role;
-use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
-use satoru::test_utils::tests_lib;
+use freyr::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
+use freyr::market::market::{Market};
+use freyr::role::role;
+use freyr::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
+use freyr::test_utils::tests_lib;
 use snforge_std::{
     declare, start_cheat_caller_address, stop_cheat_caller_address, ContractClassTrait, DeclareResultTrait
 };
@@ -94,7 +94,7 @@ fn given_normal_conditions_when_set_market_and_get_by_salt_then_works() {
         market_token: key, index_token: address_zero, long_token: address_zero, short_token: address_zero,
     };
 
-    let salt = poseidon_hash_span(array!['SATORU_MARKET', 0, 0, 0, 0].span());
+    let salt = poseidon_hash_span(array!['WOLFY_MARKET', 0, 0, 0, 0].span());
 
     // Test logic
 

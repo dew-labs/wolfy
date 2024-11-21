@@ -14,21 +14,21 @@
 // *************************************************************************
 // Core lib imports.
 use core::num::traits::Bounded;
-use satoru::adl::error::AdlError;
-use satoru::callback::callback_utils::get_saved_callback_contract;
+use freyr::adl::error::AdlError;
+use freyr::callback::callback_utils::get_saved_callback_contract;
 // Local imports.
-use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
-use satoru::data::keys;
-use satoru::event::{event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait},};
-use satoru::market::market_utils::{MarketPrices, get_enabled_market, get_market_prices, is_pnl_factor_exceeded_check};
-use satoru::nonce::nonce_utils;
-use satoru::oracle::oracle::{IOracleDispatcher, IOracleDispatcherTrait};
-use satoru::order::order::{Order, OrderType, DecreasePositionSwapType};
-use satoru::position::position::Position;
-use satoru::position::position_utils;
-use satoru::utils::arrays::are_gte_u64;
-use satoru::utils::i256::i256;
-use satoru::utils::span32::{Span32, Array32Trait};
+use freyr::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
+use freyr::data::keys;
+use freyr::event::{event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait},};
+use freyr::market::market_utils::{MarketPrices, get_enabled_market, get_market_prices, is_pnl_factor_exceeded_check};
+use freyr::nonce::nonce_utils;
+use freyr::oracle::oracle::{IOracleDispatcher, IOracleDispatcherTrait};
+use freyr::order::order::{Order, OrderType, DecreasePositionSwapType};
+use freyr::position::position::Position;
+use freyr::position::position_utils;
+use freyr::utils::arrays::are_gte_u64;
+use freyr::utils::i256::i256;
+use freyr::utils::span32::{Span32, Array32Trait};
 use starknet::{get_caller_address, ContractAddress, contract_address_const};
 /// CreateAdlOrderParams struct used in createAdlOrder to avoid stack
 #[derive(Drop, Copy, starknet::Store, Serde)]

@@ -64,6 +64,19 @@ version = "0.3.0"
 source = "git+https://github.com/keep-starknet-strange/alexandria.git?rev=95d98a5182001d07673b856a356eff0e6bd05354#95d98a5182001d07673b856a356eff0e6bd05354"
 
 [[package]]
+name = "freyr"
+version = "0.1.0"
+dependencies = [
+ "alexandria_data_structures",
+ "alexandria_math",
+ "alexandria_sorting",
+ "alexandria_storage",
+ "openzeppelin",
+ "pragma_lib",
+ "snforge_std",
+]
+
+[[package]]
 name = "openzeppelin"
 version = "0.19.0"
 source = "registry+https://scarbs.xyz/"
@@ -185,19 +198,6 @@ checksum = "sha256:0e0e6f6b20b3c4075b92941a2c124430a59f1c207f8fbdfd56ce9239e6d66
 name = "pragma_lib"
 version = "1.0.0"
 source = "git+https://github.com/astraly-labs/pragma-lib?tag=2.8.2#86d7ccdc15b349b8b48d9796fc8464c947bea6e1"
-
-[[package]]
-name = "satoru"
-version = "0.1.0"
-dependencies = [
- "alexandria_data_structures",
- "alexandria_math",
- "alexandria_sorting",
- "alexandria_storage",
- "openzeppelin",
- "pragma_lib",
- "snforge_std",
-]
 
 [[package]]
 name = "snforge_scarb_plugin"

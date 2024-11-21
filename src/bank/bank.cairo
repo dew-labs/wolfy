@@ -46,15 +46,15 @@ mod Bank {
 
     // Core lib imports.
     use core::zeroable::Zeroable;
-    use satoru::bank::error::BankError;
+    use freyr::bank::error::BankError;
 
     // Local imports.
-    use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
-    use satoru::role::role;
-    use satoru::role::role_module::{IRoleModuleLibraryDispatcher, IRoleModuleDispatcherTrait};
-    use satoru::role::role_store::{IRoleStoreDispatcher};
-    use satoru::token::erc20::interface::{IERC20, IERC20Dispatcher, IERC20DispatcherTrait};
-    use satoru::token::token_utils::transfer;
+    use freyr::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
+    use freyr::role::role;
+    use freyr::role::role_module::{IRoleModuleLibraryDispatcher, IRoleModuleDispatcherTrait};
+    use freyr::role::role_store::{IRoleStoreDispatcher};
+    use freyr::token::erc20::interface::{IERC20, IERC20Dispatcher, IERC20DispatcherTrait};
+    use freyr::token::token_utils::transfer;
     use starknet::{get_caller_address, get_contract_address, ContractAddress, ClassHash};
     use super::IBank;
 

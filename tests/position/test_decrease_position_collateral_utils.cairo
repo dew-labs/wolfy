@@ -5,24 +5,24 @@ use core::traits::{Into, TryInto};
 use debug::PrintTrait;
 
 // Local imports.
-use satoru::data::{data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait}, keys};
-use satoru::event::event_emitter::IEventEmitterDispatcher;
-use satoru::market::{market::Market, market_utils::MarketPrices};
-use satoru::mock::referral_storage::IReferralStorageDispatcher;
-use satoru::oracle::oracle::IOracleDispatcher;
-use satoru::order::{
+use freyr::data::{data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait}, keys};
+use freyr::event::event_emitter::IEventEmitterDispatcher;
+use freyr::market::{market::Market, market_utils::MarketPrices};
+use freyr::mock::referral_storage::IReferralStorageDispatcher;
+use freyr::oracle::oracle::IOracleDispatcher;
+use freyr::order::{
     order::{DecreasePositionSwapType, Order, OrderType, SecondaryOrderType},
     base_order_utils::{ExecuteOrderParams, ExecuteOrderParamsContracts}, order_vault::IOrderVaultDispatcher
 };
-use satoru::position::{
+use freyr::position::{
     position_utils::{UpdatePositionParams, DecreasePositionCache, DecreasePositionCollateralValues}, position::Position,
     decrease_position_collateral_utils
 };
-use satoru::price::price::Price;
-use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
-use satoru::swap::swap_handler::ISwapHandlerDispatcher;
-use satoru::test_utils::tests_lib;
-use satoru::utils::span32::{Span32, Array32Trait};
+use freyr::price::price::Price;
+use freyr::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
+use freyr::swap::swap_handler::ISwapHandlerDispatcher;
+use freyr::test_utils::tests_lib;
+use freyr::utils::span32::{Span32, Array32Trait};
 use snforge_std::{declare, ContractClassTrait, DeclareResultTrait, start_cheat_caller_address};
 use starknet::{ContractAddress, contract_address_const};
 

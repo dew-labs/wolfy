@@ -3,9 +3,9 @@
 // *************************************************************************
 //                                  IMPORTS
 // *************************************************************************
-use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
-use satoru::data::keys;
-use satoru::exchange::error::ExchangeError;
+use freyr::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
+use freyr::data::keys;
+use freyr::exchange::error::ExchangeError;
 use starknet::info::get_block_number;
 
 /// Validates that request age is lower than request age expiration.

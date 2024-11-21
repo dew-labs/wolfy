@@ -19,25 +19,25 @@
 // *************************************************************************
 // Core lib imports.
 use integer::U256TryIntoFelt252;
-use satoru::callback::deposit_callback_receiver::interface::{
+use freyr::callback::deposit_callback_receiver::interface::{
     IDepositCallbackReceiverDispatcher, IDepositCallbackReceiverDispatcherTrait
 };
-use satoru::callback::error::CallbackError;
-use satoru::callback::order_callback_receiver::interface::{
+use freyr::callback::error::CallbackError;
+use freyr::callback::order_callback_receiver::interface::{
     IOrderCallbackReceiverDispatcher, IOrderCallbackReceiverDispatcherTrait
 };
-use satoru::callback::withdrawal_callback_receiver::interface::{
+use freyr::callback::withdrawal_callback_receiver::interface::{
     IWithdrawalCallbackReceiverDispatcher, IWithdrawalCallbackReceiverDispatcherTrait
 };
 
 // Local imports.
-use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
-use satoru::data::keys;
-use satoru::deposit::deposit::Deposit;
-use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
-use satoru::event::event_utils::{LogData, LogDataTrait};
-use satoru::order::order::Order;
-use satoru::withdrawal::withdrawal::Withdrawal;
+use freyr::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
+use freyr::data::keys;
+use freyr::deposit::deposit::Deposit;
+use freyr::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
+use freyr::event::event_utils::{LogData, LogDataTrait};
+use freyr::order::order::Order;
+use freyr::withdrawal::withdrawal::Withdrawal;
 use starknet::ContractAddress;
 
 /// Validate that the callback_gas_limit is less than the max specified value.

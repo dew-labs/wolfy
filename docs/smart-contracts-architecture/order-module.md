@@ -8,23 +8,23 @@ This module centralizes the logic related to orders, managing various aspects in
 
 ## Smart Contracts
 
-- [OrderVault.cairo](https://github.com/keep-starknet-strange/satoru/blob/main/src/order/order_vault.cairo): Acts as a secure vault for orders, ensuring their safe storage and accessibility.
+- [OrderVault.cairo](https://github.com/dew-labs/wolfy/blob/main/src/order/order_vault.cairo): Acts as a secure vault for orders, ensuring their safe storage and accessibility.
 
 ## Cairo Library Files
 
-### [base_order_utils.cairo](https://github.com/keep-starknet-strange/satoru/blob/main/src/order/base_order_utils.cairo)
+### [base_order_utils.cairo](https://github.com/dew-labs/wolfy/blob/main/src/order/base_order_utils.cairo)
 A collection of essential functions facilitating common order-related operations, enhancing code reusability and organization.
 
-### [decrease_order_utils.cairo](https://github.com/keep-starknet-strange/satoru/blob/main/src/order/decrease_order_utils.cairo)
+### [decrease_order_utils.cairo](https://github.com/dew-labs/wolfy/blob/main/src/order/decrease_order_utils.cairo)
 Contains functions aiding in the processing of decreasing orders, ensuring their accurate and efficient handling.
 
-### [increase_order_utils.cairo](https://github.com/keep-starknet-strange/satoru/blob/main/src/order/increase_order_utils.cairo)
+### [increase_order_utils.cairo](https://github.com/dew-labs/wolfy/blob/main/src/order/increase_order_utils.cairo)
 Comprises functions to assist in processing increasing orders, maintaining precision and efficiency in operations.
 
-### [order.cairo](https://github.com/keep-starknet-strange/satoru/blob/main/src/order/order.cairo)
+### [order.cairo](https://github.com/dew-labs/wolfy/blob/main/src/order/order.cairo)
 Defines the structure for orders, serving as a blueprint for order objects within the system.
 
-### [order_utils.cairo](https://github.com/keep-starknet-strange/satoru/blob/main/src/order/order_utils.cairo)
+### [order_utils.cairo](https://github.com/dew-labs/wolfy/blob/main/src/order/order_utils.cairo)
 Encompasses various order-related functions, offering utilities to streamline order processing and management.
 
 ## Detailed Structure and Types

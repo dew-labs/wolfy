@@ -52,14 +52,14 @@ mod DepositVault {
 
     // Core lib imports.
     use core::zeroable::Zeroable;
-    use satoru::bank::bank::{IBankLibraryDispatcher};
-    use satoru::bank::strict_bank::{IStrictBankLibraryDispatcher, IStrictBankDispatcherTrait};
-    use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
-    use satoru::role::role_module::{IRoleModuleLibraryDispatcher};
+    use freyr::bank::bank::{IBankLibraryDispatcher};
+    use freyr::bank::strict_bank::{IStrictBankLibraryDispatcher, IStrictBankDispatcherTrait};
+    use freyr::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
+    use freyr::role::role_module::{IRoleModuleLibraryDispatcher};
 
 
     // Local imports.
-    use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
+    use freyr::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
     use starknet::storage::Map;
     use starknet::{get_caller_address, ContractAddress, contract_address_const, ClassHash};
 

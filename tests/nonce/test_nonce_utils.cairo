@@ -1,6 +1,6 @@
-use satoru::data::data_store::IDataStoreDispatcherTrait;
-use satoru::nonce::nonce_utils::{get_current_nonce, increment_nonce, compute_key};
-use satoru::test_utils::tests_lib;
+use freyr::data::data_store::IDataStoreDispatcherTrait;
+use freyr::nonce::nonce_utils::{get_current_nonce, increment_nonce, compute_key};
+use freyr::test_utils::tests_lib;
 
 #[test]
 fn given_normal_conditions_when_nonce_utils_functions_then_works() {

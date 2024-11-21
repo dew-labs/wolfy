@@ -7,8 +7,8 @@ Keeper is a backend service designed to detect specific conditions, such as pric
 ### Setup steps
 
 ```bash
-git clone https://github.com/dew-labs/satoru.git
-cd satoru/apps/keeper
+git clone https://github.com/dew-labs/wolfy.git
+cd wolfy/apps/keeper
 ```
 
 Install [mise](https://mise.jdx.dev/getting-started.html)

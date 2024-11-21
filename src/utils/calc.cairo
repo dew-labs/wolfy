@@ -5,8 +5,8 @@
 use core::num::traits::Bounded;
 use debug::PrintTrait;
 use integer::{u256_checked_add, U256PartialOrd};
-use satoru::utils::error_utils;
-use satoru::utils::i256::{i256, i256_new, i256_neg, i256Zeroable, i256_add};
+use freyr::utils::error_utils;
+use freyr::utils::i256::{i256, i256_new, i256_neg, i256Zeroable, i256_add};
 /// Calculates the result of dividing the first number by the second number
 /// rounded up to the nearest integer.
 /// # Arguments

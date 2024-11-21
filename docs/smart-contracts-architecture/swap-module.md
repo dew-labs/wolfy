@@ -4,13 +4,13 @@ The Swap Module is crucial for switching one token for another in the system. It
 
 ## Smart Contracts
 
-- [SwapHandler](https://github.com/keep-starknet-strange/satoru/blob/main/src/swap/swap_handler): This contract is responsible for handling swaps, ensuring that only authorized entities can invoke the swap function. It validates the swap parameters and interacts with the `swap_utils` to perform the swap.
+- [SwapHandler](https://github.com/dew-labs/wolfy/blob/main/src/swap/swap_handler): This contract is responsible for handling swaps, ensuring that only authorized entities can invoke the swap function. It validates the swap parameters and interacts with the `swap_utils` to perform the swap.
 
 ## Cairo Library Files
 
-- [swap_utils.cairo](https://github.com/keep-starknet-strange/satoru/blob/main/src/swap/swap_utils.cairo): Implements the logic for performing swaps, including validating markets, calculating price impacts, applying fees, and transferring tokens.
-  
-- [error.cairo](https://github.com/keep-starknet-strange/satoru/blob/main/src/swap/error.cairo): Defines errors specific to the Swap Module, handling cases like insufficient output amount, invalid input token, and duplicated market in swap path.
+- [swap_utils.cairo](https://github.com/dew-labs/wolfy/blob/main/src/swap/swap_utils.cairo): Implements the logic for performing swaps, including validating markets, calculating price impacts, applying fees, and transferring tokens.
+
+- [error.cairo](https://github.com/dew-labs/wolfy/blob/main/src/swap/error.cairo): Defines errors specific to the Swap Module, handling cases like insufficient output amount, invalid input token, and duplicated market in swap path.
 
 ## Structures and Types
 

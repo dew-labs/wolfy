@@ -4,10 +4,10 @@ The Role Module is crucial for managing who has access to what, controlling the 
 
 It consists of the following smart contracts and Cairo library files:
 
-- [RoleStore](https://github.com/keep-starknet-strange/satoru/blob/main/src/role/role_store.cairo): The central contract of the module, focusing on storing roles and managing access control across the protocol.
-- [role.cairo](https://github.com/keep-starknet-strange/satoru/blob/main/src/role/role.cairo): Holds the definitions of different roles existing within the protocol.
-- [error.cairo](https://github.com/keep-starknet-strange/satoru/blob/main/src/role/error.cairo): Encompasses the error codes specific to this module.
-- [role_module.cairo](https://github.com/keep-starknet-strange/satoru/blob/main/src/role/role_module.cairo): Implements the `RoleModule` contract interface, focusing on role validation and interaction with `RoleStore`.
+- [RoleStore](https://github.com/dew-labs/wolfy/blob/main/src/role/role_store.cairo): The central contract of the module, focusing on storing roles and managing access control across the protocol.
+- [role.cairo](https://github.com/dew-labs/wolfy/blob/main/src/role/role.cairo): Holds the definitions of different roles existing within the protocol.
+- [error.cairo](https://github.com/dew-labs/wolfy/blob/main/src/role/error.cairo): Encompasses the error codes specific to this module.
+- [role_module.cairo](https://github.com/dew-labs/wolfy/blob/main/src/role/role_module.cairo): Implements the `RoleModule` contract interface, focusing on role validation and interaction with `RoleStore`.
 
 ### Features of role_module.cairo
 

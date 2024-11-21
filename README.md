@@ -1,4 +1,4 @@
-# Satoru
+# Wolfy Trade
 
 ## Development
 

@@ -2,46 +2,46 @@
 use core::traits::{TryInto, Into};
 use debug::PrintTrait;
 use result::ResultTrait;
-use satoru::bank::bank::{IBankDispatcherTrait, IBankDispatcher};
-use satoru::bank::strict_bank::{IStrictBankDispatcher, IStrictBankDispatcherTrait};
+use freyr::bank::bank::{IBankDispatcherTrait, IBankDispatcher};
+use freyr::bank::strict_bank::{IStrictBankDispatcher, IStrictBankDispatcherTrait};
 
 // Local imports.
-use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
-use satoru::data::keys;
-use satoru::deposit::deposit::Deposit;
-use satoru::deposit::deposit_utils::CreateDepositParams;
-use satoru::deposit::deposit_utils;
-use satoru::deposit::deposit_vault::{IDepositVaultDispatcher, IDepositVaultDispatcherTrait};
-use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
-use satoru::exchange::deposit_handler::{IDepositHandlerDispatcher, IDepositHandlerDispatcherTrait};
-use satoru::exchange::liquidation_handler::{ILiquidationHandlerDispatcher, ILiquidationHandlerDispatcherTrait};
-use satoru::exchange::order_handler::{OrderHandler, IOrderHandlerDispatcher, IOrderHandlerDispatcherTrait};
-use satoru::exchange::withdrawal_handler::{IWithdrawalHandlerDispatcher, IWithdrawalHandlerDispatcherTrait};
-use satoru::market::market::{Market, UniqueIdMarket};
-use satoru::market::market_factory::{IMarketFactoryDispatcher, IMarketFactoryDispatcherTrait};
-use satoru::market::market_token::{IMarketTokenDispatcher, IMarketTokenDispatcherTrait};
-use satoru::market::market_utils;
-use satoru::market::{market::{UniqueIdMarketImpl},};
-use satoru::mock::referral_storage::{IReferralStorageDispatcher, IReferralStorageDispatcherTrait};
-use satoru::oracle::oracle::{IOracleDispatcher, IOracleDispatcherTrait};
-use satoru::oracle::oracle_store::{IOracleStoreDispatcher, IOracleStoreDispatcherTrait};
-use satoru::oracle::oracle_utils::SetPricesParams;
-use satoru::order::base_order_utils::{CreateOrderParams};
-use satoru::order::order::{Order, OrderType, SecondaryOrderType, DecreasePositionSwapType};
-use satoru::order::order_utils::{IOrderUtilsDispatcher, IOrderUtilsDispatcherTrait};
-use satoru::order::order_vault::{IOrderVaultDispatcher, IOrderVaultDispatcherTrait};
-use satoru::position::position_utils;
-use satoru::price::price::{Price, PriceTrait};
-use satoru::reader::reader::{IReaderDispatcher, IReaderDispatcherTrait};
-use satoru::role::role;
-use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
-use satoru::router::exchange_router::{IExchangeRouterDispatcher, IExchangeRouterDispatcherTrait};
-use satoru::swap::swap_handler::{ISwapHandlerDispatcher, ISwapHandlerDispatcherTrait};
-use satoru::token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
-use satoru::utils::span32::{Span32, DefaultSpan32, Array32Trait};
-use satoru::withdrawal::withdrawal::Withdrawal;
-use satoru::withdrawal::withdrawal_utils;
-use satoru::withdrawal::withdrawal_vault::{IWithdrawalVaultDispatcher, IWithdrawalVaultDispatcherTrait};
+use freyr::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
+use freyr::data::keys;
+use freyr::deposit::deposit::Deposit;
+use freyr::deposit::deposit_utils::CreateDepositParams;
+use freyr::deposit::deposit_utils;
+use freyr::deposit::deposit_vault::{IDepositVaultDispatcher, IDepositVaultDispatcherTrait};
+use freyr::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
+use freyr::exchange::deposit_handler::{IDepositHandlerDispatcher, IDepositHandlerDispatcherTrait};
+use freyr::exchange::liquidation_handler::{ILiquidationHandlerDispatcher, ILiquidationHandlerDispatcherTrait};
+use freyr::exchange::order_handler::{OrderHandler, IOrderHandlerDispatcher, IOrderHandlerDispatcherTrait};
+use freyr::exchange::withdrawal_handler::{IWithdrawalHandlerDispatcher, IWithdrawalHandlerDispatcherTrait};
+use freyr::market::market::{Market, UniqueIdMarket};
+use freyr::market::market_factory::{IMarketFactoryDispatcher, IMarketFactoryDispatcherTrait};
+use freyr::market::market_token::{IMarketTokenDispatcher, IMarketTokenDispatcherTrait};
+use freyr::market::market_utils;
+use freyr::market::{market::{UniqueIdMarketImpl},};
+use freyr::mock::referral_storage::{IReferralStorageDispatcher, IReferralStorageDispatcherTrait};
+use freyr::oracle::oracle::{IOracleDispatcher, IOracleDispatcherTrait};
+use freyr::oracle::oracle_store::{IOracleStoreDispatcher, IOracleStoreDispatcherTrait};
+use freyr::oracle::oracle_utils::SetPricesParams;
+use freyr::order::base_order_utils::{CreateOrderParams};
+use freyr::order::order::{Order, OrderType, SecondaryOrderType, DecreasePositionSwapType};
+use freyr::order::order_utils::{IOrderUtilsDispatcher, IOrderUtilsDispatcherTrait};
+use freyr::order::order_vault::{IOrderVaultDispatcher, IOrderVaultDispatcherTrait};
+use freyr::position::position_utils;
+use freyr::price::price::{Price, PriceTrait};
+use freyr::reader::reader::{IReaderDispatcher, IReaderDispatcherTrait};
+use freyr::role::role;
+use freyr::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
+use freyr::router::exchange_router::{IExchangeRouterDispatcher, IExchangeRouterDispatcherTrait};
+use freyr::swap::swap_handler::{ISwapHandlerDispatcher, ISwapHandlerDispatcherTrait};
+use freyr::token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
+use freyr::utils::span32::{Span32, DefaultSpan32, Array32Trait};
+use freyr::withdrawal::withdrawal::Withdrawal;
+use freyr::withdrawal::withdrawal_utils;
+use freyr::withdrawal::withdrawal_vault::{IWithdrawalVaultDispatcher, IWithdrawalVaultDispatcherTrait};
 use snforge_std::{
     declare, start_cheat_caller_address, stop_cheat_caller_address, start_cheat_block_number, ContractClassTrait,
     DeclareResultTrait, ContractClass
@@ -74,7 +74,7 @@ fn deploy_mock_account_at(mock_account_contract: ContractClass, address: Contrac
 // Not used in setup
 fn deploy_erc20_token(deposit_vault_address: ContractAddress) -> ContractAddress {
     let erc20_contract = declare("ERC20").unwrap().contract_class();
-    let constructor_calldata3 = array!['satoru', 'STU', 18, INITIAL_TOKENS_MINTED, 0, deposit_vault_address.into()];
+    let constructor_calldata3 = array!['freyr', 'STU', 18, INITIAL_TOKENS_MINTED, 0, deposit_vault_address.into()];
     let (contract_address, _) = erc20_contract.deploy(@constructor_calldata3).unwrap();
     contract_address
 }

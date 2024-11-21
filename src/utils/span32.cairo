@@ -5,7 +5,7 @@
 // Core lib imports.
 
 // Local imports.
-use satoru::withdrawal::withdrawal::Withdrawal;
+use freyr::withdrawal::withdrawal::Withdrawal;
 use starknet::storage_access::{Store, StorageAddress, StorageBaseAddress};
 use starknet::{ContractAddress, SyscallResult,};
 

@@ -58,7 +58,7 @@ mod deposit {
     mod execute_deposit_utils;
 }
 
-// `exchange` contains main satoru handlers to create and execute actions.
+// `exchange` contains main freyr handlers to create and execute actions.
 mod exchange {
     mod adl_handler;
     mod base_order_handler;
@@ -174,7 +174,7 @@ mod mock {
     mod referral_storage;
 }
 
-// `oracle` contains functions related to oracles used by Satoru.
+// `oracle` contains functions related to oracles used by Wolfy.
 mod oracle {
     mod error;
     mod oracle;

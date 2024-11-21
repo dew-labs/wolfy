@@ -69,7 +69,7 @@ mod RoleStore {
     use core::zeroable::Zeroable;
 
     // Local imports.
-    use satoru::role::{role, error::RoleError};
+    use freyr::role::{role, error::RoleError};
     use starknet::storage::Map;
     use starknet::{ContractAddress, get_caller_address, contract_address_const};
 

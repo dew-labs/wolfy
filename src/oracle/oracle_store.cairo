@@ -58,8 +58,8 @@ mod OracleStore {
     use result::ResultTrait;
 
     // Local imports.
-    use satoru::event::event_emitter::{IEventEmitterDispatcher};
-    use satoru::oracle::error::OracleError;
+    use freyr::event::event_emitter::{IEventEmitterDispatcher};
+    use freyr::oracle::error::OracleError;
     use starknet::storage::Map;
     use starknet::{ContractAddress, contract_address_const};
     use super::IOracleStore;

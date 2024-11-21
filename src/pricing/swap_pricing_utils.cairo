@@ -7,16 +7,16 @@
 use result::ResultTrait;
 
 // Local imports.
-use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
-use satoru::data::keys;
-use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
-use satoru::market::market::Market;
-use satoru::market::market_utils;
-use satoru::pricing::error::PricingError;
-use satoru::pricing::pricing_utils;
-use satoru::utils::calc;
-use satoru::utils::i256::{i256, i256_neg};
-use satoru::utils::precision;
+use freyr::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
+use freyr::data::keys;
+use freyr::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
+use freyr::market::market::Market;
+use freyr::market::market_utils;
+use freyr::pricing::error::PricingError;
+use freyr::pricing::pricing_utils;
+use freyr::utils::calc;
+use freyr::utils::i256::{i256, i256_neg};
+use freyr::utils::precision;
 use starknet::ContractAddress;
 
 

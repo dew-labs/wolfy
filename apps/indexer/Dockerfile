@@ -1,6 +1,6 @@
 FROM oven/bun:alpine AS base
 
-WORKDIR /satoru
+WORKDIR /wolfy
 
 ARG NET
 ENV NET=${NET}
@@ -22,7 +22,7 @@ COPY tsconfig.json ./
 
 FROM base AS indexer
 
-WORKDIR /satoru/apps/indexer
+WORKDIR /wolfy/apps/indexer
 
 COPY apps/indexer/src ./src
 COPY apps/indexer/.checkpoint ./.checkpoint

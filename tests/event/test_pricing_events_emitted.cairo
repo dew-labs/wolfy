@@ -1,11 +1,11 @@
-use satoru::event::event_emitter::EventEmitter::{SwapInfo, SwapFeesCollected};
+use freyr::event::event_emitter::EventEmitter::{SwapInfo, SwapFeesCollected};
 
-use satoru::event::event_emitter::{EventEmitter, IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
+use freyr::event::event_emitter::{EventEmitter, IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
 
 
-use satoru::pricing::swap_pricing_utils::SwapFees;
-use satoru::test_utils::tests_lib::deploy_event_emitter;
-use satoru::utils::i256::{i256, i256_new};
+use freyr::pricing::swap_pricing_utils::SwapFees;
+use freyr::test_utils::tests_lib::deploy_event_emitter;
+use freyr::utils::i256::{i256, i256_new};
 use snforge_std::{
     declare, ContractClassTrait, DeclareResultTrait, spy_events, EventSpy, EventSpyTrait, Event, EventSpyAssertionsTrait
 };

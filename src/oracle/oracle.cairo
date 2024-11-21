@@ -12,13 +12,13 @@
 use pragma_lib::types::{DataType, PragmaPricesResponse};
 
 // Local imports
-use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
-use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
-use satoru::oracle::{
+use freyr::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
+use freyr::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
+use freyr::oracle::{
     oracle_store::{IOracleStoreDispatcher, IOracleStoreDispatcherTrait}, oracle_utils::{SetPricesParams, ReportInfo},
     error::OracleError,
 };
-use satoru::price::price::Price;
+use freyr::price::price::Price;
 use starknet::ContractAddress;
 
 
@@ -190,18 +190,18 @@ mod Oracle {
     use pragma_lib::abi::{IPragmaABIDispatcher, IPragmaABIDispatcherTrait};
     use pragma_lib::types::{DataType, PragmaPricesResponse};
     // Local imports.
-    use satoru::data::{data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait}, keys};
-    use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
-    use satoru::oracle::{
+    use freyr::data::{data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait}, keys};
+    use freyr::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
+    use freyr::oracle::{
         oracle_store::{IOracleStoreDispatcher, IOracleStoreDispatcherTrait}, oracle_utils,
         oracle_utils::{SetPricesParams, ReportInfo}, error::OracleError,
     };
-    use satoru::price::price::Price;
-    use satoru::role::role_module::{IRoleModule, RoleModule};
-    use satoru::role::role_module::{IRoleModuleLibraryDispatcher, IRoleModuleDispatcherTrait};
-    use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
-    use satoru::utils::u256_mask::{Mask, MaskTrait, validate_unique_and_set_index};
-    use satoru::utils::{arrays, arrays::pow, bits, calc, precision};
+    use freyr::price::price::Price;
+    use freyr::role::role_module::{IRoleModule, RoleModule};
+    use freyr::role::role_module::{IRoleModuleLibraryDispatcher, IRoleModuleDispatcherTrait};
+    use freyr::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
+    use freyr::utils::u256_mask::{Mask, MaskTrait, validate_unique_and_set_index};
+    use freyr::utils::{arrays, arrays::pow, bits, calc, precision};
     use starknet::SyscallResultTrait;
     use starknet::contract_address_const;
     use starknet::info::{get_block_timestamp, get_block_number};

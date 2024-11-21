@@ -1,12 +1,12 @@
-use satoru::event::event_emitter::EventEmitter::{
+use freyr::event::event_emitter::EventEmitter::{
     SignalAddOracleSigner, AddOracleSigner, SignalSetFeeReceiver, SignalRemoveOracleSigner, RemoveOracleSigner,
     SetFeeReceiver, SignalGrantRole, GrantRole, SignalRevokeRole, RevokeRole, SignalSetPriceFeed, SetPriceFeed,
     SignalPendingAction, ClearPendingAction
 };
 
-use satoru::event::event_emitter::{EventEmitter, IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
+use freyr::event::event_emitter::{EventEmitter, IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
 
-use satoru::test_utils::tests_lib::deploy_event_emitter;
+use freyr::test_utils::tests_lib::deploy_event_emitter;
 use snforge_std::{
     declare, ContractClassTrait, DeclareResultTrait, spy_events, EventSpy, EventSpyTrait, Event, EventSpyAssertionsTrait
 };

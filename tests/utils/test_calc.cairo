@@ -1,11 +1,11 @@
 use core::num::traits::Bounded;
 
-use satoru::role::role;
-use satoru::utils::calc::{
+use freyr::role::role;
+use freyr::utils::calc::{
     roundup_division, roundup_magnitude_division, sum_return_uint_256, sum_return_int_256, diff, to_signed, to_unsigned,
     pow_u64, bounded_add, bounded_sub, max_i256, min_i256
 };
-use satoru::utils::i256::{i256, i256_new};
+use freyr::utils::i256::{i256, i256_new};
 
 fn max_i256_as_u256() -> u256 {
     return max_i256().mag;

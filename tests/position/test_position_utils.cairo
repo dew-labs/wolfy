@@ -8,30 +8,30 @@ use debug::PrintTrait;
 use poseidon::poseidon_hash_span;
 use result::ResultTrait;
 // Local imports.
-use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
-use satoru::data::keys;
-use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
-use satoru::market::market::{Market, UniqueIdMarket, IntoMarketToken};
-use satoru::market::market_token::{IMarketTokenDispatcher, IMarketTokenDispatcherTrait};
-use satoru::market::{market_utils::MarketPrices};
-use satoru::mock::referral_storage::{IReferralStorageDispatcher, IReferralStorageDispatcherTrait};
-use satoru::oracle::oracle::{IOracleDispatcher, IOracleDispatcherTrait};
-use satoru::order::base_order_utils::ExecuteOrderParamsContracts;
-use satoru::order::{
+use freyr::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
+use freyr::data::keys;
+use freyr::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
+use freyr::market::market::{Market, UniqueIdMarket, IntoMarketToken};
+use freyr::market::market_token::{IMarketTokenDispatcher, IMarketTokenDispatcherTrait};
+use freyr::market::{market_utils::MarketPrices};
+use freyr::mock::referral_storage::{IReferralStorageDispatcher, IReferralStorageDispatcherTrait};
+use freyr::oracle::oracle::{IOracleDispatcher, IOracleDispatcherTrait};
+use freyr::order::base_order_utils::ExecuteOrderParamsContracts;
+use freyr::order::{
     order::{Order, SecondaryOrderType, OrderType, DecreasePositionSwapType},
     order_vault::{IOrderVaultDispatcher, IOrderVaultDispatcherTrait}
 };
-use satoru::position::{
+use freyr::position::{
     position::Position, position_utils::UpdatePositionParams, position_utils::WillPositionCollateralBeSufficientValues,
     position_utils
 };
-use satoru::price::price::{Price, PriceTrait};
-use satoru::pricing::position_pricing_utils::{PositionFees, PositionReferralFees};
-use satoru::role::role;
-use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
-use satoru::swap::swap_handler::{ISwapHandlerDispatcher, ISwapHandlerDispatcherTrait};
-use satoru::test_utils::tests_lib;
-use satoru::utils::i256::{i256, i256_new};
+use freyr::price::price::{Price, PriceTrait};
+use freyr::pricing::position_pricing_utils::{PositionFees, PositionReferralFees};
+use freyr::role::role;
+use freyr::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
+use freyr::swap::swap_handler::{ISwapHandlerDispatcher, ISwapHandlerDispatcherTrait};
+use freyr::test_utils::tests_lib;
+use freyr::utils::i256::{i256, i256_new};
 use snforge_std::{
     declare, start_cheat_caller_address, stop_cheat_caller_address, start_cheat_block_timestamp, ContractClassTrait,
     DeclareResultTrait, ContractClass

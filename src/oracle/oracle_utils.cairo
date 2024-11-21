@@ -8,17 +8,17 @@ use alexandria_data_structures::span_ext::SpanTraitExt;
 use ecdsa::recover_public_key;
 use hash::LegacyHash;
 use result::ResultTrait;
-use satoru::bank::bank::{IBankDispatcher, IBankDispatcherTrait};
+use freyr::bank::bank::{IBankDispatcher, IBankDispatcherTrait};
 // Local imports.
-use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
-use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
-use satoru::market::market::{Market};
-use satoru::oracle::{
+use freyr::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
+use freyr::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
+use freyr::market::market::{Market};
+use freyr::oracle::{
     oracle::{SetPricesCache, SetPricesInnerCache}, error::OracleError,
     interfaces::account::{IAccountDispatcher, IAccountDispatcherTrait}
 };
-use satoru::price::price::{Price};
-use satoru::utils::{
+use freyr::price::price::{Price};
+use freyr::utils::{
     store_arrays::{StoreContractAddressArray, StorePriceArray, StoreU256Array, StoreFelt252Array},
     arrays::{are_lte_u64, are_gte_u64, get_uncompacted_value, get_uncompacted_value_u64},
     bits::{BITMASK_8, BITMASK_16, BITMASK_32, BITMASK_64}

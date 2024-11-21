@@ -3,32 +3,32 @@
 // *************************************************************************
 // Core lib imports.
 use debug::PrintTrait;
-use satoru::bank::bank::{IBankDispatcher, IBankDispatcherTrait};
-use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
-use satoru::data::keys::{skip_borrowing_fee_for_smaller_side, max_swap_path_length};
-use satoru::data::keys;
-use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
-use satoru::event::event_emitter;
-use satoru::market::{
+use freyr::bank::bank::{IBankDispatcher, IBankDispatcherTrait};
+use freyr::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
+use freyr::data::keys::{skip_borrowing_fee_for_smaller_side, max_swap_path_length};
+use freyr::data::keys;
+use freyr::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
+use freyr::event::event_emitter;
+use freyr::market::{
     market::Market, error::MarketError, market_pool_value_info::MarketPoolValueInfo, market_store_utils,
     market_token::{IMarketTokenDispatcher, IMarketTokenDispatcherTrait}
 };
-use satoru::oracle::oracle::{IOracleDispatcher, IOracleDispatcherTrait};
-use satoru::oracle::oracle::{Oracle, SetPricesParams};
-use satoru::oracle::oracle_store::{IOracleStoreDispatcher, IOracleStoreDispatcherTrait};
-use satoru::position::position::Position;
-use satoru::price::price::{Price, PriceTrait};
-use satoru::token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
+use freyr::oracle::oracle::{IOracleDispatcher, IOracleDispatcherTrait};
+use freyr::oracle::oracle::{Oracle, SetPricesParams};
+use freyr::oracle::oracle_store::{IOracleStoreDispatcher, IOracleStoreDispatcherTrait};
+use freyr::position::position::Position;
+use freyr::price::price::{Price, PriceTrait};
+use freyr::token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
 // Local imports.
-use satoru::utils::calc::roundup_magnitude_division;
-use satoru::utils::calc::{roundup_division, to_signed, sum_return_int_256, to_unsigned};
-use satoru::utils::calc;
-use satoru::utils::precision::{FLOAT_PRECISION, FLOAT_PRECISION_SQRT};
-use satoru::utils::precision::{apply_exponent_factor, float_to_wei, mul_div};
-use satoru::utils::precision::{mul_div_roundup, to_factor_ival, apply_factor_u256, to_factor};
-use satoru::utils::precision;
-use satoru::utils::span32::{Span32, Span32Trait};
-use satoru::utils::{i256::{i256, i256_neg}, error_utils};
+use freyr::utils::calc::roundup_magnitude_division;
+use freyr::utils::calc::{roundup_division, to_signed, sum_return_int_256, to_unsigned};
+use freyr::utils::calc;
+use freyr::utils::precision::{FLOAT_PRECISION, FLOAT_PRECISION_SQRT};
+use freyr::utils::precision::{apply_exponent_factor, float_to_wei, mul_div};
+use freyr::utils::precision::{mul_div_roundup, to_factor_ival, apply_factor_u256, to_factor};
+use freyr::utils::precision;
+use freyr::utils::span32::{Span32, Span32Trait};
+use freyr::utils::{i256::{i256, i256_neg}, error_utils};
 use starknet::{ContractAddress, get_caller_address, get_block_timestamp, contract_address_const};
 
 #[derive(Default, Drop, Copy, starknet::Store, Serde)]

@@ -1,4 +1,4 @@
-use satoru::price::price::{Price, PriceTrait};
+use freyr::price::price::{Price, PriceTrait};
 
 #[test]
 fn given_normal_conditions_when_mid_price_then_works() {

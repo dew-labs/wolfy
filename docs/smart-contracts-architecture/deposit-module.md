@@ -1,12 +1,12 @@
 # Deposit Module
 
-The deposit module contains main Satoru functions for deposit, to manage the depositing of liquidity into a market.
+The deposit module contains main Wolfy functions for deposit, to manage the depositing of liquidity into a market.
 
 It contains the following Cairo library files:
 
-- [deposit_utils.cairo](https://github.com/keep-starknet-strange/satoru/blob/main/src/deposit/deposit_utils.cairo): Library for deposit functions, to help with the depositing of liquidity into a market in return for market tokens.
-- [deposit.cairo](https://github.com/keep-starknet-strange/satoru/blob/main/src/deposit/deposit.cairo): Contains Deposit struct.
-- [execute_deposit_utils.cairo](https://github.com/keep-starknet-strange/satoru/blob/main/src/deposit/execute_deposit_utils.cairo): Library for deposit functions, to help with the depositing of liquidity into a market in return for market tokens.
+- [deposit_utils.cairo](https://github.com/dew-labs/wolfy/blob/main/src/deposit/deposit_utils.cairo): Library for deposit functions, to help with the depositing of liquidity into a market in return for market tokens.
+- [deposit.cairo](https://github.com/dew-labs/wolfy/blob/main/src/deposit/deposit.cairo): Contains Deposit struct.
+- [execute_deposit_utils.cairo](https://github.com/dew-labs/wolfy/blob/main/src/deposit/execute_deposit_utils.cairo): Library for deposit functions, to help with the depositing of liquidity into a market in return for market tokens.
 
 ## Structures and Types
 

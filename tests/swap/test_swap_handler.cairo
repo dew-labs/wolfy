@@ -2,22 +2,22 @@
 use array::ArrayTrait;
 use core::traits::Into;
 use debug::PrintTrait;
-use satoru::bank::bank::{IBankDispatcher, IBankDispatcherTrait};
-use satoru::data::{data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait}, keys};
-use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
-use satoru::market::market::Market;
-use satoru::market::market_factory::{IMarketFactoryDispatcher, IMarketFactoryDispatcherTrait};
-use satoru::market::market_token::{IMarketTokenDispatcher, IMarketTokenDispatcherTrait};
-use satoru::oracle::oracle::{IOracleDispatcher, IOracleDispatcherTrait};
-use satoru::price::price::{Price, PriceTrait};
-use satoru::role::role;
-use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
-use satoru::swap::swap_handler::{ISwapHandlerDispatcher, ISwapHandlerDispatcherTrait};
-use satoru::swap::swap_utils::SwapParams;
+use freyr::bank::bank::{IBankDispatcher, IBankDispatcherTrait};
+use freyr::data::{data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait}, keys};
+use freyr::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
+use freyr::market::market::Market;
+use freyr::market::market_factory::{IMarketFactoryDispatcher, IMarketFactoryDispatcherTrait};
+use freyr::market::market_token::{IMarketTokenDispatcher, IMarketTokenDispatcherTrait};
+use freyr::oracle::oracle::{IOracleDispatcher, IOracleDispatcherTrait};
+use freyr::price::price::{Price, PriceTrait};
+use freyr::role::role;
+use freyr::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
+use freyr::swap::swap_handler::{ISwapHandlerDispatcher, ISwapHandlerDispatcherTrait};
+use freyr::swap::swap_utils::SwapParams;
 
 // Local imports.
-use satoru::test_utils::tests_lib;
-use satoru::token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
+use freyr::test_utils::tests_lib;
+use freyr::token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
 use snforge_std::{declare, ContractClassTrait, DeclareResultTrait, start_cheat_caller_address, ContractClass};
 use starknet::{get_caller_address, ContractAddress, contract_address_const,};
 
@@ -27,9 +27,9 @@ use starknet::{get_caller_address, ContractAddress, contract_address_const,};
 fn deploy_tokens() -> (ContractAddress, ContractAddress, ContractAddress) {
     let contract = declare("ERC20").unwrap().contract_class();
     let caller_address: ContractAddress = tests_lib::get_c4ller_address();
-    let constructor_calldata: Array<felt252> = array!['satoru_index', 'STU', 18, 4000, 0, caller_address.into()];
-    let constructor_calldata1 = array!['satoru_long', 'STU', 18, 4000, 0, caller_address.into()];
-    let constructor_calldata2 = array!['satoru_short', 'STU', 18, 4000, 0, caller_address.into()];
+    let constructor_calldata: Array<felt252> = array!['freyr_index', 'STU', 18, 4000, 0, caller_address.into()];
+    let constructor_calldata1 = array!['freyr_long', 'STU', 18, 4000, 0, caller_address.into()];
+    let constructor_calldata2 = array!['freyr_short', 'STU', 18, 4000, 0, caller_address.into()];
 
     let (contract_address1, _) = contract.deploy(@constructor_calldata).unwrap();
     let (contract_address2, _) = contract.deploy(@constructor_calldata1).unwrap();

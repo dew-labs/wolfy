@@ -6,24 +6,24 @@
 // Core lib imports.
 use poseidon::poseidon_hash_span;
 // Local imports.
-use satoru::data::{data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait}, keys};
-use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
-use satoru::market::{market::Market, market_utils::MarketPrices, market_utils};
-use satoru::mock::referral_storage::{IReferralStorageDispatcher, IReferralStorageDispatcherTrait};
-use satoru::oracle::oracle::{IOracleDispatcher, IOracleDispatcherTrait};
-use satoru::order::{
+use freyr::data::{data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait}, keys};
+use freyr::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
+use freyr::market::{market::Market, market_utils::MarketPrices, market_utils};
+use freyr::mock::referral_storage::{IReferralStorageDispatcher, IReferralStorageDispatcherTrait};
+use freyr::oracle::oracle::{IOracleDispatcher, IOracleDispatcherTrait};
+use freyr::order::{
     order::{Order, SecondaryOrderType}, base_order_utils::ExecuteOrderParamsContracts,
     order_vault::{IOrderVaultDispatcher, IOrderVaultDispatcherTrait}
 };
-use satoru::position::{position::Position, error::PositionError};
-use satoru::price::price::{Price, PriceTrait};
-use satoru::pricing::{
+use freyr::position::{position::Position, error::PositionError};
+use freyr::price::price::{Price, PriceTrait};
+use freyr::pricing::{
     position_pricing_utils, position_pricing_utils::PositionFees, position_pricing_utils::GetPriceImpactUsdParams,
     position_pricing_utils::GetPositionFeesParams
 };
-use satoru::referral::referral_utils;
-use satoru::swap::swap_handler::{ISwapHandlerDispatcher, ISwapHandlerDispatcherTrait};
-use satoru::utils::{calc, precision, i256::i256, default::DefaultContractAddress, error_utils};
+use freyr::referral::referral_utils;
+use freyr::swap::swap_handler::{ISwapHandlerDispatcher, ISwapHandlerDispatcherTrait};
+use freyr::utils::{calc, precision, i256::i256, default::DefaultContractAddress, error_utils};
 use starknet::{ContractAddress, contract_address_const};
 
 /// Struct used in increasePosition and decreasePosition.

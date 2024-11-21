@@ -4,10 +4,10 @@
 
 // Core lib imports.
 use array::ArrayTrait;
-use satoru::utils::span32::{Span32, Array32Trait};
+use freyr::utils::span32::{Span32, Array32Trait};
 
 // Local imports.
-use satoru::utils::store_arrays::StoreContractAddressArray;
+use freyr::utils::store_arrays::StoreContractAddressArray;
 use starknet::info::get_block_number;
 use starknet::{ContractAddress, contract_address_const};
 

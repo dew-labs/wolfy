@@ -1,18 +1,18 @@
-use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
-use satoru::data::keys;
-use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
-use satoru::exchange::withdrawal_handler::{IWithdrawalHandlerDispatcher, IWithdrawalHandlerDispatcherTrait};
-use satoru::fee::fee_handler::{IFeeHandlerDispatcher, IFeeHandlerDispatcherTrait};
-use satoru::market::market::Market;
-use satoru::oracle::oracle_utils::{SetPricesParams, SimulatePricesParams};
-use satoru::role::role;
-use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
-use satoru::test_utils::tests_lib;
-use satoru::token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
-use satoru::utils::span32::{Span32, Span32Trait};
-use satoru::withdrawal::withdrawal::Withdrawal;
-use satoru::withdrawal::withdrawal_utils::CreateWithdrawalParams;
-use satoru::withdrawal::withdrawal_vault::{IWithdrawalVaultDispatcher, IWithdrawalVaultDispatcherTrait};
+use freyr::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
+use freyr::data::keys;
+use freyr::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
+use freyr::exchange::withdrawal_handler::{IWithdrawalHandlerDispatcher, IWithdrawalHandlerDispatcherTrait};
+use freyr::fee::fee_handler::{IFeeHandlerDispatcher, IFeeHandlerDispatcherTrait};
+use freyr::market::market::Market;
+use freyr::oracle::oracle_utils::{SetPricesParams, SimulatePricesParams};
+use freyr::role::role;
+use freyr::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
+use freyr::test_utils::tests_lib;
+use freyr::token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
+use freyr::utils::span32::{Span32, Span32Trait};
+use freyr::withdrawal::withdrawal::Withdrawal;
+use freyr::withdrawal::withdrawal_utils::CreateWithdrawalParams;
+use freyr::withdrawal::withdrawal_vault::{IWithdrawalVaultDispatcher, IWithdrawalVaultDispatcherTrait};
 use snforge_std::{
     declare, start_cheat_caller_address, stop_cheat_caller_address, start_mock_call, stop_mock_call, ContractClassTrait
 };

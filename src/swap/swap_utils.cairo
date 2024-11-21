@@ -3,21 +3,21 @@
 // *************************************************************************
 // Core lib imports.
 use debug::PrintTrait;
-use satoru::bank::bank::{IBankDispatcher, IBankDispatcherTrait};
+use freyr::bank::bank::{IBankDispatcher, IBankDispatcherTrait};
 
 // Local imports.
-use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
-use satoru::data::keys;
-use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
-use satoru::fee::fee_utils;
-use satoru::market::{market::Market, market_utils};
-use satoru::oracle::oracle::{IOracleDispatcher, IOracleDispatcherTrait};
-use satoru::price::price::{Price, PriceTrait, PriceDefault};
-use satoru::pricing::swap_pricing_utils;
-use satoru::swap::error::SwapError;
-use satoru::token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
-use satoru::utils::i256::{i256, i256_neg};
-use satoru::utils::{calc, store_arrays::StoreMarketSpan, traits::ContractAddressDefault};
+use freyr::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
+use freyr::data::keys;
+use freyr::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
+use freyr::fee::fee_utils;
+use freyr::market::{market::Market, market_utils};
+use freyr::oracle::oracle::{IOracleDispatcher, IOracleDispatcherTrait};
+use freyr::price::price::{Price, PriceTrait, PriceDefault};
+use freyr::pricing::swap_pricing_utils;
+use freyr::swap::error::SwapError;
+use freyr::token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
+use freyr::utils::i256::{i256, i256_neg};
+use freyr::utils::{calc, store_arrays::StoreMarketSpan, traits::ContractAddressDefault};
 use starknet::{ContractAddress, contract_address_const};
 
 

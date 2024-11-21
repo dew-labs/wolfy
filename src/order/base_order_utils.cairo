@@ -4,24 +4,24 @@
 // Core lib imports.
 use core::num::traits::Bounded;
 // Local imports.
-use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
-use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
-use satoru::market::market::Market;
-use satoru::mock::referral_storage::{IReferralStorageDispatcher, IReferralStorageDispatcherTrait};
-use satoru::oracle::oracle::{IOracleDispatcher, IOracleDispatcherTrait};
-use satoru::order::{
+use freyr::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
+use freyr::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
+use freyr::market::market::Market;
+use freyr::mock::referral_storage::{IReferralStorageDispatcher, IReferralStorageDispatcherTrait};
+use freyr::oracle::oracle::{IOracleDispatcher, IOracleDispatcherTrait};
+use freyr::order::{
     error::OrderError, order::{Order, SecondaryOrderType, OrderType, DecreasePositionSwapType},
     order_vault::{IOrderVaultDispatcher, IOrderVaultDispatcherTrait}
 };
-use satoru::price::price::{Price, PriceTrait};
-use satoru::swap::swap_handler::{ISwapHandlerDispatcher, ISwapHandlerDispatcherTrait};
-use satoru::utils::calc;
+use freyr::price::price::{Price, PriceTrait};
+use freyr::swap::swap_handler::{ISwapHandlerDispatcher, ISwapHandlerDispatcherTrait};
+use freyr::utils::calc;
 
 
-use satoru::utils::i256::{i256, i256_neg};
-use satoru::utils::precision;
-use satoru::utils::span32::Span32;
-use satoru::utils::store_arrays::{StoreMarketArray, StoreU64Array, StoreContractAddressArray};
+use freyr::utils::i256::{i256, i256_neg};
+use freyr::utils::precision;
+use freyr::utils::span32::Span32;
+use freyr::utils::store_arrays::{StoreMarketArray, StoreU64Array, StoreContractAddressArray};
 use starknet::ContractAddress;
 
 #[derive(Drop, starknet::Store, Serde)]

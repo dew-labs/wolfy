@@ -3,11 +3,11 @@
 The Mock Module is essential for testing environments and testnets. It holds mocked implementations of contracts.
 
 ## Cairo Library Files
-- [error.cairo](https://github.com/keep-starknet-strange/satoru/blob/main/src/mock/error.cairo): Contains error codes pertinent to the Mock Module.
+- [error.cairo](https://github.com/dew-labs/wolfy/blob/main/src/mock/error.cairo): Contains error codes pertinent to the Mock Module.
 
 ## Smart Contracts
 
-### [ReferralStorage.cairo](https://github.com/keep-starknet-strange/satoru/blob/main/src/mock/referral_stoage.cairo)
+### [ReferralStorage.cairo](https://github.com/dew-labs/wolfy/blob/main/src/mock/referral_stoage.cairo)
 - **Key Functions:**
   - Manages Set and Get functions for handling referral-related data and operations.
   - Allows the registration and management of referral codes, setting of trader and referrer tiers, and handling of referral-related data with robust error handling mechanisms.
@@ -32,7 +32,7 @@ The Mock Module is essential for testing environments and testnets. It holds moc
     16. `gov_set_code_owner`: Sets the owner for a referral code by the governor.
     17. `tiers`: Gets the tier values for a tier level.
 
-### [Governable.cairo](https://github.com/keep-starknet-strange/satoru/blob/main/src/referral/governable.cairo)
+### [Governable.cairo](https://github.com/dew-labs/wolfy/blob/main/src/referral/governable.cairo)
 - **Key Functions:**
   - Provides functionalities to manage governance-related operations and states.
   - Ensures that only authorized entities can perform certain operations, enhancing the security of the contract.

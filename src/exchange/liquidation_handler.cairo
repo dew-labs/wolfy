@@ -8,7 +8,7 @@
 use core::traits::Into;
 
 // Local imports.
-use satoru::oracle::oracle_utils::SetPricesParams;
+use freyr::oracle::oracle_utils::SetPricesParams;
 use starknet::{ContractAddress, ClassHash};
 
 // *************************************************************************
@@ -41,34 +41,34 @@ mod LiquidationHandler {
 
     // Core lib imports.
 
-    use satoru::data::{
+    use freyr::data::{
         data_store::{IDataStoreSafeDispatcher, IDataStoreSafeDispatcherTrait, DataStore},
         keys::execute_order_feature_disabled_key
     };
-    use satoru::data::{keys, data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait}};
-    use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
-    use satoru::exchange::base_order_handler::{IBaseOrderHandlerLibraryDispatcher, IBaseOrderHandlerDispatcherTrait};
-    use satoru::feature::feature_utils::validate_feature;
+    use freyr::data::{keys, data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait}};
+    use freyr::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
+    use freyr::exchange::base_order_handler::{IBaseOrderHandlerLibraryDispatcher, IBaseOrderHandlerDispatcherTrait};
+    use freyr::feature::feature_utils::validate_feature;
 
-    use satoru::liquidation::liquidation_utils::create_liquidation_order;
-    use satoru::market::market::Market;
-    use satoru::mock::referral_storage::{IReferralStorageDispatcher, IReferralStorageDispatcherTrait};
-    use satoru::oracle::{
+    use freyr::liquidation::liquidation_utils::create_liquidation_order;
+    use freyr::market::market::Market;
+    use freyr::mock::referral_storage::{IReferralStorageDispatcher, IReferralStorageDispatcherTrait};
+    use freyr::oracle::{
         oracle::{IOracleDispatcher, IOracleDispatcherTrait},
         oracle_modules::{with_oracle_prices_before, with_oracle_prices_after}, oracle_utils::SetPricesParams
     };
-    use satoru::order::{
+    use freyr::order::{
         order_utils::{IOrderUtilsDispatcher}, order::{SecondaryOrderType, OrderType, Order},
         order_vault::{IOrderVaultDispatcher, IOrderVaultDispatcherTrait}, base_order_utils::{ExecuteOrderParams}
     };
-    use satoru::order::{order_utils::{IOrderUtilsLibraryDispatcher, IOrderUtilsDispatcherTrait}};
-    use satoru::role::role;
-    use satoru::role::role_module::{IRoleModuleLibraryDispatcher, IRoleModuleDispatcherTrait};
-    use satoru::role::role_module::{RoleModule, IRoleModule};
-    use satoru::role::role_store::{IRoleStoreDispatcher};
-    use satoru::role::role_store::{IRoleStoreSafeDispatcher, IRoleStoreSafeDispatcherTrait};
-    use satoru::swap::swap_handler::{ISwapHandlerDispatcher, ISwapHandlerDispatcherTrait};
-    use satoru::utils::{starknet_utils, global_reentrancy_guard};
+    use freyr::order::{order_utils::{IOrderUtilsLibraryDispatcher, IOrderUtilsDispatcherTrait}};
+    use freyr::role::role;
+    use freyr::role::role_module::{IRoleModuleLibraryDispatcher, IRoleModuleDispatcherTrait};
+    use freyr::role::role_module::{RoleModule, IRoleModule};
+    use freyr::role::role_store::{IRoleStoreDispatcher};
+    use freyr::role::role_store::{IRoleStoreSafeDispatcher, IRoleStoreSafeDispatcherTrait};
+    use freyr::swap::swap_handler::{ISwapHandlerDispatcher, ISwapHandlerDispatcherTrait};
+    use freyr::utils::{starknet_utils, global_reentrancy_guard};
     use starknet::storage::{
         StorageMapReadAccess, StorageMapWriteAccess, StoragePointerReadAccess, StoragePointerWriteAccess
     };

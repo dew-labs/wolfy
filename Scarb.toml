@@ -1,17 +1,17 @@
 [package]
-name = "satoru"
+name = "freyr"
 version = "0.1.0"
 cairo-version = "2.8.5"
 scarb-version = "2.8.5"
-authors = ["Abdelhamid Bakhta <@abdelhamidbakhta>"]
+authors = ["Huynh Duc Duy <@huynhducduy>"]
 license = "MIT"
 keywords = ["starknet", "defi", "syntethics"]
 description = "Synthetics platform for Starknet, inspired by GMX v2 design."
-documentation = "https://keep-starknet-strange.github.io/satoru/"
-homepage = "https://keep-starknet-strange.github.io/satoru/"
-repository = "https://github.com/keep-starknet-strange/satoru"
+documentation = "https://github.com/dew-labs/wolfy"
+homepage = "https://github.com/dew-labs/wolfy"
+repository = "https://github.com/dew-labs/wolfy"
 readme = "README.md"
-experimental-features = ["negative_impls"]
+# experimental-features = ["negative_impls"]
 
 [scripts]
 test = "snforge test"
@@ -19,10 +19,10 @@ test = "snforge test"
 [[target.starknet-contract]]
 sierra = true
 casm = true
-allowed-libfuncs-deny = true
+# allowed-libfuncs-deny = true
 
 [cairo]
-sierra-replace-ids = false
+sierra-replace-ids = true
 
 [dependencies]
 starknet = ">=2.8.5"

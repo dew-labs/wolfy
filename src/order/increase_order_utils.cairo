@@ -3,15 +3,15 @@
 // *************************************************************************
 
 // Core lib imports.
-use satoru::bank::bank::{IBankDispatcher, IBankDispatcherTrait};
-use satoru::data::{data_store::IDataStoreDispatcherTrait, error::DataError};
-use satoru::market::market_utils;
-use satoru::oracle::{oracle_utils, error::OracleError};
+use freyr::bank::bank::{IBankDispatcher, IBankDispatcherTrait};
+use freyr::data::{data_store::IDataStoreDispatcherTrait, error::DataError};
+use freyr::market::market_utils;
+use freyr::oracle::{oracle_utils, error::OracleError};
 
 // Local imports.
-use satoru::order::{base_order_utils::ExecuteOrderParams, order::{Order, OrderType}, error::OrderError};
-use satoru::position::{position_utils, error::PositionError, increase_position_utils};
-use satoru::swap::swap_utils;
+use freyr::order::{base_order_utils::ExecuteOrderParams, order::{Order, OrderType}, error::OrderError};
+use freyr::position::{position_utils, error::PositionError, increase_position_utils};
+use freyr::swap::swap_utils;
 use starknet::ContractAddress;
 
 // *************************************************************************
@@ -50,15 +50,15 @@ mod IncreaseOrderUtils {
     // External imports.
     use alexandria_data_structures::span_ext::SpanTraitExt;
     use core::integer::U64PartialOrd;
-    use satoru::bank::bank::{IBankDispatcher, IBankDispatcherTrait};
-    use satoru::data::{data_store::IDataStoreDispatcherTrait, error::DataError};
-    use satoru::market::market_utils;
-    use satoru::oracle::{oracle_utils, error::OracleError};
+    use freyr::bank::bank::{IBankDispatcher, IBankDispatcherTrait};
+    use freyr::data::{data_store::IDataStoreDispatcherTrait, error::DataError};
+    use freyr::market::market_utils;
+    use freyr::oracle::{oracle_utils, error::OracleError};
 
     // Local imports.
-    use satoru::order::{base_order_utils::ExecuteOrderParams, order::{Order, OrderType}, error::OrderError};
-    use satoru::position::{position_utils, error::PositionError, increase_position_utils};
-    use satoru::swap::swap_utils;
+    use freyr::order::{base_order_utils::ExecuteOrderParams, order::{Order, OrderType}, error::OrderError};
+    use freyr::position::{position_utils, error::PositionError, increase_position_utils};
+    use freyr::swap::swap_utils;
     use starknet::ContractAddress;
 
     fn validate_oracle_block_numbers(

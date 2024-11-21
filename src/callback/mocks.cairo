@@ -8,9 +8,9 @@ trait ICallbackMock<TContractState> {
 
 #[starknet::contract]
 mod CallbackMock {
-    use satoru::callback::deposit_callback_receiver::interface::IDepositCallbackReceiver;
-    use satoru::deposit::deposit::Deposit;
-    use satoru::event::event_utils::LogData;
+    use freyr::callback::deposit_callback_receiver::interface::IDepositCallbackReceiver;
+    use freyr::deposit::deposit::Deposit;
+    use freyr::event::event_utils::LogData;
 
     #[storage]
     struct Storage {

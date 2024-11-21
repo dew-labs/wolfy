@@ -5,15 +5,15 @@
 // Core lib imports.
 
 use result::ResultTrait;
-use satoru::config::config::{IConfigDispatcher, IConfigDispatcherTrait};
+use freyr::config::config::{IConfigDispatcher, IConfigDispatcherTrait};
 
 // Local imports.
-use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
-use satoru::data::keys;
-use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
-use satoru::role::role;
-use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
-use satoru::test_utils::tests_lib;
+use freyr::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
+use freyr::data::keys;
+use freyr::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
+use freyr::role::role;
+use freyr::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
+use freyr::test_utils::tests_lib;
 use snforge_std::{
     declare, start_cheat_caller_address, stop_cheat_caller_address, ContractClassTrait, DeclareResultTrait
 };
@@ -45,7 +45,7 @@ fn given_normal_conditions_when_set_bool_then_works() {
     // Perform assertions.
 
     // Check that the value was set correctly.
-    // FIXME: #18 https://github.com/keep-starknet-strange/satoru/issues/18
+    // FIXME: #18 https://github.com/dew-labs/wolfy/issues/18
     // When `data_store::set_bool` is fixed, check that the value was set correctly.
 
     // *********************************************************************************************

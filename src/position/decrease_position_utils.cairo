@@ -5,21 +5,21 @@
 // *************************************************************************
 // Core lib imports.
 use result::ResultTrait;
-use satoru::data::{data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait}, keys};
-use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
-use satoru::market::market_utils;
-use satoru::order::base_order_utils;
-use satoru::order::order::{OrderType, DecreasePositionSwapType};
-use satoru::position::error::PositionError;
-use satoru::position::{
+use freyr::data::{data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait}, keys};
+use freyr::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
+use freyr::market::market_utils;
+use freyr::order::base_order_utils;
+use freyr::order::order::{OrderType, DecreasePositionSwapType};
+use freyr::position::error::PositionError;
+use freyr::position::{
     position_utils, decrease_position_collateral_utils, decrease_position_swap_utils,
     position_utils::{UpdatePositionParams, DecreasePositionCache}
 };
-use satoru::utils::calc::to_signed;
-use satoru::utils::precision;
+use freyr::utils::calc::to_signed;
+use freyr::utils::precision;
 
 // Local imports
-use satoru::utils::traits::ContractAddressDefault;
+use freyr::utils::traits::ContractAddressDefault;
 use starknet::{ContractAddress, contract_address_const};
 
 /// Struct used as result for decrease_position_function output.

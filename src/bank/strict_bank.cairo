@@ -5,7 +5,7 @@
 // *************************************************************************
 
 // Core lib imports.
-use satoru::token::erc20::interface::{IERC20, IERC20Dispatcher, IERC20DispatcherTrait};
+use freyr::token::erc20::interface::{IERC20, IERC20Dispatcher, IERC20DispatcherTrait};
 use starknet::{ContractAddress, ClassHash, get_contract_address};
 use traits::{Into, TryInto};
 
@@ -57,11 +57,11 @@ mod StrictBank {
     use debug::PrintTrait;
 
     // Local imports.
-    use satoru::bank::bank::{IBankLibraryDispatcher, IBankDispatcherTrait};
-    use satoru::data::data_store::{IDataStoreDispatcher};
-    use satoru::role::role_module::{IRoleModuleLibraryDispatcher, IRoleModuleDispatcherTrait};
-    use satoru::role::role_store::{IRoleStoreDispatcher};
-    use satoru::token::erc20::interface::{IERC20, IERC20Dispatcher, IERC20DispatcherTrait};
+    use freyr::bank::bank::{IBankLibraryDispatcher, IBankDispatcherTrait};
+    use freyr::data::data_store::{IDataStoreDispatcher};
+    use freyr::role::role_module::{IRoleModuleLibraryDispatcher, IRoleModuleDispatcherTrait};
+    use freyr::role::role_store::{IRoleStoreDispatcher};
+    use freyr::token::erc20::interface::{IERC20, IERC20Dispatcher, IERC20DispatcherTrait};
     use starknet::storage::Map;
     use starknet::{get_caller_address, get_contract_address, ContractAddress, ClassHash, contract_address_const};
     use super::IStrictBank;

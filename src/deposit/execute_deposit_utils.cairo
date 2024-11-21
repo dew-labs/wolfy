@@ -8,27 +8,27 @@
 use result::ResultTrait;
 
 // Local imports.
-use satoru::bank::bank::{IBankDispatcher, IBankDispatcherTrait};
-use satoru::callback::callback_utils::after_deposit_execution;
-use satoru::data::{
+use freyr::bank::bank::{IBankDispatcher, IBankDispatcherTrait};
+use freyr::callback::callback_utils::after_deposit_execution;
+use freyr::data::{
     keys::{deposit_fee_type, ui_deposit_fee_type, max_pnl_factor_for_deposits},
     data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait}
 };
-use satoru::deposit::{deposit_vault::{IDepositVaultDispatcher, IDepositVaultDispatcherTrait}, error::DepositError};
-use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
-use satoru::event::event_utils::{LogData, LogDataTrait, ContractAddressDictValue, I256252DictValue};
-use satoru::fee::fee_utils;
-use satoru::gas::gas_utils::pay_execution_fee_deposit;
-use satoru::market::{market::Market, market_token::{IMarketTokenDispatcher, IMarketTokenDispatcherTrait}, market_utils};
-use satoru::mock::referral_storage::{IReferralStorageDispatcher, IReferralStorageDispatcherTrait};
-use satoru::oracle::{oracle::{IOracleDispatcher, IOracleDispatcherTrait}, oracle_utils};
-use satoru::price::price::{Price, PriceTrait};
-use satoru::pricing::swap_pricing_utils::{get_swap_fees, get_price_impact_usd, GetPriceImpactUsdParams};
-use satoru::swap::error::SwapError;
-use satoru::swap::swap_utils;
-use satoru::token::erc20::interface::{IERC20, IERC20Dispatcher, IERC20DispatcherTrait};
-use satoru::utils::serializable_dict::{SerializableFelt252Dict, SerializableFelt252DictTrait};
-use satoru::utils::{
+use freyr::deposit::{deposit_vault::{IDepositVaultDispatcher, IDepositVaultDispatcherTrait}, error::DepositError};
+use freyr::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
+use freyr::event::event_utils::{LogData, LogDataTrait, ContractAddressDictValue, I256252DictValue};
+use freyr::fee::fee_utils;
+use freyr::gas::gas_utils::pay_execution_fee_deposit;
+use freyr::market::{market::Market, market_token::{IMarketTokenDispatcher, IMarketTokenDispatcherTrait}, market_utils};
+use freyr::mock::referral_storage::{IReferralStorageDispatcher, IReferralStorageDispatcherTrait};
+use freyr::oracle::{oracle::{IOracleDispatcher, IOracleDispatcherTrait}, oracle_utils};
+use freyr::price::price::{Price, PriceTrait};
+use freyr::pricing::swap_pricing_utils::{get_swap_fees, get_price_impact_usd, GetPriceImpactUsdParams};
+use freyr::swap::error::SwapError;
+use freyr::swap::swap_utils;
+use freyr::token::erc20::interface::{IERC20, IERC20Dispatcher, IERC20DispatcherTrait};
+use freyr::utils::serializable_dict::{SerializableFelt252Dict, SerializableFelt252DictTrait};
+use freyr::utils::{
     calc::{to_unsigned, to_signed}, i256::{i256, i256_new, i256_neg}, precision, span32::Span32,
     starknet_utils::{sn_gasleft, sn_gasprice}
 };

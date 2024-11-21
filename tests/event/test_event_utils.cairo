@@ -9,12 +9,12 @@
 // *********************************************************************************************
 
 use debug::PrintTrait;
-use satoru::event::event_utils::{
+use freyr::event::event_utils::{
     Felt252IntoBool, Felt252IntoContractAddress, I256252DictValue, ContractAddressDictValue, LogData, LogDataTrait,
     U256252DictValue, U256IntoFelt252
 };
-use satoru::utils::serializable_dict::{Item, ItemTrait, SerializableFelt252Dict, SerializableFelt252DictTrait,};
-use satoru::utils::traits::{ContractAddressDefault};
+use freyr::utils::serializable_dict::{Item, ItemTrait, SerializableFelt252Dict, SerializableFelt252DictTrait,};
+use freyr::utils::traits::{ContractAddressDefault};
 use starknet::{
     get_caller_address, ContractAddress, Felt252TryIntoContractAddress, ContractAddressIntoFelt252,
     contract_address_const

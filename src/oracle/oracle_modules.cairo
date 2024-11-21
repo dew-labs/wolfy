@@ -6,13 +6,13 @@
 // *************************************************************************
 // Core lib imports.
 // Local imports.
-use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
-use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
-use satoru::oracle::error::OracleError;
-use satoru::oracle::{
+use freyr::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
+use freyr::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
+use freyr::oracle::error::OracleError;
+use freyr::oracle::{
     oracle::{IOracleDispatcher, IOracleDispatcherTrait}, oracle_utils::{SetPricesParams, SimulatePricesParams},
 };
-use satoru::price::price::Price;
+use freyr::price::price::Price;
 use starknet::ContractAddress;
 
 /// Sets oracle prices, perform any additional tasks required,

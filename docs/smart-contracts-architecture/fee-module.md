@@ -3,9 +3,9 @@
 The Fee Module takes care of everything related to fees. It’s crucial for moving and claiming fees in specific markets.
 
 The module incorporates the following components:
-- [FeeHandler.cairo](https://github.com/keep-starknet-strange/satoru/blob/main/src/fee/fee_handler.cairo): The nucleus of the module, entrusted with initializing the contract and claiming fees from identified markets.
-- [fee_utils.cairo](https://github.com/keep-starknet-strange/satoru/blob/main/src/fee/fee_utils.cairo): A collection of utility functions vital for orchestrating fee actions and interactions such as claiming and incrementing fees.
-- [error.cairo](https://github.com/keep-starknet-strange/satoru/blob/main/src/fee/error.cairo): A repository of error codes and messages related to fee operations, essential for accurate error handling and resolution.
+- [FeeHandler.cairo](https://github.com/dew-labs/wolfy/blob/main/src/fee/fee_handler.cairo): The nucleus of the module, entrusted with initializing the contract and claiming fees from identified markets.
+- [fee_utils.cairo](https://github.com/dew-labs/wolfy/blob/main/src/fee/fee_utils.cairo): A collection of utility functions vital for orchestrating fee actions and interactions such as claiming and incrementing fees.
+- [error.cairo](https://github.com/dew-labs/wolfy/blob/main/src/fee/error.cairo): A repository of error codes and messages related to fee operations, essential for accurate error handling and resolution.
 
 ## Structures and Types
 
