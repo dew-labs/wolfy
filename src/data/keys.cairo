@@ -2,9 +2,9 @@
 
 // IMPORTS
 
-use poseidon::poseidon_hash_span;
 use freyr::order::order::OrderType;
 use freyr::utils::hash::hash_poseidon_single;
+use poseidon::poseidon_hash_span;
 use starknet::ContractAddress;
 
 // *************************************************************************

@@ -4,11 +4,10 @@
 
 // Core lib imports.
 
-use result::ResultTrait;
-
 // Wolfy imports
 use freyr::market::market::{Market};
 use freyr::price::price::{Price};
+use result::ResultTrait;
 use starknet::storage_access::{Store, StorageBaseAddress,};
 use starknet::{ContractAddress, SyscallResult,};
 

@@ -3,7 +3,6 @@
 // *************************************************************************
 // Core lib imports.
 use array::ArrayTrait;
-use result::ResultTrait;
 use freyr::bank::bank::{IBankDispatcher, IBankDispatcherTrait};
 use freyr::market::market::Market;
 use freyr::order::order::DecreasePositionSwapType;
@@ -15,6 +14,7 @@ use freyr::position::{
 };
 use freyr::swap::swap_handler::{ISwapHandlerDispatcher, ISwapHandlerDispatcherTrait};
 use freyr::swap::swap_utils::{SwapParams};
+use result::ResultTrait;
 use starknet::ContractAddress;
 
 /// Swap the withdrawn collateral from collateral_token to pnl_token if needed.

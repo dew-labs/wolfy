@@ -117,13 +117,13 @@ mod ReferralStorage {
     // *************************************************************************
 
     // Core lib imports.
-    use result::ResultTrait;
 
     // Local imports.
     use freyr::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
     use freyr::mock::error::MockError;
     use freyr::mock::governable::{IGovernableLibraryDispatcher, IGovernableDispatcherTrait};
     use freyr::referral::referral_tier::ReferralTier;
+    use result::ResultTrait;
     use starknet::storage::Map;
     use starknet::{get_caller_address, ContractAddress, contract_address_const, ClassHash};
 

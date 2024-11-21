@@ -1,10 +1,9 @@
-use poseidon::poseidon_hash_span;
-
 // Local imports.
 use freyr::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
 use freyr::data::keys;
 use freyr::market::market::Market;
 use freyr::utils::hash::hash_poseidon_single;
+use poseidon::poseidon_hash_span;
 use starknet::{ContractAddress, get_block_timestamp};
 
 fn market_salt() -> felt252 {

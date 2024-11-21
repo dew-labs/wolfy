@@ -4,9 +4,6 @@
 
 // Core lib imports.
 
-use result::ResultTrait;
-
-
 // Local imports.
 use freyr::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
 use freyr::data::keys;
@@ -20,6 +17,7 @@ use freyr::role::role;
 use freyr::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
 use freyr::test_utils::tests_lib;
 use freyr::utils::i256::{i256, i256_new};
+use result::ResultTrait;
 use snforge_std::{
     declare, start_cheat_caller_address, stop_cheat_caller_address, start_cheat_block_timestamp_global,
     stop_cheat_block_timestamp_global, ContractClassTrait, DeclareResultTrait, ContractClass

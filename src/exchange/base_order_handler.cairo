@@ -51,8 +51,6 @@ mod BaseOrderHandler {
     use core::traits::Into;
     use core::zeroable::Zeroable;
 
-    use result::ResultTrait;
-
     use freyr::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
     use freyr::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
     use freyr::exchange::error::ExchangeError;
@@ -74,6 +72,8 @@ mod BaseOrderHandler {
     use freyr::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
     use freyr::swap::swap_handler::{ISwapHandlerDispatcher, ISwapHandlerDispatcherTrait};
     use freyr::utils::span32::Array32Trait;
+
+    use result::ResultTrait;
     use starknet::{get_caller_address, ContractAddress, contract_address_const, ClassHash};
 
     // Local imports.

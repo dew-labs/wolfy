@@ -5,7 +5,6 @@
 //                                  IMPORTS
 // *************************************************************************
 // Core lib imports.
-use result::ResultTrait;
 
 // Local imports.
 use freyr::bank::bank::{IBankDispatcher, IBankDispatcherTrait};
@@ -32,6 +31,7 @@ use freyr::utils::{
     calc::{to_unsigned, to_signed}, i256::{i256, i256_new, i256_neg}, precision, span32::Span32,
     starknet_utils::{sn_gasleft, sn_gasprice}
 };
+use result::ResultTrait;
 use starknet::ContractAddress;
 
 /// Struct used in executeDeposit to avoid stack too deep errors

@@ -44,7 +44,6 @@ mod Config {
     // External imports.
     use alexandria_data_structures::array_ext::ArrayTraitExt;
     use core::clone::Clone;
-    use poseidon::poseidon_hash_span;
     use freyr::config::error::ConfigError;
     use freyr::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
     use freyr::data::keys;
@@ -53,6 +52,7 @@ mod Config {
 
     // Local imports.
     use freyr::role::role_module::{IRoleModuleLibraryDispatcher, IRoleModuleDispatcherTrait};
+    use poseidon::poseidon_hash_span;
     use starknet::storage::Map;
     use starknet::{get_caller_address, ContractAddress, contract_address_const, ClassHash};
 

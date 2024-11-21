@@ -6,7 +6,6 @@
 
 // Core lib imports.
 use core::traits::TryInto;
-use result::ResultTrait;
 
 // Local imports.
 
@@ -28,6 +27,7 @@ use freyr::reader::{
 use freyr::utils::i256::i256;
 
 use freyr::withdrawal::withdrawal::Withdrawal;
+use result::ResultTrait;
 use starknet::ContractAddress;
 
 #[derive(Drop, starknet::Store, Serde)]
@@ -442,7 +442,6 @@ mod Reader {
     use core::option::OptionTrait;
 
     use core::traits::TryInto;
-    use result::ResultTrait;
     use freyr::adl::adl_utils;
     use freyr::data::keys;
     use freyr::deposit::deposit::Deposit;
@@ -462,6 +461,7 @@ mod Reader {
     };
     use freyr::utils::i256::i256;
     use freyr::withdrawal::withdrawal::Withdrawal;
+    use result::ResultTrait;
     use starknet::ContractAddress;
 
 

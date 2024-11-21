@@ -171,8 +171,6 @@ mod ExchangeRouter {
     // Core lib imports.
     use core::zeroable::Zeroable;
     use debug::PrintTrait;
-
-    use openzeppelin::security::ReentrancyGuardComponent;
     use freyr::callback::callback_utils;
     use freyr::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
     use freyr::data::keys;
@@ -198,6 +196,8 @@ mod ExchangeRouter {
     use freyr::router::router::{IRouterDispatcher, IRouterDispatcherTrait};
     use freyr::utils::account_utils;
     use freyr::withdrawal::{withdrawal::Withdrawal, withdrawal_utils::CreateWithdrawalParams};
+
+    use openzeppelin::security::ReentrancyGuardComponent;
     use starknet::{get_caller_address, ContractAddress, contract_address_const, get_contract_address};
 
     use super::IExchangeRouter;

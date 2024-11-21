@@ -460,8 +460,6 @@ mod DataStore {
     use alexandria_storage::list::{ListTrait, List};
     use core::option::OptionTrait;
     use core::traits::TryInto;
-    use nullable::NullableTrait;
-    use poseidon::poseidon_hash_span;
     use freyr::data::error::DataError;
 
     // Local imports.
@@ -475,6 +473,8 @@ mod DataStore {
     use freyr::utils::calc;
     use freyr::utils::i256::{i256, i256_neg};
     use freyr::withdrawal::{withdrawal::Withdrawal, error::WithdrawalError};
+    use nullable::NullableTrait;
+    use poseidon::poseidon_hash_span;
     use starknet::storage::Map;
     use starknet::{get_caller_address, ContractAddress, contract_address_const, ClassHash};
     use zeroable::Zeroable;

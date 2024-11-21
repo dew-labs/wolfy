@@ -4,9 +4,6 @@
 
 // Core lib imports.
 
-use result::ResultTrait;
-
-
 // Local imports.
 use freyr::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
 use freyr::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
@@ -16,6 +13,7 @@ use freyr::market::market_token::{IMarketTokenDispatcher, IMarketTokenDispatcher
 use freyr::role::role;
 use freyr::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
 use freyr::test_utils::tests_lib;
+use result::ResultTrait;
 use snforge_std::{
     declare, start_cheat_caller_address, stop_cheat_caller_address, ContractClassTrait, DeclareResultTrait,
     ContractClass

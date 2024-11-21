@@ -1,5 +1,3 @@
-use option::OptionTrait;
-
 use freyr::deposit::deposit::Deposit;
 
 use freyr::event::event_emitter::EventEmitter::{
@@ -12,6 +10,7 @@ use freyr::order::order::{Order, OrderType, SecondaryOrderType, DecreasePosition
 use freyr::test_utils::tests_lib::deploy_event_emitter;
 use freyr::utils::span32::{Span32, Array32Trait};
 use freyr::withdrawal::withdrawal::Withdrawal;
+use option::OptionTrait;
 use snforge_std::{declare, ContractClassTrait, spy_events, EventSpy, EventSpyTrait, Event, EventSpyAssertionsTrait};
 use starknet::{ContractAddress, contract_address_const};
 

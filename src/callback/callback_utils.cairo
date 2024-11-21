@@ -18,7 +18,6 @@
 //                                  IMPORTS
 // *************************************************************************
 // Core lib imports.
-use integer::U256TryIntoFelt252;
 use freyr::callback::deposit_callback_receiver::interface::{
     IDepositCallbackReceiverDispatcher, IDepositCallbackReceiverDispatcherTrait
 };
@@ -38,6 +37,7 @@ use freyr::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatch
 use freyr::event::event_utils::{LogData, LogDataTrait};
 use freyr::order::order::Order;
 use freyr::withdrawal::withdrawal::Withdrawal;
+use integer::U256TryIntoFelt252;
 use starknet::ContractAddress;
 
 /// Validate that the callback_gas_limit is less than the max specified value.

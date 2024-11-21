@@ -4,7 +4,6 @@
 //                                  IMPORTS
 // *************************************************************************
 // Core lib imports.
-use poseidon::poseidon_hash_span;
 use freyr::bank::strict_bank::{IStrictBankDispatcher, IStrictBankDispatcherTrait};
 use freyr::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
 use freyr::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
@@ -26,6 +25,7 @@ use freyr::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
 use freyr::swap::swap_handler::{ISwapHandlerDispatcher, ISwapHandlerDispatcherTrait};
 use freyr::test_utils::tests_lib;
 use freyr::utils::span32::{Span32, Array32};
+use poseidon::poseidon_hash_span;
 use snforge_std::{
     declare, start_cheat_caller_address, stop_cheat_caller_address, start_mock_call, test_address, ContractClass,
     ContractClassTrait

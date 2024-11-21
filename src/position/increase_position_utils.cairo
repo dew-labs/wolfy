@@ -4,7 +4,6 @@
 //                                  IMPORTS
 // *************************************************************************
 // Core lib imports.
-use result::ResultTrait;
 use freyr::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
 use freyr::data::keys;
 use freyr::event::{event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait},};
@@ -27,6 +26,7 @@ use freyr::utils::{
     calc::{to_unsigned, to_signed, sum_return_uint_256, roundup_magnitude_division, roundup_division},
     i256::{i256, i256_neg}
 };
+use result::ResultTrait;
 use starknet::{ContractAddress, contract_address_const};
 
 #[derive(Drop, starknet::Store, Serde, Default, Copy)]

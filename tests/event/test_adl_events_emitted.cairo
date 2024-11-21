@@ -1,8 +1,7 @@
-use option::OptionTrait;
-
 use freyr::event::event_emitter::{EventEmitter, IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
 
 use freyr::test_utils::tests_lib::deploy_event_emitter;
+use option::OptionTrait;
 use snforge_std::{
     declare, ContractClassTrait, DeclareResultTrait, spy_events, EventSpy, EventSpyTrait, Event, EventSpyAssertionsTrait
 };

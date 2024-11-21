@@ -4,7 +4,6 @@
 //                                  IMPORTS
 // *************************************************************************
 // Core lib imports.
-use result::ResultTrait;
 use freyr::bank::bank;
 use freyr::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
 use freyr::data::keys;
@@ -16,6 +15,7 @@ use freyr::market::market_utils;
 use freyr::mock::referral_storage::{IReferralStorageDispatcher, IReferralStorageDispatcherTrait};
 use freyr::referral::referral_tier::ReferralTier;
 use freyr::utils::precision;
+use result::ResultTrait;
 use starknet::{ContractAddress, contract_address_const};
 
 

@@ -4,7 +4,6 @@
 //                                  IMPORTS
 // *************************************************************************
 // Core lib imports.
-use result::ResultTrait;
 
 // Local imports.
 use freyr::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
@@ -17,6 +16,7 @@ use freyr::pricing::pricing_utils;
 use freyr::utils::calc;
 use freyr::utils::i256::{i256, i256_neg};
 use freyr::utils::precision;
+use result::ResultTrait;
 use starknet::ContractAddress;
 
 

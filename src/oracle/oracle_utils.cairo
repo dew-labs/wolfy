@@ -6,8 +6,6 @@
 // External imports.
 use alexandria_data_structures::span_ext::SpanTraitExt;
 use ecdsa::recover_public_key;
-use hash::LegacyHash;
-use result::ResultTrait;
 use freyr::bank::bank::{IBankDispatcher, IBankDispatcherTrait};
 // Local imports.
 use freyr::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
@@ -23,6 +21,8 @@ use freyr::utils::{
     arrays::{are_lte_u64, are_gte_u64, get_uncompacted_value, get_uncompacted_value_u64},
     bits::{BITMASK_8, BITMASK_16, BITMASK_32, BITMASK_64}
 };
+use hash::LegacyHash;
+use result::ResultTrait;
 use starknet::ContractAddress;
 use traits::Default;
 

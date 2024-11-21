@@ -8,10 +8,10 @@ mod MockAccount {
 
     // Core lib imports.
     use core::zeroable::Zeroable;
-    use result::ResultTrait;
 
     // Local imports.
     use freyr::oracle::{interfaces::account::{IAccount, IAccountDispatcher, IAccountDispatcherTrait}};
+    use result::ResultTrait;
     use starknet::{get_caller_address, ContractAddress};
 
 

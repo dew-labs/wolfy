@@ -7,7 +7,6 @@
 // *************************************************************************
 // Core lib imports.
 use core::traits::TryInto;
-use result::ResultTrait;
 use freyr::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
 use freyr::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
 use freyr::market::{
@@ -29,6 +28,7 @@ use freyr::pricing::position_pricing_utils;
 use freyr::reader::reader_pricing_utils::ExecutionPriceResult;
 use freyr::reader::reader_pricing_utils;
 use freyr::utils::{calc, i256::i256};
+use result::ResultTrait;
 use starknet::{ContractAddress, contract_address_const};
 
 #[derive(Default, Drop, starknet::Store, Serde)]

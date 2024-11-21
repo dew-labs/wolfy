@@ -4,7 +4,6 @@
 //                                  IMPORTS
 // *************************************************************************
 // Core lib imports.
-use poseidon::poseidon_hash_span;
 // Local imports.
 use freyr::data::{data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait}, keys};
 use freyr::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
@@ -24,6 +23,7 @@ use freyr::pricing::{
 use freyr::referral::referral_utils;
 use freyr::swap::swap_handler::{ISwapHandlerDispatcher, ISwapHandlerDispatcherTrait};
 use freyr::utils::{calc, precision, i256::i256, default::DefaultContractAddress, error_utils};
+use poseidon::poseidon_hash_span;
 use starknet::{ContractAddress, contract_address_const};
 
 /// Struct used in increasePosition and decreasePosition.

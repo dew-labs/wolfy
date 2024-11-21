@@ -29,11 +29,11 @@
 // *************************************************************************
 
 // Core lib imports.
-use poseidon::poseidon_hash_span;
 
 // Local imports.
 use freyr::market::error::MarketError;
 use freyr::market::market_token::{IMarketTokenDispatcher, IMarketTokenDispatcherTrait};
+use poseidon::poseidon_hash_span;
 use starknet::{ContractAddress, contract_address_const};
 
 

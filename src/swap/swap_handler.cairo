@@ -29,7 +29,6 @@ mod SwapHandler {
     // *************************************************************************
     // Core lib imports
 
-    use openzeppelin::security::ReentrancyGuardComponent;
     use freyr::role::role;
     use freyr::role::role_module::{IRoleModuleLibraryDispatcher, IRoleModuleDispatcherTrait};
     use freyr::role::role_module::{RoleModule, IRoleModule};
@@ -39,6 +38,7 @@ mod SwapHandler {
     use freyr::swap::swap_utils::SwapParams;
     use freyr::swap::swap_utils;
     use freyr::utils::i256::i256;
+    use openzeppelin::security::ReentrancyGuardComponent;
     use starknet::{ContractAddress, ClassHash};
 
     component!(path: ReentrancyGuardComponent, storage: reentrancy_guard, event: ReentrancyGuardEvent);

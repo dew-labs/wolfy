@@ -9,7 +9,6 @@
 // *************************************************************************
 
 // Core lib imports.
-use pragma_lib::types::{DataType, PragmaPricesResponse};
 
 // Local imports
 use freyr::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
@@ -19,6 +18,7 @@ use freyr::oracle::{
     error::OracleError,
 };
 use freyr::price::price::Price;
+use pragma_lib::types::{DataType, PragmaPricesResponse};
 use starknet::ContractAddress;
 
 
@@ -185,10 +185,6 @@ mod Oracle {
     use core::traits::Into;
     use core::traits::TryInto;
     use core::zeroable::Zeroable;
-    use poseidon::poseidon_hash_span;
-
-    use pragma_lib::abi::{IPragmaABIDispatcher, IPragmaABIDispatcherTrait};
-    use pragma_lib::types::{DataType, PragmaPricesResponse};
     // Local imports.
     use freyr::data::{data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait}, keys};
     use freyr::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
@@ -202,6 +198,10 @@ mod Oracle {
     use freyr::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
     use freyr::utils::u256_mask::{Mask, MaskTrait, validate_unique_and_set_index};
     use freyr::utils::{arrays, arrays::pow, bits, calc, precision};
+    use poseidon::poseidon_hash_span;
+
+    use pragma_lib::abi::{IPragmaABIDispatcher, IPragmaABIDispatcherTrait};
+    use pragma_lib::types::{DataType, PragmaPricesResponse};
     use starknet::SyscallResultTrait;
     use starknet::contract_address_const;
     use starknet::info::{get_block_timestamp, get_block_number};

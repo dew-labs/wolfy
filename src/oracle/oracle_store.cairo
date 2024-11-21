@@ -55,11 +55,11 @@ mod OracleStore {
     use core::option::OptionTrait;
     use core::zeroable::Zeroable;
 
-    use result::ResultTrait;
-
     // Local imports.
     use freyr::event::event_emitter::{IEventEmitterDispatcher};
     use freyr::oracle::error::OracleError;
+
+    use result::ResultTrait;
     use starknet::storage::Map;
     use starknet::{ContractAddress, contract_address_const};
     use super::IOracleStore;

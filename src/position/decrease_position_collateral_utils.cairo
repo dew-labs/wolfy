@@ -5,7 +5,6 @@
 // *************************************************************************
 // Core lib imports.
 use debug::PrintTrait;
-use result::ResultTrait;
 use freyr::data::{keys, data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait}};
 use freyr::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
 use freyr::fee::fee_utils;
@@ -16,6 +15,7 @@ use freyr::position::{position_utils, decrease_position_swap_utils, error};
 use freyr::price::price::{Price, PriceTrait};
 use freyr::pricing::position_pricing_utils;
 use freyr::utils::{i256::{i256, i256_neg, i256_new}, calc, precision};
+use result::ResultTrait;
 use starknet::{ContractAddress, contract_address_const};
 
 /// Struct used in process_collateral function as cache.

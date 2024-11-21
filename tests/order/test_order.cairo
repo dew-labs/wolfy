@@ -3,12 +3,12 @@
 // *************************************************************************
 
 // Core lib imports.
-use result::ResultTrait;
 
 // Local imports.
 use freyr::order::order::{Order, OrderType, OrderTrait, DecreasePositionSwapType};
 use freyr::test_utils::tests_lib;
 use freyr::utils::span32::{Span32, Array32Trait};
+use result::ResultTrait;
 use snforge_std::{
     declare, ContractClassTrait, DeclareResultTrait, start_cheat_block_number_global, stop_cheat_block_number_global
 };

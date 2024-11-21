@@ -5,7 +5,6 @@
 // Core lib imports.
 
 use debug::PrintTrait;
-use result::ResultTrait;
 use freyr::bank::bank::{IBankDispatcherTrait, IBankDispatcher};
 use freyr::bank::strict_bank::{IStrictBankDispatcher, IStrictBankDispatcherTrait};
 
@@ -50,6 +49,7 @@ use freyr::utils::span32::{Span32, DefaultSpan32, Array32Trait};
 use freyr::withdrawal::withdrawal::Withdrawal;
 use freyr::withdrawal::withdrawal_utils;
 use freyr::withdrawal::withdrawal_vault::{IWithdrawalVaultDispatcher, IWithdrawalVaultDispatcherTrait};
+use result::ResultTrait;
 use snforge_std::{
     declare, start_cheat_caller_address, stop_cheat_caller_address, start_cheat_block_number, ContractClassTrait,
     ContractClass

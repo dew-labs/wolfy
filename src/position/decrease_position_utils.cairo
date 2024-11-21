@@ -4,7 +4,6 @@
 //                                  IMPORTS
 // *************************************************************************
 // Core lib imports.
-use result::ResultTrait;
 use freyr::data::{data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait}, keys};
 use freyr::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
 use freyr::market::market_utils;
@@ -20,6 +19,7 @@ use freyr::utils::precision;
 
 // Local imports
 use freyr::utils::traits::ContractAddressDefault;
+use result::ResultTrait;
 use starknet::{ContractAddress, contract_address_const};
 
 /// Struct used as result for decrease_position_function output.

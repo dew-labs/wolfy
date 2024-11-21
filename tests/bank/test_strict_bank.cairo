@@ -5,8 +5,6 @@
 // Core lib imports.
 
 use debug::PrintTrait;
-use integer::u256_from_felt252;
-use result::ResultTrait;
 
 // Local imports.
 use freyr::bank::bank::{IBankDispatcherTrait, IBankDispatcher};
@@ -16,6 +14,8 @@ use freyr::role::role;
 use freyr::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
 use freyr::test_utils::tests_lib;
 use freyr::token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
+use integer::u256_from_felt252;
+use result::ResultTrait;
 use snforge_std::{
     declare, start_cheat_caller_address, stop_cheat_caller_address, ContractClassTrait, DeclareResultTrait,
     ContractClass

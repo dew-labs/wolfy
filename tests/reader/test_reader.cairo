@@ -1,5 +1,4 @@
 use debug::PrintTrait;
-use poseidon::poseidon_hash_span;
 
 use freyr::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
 use freyr::data::keys;
@@ -25,6 +24,7 @@ use freyr::test_utils::tests_lib;
 use freyr::utils::i256::{i256, i256_new};
 use freyr::utils::span32::{Span32, Array32Trait};
 use freyr::withdrawal::withdrawal::{Withdrawal};
+use poseidon::poseidon_hash_span;
 use snforge_std::{
     declare, start_cheat_caller_address, stop_cheat_caller_address, ContractClass, ContractClassTrait,
     DeclareResultTrait

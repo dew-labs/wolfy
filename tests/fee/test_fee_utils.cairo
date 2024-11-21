@@ -1,7 +1,5 @@
 use freyr::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
-use freyr::data::keys::{
-    claimable_fee_amount_key, claimable_ui_fee_amount_key, claimable_ui_fee_amount_for_account_key
-};
+use freyr::data::keys::{claimable_fee_amount_key, claimable_ui_fee_amount_key, claimable_ui_fee_amount_for_account_key};
 
 use freyr::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
 use freyr::fee::fee_utils::{increment_claimable_fee_amount, increment_claimable_ui_fee_amount};

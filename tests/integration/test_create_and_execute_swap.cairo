@@ -5,7 +5,6 @@
 // *************************************************************************
 // Core lib imports.
 use debug::PrintTrait;
-use poseidon::poseidon_hash_span;
 use freyr::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
 use freyr::data::keys;
 use freyr::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
@@ -28,6 +27,7 @@ use freyr::swap::swap_handler::{ISwapHandlerDispatcher, ISwapHandlerDispatcherTr
 use freyr::test_utils::tests_lib;
 use freyr::token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
 use freyr::utils::span32::{Span32, Array32Trait};
+use poseidon::poseidon_hash_span;
 use snforge_std::{
     declare, start_cheat_caller_address, stop_cheat_caller_address, start_mock_call, test_address, ContractClassTrait,
     DeclareResultTrait, ContractClass, start_cheat_block_number

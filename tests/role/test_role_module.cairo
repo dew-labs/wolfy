@@ -1,5 +1,3 @@
-use result::ResultTrait;
-
 use freyr::role::{
     role_module::{IRoleModuleDispatcher, IRoleModuleDispatcherTrait},
     role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait},
@@ -9,6 +7,7 @@ use freyr::role::{
     }
 };
 use freyr::test_utils::tests_lib;
+use result::ResultTrait;
 use snforge_std::{declare, start_cheat_caller_address, ContractClassTrait, DeclareResultTrait};
 use starknet::Felt252TryIntoContractAddress;
 use starknet::{ContractAddress, contract_address_const};

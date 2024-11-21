@@ -5,7 +5,6 @@
 //                                  IMPORTS
 // *************************************************************************
 // Core lib imports.
-use result::ResultTrait;
 use freyr::callback::callback_utils::{validate_callback_gas_limit, after_deposit_cancellation};
 use freyr::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
 use freyr::deposit::deposit_vault::{IDepositVaultDispatcher, IDepositVaultDispatcherTrait};
@@ -23,6 +22,7 @@ use freyr::utils::{
     starknet_utils, store_arrays::StoreContractAddressArray, account_utils::validate_account,
     account_utils::validate_receiver, span32::Span32
 };
+use result::ResultTrait;
 use starknet::ContractAddress;
 use starknet::contract_address::ContractAddressZeroable;
 use starknet::info::get_block_number;

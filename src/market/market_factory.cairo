@@ -42,7 +42,6 @@ mod MarketFactory {
 
     // Core lib imports.
     use core::result::ResultTrait;
-    use poseidon::poseidon_hash_span;
     use freyr::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
     use freyr::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
     use freyr::market::market::{Market, UniqueIdMarket};
@@ -51,6 +50,7 @@ mod MarketFactory {
 
     // Local imports.
     use freyr::role::role_store::{IRoleStoreDispatcher};
+    use poseidon::poseidon_hash_span;
     use starknet::syscalls::deploy_syscall;
     use starknet::{get_caller_address, ContractAddress, contract_address_const, ClassHash};
 

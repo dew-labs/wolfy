@@ -1,11 +1,9 @@
-use result::ResultTrait;
-
-
 use freyr::market::market_token::{IMarketTokenDispatcher, IMarketTokenDispatcherTrait};
 use freyr::market::market_utils;
 use freyr::role::role;
 use freyr::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
 use freyr::test_utils::tests_lib;
+use result::ResultTrait;
 use snforge_std::{
     declare, start_cheat_caller_address, stop_cheat_caller_address, ContractClass, ContractClassTrait,
     DeclareResultTrait

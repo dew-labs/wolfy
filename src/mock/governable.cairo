@@ -26,11 +26,11 @@ mod Governable {
 
     // Core lib imports.
     use core::zeroable::Zeroable;
-    use result::ResultTrait;
 
     // Local imports.
     use freyr::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
     use freyr::mock::error::MockError;
+    use result::ResultTrait;
     use starknet::{get_caller_address, ContractAddress};
 
     // *************************************************************************
