@@ -1,23 +1,10 @@
-import { getClassHash } from "@freyr/shared/utils";
+import { getClassHash, getContractNames } from "@freyr/shared/utils";
 import fs from "node:fs";
 
-const PROJECT_NAME = "freyr";
-
 function getClassHashes() {
-    const paths = fs
-        .readdirSync("./target/release", { withFileTypes: true })
-        .filter(
-            (file) =>
-                file.isFile() &&
-                file.name.endsWith(".contract_class.json") &&
-                !file.name.startsWith(`${PROJECT_NAME}_tests`) &&
-                !file.name.startsWith(`${PROJECT_NAME}_unittest`)
-        )
-        .map((file) =>
-            file.name.replace(PROJECT_NAME + "_", "").replace(".contract_class.json", "")
-        );
+    const names = getContractNames();
 
-    const classHashes = paths.map((path) => ({
+    const classHashes = names.map((path) => ({
         name: path,
         hash: getClassHash(path),
     }));

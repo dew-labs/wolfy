@@ -1,5 +1,4 @@
 import { findUpSync } from "find-up";
-import fs from "node:fs";
 import readline from "node:readline";
 import {
     Account,
@@ -36,22 +35,27 @@ import { createLogger } from "./logger";
 import { setup } from "./setup";
 import invariant from "tiny-invariant";
 import { toStarknetHexString } from "wolfy-sdk";
+import fs from "node:fs";
 
 const logger = createLogger("Utils");
 
+export function getCompiledSierraPath(contractName: string) {
+    return `./target/release/freyr_${contractName}.contract_class.json`;
+}
+
+export function getCompiledCasmPath(contractName: string) {
+    return `./target/release/freyr_${contractName}.compiled_contract_class.json`;
+}
+
 export function getCompiledSierra(contractPath: string) {
     return json.parse(
-        fs
-            .readFileSync(`./target/release/freyr_${contractPath}.contract_class.json`)
-            .toString("ascii")
+        fs.readFileSync(getCompiledSierraPath(contractPath)).toString("ascii")
     ) as CompiledSierra;
 }
 
 export function getCompiledCasm(contractPath: string) {
     return json.parse(
-        fs
-            .readFileSync(`./target/release/freyr_${contractPath}.compiled_contract_class.json`)
-            .toString("ascii")
+        fs.readFileSync(getCompiledCasmPath(contractPath)).toString("ascii")
     ) as CairoAssembly;
 }
 
@@ -526,3 +530,19 @@ export const getEnvVariable = (name: string): string => {
 
     return value;
 };
+
+export function getContractNames(type: "casm" | "sierra" = "sierra") {
+    const PROJECT_NAME = "freyr";
+    return fs
+        .readdirSync("./target/release", { withFileTypes: true })
+        .filter(
+            (file) =>
+                file.isFile() &&
+                file.name.endsWith(`.${type === "casm" ? "compiled_" : ""}contract_class.json`) &&
+                !file.name.startsWith(`${PROJECT_NAME}_tests`) &&
+                !file.name.startsWith(`${PROJECT_NAME}_unittest`)
+        )
+        .map((file) =>
+            file.name.replace(PROJECT_NAME + "_", "").replace(".contract_class.json", "")
+        );
+}
