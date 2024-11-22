@@ -11,7 +11,7 @@ documentation = "https://github.com/dew-labs/wolfy"
 homepage = "https://github.com/dew-labs/wolfy"
 repository = "https://github.com/dew-labs/wolfy"
 readme = "README.md"
-experimental-features = ["negative_impls"]
+# experimental-features = ["negative_impls"]
 
 [scripts]
 test = "snforge test"
@@ -19,10 +19,24 @@ test = "snforge test"
 [[target.starknet-contract]]
 sierra = true
 casm = true
-allowed-libfuncs-deny = true
+# allowed-libfuncs-deny = true
 
 [cairo]
+enable-gas = false
+
+[profile.release.cairo]
+enable-gas = true
+# allow-warnings = false
 sierra-replace-ids = false
+inlining-strategy = "avoid"
+
+[profile.dev.cairo]
+enable-gas = true
+allow-warnings = true
+sierra-replace-ids = true
+inlining-strategy = "default"
+# unstable-add-statements-functions-debug-info = true
+# unstable-add-statements-code-locations-debug-info = true
 
 [dependencies]
 starknet = ">=2.8.5"

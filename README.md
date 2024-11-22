@@ -22,10 +22,10 @@ rustup default stable # to set rust to stable version, required to run scarb
 ## Test contracts
 
 ```sh
-scarb test
-scarb test --ignored
-scarb test --save-trace-data
-scarb test --build-profile
+scarb --dev test
+scarb --dev test --ignored
+scarb --dev test --save-trace-data
+scarb --dev test --build-profile
 ```
 
 This will execute the tests in `tests` directory and print the results.
@@ -62,7 +62,6 @@ To use dev-local with browser wallets like `Argent X`, remember to config the wa
 ## Build
 
 ```sh
-scarb build
 scarb --release build
 ```
 

@@ -101,7 +101,7 @@ mod OrderUtils {
     use freyr::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
     use freyr::event::event_utils::{Felt252IntoContractAddress, ContractAddressDictValue, I256252DictValue};
     use freyr::gas::gas_utils;
-    use freyr::market::market_utils;
+    use freyr::market::market_utils::{IMarketUtilsLibraryDispatcher, IMarketUtilsDispatcherTrait};
     use freyr::mock::referral_storage::{IReferralStorageDispatcher, IReferralStorageDispatcherTrait};
     use freyr::nonce::nonce_utils;
     // Local imports.
@@ -130,25 +130,7 @@ mod OrderUtils {
         increase_order_utils_lib: IIncreaseOrderUtilsLibraryDispatcher,
         decrease_order_utils_lib: IDecreaseOrderUtilsLibraryDispatcher,
         swap_order_utils_lib: ISwapOrderUtilsLibraryDispatcher,
-    }
-
-    // *************************************************************************
-    //                              CONSTRUCTOR
-    // *************************************************************************
-    #[constructor]
-    fn constructor(
-        ref self: ContractState,
-        increase_order_class_hash: ClassHash,
-        decrease_order_class_hash: ClassHash,
-        swap_order_class_hash: ClassHash
-    ) {
-        self
-            .increase_order_utils_lib
-            .write(IIncreaseOrderUtilsLibraryDispatcher { class_hash: increase_order_class_hash });
-        self
-            .decrease_order_utils_lib
-            .write(IDecreaseOrderUtilsLibraryDispatcher { class_hash: decrease_order_class_hash });
-        self.swap_order_utils_lib.write(ISwapOrderUtilsLibraryDispatcher { class_hash: swap_order_class_hash });
+        market_utils: IMarketUtilsLibraryDispatcher,
     }
 
     // *************************************************************************
@@ -166,7 +148,8 @@ mod OrderUtils {
         /// * `params` - The parameters used to create the order.
         /// # Returns
         /// Return the key of the created order.
-        fn create_order_utils( //TODO and fix when fee_token is implememted
+        //TODO and fix when fee_token is implememted
+        fn create_order_utils(
             ref self: ContractState,
             data_store: IDataStoreDispatcher,
             event_emitter: IEventEmitterDispatcher,
@@ -217,12 +200,14 @@ mod OrderUtils {
                 params.execution_fee = fee_token_amount;
             }
 
+            let market_utils = self.market_utils.read();
+
             if (base_order_utils::is_position_order(params.order_type)) {
-                market_utils::validate_position_market(data_store, params.market);
+                market_utils.validate_position_market(data_store, params.market);
             }
 
             // validate swap path markets
-            market_utils::validate_swap_path(data_store, params.swap_path);
+            market_utils.validate_swap_path(data_store, params.swap_path);
             let key = nonce_utils::get_next_key(data_store);
 
             let mut order = Order {
@@ -305,10 +290,12 @@ mod OrderUtils {
             // it may be possible to invoke external contracts before the validations
             // are called
 
+            let market_utils = self.market_utils.read();
+
             if (params.market.market_token != contract_address_const::<0>()) {
-                market_utils::validate_market_token_balance_check(params.contracts.data_store, params.market);
+                market_utils.validate_market_token_balance_check(params.contracts.data_store, params.market);
             }
-            market_utils::validate_market_token_balance_array(params.contracts.data_store, params.swap_path_markets);
+            market_utils.validate_market_token_balance_array(params.contracts.data_store, params.swap_path_markets);
 
             params.contracts.event_emitter.emit_order_executed(params.key, params.secondary_order_type);
             // callback_utils::after_order_execution(params.key, params.order, event_data);

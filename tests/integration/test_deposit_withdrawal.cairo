@@ -24,7 +24,6 @@ use freyr::exchange::withdrawal_handler::{IWithdrawalHandlerDispatcher, IWithdra
 use freyr::market::market::{Market, UniqueIdMarket};
 use freyr::market::market_factory::{IMarketFactoryDispatcher, IMarketFactoryDispatcherTrait};
 use freyr::market::market_token::{IMarketTokenDispatcher, IMarketTokenDispatcherTrait};
-use freyr::market::market_utils;
 use freyr::market::{market::{UniqueIdMarketImpl},};
 use freyr::mock::referral_storage::{IReferralStorageDispatcher, IReferralStorageDispatcherTrait};
 use freyr::oracle::oracle::{IOracleDispatcher, IOracleDispatcherTrait};
@@ -833,6 +832,7 @@ fn setup() -> (
         data_store_address,
         market_token_class,
         _governable_class,
+        _market_utils_class,
         market_factory,
         role_store,
         data_store,

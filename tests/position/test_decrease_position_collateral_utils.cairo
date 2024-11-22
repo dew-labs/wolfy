@@ -7,7 +7,8 @@ use debug::PrintTrait;
 // Local imports.
 use freyr::data::{data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait}, keys};
 use freyr::event::event_emitter::IEventEmitterDispatcher;
-use freyr::market::{market::Market, market_utils::MarketPrices};
+use freyr::market::market::Market;
+use freyr::market::market_utils::{IMarketUtilsLibraryDispatcher, IMarketUtilsDispatcherTrait, MarketPrices};
 use freyr::mock::referral_storage::IReferralStorageDispatcher;
 use freyr::oracle::oracle::IOracleDispatcher;
 use freyr::order::{
@@ -32,7 +33,8 @@ fn setup() -> (
     IDataStoreDispatcher,
     IEventEmitterDispatcher,
     IReferralStorageDispatcher,
-    ISwapHandlerDispatcher
+    ISwapHandlerDispatcher,
+    IMarketUtilsLibraryDispatcher
 ) {
     let (
         caller_address,
@@ -44,6 +46,7 @@ fn setup() -> (
         _role_module_class,
         _bank_class,
         _governable_class,
+        market_utils_class,
         _market_factory,
         role_store,
         data_store,
@@ -66,7 +69,9 @@ fn setup() -> (
     ) =
         tests_lib::setup();
 
-    (caller_address, role_store, data_store, event_emitter, referral_storage, swap_handler)
+    let market_utils = IMarketUtilsLibraryDispatcher { class_hash: market_utils_class.class_hash };
+
+    (caller_address, role_store, data_store, event_emitter, referral_storage, swap_handler, market_utils)
 }
 
 fn deploy_token() -> ContractAddress {
@@ -81,7 +86,8 @@ fn given_good_params_when_process_collateral_then_succeed() {
     //
     // Setup
     //
-    let (_caller_address, _role_store, data_store, event_emitter, referral_storage, swap_handler) = setup();
+    let (_caller_address, _role_store, data_store, event_emitter, referral_storage, swap_handler, market_utils) =
+        setup();
     let long_token_address = deploy_token();
 
     // setting open_interest to 10_000 to allow decreasing position.
@@ -104,7 +110,7 @@ fn given_good_params_when_process_collateral_then_succeed() {
     //
     // Execution
     //
-    decrease_position_collateral_utils::process_collateral(params, values);
+    decrease_position_collateral_utils::process_collateral(params, values, market_utils);
 
     // Checks
     data_store.get_u256(keys::open_interest_key(contract_address_const::<'market_token'>(), long_token_address, true),);
@@ -115,7 +121,8 @@ fn given_good_params_get_execution_price_then_succeed() {
     //
     // Setup
     //
-    let (_caller_address, _role_store, data_store, event_emitter, referral_storage, swap_handler) = setup();
+    let (_caller_address, _role_store, data_store, event_emitter, referral_storage, swap_handler, market_utils) =
+        setup();
     let long_token_address = deploy_token();
 
     // setting open_interest to 10_000 to allow decreasing position.
@@ -137,7 +144,7 @@ fn given_good_params_get_execution_price_then_succeed() {
     // Execution
     //
     let (_, _, execution_price) = decrease_position_collateral_utils::get_execution_price(
-        params, Price { min: 10, max: 10 }
+        params, Price { min: 10, max: 10 }, market_utils
     );
     //
     // Checks

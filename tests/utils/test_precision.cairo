@@ -148,7 +148,7 @@ fn test_pow_decimal() {
     let value6: u256 = 1524558784654678955;
 
     let result1 = precision::pow_decimal(value2, value1);
-    let result2 = precision::pow_decimal(value2, value5);
+    let _result2 = precision::pow_decimal(value2, value5);
     let result3 = precision::pow_decimal(value3, 0);
     let result4 = precision::pow_decimal(value3, value6);
     //let result5 = precision::pow_decimal(0, value5);
@@ -168,7 +168,7 @@ fn test_apply_exponent_factor() {
     let value6: u256 = 1524558784654678955000000000000;
 
     let result1 = precision::apply_exponent_factor(value2, value1);
-    let result2 = precision::apply_exponent_factor(value2, value5);
+    let _result2 = precision::apply_exponent_factor(value2, value5);
     let result3 = precision::apply_exponent_factor(value3, 0);
     let result4 = precision::apply_exponent_factor(value3, value6);
     //let result5 = precision::pow_decimal(0, value5);

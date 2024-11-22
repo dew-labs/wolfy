@@ -33,6 +33,7 @@ mod FeeHandler {
     use freyr::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
     use freyr::fee::error::FeeError;
     use freyr::fee::fee_utils;
+    use freyr::market::market_utils::{IMarketUtilsLibraryDispatcher, IMarketUtilsDispatcherTrait};
 
 
     // Local imports.
@@ -50,6 +51,7 @@ mod FeeHandler {
         /// Interface to interact with the `EventEmitter` contract.
         event_emitter: IEventEmitterDispatcher,
         role_module: IRoleModuleLibraryDispatcher,
+        market_utils: IMarketUtilsLibraryDispatcher,
     }
 
     // *************************************************************************
@@ -69,11 +71,13 @@ mod FeeHandler {
         role_store_address: ContractAddress,
         event_emitter_address: ContractAddress,
         role_module_class_hash: ClassHash,
+        market_utils_class_hash: ClassHash,
     ) {
         self.data_store.write(IDataStoreDispatcher { contract_address: data_store_address });
         self.event_emitter.write(IEventEmitterDispatcher { contract_address: event_emitter_address });
         self.role_module.write(IRoleModuleLibraryDispatcher { class_hash: role_module_class_hash });
         self.role_module.read().initialize(role_store_address);
+        self.market_utils.write(IMarketUtilsLibraryDispatcher { class_hash: market_utils_class_hash });
     }
 
 
@@ -102,7 +106,14 @@ mod FeeHandler {
                     break;
                 }
 
-                fee_utils::claim_fees(data_store, self.event_emitter.read(), *market.at(i), *tokens.at(i), receiver);
+                fee_utils::claim_fees(
+                    data_store,
+                    self.event_emitter.read(),
+                    *market.at(i),
+                    *tokens.at(i),
+                    receiver,
+                    self.market_utils.read()
+                );
 
                 i += 1;
             };

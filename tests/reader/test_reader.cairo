@@ -7,7 +7,7 @@ use freyr::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatch
 use freyr::market::market::{Market};
 use freyr::market::market_pool_value_info::{MarketPoolValueInfo};
 use freyr::market::market_token::{IMarketTokenDispatcher, IMarketTokenDispatcherTrait};
-use freyr::market::market_utils::{get_capped_pnl, MarketPrices};
+use freyr::market::market_utils::MarketPrices;
 use freyr::mock::referral_storage::{IReferralStorageDispatcher, IReferralStorageDispatcherTrait};
 use freyr::order::order::{Order, OrderType, OrderTrait, DecreasePositionSwapType};
 use freyr::position::position::{Position};
@@ -916,7 +916,6 @@ fn given_normal_conditions_when_get_pnl_then_works() {
 
     tests_lib::teardown();
 }
-// TODO missing libraries  'market_utils::get_open_interest_with_pnl' not implemented
 #[test]
 fn given_normal_conditions_when_get_open_interest_with_pnl_then_works() {
     let (
@@ -967,7 +966,6 @@ fn given_normal_conditions_when_get_open_interest_with_pnl_then_works() {
     tests_lib::teardown();
 }
 // audit, return value is 0x0
-// TODO missing libraries  'market_utils::get_pnl_to_pool_factor' not implemented
 #[test]
 fn given_normal_conditions_when_get_pnl_to_pool_factor_then_works() {
     let (
@@ -1015,7 +1013,6 @@ fn given_normal_conditions_when_get_pnl_to_pool_factor_then_works() {
 }
 
 // audit //panic error, unwrap failed
-// TODO missing libraries reader_pricing_utils::get_swap_amount_out  use not implemented functions
 #[test]
 fn given_normal_conditions_when_get_swap_amount_out_then_works() {
     let (
@@ -1051,8 +1048,6 @@ fn given_normal_conditions_when_get_swap_amount_out_then_works() {
 }
 
 // // audit, function call returns 0x0
-// TODO missing libraries 'market_utils::get_virtual_inventory_for_swaps' and
-// 'market_utils::get_virtual_inventory_for_positions' not implemented
 #[test]
 fn given_normal_conditions_when_get_virtual_inventory_then_works() {
     let (
@@ -1125,8 +1120,6 @@ fn given_normal_conditions_when_get_execution_price_then_works() {
 }
 
 //audit, returns a panicked crates error
-// TODO missing libraries 'swap_pricing_utils::get_price_impact_usd' and 'market_utils::get_swap_impact_amount_with_cap'
-// not implemented
 #[test]
 fn given_normal_conditions_when_get_swap_price_impact_then_works() {
     let (
@@ -1163,8 +1156,6 @@ fn given_normal_conditions_when_get_swap_price_impact_then_works() {
 }
 
 //audit, returns an unwrap failed error
-// TODO missing libraries 'market_utils::is_pnl_factor_exceeded_direct' and 'market_utils::get_enabled_market' not
-// implemented
 #[test]
 fn given_normal_conditions_when_get_adl_state_then_works() {
     let (
@@ -1239,6 +1230,7 @@ fn setup() -> (
         role_module_class,
         bank_class,
         _governable_class,
+        _market_utils_class,
         _market_factory,
         role_store,
         data_store,

@@ -8,7 +8,7 @@ use debug::PrintTrait;
 use freyr::data::{keys, data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait}};
 use freyr::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
 use freyr::fee::fee_utils;
-use freyr::market::market_utils;
+use freyr::market::market_utils::{IMarketUtilsLibraryDispatcher, IMarketUtilsDispatcherTrait, MarketPrices};
 use freyr::order::{base_order_utils, order};
 // Local imports.
 use freyr::position::{position_utils, decrease_position_swap_utils, error};
@@ -57,7 +57,9 @@ struct GetExecutionPriceCache {
 /// # Returns
 /// The values linked to the process of a decrease of collateral and position fees.
 fn process_collateral(
-    mut params: position_utils::UpdatePositionParams, cache: position_utils::DecreasePositionCache
+    mut params: position_utils::UpdatePositionParams,
+    cache: position_utils::DecreasePositionCache,
+    market_utils: IMarketUtilsLibraryDispatcher
 ) -> (position_utils::DecreasePositionCollateralValues, position_pricing_utils::PositionFees) {
     let mut collateral_cache: ProcessCollateralCache = Default::default();
     let mut values: position_utils::DecreasePositionCollateralValues = Default::default();
@@ -86,7 +88,7 @@ fn process_collateral(
     // then priceImpactDiffUsd would be $20
 
     let (price_impact_usd_, price_impact_diff_usd_, execution_price_) = get_execution_price(
-        params, cache.prices.index_token_price
+        params, cache.prices.index_token_price, market_utils
     );
 
     values.price_impact_usd = price_impact_usd_;
@@ -98,7 +100,12 @@ fn process_collateral(
     // the basePnlUsd is the pnl to be realized, and is calculated as:
     // total_position_pnl * size_delta_in_tokens / position.size_in_tokens()
     let (base_pnl_usd_, uncapped_base_pnl_usd_, size_delta_in_tokens_) = position_utils::get_position_pnl_usd(
-        params.contracts.data_store, params.market, cache.prices, params.position, params.order.size_delta_usd
+        params.contracts.data_store,
+        params.market,
+        cache.prices,
+        params.position,
+        params.order.size_delta_usd,
+        market_utils
     );
     values.base_pnl_usd = base_pnl_usd_;
     values.uncapped_base_pnl_usd = uncapped_base_pnl_usd_;
@@ -117,7 +124,7 @@ fn process_collateral(
         ui_fee_receiver: params.order.ui_fee_receiver,
     };
     let mut fees: position_pricing_utils::PositionFees = position_pricing_utils::get_position_fees(
-        get_position_fees_params
+        get_position_fees_params, market_utils
     );
 
     // if the pnl is positive, deduct the pnl amount from the pool
@@ -125,13 +132,14 @@ fn process_collateral(
         // use pnl_token_price.max to minimize the tokens paid out
         let deduction_amount_for_pool: u256 = calc::to_unsigned(values.base_pnl_usd) / cache.pnl_token_price.max;
 
-        market_utils::apply_delta_to_pool_amount(
-            params.contracts.data_store,
-            params.contracts.event_emitter,
-            params.market,
-            cache.pnl_token,
-            calc::to_signed(deduction_amount_for_pool, false)
-        );
+        market_utils
+            .apply_delta_to_pool_amount(
+                params.contracts.data_store,
+                params.contracts.event_emitter,
+                params.market,
+                cache.pnl_token,
+                calc::to_signed(deduction_amount_for_pool, false)
+            );
 
         if values.output.output_token == cache.pnl_token {
             values.output.output_amount += deduction_amount_for_pool;
@@ -146,12 +154,13 @@ fn process_collateral(
             calc::to_unsigned(values.price_impact_usd), cache.prices.index_token_price.min
         );
 
-        market_utils::apply_delta_to_position_impact_pool(
-            params.contracts.data_store,
-            params.contracts.event_emitter,
-            params.market.market_token,
-            calc::to_signed(deduction_amount_for_impact_pool, false)
-        );
+        market_utils
+            .apply_delta_to_position_impact_pool(
+                params.contracts.data_store,
+                params.contracts.event_emitter,
+                params.market.market_token,
+                calc::to_signed(deduction_amount_for_impact_pool, false)
+            );
 
         // use pnlTokenPrice.max to minimize the payout from the pool
         // some impact pool value may be transferred to the market token pool if there is a
@@ -163,13 +172,14 @@ fn process_collateral(
         // so this transfer of value would increase the price of the market token
         let deduction_amount_for_pool: u256 = calc::to_unsigned(values.price_impact_usd) / cache.pnl_token_price.max;
 
-        market_utils::apply_delta_to_pool_amount(
-            params.contracts.data_store,
-            params.contracts.event_emitter,
-            params.market,
-            cache.pnl_token,
-            calc::to_signed(deduction_amount_for_pool, false)
-        );
+        market_utils
+            .apply_delta_to_pool_amount(
+                params.contracts.data_store,
+                params.contracts.event_emitter,
+                params.market,
+                cache.pnl_token,
+                calc::to_signed(deduction_amount_for_pool, false)
+            );
 
         if values.output.output_token == cache.pnl_token {
             values.output.output_amount += deduction_amount_for_pool;
@@ -205,7 +215,8 @@ fn process_collateral(
         cache.collateral_token_price,
         // use collateralTokenPrice.min because the payForCost
         // will divide the USD value by the price.min as well
-        fees.funding.funding_fee_amount * cache.collateral_token_price.min
+        fees.funding.funding_fee_amount * cache.collateral_token_price.min,
+        market_utils,
     );
     values = values_;
     collateral_cache.result = result_;
@@ -219,14 +230,15 @@ fn process_collateral(
         // send the funding fee amount to the holding address
         // this funding fee amount should be swapped to the required token
         // and the resulting tokens should be deposited back into the pool
-        market_utils::increment_claimable_collateral_amount(
-            params.contracts.data_store,
-            params.contracts.event_emitter,
-            params.market.market_token,
-            values.output.secondary_output_token,
-            holding_address,
-            collateral_cache.result.amount_paid_in_secondary_output_token
-        );
+        market_utils
+            .increment_claimable_collateral_amount(
+                params.contracts.data_store,
+                params.contracts.event_emitter,
+                params.market.market_token,
+                values.output.secondary_output_token,
+                holding_address,
+                collateral_cache.result.amount_paid_in_secondary_output_token
+            );
     }
 
     if collateral_cache.result.amount_paid_in_collateral_token < fees.funding.funding_fee_amount {
@@ -253,29 +265,36 @@ fn process_collateral(
     // pay for negative pnl
     if values.base_pnl_usd < Zeroable::zero() {
         let (values_, result_) = pay_for_cost(
-            params, values, cache.prices, cache.collateral_token_price, calc::to_unsigned(i256_neg(values.base_pnl_usd))
+            params,
+            values,
+            cache.prices,
+            cache.collateral_token_price,
+            calc::to_unsigned(i256_neg(values.base_pnl_usd)),
+            market_utils
         );
         values = values_;
         collateral_cache.result = result_;
 
         if collateral_cache.result.amount_paid_in_collateral_token > 0 {
-            market_utils::apply_delta_to_pool_amount(
-                params.contracts.data_store,
-                params.contracts.event_emitter,
-                params.market,
-                params.position.collateral_token,
-                calc::to_signed(collateral_cache.result.amount_paid_in_collateral_token, true)
-            );
+            market_utils
+                .apply_delta_to_pool_amount(
+                    params.contracts.data_store,
+                    params.contracts.event_emitter,
+                    params.market,
+                    params.position.collateral_token,
+                    calc::to_signed(collateral_cache.result.amount_paid_in_collateral_token, true)
+                );
         }
 
         if collateral_cache.result.amount_paid_in_secondary_output_token > 0 {
-            market_utils::apply_delta_to_pool_amount(
-                params.contracts.data_store,
-                params.contracts.event_emitter,
-                params.market,
-                values.output.secondary_output_token,
-                calc::to_signed(collateral_cache.result.amount_paid_in_secondary_output_token, true)
-            );
+            market_utils
+                .apply_delta_to_pool_amount(
+                    params.contracts.data_store,
+                    params.contracts.event_emitter,
+                    params.market,
+                    values.output.secondary_output_token,
+                    calc::to_signed(collateral_cache.result.amount_paid_in_secondary_output_token, true)
+                );
         }
 
         if collateral_cache.result.remaining_cost_usd > 0 {
@@ -291,7 +310,8 @@ fn process_collateral(
         cache.collateral_token_price,
         // use collateral_token_price.min because the pay_for_cost
         // will divide the USD value by the price.min as well
-        fees.total_cost_amount_excluding_funding * cache.collateral_token_price.min
+        fees.total_cost_amount_excluding_funding * cache.collateral_token_price.min,
+        market_utils,
     );
     values = values_;
     collateral_cache.result = result_;
@@ -304,13 +324,14 @@ fn process_collateral(
         // this imbalance
         // the swap impact pool should be built up so that it can be used to pay for positive price impact
         // for re-balancing to help handle this case
-        market_utils::apply_delta_to_pool_amount(
-            params.contracts.data_store,
-            params.contracts.event_emitter,
-            params.market,
-            params.position.collateral_token,
-            calc::to_signed(fees.fee_amount_for_pool, true)
-        );
+        market_utils
+            .apply_delta_to_pool_amount(
+                params.contracts.data_store,
+                params.contracts.event_emitter,
+                params.market,
+                params.position.collateral_token,
+                calc::to_signed(fees.fee_amount_for_pool, true)
+            );
 
         fee_utils::increment_claimable_fee_amount(
             params.contracts.data_store,
@@ -335,23 +356,25 @@ fn process_collateral(
         // if there are insufficient funds to pay for fees entirely in the collateral token
         // then credit the fee amount entirely to the pool
         if collateral_cache.result.amount_paid_in_collateral_token > 0 {
-            market_utils::apply_delta_to_pool_amount(
-                params.contracts.data_store,
-                params.contracts.event_emitter,
-                params.market,
-                params.position.collateral_token,
-                calc::to_signed(collateral_cache.result.amount_paid_in_collateral_token, true)
-            );
+            market_utils
+                .apply_delta_to_pool_amount(
+                    params.contracts.data_store,
+                    params.contracts.event_emitter,
+                    params.market,
+                    params.position.collateral_token,
+                    calc::to_signed(collateral_cache.result.amount_paid_in_collateral_token, true)
+                );
         }
 
         if collateral_cache.result.amount_paid_in_secondary_output_token > 0 {
-            market_utils::apply_delta_to_pool_amount(
-                params.contracts.data_store,
-                params.contracts.event_emitter,
-                params.market,
-                values.output.secondary_output_token,
-                calc::to_signed(collateral_cache.result.amount_paid_in_secondary_output_token, true)
-            );
+            market_utils
+                .apply_delta_to_pool_amount(
+                    params.contracts.data_store,
+                    params.contracts.event_emitter,
+                    params.market,
+                    values.output.secondary_output_token,
+                    calc::to_signed(collateral_cache.result.amount_paid_in_secondary_output_token, true)
+                );
         }
 
         // empty the fees since the amount was entirely paid to the pool instead of for fees
@@ -371,53 +394,58 @@ fn process_collateral(
             values,
             cache.prices,
             cache.collateral_token_price,
-            calc::to_unsigned(i256_neg(values.price_impact_usd))
+            calc::to_unsigned(i256_neg(values.price_impact_usd)),
+            market_utils,
         );
         values = values_;
         collateral_cache.result = result_;
 
         if collateral_cache.result.amount_paid_in_collateral_token > 0 {
-            market_utils::apply_delta_to_pool_amount(
-                params.contracts.data_store,
-                params.contracts.event_emitter,
-                params.market,
-                params.position.collateral_token,
-                calc::to_signed(collateral_cache.result.amount_paid_in_collateral_token, true)
-            );
+            market_utils
+                .apply_delta_to_pool_amount(
+                    params.contracts.data_store,
+                    params.contracts.event_emitter,
+                    params.market,
+                    params.position.collateral_token,
+                    calc::to_signed(collateral_cache.result.amount_paid_in_collateral_token, true)
+                );
 
-            market_utils::apply_delta_to_position_impact_pool(
-                params.contracts.data_store,
-                params.contracts.event_emitter,
-                params.market.market_token,
-                calc::to_signed(
-                    collateral_cache.result.amount_paid_in_collateral_token
-                        * cache.collateral_token_price.min
-                        / cache.prices.index_token_price.max,
-                    true
-                )
-            );
+            market_utils
+                .apply_delta_to_position_impact_pool(
+                    params.contracts.data_store,
+                    params.contracts.event_emitter,
+                    params.market.market_token,
+                    calc::to_signed(
+                        collateral_cache.result.amount_paid_in_collateral_token
+                            * cache.collateral_token_price.min
+                            / cache.prices.index_token_price.max,
+                        true
+                    )
+                );
         }
 
         if collateral_cache.result.amount_paid_in_secondary_output_token > 0 {
-            market_utils::apply_delta_to_pool_amount(
-                params.contracts.data_store,
-                params.contracts.event_emitter,
-                params.market,
-                values.output.secondary_output_token,
-                calc::to_signed(collateral_cache.result.amount_paid_in_secondary_output_token, true)
-            );
+            market_utils
+                .apply_delta_to_pool_amount(
+                    params.contracts.data_store,
+                    params.contracts.event_emitter,
+                    params.market,
+                    values.output.secondary_output_token,
+                    calc::to_signed(collateral_cache.result.amount_paid_in_secondary_output_token, true)
+                );
 
-            market_utils::apply_delta_to_position_impact_pool(
-                params.contracts.data_store,
-                params.contracts.event_emitter,
-                params.market.market_token,
-                calc::to_signed(
-                    collateral_cache.result.amount_paid_in_secondary_output_token
-                        * cache.pnl_token_price.min
-                        / cache.prices.index_token_price.max,
-                    true
-                )
-            );
+            market_utils
+                .apply_delta_to_position_impact_pool(
+                    params.contracts.data_store,
+                    params.contracts.event_emitter,
+                    params.market.market_token,
+                    calc::to_signed(
+                        collateral_cache.result.amount_paid_in_secondary_output_token
+                            * cache.pnl_token_price.min
+                            / cache.prices.index_token_price.max,
+                        true
+                    )
+                );
         }
 
         if collateral_cache.result.remaining_cost_usd > 0 {
@@ -428,31 +456,33 @@ fn process_collateral(
     // pay for price impact diff
     if values.price_impact_diff_usd > 0 {
         let (values_, result_) = pay_for_cost(
-            params, values, cache.prices, cache.collateral_token_price, values.price_impact_diff_usd
+            params, values, cache.prices, cache.collateral_token_price, values.price_impact_diff_usd, market_utils
         );
         values = values_;
         collateral_cache.result = result_;
 
         if collateral_cache.result.amount_paid_in_collateral_token > 0 {
-            market_utils::increment_claimable_collateral_amount(
-                params.contracts.data_store,
-                params.contracts.event_emitter,
-                params.market.market_token,
-                params.position.collateral_token,
-                params.order.account,
-                collateral_cache.result.amount_paid_in_collateral_token
-            );
+            market_utils
+                .increment_claimable_collateral_amount(
+                    params.contracts.data_store,
+                    params.contracts.event_emitter,
+                    params.market.market_token,
+                    params.position.collateral_token,
+                    params.order.account,
+                    collateral_cache.result.amount_paid_in_collateral_token
+                );
         }
 
         if collateral_cache.result.amount_paid_in_secondary_output_token > 0 {
-            market_utils::increment_claimable_collateral_amount(
-                params.contracts.data_store,
-                params.contracts.event_emitter,
-                params.market.market_token,
-                values.output.secondary_output_token,
-                params.order.account,
-                collateral_cache.result.amount_paid_in_secondary_output_token
-            );
+            market_utils
+                .increment_claimable_collateral_amount(
+                    params.contracts.data_store,
+                    params.contracts.event_emitter,
+                    params.market.market_token,
+                    values.output.secondary_output_token,
+                    params.order.account,
+                    collateral_cache.result.amount_paid_in_secondary_output_token
+                );
         }
 
         if collateral_cache.result.remaining_cost_usd > 0 {
@@ -514,7 +544,9 @@ fn process_collateral(
 /// * `params` - The parameters of the position update.
 /// * `index_token_price` - The price of the index token.
 /// (price_impact_usd, price_impact_diff_usd, execution_price)
-fn get_execution_price(params: position_utils::UpdatePositionParams, index_token_price: Price) -> (i256, u256, u256) {
+fn get_execution_price(
+    params: position_utils::UpdatePositionParams, index_token_price: Price, market_utils: IMarketUtilsLibraryDispatcher
+) -> (i256, u256, u256) {
     let size_delta_usd: u256 = params.order.size_delta_usd;
 
     // note that the executionPrice is not validated against the order.acceptable_price value
@@ -537,24 +569,24 @@ fn get_execution_price(params: position_utils::UpdatePositionParams, index_token
                     market: params.market,
                     usd_delta: calc::to_signed(size_delta_usd, false),
                     is_long: params.order.is_long,
-                }
+                },
+                market_utils
             );
 
     // cap priceImpactUsd based on the amount available in the position impact pool
     cache
-        .price_impact_usd =
-            market_utils::get_capped_position_impact_usd(
-                params.contracts.data_store,
-                params.market.market_token,
-                index_token_price,
-                cache.price_impact_usd,
-                size_delta_usd
-            );
+        .price_impact_usd = market_utils
+        .get_capped_position_impact_usd(
+            params.contracts.data_store,
+            params.market.market_token,
+            index_token_price,
+            cache.price_impact_usd,
+            size_delta_usd
+        );
 
     if cache.price_impact_usd < Zeroable::zero() {
-        let max_price_impact_factor: u256 = market_utils::get_max_position_impact_factor(
-            params.contracts.data_store, params.market.market_token, false
-        );
+        let max_price_impact_factor: u256 = market_utils
+            .get_max_position_impact_factor(params.contracts.data_store, params.market.market_token, false);
 
         // convert the max price impact to the min negative value
         // e.g. if size_delta_usd is 10,000 and max_price_impact_factor is 2%
@@ -604,9 +636,10 @@ fn get_execution_price(params: position_utils::UpdatePositionParams, index_token
 fn pay_for_cost(
     params: position_utils::UpdatePositionParams,
     mut values: position_utils::DecreasePositionCollateralValues,
-    prices: market_utils::MarketPrices,
+    prices: MarketPrices,
     collateral_token_price: Price,
     cost_usd: u256,
+    market_utils: IMarketUtilsLibraryDispatcher,
 ) -> (position_utils::DecreasePositionCollateralValues, PayForCostResult) {
     let mut result: PayForCostResult = Default::default();
 
@@ -648,9 +681,8 @@ fn pay_for_cost(
         return (values, result);
     }
 
-    let secondary_output_token_price: Price = market_utils::get_cached_token_price(
-        values.output.secondary_output_token, params.market, prices
-    );
+    let secondary_output_token_price: Price = market_utils
+        .get_cached_token_price(values.output.secondary_output_token, params.market, prices);
 
     let mut remaining_cost_in_secondary_output_token: u256 = remaining_cost_in_output_token
         * collateral_token_price.min

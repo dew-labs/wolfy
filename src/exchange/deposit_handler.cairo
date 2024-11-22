@@ -71,6 +71,7 @@ mod DepositHandler {
     use freyr::feature::feature_utils;
     use freyr::gas::gas_utils;
     use freyr::market::market::Market;
+    use freyr::market::market_utils::{IMarketUtilsLibraryDispatcher, IMarketUtilsDispatcherTrait};
     use freyr::oracle::oracle_utils;
     use freyr::oracle::{
         oracle::{IOracleDispatcher, IOracleDispatcherTrait}, oracle_modules,
@@ -85,6 +86,7 @@ mod DepositHandler {
     use freyr::swap::swap_handler::{ISwapHandlerDispatcher, ISwapHandlerDispatcherTrait};
     use freyr::utils::global_reentrancy_guard;
     use starknet::{get_caller_address, get_contract_address, ContractAddress, ClassHash};
+
 
     // Local imports.
     use super::IDepositHandler;
@@ -103,6 +105,7 @@ mod DepositHandler {
         /// Interface to interact with the `Oracle` contract.
         oracle: IOracleDispatcher,
         role_module: IRoleModuleLibraryDispatcher,
+        market_utils: IMarketUtilsLibraryDispatcher,
     }
 
     // *************************************************************************
@@ -125,6 +128,7 @@ mod DepositHandler {
         deposit_vault_address: ContractAddress,
         oracle_address: ContractAddress,
         role_module_class_hash: ClassHash,
+        market_utils_class_hash: ClassHash,
     ) {
         self.data_store.write(IDataStoreDispatcher { contract_address: data_store_address });
         self.event_emitter.write(IEventEmitterDispatcher { contract_address: event_emitter_address });
@@ -132,6 +136,7 @@ mod DepositHandler {
         self.oracle.write(IOracleDispatcher { contract_address: oracle_address });
         self.role_module.write(IRoleModuleLibraryDispatcher { class_hash: role_module_class_hash });
         self.role_module.read().initialize(role_store_address);
+        self.market_utils.write(IMarketUtilsLibraryDispatcher { class_hash: market_utils_class_hash });
     }
 
 
@@ -151,7 +156,12 @@ mod DepositHandler {
             );
 
             let key = deposit_utils::create_deposit(
-                self.data_store.read(), self.event_emitter.read(), self.deposit_vault.read(), account, params
+                self.data_store.read(),
+                self.event_emitter.read(),
+                self.deposit_vault.read(),
+                account,
+                params,
+                self.market_utils.read()
             );
 
             global_reentrancy_guard::non_reentrant_after(data_store);
@@ -250,7 +260,7 @@ mod DepositHandler {
                 starting_gas: 0 // TODO starting_gas
             };
 
-            execute_deposit_utils::execute_deposit(params);
+            execute_deposit_utils::execute_deposit(params, self.market_utils.read());
         }
     }
     /// TODO no try catch, we need to find alternative

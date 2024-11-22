@@ -9,9 +9,7 @@
 use freyr::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
 use freyr::data::keys;
 use freyr::market::market::Market;
-
-
-use freyr::market::market_utils;
+use freyr::market::market_utils::{IMarketUtilsLibraryDispatcher, IMarketUtilsDispatcherTrait};
 use freyr::mock::referral_storage::{IReferralStorageDispatcher, IReferralStorageDispatcherTrait};
 use freyr::position::position::Position;
 use freyr::price::price::Price;
@@ -23,6 +21,7 @@ use freyr::utils::{i256::{i256, i256_neg}, error_utils, calc::to_signed, default
 use result::ResultTrait;
 use starknet::{ContractAddress, contract_address_const};
 use zeroable::Zeroable;
+
 
 /// Struct used in get_position_fees.
 #[derive(Drop, starknet::Store, Serde)]
@@ -173,10 +172,10 @@ struct PositionUiFees {
 /// * `params` - GetPriceImpactUsdParams
 /// # Returns
 /// Price impact usd
-fn get_price_impact_usd(params: GetPriceImpactUsdParams) -> i256 {
-    let open_interest_params: OpenInterestParams = get_next_open_interest(params);
+fn get_price_impact_usd(params: GetPriceImpactUsdParams, market_utils: IMarketUtilsLibraryDispatcher) -> i256 {
+    let open_interest_params: OpenInterestParams = get_next_open_interest(params, market_utils);
     let price_impact_usd = get_price_impact_usd_internal(
-        params.data_store, params.market.market_token, open_interest_params
+        params.data_store, params.market.market_token, open_interest_params, market_utils
     );
 
     /// the virtual price impact calculation is skipped if the price impact
@@ -193,9 +192,8 @@ fn get_price_impact_usd(params: GetPriceImpactUsdParams) -> i256 {
         return price_impact_usd;
     }
 
-    let (has_virtual_inventory, virtual_inventory) = market_utils::get_virtual_inventory_for_positions(
-        params.data_store, params.market.index_token
-    );
+    let (has_virtual_inventory, virtual_inventory) = market_utils
+        .get_virtual_inventory_for_positions(params.data_store, params.market.index_token);
 
     if (!has_virtual_inventory) {
         return price_impact_usd;
@@ -205,7 +203,7 @@ fn get_price_impact_usd(params: GetPriceImpactUsdParams) -> i256 {
         params, virtual_inventory
     );
     let price_impact_usd_for_virtual_inventory = get_price_impact_usd_internal(
-        params.data_store, params.market.market_token, open_interest_params_for_virtual_inventory
+        params.data_store, params.market.market_token, open_interest_params_for_virtual_inventory, market_utils
     );
 
     if (price_impact_usd_for_virtual_inventory < price_impact_usd) {
@@ -223,7 +221,10 @@ fn get_price_impact_usd(params: GetPriceImpactUsdParams) -> i256 {
 /// # Returns
 /// Price impact usd
 fn get_price_impact_usd_internal(
-    data_store: IDataStoreDispatcher, market: ContractAddress, open_interest_params: OpenInterestParams,
+    data_store: IDataStoreDispatcher,
+    market: ContractAddress,
+    open_interest_params: OpenInterestParams,
+    market_utils: IMarketUtilsLibraryDispatcher
 ) -> i256 {
     let initial_diff_usd = calc::diff(
         open_interest_params.long_open_interest, open_interest_params.short_open_interest
@@ -253,15 +254,14 @@ fn get_price_impact_usd_internal(
 
     if (is_same_side_rebalance) {
         let has_positive_impact = next_diff_usd < initial_diff_usd;
-        let impact_factor = market_utils::get_adjusted_position_impact_factor(data_store, market, has_positive_impact);
+        let impact_factor = market_utils.get_adjusted_position_impact_factor(data_store, market, has_positive_impact);
 
         return pricing_utils::get_price_impact_usd_for_same_side_rebalance(
             initial_diff_usd, next_diff_usd, impact_factor, impact_exponent_factor
         );
     } else {
-        let (positive_impact_factor, negative_impact_factor) = market_utils::get_adjusted_position_impact_factors(
-            data_store, market
-        );
+        let (positive_impact_factor, negative_impact_factor) = market_utils
+            .get_adjusted_position_impact_factors(data_store, market);
 
         return pricing_utils::get_price_impact_usd_for_crossover_rebalance(
             initial_diff_usd, next_diff_usd, positive_impact_factor, negative_impact_factor, impact_exponent_factor
@@ -274,14 +274,13 @@ fn get_price_impact_usd_internal(
 /// * `params` - Price impact in usd.
 /// # Returns
 /// New open interest.
-fn get_next_open_interest(params: GetPriceImpactUsdParams) -> OpenInterestParams {
-    let long_open_interest = market_utils::get_open_interest_for_market_is_long(
-        params.data_store, @params.market, true
-    );
+fn get_next_open_interest(
+    params: GetPriceImpactUsdParams, market_utils: IMarketUtilsLibraryDispatcher
+) -> OpenInterestParams {
+    let long_open_interest = market_utils.get_open_interest_for_market_is_long(params.data_store, params.market, true);
 
-    let short_open_interest = market_utils::get_open_interest_for_market_is_long(
-        params.data_store, @params.market, false
-    );
+    let short_open_interest = market_utils
+        .get_open_interest_for_market_is_long(params.data_store, params.market, false);
 
     return get_next_open_interest_params(params, long_open_interest, short_open_interest);
 }
@@ -364,7 +363,7 @@ fn get_next_open_interest_params(
 /// * `params` - parameters to compute position fees.
 /// # Returns
 /// Position fees.
-fn get_position_fees(params: GetPositionFeesParams) -> PositionFees {
+fn get_position_fees(params: GetPositionFeesParams, market_utils: IMarketUtilsLibraryDispatcher) -> PositionFees {
     let mut fees = get_position_fees_after_referral(
         params.data_store,
         params.referral_storage,
@@ -375,7 +374,7 @@ fn get_position_fees(params: GetPositionFeesParams) -> PositionFees {
         params.size_delta_usd
     );
 
-    let borrowing_fee_usd = market_utils::get_borrowing_fees(params.data_store, @params.position);
+    let borrowing_fee_usd = market_utils.get_borrowing_fees(params.data_store, params.position);
 
     fees.borrowing = get_borrowing_fees(params.data_store, params.collateral_token_price, borrowing_fee_usd);
 
@@ -386,31 +385,35 @@ fn get_position_fees(params: GetPositionFeesParams) -> PositionFees {
 
     fees
         .funding
-        .latest_funding_fee_amount_per_size =
-            market_utils::get_funding_fee_amount_per_size(
-                params.data_store, params.position.market, params.position.collateral_token, params.position.is_long
-            );
+        .latest_funding_fee_amount_per_size = market_utils
+        .get_funding_fee_amount_per_size(
+            params.data_store, params.position.market, params.position.collateral_token, params.position.is_long
+        );
 
     fees
         .funding
-        .latest_long_token_claimable_funding_amount_per_size =
-            market_utils::get_claimable_funding_amount_per_size(
-                params.data_store, params.position.market, params.long_token, params.position.is_long
-            );
+        .latest_long_token_claimable_funding_amount_per_size = market_utils
+        .get_claimable_funding_amount_per_size(
+            params.data_store, params.position.market, params.long_token, params.position.is_long
+        );
 
     fees
         .funding
-        .latest_short_token_claimable_funding_amount_per_size =
-            market_utils::get_claimable_funding_amount_per_size(
-                params.data_store, params.position.market, params.short_token, params.position.is_long
-            );
+        .latest_short_token_claimable_funding_amount_per_size = market_utils
+        .get_claimable_funding_amount_per_size(
+            params.data_store, params.position.market, params.short_token, params.position.is_long
+        );
 
-    fees.funding = get_funding_fees(fees.funding, params.position);
+    fees.funding = get_funding_fees(fees.funding, params.position, market_utils);
 
     fees
         .ui =
             get_ui_fees(
-                params.data_store, params.collateral_token_price, params.size_delta_usd, params.ui_fee_receiver
+                params.data_store,
+                params.collateral_token_price,
+                params.size_delta_usd,
+                params.ui_fee_receiver,
+                market_utils
             );
 
     fees.total_cost_amount_excluding_funding = fees.position_fee_amount
@@ -452,33 +455,35 @@ fn get_borrowing_fees(
 /// * `position` - The position to compute funding fees for.
 /// # Returns
 /// Funding fees.
-fn get_funding_fees(mut funding_fees: PositionFundingFees, position: Position) -> PositionFundingFees {
+fn get_funding_fees(
+    mut funding_fees: PositionFundingFees, position: Position, market_utils: IMarketUtilsLibraryDispatcher
+) -> PositionFundingFees {
     funding_fees
-        .funding_fee_amount =
-            market_utils::get_funding_amount(
-                funding_fees.latest_funding_fee_amount_per_size,
-                position.funding_fee_amount_per_size,
-                position.size_in_usd,
-                true // roundUpMagnitude
-            );
+        .funding_fee_amount = market_utils
+        .get_funding_amount(
+            funding_fees.latest_funding_fee_amount_per_size,
+            position.funding_fee_amount_per_size,
+            position.size_in_usd,
+            true // roundUpMagnitude
+        );
 
     funding_fees
-        .claimable_long_token_amount =
-            market_utils::get_funding_amount(
-                funding_fees.latest_long_token_claimable_funding_amount_per_size,
-                position.long_token_claimable_funding_amount_per_size,
-                position.size_in_usd,
-                false // roundUpMagnitude
-            );
+        .claimable_long_token_amount = market_utils
+        .get_funding_amount(
+            funding_fees.latest_long_token_claimable_funding_amount_per_size,
+            position.long_token_claimable_funding_amount_per_size,
+            position.size_in_usd,
+            false // roundUpMagnitude
+        );
 
     funding_fees
-        .claimable_short_token_amount =
-            market_utils::get_funding_amount(
-                funding_fees.latest_short_token_claimable_funding_amount_per_size,
-                position.short_token_claimable_funding_amount_per_size,
-                position.size_in_usd,
-                false // roundUpMagnitude
-            );
+        .claimable_short_token_amount = market_utils
+        .get_funding_amount(
+            funding_fees.latest_short_token_claimable_funding_amount_per_size,
+            position.short_token_claimable_funding_amount_per_size,
+            position.size_in_usd,
+            false // roundUpMagnitude
+        );
 
     funding_fees
 }
@@ -495,7 +500,8 @@ fn get_ui_fees(
     data_store: IDataStoreDispatcher,
     collateral_token_price: Price,
     size_delta_usd: u256,
-    ui_fee_receiver: ContractAddress
+    ui_fee_receiver: ContractAddress,
+    market_utils: IMarketUtilsLibraryDispatcher
 ) -> PositionUiFees {
     let mut ui_fees: PositionUiFees = Default::default();
 
@@ -504,7 +510,7 @@ fn get_ui_fees(
     }
 
     ui_fees.ui_fee_receiver = ui_fee_receiver;
-    ui_fees.ui_fee_receiver_factor = market_utils::get_ui_fee_factor(data_store, ui_fee_receiver);
+    ui_fees.ui_fee_receiver_factor = market_utils.get_ui_fee_factor(data_store, ui_fee_receiver);
     error_utils::check_division_by_zero(collateral_token_price.min, 'collateral_token_price.min');
     ui_fees.ui_fee_amount = precision::apply_factor_u256(size_delta_usd, ui_fees.ui_fee_receiver_factor)
         / collateral_token_price.min;

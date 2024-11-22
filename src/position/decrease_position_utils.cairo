@@ -6,7 +6,7 @@
 // Core lib imports.
 use freyr::data::{data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait}, keys};
 use freyr::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
-use freyr::market::market_utils;
+use freyr::market::market_utils::{IMarketUtilsLibraryDispatcher, IMarketUtilsDispatcherTrait};
 use freyr::order::base_order_utils;
 use freyr::order::order::{OrderType, DecreasePositionSwapType};
 use freyr::position::error::PositionError;
@@ -52,12 +52,14 @@ struct DecreasePositionResult {
 /// Finally, the function returns a DecreasePositionResult object containing
 /// information about the outcome of the decrease operation, including the amount
 /// of collateral removed from the position and any fees that were paid.
-fn decrease_position(mut params: UpdatePositionParams) -> DecreasePositionResult {
+fn decrease_position(
+    mut params: UpdatePositionParams, market_utils: IMarketUtilsLibraryDispatcher
+) -> DecreasePositionResult {
     let mut cache: DecreasePositionCache = Default::default();
-    cache.prices = market_utils::get_market_prices(params.contracts.oracle, params.market);
+    cache.prices = market_utils.get_market_prices(params.contracts.oracle, params.market);
     cache
-        .collateral_token_price =
-            market_utils::get_cached_token_price(params.order.initial_collateral_token, params.market, cache.prices);
+        .collateral_token_price = market_utils
+        .get_cached_token_price(params.order.initial_collateral_token, params.market, cache.prices);
 
     // cap the order size to the position size
     if (params.order.size_delta_usd > params.position.size_in_usd) {
@@ -80,7 +82,12 @@ fn decrease_position(mut params: UpdatePositionParams) -> DecreasePositionResult
     if (params.order.size_delta_usd < params.position.size_in_usd) {
         let (estimated_position_pnl_usd, _uncapped_base_pnl_usd, _size_delta_in_tokens) =
             position_utils::get_position_pnl_usd(
-            params.contracts.data_store, params.market, cache.prices, params.position, params.position.size_in_usd
+            params.contracts.data_store,
+            params.market,
+            cache.prices,
+            params.position,
+            params.position.size_in_usd,
+            market_utils
         );
         cache.estimated_position_pnl_usd = estimated_position_pnl_usd;
         cache
@@ -104,7 +111,8 @@ fn decrease_position(mut params: UpdatePositionParams) -> DecreasePositionResult
             cache.prices,
             params.position.collateral_token,
             params.position.is_long,
-            position_values
+            position_values,
+            market_utils
         );
 
         // do not allow withdrawal of collateral if it would lead to the position
@@ -187,7 +195,7 @@ fn decrease_position(mut params: UpdatePositionParams) -> DecreasePositionResult
         params.order.decrease_position_swap_type = DecreasePositionSwapType::NoSwap;
     }
 
-    position_utils::update_funding_and_borrowing_state(params, cache.prices);
+    position_utils::update_funding_and_borrowing_state(params, cache.prices, market_utils);
     if (base_order_utils::is_liquidation_order(params.order.order_type)) {
         let (is_liquidatable, _liquidation_amount_usd) = position_utils::is_position_liquiditable(
             params.contracts.data_store,
@@ -195,31 +203,32 @@ fn decrease_position(mut params: UpdatePositionParams) -> DecreasePositionResult
             params.position,
             params.market,
             cache.prices,
-            true
+            true,
+            market_utils
         );
         if (!is_liquidatable) {
             PositionError::POSITION_SHOULD_NOT_BE_LIQUIDATED();
         }
     }
     cache.initial_collateral_amount = params.position.collateral_amount;
-    let (mut values, fees) = decrease_position_collateral_utils::process_collateral(params, cache);
+    let (mut values, fees) = decrease_position_collateral_utils::process_collateral(params, cache, market_utils);
 
     cache.next_position_size_in_usd = params.position.size_in_usd - params.order.size_delta_usd;
     cache
-        .next_position_borrowing_factor =
-            market_utils::get_cumulative_borrowing_factor(
-                @params.contracts.data_store, params.market.market_token, params.position.is_long
-            );
+        .next_position_borrowing_factor = market_utils
+        .get_cumulative_borrowing_factor(
+            params.contracts.data_store, params.market.market_token, params.position.is_long
+        );
 
     position_utils::update_total_borrowing(
-        params, cache.next_position_size_in_usd, cache.next_position_borrowing_factor
+        params, cache.next_position_size_in_usd, cache.next_position_borrowing_factor, market_utils
     );
     params.position.size_in_usd = cache.next_position_size_in_usd;
     params.position.size_in_tokens -= values.size_delta_in_tokens;
     params.position.collateral_amount = values.remaining_collateral_amount;
     params.position.decreased_at_block = starknet::info::get_block_number();
 
-    position_utils::increment_claimable_funding_amount(params, fees);
+    position_utils::increment_claimable_funding_amount(params, fees, market_utils);
 
     if (params.position.size_in_usd == 0 || params.position.size_in_tokens == 0) {
         // withdraw all collateral if the position will be closed
@@ -245,17 +254,21 @@ fn decrease_position(mut params: UpdatePositionParams) -> DecreasePositionResult
 
         params.contracts.data_store.set_position(params.position_key, params.position);
     }
-    market_utils::apply_delta_to_collateral_sum(
-        params.contracts.data_store,
-        params.contracts.event_emitter,
-        params.position.market,
-        params.position.collateral_token,
-        params.position.is_long,
-        to_signed(cache.initial_collateral_amount - params.position.collateral_amount, false)
-    );
+    market_utils
+        .apply_delta_to_collateral_sum(
+            params.contracts.data_store,
+            params.contracts.event_emitter,
+            params.position.market,
+            params.position.collateral_token,
+            params.position.is_long,
+            to_signed(cache.initial_collateral_amount - params.position.collateral_amount, false)
+        );
 
     position_utils::update_open_interest(
-        params, to_signed(params.order.size_delta_usd, false), to_signed(values.size_delta_in_tokens, false)
+        params,
+        to_signed(params.order.size_delta_usd, false),
+        to_signed(values.size_delta_in_tokens, false),
+        market_utils
     );
 
     // affiliate rewards are still distributed even if the order is a liquidation order
@@ -282,7 +295,8 @@ fn decrease_position(mut params: UpdatePositionParams) -> DecreasePositionResult
             params.market,
             cache.prices,
             false, // should_validate_min_position_size
-            false // should_validate_min_collateral_usd
+            false, // should_validate_min_collateral_usd
+            market_utils,
         );
     }
 

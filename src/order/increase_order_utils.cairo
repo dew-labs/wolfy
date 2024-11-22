@@ -36,16 +36,16 @@ trait IIncreaseOrderUtils<TContractState> {
 
 #[starknet::contract]
 mod IncreaseOrderUtils {
-
     use alexandria_data_structures::span_ext::SpanTraitExt;
     use core::integer::U64PartialOrd;
     use freyr::bank::bank::{IBankDispatcher, IBankDispatcherTrait};
     use freyr::data::{data_store::IDataStoreDispatcherTrait, error::DataError};
-    use freyr::market::market_utils;
-    use freyr::swap::swap_utils;
+    use freyr::market::market_utils::{IMarketUtilsLibraryDispatcher, IMarketUtilsDispatcherTrait};
     use freyr::oracle::{oracle_utils, error::OracleError};
-    use freyr::position::{position_utils, error::PositionError, increase_position_utils};
     use freyr::order::{base_order_utils::ExecuteOrderParams, order::{Order, OrderType}, error::OrderError};
+    use freyr::position::{position_utils, error::PositionError, increase_position_utils};
+    use freyr::swap::swap_utils;
+    use starknet::{ClassHash};
 
     fn validate_oracle_block_numbers(
         min_oracle_block_numbers: Span<u64>,
@@ -83,7 +83,10 @@ mod IncreaseOrderUtils {
     }
 
     #[storage]
-    struct Storage {}
+    struct Storage {
+        market_utils: IMarketUtilsLibraryDispatcher,
+    }
+
 
     // *************************************************************************
     //                          EXTERNAL FUNCTIONS
@@ -98,7 +101,8 @@ mod IncreaseOrderUtils {
         /// This function should return an EventLogData cause the callback_utils
         /// needs it. We need to find a solution for that case.
         fn process_order(ref self: ContractState, params: ExecuteOrderParams) {
-            market_utils::validate_position_market(params.contracts.data_store, params.market.market_token);
+            let market_utils = self.market_utils.read();
+            market_utils.validate_position_market(params.contracts.data_store, params.market.market_token);
 
             let (collateral_token, collateral_increment_amount) = swap_utils::swap(
                 @swap_utils::SwapParams {
@@ -113,10 +117,11 @@ mod IncreaseOrderUtils {
                     min_output_amount: params.order.min_output_amount,
                     receiver: params.order.market,
                     ui_fee_receiver: params.order.ui_fee_receiver,
-                }
+                },
+                market_utils
             );
 
-            market_utils::validate_market_collateral_token(params.market, collateral_token);
+            market_utils.validate_market_collateral_token(params.market, collateral_token);
             let position_key = position_utils::get_position_key(
                 params.order.account, params.order.market, collateral_token, params.order.is_long,
             );
@@ -148,7 +153,8 @@ mod IncreaseOrderUtils {
                     position_key: position_key,
                     secondary_order_type: params.secondary_order_type,
                 },
-                collateral_increment_amount
+                collateral_increment_amount,
+                market_utils
             );
             let _position_updated = params.contracts.data_store.get_position(position_key);
         }

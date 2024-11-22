@@ -72,6 +72,7 @@ fn setup() -> (
         _role_module_class,
         _bank_class,
         _governable_class,
+        _market_utils_class,
         market_factory,
         role_store,
         data_store,
@@ -144,7 +145,7 @@ fn given_caller_not_controller_when_swap_then_fails() {
     // Revoke the caller the `CONTROLLER` role.
     role_store.revoke_role(caller_address, role::CONTROLLER);
 
-    let mut market = Market {
+    let mut _market = Market {
         market_token: contract_address_const::<'market_token'>(),
         index_token: contract_address_const::<'index_token'>(),
         long_token: contract_address_const::<'long_token'>(),
@@ -188,7 +189,7 @@ fn given_amount_in_is_zero_then_works() {
     ) =
         setup();
 
-    let mut market = Market {
+    let mut _market = Market {
         market_token: contract_address_const::<'market_token'>(),
         index_token: contract_address_const::<'index_token'>(),
         long_token: contract_address_const::<'long_token'>(),
@@ -236,7 +237,7 @@ fn given_insufficient_output_then_fails() {
     ) =
         setup();
 
-    let mut market = Market {
+    let mut _market = Market {
         market_token: contract_address_const::<'market_token'>(),
         index_token: contract_address_const::<'index_token'>(),
         long_token: contract_address_const::<'long_token'>(),
@@ -282,7 +283,7 @@ fn given_normal_conditions_swap_then_works() {
     ) =
         setup();
 
-    let mut market = Market {
+    let mut _market = Market {
         market_token: contract_address_const::<'market_token'>(),
         index_token: contract_address_const::<'index_token'>(),
         long_token: contract_address_const::<'long_token'>(),

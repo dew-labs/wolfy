@@ -52,6 +52,7 @@ mod LiquidationHandler {
 
     use freyr::liquidation::liquidation_utils::create_liquidation_order;
     use freyr::market::market::Market;
+    use freyr::market::market_utils::{IMarketUtilsLibraryDispatcher, IMarketUtilsDispatcherTrait};
     use freyr::mock::referral_storage::{IReferralStorageDispatcher, IReferralStorageDispatcherTrait};
     use freyr::oracle::{
         oracle::{IOracleDispatcher, IOracleDispatcherTrait},
@@ -69,6 +70,7 @@ mod LiquidationHandler {
     use freyr::role::role_store::{IRoleStoreSafeDispatcher, IRoleStoreSafeDispatcherTrait};
     use freyr::swap::swap_handler::{ISwapHandlerDispatcher, ISwapHandlerDispatcherTrait};
     use freyr::utils::{starknet_utils, global_reentrancy_guard};
+
     use starknet::storage::{
         StorageMapReadAccess, StorageMapWriteAccess, StoragePointerReadAccess, StoragePointerWriteAccess
     };
@@ -94,8 +96,9 @@ mod LiquidationHandler {
         referral_storage: IReferralStorageDispatcher,
         order_utils_lib: IOrderUtilsLibraryDispatcher,
         // increase_order_utils_lib: IIncreaseOrderUtilsLibraryDispatcher,
-    // decrease_order_utils_lib: IDecreaseOrderUtilsLibraryDispatcher,
-    // swap_order_utils_lib: ISwapOrderUtilsLibraryDispatcher
+        // decrease_order_utils_lib: IDecreaseOrderUtilsLibraryDispatcher,
+        // swap_order_utils_lib: ISwapOrderUtilsLibraryDispatcher
+        market_utils: IMarketUtilsLibraryDispatcher,
     }
 
     // *************************************************************************
@@ -126,6 +129,7 @@ mod LiquidationHandler {
         swap_order_utils_class_hash: ClassHash,
         role_module_class_hash: ClassHash,
         base_order_handler_class_hash: ClassHash,
+        market_utils_class_hash: ClassHash
     ) {
         self.base_order_handler.write(IBaseOrderHandlerLibraryDispatcher { class_hash: base_order_handler_class_hash });
         self
@@ -141,7 +145,8 @@ mod LiquidationHandler {
                 order_utils_class_hash,
                 increase_order_utils_class_hash,
                 decrease_order_utils_class_hash,
-                swap_order_utils_class_hash
+                swap_order_utils_class_hash,
+                market_utils_class_hash,
             );
         self.role_module.write(IRoleModuleLibraryDispatcher { class_hash: role_module_class_hash });
         self.role_module.read().initialize(role_store_address);

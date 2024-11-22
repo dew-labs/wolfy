@@ -1,5 +1,4 @@
 use freyr::market::market_token::{IMarketTokenDispatcher, IMarketTokenDispatcherTrait};
-use freyr::market::market_utils;
 use freyr::role::role;
 use freyr::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
 use freyr::test_utils::tests_lib;
@@ -59,6 +58,7 @@ fn setup() -> (
         role_module_class,
         bank_class,
         _governable_class,
+        _market_utils_class,
         _market_factory,
         role_store,
         _data_store,

@@ -51,6 +51,7 @@ mod SwapOrderUtils {
     use freyr::event::event_utils::{
         Felt252IntoContractAddress, ContractAddressDictValue, I256252DictValue, U256252DictValue, U256IntoFelt252
     };
+    use freyr::market::market_utils::{IMarketUtilsLibraryDispatcher, IMarketUtilsDispatcherTrait};
     use freyr::oracle::error::OracleError;
     use freyr::oracle::oracle_utils;
 
@@ -66,7 +67,9 @@ mod SwapOrderUtils {
     use starknet::{ContractAddress, contract_address_const};
 
     #[storage]
-    struct Storage {}
+    struct Storage {
+        market_utils: IMarketUtilsLibraryDispatcher,
+    }
 
     // *************************************************************************
     //                          EXTERNAL FUNCTIONS
@@ -96,7 +99,8 @@ mod SwapOrderUtils {
                     min_output_amount: params.order.min_output_amount,
                     receiver: params.order.receiver,
                     ui_fee_receiver: params.order.ui_fee_receiver,
-                }
+                },
+                self.market_utils.read()
             );
             // let mut log_data: LogData = Default::default();
 

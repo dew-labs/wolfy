@@ -29,6 +29,7 @@ mod SwapHandler {
     // *************************************************************************
     // Core lib imports
 
+    use freyr::market::market_utils::{IMarketUtilsLibraryDispatcher, IMarketUtilsDispatcherTrait};
     use freyr::role::role;
     use freyr::role::role_module::{IRoleModuleLibraryDispatcher, IRoleModuleDispatcherTrait};
     use freyr::role::role_module::{RoleModule, IRoleModule};
@@ -40,6 +41,7 @@ mod SwapHandler {
     use freyr::utils::i256::i256;
     use openzeppelin::security::ReentrancyGuardComponent;
     use starknet::{ContractAddress, ClassHash};
+
 
     component!(path: ReentrancyGuardComponent, storage: reentrancy_guard, event: ReentrancyGuardEvent);
 
@@ -54,6 +56,7 @@ mod SwapHandler {
         #[substorage(v0)]
         reentrancy_guard: ReentrancyGuardComponent::Storage,
         role_module: IRoleModuleLibraryDispatcher,
+        market_utils: IMarketUtilsLibraryDispatcher,
     }
 
     // *************************************************************************
@@ -73,9 +76,15 @@ mod SwapHandler {
 
     /// Constructor of the contract.
     #[constructor]
-    fn constructor(ref self: ContractState, role_store_address: ContractAddress, role_module_class_hash: ClassHash,) {
+    fn constructor(
+        ref self: ContractState,
+        role_store_address: ContractAddress,
+        role_module_class_hash: ClassHash,
+        market_utils_class_hash: ClassHash,
+    ) {
         self.role_module.write(IRoleModuleLibraryDispatcher { class_hash: role_module_class_hash });
         self.role_module.read().initialize(role_store_address);
+        self.market_utils.write(IMarketUtilsLibraryDispatcher { class_hash: market_utils_class_hash });
     }
 
 
@@ -89,7 +98,7 @@ mod SwapHandler {
 
             self.reentrancy_guard.start();
 
-            let (token_out, swap_output_amount) = swap_utils::swap(@params);
+            let (token_out, swap_output_amount) = swap_utils::swap(@params, self.market_utils.read());
 
             self.reentrancy_guard.end();
 

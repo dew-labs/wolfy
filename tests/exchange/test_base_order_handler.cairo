@@ -11,6 +11,7 @@ use freyr::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatch
 use freyr::exchange::base_order_handler::BaseOrderHandler;
 use freyr::exchange::base_order_handler::{IBaseOrderHandlerDispatcher, IBaseOrderHandlerDispatcherTrait};
 use freyr::market::market::{Market, UniqueIdMarketImpl};
+use freyr::market::market_utils::{IMarketUtilsLibraryDispatcher, IMarketUtilsDispatcherTrait};
 use freyr::mock::referral_storage::{IReferralStorageDispatcher, IReferralStorageDispatcherTrait};
 use freyr::oracle::oracle::{IOracleDispatcher, IOracleDispatcherTrait};
 use freyr::oracle::oracle_store::{IOracleStoreDispatcher, IOracleStoreDispatcherTrait};
@@ -18,6 +19,7 @@ use freyr::oracle::oracle_utils::SetPricesParams;
 use freyr::order::base_order_utils::ExecuteOrderParamsContracts;
 use freyr::order::order::{Order, OrderType, SecondaryOrderType, DecreasePositionSwapType};
 use freyr::order::order_vault::{IOrderVaultDispatcher, IOrderVaultDispatcherTrait};
+
 // Local imports.
 use freyr::role::role;
 
@@ -41,7 +43,7 @@ use traits::Default;
 fn given_already_intialized_state_when_initialize_then_fails() {
     let (
         _caller_address,
-        role_store,
+        _role_store,
         data_store,
         event_emitter,
         order_vault,
@@ -53,6 +55,7 @@ fn given_already_intialized_state_when_initialize_then_fails() {
         decrease_order_class,
         swap_order_class,
         order_utils_class,
+        market_utils_class,
     ) =
         setup_contracts();
 
@@ -68,6 +71,7 @@ fn given_already_intialized_state_when_initialize_then_fails() {
         increase_order_class.class_hash,
         decrease_order_class.class_hash,
         swap_order_class.class_hash,
+        market_utils_class.class_hash,
     );
 }
 
@@ -88,6 +92,7 @@ fn given_normal_conditions_when_get_execute_order_params_then_works() {
         _,
         _,
         _,
+        _market_utils,
     ) =
         setup_contracts();
 
@@ -143,6 +148,7 @@ fn given_non_found_order_when_get_execute_order_params_then_returns_empty_order(
         _,
         _,
         _,
+        _market_utils,
     ) =
         setup_contracts();
 
@@ -275,6 +281,7 @@ fn setup_contracts() -> (
     ContractClass,
     ContractClass,
     ContractClass,
+    IMarketUtilsLibraryDispatcher,
 ) {
     let (
         caller_address,
@@ -286,6 +293,7 @@ fn setup_contracts() -> (
         _role_module_class,
         _bank_class,
         _governable_class,
+        market_utils_class,
         _market_factory,
         role_store,
         data_store,
@@ -322,7 +330,10 @@ fn setup_contracts() -> (
         increase_order_class.class_hash,
         decrease_order_class.class_hash,
         swap_order_class.class_hash,
+        market_utils_class.class_hash,
     );
+
+    let market_utils = IMarketUtilsLibraryDispatcher { class_hash: market_utils_class.class_hash };
 
     return (
         caller_address,
@@ -338,5 +349,6 @@ fn setup_contracts() -> (
         decrease_order_class,
         swap_order_class,
         order_utils_class,
+        market_utils,
     );
 }

@@ -103,14 +103,16 @@ mod OrderHandler {
     use freyr::data::keys::{create_order_feature_disabled_key, execute_order_feature_disabled_key};
     use freyr::data::keys;
     use freyr::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
-    use freyr::exchange::base_order_handler::{IBaseOrderHandler, BaseOrderHandler};
-    use freyr::exchange::base_order_handler::{IBaseOrderHandlerLibraryDispatcher, IBaseOrderHandlerDispatcherTrait};
+    use freyr::exchange::base_order_handler::{
+        IBaseOrderHandler, BaseOrderHandler, IBaseOrderHandlerLibraryDispatcher, IBaseOrderHandlerDispatcherTrait
+    };
     // use freyr::market::error::MarketError;
     // use freyr::position::error::PositionError;
     // use freyr::feature::error::FeatureError;
     use freyr::exchange::exchange_utils;
     use freyr::feature::feature_utils::{validate_feature};
     use freyr::gas::gas_utils;
+    use freyr::market::market_utils::{IMarketUtilsLibraryDispatcher, IMarketUtilsDispatcherTrait};
     use freyr::mock::referral_storage::{IReferralStorageDispatcher, IReferralStorageDispatcherTrait};
     use freyr::oracle::oracle_modules;
 
@@ -161,7 +163,8 @@ mod OrderHandler {
         order_utils_lib: IOrderUtilsLibraryDispatcher,
         increase_order_utils_lib: IIncreaseOrderUtilsLibraryDispatcher,
         decrease_order_utils_lib: IDecreaseOrderUtilsLibraryDispatcher,
-        swap_order_utils_lib: ISwapOrderUtilsLibraryDispatcher
+        swap_order_utils_lib: ISwapOrderUtilsLibraryDispatcher,
+        market_utils_lib: IMarketUtilsLibraryDispatcher,
     }
 
     // *************************************************************************
@@ -192,6 +195,7 @@ mod OrderHandler {
         swap_order_utils_class_hash: ClassHash,
         role_module_class_hash: ClassHash,
         base_order_handler_class_hash: ClassHash,
+        market_utils_class_hash: ClassHash
     ) {
         self.base_order_handler.write(IBaseOrderHandlerLibraryDispatcher { class_hash: base_order_handler_class_hash });
         self
@@ -207,7 +211,8 @@ mod OrderHandler {
                 order_utils_class_hash,
                 increase_order_utils_class_hash,
                 decrease_order_utils_class_hash,
-                swap_order_utils_class_hash
+                swap_order_utils_class_hash,
+                market_utils_class_hash
             );
         self.role_module.write(IRoleModuleLibraryDispatcher { class_hash: role_module_class_hash });
         self.role_module.read().initialize(role_store_address);

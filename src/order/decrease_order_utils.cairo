@@ -10,7 +10,6 @@ use freyr::event::event_utils::{
     Felt252IntoContractAddress, ContractAddressDictValue, I256252DictValue, U256252DictValue, U256IntoFelt252
 };
 use freyr::market::market_token::{IMarketTokenDispatcher, IMarketTokenDispatcherTrait};
-use freyr::market::market_utils;
 
 // Local imports.
 use freyr::oracle::oracle::{IOracleDispatcher, IOracleDispatcherTrait};
@@ -27,7 +26,7 @@ use freyr::swap::swap_utils::{SwapParams};
 use freyr::utils::arrays;
 use freyr::utils::serializable_dict::{SerializableFelt252Dict, SerializableFelt252DictTrait};
 use freyr::utils::span32::{Span32, Array32Trait};
-use starknet::{ContractAddress, contract_address_const};
+use starknet::{ContractAddress, contract_address_const, ClassHash};
 
 // *************************************************************************
 //                  Interface of the `OrderUtils` contract.
@@ -95,7 +94,7 @@ mod DecreaseOrderUtils {
         Felt252IntoContractAddress, ContractAddressDictValue, I256252DictValue, U256252DictValue, U256IntoFelt252
     };
     use freyr::market::market_token::{IMarketTokenDispatcher, IMarketTokenDispatcherTrait};
-    use freyr::market::market_utils;
+    use freyr::market::market_utils::{IMarketUtilsLibraryDispatcher, IMarketUtilsDispatcherTrait};
 
     // Local imports.
     use freyr::oracle::oracle::{IOracleDispatcher, IOracleDispatcherTrait};
@@ -112,10 +111,12 @@ mod DecreaseOrderUtils {
     use freyr::utils::arrays;
     use freyr::utils::serializable_dict::{SerializableFelt252Dict, SerializableFelt252DictTrait};
     use freyr::utils::span32::{Span32, Array32Trait};
-    use starknet::{ContractAddress, contract_address_const};
+    use starknet::{ContractAddress, contract_address_const, ClassHash};
 
     #[storage]
-    struct Storage {}
+    struct Storage {
+        market_utils: IMarketUtilsLibraryDispatcher,
+    }
 
     // *************************************************************************
     //                          EXTERNAL FUNCTIONS
@@ -129,7 +130,9 @@ mod DecreaseOrderUtils {
         ) { //TODO check with refactor with callback_utils
             let order: Order = params.order;
 
-            market_utils::validate_position_market_check(params.contracts.data_store, params.market);
+            let market_utils = self.market_utils.read();
+
+            market_utils.validate_position_market_check(params.contracts.data_store, params.market);
 
             let position_key: felt252 = position_utils::get_position_key(
                 order.account, order.market, order.initial_collateral_token, order.is_long
@@ -156,7 +159,9 @@ mod DecreaseOrderUtils {
                 position_key,
                 secondary_order_type: params.secondary_order_type
             };
-            let mut result: DecreasePositionResult = decrease_position_utils::decrease_position(update_position_params);
+            let mut result: DecreasePositionResult = decrease_position_utils::decrease_position(
+                update_position_params, market_utils
+            );
             // if the pnl_token and the collateral_token are different
             // and if a swap fails or no swap was requested
             // then it is possible to receive two separate tokens from decreasing
