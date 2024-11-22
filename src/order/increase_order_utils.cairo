@@ -2,17 +2,8 @@
 //                                  IMPORTS
 // *************************************************************************
 
-// Core lib imports.
-use freyr::bank::bank::{IBankDispatcher, IBankDispatcherTrait};
-use freyr::data::{data_store::IDataStoreDispatcherTrait, error::DataError};
-use freyr::market::market_utils;
-use freyr::oracle::{oracle_utils, error::OracleError};
-
 // Local imports.
-use freyr::order::{base_order_utils::ExecuteOrderParams, order::{Order, OrderType}, error::OrderError};
-use freyr::position::{position_utils, error::PositionError, increase_position_utils};
-use freyr::swap::swap_utils;
-use starknet::ContractAddress;
+use freyr::order::{base_order_utils::ExecuteOrderParams, order::{OrderType}};
 
 // *************************************************************************
 //                  Interface of the `OrderUtils` contract.
@@ -45,21 +36,16 @@ trait IIncreaseOrderUtils<TContractState> {
 
 #[starknet::contract]
 mod IncreaseOrderUtils {
-    // Core lib imports.
 
-    // External imports.
     use alexandria_data_structures::span_ext::SpanTraitExt;
     use core::integer::U64PartialOrd;
     use freyr::bank::bank::{IBankDispatcher, IBankDispatcherTrait};
     use freyr::data::{data_store::IDataStoreDispatcherTrait, error::DataError};
     use freyr::market::market_utils;
-    use freyr::oracle::{oracle_utils, error::OracleError};
-
-    // Local imports.
-    use freyr::order::{base_order_utils::ExecuteOrderParams, order::{Order, OrderType}, error::OrderError};
-    use freyr::position::{position_utils, error::PositionError, increase_position_utils};
     use freyr::swap::swap_utils;
-    use starknet::ContractAddress;
+    use freyr::oracle::{oracle_utils, error::OracleError};
+    use freyr::position::{position_utils, error::PositionError, increase_position_utils};
+    use freyr::order::{base_order_utils::ExecuteOrderParams, order::{Order, OrderType}, error::OrderError};
 
     fn validate_oracle_block_numbers(
         min_oracle_block_numbers: Span<u64>,

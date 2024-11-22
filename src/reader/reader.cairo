@@ -15,7 +15,7 @@ use freyr::market::{
     market_utils::GetNextFundingAmountPerSizeResult, market::Market, market_utils::MarketPrices,
     market_pool_value_info::MarketPoolValueInfo,
 };
-use freyr::mock::referral_storage::{IReferralStorageDispatcher, IReferralStorageDispatcherTrait};
+use freyr::mock::referral_storage::{IReferralStorageDispatcher};
 use freyr::order::order::{Order};
 use freyr::position::{position_utils, position::Position};
 use freyr::price::price::Price;
@@ -25,9 +25,7 @@ use freyr::reader::{
     reader_utils::PositionInfo, reader_utils::BaseFundingValues, reader_pricing_utils::ExecutionPriceResult,
 };
 use freyr::utils::i256::i256;
-
 use freyr::withdrawal::withdrawal::Withdrawal;
-use result::ResultTrait;
 use starknet::ContractAddress;
 
 #[derive(Drop, starknet::Store, Serde)]
@@ -445,25 +443,23 @@ mod Reader {
     use freyr::adl::adl_utils;
     use freyr::data::keys;
     use freyr::deposit::deposit::Deposit;
-    use freyr::market::{
-        market_utils, market_utils::GetNextFundingAmountPerSizeResult, market::Market, market_utils::MarketPrices,
-        market_pool_value_info::MarketPoolValueInfo,
-    };
     use freyr::mock::referral_storage::{IReferralStorageDispatcher, IReferralStorageDispatcherTrait};
     use freyr::order::order::{Order};
-    use freyr::position::{position_utils, position::Position};
     use freyr::price::price::Price;
     use freyr::pricing::swap_pricing_utils::SwapFees;
-
-    use freyr::reader::{
-        reader_utils, reader_utils::PositionInfo, reader_utils::BaseFundingValues, reader_pricing_utils,
-        reader_pricing_utils::ExecutionPriceResult,
-    };
     use freyr::utils::i256::i256;
     use freyr::withdrawal::withdrawal::Withdrawal;
     use result::ResultTrait;
     use starknet::ContractAddress;
-
+    use freyr::position::{position_utils, position::Position};
+    use freyr::reader::{
+        reader_utils, reader_utils::PositionInfo, reader_utils::BaseFundingValues, reader_pricing_utils,
+        reader_pricing_utils::ExecutionPriceResult,
+    };
+    use freyr::market::{
+        market_utils, market_utils::GetNextFundingAmountPerSizeResult, market::Market, market_utils::MarketPrices,
+        market_pool_value_info::MarketPoolValueInfo,
+    };
 
     // Local imports.
     use super::{MarketInfo, VirtualInventory, IDataStoreDispatcher, IDataStoreDispatcherTrait};
