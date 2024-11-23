@@ -12,7 +12,7 @@ In each market, liquidity providers can deposit either the long or the short col
 
 It contains the following Cairo library files:
 
-- [market.cairo](https://github.com/keep-starknet-strange/satoru/blob/main/src/market/market.cairo) 
+- [market.cairo](https://github.com/dew-labs/wolfy/blob/main/src/market/market.cairo)
 
 ## Structures and Types
 

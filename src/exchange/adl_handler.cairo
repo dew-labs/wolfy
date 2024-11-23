@@ -6,11 +6,11 @@
 
 // Core lib imports.
 use core::traits::Into;
-use starknet::ContractAddress;
 
 // Local imports.
-use satoru::oracle::oracle_utils::SetPricesParams;
-use satoru::utils::i256::i256;
+use freyr::oracle::oracle_utils::SetPricesParams;
+use freyr::utils::i256::i256;
+use starknet::ContractAddress;
 
 
 // *************************************************************************
@@ -58,36 +58,33 @@ mod AdlHandler {
     // *************************************************************************
 
     // Core lib imports.
-    use starknet::{ContractAddress, get_caller_address, get_contract_address, SyscallResultTrait, ClassHash};
+    use freyr::adl::adl_utils;
+    use freyr::data::{keys, data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait}};
+    use freyr::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
+    use freyr::exchange::base_order_handler::{IBaseOrderHandlerLibraryDispatcher, IBaseOrderHandlerDispatcherTrait};
+    use freyr::feature::feature_utils;
+    use freyr::market::market_utils::{IMarketUtilsLibraryDispatcher, IMarketUtilsDispatcherTrait};
+    use freyr::market::{market::Market, market_utils};
+    use freyr::mock::referral_storage::{IReferralStorageDispatcher, IReferralStorageDispatcherTrait};
+    use freyr::oracle::oracle_utils::SetPricesParams;
 
-    // Local imports.
-    use super::IAdlHandler;
-    use satoru::adl::adl_utils;
-    use satoru::exchange::base_order_handler::{IBaseOrderHandlerDispatcher, IBaseOrderHandlerDispatcherTrait};
-    use satoru::data::{keys, data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait}};
-    use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
-    use satoru::exchange::base_order_handler::{IBaseOrderHandler, BaseOrderHandler};
-    use satoru::exchange::base_order_handler::BaseOrderHandler::{
-        data_storeContractMemberStateTrait, event_emitterContractMemberStateTrait,
-        order_utils_libContractMemberStateTrait, oracleContractMemberStateTrait,
-        InternalTrait as BaseOrderHandleInternalTrait,
-    };
-    use satoru::feature::feature_utils;
-    use satoru::market::{market::Market, market_utils};
-
-    use satoru::oracle::{
+    use freyr::oracle::{
         oracle::{IOracleDispatcher, IOracleDispatcherTrait},
         oracle_modules::{with_oracle_prices_before, with_oracle_prices_after}, oracle_utils
     };
-    use satoru::oracle::oracle_utils::SetPricesParams;
-    use satoru::order::{
+    use freyr::order::{
         order::{SecondaryOrderType, OrderType, Order}, order_vault::{IOrderVaultDispatcher, IOrderVaultDispatcherTrait},
-        base_order_utils::{ExecuteOrderParams}, order_utils::{IOrderUtilsDispatcher, IOrderUtilsDispatcherTrait}
+        base_order_utils::{ExecuteOrderParams}, order_utils::{IOrderUtilsLibraryDispatcher, IOrderUtilsDispatcherTrait},
     };
-    use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
-    use satoru::swap::swap_handler::{ISwapHandlerDispatcher, ISwapHandlerDispatcherTrait};
-    use satoru::utils::{store_arrays::StoreU64Array, calc::to_signed};
-    use satoru::utils::i256::i256;
+    use freyr::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
+    use freyr::swap::swap_handler::{ISwapHandlerDispatcher, ISwapHandlerDispatcherTrait};
+    use freyr::utils::i256::i256;
+    use freyr::utils::{store_arrays::StoreU64Array, calc::to_signed};
+    use starknet::{ContractAddress, get_caller_address, get_contract_address, SyscallResultTrait, ClassHash};
+
+
+    // Local imports.
+    use super::IAdlHandler;
 
 
     /// ExecuteAdlCache struct used in execute_adl.
@@ -117,7 +114,22 @@ mod AdlHandler {
     //                              STORAGE
     // *************************************************************************
     #[storage]
-    struct Storage {}
+    struct Storage {
+        base_order_handler: IBaseOrderHandlerLibraryDispatcher,
+        // BaseOrderHandler storage
+        data_store: IDataStoreDispatcher,
+        role_store: IRoleStoreDispatcher,
+        event_emitter: IEventEmitterDispatcher,
+        order_vault: IOrderVaultDispatcher,
+        swap_handler: ISwapHandlerDispatcher,
+        oracle: IOracleDispatcher,
+        referral_storage: IReferralStorageDispatcher,
+        order_utils_lib: IOrderUtilsLibraryDispatcher,
+        // increase_order_utils_lib: IIncreaseOrderUtilsLibraryDispatcher,
+        // decrease_order_utils_lib: IDecreaseOrderUtilsLibraryDispatcher,
+        // swap_order_utils_lib: ISwapOrderUtilsLibraryDispatcher
+        market_utils: IMarketUtilsLibraryDispatcher,
+    }
 
 
     // *************************************************************************
@@ -146,22 +158,26 @@ mod AdlHandler {
         increase_order_utils_class_hash: ClassHash,
         decrease_order_utils_class_hash: ClassHash,
         swap_order_utils_class_hash: ClassHash,
+        base_order_handler_class_hash: ClassHash,
+        market_utils_class_hash: ClassHash
     ) {
-        let mut state: BaseOrderHandler::ContractState = BaseOrderHandler::unsafe_new_contract_state();
-        IBaseOrderHandler::initialize(
-            ref state,
-            data_store_address,
-            role_store_address,
-            event_emitter_address,
-            order_vault_address,
-            oracle_address,
-            swap_handler_address,
-            referral_storage_address,
-            order_utils_class_hash,
-            increase_order_utils_class_hash,
-            decrease_order_utils_class_hash,
-            swap_order_utils_class_hash
-        );
+        self.base_order_handler.write(IBaseOrderHandlerLibraryDispatcher { class_hash: base_order_handler_class_hash });
+        self
+            .base_order_handler
+            .read()
+            .initialize(
+                data_store_address,
+                event_emitter_address,
+                order_vault_address,
+                oracle_address,
+                swap_handler_address,
+                referral_storage_address,
+                order_utils_class_hash,
+                increase_order_utils_class_hash,
+                decrease_order_utils_class_hash,
+                swap_order_utils_class_hash,
+                market_utils_class_hash,
+            );
     }
 
     // *************************************************************************
@@ -172,19 +188,17 @@ mod AdlHandler {
         fn update_adl_state(
             ref self: ContractState, market: ContractAddress, is_long: bool, oracle_params: SetPricesParams
         ) {
-            let mut base_order_handler_state: BaseOrderHandler::ContractState =
-                BaseOrderHandler::unsafe_new_contract_state();
-
             let max_oracle_block_numbers = oracle_utils::get_uncompacted_oracle_block_numbers(
                 oracle_params.compacted_max_oracle_block_numbers.span(), oracle_params.tokens.len().into()
             );
             adl_utils::update_adl_state(
-                base_order_handler_state.data_store.read(),
-                base_order_handler_state.event_emitter.read(),
-                base_order_handler_state.oracle.read(),
+                self.data_store.read(),
+                self.event_emitter.read(),
+                self.oracle.read(),
                 market,
                 is_long,
                 max_oracle_block_numbers.span(),
+                self.market_utils.read(),
             );
         }
 
@@ -221,17 +235,15 @@ mod AdlHandler {
                         oracle_params.compacted_min_oracle_block_numbers.span(), oracle_params.tokens.len().into()
                     );
 
-            let mut base_order_handler_state: BaseOrderHandler::ContractState =
-                BaseOrderHandler::unsafe_new_contract_state();
-
-            let data_store = base_order_handler_state.data_store.read();
-            let oracle = base_order_handler_state.oracle.read();
+            let data_store = self.data_store.read();
+            let oracle = self.oracle.read();
 
             adl_utils::validate_adl(data_store, market_address, is_long, cache.max_oracle_block_numbers.span());
 
-            let (should_allow_adl, pnl_to_pool_factor, max_pnl_factor_for_adl) = market_utils::is_pnl_factor_exceeded(
-                data_store, oracle, market_address, is_long, keys::max_pnl_factor_for_adl()
-            );
+            let market_utils = self.market_utils.read();
+
+            let (should_allow_adl, pnl_to_pool_factor, max_pnl_factor_for_adl) = market_utils
+                .is_pnl_factor_exceeded(data_store, oracle, market_address, is_long, keys::max_pnl_factor_for_adl());
             cache.should_allow_adl = should_allow_adl;
             cache.pnl_to_pool_factor = pnl_to_pool_factor;
             cache.max_pnl_factor_for_adl = max_pnl_factor_for_adl;
@@ -243,7 +255,7 @@ mod AdlHandler {
                     adl_utils::create_adl_order(
                         adl_utils::CreateAdlOrderParams {
                             data_store,
-                            event_emitter: base_order_handler_state.event_emitter.read(),
+                            event_emitter: self.event_emitter.read(),
                             account,
                             market: market_address,
                             collateral_token,
@@ -253,14 +265,12 @@ mod AdlHandler {
                         }
                     );
 
-            let params: ExecuteOrderParams = BaseOrderHandleInternalTrait::get_execute_order_params(
-                ref base_order_handler_state,
-                cache.key,
-                oracle_params,
-                get_caller_address(),
-                cache.starting_gas,
-                SecondaryOrderType::Adl(())
-            );
+            let params: ExecuteOrderParams = self
+                .base_order_handler
+                .read()
+                .get_execute_order_params(
+                    cache.key, oracle_params, get_caller_address(), cache.starting_gas, SecondaryOrderType::Adl(())
+                );
 
             // let order_type: felt252 = params.order.order_type.into();
             feature_utils::validate_feature(
@@ -268,17 +278,17 @@ mod AdlHandler {
                 keys::execute_adl_feature_disabled_key(get_contract_address(), params.order.order_type.into())
             );
 
-            base_order_handler_state.order_utils_lib.read().execute_order_utils(params);
+            self.order_utils_lib.read().execute_order_utils(params);
 
             // validate that the ratio of pending pnl to pool value was decreased
             cache
-                .next_pnl_to_pool_factor =
-                    market_utils::get_pnl_to_pool_factor(data_store, oracle, market_address, is_long, true);
+                .next_pnl_to_pool_factor = market_utils
+                .get_pnl_to_pool_factor(data_store, oracle, market_address, is_long, true);
             assert(cache.next_pnl_to_pool_factor >= cache.pnl_to_pool_factor, 'invalid adl');
 
             cache
-                .min_pnl_factor_for_adl =
-                    market_utils::get_min_pnl_factor_after_adl(data_store, market_address, is_long);
+                .min_pnl_factor_for_adl = market_utils
+                .get_min_pnl_factor_after_adl(data_store, market_address, is_long);
             assert(cache.next_pnl_to_pool_factor > to_signed(cache.min_pnl_factor_for_adl, true), 'pnl overcorrected');
         }
     }

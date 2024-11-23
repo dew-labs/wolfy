@@ -1,35 +1,35 @@
 // Core lib imports.
-use snforge_std::{declare, ContractClassTrait, start_cheat_caller_address, ContractClass};
 use array::ArrayTrait;
 use core::traits::Into;
-use starknet::{get_caller_address, ContractAddress, contract_address_const,};
+use debug::PrintTrait;
+use freyr::bank::bank::{IBankDispatcher, IBankDispatcherTrait};
+use freyr::data::{data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait}, keys};
+use freyr::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
+use freyr::market::market::Market;
+use freyr::market::market_factory::{IMarketFactoryDispatcher, IMarketFactoryDispatcherTrait};
+use freyr::market::market_token::{IMarketTokenDispatcher, IMarketTokenDispatcherTrait};
+use freyr::oracle::oracle::{IOracleDispatcher, IOracleDispatcherTrait};
+use freyr::price::price::{Price, PriceTrait};
+use freyr::role::role;
+use freyr::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
+use freyr::swap::swap_handler::{ISwapHandlerDispatcher, ISwapHandlerDispatcherTrait};
+use freyr::swap::swap_utils::SwapParams;
 
 // Local imports.
-use satoru::test_utils::tests_lib;
-use satoru::swap::swap_handler::{ISwapHandlerDispatcher, ISwapHandlerDispatcherTrait};
-use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
-use satoru::data::{data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait}, keys};
-use satoru::oracle::oracle::{IOracleDispatcher, IOracleDispatcherTrait};
-use satoru::bank::bank::{IBankDispatcher, IBankDispatcherTrait};
-use satoru::token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
-use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
-use satoru::swap::swap_utils::SwapParams;
-use satoru::role::role;
-use satoru::market::market::Market;
-use satoru::market::market_token::{IMarketTokenDispatcher, IMarketTokenDispatcherTrait};
-use satoru::price::price::{Price, PriceTrait};
-use satoru::market::market_factory::{IMarketFactoryDispatcher, IMarketFactoryDispatcherTrait};
-use debug::PrintTrait;
+use freyr::test_utils::tests_lib;
+use freyr::token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
+use snforge_std::{declare, ContractClassTrait, DeclareResultTrait, start_cheat_caller_address, ContractClass};
+use starknet::{get_caller_address, ContractAddress, contract_address_const,};
 
 
 //TODO Tests need to be added after implementation of swap_utils
 
 fn deploy_tokens() -> (ContractAddress, ContractAddress, ContractAddress) {
-    let contract = declare("ERC20").unwrap();
+    let contract = declare("ERC20").unwrap().contract_class();
     let caller_address: ContractAddress = tests_lib::get_c4ller_address();
-    let constructor_calldata = array!['satoru_index', 'STU', 18, 4000, 0, caller_address.into()];
-    let constructor_calldata1 = array!['satoru_long', 'STU', 18, 4000, 0, caller_address.into()];
-    let constructor_calldata2 = array!['satoru_short', 'STU', 18, 4000, 0, caller_address.into()];
+    let constructor_calldata: Array<felt252> = array!['freyr_index', 'STU', 18, 4000, 0, caller_address.into()];
+    let constructor_calldata1 = array!['freyr_long', 'STU', 18, 4000, 0, caller_address.into()];
+    let constructor_calldata2 = array!['freyr_short', 'STU', 18, 4000, 0, caller_address.into()];
 
     let (contract_address1, _) = contract.deploy(@constructor_calldata).unwrap();
     let (contract_address2, _) = contract.deploy(@constructor_calldata1).unwrap();
@@ -69,6 +69,10 @@ fn setup() -> (
         _decrease_order_class,
         _swap_order_class,
         _order_utils_class,
+        _role_module_class,
+        _bank_class,
+        _governable_class,
+        _market_utils_class,
         market_factory,
         role_store,
         data_store,
@@ -141,7 +145,7 @@ fn given_caller_not_controller_when_swap_then_fails() {
     // Revoke the caller the `CONTROLLER` role.
     role_store.revoke_role(caller_address, role::CONTROLLER);
 
-    let mut market = Market {
+    let mut _market = Market {
         market_token: contract_address_const::<'market_token'>(),
         index_token: contract_address_const::<'index_token'>(),
         long_token: contract_address_const::<'long_token'>(),
@@ -185,7 +189,7 @@ fn given_amount_in_is_zero_then_works() {
     ) =
         setup();
 
-    let mut market = Market {
+    let mut _market = Market {
         market_token: contract_address_const::<'market_token'>(),
         index_token: contract_address_const::<'index_token'>(),
         long_token: contract_address_const::<'long_token'>(),
@@ -233,7 +237,7 @@ fn given_insufficient_output_then_fails() {
     ) =
         setup();
 
-    let mut market = Market {
+    let mut _market = Market {
         market_token: contract_address_const::<'market_token'>(),
         index_token: contract_address_const::<'index_token'>(),
         long_token: contract_address_const::<'long_token'>(),
@@ -279,7 +283,7 @@ fn given_normal_conditions_swap_then_works() {
     ) =
         setup();
 
-    let mut market = Market {
+    let mut _market = Market {
         market_token: contract_address_const::<'market_token'>(),
         index_token: contract_address_const::<'index_token'>(),
         long_token: contract_address_const::<'long_token'>(),

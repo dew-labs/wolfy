@@ -1,10 +1,11 @@
-use starknet::{ContractAddress, contract_address_const};
-use snforge_std::{declare, ContractClassTrait, spy_events, EventSpy, EventSpyTrait, Event, EventSpyAssertionsTrait};
+use freyr::event::event_emitter::{EventEmitter, IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
+
+use freyr::test_utils::tests_lib::deploy_event_emitter;
 use option::OptionTrait;
-
-use satoru::event::event_emitter::{EventEmitter, IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
-
-use satoru::test_utils::tests_lib::deploy_event_emitter;
+use snforge_std::{
+    declare, ContractClassTrait, DeclareResultTrait, spy_events, EventSpy, EventSpyTrait, Event, EventSpyAssertionsTrait
+};
+use starknet::{ContractAddress, contract_address_const};
 
 #[test]
 fn given_normal_conditions_when_emit_adl_state_updated_then_works() {

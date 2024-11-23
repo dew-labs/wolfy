@@ -4,21 +4,22 @@
 
 // Core lib imports.
 
-use result::ResultTrait;
-use traits::{TryInto, Into};
-use starknet::{ContractAddress, get_caller_address, Felt252TryIntoContractAddress, contract_address_const, ClassHash,};
-use snforge_std::{declare, start_cheat_caller_address, stop_cheat_caller_address, ContractClassTrait, ContractClass};
-
-
 // Local imports.
-use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
-use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
-use satoru::market::market_factory::{IMarketFactoryDispatcher, IMarketFactoryDispatcherTrait};
-use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
-use satoru::market::market::{Market, UniqueIdMarket};
-use satoru::market::market_token::{IMarketTokenDispatcher, IMarketTokenDispatcherTrait};
-use satoru::role::role;
-use satoru::test_utils::tests_lib;
+use freyr::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
+use freyr::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
+use freyr::market::market::{Market, UniqueIdMarket};
+use freyr::market::market_factory::{IMarketFactoryDispatcher, IMarketFactoryDispatcherTrait};
+use freyr::market::market_token::{IMarketTokenDispatcher, IMarketTokenDispatcherTrait};
+use freyr::role::role;
+use freyr::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
+use freyr::test_utils::tests_lib;
+use result::ResultTrait;
+use snforge_std::{
+    declare, start_cheat_caller_address, stop_cheat_caller_address, ContractClassTrait, DeclareResultTrait,
+    ContractClass
+};
+use starknet::{ContractAddress, get_caller_address, Felt252TryIntoContractAddress, contract_address_const, ClassHash,};
+use traits::{TryInto, Into};
 
 #[test]
 fn given_normal_conditions_when_create_market_then_market_is_created() {
@@ -150,6 +151,10 @@ fn setup() -> (
         _decrease_order_class,
         _swap_order_class,
         _order_utils_class,
+        _role_module_class,
+        _bank_class,
+        _governable_class,
+        _market_utils_class,
         market_factory,
         role_store,
         data_store,

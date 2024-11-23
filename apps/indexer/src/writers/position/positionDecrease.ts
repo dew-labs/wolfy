@@ -1,16 +1,16 @@
 import { Position } from "apps/indexer/.checkpoint/models";
 import { createLogger } from "@freyr/shared/utils";
-import { cairoIntToBigInt, toStarknetHexString } from "satoru-sdk";
+import { cairoIntToBigInt, toStarknetHexString } from "wolfy-sdk";
 
-import { type SatoruEventWriter } from "../type";
+import { type WolfyEventWriter } from "../type";
 
-import type { SatoruEvent } from "satoru-sdk";
+import type { WolfyEvent } from "wolfy-sdk";
 import { getTradeHistoryAction } from "../utils";
 import { TradeHistoryEvent } from "@freyr/shared/interfaces";
 
 const logger = createLogger("PositionDecreaseWriter");
 
-export const handlePositionDecrease: SatoruEventWriter<SatoruEvent.PositionDecrease> = async ({
+export const handlePositionDecrease: WolfyEventWriter<WolfyEvent.PositionDecrease> = async ({
     block,
     tx,
     rawEvent,

@@ -4,7 +4,7 @@ This module helps to store and move tokens within a contract. It's crucial for a
 
 It contains the following Cairo library files:
 
-- [bank.cairo](https://github.com/keep-starknet-strange/satoru/blob/main/src/bank/bank.cairo)
+- [bank.cairo](https://github.com/dew-labs/wolfy/blob/main/src/bank/bank.cairo)
 
 ## Structures
 
@@ -70,10 +70,10 @@ Here's a simplified example demonstrating how to initialize and interact with th
 
 ```cairo
 use starknet::{ContractAddress, contract_address_const};
-use satoru::bank::bank::{IBankDispatcherTrait, IBankDispatcher};
+use freyr::bank::bank::{IBankDispatcherTrait, IBankDispatcher};
 
 // Deploying the Bank contract
-let bank_contract = declare("Bank").unwrap();
+let bank_contract = declare("Bank").unwrap().contract_class();
 let constructor_calldata = array![data_store_contract_address.into(), role_store_contract_address.into()];
 let bank_contract_address = bank_contract.deploy(@constructor_calldata).unwrap();
 let bank_dispatcher = IBankDispatcher { contract_address: bank_contract_address };

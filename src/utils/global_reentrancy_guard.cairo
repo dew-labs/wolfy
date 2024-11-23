@@ -2,12 +2,12 @@
 //                                  IMPORTS
 // *************************************************************************
 // Core lib imports.
+
+// Wolfy imports
+use freyr::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
+use freyr::utils::error::ReentrancyGuardError;
 use starknet::ContractAddress;
 use starknet::SyscallResultTrait;
-
-// Satoru imports
-use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
-use satoru::utils::error::ReentrancyGuardError;
 
 const REENTRANCY_GUARD_STATUS: felt252 = 'REENTRANCY_GUARD_STATUS';
 

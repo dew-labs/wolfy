@@ -2,23 +2,24 @@
 //                                  IMPORTS
 // *************************************************************************
 // Core lib imports.
-use starknet::{ContractAddress, contract_address_const};
+use debug::PrintTrait;
+use freyr::bank::bank::{IBankDispatcher, IBankDispatcherTrait};
 
 // Local imports.
-use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
-use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
-use satoru::bank::bank::{IBankDispatcher, IBankDispatcherTrait};
-use satoru::market::{market::Market, market_utils};
-use satoru::fee::fee_utils;
-use satoru::utils::{calc, store_arrays::StoreMarketSpan, traits::ContractAddressDefault};
-use satoru::utils::i256::{i256, i256_neg};
-use satoru::oracle::oracle::{IOracleDispatcher, IOracleDispatcherTrait};
-use satoru::swap::error::SwapError;
-use satoru::data::keys;
-use satoru::pricing::swap_pricing_utils;
-use satoru::price::price::{Price, PriceTrait, PriceDefault};
-use satoru::token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
-use debug::PrintTrait;
+use freyr::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
+use freyr::data::keys;
+use freyr::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
+use freyr::fee::fee_utils;
+use freyr::market::market_utils::{IMarketUtilsLibraryDispatcher, IMarketUtilsDispatcherTrait, MarketPrices};
+use freyr::market::{market::Market};
+use freyr::oracle::oracle::{IOracleDispatcher, IOracleDispatcherTrait};
+use freyr::price::price::{Price, PriceTrait, PriceDefault};
+use freyr::pricing::swap_pricing_utils;
+use freyr::swap::error::SwapError;
+use freyr::token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
+use freyr::utils::i256::{i256, i256_neg};
+use freyr::utils::{calc, store_arrays::StoreMarketSpan, traits::ContractAddressDefault};
+use starknet::{ContractAddress, contract_address_const};
 
 
 /// Parameters to execute a swap.
@@ -106,7 +107,7 @@ struct SwapCache {
 /// # Returns
 /// A tuple containing the address of the token that was received as
 /// part of the swap and the amount of the received token.
-fn swap(params: @SwapParams) -> (ContractAddress, u256) {
+fn swap(params: @SwapParams, market_utils: IMarketUtilsLibraryDispatcher) -> (ContractAddress, u256) {
     if (*params.amount_in == 0) {
         return (*params.token_in, *params.amount_in);
     }
@@ -155,7 +156,7 @@ fn swap(params: @SwapParams) -> (ContractAddress, u256) {
         let _params = _SwapParams {
             market: market, token_in: token_out, amount_in: output_amount, receiver: receiver,
         };
-        let (_token_out_res, _output_amount_res) = _swap(params, @_params);
+        let (_token_out_res, _output_amount_res) = _swap(params, @_params, market_utils);
         token_out = _token_out_res;
         output_amount = _output_amount_res;
         i += 1;
@@ -185,14 +186,16 @@ fn swap(params: @SwapParams) -> (ContractAddress, u256) {
 /// * `_params` - The parameters for the swap on this specific market.
 /// # Returns
 /// The token and amount that was swapped.
-fn _swap(params: @SwapParams, _params: @_SwapParams) -> (ContractAddress, u256) {
+fn _swap(
+    params: @SwapParams, _params: @_SwapParams, market_utils: IMarketUtilsLibraryDispatcher
+) -> (ContractAddress, u256) {
     if (_params.token_in != _params.market.long_token && _params.token_in != _params.market.short_token) {
         SwapError::INVALID_TOKEN_IN(*_params.token_in, *_params.market.long_token);
     }
     let mut cache: SwapCache = Default::default();
-    market_utils::validate_swap_market(*params.data_store, *_params.market);
+    market_utils.validate_swap_market(*params.data_store, *_params.market);
 
-    cache.token_out = market_utils::get_opposite_token(*_params.token_in, _params.market);
+    cache.token_out = market_utils.get_opposite_token(*_params.token_in, *_params.market);
     cache.token_in_price = (*params.oracle).get_primary_price(*_params.token_in);
     cache.token_out_price = (*params.oracle).get_primary_price(cache.token_out);
 
@@ -211,7 +214,8 @@ fn _swap(params: @SwapParams, _params: @_SwapParams) -> (ContractAddress, u256) 
             price_for_token_b: cache.token_out_price.mid_price(),
             usd_delta_for_token_a: calc::to_signed(usd_delta, true),
             usd_delta_for_token_b: calc::to_signed(usd_delta, false),
-        }
+        },
+        market_utils
     );
 
     let fees = swap_pricing_utils::get_swap_fees(
@@ -219,7 +223,8 @@ fn _swap(params: @SwapParams, _params: @_SwapParams) -> (ContractAddress, u256) 
         *_params.market.market_token,
         *_params.amount_in,
         price_impact_usd > Zeroable::zero(),
-        *params.ui_fee_receiver
+        *params.ui_fee_receiver,
+        market_utils
     );
 
     fee_utils::increment_claimable_fee_amount(
@@ -253,8 +258,8 @@ fn _swap(params: @SwapParams, _params: @_SwapParams) -> (ContractAddress, u256) 
         cache.amount_out = cache.amount_in * cache.token_in_price.min / cache.token_out_price.max;
         cache.pool_amount_out = cache.amount_out;
 
-        price_impact_amount =
-            market_utils::apply_swap_impact_with_cap(
+        price_impact_amount = market_utils
+            .apply_swap_impact_with_cap(
                 *params.data_store,
                 *params.event_emitter,
                 *_params.market.market_token,
@@ -270,8 +275,8 @@ fn _swap(params: @SwapParams, _params: @_SwapParams) -> (ContractAddress, u256) 
         // for example, if 10 ETH is swapped in and there is a negative price impact
         // only 9.995 ETH may be swapped in
         // the remaining 0.005 ETH will be stored in the swap impact pool
-        price_impact_amount =
-            market_utils::apply_swap_impact_with_cap(
+        price_impact_amount = market_utils
+            .apply_swap_impact_with_cap(
                 *params.data_store,
                 *params.event_emitter,
                 *_params.market.market_token,
@@ -295,24 +300,26 @@ fn _swap(params: @SwapParams, _params: @_SwapParams) -> (ContractAddress, u256) 
             .transfer_out(*_params.market.market_token, cache.token_out, *_params.receiver, cache.amount_out);
     }
 
-    market_utils::apply_delta_to_pool_amount(
-        *params.data_store,
-        *params.event_emitter,
-        *_params.market,
-        *_params.token_in,
-        calc::to_signed((cache.amount_in + fees.fee_amount_for_pool), true),
-    );
+    market_utils
+        .apply_delta_to_pool_amount(
+            *params.data_store,
+            *params.event_emitter,
+            *_params.market,
+            *_params.token_in,
+            calc::to_signed((cache.amount_in + fees.fee_amount_for_pool), true),
+        );
     // the poolAmountOut excludes the positive price impact amount
     // as that is deducted from the swap impact pool instead
-    market_utils::apply_delta_to_pool_amount(
-        *params.data_store,
-        *params.event_emitter,
-        *_params.market,
-        cache.token_out,
-        calc::to_signed(cache.pool_amount_out, false),
-    );
+    market_utils
+        .apply_delta_to_pool_amount(
+            *params.data_store,
+            *params.event_emitter,
+            *_params.market,
+            cache.token_out,
+            calc::to_signed(cache.pool_amount_out, false),
+        );
 
-    let prices = market_utils::MarketPrices {
+    let prices = MarketPrices {
         index_token_price: (*params.oracle).get_primary_price(*_params.market.index_token),
         long_token_price: if (_params.token_in == _params.market.long_token) {
             cache.token_in_price
@@ -326,31 +333,31 @@ fn _swap(params: @SwapParams, _params: @_SwapParams) -> (ContractAddress, u256) 
         },
     };
 
-    market_utils::validate_pool_amount(params.data_store, _params.market, *_params.token_in);
-    market_utils::validate_reserve(
-        *params.data_store, _params.market, @prices, cache.token_out == *_params.market.long_token
-    );
+    market_utils.validate_pool_amount(*params.data_store, *_params.market, *_params.token_in);
+    market_utils
+        .validate_reserve(*params.data_store, *_params.market, prices, cache.token_out == *_params.market.long_token);
     let (_pnl_factor_type_for_longs, _pnl_factor_type_for_shorts) = if (cache.token_out == *_params.market.long_token) {
         (keys::max_pnl_factor_for_deposits(), keys::max_pnl_factor_for_withdrawals())
     } else {
         (keys::max_pnl_factor_for_withdrawals(), keys::max_pnl_factor_for_deposits())
     };
 
-    market_utils::validate_max_pnl(
-        *params.data_store,
-        *_params.market,
-        prices,
-        if (*_params.token_in == *_params.market.long_token) {
-            keys::max_pnl_factor_for_deposits()
-        } else {
-            keys::max_pnl_factor_for_withdrawals()
-        },
-        if (cache.token_out == *_params.market.short_token) {
-            keys::max_pnl_factor_for_withdrawals()
-        } else {
-            keys::max_pnl_factor_for_deposits()
-        }
-    );
+    market_utils
+        .validate_max_pnl(
+            *params.data_store,
+            *_params.market,
+            prices,
+            if (*_params.token_in == *_params.market.long_token) {
+                keys::max_pnl_factor_for_deposits()
+            } else {
+                keys::max_pnl_factor_for_withdrawals()
+            },
+            if (cache.token_out == *_params.market.short_token) {
+                keys::max_pnl_factor_for_withdrawals()
+            } else {
+                keys::max_pnl_factor_for_deposits()
+            }
+        );
 
     (*params.event_emitter)
         .emit_swap_info(

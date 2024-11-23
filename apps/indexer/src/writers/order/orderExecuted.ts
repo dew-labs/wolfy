@@ -1,16 +1,16 @@
 import { Order } from "apps/indexer/.checkpoint/models";
 import { createLogger, isLiquidationOrder } from "@freyr/shared/utils";
-import { parseOrderType, toStarknetHexString } from "satoru-sdk";
+import { parseOrderType, toStarknetHexString } from "wolfy-sdk";
 
-import { type SatoruEventWriter } from "../type";
+import { type WolfyEventWriter } from "../type";
 
-import { OrderType, type SatoruEvent } from "satoru-sdk";
+import { OrderType, type WolfyEvent } from "wolfy-sdk";
 import { getTradeHistoryAction } from "../utils";
 import { TradeHistoryEvent } from "@freyr/shared/interfaces";
 
 const logger = createLogger("OrderExecutedWriter");
 
-export const handleOrderExecuted: SatoruEventWriter<SatoruEvent.OrderExecuted> = async ({
+export const handleOrderExecuted: WolfyEventWriter<WolfyEvent.OrderExecuted> = async ({
     block,
     tx,
     rawEvent,

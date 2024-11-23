@@ -22,10 +22,10 @@ For funding fees, there are four values to consider:
 
 It contains the following files:
 
-- [decrease_position_collateral_utils.cairo](https://github.com/keep-starknet-strange/satoru/blob/main/src/position/decrease_position_collateral_utils.cairo): Library for functions to help with the calculations when decreasing a position.
-- [decrease_position_swap_utils.cairo](https://github.com/keep-starknet-strange/satoru/blob/main/src/position/decrease_position_swap_utils.cairo): Library for functions related to decrease of position involving swaps.
-- [decrease_position_utils.cairo](https://github.com/keep-starknet-strange/satoru/blob/main/src/position/decrease_position_utils.cairo): Library for functions to help with decreasing a position.
-- [increase_position_utils.cairo](https://github.com/keep-starknet-strange/satoru/blob/main/src/position/increase_position_utils.cairo): Library for functions to help with increasing a position.
-- [position_event_utils.cairo](https://github.com/keep-starknet-strange/satoru/blob/main/src/position/position_event_utils.cairo): Library with helper functions to emit position related events.
-- [position_utils.cairo](https://github.com/keep-starknet-strange/satoru/blob/main/src/position/position_utils.cairo): Library with various utility functions for positions.
-- [position.cairo](https://github.com/keep-starknet-strange/satoru/blob/main/src/position/position.cairo): Contains main Position struct.
+- [decrease_position_collateral_utils.cairo](https://github.com/dew-labs/wolfy/blob/main/src/position/decrease_position_collateral_utils.cairo): Library for functions to help with the calculations when decreasing a position.
+- [decrease_position_swap_utils.cairo](https://github.com/dew-labs/wolfy/blob/main/src/position/decrease_position_swap_utils.cairo): Library for functions related to decrease of position involving swaps.
+- [decrease_position_utils.cairo](https://github.com/dew-labs/wolfy/blob/main/src/position/decrease_position_utils.cairo): Library for functions to help with decreasing a position.
+- [increase_position_utils.cairo](https://github.com/dew-labs/wolfy/blob/main/src/position/increase_position_utils.cairo): Library for functions to help with increasing a position.
+- [position_event_utils.cairo](https://github.com/dew-labs/wolfy/blob/main/src/position/position_event_utils.cairo): Library with helper functions to emit position related events.
+- [position_utils.cairo](https://github.com/dew-labs/wolfy/blob/main/src/position/position_utils.cairo): Library with various utility functions for positions.
+- [position.cairo](https://github.com/dew-labs/wolfy/blob/main/src/position/position.cairo): Contains main Position struct.

@@ -1,6 +1,6 @@
 mod SwapError {
+    use freyr::utils::i256::i256;
     use starknet::ContractAddress;
-    use satoru::utils::i256::i256;
 
     const ALREADY_INITIALIZED: felt252 = 'already_initialized';
 

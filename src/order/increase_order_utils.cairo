@@ -2,20 +2,8 @@
 //                                  IMPORTS
 // *************************************************************************
 
-// Core lib imports.
-use starknet::ContractAddress;
-
 // Local imports.
-use satoru::order::{base_order_utils::ExecuteOrderParams, order::{Order, OrderType}, error::OrderError};
-use satoru::data::{data_store::IDataStoreDispatcherTrait, error::DataError};
-use satoru::oracle::{oracle_utils, error::OracleError};
-use satoru::market::market_utils;
-use satoru::swap::swap_utils;
-use satoru::bank::bank::{IBankDispatcher, IBankDispatcherTrait};
-use satoru::position::{position_utils, error::PositionError, increase_position_utils};
-
-// External imports.
-use alexandria_data_structures::array_ext::SpanTraitExt;
+use freyr::order::{base_order_utils::ExecuteOrderParams, order::{OrderType}};
 
 // *************************************************************************
 //                  Interface of the `OrderUtils` contract.
@@ -48,17 +36,16 @@ trait IIncreaseOrderUtils<TContractState> {
 
 #[starknet::contract]
 mod IncreaseOrderUtils {
-    // Core lib imports.
-    use starknet::ContractAddress;
-
-    // Local imports.
-    use satoru::order::{base_order_utils::ExecuteOrderParams, order::{Order, OrderType}, error::OrderError};
-    use satoru::data::{data_store::IDataStoreDispatcherTrait, error::DataError};
-    use satoru::oracle::{oracle_utils, error::OracleError};
-    use satoru::market::market_utils;
-    use satoru::swap::swap_utils;
-    use satoru::bank::bank::{IBankDispatcher, IBankDispatcherTrait};
-    use satoru::position::{position_utils, error::PositionError, increase_position_utils};
+    use alexandria_data_structures::span_ext::SpanTraitExt;
+    use core::integer::U64PartialOrd;
+    use freyr::bank::bank::{IBankDispatcher, IBankDispatcherTrait};
+    use freyr::data::{data_store::IDataStoreDispatcherTrait, error::DataError};
+    use freyr::market::market_utils::{IMarketUtilsLibraryDispatcher, IMarketUtilsDispatcherTrait};
+    use freyr::oracle::{oracle_utils, error::OracleError};
+    use freyr::order::{base_order_utils::ExecuteOrderParams, order::{Order, OrderType}, error::OrderError};
+    use freyr::position::{position_utils, error::PositionError, increase_position_utils};
+    use freyr::swap::swap_utils;
+    use starknet::{ClassHash};
 
     fn validate_oracle_block_numbers(
         min_oracle_block_numbers: Span<u64>,
@@ -95,11 +82,11 @@ mod IncreaseOrderUtils {
         panic(array![OrderError::UNSUPPORTED_ORDER_TYPE]);
     }
 
-    // External imports.
-    use alexandria_data_structures::array_ext::SpanTraitExt;
-
     #[storage]
-    struct Storage {}
+    struct Storage {
+        market_utils: IMarketUtilsLibraryDispatcher,
+    }
+
 
     // *************************************************************************
     //                          EXTERNAL FUNCTIONS
@@ -114,7 +101,8 @@ mod IncreaseOrderUtils {
         /// This function should return an EventLogData cause the callback_utils
         /// needs it. We need to find a solution for that case.
         fn process_order(ref self: ContractState, params: ExecuteOrderParams) {
-            market_utils::validate_position_market(params.contracts.data_store, params.market.market_token);
+            let market_utils = self.market_utils.read();
+            market_utils.validate_position_market(params.contracts.data_store, params.market.market_token);
 
             let (collateral_token, collateral_increment_amount) = swap_utils::swap(
                 @swap_utils::SwapParams {
@@ -129,16 +117,18 @@ mod IncreaseOrderUtils {
                     min_output_amount: params.order.min_output_amount,
                     receiver: params.order.market,
                     ui_fee_receiver: params.order.ui_fee_receiver,
-                }
+                },
+                market_utils
             );
 
-            market_utils::validate_market_collateral_token(params.market, collateral_token);
+            market_utils.validate_market_collateral_token(params.market, collateral_token);
             let position_key = position_utils::get_position_key(
                 params.order.account, params.order.market, collateral_token, params.order.is_long,
             );
             let mut position = params.contracts.data_store.get_position(position_key);
             // Initialize position
             if position.account.is_zero() {
+                position.key = position_key;
                 position.account = params.order.account;
                 if !position.market.is_zero() || !position.collateral_token.is_zero() {
                     panic_with_felt252(PositionError::UNEXPECTED_POSITION_STATE);
@@ -163,7 +153,8 @@ mod IncreaseOrderUtils {
                     position_key: position_key,
                     secondary_order_type: params.secondary_order_type,
                 },
-                collateral_increment_amount
+                collateral_increment_amount,
+                market_utils
             );
             let _position_updated = params.contracts.data_store.get_position(position_key);
         }

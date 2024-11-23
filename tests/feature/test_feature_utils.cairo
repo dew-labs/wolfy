@@ -1,9 +1,10 @@
+use freyr::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
+use freyr::feature::feature_utils::{is_feature_disabled, validate_feature};
+use freyr::test_utils::tests_lib;
+use snforge_std::{
+    declare, start_cheat_caller_address, stop_cheat_caller_address, ContractClassTrait, DeclareResultTrait
+};
 use starknet::ContractAddress;
-use snforge_std::{declare, start_cheat_caller_address, stop_cheat_caller_address, ContractClassTrait};
-
-use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
-use satoru::feature::feature_utils::{is_feature_disabled, validate_feature};
-use satoru::test_utils::tests_lib;
 
 #[test]
 fn given_normal_conditions_when_nonexist_feature_then_works() {
@@ -60,6 +61,10 @@ fn setup() -> IDataStoreDispatcher {
         _decrease_order_class,
         _swap_order_class,
         _order_utils_class,
+        _role_module_class,
+        _bank_class,
+        _governable_class,
+        _market_utils_class,
         _market_factory,
         _role_store,
         data_store,

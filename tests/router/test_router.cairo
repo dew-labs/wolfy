@@ -1,12 +1,15 @@
+use freyr::role::role;
+use freyr::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
+use freyr::router::router::{IRouterDispatcher, IRouterDispatcherTrait};
+use freyr::test_utils::tests_lib;
+use freyr::token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
 use result::ResultTrait;
-use traits::{TryInto, Into};
+use snforge_std::{
+    declare, start_cheat_caller_address, stop_cheat_caller_address, ContractClassTrait, DeclareResultTrait,
+    ContractClass
+};
 use starknet::{ContractAddress, get_caller_address, contract_address_const};
-use snforge_std::{declare, start_cheat_caller_address, stop_cheat_caller_address, ContractClassTrait, ContractClass};
-use satoru::router::router::{IRouterDispatcher, IRouterDispatcherTrait};
-use satoru::token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
-use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
-use satoru::role::role;
-use satoru::test_utils::tests_lib;
+use traits::{TryInto, Into};
 
 #[test]
 fn given_normal_conditions_when_transfer_then_expected_results() {
@@ -107,8 +110,10 @@ fn setup(
     role_store.grant_role(caller_address, role::ROUTER_PLUGIN);
     stop_cheat_caller_address(role_store_address);
 
+    let role_module_class = tests_lib::declare_role_module();
+
     // Deploy the router contract.
-    let router_address = tests_lib::deploy_router(role_store_address);
+    let router_address = tests_lib::deploy_router(role_store_address, role_module_class.class_hash);
     // Create a dispatcher to interact with the contract.
     let router = IRouterDispatcher { contract_address: router_address };
 
@@ -133,7 +138,7 @@ fn teardown(test_token_address: ContractAddress, router_address: ContractAddress
 /// * `minter_address` - The address of the wallet who will get the initial supply.
 /// * `initial_amount` - The amount of token minted during the deployment.
 fn deploy_mock_token(minter_address: ContractAddress, initial_amount: u256) -> ContractAddress {
-    let contract = declare("ERC20").unwrap();
+    let contract = declare("ERC20").unwrap().contract_class();
     let mut constructor_calldata: Array::<felt252> = array![];
     constructor_calldata.append('TestToken');
     constructor_calldata.append('TST');

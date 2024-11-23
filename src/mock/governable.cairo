@@ -26,12 +26,12 @@ mod Governable {
 
     // Core lib imports.
     use core::zeroable::Zeroable;
-    use starknet::{get_caller_address, ContractAddress};
-    use result::ResultTrait;
 
     // Local imports.
-    use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
-    use satoru::mock::error::MockError;
+    use freyr::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
+    use freyr::mock::error::MockError;
+    use result::ResultTrait;
+    use starknet::{get_caller_address, ContractAddress};
 
     // *************************************************************************
     //                              STORAGE
@@ -41,17 +41,6 @@ mod Governable {
         event_emitter: IEventEmitterDispatcher,
         gov: ContractAddress,
         pending_gov: ContractAddress,
-    }
-
-    // *************************************************************************
-    //                              CONSTRUCTOR
-    // *************************************************************************
-    /// Constructor of the contract.
-    /// # Arguments
-    /// * `event_emitter_address` - The address of the event emitter contract.
-    #[constructor]
-    fn constructor(ref self: ContractState, event_emitter_address: ContractAddress) {
-        self.initialize(event_emitter_address);
     }
 
     // *************************************************************************

@@ -1,23 +1,24 @@
-use starknet::{ContractAddress, contract_address_const};
-use snforge_std::{declare, start_cheat_caller_address, stop_cheat_caller_address, ContractClassTrait};
-use satoru::test_utils::tests_lib;
-
-use satoru::order::{order::{OrderType, Order},};
-use satoru::price::price::{Price, PriceTrait};
-use satoru::order::base_order_utils::{
+use freyr::data::data_store::{DataStore, IDataStoreDispatcher, IDataStoreDispatcherTrait};
+use freyr::event::event_emitter::{EventEmitter, IEventEmitterDispatcher};
+use freyr::oracle::oracle::{Oracle, IOracleDispatcher, IOracleDispatcherTrait, SetPricesParams};
+use freyr::oracle::oracle_store::{IOracleStoreDispatcher, IOracleStoreDispatcherTrait};
+use freyr::oracle::price_feed::PriceFeed;
+use freyr::order::base_order_utils::{
     is_market_order, is_limit_order, is_swap_order, is_position_order, is_increase_order, is_decrease_order,
     is_liquidation_order, validate_order_trigger_price, get_execution_price_for_increase,
     get_execution_price_for_decrease, validate_non_empty_order
 };
 
-use satoru::data::data_store::{DataStore, IDataStoreDispatcher, IDataStoreDispatcherTrait};
-use satoru::event::event_emitter::{EventEmitter, IEventEmitterDispatcher};
-use satoru::oracle::oracle::{Oracle, IOracleDispatcher, IOracleDispatcherTrait, SetPricesParams};
-use satoru::oracle::oracle_store::{IOracleStoreDispatcher, IOracleStoreDispatcherTrait};
-use satoru::oracle::price_feed::PriceFeed;
-use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
-use satoru::role::role;
-use satoru::utils::i256::{i256, i256_new};
+use freyr::order::{order::{OrderType, Order},};
+use freyr::price::price::{Price, PriceTrait};
+use freyr::role::role;
+use freyr::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
+use freyr::test_utils::tests_lib;
+use freyr::utils::i256::{i256, i256_new};
+use snforge_std::{
+    declare, start_cheat_caller_address, stop_cheat_caller_address, ContractClassTrait, DeclareResultTrait
+};
+use starknet::{ContractAddress, contract_address_const};
 
 #[test]
 fn given_normal_conditions_when_is_market_order_then_works() {
@@ -304,6 +305,10 @@ fn setup() -> (IOracleDispatcher, ContractAddress, Price) {
         _decrease_order_class,
         _swap_order_class,
         _order_utils_class,
+        _role_module_class,
+        _bank_class,
+        _governable_class,
+        _market_utils_class,
         _market_factory,
         _role_store,
         _data_store,

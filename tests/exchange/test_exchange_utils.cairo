@@ -1,15 +1,15 @@
-use starknet::{
-    ContractAddress, get_caller_address, get_contract_address, Felt252TryIntoContractAddress, contract_address_const
-};
-use starknet::info::get_block_number;
+use freyr::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
+
+use freyr::data::keys;
+use freyr::exchange::exchange_utils::validate_request_cancellation;
+use freyr::test_utils::tests_lib;
 use snforge_std::{
     declare, start_cheat_caller_address, stop_cheat_caller_address, start_cheat_block_number, ContractClassTrait
 };
-
-use satoru::data::keys;
-use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
-use satoru::exchange::exchange_utils::validate_request_cancellation;
-use satoru::test_utils::tests_lib;
+use starknet::info::get_block_number;
+use starknet::{
+    ContractAddress, get_caller_address, get_contract_address, Felt252TryIntoContractAddress, contract_address_const
+};
 
 #[test]
 fn given_exchange_utils_when_validate_request_cancellation_then_success() {
@@ -58,6 +58,10 @@ fn setup() -> IDataStoreDispatcher {
         _decrease_order_class,
         _swap_order_class,
         _order_utils_class,
+        _role_module_class,
+        _bank_class,
+        _governable_class,
+        _market_utils_class,
         _market_factory,
         _role_store,
         data_store,

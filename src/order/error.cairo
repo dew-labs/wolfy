@@ -1,7 +1,7 @@
 mod OrderError {
-    use satoru::order::order::OrderType;
-    use satoru::price::price::Price;
-    use satoru::utils::i256::i256;
+    use freyr::order::order::OrderType;
+    use freyr::price::price::Price;
+    use freyr::utils::i256::i256;
 
     const EMPTY_ORDER: felt252 = 'empty_order';
     const INVALID_ORDER_PRICES: felt252 = 'invalid_order_prices';
@@ -46,8 +46,9 @@ mod OrderError {
     fn INVALID_ORDER_PRICE(primary_price: Price, trigger_price: u256, order_type: OrderType) {
         let mut data: Array<felt252> = array![];
         data.append('invalid_order_price');
-        // data.append(primary_price.min.try_into().expect('u256 into felt failed')); // TODO Find a way to test them test_takeprofit_long_increase_fails
-        // data.append(primary_price.max.try_into().expect('u256 into felt failed'));
+        // data.append(primary_price.min.try_into().expect('u256 into felt failed')); // TODO Find a way to test them
+        // test_takeprofit_long_increase_fails data.append(primary_price.max.try_into().expect('u256 into felt
+        // failed'));
         // data.append(trigger_price.try_into().expect('u256 into felt failed'));
         data.append(order_type.into());
         panic(data);

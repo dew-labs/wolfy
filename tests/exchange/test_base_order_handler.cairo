@@ -4,34 +4,36 @@
 //                                  IMPORTS
 // *************************************************************************
 // Core lib imports.
-use starknet::{ContractAddress, get_caller_address, Felt252TryIntoContractAddress, contract_address_const};
+use freyr::bank::strict_bank::{IStrictBankDispatcher, IStrictBankDispatcherTrait};
+use freyr::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
+use freyr::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
+
+use freyr::exchange::base_order_handler::BaseOrderHandler;
+use freyr::exchange::base_order_handler::{IBaseOrderHandlerDispatcher, IBaseOrderHandlerDispatcherTrait};
+use freyr::market::market::{Market, UniqueIdMarketImpl};
+use freyr::market::market_utils::{IMarketUtilsLibraryDispatcher, IMarketUtilsDispatcherTrait};
+use freyr::mock::referral_storage::{IReferralStorageDispatcher, IReferralStorageDispatcherTrait};
+use freyr::oracle::oracle::{IOracleDispatcher, IOracleDispatcherTrait};
+use freyr::oracle::oracle_store::{IOracleStoreDispatcher, IOracleStoreDispatcherTrait};
+use freyr::oracle::oracle_utils::SetPricesParams;
+use freyr::order::base_order_utils::ExecuteOrderParamsContracts;
+use freyr::order::order::{Order, OrderType, SecondaryOrderType, DecreasePositionSwapType};
+use freyr::order::order_vault::{IOrderVaultDispatcher, IOrderVaultDispatcherTrait};
+
+// Local imports.
+use freyr::role::role;
+
+use freyr::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
+use freyr::swap::swap_handler::{ISwapHandlerDispatcher, ISwapHandlerDispatcherTrait};
+use freyr::test_utils::tests_lib;
+use freyr::utils::span32::{Span32, Array32};
+use poseidon::poseidon_hash_span;
 use snforge_std::{
     declare, start_cheat_caller_address, stop_cheat_caller_address, start_mock_call, test_address, ContractClass,
     ContractClassTrait
 };
+use starknet::{ContractAddress, get_caller_address, Felt252TryIntoContractAddress, contract_address_const};
 use traits::Default;
-use poseidon::poseidon_hash_span;
-// Local imports.
-use satoru::role::role;
-use satoru::test_utils::tests_lib;
-
-use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
-use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
-use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
-use satoru::bank::strict_bank::{IStrictBankDispatcher, IStrictBankDispatcherTrait};
-use satoru::order::order::{Order, OrderType, SecondaryOrderType, DecreasePositionSwapType};
-use satoru::order::order_vault::{IOrderVaultDispatcher, IOrderVaultDispatcherTrait};
-use satoru::order::base_order_utils::ExecuteOrderParamsContracts;
-use satoru::oracle::oracle_store::{IOracleStoreDispatcher, IOracleStoreDispatcherTrait};
-use satoru::oracle::oracle::{IOracleDispatcher, IOracleDispatcherTrait};
-use satoru::oracle::oracle_utils::SetPricesParams;
-use satoru::swap::swap_handler::{ISwapHandlerDispatcher, ISwapHandlerDispatcherTrait};
-use satoru::mock::referral_storage::{IReferralStorageDispatcher, IReferralStorageDispatcherTrait};
-use satoru::utils::span32::{Span32, Array32};
-use satoru::market::market::{Market, UniqueIdMarketImpl};
-
-use satoru::exchange::base_order_handler::BaseOrderHandler;
-use satoru::exchange::base_order_handler::{IBaseOrderHandlerDispatcher, IBaseOrderHandlerDispatcherTrait};
 
 // *********************************************************************************************
 // *                                      TEST LOGIC                                           *
@@ -41,7 +43,7 @@ use satoru::exchange::base_order_handler::{IBaseOrderHandlerDispatcher, IBaseOrd
 fn given_already_intialized_state_when_initialize_then_fails() {
     let (
         _caller_address,
-        role_store,
+        _role_store,
         data_store,
         event_emitter,
         order_vault,
@@ -53,13 +55,13 @@ fn given_already_intialized_state_when_initialize_then_fails() {
         decrease_order_class,
         swap_order_class,
         order_utils_class,
+        market_utils_class,
     ) =
         setup_contracts();
 
     BaseOrderHandler::BaseOrderHandlerImpl::initialize(
         ref base_order_handler_state,
         data_store.contract_address,
-        role_store.contract_address,
         event_emitter.contract_address,
         order_vault.contract_address,
         oracle.contract_address,
@@ -69,6 +71,7 @@ fn given_already_intialized_state_when_initialize_then_fails() {
         increase_order_class.class_hash,
         decrease_order_class.class_hash,
         swap_order_class.class_hash,
+        market_utils_class.class_hash,
     );
 }
 
@@ -89,6 +92,7 @@ fn given_normal_conditions_when_get_execute_order_params_then_works() {
         _,
         _,
         _,
+        _market_utils,
     ) =
         setup_contracts();
 
@@ -101,7 +105,7 @@ fn given_normal_conditions_when_get_execute_order_params_then_works() {
     start_mock_call(data_store.contract_address, 'get_order', mock_order);
 
     // test call
-    let execute_order_params = BaseOrderHandler::InternalImpl::get_execute_order_params(
+    let execute_order_params = BaseOrderHandler::BaseOrderHandlerImpl::get_execute_order_params(
         ref base_order_handler_state, key, set_prices_params, caller_address, starting_gas, secondary_order_type
     );
 
@@ -144,6 +148,7 @@ fn given_non_found_order_when_get_execute_order_params_then_returns_empty_order(
         _,
         _,
         _,
+        _market_utils,
     ) =
         setup_contracts();
 
@@ -152,7 +157,7 @@ fn given_non_found_order_when_get_execute_order_params_then_returns_empty_order(
     let starting_gas = 10000;
     let secondary_order_type = SecondaryOrderType::Adl(());
 
-    let execute_order_params = BaseOrderHandler::InternalImpl::get_execute_order_params(
+    let execute_order_params = BaseOrderHandler::BaseOrderHandlerImpl::get_execute_order_params(
         ref base_order_handler_state, key, set_prices_params, caller_address, starting_gas, secondary_order_type
     );
 
@@ -276,6 +281,7 @@ fn setup_contracts() -> (
     ContractClass,
     ContractClass,
     ContractClass,
+    IMarketUtilsLibraryDispatcher,
 ) {
     let (
         caller_address,
@@ -284,6 +290,10 @@ fn setup_contracts() -> (
         decrease_order_class,
         swap_order_class,
         order_utils_class,
+        _role_module_class,
+        _bank_class,
+        _governable_class,
+        market_utils_class,
         _market_factory,
         role_store,
         data_store,
@@ -311,7 +321,6 @@ fn setup_contracts() -> (
     BaseOrderHandler::BaseOrderHandlerImpl::initialize(
         ref base_order_handler_state,
         data_store.contract_address,
-        role_store.contract_address,
         event_emitter.contract_address,
         order_vault.contract_address,
         oracle.contract_address,
@@ -321,7 +330,10 @@ fn setup_contracts() -> (
         increase_order_class.class_hash,
         decrease_order_class.class_hash,
         swap_order_class.class_hash,
+        market_utils_class.class_hash,
     );
+
+    let market_utils = IMarketUtilsLibraryDispatcher { class_hash: market_utils_class.class_hash };
 
     return (
         caller_address,
@@ -337,5 +349,6 @@ fn setup_contracts() -> (
         decrease_order_class,
         swap_order_class,
         order_utils_class,
+        market_utils,
     );
 }

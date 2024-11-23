@@ -1,12 +1,13 @@
+use freyr::event::event_emitter::EventEmitter::{AffiliateRewardUpdated, AffiliateRewardClaimed};
+
+use freyr::event::event_emitter::{EventEmitter, IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
+
+
+use freyr::test_utils::tests_lib::deploy_event_emitter;
+use snforge_std::{
+    declare, ContractClassTrait, DeclareResultTrait, spy_events, EventSpy, EventSpyTrait, Event, EventSpyAssertionsTrait
+};
 use starknet::{ContractAddress, contract_address_const};
-use snforge_std::{declare, ContractClassTrait, spy_events, EventSpy, EventSpyTrait, Event, EventSpyAssertionsTrait};
-
-use satoru::event::event_emitter::{EventEmitter, IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
-
-use satoru::event::event_emitter::EventEmitter::{AffiliateRewardUpdated, AffiliateRewardClaimed};
-
-
-use satoru::test_utils::tests_lib::deploy_event_emitter;
 
 #[test]
 fn given_normal_conditions_when_emit_affiliate_reward_updated_then_works() {

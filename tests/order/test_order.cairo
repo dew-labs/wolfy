@@ -3,15 +3,17 @@
 // *************************************************************************
 
 // Core lib imports.
-use result::ResultTrait;
-use traits::{TryInto, Into};
-use starknet::{ContractAddress, get_caller_address, Felt252TryIntoContractAddress, contract_address_const, ClassHash,};
-use snforge_std::{declare, ContractClassTrait, start_cheat_block_number_global, stop_cheat_block_number_global};
 
 // Local imports.
-use satoru::order::order::{Order, OrderType, OrderTrait, DecreasePositionSwapType};
-use satoru::utils::span32::{Span32, Array32Trait};
-use satoru::test_utils::tests_lib;
+use freyr::order::order::{Order, OrderType, OrderTrait, DecreasePositionSwapType};
+use freyr::test_utils::tests_lib;
+use freyr::utils::span32::{Span32, Array32Trait};
+use result::ResultTrait;
+use snforge_std::{
+    declare, ContractClassTrait, DeclareResultTrait, start_cheat_block_number_global, stop_cheat_block_number_global
+};
+use starknet::{ContractAddress, get_caller_address, Felt252TryIntoContractAddress, contract_address_const, ClassHash,};
+use traits::{TryInto, Into};
 
 #[test]
 fn given_normal_conditions_when_touch_then_expected_results() {

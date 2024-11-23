@@ -6,10 +6,10 @@
 
 // Core lib imports.
 use core::traits::Into;
-use starknet::{ContractAddress, ClassHash};
 
 // Local imports.
-use satoru::oracle::oracle_utils::SetPricesParams;
+use freyr::oracle::oracle_utils::SetPricesParams;
+use starknet::{ContractAddress, ClassHash};
 
 // *************************************************************************
 //                  Interface of the `LiquidationHandler` contract.
@@ -40,46 +40,66 @@ mod LiquidationHandler {
     // *************************************************************************
 
     // Core lib imports.
+
+    use freyr::data::{
+        data_store::{IDataStoreSafeDispatcher, IDataStoreSafeDispatcherTrait, DataStore},
+        keys::execute_order_feature_disabled_key
+    };
+    use freyr::data::{keys, data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait}};
+    use freyr::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
+    use freyr::exchange::base_order_handler::{IBaseOrderHandlerLibraryDispatcher, IBaseOrderHandlerDispatcherTrait};
+    use freyr::feature::feature_utils::validate_feature;
+
+    use freyr::liquidation::liquidation_utils::create_liquidation_order;
+    use freyr::market::market::Market;
+    use freyr::market::market_utils::{IMarketUtilsLibraryDispatcher, IMarketUtilsDispatcherTrait};
+    use freyr::mock::referral_storage::{IReferralStorageDispatcher, IReferralStorageDispatcherTrait};
+    use freyr::oracle::{
+        oracle::{IOracleDispatcher, IOracleDispatcherTrait},
+        oracle_modules::{with_oracle_prices_before, with_oracle_prices_after}, oracle_utils::SetPricesParams
+    };
+    use freyr::order::{
+        order_utils::{IOrderUtilsDispatcher}, order::{SecondaryOrderType, OrderType, Order},
+        order_vault::{IOrderVaultDispatcher, IOrderVaultDispatcherTrait}, base_order_utils::{ExecuteOrderParams}
+    };
+    use freyr::order::{order_utils::{IOrderUtilsLibraryDispatcher, IOrderUtilsDispatcherTrait}};
+    use freyr::role::role;
+    use freyr::role::role_module::{IRoleModuleLibraryDispatcher, IRoleModuleDispatcherTrait};
+    use freyr::role::role_module::{RoleModule, IRoleModule};
+    use freyr::role::role_store::{IRoleStoreDispatcher};
+    use freyr::role::role_store::{IRoleStoreSafeDispatcher, IRoleStoreSafeDispatcherTrait};
+    use freyr::swap::swap_handler::{ISwapHandlerDispatcher, ISwapHandlerDispatcherTrait};
+    use freyr::utils::{starknet_utils, global_reentrancy_guard};
+
+    use starknet::storage::{
+        StorageMapReadAccess, StorageMapWriteAccess, StoragePointerReadAccess, StoragePointerWriteAccess
+    };
     use starknet::{ContractAddress, get_caller_address, get_contract_address, ClassHash};
 
     // Local imports.
     use super::ILiquidationHandler;
-    use satoru::role::role_store::{IRoleStoreSafeDispatcher, IRoleStoreSafeDispatcherTrait};
-    use satoru::role::role_module::{RoleModule, IRoleModule};
-
-    use satoru::data::{
-        data_store::{IDataStoreSafeDispatcher, IDataStoreSafeDispatcherTrait, DataStore},
-        keys::execute_order_feature_disabled_key
-    };
-    use satoru::oracle::{
-        oracle::{IOracleDispatcher, IOracleDispatcherTrait},
-        oracle_modules::{with_oracle_prices_before, with_oracle_prices_after}, oracle_utils::SetPricesParams
-    };
-    use satoru::order::{
-        order_utils::{IOrderUtilsDispatcher}, order::{SecondaryOrderType, OrderType, Order},
-        order_vault::{IOrderVaultDispatcher, IOrderVaultDispatcherTrait}, base_order_utils::{ExecuteOrderParams}
-    };
-    use satoru::swap::swap_handler::{ISwapHandlerDispatcher, ISwapHandlerDispatcherTrait};
-    use satoru::market::market::Market;
-    use satoru::exchange::{
-        order_handler::{IOrderHandler, OrderHandler}, base_order_handler::{IBaseOrderHandler, BaseOrderHandler}
-    };
-
-
-    use satoru::liquidation::liquidation_utils::create_liquidation_order;
-    use satoru::feature::feature_utils::validate_feature;
-    use satoru::utils::{starknet_utils, global_reentrancy_guard};
-    use satoru::exchange::base_order_handler::BaseOrderHandler::{
-        event_emitterContractMemberStateTrait, data_storeContractMemberStateTrait,
-        order_utils_libContractMemberStateTrait, oracleContractMemberStateTrait,
-    };
-    use satoru::order::order_utils::IOrderUtilsDispatcherTrait;
 
     // *************************************************************************
     //                              STORAGE
     // *************************************************************************
     #[storage]
-    struct Storage {}
+    struct Storage {
+        role_module: IRoleModuleLibraryDispatcher,
+        base_order_handler: IBaseOrderHandlerLibraryDispatcher,
+        // BaseOrderHandler storage
+        data_store: IDataStoreDispatcher,
+        role_store: IRoleStoreDispatcher,
+        event_emitter: IEventEmitterDispatcher,
+        order_vault: IOrderVaultDispatcher,
+        swap_handler: ISwapHandlerDispatcher,
+        oracle: IOracleDispatcher,
+        referral_storage: IReferralStorageDispatcher,
+        order_utils_lib: IOrderUtilsLibraryDispatcher,
+        // increase_order_utils_lib: IIncreaseOrderUtilsLibraryDispatcher,
+        // decrease_order_utils_lib: IDecreaseOrderUtilsLibraryDispatcher,
+        // swap_order_utils_lib: ISwapOrderUtilsLibraryDispatcher
+        market_utils: IMarketUtilsLibraryDispatcher,
+    }
 
     // *************************************************************************
     //                              CONSTRUCTOR
@@ -107,24 +127,29 @@ mod LiquidationHandler {
         increase_order_utils_class_hash: ClassHash,
         decrease_order_utils_class_hash: ClassHash,
         swap_order_utils_class_hash: ClassHash,
+        role_module_class_hash: ClassHash,
+        base_order_handler_class_hash: ClassHash,
+        market_utils_class_hash: ClassHash
     ) {
-        let mut state: BaseOrderHandler::ContractState = BaseOrderHandler::unsafe_new_contract_state();
-        IBaseOrderHandler::initialize(
-            ref state,
-            data_store_address,
-            role_store_address,
-            event_emitter_address,
-            order_vault_address,
-            oracle_address,
-            swap_handler_address,
-            referral_storage_address,
-            order_utils_class_hash,
-            increase_order_utils_class_hash,
-            decrease_order_utils_class_hash,
-            swap_order_utils_class_hash,
-        );
-        let mut state: RoleModule::ContractState = RoleModule::unsafe_new_contract_state();
-        IRoleModule::initialize(ref state, role_store_address,);
+        self.base_order_handler.write(IBaseOrderHandlerLibraryDispatcher { class_hash: base_order_handler_class_hash });
+        self
+            .base_order_handler
+            .read()
+            .initialize(
+                data_store_address,
+                event_emitter_address,
+                order_vault_address,
+                oracle_address,
+                swap_handler_address,
+                referral_storage_address,
+                order_utils_class_hash,
+                increase_order_utils_class_hash,
+                decrease_order_utils_class_hash,
+                swap_order_utils_class_hash,
+                market_utils_class_hash,
+            );
+        self.role_module.write(IRoleModuleLibraryDispatcher { class_hash: role_module_class_hash });
+        self.role_module.read().initialize(role_store_address);
     }
 
 
@@ -141,39 +166,35 @@ mod LiquidationHandler {
             is_long: bool,
             oracle_params: SetPricesParams
         ) {
-            let mut state_base = BaseOrderHandler::unsafe_new_contract_state(); //retrieve BaseOrderHandler state
-            global_reentrancy_guard::non_reentrant_before(state_base.data_store.read());
+            global_reentrancy_guard::non_reentrant_before(self.data_store.read());
 
-            let mut role_state: RoleModule::ContractState = RoleModule::unsafe_new_contract_state();
-            IRoleModule::only_liquidation_keeper(@role_state);
+            self.role_module.read().only_liquidation_keeper();
 
             with_oracle_prices_before(
-                state_base.oracle.read(), state_base.data_store.read(), state_base.event_emitter.read(), @oracle_params
+                self.oracle.read(), self.data_store.read(), self.event_emitter.read(), @oracle_params
             );
 
             // let starting_gas: u128 = starknet_utils::sn_gasleft(array![100]); TODO GAS
             let starting_gas: u256 = 0;
 
             let key: felt252 = create_liquidation_order(
-                state_base.data_store.read(),
-                state_base.event_emitter.read(),
-                account,
-                market,
-                collateral_token,
-                is_long
+                self.data_store.read(), self.event_emitter.read(), account, market, collateral_token, is_long
             );
             let tmp_oracle_params: SetPricesParams = oracle_params.clone();
-            let params: ExecuteOrderParams = BaseOrderHandler::InternalImpl::get_execute_order_params(
-                ref state_base, key, tmp_oracle_params, get_caller_address(), starting_gas, SecondaryOrderType::None
-            );
+            let params: ExecuteOrderParams = self
+                .base_order_handler
+                .read()
+                .get_execute_order_params(
+                    key, tmp_oracle_params, get_caller_address(), starting_gas, SecondaryOrderType::None
+                );
             validate_feature(
                 params.contracts.data_store,
                 execute_order_feature_disabled_key(get_contract_address(), params.order.order_type)
             );
-            state_base.order_utils_lib.read().execute_order_utils(params);
-            with_oracle_prices_after(state_base.oracle.read());
+            self.order_utils_lib.read().execute_order_utils(params);
+            with_oracle_prices_after(self.oracle.read());
 
-            global_reentrancy_guard::non_reentrant_after(state_base.data_store.read());
+            global_reentrancy_guard::non_reentrant_after(self.data_store.read());
         }
     }
 }

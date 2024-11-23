@@ -1,66 +1,66 @@
 import {
-    createSatoruContract,
+    createWolfyContract,
     DataStoreABI,
     DepositHandlerABI,
     ExchangeRouterABI,
     LiquidationHandlerABI,
     ReaderABI,
-    SatoruContract,
+    WolfyContract,
     WithdrawalHandlerABI,
-    type SatoruContractAbi,
+    type WolfyContractAbi,
     type StarknetChainId,
-} from "satoru-sdk";
+} from "wolfy-sdk";
 import type { Account, TypedContractV2 } from "starknet";
 
 const createContractGetter =
-    <T extends SatoruContract>(contractType: T, abi: SatoruContractAbi<T>) =>
-    (chainId: StarknetChainId, connectTo?: Account): TypedContractV2<SatoruContractAbi<T>> =>
-        createSatoruContract(chainId, contractType, abi, connectTo);
+    <T extends WolfyContract>(contractType: T, abi: WolfyContractAbi<T>) =>
+    (chainId: StarknetChainId, connectTo?: Account): TypedContractV2<WolfyContractAbi<T>> =>
+        createWolfyContract(chainId, contractType, abi, connectTo);
 
 export const getDataStoreContract: (
     chainId: StarknetChainId,
     connectTo?: Account
-) => TypedContractV2<SatoruContractAbi<SatoruContract.DataStore>> = createContractGetter(
-    SatoruContract.DataStore,
+) => TypedContractV2<WolfyContractAbi<WolfyContract.DataStore>> = createContractGetter(
+    WolfyContract.DataStore,
     DataStoreABI
 );
 
 export const getExchangeRouterContract: (
     chainId: StarknetChainId,
     connectTo?: Account
-) => TypedContractV2<SatoruContractAbi<SatoruContract.ExchangeRouter>> = createContractGetter(
-    SatoruContract.ExchangeRouter,
+) => TypedContractV2<WolfyContractAbi<WolfyContract.ExchangeRouter>> = createContractGetter(
+    WolfyContract.ExchangeRouter,
     ExchangeRouterABI
 );
 
 export const getReaderContract: (
     chainId: StarknetChainId,
     connectTo?: Account
-) => TypedContractV2<SatoruContractAbi<SatoruContract.Reader>> = createContractGetter(
-    SatoruContract.Reader,
+) => TypedContractV2<WolfyContractAbi<WolfyContract.Reader>> = createContractGetter(
+    WolfyContract.Reader,
     ReaderABI
 );
 
 export const getLiquidationHandlerContract: (
     chainId: StarknetChainId,
     connectTo?: Account
-) => TypedContractV2<SatoruContractAbi<SatoruContract.LiquidationHandler>> = createContractGetter(
-    SatoruContract.LiquidationHandler,
+) => TypedContractV2<WolfyContractAbi<WolfyContract.LiquidationHandler>> = createContractGetter(
+    WolfyContract.LiquidationHandler,
     LiquidationHandlerABI
 );
 
 export const getDepositHandlerContract: (
     chainId: StarknetChainId,
     connectTo?: Account
-) => TypedContractV2<SatoruContractAbi<SatoruContract.DepositHandler>> = createContractGetter(
-    SatoruContract.DepositHandler,
+) => TypedContractV2<WolfyContractAbi<WolfyContract.DepositHandler>> = createContractGetter(
+    WolfyContract.DepositHandler,
     DepositHandlerABI
 );
 
 export const getWithdrawalHandlerContract: (
     chainId: StarknetChainId,
     connectTo?: Account
-) => TypedContractV2<SatoruContractAbi<SatoruContract.WithdrawalHandler>> = createContractGetter(
-    SatoruContract.WithdrawalHandler,
+) => TypedContractV2<WolfyContractAbi<WolfyContract.WithdrawalHandler>> = createContractGetter(
+    WolfyContract.WithdrawalHandler,
     WithdrawalHandlerABI
 );

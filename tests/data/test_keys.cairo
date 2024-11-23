@@ -1,4 +1,4 @@
-use satoru::data::keys;
+use freyr::data::keys;
 use starknet::{ContractAddress, contract_address_const};
 
 #[test]

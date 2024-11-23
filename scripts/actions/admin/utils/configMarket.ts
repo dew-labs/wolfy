@@ -1,16 +1,16 @@
 import { decimalToFloat, expandDecimals } from "@freyr/shared/utils";
 import {
     createCall,
-    createSatoruContract,
+    createWolfyContract,
     createTokenContract,
     DataStoreABI,
     executeAndWait,
     poseidonHash,
-    SatoruContract,
+    WolfyContract,
     toStarknetHexString,
     type StarknetChainId,
-} from "satoru-sdk";
-import * as dataStoreKeys from "satoru-sdk/dataStore";
+} from "wolfy-sdk";
+import * as dataStoreKeys from "wolfy-sdk/dataStore";
 import { CairoUint256, type Account, type Call } from "starknet";
 
 const DEFAULT_CONFIG = {
@@ -125,7 +125,7 @@ export default async function configMarket(
     maxLongTokenPoolAmount: number | bigint,
     maxShortTokenPoolAmount: number | bigint
 ) {
-    const dataStoreContract = createSatoruContract(chainId, SatoruContract.DataStore, DataStoreABI);
+    const dataStoreContract = createWolfyContract(chainId, WolfyContract.DataStore, DataStoreABI);
     const market = await dataStoreContract.get_market(marketToken);
 
     // const indexTokenAddress = toStarknetHexString(market.index_token);

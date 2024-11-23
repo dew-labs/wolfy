@@ -7,8 +7,8 @@ Indexer is a backend service designed to index the blockchain data and store it 
 ### Setup steps
 
 ```bash
-git clone https://github.com/dew-labs/satoru.git
-cd satoru/apps/indexer
+git clone https://github.com/dew-labs/wolfy.git
+cd wolfy/apps/indexer
 ```
 
 Install [mise](https://mise.jdx.dev/getting-started.html)

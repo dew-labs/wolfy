@@ -9,12 +9,12 @@ import {
 } from "@freyr/shared/utils";
 import {
     createCall,
-    createSatoruContract,
+    createWolfyContract,
     createTokenContract,
     WithdrawalHandlerABI,
-    SatoruContract,
+    WolfyContract,
     toStarknetHexString,
-} from "satoru-sdk";
+} from "wolfy-sdk";
 import { shortString } from "starknet";
 
 async function executeWithdrawal() {
@@ -27,7 +27,7 @@ async function executeWithdrawal() {
     // Get withdrawal key from DataStore.get_withdrawal_keys
     let withdrawalKey = await ask("Enter withdrawal key (default to latest withdrawal)");
 
-    // TODO: can only works when this function available https://github.com/dew-labs/satoru/pull/8/files
+    // TODO: can only works when this function available https://github.com/dew-labs/wolfy/pull/8/files
     // if (!withdrawalKey) {
     //     const withdrawalCount = BigInt(await dataStoreContract.get_withdrawal_count());
     //     if (withdrawalCount === 0n) throw new Error("No withdrawal available");
@@ -62,9 +62,9 @@ async function executeWithdrawal() {
 
     console.log(`Market: ${longTokenSymbol}/${shortTokenSymbol}`);
 
-    const withdrawalHandlerContract = createSatoruContract(
+    const withdrawalHandlerContract = createWolfyContract(
         chainId,
-        SatoruContract.WithdrawalHandler,
+        WolfyContract.WithdrawalHandler,
         WithdrawalHandlerABI,
         account
     );

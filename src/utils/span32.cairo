@@ -3,11 +3,11 @@
 // *************************************************************************
 
 // Core lib imports.
-use starknet::{ContractAddress, SyscallResult,};
-use starknet::storage_access::{Store, StorageAddress, StorageBaseAddress};
 
 // Local imports.
-use satoru::withdrawal::withdrawal::Withdrawal;
+use freyr::withdrawal::withdrawal::Withdrawal;
+use starknet::storage_access::{Store, StorageAddress, StorageBaseAddress};
+use starknet::{ContractAddress, SyscallResult,};
 
 // Span32.
 #[derive(Copy, Drop, PartialEq)]
@@ -98,11 +98,11 @@ impl Array32<T> of Array32Trait<T> {
 
 impl StoreContractAddressSpan32 of Store<Span32<ContractAddress>> {
     fn read(address_domain: u32, base: StorageBaseAddress) -> SyscallResult<Span32<ContractAddress>> {
-        StoreContractAddressSpan32::read_at_offset(address_domain, base, 0)
+        Self::read_at_offset(address_domain, base, 0)
     }
 
     fn write(address_domain: u32, base: StorageBaseAddress, value: Span32<ContractAddress>) -> SyscallResult<()> {
-        StoreContractAddressSpan32::write_at_offset(address_domain, base, 0, value)
+        Self::write_at_offset(address_domain, base, 0, value)
     }
 
     fn read_at_offset(
@@ -136,14 +136,14 @@ impl StoreContractAddressSpan32 of Store<Span32<ContractAddress>> {
     ) -> SyscallResult<()> {
         // // Store the length of the array in the first storage slot.
         let len: u8 = value.len().try_into().expect('Storage - Span too large');
-        Store::<u8>::write_at_offset(address_domain, base, offset, len);
+        Store::<u8>::write_at_offset(address_domain, base, offset, len).unwrap();
         offset += 1;
 
         // Store the array elements sequentially
         loop {
             match value.pop_front() {
                 Option::Some(element) => {
-                    Store::<ContractAddress>::write_at_offset(address_domain, base, offset, *element);
+                    Store::<ContractAddress>::write_at_offset(address_domain, base, offset, *element).unwrap();
                     offset += Store::<felt252>::size();
                 },
                 Option::None(_) => { break Result::Ok(()); }

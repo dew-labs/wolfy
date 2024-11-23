@@ -1,17 +1,18 @@
-use starknet::{ContractAddress, contract_address_const};
-use snforge_std::{declare, ContractClassTrait, spy_events, EventSpy, EventSpyTrait, Event, EventSpyAssertionsTrait};
-
-use satoru::event::event_emitter::{EventEmitter, IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
-
-use satoru::event::event_emitter::EventEmitter::{
+use freyr::event::event_emitter::EventEmitter::{
     OrderCreated, OrderExecuted, OrderUpdated, OrderSizeDeltaAutoUpdated, OrderCollateralDeltaAmountAutoUpdated,
     OrderCancelled, OrderFrozen,
 };
 
+use freyr::event::event_emitter::{EventEmitter, IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
 
-use satoru::order::order::{Order, OrderType, SecondaryOrderType, DecreasePositionSwapType};
-use satoru::test_utils::tests_lib::deploy_event_emitter;
-use satoru::utils::span32::{Span32, Array32Trait};
+
+use freyr::order::order::{Order, OrderType, SecondaryOrderType, DecreasePositionSwapType};
+use freyr::test_utils::tests_lib::deploy_event_emitter;
+use freyr::utils::span32::{Span32, Array32Trait};
+use snforge_std::{
+    declare, ContractClassTrait, DeclareResultTrait, spy_events, EventSpy, EventSpyTrait, Event, EventSpyAssertionsTrait
+};
+use starknet::{ContractAddress, contract_address_const};
 
 #[test]
 fn given_normal_conditions_when_emit_order_created_then_works() {
@@ -279,7 +280,7 @@ fn given_normal_conditions_when_emit_order_frozen_then_works() {
 /// * `ContractAddress` - The address of the event emitter contract.
 /// * `IEventEmitterDispatcher` - The event emitter store dispatcher.
 fn setup() -> (ContractAddress, IEventEmitterDispatcher) {
-    let contract = declare("EventEmitter").unwrap();
+    let contract = declare("EventEmitter").unwrap().contract_class();
     let (contract_address, _) = contract.deploy(@array![]).unwrap();
     let event_emitter = IEventEmitterDispatcher { contract_address };
     return (contract_address, event_emitter);

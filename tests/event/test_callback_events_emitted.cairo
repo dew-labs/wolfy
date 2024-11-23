@@ -1,19 +1,18 @@
-use starknet::{ContractAddress, contract_address_const};
-use snforge_std::{declare, ContractClassTrait, spy_events, EventSpy, EventSpyTrait, Event, EventSpyAssertionsTrait};
-use option::OptionTrait;
-use satoru::test_utils::tests_lib::deploy_event_emitter;
+use freyr::deposit::deposit::Deposit;
 
-use satoru::event::event_emitter::{EventEmitter, IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
-
-use satoru::event::event_emitter::EventEmitter::{
+use freyr::event::event_emitter::EventEmitter::{
     AfterDepositExecutionError, AfterDepositCancellationError, AfterWithdrawalExecutionError,
     AfterWithdrawalCancellationError, AfterOrderExecutionError, AfterOrderCancellationError, AfterOrderFrozenError
 };
 
-use satoru::deposit::deposit::Deposit;
-use satoru::withdrawal::withdrawal::Withdrawal;
-use satoru::order::order::{Order, OrderType, SecondaryOrderType, DecreasePositionSwapType};
-use satoru::utils::span32::{Span32, Array32Trait};
+use freyr::event::event_emitter::{EventEmitter, IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
+use freyr::order::order::{Order, OrderType, SecondaryOrderType, DecreasePositionSwapType};
+use freyr::test_utils::tests_lib::deploy_event_emitter;
+use freyr::utils::span32::{Span32, Array32Trait};
+use freyr::withdrawal::withdrawal::Withdrawal;
+use option::OptionTrait;
+use snforge_std::{declare, ContractClassTrait, spy_events, EventSpy, EventSpyTrait, Event, EventSpyAssertionsTrait};
+use starknet::{ContractAddress, contract_address_const};
 
 #[test]
 fn given_normal_conditions_when_emit_after_deposit_execution_error_then_works() {

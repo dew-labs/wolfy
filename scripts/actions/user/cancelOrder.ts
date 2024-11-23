@@ -4,7 +4,7 @@ import {
     getExchangeRouterContract,
     settingUp,
 } from "@freyr/shared/utils";
-import { createCall, executeAndWait, toStarknetHexString } from "satoru-sdk";
+import { createCall, executeAndWait, toStarknetHexString } from "wolfy-sdk";
 
 async function cancelOrder() {
     // get order key from DataStore.get_account_order_keys

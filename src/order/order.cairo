@@ -3,13 +3,13 @@
 // *************************************************************************
 
 // Core lib imports.
-use starknet::{ContractAddress, contract_address_const};
-use starknet::info::get_block_number;
 use array::ArrayTrait;
+use freyr::utils::span32::{Span32, Array32Trait};
 
 // Local imports.
-use satoru::utils::store_arrays::StoreContractAddressArray;
-use satoru::utils::span32::{Span32, Array32Trait};
+use freyr::utils::store_arrays::StoreContractAddressArray;
+use starknet::info::get_block_number;
+use starknet::{ContractAddress, contract_address_const};
 
 /// Struct for orders.
 #[derive(Copy, Drop, starknet::Store, Serde, PartialEq)]

@@ -1,11 +1,10 @@
-use starknet::{ContractAddress, contract_address_const};
+use freyr::event::event_emitter::EventEmitter::{OraclePriceUpdate, SignerAdded, SignerRemoved};
+
+use freyr::event::event_emitter::{EventEmitter, IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
+
+use freyr::test_utils::tests_lib::deploy_event_emitter;
 use snforge_std::{declare, ContractClassTrait, spy_events, EventSpy, EventSpyTrait, Event, EventSpyAssertionsTrait};
-
-use satoru::test_utils::tests_lib::deploy_event_emitter;
-
-use satoru::event::event_emitter::{EventEmitter, IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
-
-use satoru::event::event_emitter::EventEmitter::{OraclePriceUpdate, SignerAdded, SignerRemoved};
+use starknet::{ContractAddress, contract_address_const};
 
 
 #[test]

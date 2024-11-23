@@ -6,24 +6,23 @@
 // *************************************************************************
 
 // Core lib imports.
-use starknet::ContractAddress;
 use core::zeroable::Zeroable;
+use freyr::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
+use freyr::deposit::deposit_utils::CreateDepositParams;
 
 
 // Local imports.
-use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
-use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
-use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
-use satoru::router::router::{IRouterDispatcher, IRouterDispatcherTrait};
-use satoru::deposit::deposit_utils::CreateDepositParams;
-use satoru::withdrawal::withdrawal_utils::CreateWithdrawalParams;
-use satoru::order::base_order_utils::CreateOrderParams;
-use satoru::oracle::oracle_utils::SimulatePricesParams;
-use satoru::exchange::{
+use freyr::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
+use freyr::exchange::{
     deposit_handler::{IDepositHandlerDispatcher, IDepositHandlerDispatcherTrait},
     withdrawal_handler::{IWithdrawalHandlerDispatcher, IWithdrawalHandlerDispatcherTrait},
     order_handler::{IOrderHandlerDispatcher, IOrderHandlerDispatcherTrait},
 };
+use freyr::oracle::oracle_utils::SimulatePricesParams;
+use freyr::order::base_order_utils::CreateOrderParams;
+use freyr::router::router::{IRouterDispatcher, IRouterDispatcherTrait};
+use freyr::withdrawal::withdrawal_utils::CreateWithdrawalParams;
+use starknet::ContractAddress;
 
 // *************************************************************************
 //                  Interface of the `ExchangeRouter` contract.
@@ -70,7 +69,8 @@ trait IExchangeRouter<TContractState> {
     /// Set a callback contract address for a specific market and user account.
     /// # Arguments
     /// * `market` - Address of the market to check.
-    /// * `callback_contract` - The address of the callback contract to be associated with the specified market and user account.
+    /// * `callback_contract` - The address of the callback contract to be associated with the specified market and user
+    /// account.
     fn set_saved_callback_contract(
         ref self: TContractState, market: ContractAddress, callback_contract: ContractAddress
     );
@@ -139,7 +139,8 @@ trait IExchangeRouter<TContractState> {
         receiver: ContractAddress
     ) -> Array<u256>;
 
-    /// Claims affiliate rewards for the given markets and tokens on behalf of the caller, and sends the rewards to the specified receiver.
+    /// Claims affiliate rewards for the given markets and tokens on behalf of the caller, and sends the rewards to the
+    /// specified receiver.
     /// # Arguments
     /// * `market` - An array of market addresses.
     /// * `tokens` - An array of token addresses, corresponding to the given markets.
@@ -168,39 +169,38 @@ mod ExchangeRouter {
     // *************************************************************************
 
     // Core lib imports.
-    use starknet::{get_caller_address, ContractAddress, contract_address_const, get_contract_address};
     use core::zeroable::Zeroable;
+    use debug::PrintTrait;
+    use freyr::callback::callback_utils;
+    use freyr::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
+    use freyr::data::keys;
+    use freyr::deposit::deposit::Deposit;
+    use freyr::deposit::deposit_utils::CreateDepositParams;
 
 
     // Local imports.
-    use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
-    use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
-    use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
-    use satoru::router::router::{IRouterDispatcher, IRouterDispatcherTrait};
-    use satoru::exchange::{
+    use freyr::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
+    use freyr::exchange::{
         deposit_handler::{IDepositHandlerDispatcher, IDepositHandlerDispatcherTrait},
         withdrawal_handler::{IWithdrawalHandlerDispatcher, IWithdrawalHandlerDispatcherTrait},
         order_handler::{IOrderHandlerDispatcher, IOrderHandlerDispatcherTrait},
     };
-
-    use super::IExchangeRouter;
-    use satoru::deposit::deposit_utils::CreateDepositParams;
-    use satoru::withdrawal::{withdrawal::Withdrawal, withdrawal_utils::CreateWithdrawalParams};
-    use satoru::order::base_order_utils::CreateOrderParams;
-    use satoru::oracle::oracle_utils::SimulatePricesParams;
-    use satoru::utils::account_utils;
-    use satoru::router::error::RouterError;
-    use satoru::deposit::deposit::Deposit;
-    use satoru::order::order::Order;
-    use satoru::callback::callback_utils;
-    use satoru::feature::feature_utils;
-    use satoru::market::market_utils;
-    use satoru::data::keys;
-    use satoru::referral::referral_utils;
-    use satoru::fee::fee_utils;
-    use debug::PrintTrait;
+    use freyr::feature::feature_utils;
+    use freyr::fee::fee_utils;
+    use freyr::market::market_utils::{IMarketUtilsLibraryDispatcher, IMarketUtilsDispatcherTrait};
+    use freyr::oracle::oracle_utils::SimulatePricesParams;
+    use freyr::order::base_order_utils::CreateOrderParams;
+    use freyr::order::order::Order;
+    use freyr::referral::referral_utils;
+    use freyr::router::error::RouterError;
+    use freyr::router::router::{IRouterDispatcher, IRouterDispatcherTrait};
+    use freyr::utils::account_utils;
+    use freyr::withdrawal::{withdrawal::Withdrawal, withdrawal_utils::CreateWithdrawalParams};
 
     use openzeppelin::security::ReentrancyGuardComponent;
+    use starknet::{get_caller_address, ContractAddress, contract_address_const, get_contract_address, ClassHash};
+
+    use super::IExchangeRouter;
 
     component!(path: ReentrancyGuardComponent, storage: reentrancy_guard, event: ReentrancyGuardEvent);
 
@@ -213,20 +213,13 @@ mod ExchangeRouter {
     struct Storage {
         #[substorage(v0)]
         reentrancy_guard: ReentrancyGuardComponent::Storage,
-        /// Interface to interact with the `Router` contract.
         router: IRouterDispatcher,
-        /// Interface to interact with the `DataStore` contract.
         data_store: IDataStoreDispatcher,
-        /// Interface to interact with the `RoleStore` contract.
-        role_store: IRoleStoreDispatcher,
-        /// Interface to interact with the `EventEmitter` contract.
         event_emitter: IEventEmitterDispatcher,
-        /// Interface to interact with the `DepositHandler` contract.
         deposit_handler: IDepositHandlerDispatcher,
-        /// Interface to interact with the `WithdrawalHandler` contract.
         withdrawal_handler: IWithdrawalHandlerDispatcher,
-        /// Interface to interact with the `OrderHandler` contract.
-        order_handler: IOrderHandlerDispatcher
+        order_handler: IOrderHandlerDispatcher,
+        market_utils: IMarketUtilsLibraryDispatcher,
     }
 
     // *************************************************************************
@@ -247,7 +240,6 @@ mod ExchangeRouter {
     /// # Arguments
     /// * `router_address` - The address of the router contract.
     /// * `data_store_address` - The address of the data store contract.
-    /// * `role_store_address` - The address of the role store contract.
     /// * `event_emitter_address` - The address of the event emitter contract.
     /// * `deposit_handler_address` - The address of the deposit handler contract.
     /// * `withdrawal_handler_address` - The address of the withdrawal handler contract.
@@ -257,19 +249,19 @@ mod ExchangeRouter {
         ref self: ContractState,
         router_address: ContractAddress,
         data_store_address: ContractAddress,
-        role_store_address: ContractAddress,
         event_emitter_address: ContractAddress,
         deposit_handler_address: ContractAddress,
         withdrawal_handler_address: ContractAddress,
-        order_handler_address: ContractAddress
+        order_handler_address: ContractAddress,
+        market_utils_class_hash: ClassHash,
     ) {
         self.router.write(IRouterDispatcher { contract_address: router_address });
         self.data_store.write(IDataStoreDispatcher { contract_address: data_store_address });
-        self.role_store.write(IRoleStoreDispatcher { contract_address: role_store_address });
         self.event_emitter.write(IEventEmitterDispatcher { contract_address: event_emitter_address });
         self.deposit_handler.write(IDepositHandlerDispatcher { contract_address: deposit_handler_address });
         self.withdrawal_handler.write(IWithdrawalHandlerDispatcher { contract_address: withdrawal_handler_address });
         self.order_handler.write(IOrderHandlerDispatcher { contract_address: order_handler_address });
+        self.market_utils.write(IMarketUtilsLibraryDispatcher { class_hash: market_utils_class_hash });
     }
 
     // *************************************************************************
@@ -461,6 +453,7 @@ mod ExchangeRouter {
 
             let mut claimed_amounts: Array<u256> = ArrayTrait::new();
 
+            let market_utils = self.market_utils.read();
             let mut i = 0;
             loop {
                 if i == markets.len() {
@@ -468,9 +461,10 @@ mod ExchangeRouter {
                 }
                 claimed_amounts
                     .append(
-                        market_utils::claim_funding_fees(
-                            data_store, self.event_emitter.read(), *markets[i], *tokens[i], account, receiver
-                        )
+                        market_utils
+                            .claim_funding_fees(
+                                data_store, self.event_emitter.read(), *markets[i], *tokens[i], account, receiver
+                            )
                     );
                 i += 1;
             };
@@ -505,6 +499,8 @@ mod ExchangeRouter {
 
             let mut claimed_amounts: Array<u256> = ArrayTrait::new();
 
+            let market_utils = self.market_utils.read();
+
             let mut i = 0;
             loop {
                 if i == markets.len() {
@@ -512,15 +508,16 @@ mod ExchangeRouter {
                 }
                 claimed_amounts
                     .append(
-                        market_utils::claim_collateral(
-                            data_store,
-                            self.event_emitter.read(),
-                            *markets[i],
-                            *tokens[i],
-                            *time_keys[i],
-                            account,
-                            receiver
-                        )
+                        market_utils
+                            .claim_collateral(
+                                data_store,
+                                self.event_emitter.read(),
+                                *markets[i],
+                                *tokens[i],
+                                *time_keys[i],
+                                account,
+                                receiver
+                            )
                     );
                 i += 1;
             };
@@ -560,7 +557,13 @@ mod ExchangeRouter {
                 claimed_amounts
                     .append(
                         referral_utils::claim_affiliate_reward(
-                            data_store, self.event_emitter.read(), *markets[i], *tokens[i], account, receiver
+                            data_store,
+                            self.event_emitter.read(),
+                            *markets[i],
+                            *tokens[i],
+                            account,
+                            receiver,
+                            self.market_utils.read()
                         )
                     );
                 i = i + 1;
@@ -577,7 +580,8 @@ mod ExchangeRouter {
             let data_store = self.data_store.read();
 
             let account = get_caller_address();
-            market_utils::set_ui_fee_factor(data_store, self.event_emitter.read(), account, ui_fee_factor);
+            let market_utils = self.market_utils.read();
+            market_utils.set_ui_fee_factor(data_store, self.event_emitter.read(), account, ui_fee_factor);
 
             self.reentrancy_guard.end();
         }
@@ -612,7 +616,13 @@ mod ExchangeRouter {
                 claimed_amounts
                     .append(
                         fee_utils::claim_ui_fees(
-                            data_store, self.event_emitter.read(), ui_fee_receiver, *markets[i], *tokens[i], receiver
+                            data_store,
+                            self.event_emitter.read(),
+                            ui_fee_receiver,
+                            *markets[i],
+                            *tokens[i],
+                            receiver,
+                            self.market_utils.read()
                         )
                     );
                 i += 1;

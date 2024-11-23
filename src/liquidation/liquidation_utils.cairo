@@ -2,18 +2,18 @@
 //                                  IMPORTS
 // *************************************************************************
 // Core lib imports.
-use starknet::ContractAddress;
+use core::num::traits::Bounded;
+use freyr::callback::callback_utils::get_saved_callback_contract;
 
 // Local imports.
-use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
-use satoru::data::keys;
-use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
-use satoru::position::position_utils::get_position_key;
-use satoru::order::order::{SecondaryOrderType, OrderType, Order, DecreasePositionSwapType};
-use satoru::callback::callback_utils::get_saved_callback_contract;
-use satoru::utils::span32::{Span32, Array32Trait};
-use satoru::nonce::nonce_utils::get_next_key;
-use integer::BoundedInt;
+use freyr::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
+use freyr::data::keys;
+use freyr::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
+use freyr::nonce::nonce_utils::get_next_key;
+use freyr::order::order::{SecondaryOrderType, OrderType, Order, DecreasePositionSwapType};
+use freyr::position::position_utils::get_position_key;
+use freyr::utils::span32::{Span32, Array32Trait};
+use starknet::ContractAddress;
 
 /// Creates a liquidation order for a position.
 /// # Arguments
@@ -38,7 +38,7 @@ fn create_liquidation_order(
     let acceptable_price = if position.is_long {
         0
     } else {
-        BoundedInt::<u256>::max()
+        Bounded::<u256>::MAX
     };
     let callback_gas_limit = data_store.get_u256(keys::max_callback_gas_limit());
     let swap_path = Array32Trait::<ContractAddress>::span32(@ArrayTrait::new());
@@ -66,7 +66,7 @@ fn create_liquidation_order(
         acceptable_price,
         execution_fee: 0,
         callback_gas_limit,
-        min_output_amount: 0,
+        min_output_amount,
         updated_at_block,
         is_long: position.is_long,
         is_frozen: false,

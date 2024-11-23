@@ -1,16 +1,16 @@
 import { Deposit } from "apps/indexer/.checkpoint/models";
 import { createLogger } from "@freyr/shared/utils";
-import { cairoIntToBigInt, OrderType, toStarknetHexString } from "satoru-sdk";
+import { cairoIntToBigInt, OrderType, toStarknetHexString } from "wolfy-sdk";
 
-import { type SatoruEventWriter } from "../type";
+import { type WolfyEventWriter } from "../type";
 
-import type { SatoruEvent } from "satoru-sdk";
+import type { WolfyEvent } from "wolfy-sdk";
 import { getTradeHistoryAction } from "../utils";
 import { TradeHistoryEvent } from "@freyr/shared/interfaces";
 
 const logger = createLogger("DepositExecutedWriter");
 
-export const handleDepositExecuted: SatoruEventWriter<SatoruEvent.DepositExecuted> = async ({
+export const handleDepositExecuted: WolfyEventWriter<WolfyEvent.DepositExecuted> = async ({
     block,
     tx,
     rawEvent,

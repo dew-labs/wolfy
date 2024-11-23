@@ -23,12 +23,13 @@ mod data {
 mod deposit {
     mod test_deposit_utils; // failed
     mod test_deposit_vault; // failed
-// mod test_execute_deposit_utils; // not implemented
+    // mod test_execute_deposit_utils; // not implemented
 }
 mod event {
     mod test_adl_events_emitted;
     mod test_callback_events_emitted;
     mod test_config_events_emitted;
+    mod test_event_utils;
     mod test_gas_events_emitted;
     mod test_market_events_emitted;
     mod test_oracle_events_emitted;
@@ -39,14 +40,13 @@ mod event {
     mod test_swap_events_emitted;
     mod test_timelock_events_emitted;
     mod test_withdrawal_events_emitted;
-    mod test_event_utils;
 }
 mod exchange {
-    mod test_liquidation_handler; // failed
-    mod test_withdrawal_handler; // failed
+    mod test_base_order_handler;
     mod test_deposit_handler; // failed
     mod test_exchange_utils;
-    mod test_base_order_handler;
+    mod test_liquidation_handler; // failed
+    mod test_withdrawal_handler; // failed
 }
 mod feature {
     mod test_feature_utils;
@@ -70,12 +70,12 @@ mod order {
     mod test_base_order_utils;
     mod test_increase_order_utils;
     mod test_order;
-// mod test_order_vault; // not implemented
+    // mod test_order_vault; // not implemented
 }
 mod position {
     mod test_decrease_position_collateral_utils; // failed
-    mod test_decrease_position_utils;
     mod test_decrease_position_swap_utils;
+    mod test_decrease_position_utils;
     mod test_position_utils;
 }
 mod price {
@@ -122,10 +122,10 @@ mod referral {
 }
 
 mod integration {
+    mod swap_test;
     mod test_create_and_execute_swap; // failed
-    // mod test_deposit_withdrawal; // outdated
-    mod test_short_integration;
     // mod test_swap_integration; // outdated
     mod test_long_integration;
-    mod swap_test;
+    // mod test_deposit_withdrawal; // outdated
+    mod test_short_integration;
 }

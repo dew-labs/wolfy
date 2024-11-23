@@ -1,23 +1,23 @@
-use starknet::{ContractAddress, get_caller_address, Felt252TryIntoContractAddress, contract_address_const};
+use freyr::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
+use freyr::data::keys;
+use freyr::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
+use freyr::exchange::withdrawal_handler::{IWithdrawalHandlerDispatcher, IWithdrawalHandlerDispatcherTrait};
+use freyr::fee::fee_handler::{IFeeHandlerDispatcher, IFeeHandlerDispatcherTrait};
+use freyr::market::market::Market;
+use freyr::oracle::oracle_utils::{SetPricesParams, SimulatePricesParams};
+use freyr::role::role;
+use freyr::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
+use freyr::test_utils::tests_lib;
+use freyr::token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
+use freyr::utils::span32::{Span32, Span32Trait};
+use freyr::withdrawal::withdrawal::Withdrawal;
+use freyr::withdrawal::withdrawal_utils::CreateWithdrawalParams;
+use freyr::withdrawal::withdrawal_vault::{IWithdrawalVaultDispatcher, IWithdrawalVaultDispatcherTrait};
 use snforge_std::{
     declare, start_cheat_caller_address, stop_cheat_caller_address, start_mock_call, stop_mock_call, ContractClassTrait
 };
-use satoru::utils::span32::{Span32, Span32Trait};
-use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
-use satoru::exchange::withdrawal_handler::{IWithdrawalHandlerDispatcher, IWithdrawalHandlerDispatcherTrait};
-use satoru::withdrawal::withdrawal_vault::{IWithdrawalVaultDispatcher, IWithdrawalVaultDispatcherTrait};
-use satoru::token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
-use satoru::fee::fee_handler::{IFeeHandlerDispatcher, IFeeHandlerDispatcherTrait};
-use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
-use satoru::data::keys;
-use satoru::oracle::oracle_utils::{SetPricesParams, SimulatePricesParams};
-use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
-use satoru::role::role;
-use satoru::withdrawal::withdrawal_utils::CreateWithdrawalParams;
-use satoru::withdrawal::withdrawal::Withdrawal;
-use satoru::market::market::Market;
+use starknet::{ContractAddress, get_caller_address, Felt252TryIntoContractAddress, contract_address_const};
 use traits::Default;
-use satoru::test_utils::tests_lib;
 
 // This tests check withdrawal creation under normal condition
 // It calls withdrawal_handler.create_withdrawal
@@ -390,6 +390,10 @@ fn setup() -> (
         _decrease_order_class,
         _swap_order_class,
         _order_utils_class,
+        _role_module_class,
+        _bank_class,
+        _governable_class,
+        _market_utils_class,
         _market_factory,
         role_store,
         data_store,

@@ -22,6 +22,7 @@ trait IRoleModule<TContractState> {
     fn only_market_keeper(self: @TContractState);
     fn only_fee_keeper(self: @TContractState);
     fn only_order_keeper(self: @TContractState);
+    fn only_frozen_order_keeper(self: @TContractState);
     fn only_liquidation_keeper(self: @TContractState);
     fn only_adl_keeper(self: @TContractState);
 }
@@ -33,22 +34,14 @@ mod RoleModule {
     // *************************************************************************
 
     // Core lib imports.
-    use starknet::{ContractAddress, get_caller_address, get_contract_address};
 
     // Local imports.
-    use satoru::role::{role, error::RoleError, role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait}};
+    use freyr::role::{role, error::RoleError, role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait}};
+    use starknet::{ContractAddress, get_caller_address, get_contract_address};
 
     #[storage]
     struct Storage {
         role_store: IRoleStoreDispatcher,
-    }
-
-    // *************************************************************************
-    // CONSTRUCTOR
-    // *************************************************************************
-    #[constructor]
-    fn constructor(ref self: ContractState, role_store_address: ContractAddress) {
-        self.initialize(role_store_address);
     }
 
     // *************************************************************************
@@ -86,6 +79,9 @@ mod RoleModule {
         }
         fn only_order_keeper(self: @ContractState) {
             self._validate_role(role::ORDER_KEEPER);
+        }
+        fn only_frozen_order_keeper(self: @ContractState) {
+            self._validate_role(role::FROZEN_ORDER_KEEPER);
         }
         fn only_liquidation_keeper(self: @ContractState) {
             self._validate_role(role::LIQUIDATION_KEEPER);

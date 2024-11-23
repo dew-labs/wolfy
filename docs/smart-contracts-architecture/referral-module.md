@@ -4,8 +4,8 @@ The Referral Module handles user referrals, giving discounts and paybacks. It’
 
 It contains the following Cairo library files:
 
-- [referral_tier.cairo](https://github.com/keep-starknet-strange/satoru/blob/main/src/referral/referral_tier.cairo): Defines the `ReferralTier` struct and contains related functionalities.
-- [referral_utils.cairo](https://github.com/keep-starknet-strange/satoru/blob/main/src/referral/referral_utils.cairo): Houses various referral utility functions essential for managing referrals within the platform.
+- [referral_tier.cairo](https://github.com/dew-labs/wolfy/blob/main/src/referral/referral_tier.cairo): Defines the `ReferralTier` struct and contains related functionalities.
+- [referral_utils.cairo](https://github.com/dew-labs/wolfy/blob/main/src/referral/referral_utils.cairo): Houses various referral utility functions essential for managing referrals within the platform.
 
 ## Structures and Types
 
@@ -34,9 +34,9 @@ Specific error handling would be defined to manage any anomalies in referral ope
 
 ### Core Library Imports
 - `starknet`: Used for core functionalities and structures in Starknet contracts.
-- Several other local imports from the `satoru` project for various functionalities like data storage, event emission, and market utilities.
+- Several other local imports from the `freyr` project for various functionalities like data storage, event emission, and market utilities.
 
-### Local Imports from `satoru` project
+### Local Imports from `freyr` project
 - `referral_storage`: For managing referral-related data storage operations.
 - `data_store`: Centralized data storage used for storing and retrieving information about referrals, rewards, etc.
 - `event_emitter`: Utilized for emitting events on the blockchain, allowing users and other contracts to track changes in the system.

@@ -1,11 +1,10 @@
+// Local imports.
+use freyr::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
+use freyr::data::keys;
+use freyr::market::market::Market;
+use freyr::utils::hash::hash_poseidon_single;
 use poseidon::poseidon_hash_span;
 use starknet::{ContractAddress, get_block_timestamp};
-
-// Local imports.
-use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
-use satoru::data::keys;
-use satoru::market::market::Market;
-use satoru::utils::hash::hash_poseidon_single;
 
 fn market_salt() -> felt252 {
     hash_poseidon_single('MARKET_SALT')

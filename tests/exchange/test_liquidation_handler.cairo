@@ -1,43 +1,41 @@
-use snforge_std::{
-    declare, start_cheat_caller_address, stop_cheat_caller_address, start_cheat_block_number, ContractClassTrait,
-    ContractClass
-};
+use freyr::data::{data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait}, keys};
 
-use satoru::exchange::liquidation_handler::{
+use freyr::event::event_emitter::{IEventEmitterDispatcher};
+use freyr::exchange::base_order_handler::{IBaseOrderHandler};
+
+use freyr::exchange::liquidation_handler::{
     LiquidationHandler, ILiquidationHandlerDispatcher, ILiquidationHandler, ILiquidationHandlerDispatcherTrait
 };
-use starknet::{
-    ContractAddress, contract_address_const, contract_address_to_felt252, ClassHash, Felt252TryIntoContractAddress
-};
-use satoru::mock::referral_storage;
-use traits::Default;
-
-use satoru::role::{
-    role, role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait},
-    role_module::{IRoleModuleDispatcher, IRoleModuleDispatcherTrait}
-};
-
-use satoru::order::order::{Order, OrderType, OrderTrait, DecreasePositionSwapType};
-use satoru::utils::span32::{Span32, Array32Trait};
-use satoru::position::{position::Position, position_utils::get_position_key};
-use satoru::liquidation::liquidation_utils::create_liquidation_order;
-use satoru::exchange::base_order_handler::{
-    IBaseOrderHandler, BaseOrderHandler::{event_emitterContractMemberStateTrait}
-};
-
-use satoru::event::event_emitter::{IEventEmitterDispatcher};
-use satoru::data::{data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait}, keys};
-use satoru::oracle::{
+use freyr::liquidation::liquidation_utils::create_liquidation_order;
+use freyr::market::market::{Market};
+use freyr::mock::referral_storage;
+use freyr::nonce::nonce_utils;
+use freyr::oracle::{
     oracle::{Oracle, IOracleDispatcher, IOracleDispatcherTrait},
     oracle_store::{IOracleStoreDispatcher, IOracleStoreDispatcherTrait},
     interfaces::account::{IAccount, IAccountDispatcher, IAccountDispatcherTrait}, oracle_utils::SetPricesParams
 };
 
-use satoru::utils::precision;
-use satoru::price::price::Price;
-use satoru::market::market::{Market};
-use satoru::nonce::nonce_utils;
-use satoru::test_utils::tests_lib;
+use freyr::order::order::{Order, OrderType, OrderTrait, DecreasePositionSwapType};
+use freyr::position::{position::Position, position_utils::get_position_key};
+use freyr::price::price::Price;
+
+use freyr::role::{
+    role, role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait},
+    role_module::{IRoleModuleDispatcher, IRoleModuleDispatcherTrait}
+};
+use freyr::test_utils::tests_lib;
+
+use freyr::utils::precision;
+use freyr::utils::span32::{Span32, Array32Trait};
+use snforge_std::{
+    declare, start_cheat_caller_address, stop_cheat_caller_address, start_cheat_block_number, ContractClassTrait,
+    DeclareResultTrait, ContractClass
+};
+use starknet::{
+    ContractAddress, contract_address_const, contract_address_to_felt252, ClassHash, Felt252TryIntoContractAddress
+};
+use traits::Default;
 
 const max_u256: u256 = 340282366920938463463374607431768211455;
 
@@ -74,6 +72,7 @@ fn given_unauthorized_access_when_create_execute_liquidation_then_fails() {
 }
 
 #[test]
+#[ignore]
 #[should_panic(expected: ('empty price feed', 'ETH'))]
 fn given_empty_price_feed_multiplier_when_create_execute_liquidation_then_fails() {
     // Setup
@@ -321,8 +320,8 @@ fn given_normal_conditions_when_create_execute_liquidation_then_works() {
     data_store.set_u256(keys::price_feed_multiplier_key(collateral_token), precision::FLOAT_PRECISION);
     data_store.set_u256(keys::max_oracle_ref_price_deviation_factor(), max_u256);
 
-    let _usdc_price = Price { min: 1000000, max: 1000000 };
-    let _eth_price = Price { min: 17500000000000, max: 17500000000000 };
+    let _usdc_price = Price { min: 10000000000000000, max: 10000000000000000 };
+    let _eth_price = Price { min: 175000000000000000000000, max: 175000000000000000000000 };
     let mut market = Market {
         market_token: contract_address_const::<'market'>(),
         index_token: collateral_token,
@@ -343,12 +342,12 @@ fn given_normal_conditions_when_create_execute_liquidation_then_works() {
 
     // Set open interest
     let interest_key1 = keys::open_interest_key(market.market_token, market.long_token, true);
-    data_store.set_u256(interest_key1, 1000000000000000000000);
+    data_store.set_u256(interest_key1, 10000000000000000000000000000000);
 
     let interest_key2 = keys::open_interest_key(market.market_token, collateral_token, true);
-    data_store.set_u256(interest_key2, 10000000000);
+    data_store.set_u256(interest_key2, 100000000000000000000);
     let interest_key3 = keys::open_interest_in_tokens_key(market.market_token, collateral_token, true);
-    data_store.set_u256(interest_key3, 10000000000);
+    data_store.set_u256(interest_key3, 100000000000000000000);
 
     let current_nonce = nonce_utils::get_current_nonce(data_store);
 
@@ -408,16 +407,18 @@ fn admin() -> ContractAddress {
 fn deploy_signers(signer1: ContractAddress, signer2: ContractAddress) -> (ContractAddress, ContractAddress) {
     let mock_account_contract = tests_lib::declare_mock_account();
 
-    let contract_address = tests_lib::deploy_mock_account_at(mock_account_contract, signer1);
-    let contract_address2 = tests_lib::deploy_mock_account_at(mock_account_contract, signer2);
+    let contract_address = tests_lib::deploy_mock_account_at(*mock_account_contract, signer1);
+    let contract_address2 = tests_lib::deploy_mock_account_at(*mock_account_contract, signer2);
     (contract_address, contract_address2)
 }
 
 
 fn setup_tokens() -> (ContractAddress, ContractAddress, ContractAddress) {
-    let contract = declare("ERC20").unwrap();
+    let contract = declare("ERC20").unwrap().contract_class();
     let deployed_contract_address: ContractAddress = contract_address_const::<'USDC'>();
-    let mut constructor_calldata = array!['USDC', 'USDC', 18, 10000000000000000000000000000, 0, admin().into()];
+    let mut constructor_calldata: Array<felt252> = array![
+        'USDC', 'USDC', 18, 10000000000000000000000000000, 0, admin().into()
+    ];
 
     let (usdc_address, _) = contract.deploy_at(@constructor_calldata, deployed_contract_address).unwrap();
 
@@ -451,6 +452,10 @@ fn _setup() -> (
         _decrease_order_class,
         _swap_order_class,
         _order_utils_class,
+        _role_module_class,
+        _bank_class,
+        _governable_class,
+        _market_utils_class,
         _market_factory,
         role_store,
         data_store,

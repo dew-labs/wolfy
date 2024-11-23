@@ -2,7 +2,9 @@
 //                                  IMPORTS
 // *************************************************************************
 // Core lib imports.
-use satoru::utils::{error_utils, calc};
+use freyr::utils::{error_utils, calc};
+
+use starknet::{ContractAddress, StorageBaseAddress, SyscallResult, Store};
 
 /// Gets the value of the element at the specified index in the given array. If the index is out of bounds, returns 0.
 /// # Arguments
@@ -58,7 +60,8 @@ fn are_gt(mut arr: Span<u256>, value: u256) -> bool {
     }
 }
 
-/// For u64 typed array determines whether all of the elements in the given array are greater than or equal to the specified value.
+/// For u64 typed array determines whether all of the elements in the given array are greater than or equal to the
+/// specified value.
 /// # Arguments
 /// * `arr` - the array to check the elements of.
 /// * `value` - The value to compare the elements to.
@@ -206,15 +209,13 @@ fn pow(x: u256, n: usize) -> u256 {
     }
 }
 
-use starknet::{ContractAddress, StorageBaseAddress, SyscallResult, Store};
-
 impl StoreContractAddressSpan of Store<Span<ContractAddress>> {
     fn read(address_domain: u32, base: StorageBaseAddress) -> SyscallResult<Span<ContractAddress>> {
-        StoreContractAddressSpan::read_at_offset(address_domain, base, 0)
+        Self::read_at_offset(address_domain, base, 0)
     }
 
     fn write(address_domain: u32, base: StorageBaseAddress, value: Span<ContractAddress>) -> SyscallResult<()> {
-        StoreContractAddressSpan::write_at_offset(address_domain, base, 0, value)
+        Self::write_at_offset(address_domain, base, 0, value)
     }
 
     fn read_at_offset(
@@ -248,14 +249,14 @@ impl StoreContractAddressSpan of Store<Span<ContractAddress>> {
     ) -> SyscallResult<()> {
         // Store the length of the array in the first storage slot.
         let len: u8 = value.len().try_into().expect('Storage - Span too large');
-        Store::<u8>::write_at_offset(address_domain, base, offset, len);
+        Store::<u8>::write_at_offset(address_domain, base, offset, len)?;
         offset += 1;
 
         // Store the array elements sequentially
         loop {
             match value.pop_front() {
                 Option::Some(element) => {
-                    Store::<ContractAddress>::write_at_offset(address_domain, base, offset, *element);
+                    Store::<ContractAddress>::write_at_offset(address_domain, base, offset, *element).unwrap();
                     offset += Store::<felt252>::size();
                 },
                 Option::None(_) => { break Result::Ok(()); }

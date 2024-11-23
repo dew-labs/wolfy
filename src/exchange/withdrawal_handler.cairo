@@ -6,11 +6,11 @@
 
 // Core lib imports.
 use core::traits::Into;
-use starknet::ContractAddress;
 
 // Local imports.
-use satoru::oracle::oracle_utils::{SetPricesParams, SimulatePricesParams};
-use satoru::withdrawal::withdrawal_utils::CreateWithdrawalParams;
+use freyr::oracle::oracle_utils::{SetPricesParams, SimulatePricesParams};
+use freyr::withdrawal::withdrawal_utils::CreateWithdrawalParams;
+use starknet::ContractAddress;
 
 // *************************************************************************
 //                  Interface of the `WithdrawalHandler` contract.
@@ -50,33 +50,36 @@ mod WithdrawalHandler {
     // *************************************************************************
 
     // Core lib imports.
-    use starknet::{ContractAddress, get_contract_address, get_caller_address};
-    use traits::Default;
     use clone::Clone;
-    // Local imports.
-    use super::IWithdrawalHandler;
-    use satoru::role::{role, role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait}};
-    use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
-    use satoru::data::keys;
-    use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
-    use satoru::oracle::{
+    use freyr::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
+    use freyr::data::keys;
+    use freyr::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
+    use freyr::exchange::exchange_utils;
+    use freyr::feature::feature_utils;
+    use freyr::gas::gas_utils;
+    use freyr::market::market::Market;
+    use freyr::market::market_utils::{IMarketUtilsLibraryDispatcher, IMarketUtilsDispatcherTrait};
+    use freyr::oracle::{
         oracle::{IOracleDispatcher, IOracleDispatcherTrait},
         oracle_modules::{with_oracle_prices_before, with_oracle_prices_after},
         oracle_utils::{SetPricesParams, SimulatePricesParams}
     };
-    use satoru::order::base_order_utils::{ExecuteOrderParams};
-    use satoru::swap::swap_handler::{ISwapHandlerDispatcher, ISwapHandlerDispatcherTrait};
-    use satoru::market::market::Market;
-    use satoru::withdrawal::{
+    use freyr::oracle::{oracle_modules, oracle_utils};
+    use freyr::order::base_order_utils::{ExecuteOrderParams};
+    use freyr::role::role;
+    use freyr::role::role_module::{IRoleModuleLibraryDispatcher, IRoleModuleDispatcherTrait};
+    use freyr::role::role_store::{IRoleStoreDispatcher};
+    use freyr::swap::swap_handler::{ISwapHandlerDispatcher, ISwapHandlerDispatcherTrait};
+    use freyr::utils::global_reentrancy_guard;
+    use freyr::utils::starknet_utils;
+    use freyr::withdrawal::{
         withdrawal_utils, withdrawal_utils::{CreateWithdrawalParams, create_withdrawal, cancel_withdrawal},
         withdrawal_vault::{IWithdrawalVaultDispatcher, IWithdrawalVaultDispatcherTrait}
     };
-    use satoru::feature::feature_utils;
-    use satoru::utils::starknet_utils;
-    use satoru::utils::global_reentrancy_guard;
-    use satoru::exchange::exchange_utils;
-    use satoru::gas::gas_utils;
-    use satoru::oracle::{oracle_modules, oracle_utils};
+    use starknet::{ContractAddress, get_contract_address, get_caller_address, ClassHash};
+    // Local imports.
+    use super::IWithdrawalHandler;
+    use traits::Default;
 
     // *************************************************************************
     //                              STORAGE
@@ -85,14 +88,14 @@ mod WithdrawalHandler {
     struct Storage {
         /// Interface to interact with the `DataStore` contract.
         data_store: IDataStoreDispatcher,
-        /// Interface to interact with the `RoleStore` contract.
-        role_store: IRoleStoreDispatcher,
         /// Interface to interact with the `EventEmitter` contract.
         event_emitter: IEventEmitterDispatcher,
         /// Interface to interact with the `WithdrawalVault` contract.
         withdrawal_vault: IWithdrawalVaultDispatcher,
         /// Interface to interact with the `Oracle` contract.
-        oracle: IOracleDispatcher
+        oracle: IOracleDispatcher,
+        role_module: IRoleModuleLibraryDispatcher,
+        market_utils: IMarketUtilsLibraryDispatcher,
     }
 
     // *************************************************************************
@@ -114,14 +117,17 @@ mod WithdrawalHandler {
         event_emitter_address: ContractAddress,
         withdrawal_vault_address: ContractAddress,
         oracle_address: ContractAddress,
+        role_module_class_hash: ClassHash,
+        market_utils_class_hash: ClassHash
     ) {
         self.data_store.write(IDataStoreDispatcher { contract_address: data_store_address });
-        self.role_store.write(IRoleStoreDispatcher { contract_address: role_store_address });
         self.event_emitter.write(IEventEmitterDispatcher { contract_address: event_emitter_address });
         self.withdrawal_vault.write(IWithdrawalVaultDispatcher { contract_address: withdrawal_vault_address });
         self.oracle.write(IOracleDispatcher { contract_address: oracle_address });
+        self.role_module.write(IRoleModuleLibraryDispatcher { class_hash: role_module_class_hash });
+        self.role_module.read().initialize(role_store_address);
+        self.market_utils.write(IMarketUtilsLibraryDispatcher { class_hash: market_utils_class_hash });
     }
-
 
     // *************************************************************************
     //                          EXTERNAL FUNCTIONS
@@ -131,9 +137,7 @@ mod WithdrawalHandler {
         fn create_withdrawal(
             ref self: ContractState, account: ContractAddress, params: CreateWithdrawalParams
         ) -> felt252 {
-            let role_store = self.role_store.read();
-            role_store
-                .assert_only_role(get_caller_address(), role::CONTROLLER); // Only controller can call this method.
+            self.role_module.read().only_controller();
 
             let data_store = self.data_store.read();
 
@@ -144,7 +148,12 @@ mod WithdrawalHandler {
             );
 
             let result = withdrawal_utils::create_withdrawal(
-                data_store, self.event_emitter.read(), self.withdrawal_vault.read(), account, params
+                data_store,
+                self.event_emitter.read(),
+                self.withdrawal_vault.read(),
+                account,
+                params,
+                self.market_utils.read(),
             );
 
             global_reentrancy_guard::non_reentrant_after(data_store); // Finalizes re-entrancy
@@ -153,9 +162,7 @@ mod WithdrawalHandler {
         }
 
         fn cancel_withdrawal(ref self: ContractState, key: felt252) {
-            let role_store = self.role_store.read();
-            role_store
-                .assert_only_role(get_caller_address(), role::CONTROLLER); // Only controller can call this method.
+            self.role_module.read().only_controller();
 
             let data_store = self.data_store.read();
 
@@ -185,8 +192,7 @@ mod WithdrawalHandler {
         }
 
         fn execute_withdrawal(ref self: ContractState, key: felt252, oracle_params: SetPricesParams) {
-            let role_store = self.role_store.read();
-            role_store.assert_only_role(get_caller_address(), role::ORDER_KEEPER); // Only order keeper can call.
+            self.role_module.read().only_order_keeper();
 
             let data_store = self.data_store.read();
 
@@ -224,9 +230,7 @@ mod WithdrawalHandler {
         }
 
         fn simulate_execute_withdrawal(ref self: ContractState, key: felt252, params: SimulatePricesParams) {
-            let role_store = self.role_store.read();
-            role_store
-                .assert_only_role(get_caller_address(), role::CONTROLLER); // Only controller can call this method.
+            self.role_module.read().only_controller();
 
             oracle_modules::with_simulated_oracle_prices_before(self.oracle.read(), params);
 
@@ -318,7 +322,7 @@ mod WithdrawalHandler {
                 starting_gas
             };
 
-            withdrawal_utils::execute_withdrawal(params);
+            withdrawal_utils::execute_withdrawal(params, self.market_utils.read());
         }
     }
 }

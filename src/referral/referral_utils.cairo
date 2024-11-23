@@ -4,19 +4,19 @@
 //                                  IMPORTS
 // *************************************************************************
 // Core lib imports.
-use starknet::{ContractAddress, contract_address_const};
-use result::ResultTrait;
+use freyr::bank::bank;
+use freyr::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
+use freyr::data::keys;
+use freyr::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
+use freyr::market::market_token::{IMarketTokenDispatcher, IMarketTokenDispatcherTrait};
+use freyr::market::market_utils::{IMarketUtilsLibraryDispatcher, IMarketUtilsDispatcherTrait};
 
 // Local imports.
-use satoru::mock::referral_storage::{IReferralStorageDispatcher, IReferralStorageDispatcherTrait};
-use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
-use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
-use satoru::market::market_token::{IMarketTokenDispatcher, IMarketTokenDispatcherTrait};
-use satoru::bank::bank;
-use satoru::utils::precision;
-use satoru::market::market_utils;
-use satoru::data::keys;
-use satoru::referral::referral_tier::ReferralTier;
+use freyr::mock::referral_storage::{IReferralStorageDispatcher, IReferralStorageDispatcherTrait};
+use freyr::referral::referral_tier::ReferralTier;
+use freyr::utils::precision;
+use result::ResultTrait;
+use starknet::{ContractAddress, contract_address_const};
 
 
 /// Set the referral code for a trader.
@@ -108,7 +108,8 @@ fn claim_affiliate_reward(
     market: ContractAddress,
     token: ContractAddress,
     account: ContractAddress,
-    receiver: ContractAddress
+    receiver: ContractAddress,
+    market_utils: IMarketUtilsLibraryDispatcher
 ) -> u256 {
     let key: felt252 = keys::affiliate_reward_for_account_key(market, token, account);
 
@@ -119,7 +120,7 @@ fn claim_affiliate_reward(
 
     IMarketTokenDispatcher { contract_address: market }.transfer_out(market, token, receiver, reward_amount);
 
-    market_utils::validate_market_token_balance_with_address(data_store, market);
+    market_utils.validate_market_token_balance_with_address(data_store, market);
 
     event_emitter.emit_affiliate_reward_claimed(market, token, account, receiver, reward_amount, next_pool_value);
 

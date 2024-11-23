@@ -1,6 +1,6 @@
 FROM oven/bun:alpine AS base
 
-WORKDIR /satoru
+WORKDIR /freyr
 
 RUN mkdir apps
 
@@ -17,7 +17,7 @@ COPY tsconfig.json ./
 
 FROM base AS backend
 
-WORKDIR /satoru/apps/backend
+WORKDIR /freyr/apps/backend
 
 COPY apps/backend/src ./src
 COPY apps/backend/drizzle ./drizzle

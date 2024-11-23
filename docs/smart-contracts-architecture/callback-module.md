@@ -1,10 +1,10 @@
 ## Callback Module
 
-The Callback module is a part of the Satoru project and manages a two-step process. First, a user sends a request, then a keeper sends another transaction to carry out that request. This module makes it easier to work with other contracts by letting a special contract be specified, which gets called after requests are done or cancelled.
+The Callback module is a part of the Wolfy project and manages a two-step process. First, a user sends a request, then a keeper sends another transaction to carry out that request. This module makes it easier to work with other contracts by letting a special contract be specified, which gets called after requests are done or cancelled.
 
 This module contains the following Cairo library files:
 
-- [callback](https://github.com/keep-starknet-strange/satoru/tree/main/src/callback)
+- [callback](https://github.com/dew-labs/wolfy/tree/main/src/callback)
 
 ## Functions
 
@@ -58,7 +58,7 @@ This enum encapsulates the error definitions for this module, ensuring that the 
 
 ## Interface for `DepositCallbackReceiver`
 
-The `DepositCallbackReceiver` interface defines the callback handlers that are triggered after a deposit operation such as execution or cancellation. This interface is crucial for the callback mechanism within the Satoru project, allowing for additional logic to be executed after a deposit operation.
+The `DepositCallbackReceiver` interface defines the callback handlers that are triggered after a deposit operation such as execution or cancellation. This interface is crucial for the callback mechanism within the Wolfy project, allowing for additional logic to be executed after a deposit operation.
 
 ### `IDepositCallbackReceiver<TContractState>`
 
@@ -86,7 +86,7 @@ Called after a deposit cancellation.
 
 ## Interface for `OrderCallbackReceiver`
 
-The `OrderCallbackReceiver` interface defines the callback handlers that are triggered after an order operation such as execution, cancellation, or being frozen. This interface is vital for the callback mechanism within the Satoru project, allowing for additional logic to be executed after an order operation.
+The `OrderCallbackReceiver` interface defines the callback handlers that are triggered after an order operation such as execution, cancellation, or being frozen. This interface is vital for the callback mechanism within the Wolfy project, allowing for additional logic to be executed after an order operation.
 
 ### `IOrderCallbackReceiver<TContractState>`
 This interface specifies the methods for handling callbacks after order operations.
@@ -120,7 +120,7 @@ Called after an order is frozen.
 
 ## Interface for `WithdrawalCallbackReceiver`
 
-The `WithdrawalCallbackReceiver` interface defines the callback handlers that are triggered after a withdrawal operation such as execution or cancellation. This interface is crucial for the callback mechanism within the Satoru project, allowing for additional logic to be executed after a withdrawal operation.
+The `WithdrawalCallbackReceiver` interface defines the callback handlers that are triggered after a withdrawal operation such as execution or cancellation. This interface is crucial for the callback mechanism within the Wolfy project, allowing for additional logic to be executed after a withdrawal operation.
 
 ### `IWithdrawalCallbackReceiver<TContractState>`
 This interface specifies the methods for handling callbacks after withdrawal operations.
@@ -147,8 +147,8 @@ Called after a withdrawal cancellation.
 
 ```cairo
 use starknet::ContractAddress;
-use satoru::callback::callback;
-use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
+use freyr::callback::callback;
+use freyr::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
 
 // Assuming data_store, account, market, and callback_contract are already initialized
 callback::set_saved_callback_contract(data_store, account, market, callback_contract);

@@ -6,11 +6,11 @@
 
 // Core lib imports.
 use core::traits::Into;
-use starknet::ContractAddress;
+use freyr::deposit::deposit_utils::CreateDepositParams;
 
 // Local imports.
-use satoru::oracle::oracle_utils::{SetPricesParams, SimulatePricesParams};
-use satoru::deposit::deposit_utils::CreateDepositParams;
+use freyr::oracle::oracle_utils::{SetPricesParams, SimulatePricesParams};
+use starknet::{ContractAddress, ClassHash};
 
 // *************************************************************************
 //                  Interface of the `DepositHandler` contract.
@@ -59,33 +59,37 @@ mod DepositHandler {
     // *************************************************************************
 
     // Core lib imports.
-    use starknet::{get_caller_address, get_contract_address, ContractAddress};
-
-    // Local imports.
-    use super::IDepositHandler;
-    use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
-    use satoru::role::role_module::{RoleModule, IRoleModule};
-    use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
-    use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
-    use satoru::oracle::{
+    use freyr::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
+    use freyr::data::keys;
+    use freyr::deposit::deposit_utils;
+    use freyr::deposit::execute_deposit_utils;
+    use freyr::deposit::{
+        deposit_utils::CreateDepositParams, deposit_vault::{IDepositVaultDispatcher, IDepositVaultDispatcherTrait}
+    };
+    use freyr::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
+    use freyr::exchange::exchange_utils;
+    use freyr::feature::feature_utils;
+    use freyr::gas::gas_utils;
+    use freyr::market::market::Market;
+    use freyr::market::market_utils::{IMarketUtilsLibraryDispatcher, IMarketUtilsDispatcherTrait};
+    use freyr::oracle::oracle_utils;
+    use freyr::oracle::{
         oracle::{IOracleDispatcher, IOracleDispatcherTrait}, oracle_modules,
         oracle_modules::{with_oracle_prices_before, with_oracle_prices_after},
         oracle_utils::{SetPricesParams, SimulatePricesParams}
     };
-    use satoru::order::base_order_utils::{ExecuteOrderParams};
-    use satoru::swap::swap_handler::{ISwapHandlerDispatcher, ISwapHandlerDispatcherTrait};
-    use satoru::market::market::Market;
-    use satoru::deposit::{
-        deposit_utils::CreateDepositParams, deposit_vault::{IDepositVaultDispatcher, IDepositVaultDispatcherTrait}
-    };
-    use satoru::deposit::deposit_utils;
-    use satoru::feature::feature_utils;
-    use satoru::gas::gas_utils;
-    use satoru::data::keys;
-    use satoru::exchange::exchange_utils;
-    use satoru::deposit::execute_deposit_utils;
-    use satoru::oracle::oracle_utils;
-    use satoru::utils::global_reentrancy_guard;
+    use freyr::order::base_order_utils::{ExecuteOrderParams};
+    use freyr::role::role;
+    use freyr::role::role_module::{IRoleModuleLibraryDispatcher, IRoleModuleDispatcherTrait};
+    use freyr::role::role_module::{RoleModule, IRoleModule};
+    use freyr::role::role_store::{IRoleStoreDispatcher};
+    use freyr::swap::swap_handler::{ISwapHandlerDispatcher, ISwapHandlerDispatcherTrait};
+    use freyr::utils::global_reentrancy_guard;
+    use starknet::{get_caller_address, get_contract_address, ContractAddress, ClassHash};
+
+
+    // Local imports.
+    use super::IDepositHandler;
 
     // *************************************************************************
     //                              STORAGE
@@ -94,14 +98,14 @@ mod DepositHandler {
     struct Storage {
         /// Interface to interact with the `DataStore` contract.
         data_store: IDataStoreDispatcher,
-        /// Interface to interact with the `RoleStore` contract.
-        role_store: IRoleStoreDispatcher,
         /// Interface to interact with the `EventEmitter` contract.
         event_emitter: IEventEmitterDispatcher,
         /// Interface to interact with the `DepositVault` contract.
         deposit_vault: IDepositVaultDispatcher,
         /// Interface to interact with the `Oracle` contract.
-        oracle: IOracleDispatcher
+        oracle: IOracleDispatcher,
+        role_module: IRoleModuleLibraryDispatcher,
+        market_utils: IMarketUtilsLibraryDispatcher,
     }
 
     // *************************************************************************
@@ -123,12 +127,16 @@ mod DepositHandler {
         event_emitter_address: ContractAddress,
         deposit_vault_address: ContractAddress,
         oracle_address: ContractAddress,
+        role_module_class_hash: ClassHash,
+        market_utils_class_hash: ClassHash,
     ) {
         self.data_store.write(IDataStoreDispatcher { contract_address: data_store_address });
-        self.role_store.write(IRoleStoreDispatcher { contract_address: role_store_address });
         self.event_emitter.write(IEventEmitterDispatcher { contract_address: event_emitter_address });
         self.deposit_vault.write(IDepositVaultDispatcher { contract_address: deposit_vault_address });
         self.oracle.write(IOracleDispatcher { contract_address: oracle_address });
+        self.role_module.write(IRoleModuleLibraryDispatcher { class_hash: role_module_class_hash });
+        self.role_module.read().initialize(role_store_address);
+        self.market_utils.write(IMarketUtilsLibraryDispatcher { class_hash: market_utils_class_hash });
     }
 
 
@@ -138,8 +146,7 @@ mod DepositHandler {
     #[abi(embed_v0)]
     impl DepositHandlerImpl of super::IDepositHandler<ContractState> {
         fn create_deposit(ref self: ContractState, account: ContractAddress, params: CreateDepositParams) -> felt252 {
-            let state: RoleModule::ContractState = RoleModule::unsafe_new_contract_state();
-            IRoleModule::only_controller(@state);
+            self.role_module.read().only_controller();
 
             let data_store = self.data_store.read();
             global_reentrancy_guard::non_reentrant_before(data_store);
@@ -149,7 +156,12 @@ mod DepositHandler {
             );
 
             let key = deposit_utils::create_deposit(
-                self.data_store.read(), self.event_emitter.read(), self.deposit_vault.read(), account, params
+                self.data_store.read(),
+                self.event_emitter.read(),
+                self.deposit_vault.read(),
+                account,
+                params,
+                self.market_utils.read()
             );
 
             global_reentrancy_guard::non_reentrant_after(data_store);
@@ -158,8 +170,7 @@ mod DepositHandler {
         }
 
         fn cancel_deposit(ref self: ContractState, key: felt252) {
-            let state: RoleModule::ContractState = RoleModule::unsafe_new_contract_state();
-            IRoleModule::only_controller(@state);
+            self.role_module.read().only_controller();
 
             let data_store = self.data_store.read();
             global_reentrancy_guard::non_reentrant_before(data_store);
@@ -188,8 +199,7 @@ mod DepositHandler {
         }
 
         fn execute_deposit(ref self: ContractState, key: felt252, oracle_params: SetPricesParams) {
-            let state: RoleModule::ContractState = RoleModule::unsafe_new_contract_state();
-            IRoleModule::only_order_keeper(@state);
+            self.role_module.read().only_order_keeper();
 
             let data_store = self.data_store.read();
             let oracle = self.oracle.read();
@@ -207,8 +217,7 @@ mod DepositHandler {
         }
 
         fn simulate_execute_deposit(ref self: ContractState, key: felt252, params: SimulatePricesParams) {
-            let state: RoleModule::ContractState = RoleModule::unsafe_new_contract_state();
-            IRoleModule::only_controller(@state);
+            self.role_module.read().only_controller();
 
             let data_store = self.data_store.read();
             let oracle = self.oracle.read();
@@ -251,10 +260,10 @@ mod DepositHandler {
                 starting_gas: 0 // TODO starting_gas
             };
 
-            execute_deposit_utils::execute_deposit(params);
+            execute_deposit_utils::execute_deposit(params, self.market_utils.read());
         }
     }
-/// TODO no try catch, we need to find alternative
+    /// TODO no try catch, we need to find alternative
 // // *************************************************************************
 // //                          INTERNAL FUNCTIONS
 // // *************************************************************************

@@ -13,7 +13,7 @@ import {
     OrderType,
     parseOrderType,
     toStarknetHexString,
-} from "satoru-sdk";
+} from "wolfy-sdk";
 
 async function executeOrder() {
     // get order key from DataStore.get_account_order_keys

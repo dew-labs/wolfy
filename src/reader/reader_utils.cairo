@@ -6,30 +6,31 @@
 //                                  IMPORTS
 // *************************************************************************
 // Core lib imports.
-use starknet::{ContractAddress, contract_address_const};
 use core::traits::TryInto;
-use result::ResultTrait;
+use freyr::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
+use freyr::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
+use freyr::market::market::Market;
+use freyr::market::market_utils::{
+    IMarketUtilsLibraryDispatcher, IMarketUtilsDispatcherTrait, PositionType, MarketPrices, CollateralType,
+    GetNextFundingAmountPerSizeResult
+};
+use freyr::mock::referral_storage::{IReferralStorageDispatcher, IReferralStorageDispatcherTrait};
 
 // Local imports.
-use satoru::position::position::Position;
-use satoru::pricing::position_pricing_utils::PositionFees;
-use satoru::reader::reader_pricing_utils::ExecutionPriceResult;
-use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
-use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
-use satoru::market::{
-    market_utils, market::Market, market_utils::PositionType, market_utils::MarketPrices, market_utils::CollateralType,
-    market_utils::GetNextFundingAmountPerSizeResult
-};
-use satoru::position::position_utils;
-use satoru::reader::reader_pricing_utils;
-use satoru::price::price::Price;
-use satoru::pricing::position_pricing_utils;
-use satoru::pricing::position_pricing_utils::PositionBorrowingFees;
-use satoru::pricing::position_pricing_utils::PositionReferralFees;
-use satoru::pricing::position_pricing_utils::PositionFundingFees;
-use satoru::pricing::position_pricing_utils::PositionUiFees;
-use satoru::mock::referral_storage::{IReferralStorageDispatcher, IReferralStorageDispatcherTrait};
-use satoru::utils::{calc, i256::i256};
+use freyr::position::position::Position;
+use freyr::position::position_utils;
+use freyr::price::price::Price;
+use freyr::pricing::position_pricing_utils::PositionBorrowingFees;
+use freyr::pricing::position_pricing_utils::PositionFees;
+use freyr::pricing::position_pricing_utils::PositionFundingFees;
+use freyr::pricing::position_pricing_utils::PositionReferralFees;
+use freyr::pricing::position_pricing_utils::PositionUiFees;
+use freyr::pricing::position_pricing_utils;
+use freyr::reader::reader_pricing_utils::ExecutionPriceResult;
+use freyr::reader::reader_pricing_utils;
+use freyr::utils::{calc, i256::i256};
+use result::ResultTrait;
+use starknet::{ContractAddress, contract_address_const};
 
 #[derive(Default, Drop, starknet::Store, Serde)]
 struct PositionInfo {
@@ -54,18 +55,24 @@ struct BaseFundingValues {
     claimable_funding_amount_per_size: PositionType,
 }
 
-/// Designed to calculate and return the next borrowing fees that a specific position within a market is expected to incur.
+/// Designed to calculate and return the next borrowing fees that a specific position within a market is expected to
+/// incur.
 /// # Arguments
 /// * `data_store` - The `DataStore` contract dispatcher.
-/// * `position` - Struct representing the properties of the specific position for which borrowing fees are being calculated.
+/// * `position` - Struct representing the properties of the specific position for which borrowing fees are being
+/// calculated.
 /// * `market` - The market.
 /// * `prices` - Price of the market token.
 /// # Returns
 /// Returns an unsigned integer representing the calculated borrowing fees for the specified position within the market.
 fn get_next_borrowing_fees(
-    data_store: IDataStoreDispatcher, position: Position, market: Market, prices: MarketPrices
+    data_store: IDataStoreDispatcher,
+    position: Position,
+    market: Market,
+    prices: MarketPrices,
+    market_utils: IMarketUtilsLibraryDispatcher
 ) -> u256 {
-    market_utils::get_next_borrowing_fees(data_store, @position, @market, @prices)
+    market_utils.get_next_borrowing_fees(data_store, position, market, prices)
 }
 
 /// Designed to calculate and return borrowing fees for a specific position.
@@ -88,71 +95,65 @@ fn get_borrowing_fees(
 /// * `market` - The market.
 /// # Returns
 /// Struct containing base funding values.
-fn get_base_funding_values(data_store: IDataStoreDispatcher, market: Market) -> BaseFundingValues {
+fn get_base_funding_values(
+    data_store: IDataStoreDispatcher, market: Market, market_utils: IMarketUtilsLibraryDispatcher
+) -> BaseFundingValues {
     let mut values: BaseFundingValues = Default::default();
     values
         .funding_fee_amount_per_size
         .long
-        .long_token =
-            market_utils::get_funding_fee_amount_per_size(
-                data_store, market.market_token, market.long_token, true // is_long
-            );
+        .long_token = market_utils
+        .get_funding_fee_amount_per_size(data_store, market.market_token, market.long_token, true // is_long
+        );
 
     values
         .funding_fee_amount_per_size
         .long
-        .short_token =
-            market_utils::get_funding_fee_amount_per_size(
-                data_store, market.market_token, market.short_token, true // is_long
-            );
+        .short_token = market_utils
+        .get_funding_fee_amount_per_size(data_store, market.market_token, market.short_token, true // is_long
+        );
 
     values
         .funding_fee_amount_per_size
         .short
-        .long_token =
-            market_utils::get_funding_fee_amount_per_size(
-                data_store, market.market_token, market.long_token, false // is_long
-            );
+        .long_token = market_utils
+        .get_funding_fee_amount_per_size(data_store, market.market_token, market.long_token, false // is_long
+        );
 
     values
         .funding_fee_amount_per_size
         .short
-        .short_token =
-            market_utils::get_funding_fee_amount_per_size(
-                data_store, market.market_token, market.short_token, false // is_long
-            );
+        .short_token = market_utils
+        .get_funding_fee_amount_per_size(data_store, market.market_token, market.short_token, false // is_long
+        );
 
     values
         .claimable_funding_amount_per_size
         .long
-        .long_token =
-            market_utils::get_funding_fee_amount_per_size(
-                data_store, market.market_token, market.long_token, true // is_long
-            );
+        .long_token = market_utils
+        .get_funding_fee_amount_per_size(data_store, market.market_token, market.long_token, true // is_long
+        );
 
     values
         .claimable_funding_amount_per_size
         .long
-        .short_token =
-            market_utils::get_funding_fee_amount_per_size(
-                data_store, market.market_token, market.short_token, true // is_long
-            );
+        .short_token = market_utils
+        .get_funding_fee_amount_per_size(data_store, market.market_token, market.short_token, true // is_long
+        );
 
     values
         .claimable_funding_amount_per_size
         .short
-        .long_token =
-            market_utils::get_funding_fee_amount_per_size(
-                data_store, market.market_token, market.long_token, false // is_long
-            );
+        .long_token = market_utils
+        .get_funding_fee_amount_per_size(data_store, market.market_token, market.long_token, false // is_long
+        );
 
     values
         .claimable_funding_amount_per_size
         .short
-        .short_token =
-            market_utils::get_funding_fee_amount_per_size(
-                data_store, market.market_token, market.short_token, false // is_long
-            );
+        .short_token = market_utils
+        .get_funding_fee_amount_per_size(data_store, market.market_token, market.short_token, false // is_long
+        );
 
     values
 }
@@ -165,9 +166,9 @@ fn get_base_funding_values(data_store: IDataStoreDispatcher, market: Market) -> 
 /// # Returns
 /// Struct containing funding-related values.
 fn get_next_funding_amount_per_size(
-    data_store: IDataStoreDispatcher, market: Market, prices: MarketPrices
+    data_store: IDataStoreDispatcher, market: Market, prices: MarketPrices, market_utils: IMarketUtilsLibraryDispatcher
 ) -> GetNextFundingAmountPerSizeResult {
-    market_utils::get_next_funding_amount_per_size(data_store, market, prices)
+    market_utils.get_next_funding_amount_per_size(data_store, market, prices)
 }
 
 
@@ -189,7 +190,8 @@ fn get_position_info(
     prices: MarketPrices,
     mut size_delta_usd: u256,
     ui_fee_receiver: ContractAddress,
-    use_position_size_as_size_delta_usd: bool
+    use_position_size_as_size_delta_usd: bool,
+    market_utils: IMarketUtilsLibraryDispatcher
 ) -> PositionInfo {
     let mut position_info: PositionInfo = Default::default();
     let mut cache: GetPositionInfoCache = Default::default();
@@ -197,8 +199,8 @@ fn get_position_info(
     position_info.position = data_store.get_position(position_key);
     cache.market = data_store.get_market(position_info.position.market);
     cache
-        .collateral_token_price =
-            market_utils::get_cached_token_price(position_info.position.collateral_token, cache.market, prices);
+        .collateral_token_price = market_utils
+        .get_cached_token_price(position_info.position.collateral_token, cache.market, prices);
 
     if (use_position_size_as_size_delta_usd) {
         size_delta_usd = position_info.position.size_in_usd;
@@ -215,7 +217,8 @@ fn get_position_info(
                 position_info.position.size_in_usd,
                 position_info.position.size_in_tokens,
                 size_delta_usd_int,
-                position_info.position.is_long
+                position_info.position.is_long,
+                market_utils
             );
 
     let get_position_fees_params = position_pricing_utils::GetPositionFeesParams {
@@ -230,44 +233,46 @@ fn get_position_info(
         ui_fee_receiver
     };
 
-    position_info.fees = position_pricing_utils::get_position_fees(get_position_fees_params);
+    position_info.fees = position_pricing_utils::get_position_fees(get_position_fees_params, market_utils);
 
     // borrowing and funding fees need to be overwritten with pending values otherwise they
     // would be using storage values that have not yet been updated
-    cache.pending_borrowing_fee_usd = get_next_borrowing_fees(data_store, position_info.position, cache.market, prices);
+    cache
+        .pending_borrowing_fee_usd = market_utils
+        .get_next_borrowing_fees(data_store, position_info.position, cache.market, prices);
 
     position_info
         .fees
         .borrowing = get_borrowing_fees(data_store, cache.collateral_token_price, cache.pending_borrowing_fee_usd);
 
-    let next_funding_amount_result = market_utils::get_next_funding_amount_per_size(data_store, cache.market, prices);
+    let next_funding_amount_result = market_utils.get_next_funding_amount_per_size(data_store, cache.market, prices);
 
     position_info
         .fees
         .funding
-        .latest_funding_fee_amount_per_size =
-            market_utils::get_funding_fee_amount_per_size(
-                data_store,
-                position_info.position.market,
-                position_info.position.collateral_token,
-                position_info.position.is_long
-            );
+        .latest_funding_fee_amount_per_size = market_utils
+        .get_funding_fee_amount_per_size(
+            data_store,
+            position_info.position.market,
+            position_info.position.collateral_token,
+            position_info.position.is_long
+        );
 
     position_info
         .fees
         .funding
-        .latest_long_token_claimable_funding_amount_per_size =
-            market_utils::get_claimable_funding_amount_per_size(
-                data_store, position_info.position.market, cache.market.long_token, position_info.position.is_long
-            );
+        .latest_long_token_claimable_funding_amount_per_size = market_utils
+        .get_claimable_funding_amount_per_size(
+            data_store, position_info.position.market, cache.market.long_token, position_info.position.is_long
+        );
 
     position_info
         .fees
         .funding
-        .latest_short_token_claimable_funding_amount_per_size =
-            market_utils::get_claimable_funding_amount_per_size(
-                data_store, position_info.position.market, cache.market.short_token, position_info.position.is_long
-            );
+        .latest_short_token_claimable_funding_amount_per_size = market_utils
+        .get_claimable_funding_amount_per_size(
+            data_store, position_info.position.market, cache.market.short_token, position_info.position.is_long
+        );
 
     if (position_info.position.is_long) {
         position_info
@@ -339,10 +344,11 @@ fn get_position_info(
 
     position_info
         .fees
-        .funding = position_pricing_utils::get_funding_fees(position_info.fees.funding, position_info.position);
+        .funding =
+            position_pricing_utils::get_funding_fees(position_info.fees.funding, position_info.position, market_utils);
 
     let (base_pnl_usd, uncapped_base_pnl_usd, _) = position_utils::get_position_pnl_usd(
-        data_store, cache.market, prices, position_info.position, size_delta_usd
+        data_store, cache.market, prices, position_info.position, size_delta_usd, market_utils
     );
 
     position_info.base_pnl_usd = base_pnl_usd;

@@ -6,7 +6,7 @@ Below is a detailed documentation of the Configuration Module, explaining its st
 
 It contains the following Cairo library files:
 
-- [adl.cairo](https://github.com/keep-starknet-strange/satoru/blob/main/src/config/config.cairo)
+- [adl.cairo](https://github.com/dew-labs/wolfy/blob/main/src/config/config.cairo)
 
 ## Additional Module: Timelock
 

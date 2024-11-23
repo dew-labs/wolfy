@@ -4,27 +4,29 @@
 //                                  IMPORTS
 // *************************************************************************
 // Core lib imports.
-use starknet::{ContractAddress, contract_address_const};
-use poseidon::poseidon_hash_span;
 // Local imports.
-use satoru::data::{data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait}, keys};
-use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
-use satoru::oracle::oracle::{IOracleDispatcher, IOracleDispatcherTrait};
-use satoru::swap::swap_handler::{ISwapHandlerDispatcher, ISwapHandlerDispatcherTrait};
-use satoru::market::{market::Market, market_utils::MarketPrices, market_utils};
-use satoru::position::{position::Position, error::PositionError};
-use satoru::pricing::{
-    position_pricing_utils, position_pricing_utils::PositionFees, position_pricing_utils::GetPriceImpactUsdParams,
-    position_pricing_utils::GetPositionFeesParams
-};
-use satoru::order::{
+use freyr::data::{data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait}, keys};
+use freyr::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
+use freyr::market::market::Market;
+use freyr::market::market_utils::{IMarketUtilsLibraryDispatcher, IMarketUtilsDispatcherTrait, MarketPrices};
+
+use freyr::mock::referral_storage::{IReferralStorageDispatcher, IReferralStorageDispatcherTrait};
+use freyr::oracle::oracle::{IOracleDispatcher, IOracleDispatcherTrait};
+use freyr::order::{
     order::{Order, SecondaryOrderType}, base_order_utils::ExecuteOrderParamsContracts,
     order_vault::{IOrderVaultDispatcher, IOrderVaultDispatcherTrait}
 };
-use satoru::mock::referral_storage::{IReferralStorageDispatcher, IReferralStorageDispatcherTrait};
-use satoru::price::price::{Price, PriceTrait};
-use satoru::utils::{calc, precision, i256::i256, default::DefaultContractAddress, error_utils};
-use satoru::referral::referral_utils;
+use freyr::position::{position::Position, error::PositionError};
+use freyr::price::price::{Price, PriceTrait};
+use freyr::pricing::{
+    position_pricing_utils, position_pricing_utils::PositionFees, position_pricing_utils::GetPriceImpactUsdParams,
+    position_pricing_utils::GetPositionFeesParams
+};
+use freyr::referral::referral_utils;
+use freyr::swap::swap_handler::{ISwapHandlerDispatcher, ISwapHandlerDispatcherTrait};
+use freyr::utils::{calc, precision, i256::i256, default::DefaultContractAddress, error_utils};
+use poseidon::poseidon_hash_span;
+use starknet::{ContractAddress, contract_address_const};
 
 /// Struct used in increasePosition and decreasePosition.
 #[derive(Drop, Copy, starknet::Store, Serde)]
@@ -260,7 +262,12 @@ impl DefaultDecreasePositionCache of Default<DecreasePositionCache> {
 /// # Returns
 /// (position_pnl_usd, uncapped_position_pnl_usd, size_delta_in_tokens)
 fn get_position_pnl_usd(
-    data_store: IDataStoreDispatcher, market: Market, prices: MarketPrices, position: Position, size_delta_usd: u256,
+    data_store: IDataStoreDispatcher,
+    market: Market,
+    prices: MarketPrices,
+    position: Position,
+    size_delta_usd: u256,
+    market_utils: IMarketUtilsLibraryDispatcher
 ) -> (i256, i256, u256) {
     let mut cache: GetPositionPnlUsdCache = Default::default();
     let execution_price = prices.index_token_price.pick_price_for_pnl(position.is_long, false);
@@ -281,7 +288,7 @@ fn get_position_pnl_usd(
         } else {
             market.short_token
         };
-        cache.pool_token_amount = market_utils::get_pool_amount(data_store, @market, cache.pnl_token);
+        cache.pool_token_amount = market_utils.get_pool_amount(data_store, market, cache.pnl_token);
         cache
             .pool_token_price =
                 if position.is_long {
@@ -290,17 +297,17 @@ fn get_position_pnl_usd(
                     prices.short_token_price.min
                 };
         cache.pool_token_usd = cache.pool_token_amount * cache.pool_token_price;
-        cache.pool_pnl = market_utils::get_pnl(data_store, @market, @prices.index_token_price, position.is_long, true);
+        cache.pool_pnl = market_utils.get_pnl(data_store, market, prices.index_token_price, position.is_long, true);
         cache
-            .capped_pool_pnl =
-                market_utils::get_capped_pnl(
-                    data_store,
-                    market.market_token,
-                    position.is_long,
-                    cache.pool_pnl,
-                    cache.pool_token_usd,
-                    keys::max_pnl_factor_for_traders()
-                );
+            .capped_pool_pnl = market_utils
+            .get_capped_pnl(
+                data_store,
+                market.market_token,
+                position.is_long,
+                cache.pool_pnl,
+                cache.pool_token_usd,
+                keys::max_pnl_factor_for_traders()
+            );
         if (cache.capped_pool_pnl != cache.pool_pnl
             && cache.capped_pool_pnl > Zeroable::zero()
             && cache.pool_pnl > Zeroable::zero()) {
@@ -391,16 +398,17 @@ fn validate_position(
     prices: MarketPrices,
     should_validate_min_position_size: bool,
     should_validate_min_collateral_usd: bool,
+    market_utils: IMarketUtilsLibraryDispatcher
 ) {
     assert(position.size_in_usd != 0 && position.size_in_tokens != 0, PositionError::INVALID_POSITION_SIZE_VALUES);
-    market_utils::validate_enabled_market(data_store, market);
-    market_utils::validate_market_collateral_token(market, position.collateral_token);
+    market_utils.validate_enabled_market(data_store, market);
+    market_utils.validate_market_collateral_token(market, position.collateral_token);
     if should_validate_min_position_size {
         let min_position_size_usd = data_store.get_u256(keys::min_position_size_usd());
         assert(position.size_in_usd >= min_position_size_usd, PositionError::MIN_POSITION_SIZE);
     }
     let (is_liquiditable, _reason) = is_position_liquiditable(
-        data_store, referral_storage, position, market, prices, should_validate_min_collateral_usd
+        data_store, referral_storage, position, market, prices, should_validate_min_collateral_usd, market_utils
     );
     assert(!is_liquiditable, PositionError::LIQUIDATABLE_POSITION);
 }
@@ -420,13 +428,16 @@ fn is_position_liquiditable(
     position: Position,
     market: Market,
     prices: MarketPrices,
-    should_validate_min_collateral_usd: bool
+    should_validate_min_collateral_usd: bool,
+    market_utils: IMarketUtilsLibraryDispatcher
 ) -> (bool, felt252) {
     let mut cache: IsPositionLiquidatableCache = Default::default();
-    let (pos_pnl_usd, _, _) = get_position_pnl_usd(data_store, market, prices, position, position.size_in_usd);
+    let (pos_pnl_usd, _, _) = get_position_pnl_usd(
+        data_store, market, prices, position, position.size_in_usd, market_utils
+    );
     cache.position_pnl_usd = pos_pnl_usd;
 
-    cache.collateral_token_price = market_utils::get_cached_token_price(position.collateral_token, market, prices);
+    cache.collateral_token_price = market_utils.get_cached_token_price(position.collateral_token, market, prices);
 
     cache.collateral_usd = position.collateral_amount * cache.collateral_token_price.min;
 
@@ -437,7 +448,8 @@ fn is_position_liquiditable(
             position_pricing_utils::get_price_impact_usd(
                 GetPriceImpactUsdParams {
                     data_store, market, usd_delta: cache.usd_delta_for_price_impact, is_long: position.is_long
-                }
+                },
+                market_utils
             );
     cache.has_positive_impact = cache.price_impact_usd > Zeroable::zero();
     // even if there is a large positive price impact, positions that would be liquidated
@@ -447,9 +459,8 @@ fn is_position_liquiditable(
     if cache.price_impact_usd >= Zeroable::zero() {
         cache.price_impact_usd = Zeroable::zero();
     } else {
-        let max_price_impact_factor = market_utils::get_max_position_impact_factor_for_liquidations(
-            data_store, market.market_token
-        );
+        let max_price_impact_factor = market_utils
+            .get_max_position_impact_factor_for_liquidations(data_store, market.market_token);
         // if there is a large build up of open interest and a sudden large price movement
         // it may result in a large imbalance between longs and shorts
         // this could result in very large price impact temporarily
@@ -473,7 +484,7 @@ fn is_position_liquiditable(
         size_delta_usd: position.size_in_usd,
         ui_fee_receiver: contract_address_const::<0>(),
     };
-    let fees = position_pricing_utils::get_position_fees(pos_fees_params);
+    let fees = position_pricing_utils::get_position_fees(pos_fees_params, market_utils);
     // the totalCostAmount is in tokens, use collateralTokenPrice.min to calculate the cost in USD
     // since in PositionPricingUtils.getPositionFees the totalCostAmount in tokens was calculated
     // using collateralTokenPrice.min
@@ -496,10 +507,11 @@ fn is_position_liquiditable(
     if cache.remaining_collateral_usd <= Zeroable::zero() {
         return (true, '0<');
     }
-    cache.min_collateral_factor = market_utils::get_min_collateral_factor(data_store, market.market_token);
+    cache.min_collateral_factor = market_utils.get_min_collateral_factor(data_store, market.market_token);
     // validate if (remaining collateral) / position.size is less than the min collateral factor (max leverage exceeded)
     // this validation includes the position fee to be paid when closing the position
-    // i.e. if the position does not have sufficient collateral after closing fees it is considered a liquidatable position
+    // i.e. if the position does not have sufficient collateral after closing fees it is considered a liquidatable
+    // position
     cache
         .min_collateral_usd_for_leverage =
             calc::to_signed(precision::apply_factor_u256(position.size_in_usd, cache.min_collateral_factor), true);
@@ -548,8 +560,9 @@ fn will_position_collateral_be_sufficient(
     collateral_token: ContractAddress,
     is_long: bool,
     values: WillPositionCollateralBeSufficientValues,
+    market_utils: IMarketUtilsLibraryDispatcher
 ) -> (bool, i256) {
-    let collateral_token_price = market_utils::get_cached_token_price(collateral_token, market, prices);
+    let collateral_token_price = market_utils.get_cached_token_price(collateral_token, market, prices);
     let mut remaining_collateral_usd = calc::to_signed(values.position_collateral_amount, true)
         * calc::to_signed(collateral_token_price.min, true);
     // deduct realized pnl if it is negative since this would be paid from
@@ -567,11 +580,10 @@ fn will_position_collateral_be_sufficient(
     // the position's pnl is not factored into the remainingCollateralUsd value, since
     // factoring in a positive pnl may allow the user to manipulate price and bypass this check
     // it may be useful to factor in a negative pnl for this check, this can be added if required
-    let mut min_collateral_factor = market_utils::get_min_collateral_factor_for_open_interest(
-        data_store, market, values.open_interest_delta, is_long
-    );
+    let mut min_collateral_factor = market_utils
+        .get_min_collateral_factor_for_open_interest(data_store, market, values.open_interest_delta, is_long);
 
-    let min_collateral_factor_for_market = market_utils::get_min_collateral_factor(data_store, market.market_token);
+    let min_collateral_factor_for_market = market_utils.get_min_collateral_factor(data_store, market.market_token);
     // use the minCollateralFactor for the market if it is larger
     if (min_collateral_factor_for_market > min_collateral_factor) {
         min_collateral_factor = min_collateral_factor_for_market;
@@ -591,20 +603,23 @@ fn will_position_collateral_be_sufficient(
 /// *`params` - The position parameters.
 /// *`prices` - The prices of the tokens.
 
-fn update_funding_and_borrowing_state(params: UpdatePositionParams, prices: MarketPrices,) {
+fn update_funding_and_borrowing_state(
+    params: UpdatePositionParams, prices: MarketPrices, market_utils: IMarketUtilsLibraryDispatcher
+) {
     // update the funding amount per size for the market
-    market_utils::update_funding_state(
-        params.contracts.data_store, params.contracts.event_emitter, params.market, prices
-    );
+    market_utils
+        .update_funding_state(params.contracts.data_store, params.contracts.event_emitter, params.market, prices);
     // update the cumulative borrowing factor for longs
-    market_utils::update_cumulative_borrowing_factor(
-        params.contracts.data_store, params.contracts.event_emitter, params.market, prices, true // isLong
-    );
+    market_utils
+        .update_cumulative_borrowing_factor(
+            params.contracts.data_store, params.contracts.event_emitter, params.market, prices, true // isLong
+        );
 
     // update the cumulative borrowing factor for shorts
-    market_utils::update_cumulative_borrowing_factor(
-        params.contracts.data_store, params.contracts.event_emitter, params.market, prices, false // isLong
-    );
+    market_utils
+        .update_cumulative_borrowing_factor(
+            params.contracts.data_store, params.contracts.event_emitter, params.market, prices, false // isLong
+        );
 }
 
 /// # Arguments
@@ -612,17 +627,21 @@ fn update_funding_and_borrowing_state(params: UpdatePositionParams, prices: Mark
 /// *`next_position_size_in_usd` - The next posiiton USD size
 /// *`next_position_borrowing_factor` - Thenext position borrowing factor
 fn update_total_borrowing(
-    params: UpdatePositionParams, next_position_size_in_usd: u256, next_position_borrowing_factor: u256,
+    params: UpdatePositionParams,
+    next_position_size_in_usd: u256,
+    next_position_borrowing_factor: u256,
+    market_utils: IMarketUtilsLibraryDispatcher
 ) {
-    market_utils::update_total_borrowing(
-        params.contracts.data_store, // dataStore
-        params.market.market_token, // market
-        params.position.is_long, // isLong
-        params.position.size_in_usd, // prevPositionSizeInUsd
-        params.position.borrowing_factor, // prevPositionBorrowingFactor
-        next_position_size_in_usd, // nextPositionSizeInUsd
-        next_position_borrowing_factor // nextPositionBorrowingFactor
-    );
+    market_utils
+        .update_total_borrowing(
+            params.contracts.data_store, // dataStore
+            params.market.market_token, // market
+            params.position.is_long, // isLong
+            params.position.size_in_usd, // prevPositionSizeInUsd
+            params.position.borrowing_factor, // prevPositionBorrowingFactor
+            next_position_size_in_usd, // nextPositionSizeInUsd
+            next_position_borrowing_factor // nextPositionBorrowingFactor
+        );
 }
 
 /// The order.receiver is meant to allow the output of an order to be
@@ -633,28 +652,32 @@ fn update_total_borrowing(
 /// # Arguments
 /// *`params` - The position parameters.
 /// *`fees` - The position fees.
-fn increment_claimable_funding_amount(params: UpdatePositionParams, fees: PositionFees,) {
+fn increment_claimable_funding_amount(
+    params: UpdatePositionParams, fees: PositionFees, market_utils: IMarketUtilsLibraryDispatcher
+) {
     // if the position has negative funding fees, distribute it to allow it to be claimable
     if (fees.funding.claimable_long_token_amount > 0) {
-        market_utils::increment_claimable_funding_amount(
-            params.contracts.data_store,
-            params.contracts.event_emitter,
-            params.market.market_token,
-            params.market.long_token,
-            params.order.account,
-            fees.funding.claimable_long_token_amount
-        );
+        market_utils
+            .increment_claimable_funding_amount(
+                params.contracts.data_store,
+                params.contracts.event_emitter,
+                params.market.market_token,
+                params.market.long_token,
+                params.order.account,
+                fees.funding.claimable_long_token_amount
+            );
     }
 
     if (fees.funding.claimable_short_token_amount > 0) {
-        market_utils::increment_claimable_funding_amount(
-            params.contracts.data_store,
-            params.contracts.event_emitter,
-            params.market.market_token,
-            params.market.short_token,
-            params.order.account,
-            fees.funding.claimable_short_token_amount
-        );
+        market_utils
+            .increment_claimable_funding_amount(
+                params.contracts.data_store,
+                params.contracts.event_emitter,
+                params.market.market_token,
+                params.market.short_token,
+                params.order.account,
+                fees.funding.claimable_short_token_amount
+            );
     }
 }
 
@@ -662,24 +685,31 @@ fn increment_claimable_funding_amount(params: UpdatePositionParams, fees: Positi
 /// *`params` - The position parameters.
 /// *`size_delta_usd` - The USD change in position size.
 /// *`size_delta_in_tokens` - The change in position size.
-fn update_open_interest(params: UpdatePositionParams, size_delta_usd: i256, size_delta_in_tokens: i256,) {
+fn update_open_interest(
+    params: UpdatePositionParams,
+    size_delta_usd: i256,
+    size_delta_in_tokens: i256,
+    market_utils: IMarketUtilsLibraryDispatcher
+) {
     if (size_delta_usd != Zeroable::zero()) {
-        market_utils::apply_delta_to_open_interest(
-            params.contracts.data_store,
-            params.contracts.event_emitter,
-            @params.market,
-            params.position.collateral_token,
-            params.position.is_long,
-            size_delta_usd
-        );
-        market_utils::apply_delta_to_open_interest_in_tokens(
-            params.contracts.data_store,
-            params.contracts.event_emitter,
-            params.market,
-            params.position.collateral_token,
-            params.position.is_long,
-            size_delta_in_tokens
-        );
+        market_utils
+            .apply_delta_to_open_interest(
+                params.contracts.data_store,
+                params.contracts.event_emitter,
+                params.market,
+                params.position.collateral_token,
+                params.position.is_long,
+                size_delta_usd
+            );
+        market_utils
+            .apply_delta_to_open_interest_in_tokens(
+                params.contracts.data_store,
+                params.contracts.event_emitter,
+                params.market,
+                params.position.collateral_token,
+                params.position.is_long,
+                size_delta_in_tokens
+            );
     }
 }
 

@@ -4,19 +4,21 @@
 
 // Core lib imports.
 
-use result::ResultTrait;
-use traits::{TryInto, Into};
-use starknet::{ContractAddress, get_caller_address, contract_address_const, ClassHash,};
-use snforge_std::{declare, start_cheat_caller_address, stop_cheat_caller_address, ContractClassTrait};
+use freyr::config::config::{IConfigDispatcher, IConfigDispatcherTrait};
 
 // Local imports.
-use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
-use satoru::data::keys;
-use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
-use satoru::role::role;
-use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
-use satoru::config::config::{IConfigDispatcher, IConfigDispatcherTrait};
-use satoru::test_utils::tests_lib;
+use freyr::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
+use freyr::data::keys;
+use freyr::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
+use freyr::role::role;
+use freyr::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
+use freyr::test_utils::tests_lib;
+use result::ResultTrait;
+use snforge_std::{
+    declare, start_cheat_caller_address, stop_cheat_caller_address, ContractClassTrait, DeclareResultTrait
+};
+use starknet::{ContractAddress, get_caller_address, contract_address_const, ClassHash,};
+use traits::{TryInto, Into};
 
 #[test]
 fn given_normal_conditions_when_set_bool_then_works() {
@@ -43,7 +45,7 @@ fn given_normal_conditions_when_set_bool_then_works() {
     // Perform assertions.
 
     // Check that the value was set correctly.
-    // FIXME: #18 https://github.com/keep-starknet-strange/satoru/issues/18
+    // FIXME: #18 https://github.com/dew-labs/wolfy/issues/18
     // When `data_store::set_bool` is fixed, check that the value was set correctly.
 
     // *********************************************************************************************
@@ -170,6 +172,10 @@ fn setup() -> (
         _decrease_order_class,
         _swap_order_class,
         _order_utils_class,
+        role_module_class,
+        _bank_class,
+        _governable_class,
+        _market_utils_class,
         _market_factory,
         role_store,
         data_store,
@@ -196,7 +202,10 @@ fn setup() -> (
 
     // Deploy the `Config` contract.
     let config_address = deploy_config(
-        data_store.contract_address, role_store.contract_address, event_emitter.contract_address
+        data_store.contract_address,
+        role_store.contract_address,
+        event_emitter.contract_address,
+        role_module_class.class_hash
     );
 
     // Create a safe dispatcher to interact with the contract.
@@ -209,16 +218,20 @@ fn setup() -> (
 
 /// Utility function to deploy a market factory contract and return its address.
 fn deploy_config(
-    data_store_address: ContractAddress, role_store_address: ContractAddress, event_emitter_address: ContractAddress,
+    data_store_address: ContractAddress,
+    role_store_address: ContractAddress,
+    event_emitter_address: ContractAddress,
+    role_module_class_hash: ClassHash,
 ) -> ContractAddress {
-    let contract = declare("Config").unwrap();
+    let contract = declare("Config").unwrap().contract_class();
     let caller_address = tests_lib::get_c4ller_address();
     let config_address = contract_address_const::<'config'>();
     start_cheat_caller_address(config_address, caller_address);
-    let mut constructor_calldata = array![];
+    let mut constructor_calldata: Array<felt252> = array![];
     constructor_calldata.append(role_store_address.into());
     constructor_calldata.append(data_store_address.into());
     constructor_calldata.append(event_emitter_address.into());
+    constructor_calldata.append(role_module_class_hash.into());
     let (contract_addresss, _) = contract.deploy_at(@constructor_calldata, config_address).unwrap();
     contract_addresss
 }

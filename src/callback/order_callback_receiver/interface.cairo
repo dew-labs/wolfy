@@ -1,6 +1,6 @@
-// Satoru imports
-use satoru::order::order::Order;
-use satoru::event::event_utils::LogData;
+// Wolfy imports
+use freyr::event::event_utils::LogData;
+use freyr::order::order::Order;
 
 // *************************************************************************
 //                  Interface of the `OrderCallbackReceiver` contract.

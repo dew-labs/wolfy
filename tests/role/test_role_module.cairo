@@ -1,11 +1,4 @@
-use result::ResultTrait;
-use traits::TryInto;
-use starknet::{ContractAddress, contract_address_const};
-use starknet::Felt252TryIntoContractAddress;
-use snforge_std::{declare, start_cheat_caller_address, ContractClassTrait};
-use satoru::test_utils::tests_lib;
-
-use satoru::role::{
+use freyr::role::{
     role_module::{IRoleModuleDispatcher, IRoleModuleDispatcherTrait},
     role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait},
     role::{
@@ -13,6 +6,12 @@ use satoru::role::{
         FEE_KEEPER, ORDER_KEEPER, FROZEN_ORDER_KEEPER, LIQUIDATION_KEEPER, ADL_KEEPER
     }
 };
+use freyr::test_utils::tests_lib;
+use result::ResultTrait;
+use snforge_std::{declare, start_cheat_caller_address, ContractClassTrait, DeclareResultTrait};
+use starknet::Felt252TryIntoContractAddress;
+use starknet::{ContractAddress, contract_address_const};
+use traits::TryInto;
 
 #[test]
 fn given_normal_conditions_when_only_self_then_works() {
@@ -464,12 +463,12 @@ fn setup() -> ( // This caller address will be used with `start_cheat_caller_add
 
 // Utility function to deploy a role module contract and return its address.
 fn deploy_role_module(role_store_address: ContractAddress) -> ContractAddress {
-    let contract = declare("RoleModule").unwrap();
+    let contract = declare("RoleModule").unwrap().contract_class();
     let caller_address: ContractAddress = tests_lib::get_c4ller_address();
     let deployed_contract_address = contract_address_const::<'role_module'>();
     start_cheat_caller_address(deployed_contract_address, caller_address);
-    let mut constructor_calldata = array![];
-    constructor_calldata.append(role_store_address.into());
-    let (contract_address, _) = contract.deploy_at(@constructor_calldata, deployed_contract_address).unwrap();
+    let (contract_address, _) = contract.deploy_at(@array![], deployed_contract_address).unwrap();
+    let role_module = IRoleModuleDispatcher { contract_address };
+    role_module.initialize(role_store_address);
     contract_address
 }

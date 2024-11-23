@@ -1,18 +1,18 @@
 # Protocol Overview
 
-![Schema](../assets/satoru-diagram.png)
-Satoru high-level modules overview.
+![Schema](../assets/freyr-diagram.png)
+Wolfy high-level modules overview.
 
 # Protocol Infrastructure Overview
 
-![Schema](../assets/satoru-infra.png)
-Satoru infrastucture overview.
+![Schema](../assets/freyr-infra.png)
+Wolfy infrastucture overview.
 
-## Two steps actions in Satoru
+## Two steps actions in Wolfy
 
-Satoru employs a two-step approach for critical actions like Deposit, Withdrawal, and Order execution. This method ensures enhanced security and guards against front-running risks.
+Wolfy employs a two-step approach for critical actions like Deposit, Withdrawal, and Order execution. This method ensures enhanced security and guards against front-running risks.
 
-![TwoStepsActions](../assets/satoru-two-steps.png)
+![TwoStepsActions](../assets/freyr-two-steps.png)
 
 First user send its request and then it is verified and executed by a Keeper. This helps protect users from front-running issues.
 

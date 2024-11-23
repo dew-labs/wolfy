@@ -1,11 +1,11 @@
 import { getTokens, settingUp } from "@freyr/shared/utils";
-import configMarket from "./utils/configMarket";
-import createMarket from "./utils/createMarket";
+import configMarket from "../utils/configMarket";
+import createMarket from "../utils/createMarket";
 
 const tokens = getTokens();
 
 // NOTE: Should update based on tokens.<net>.json
-const TOKENS = {
+export const TOKENS = {
     wfUSD: tokens.find((token) => token.symbol === "wfUSD")!,
     DUSD: tokens.find((token) => token.symbol === "DUSD")!,
     wfETH: tokens.find((token) => token.symbol === "wfETH")!,
@@ -19,7 +19,7 @@ for (const token of Object.values(TOKENS)) {
     }
 }
 
-const MARKETS_TO_DEPLOY = [
+export const MARKETS_TO_DEPLOY = [
     // ETH/USD (wfETH/wfUSD)
     {
         marketName: "ETH/USD",

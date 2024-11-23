@@ -13,12 +13,6 @@ use starknet::ContractAddress;
 // *************************************************************************
 #[starknet::interface]
 trait IDepositVault<TContractState> {
-    /// Initialize the contract.
-    /// # Arguments
-    /// * `data_store_address` - The address of the data store contract.
-    /// * `role_store_address` - The address of the role store contract.
-    fn initialize(ref self: TContractState, data_store_address: ContractAddress, role_store_address: ContractAddress,);
-
     /// Transfer tokens from this contract to a receiver.
     /// # Arguments
     /// * `token` - The token address to transfer.
@@ -42,7 +36,7 @@ trait IDepositVault<TContractState> {
     /// this can be used to update the tokenBalances in case of token burns
     /// or similar balance changes
     /// the prevBalance is not validated to be more than the nextBalance as this
-    /// could allow someone to block this call by transferring into the contract    
+    /// could allow someone to block this call by transferring into the contract
     /// # Arguments
     /// * `token` - The token to record the burn for
     /// # Return
@@ -58,13 +52,16 @@ mod DepositVault {
 
     // Core lib imports.
     use core::zeroable::Zeroable;
-    use starknet::{get_caller_address, ContractAddress, contract_address_const};
+    use freyr::bank::bank::{IBankLibraryDispatcher};
+    use freyr::bank::strict_bank::{IStrictBankLibraryDispatcher, IStrictBankDispatcherTrait};
+    use freyr::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
+    use freyr::role::role_module::{IRoleModuleLibraryDispatcher};
 
 
     // Local imports.
-    use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
-    use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
-    use satoru::bank::strict_bank::{StrictBank, IStrictBank};
+    use freyr::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
+    use starknet::storage::Map;
+    use starknet::{get_caller_address, ContractAddress, contract_address_const, ClassHash};
 
 
     // *************************************************************************
@@ -72,10 +69,13 @@ mod DepositVault {
     // *************************************************************************
     #[storage]
     struct Storage {
-        /// Interface to interact with the `DataStore` contract.
-        data_store: IDataStoreDispatcher,
-        /// Interface to interact with the `RoleStore` contract.
-        role_store: IRoleStoreDispatcher,
+        strict_bank: IStrictBankLibraryDispatcher,
+        // StrictBank storage
+    // token_balances: Map::<ContractAddress, u256>,
+    // bank: IBankLibraryDispatcher,
+    // data_store: IDataStoreDispatcher,
+    // role_module: IRoleModuleLibraryDispatcher,
+    // role_store: IRoleStoreDispatcher,
     }
 
     // *************************************************************************
@@ -87,9 +87,19 @@ mod DepositVault {
     /// * `role_store_address` - The address of the role store contract.
     /// * `data_store_address` - The address of the data store contract.
     #[constructor]
-    fn constructor(ref self: ContractState, data_store_address: ContractAddress, role_store_address: ContractAddress,) {
-        self.data_store.write(IDataStoreDispatcher { contract_address: data_store_address });
-        self.role_store.write(IRoleStoreDispatcher { contract_address: role_store_address });
+    fn constructor(
+        ref self: ContractState,
+        data_store_address: ContractAddress,
+        role_store_address: ContractAddress,
+        strict_bank_class_hash: ClassHash,
+        bank_class_hash: ClassHash,
+        role_module_class_hash: ClassHash
+    ) {
+        self.strict_bank.write(IStrictBankLibraryDispatcher { class_hash: strict_bank_class_hash });
+        self
+            .strict_bank
+            .read()
+            .initialize(data_store_address, role_store_address, bank_class_hash, role_module_class_hash);
     }
 
 
@@ -98,14 +108,6 @@ mod DepositVault {
     // *************************************************************************
     #[abi(embed_v0)]
     impl DepositVaultImpl of super::IDepositVault<ContractState> {
-        fn initialize(
-            ref self: ContractState, data_store_address: ContractAddress, role_store_address: ContractAddress,
-        ) {
-            let mut state: StrictBank::ContractState = StrictBank::unsafe_new_contract_state();
-            IStrictBank::initialize(ref state, data_store_address, role_store_address);
-        }
-
-
         fn transfer_out(
             ref self: ContractState,
             sender: ContractAddress,
@@ -113,18 +115,15 @@ mod DepositVault {
             receiver: ContractAddress,
             amount: u256,
         ) {
-            let mut state: StrictBank::ContractState = StrictBank::unsafe_new_contract_state();
-            IStrictBank::transfer_out(ref state, sender, token, receiver, amount);
+            self.strict_bank.read().transfer_out(sender, token, receiver, amount);
         }
 
         fn record_transfer_in(ref self: ContractState, token: ContractAddress) -> u256 {
-            let mut state: StrictBank::ContractState = StrictBank::unsafe_new_contract_state();
-            IStrictBank::record_transfer_in(ref state, token)
+            self.strict_bank.read().record_transfer_in(token)
         }
 
         fn sync_token_balance(ref self: ContractState, token: ContractAddress) -> u256 {
-            let mut state: StrictBank::ContractState = StrictBank::unsafe_new_contract_state();
-            IStrictBank::sync_token_balance(ref state, token)
+            self.strict_bank.read().sync_token_balance(token)
         }
     }
 }

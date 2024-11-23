@@ -5,28 +5,28 @@
 //                                  IMPORTS
 // *************************************************************************
 // Core lib imports.
-use starknet::ContractAddress;
-use starknet::info::get_block_number;
-use result::ResultTrait;
-use satoru::utils::traits::ContractAddressDefault;
-use traits::Default;
+use freyr::callback::callback_utils::{validate_callback_gas_limit, after_deposit_cancellation};
+use freyr::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
+use freyr::deposit::deposit_vault::{IDepositVaultDispatcher, IDepositVaultDispatcherTrait};
+use freyr::deposit::{deposit::Deposit, error::DepositError};
+use freyr::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
+use freyr::event::event_utils::LogData;
+use freyr::gas::{error::GasError, gas_utils};
+use freyr::market::market_utils::{IMarketUtilsLibraryDispatcher, IMarketUtilsDispatcherTrait};
+use freyr::nonce::nonce_utils;
+use freyr::token::token_utils;
+use freyr::utils::traits::ContractAddressDefault;
 
 // Local imports.
-use satoru::utils::{
+use freyr::utils::{
     starknet_utils, store_arrays::StoreContractAddressArray, account_utils::validate_account,
     account_utils::validate_receiver, span32::Span32
 };
-use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
-use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
-use satoru::deposit::deposit_vault::{IDepositVaultDispatcher, IDepositVaultDispatcherTrait};
-use satoru::deposit::{deposit::Deposit, error::DepositError};
-use satoru::market::market_utils;
-use satoru::gas::{error::GasError, gas_utils};
-use satoru::callback::callback_utils::{validate_callback_gas_limit, after_deposit_cancellation};
-use satoru::nonce::nonce_utils;
-use satoru::token::token_utils;
+use result::ResultTrait;
+use starknet::ContractAddress;
 use starknet::contract_address::ContractAddressZeroable;
-use satoru::event::event_utils::LogData;
+use starknet::info::get_block_number;
+use traits::Default;
 
 /// Helps with deposit creation.
 #[derive(Drop, starknet::Store, Serde)]
@@ -68,14 +68,15 @@ fn create_deposit(
     event_emitter: IEventEmitterDispatcher,
     deposit_vault: IDepositVaultDispatcher,
     account: ContractAddress,
-    mut params: CreateDepositParams
+    mut params: CreateDepositParams,
+    market_utils: IMarketUtilsLibraryDispatcher,
 ) -> felt252 {
     validate_account(account);
 
     //let market = data_store.get_market(data_store,params.market);
-    let market = market_utils::get_enabled_market(data_store, params.market);
-    market_utils::validate_swap_path(data_store, params.long_token_swap_path);
-    market_utils::validate_swap_path(data_store, params.short_token_swap_path);
+    let market = market_utils.get_enabled_market(data_store, params.market);
+    market_utils.validate_swap_path(data_store, params.long_token_swap_path);
+    market_utils.validate_swap_path(data_store, params.short_token_swap_path);
 
     // if the initialLongToken and initialShortToken are the same, only the initialLongTokenAmount would
     // be non-zero, the initialShortTokenAmount would be zero

@@ -48,6 +48,6 @@ value in times of volatility or irregular price movements.
 
 It contains the following Cairo library files:
 
-- [position_pricing_utils.cairo](https://github.com/keep-starknet-strange/satoru/blob/main/src/pricing/position_pricing_utils.cairo): Library for position pricing functions.
-- [pricing_utils.cairo](https://github.com/keep-starknet-strange/satoru/blob/main/src/pricing/pricing_utils.cairo): Library for pricing functions.
-- [swap_pricing_utils.cairo](https://github.com/keep-starknet-strange/satoru/blob/main/src/pricing/swap_pricing_utils.cairo): Library for pricing functions linked to swaps.
+- [position_pricing_utils.cairo](https://github.com/dew-labs/wolfy/blob/main/src/pricing/position_pricing_utils.cairo): Library for position pricing functions.
+- [pricing_utils.cairo](https://github.com/dew-labs/wolfy/blob/main/src/pricing/pricing_utils.cairo): Library for pricing functions.
+- [swap_pricing_utils.cairo](https://github.com/dew-labs/wolfy/blob/main/src/pricing/swap_pricing_utils.cairo): Library for pricing functions linked to swaps.

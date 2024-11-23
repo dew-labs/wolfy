@@ -7,14 +7,14 @@ import {
 } from "@freyr/shared/utils";
 import {
     createCall,
-    createSatoruContract,
+    createWolfyContract,
     DataStoreABI,
     executeAndWait,
     grantRole,
     poseidonHash,
-    SatoruContract,
-    SatoruRole,
-} from "satoru-sdk";
+    WolfyContract,
+    WolfyRole,
+} from "wolfy-sdk";
 
 import type { Contracts } from "@freyr/shared/interfaces";
 import fs from "node:fs";
@@ -30,6 +30,46 @@ async function deploy() {
 
     // -------------------------------------------------------------------------
 
+    const roleModuleClassHash = await ensureDeclared(account, "RoleModule");
+
+    // -------------------------------------------------------------------------
+
+    const bankClassHash = await ensureDeclared(account, "Bank");
+
+    // -------------------------------------------------------------------------
+
+    const strictBankClassHash = await ensureDeclared(account, "StrictBank");
+
+    // -------------------------------------------------------------------------
+
+    const governableClassHash = await ensureDeclared(account, "Governable");
+
+    // -------------------------------------------------------------------------
+
+    const increaseOrderUtilsClassHash = await ensureDeclared(account, "IncreaseOrderUtils");
+
+    // -------------------------------------------------------------------------
+
+    const decreaseOrderUtilsClassHash = await ensureDeclared(account, "DecreaseOrderUtils");
+
+    // -------------------------------------------------------------------------
+
+    const swapOrderUtilsClassHash = await ensureDeclared(account, "SwapOrderUtils");
+
+    // -------------------------------------------------------------------------
+
+    const orderUtilsClassHash = await ensureDeclared(account, "OrderUtils");
+
+    // -------------------------------------------------------------------------
+
+    const baseOrderHandlerClassHash = await ensureDeclared(account, "BaseOrderHandler");
+
+    // -------------------------------------------------------------------------
+
+    const marketUtilsClassHash = await ensureDeclared(account, "MarketUtils");
+
+    // -------------------------------------------------------------------------
+
     // Mock pragma for testing
     const pragmaAddress = (await ensureDeployed(account, contracts.Pragma, "PriceFeed", {}))
         .address;
@@ -37,7 +77,9 @@ async function deploy() {
 
     // -------------------------------------------------------------------------
 
-    const reader = await ensureDeployed(account, contracts.Reader, "Reader", {});
+    const reader = await ensureDeployed(account, contracts.Reader, "Reader", {
+        market_utils_class_hash: marketUtilsClassHash,
+    });
 
     // -------------------------------------------------------------------------
 
@@ -51,56 +93,13 @@ async function deploy() {
 
     // -------------------------------------------------------------------------
 
-    const increaseOrderUtils = await ensureDeployed(
-        account,
-        contracts.IncreaseOrderUtils,
-        "IncreaseOrderUtils",
-        {},
-        true
-    );
-
-    // -------------------------------------------------------------------------
-
-    const decreaseOrderUtils = await ensureDeployed(
-        account,
-        contracts.DecreaseOrderUtils,
-        "DecreaseOrderUtils",
-        {},
-        true
-    );
-
-    // -------------------------------------------------------------------------
-
-    const swapOrderUtils = await ensureDeployed(
-        account,
-        contracts.SwapOrderUtils,
-        "SwapOrderUtils",
-        {},
-        true
-    );
-
-    // -------------------------------------------------------------------------
-
-    const orderUtils = await ensureDeployed(
-        account,
-        contracts.OrderUtils,
-        "OrderUtils",
-        {
-            increase_order_class_hash: increaseOrderUtils.address,
-            decrease_order_class_hash: decreaseOrderUtils.classHash,
-            swap_order_class_hash: swapOrderUtils.classHash,
-        },
-        true
-    );
-
-    // -------------------------------------------------------------------------
-
     const eventEmitter = await ensureDeployed(account, contracts.EventEmitter, "EventEmitter", {});
 
     // -------------------------------------------------------------------------
 
     const router = await ensureDeployed(account, contracts.Router, "Router", {
         role_store_address: roleStore.address,
+        role_module_class_hash: roleModuleClassHash,
     });
 
     // -------------------------------------------------------------------------
@@ -111,6 +110,7 @@ async function deploy() {
         "ReferralStorage",
         {
             event_emitter_address: eventEmitter.address,
+            governable_class_hash: governableClassHash,
         }
     );
 
@@ -118,12 +118,12 @@ async function deploy() {
 
     const dataStore = await ensureDeployed(account, contracts.DataStore, "DataStore", {
         role_store_address: roleStore.address,
+        role_module_class_hash: roleModuleClassHash,
     });
 
     // -------------------------------------------------------------------------
 
     const oracleStore = await ensureDeployed(account, contracts.OracleStore, "OracleStore", {
-        role_store_address: roleStore.address,
         event_emitter_address: eventEmitter.address,
     });
 
@@ -131,6 +131,8 @@ async function deploy() {
 
     const swapHandler = await ensureDeployed(account, contracts.SwapHandler, "SwapHandler", {
         role_store_address: roleStore.address,
+        role_module_class_hash: roleModuleClassHash,
+        market_utils_class_hash: marketUtilsClassHash,
     });
 
     // -------------------------------------------------------------------------
@@ -139,6 +141,8 @@ async function deploy() {
         data_store_address: dataStore.address,
         role_store_address: roleStore.address,
         event_emitter_address: eventEmitter.address,
+        role_module_class_hash: roleModuleClassHash,
+        market_utils_class_hash: marketUtilsClassHash,
     });
 
     // -------------------------------------------------------------------------
@@ -148,6 +152,8 @@ async function deploy() {
         role_store_address: roleStore.address,
         event_emitter_address: eventEmitter.address,
         market_token_class_hash: marketTokenClassHash,
+        bank_class_hash: bankClassHash,
+        role_module_class_hash: roleModuleClassHash,
     });
 
     // -------------------------------------------------------------------------
@@ -155,6 +161,9 @@ async function deploy() {
     const orderVault = await ensureDeployed(account, contracts.OrderVault, "OrderVault", {
         data_store_address: dataStore.address,
         role_store_address: roleStore.address,
+        strict_bank_class_hash: strictBankClassHash,
+        bank_class_hash: bankClassHash,
+        role_module_class_hash: roleModuleClassHash,
     });
 
     // -------------------------------------------------------------------------
@@ -162,6 +171,9 @@ async function deploy() {
     const depositVault = await ensureDeployed(account, contracts.DepositVault, "DepositVault", {
         data_store_address: dataStore.address,
         role_store_address: roleStore.address,
+        strict_bank_class_hash: strictBankClassHash,
+        bank_class_hash: bankClassHash,
+        role_module_class_hash: roleModuleClassHash,
     });
 
     // -------------------------------------------------------------------------
@@ -173,6 +185,9 @@ async function deploy() {
         {
             data_store_address: dataStore.address,
             role_store_address: roleStore.address,
+            strict_bank_class_hash: strictBankClassHash,
+            bank_class_hash: bankClassHash,
+            role_module_class_hash: roleModuleClassHash,
         }
     );
 
@@ -183,6 +198,7 @@ async function deploy() {
         role_store_address: roleStore.address,
         oracle_store_address: oracleStore.address,
         pragma_address: pragmaAddress,
+        role_module_class_hash: roleModuleClassHash,
     });
 
     // -------------------------------------------------------------------------
@@ -195,10 +211,13 @@ async function deploy() {
         oracle_address: oracle.address,
         swap_handler_address: swapHandler.address,
         referral_storage_address: referralStorage.address,
-        order_utils_class_hash: orderUtils.classHash,
-        increase_order_utils_class_hash: increaseOrderUtils.classHash,
-        decrease_order_utils_class_hash: decreaseOrderUtils.classHash,
-        swap_order_utils_class_hash: swapOrderUtils.classHash,
+        order_utils_class_hash: orderUtilsClassHash,
+        increase_order_utils_class_hash: increaseOrderUtilsClassHash,
+        decrease_order_utils_class_hash: decreaseOrderUtilsClassHash,
+        swap_order_utils_class_hash: swapOrderUtilsClassHash,
+        role_module_class_hash: roleModuleClassHash,
+        base_order_handler_class_hash: baseOrderHandlerClassHash,
+        market_utils_class_hash: marketUtilsClassHash,
     });
 
     // -------------------------------------------------------------------------
@@ -213,6 +232,8 @@ async function deploy() {
             event_emitter_address: eventEmitter.address,
             deposit_vault_address: depositVault.address,
             oracle_address: oracle.address,
+            role_module_class_hash: roleModuleClassHash,
+            market_utils_class_hash: marketUtilsClassHash,
         }
     );
 
@@ -228,6 +249,8 @@ async function deploy() {
             event_emitter_address: eventEmitter.address,
             withdrawal_vault_address: withdrawalVault.address,
             oracle_address: oracle.address,
+            role_module_class_hash: roleModuleClassHash,
+            market_utils_class_hash: marketUtilsClassHash,
         }
     );
 
@@ -245,10 +268,13 @@ async function deploy() {
             oracle_address: oracle.address,
             swap_handler_address: swapHandler.address,
             referral_storage_address: referralStorage.address,
-            order_utils_class_hash: orderUtils.classHash,
-            increase_order_utils_class_hash: increaseOrderUtils.classHash,
-            decrease_order_utils_class_hash: decreaseOrderUtils.classHash,
-            swap_order_utils_class_hash: swapOrderUtils.classHash,
+            order_utils_class_hash: orderUtilsClassHash,
+            increase_order_utils_class_hash: increaseOrderUtilsClassHash,
+            decrease_order_utils_class_hash: decreaseOrderUtilsClassHash,
+            swap_order_utils_class_hash: swapOrderUtilsClassHash,
+            role_module_class_hash: roleModuleClassHash,
+            base_order_handler_class_hash: baseOrderHandlerClassHash,
+            market_utils_class_hash: marketUtilsClassHash,
         }
     );
 
@@ -262,10 +288,12 @@ async function deploy() {
         oracle_address: oracle.address,
         swap_handler_address: swapHandler.address,
         referral_storage_address: referralStorage.address,
-        order_utils_class_hash: orderUtils.classHash,
-        increase_order_utils_class_hash: increaseOrderUtils.classHash,
-        decrease_order_utils_class_hash: decreaseOrderUtils.classHash,
-        swap_order_utils_class_hash: swapOrderUtils.classHash,
+        order_utils_class_hash: orderUtilsClassHash,
+        increase_order_utils_class_hash: increaseOrderUtilsClassHash,
+        decrease_order_utils_class_hash: decreaseOrderUtilsClassHash,
+        swap_order_utils_class_hash: swapOrderUtilsClassHash,
+        base_order_handler_class_hash: baseOrderHandlerClassHash,
+        market_utils_class_hash: marketUtilsClassHash,
     });
 
     // -------------------------------------------------------------------------
@@ -277,11 +305,11 @@ async function deploy() {
         {
             router_address: router.address,
             data_store_address: dataStore.address,
-            role_store_address: roleStore.address,
             event_emitter_address: eventEmitter.address,
             deposit_handler_address: depositHandler.address,
             withdrawal_handler_address: withdrawalHandler.address,
             order_handler_address: orderHandler.address,
+            market_utils_class_hash: marketUtilsClassHash,
         }
     );
 
@@ -291,10 +319,6 @@ async function deploy() {
         Pragma: pragmaAddress,
         Reader: reader.address,
         RoleStore: roleStore.address,
-        IncreaseOrderUtils: increaseOrderUtils.address,
-        DecreaseOrderUtils: decreaseOrderUtils.address,
-        SwapOrderUtils: swapOrderUtils.address,
-        OrderUtils: orderUtils.address,
         EventEmitter: eventEmitter.address,
         //-------------------------------------------------
         Router: router.address, // depends on roleStore
@@ -333,10 +357,6 @@ async function grantRoles(additionAdmins?: string[]) {
 
     const contracts = getContracts();
 
-    const increaseOrderUtilsAddress = contracts.IncreaseOrderUtils;
-    const decreaseOrderUtilsAddress = contracts.DecreaseOrderUtils;
-    const swapOrderUtilsAddress = contracts.SwapOrderUtils;
-    const orderUtilsAddress = contracts.OrderUtils;
     const depositHandlerAddress = contracts.DepositHandler;
     const withdrawalHandlerAddress = contracts.WithdrawalHandler;
     const liquidationHandlerAddress = contracts.LiquidationHandler;
@@ -348,10 +368,6 @@ async function grantRoles(additionAdmins?: string[]) {
     const marketFactoryAddress = contracts.MarketFactory;
 
     if (
-        !increaseOrderUtilsAddress ||
-        !decreaseOrderUtilsAddress ||
-        !swapOrderUtilsAddress ||
-        !orderUtilsAddress ||
         !depositHandlerAddress ||
         !withdrawalHandlerAddress ||
         !liquidationHandlerAddress ||
@@ -368,18 +384,18 @@ async function grantRoles(additionAdmins?: string[]) {
     // -------------------------------------------------------------------------
 
     const ADMIN_ROLEs = [
-        SatoruRole.CONTROLLER,
-        SatoruRole.ORDER_KEEPER,
-        SatoruRole.MARKET_KEEPER,
-        SatoruRole.FROZEN_ORDER_KEEPER,
-        SatoruRole.FEE_KEEPER,
-        SatoruRole.CONFIG_KEEPER,
-        SatoruRole.LIQUIDATION_KEEPER,
-        SatoruRole.ADL_KEEPER,
-        // SatoruRole.TIMELOCK_ADMIN
-        // SatoruRole.TIMELOCK_MULTISIG
+        WolfyRole.CONTROLLER,
+        WolfyRole.ORDER_KEEPER,
+        WolfyRole.MARKET_KEEPER,
+        WolfyRole.FROZEN_ORDER_KEEPER,
+        WolfyRole.FEE_KEEPER,
+        WolfyRole.CONFIG_KEEPER,
+        WolfyRole.LIQUIDATION_KEEPER,
+        WolfyRole.ADL_KEEPER,
+        // WolfyRole.TIMELOCK_ADMIN
+        // WolfyRole.TIMELOCK_MULTISIG
         // router plugin role is sus?
-        SatoruRole.ROUTER_PLUGIN,
+        WolfyRole.ROUTER_PLUGIN,
     ];
 
     // Grant roles to Account0 (deployment account)
@@ -387,7 +403,7 @@ async function grantRoles(additionAdmins?: string[]) {
         chainId,
         account,
         account.address,
-        [SatoruRole.ROLE_ADMIN, ...ADMIN_ROLEs],
+        [WolfyRole.ROLE_ADMIN, ...ADMIN_ROLEs],
         "Account0"
     );
 
@@ -405,64 +421,38 @@ async function grantRoles(additionAdmins?: string[]) {
 
     // -------------------------------------------------------------------------
 
-    // Grant roles to utils
-    await grantRole(
-        chainId,
-        account,
-        increaseOrderUtilsAddress,
-        SatoruRole.CONTROLLER,
-        "IncreaseOrderUtils"
-    );
-    await grantRole(
-        chainId,
-        account,
-        decreaseOrderUtilsAddress,
-        SatoruRole.CONTROLLER,
-        "DecreaseOrderUtils"
-    );
-    await grantRole(
-        chainId,
-        account,
-        swapOrderUtilsAddress,
-        SatoruRole.CONTROLLER,
-        "SwapOrderUtils"
-    );
-    await grantRole(chainId, account, orderUtilsAddress, SatoruRole.CONTROLLER, "OrderUtils");
-
-    // -------------------------------------------------------------------------
-
     // Grant roles to handlers
     await grantRole(
         chainId,
         account,
         depositHandlerAddress,
-        SatoruRole.CONTROLLER,
+        WolfyRole.CONTROLLER,
         "DepositHandler"
     );
     await grantRole(
         chainId,
         account,
         withdrawalHandlerAddress,
-        SatoruRole.CONTROLLER,
+        WolfyRole.CONTROLLER,
         "WithdrawalHandler"
     );
-    await grantRole(chainId, account, swapHandlerAddress, SatoruRole.CONTROLLER, "SwapHandler");
+    await grantRole(chainId, account, swapHandlerAddress, WolfyRole.CONTROLLER, "SwapHandler");
     await grantRole(
         chainId,
         account,
         liquidationHandlerAddress,
-        SatoruRole.CONTROLLER,
+        WolfyRole.CONTROLLER,
         "LiquidationHandler"
     );
-    await grantRole(chainId, account, adlHandlerAddress, SatoruRole.CONTROLLER, "AdlHandler");
+    await grantRole(chainId, account, adlHandlerAddress, WolfyRole.CONTROLLER, "AdlHandler");
     await grantRole(
         chainId,
         account,
         orderHandlerAddress,
         [
-            SatoruRole.CONTROLLER,
+            WolfyRole.CONTROLLER,
             // frozen keeper role is sus?
-            SatoruRole.FROZEN_ORDER_KEEPER,
+            WolfyRole.FROZEN_ORDER_KEEPER,
         ],
         "OrderHandler"
     );
@@ -475,10 +465,10 @@ async function grantRoles(additionAdmins?: string[]) {
         account,
         exchangeRouterAddress,
         [
-            SatoruRole.CONTROLLER,
-            SatoruRole.ROUTER_PLUGIN,
+            WolfyRole.CONTROLLER,
+            WolfyRole.ROUTER_PLUGIN,
             // Order keeper role is sus?
-            SatoruRole.ORDER_KEEPER,
+            WolfyRole.ORDER_KEEPER,
         ],
         "ExchangeRouter"
     );
@@ -490,7 +480,7 @@ async function grantRoles(additionAdmins?: string[]) {
         chainId,
         account,
         marketFactoryAddress,
-        [SatoruRole.MARKET_KEEPER, SatoruRole.CONTROLLER],
+        [WolfyRole.MARKET_KEEPER, WolfyRole.CONTROLLER],
         "MarketFactory"
     );
 
@@ -502,7 +492,7 @@ async function grantRoles(additionAdmins?: string[]) {
 async function config() {
     const { account, chainId, feeToken } = await settingUp();
 
-    const dataStoreContract = createSatoruContract(chainId, SatoruContract.DataStore, DataStoreABI);
+    const dataStoreContract = createWolfyContract(chainId, WolfyContract.DataStore, DataStoreABI);
 
     await executeAndWait(account, [
         // set fee token

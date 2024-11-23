@@ -6,12 +6,12 @@ import {
     OrderType,
     parseOrderType,
     ProviderType,
-    SatoruContract,
-    SatoruEvent,
+    WolfyContract,
+    WolfyEvent,
     toStarknetHexString,
-    type SatoruContractAbi,
-    type SatoruEventHandler,
-} from "satoru-sdk";
+    type WolfyContractAbi,
+    type WolfyEventHandler,
+} from "wolfy-sdk";
 
 import {
     createLogger,
@@ -117,7 +117,7 @@ const isExecutingLimitOrder = (orderKey: string, executingLimitOrders: Set<strin
 };
 
 const initializeCreatedTriggerOrders = async (
-    dataStoreContract: TypedContractV2<SatoruContractAbi<SatoruContract.DataStore>>
+    dataStoreContract: TypedContractV2<WolfyContractAbi<WolfyContract.DataStore>>
 ): Promise<void> => {
     // TODO: refactor to not use data store contract
     const createdTriggerOrders = await fetchCreatedTriggerOrders();
@@ -158,7 +158,7 @@ export function createOrderKeeper(emitter: Emitter) {
         );
     };
 
-    const onOrderCreatedHandler: SatoruEventHandler<SatoruEvent.OrderCreated> = async (event) => {
+    const onOrderCreatedHandler: WolfyEventHandler<WolfyEvent.OrderCreated> = async (event) => {
         const {
             key,
             order_type,
@@ -207,9 +207,7 @@ export function createOrderKeeper(emitter: Emitter) {
         }
     };
 
-    const onOrderCancelledHandler: SatoruEventHandler<SatoruEvent.OrderCancelled> = async (
-        event
-    ) => {
+    const onOrderCancelledHandler: WolfyEventHandler<WolfyEvent.OrderCancelled> = async (event) => {
         const { key } = event;
 
         const orderKey = toStarknetHexString(key);
@@ -299,8 +297,8 @@ export function createOrderKeeper(emitter: Emitter) {
 
             emitter.on(EventHandlerTypes.PriceChanged, onPriceChangedHandler);
 
-            await wssProvider.subscribeTo(SatoruEvent.OrderCreated, onOrderCreatedHandler);
-            await wssProvider.subscribeTo(SatoruEvent.OrderCancelled, onOrderCancelledHandler);
+            await wssProvider.subscribeTo(WolfyEvent.OrderCreated, onOrderCreatedHandler);
+            await wssProvider.subscribeTo(WolfyEvent.OrderCancelled, onOrderCancelledHandler);
         } catch (error) {
             logger.error(error, "Failed to start");
             throw error;

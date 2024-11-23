@@ -1,4 +1,4 @@
-// use satoru::utils::i128::I128Serde;
+// use freyr::utils::i128::I128Serde;
 
 // #[starknet::interface]
 // trait ITestI128Storage<TContractState> {
@@ -8,7 +8,7 @@
 
 // #[starknet::contract]
 // mod test_i128_storage_contract {
-//     use satoru::utils::i128::{I128Store, I128Serde};
+//     use freyr::utils::i128::{I128Store, I128Serde};
 //     use super::ITestI128Storage;
 
 //     #[storage]

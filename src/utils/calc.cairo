@@ -2,11 +2,12 @@
 //                                  IMPORTS
 // *************************************************************************
 // Core lib imports.
-use satoru::utils::error_utils;
-use integer::{BoundedInt, u256_checked_add, U256PartialOrd};
-use satoru::utils::i256::{i256, i256_new, i256_neg, i256Zeroable, i256_add};
+use core::num::traits::Bounded;
 use debug::PrintTrait;
-/// Calculates the result of dividing the first number by the second number 
+use freyr::utils::error_utils;
+use freyr::utils::i256::{i256, i256_new, i256_neg, i256Zeroable, i256_add};
+use integer::{u256_checked_add, U256PartialOrd};
+/// Calculates the result of dividing the first number by the second number
 /// rounded up to the nearest integer.
 /// # Arguments
 /// * `a` - the dividend.
@@ -157,11 +158,11 @@ fn to_unsigned(value: i256) -> u256 {
 }
 
 fn max_i256() -> i256 {
-    i256 { mag: (BoundedInt::<u256>::max() - 1), sign: false }
+    i256 { mag: (Bounded::<u256>::MAX - 1), sign: false }
 }
 
 fn min_i256() -> i256 {
-    i256 { mag: BoundedInt::<u256>::max(), sign: true }
+    i256 { mag: Bounded::<u256>::MAX, sign: true }
 }
 
 /// Raise a number to a power, computes x^n.

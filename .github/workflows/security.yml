@@ -3,7 +3,7 @@
 # on: [push, pull_request]
 
 # env:
-#   SCARB_VERSION: 2.6.0
+#   SCARB_VERSION: 2.8.5
 
 # jobs:
 #   check:

@@ -7,7 +7,7 @@ import {
     TRIGGER_ORDERS_QUERY_VARIABLES,
     type TriggerOrdersQueryResponse,
 } from "../queries/orderQueries";
-import { cairoIntToBigInt } from "satoru-sdk";
+import { cairoIntToBigInt } from "wolfy-sdk";
 
 const logger = createLogger("OrderService");
 

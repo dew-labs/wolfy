@@ -7,8 +7,8 @@ Wolfy backend is a backend service designed to expose api for various data like 
 ### Setup steps
 
 ```bash
-git clone https://github.com/dew-labs/satoru.git
-cd satoru/apps/backend
+git clone https://github.com/dew-labs/wolfy.git
+cd wolfy/apps/backend
 ```
 
 Install [mise](https://mise.jdx.dev/getting-started.html)

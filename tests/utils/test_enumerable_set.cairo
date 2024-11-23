@@ -1,4 +1,4 @@
-use satoru::utils::enumerable_set::{Set, SetTrait};
+use freyr::utils::enumerable_set::{Set, SetTrait};
 
 #[test]
 fn given_starts_empty_when_enumerable_set_functions_then_works() {

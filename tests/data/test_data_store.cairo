@@ -1,10 +1,10 @@
-use starknet::{ContractAddress, contract_address_const};
+use freyr::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
 
-use satoru::order::order::{Order, OrderType, OrderTrait};
-use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
-use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
-use satoru::test_utils::tests_lib;
-use satoru::utils::i256::{i256, i256_new};
+use freyr::order::order::{Order, OrderType, OrderTrait};
+use freyr::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
+use freyr::test_utils::tests_lib;
+use freyr::utils::i256::{i256, i256_new};
+use starknet::{ContractAddress, contract_address_const};
 
 
 #[test]
@@ -205,6 +205,10 @@ fn setup() -> (ContractAddress, IRoleStoreDispatcher, IDataStoreDispatcher) {
         _decrease_order_class,
         _swap_order_class,
         _order_utils_class,
+        _role_module_class,
+        _bank_class,
+        _governable_class,
+        _market_utils_class,
         _market_factory,
         role_store,
         data_store,

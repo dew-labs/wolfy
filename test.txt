@@ -1,7 +1,10 @@
-Tests: 497 passed, 35 failed, 0 skipped, 3 ignored, 0 filtered out
+Tests: 491 passed, 37 failed, 0 skipped, 4 ignored, 0 filtered out
 
 // (0x756e65787065637465645f626f72726f77696e675f666163746f72 ('unexpected_borrowing_factor'), 0x1, 0x0 (''))
 tests::position::test_decrease_position_collateral_utils::given_good_params_when_process_collateral_then_succeed
+
+// (0x6f726465725f756e66756c66696c6c61626c655f61745f7072696365 ('order_unfulfillable_at_price'), 0xbb8, 0x1).
+tests::integration::test_short_integration::test_short_increase_decrease_close
 
 // u256_sub Overflow
 tests::bank::test_strict_bank::given_normal_conditions_when_record_transfer_in_works
@@ -17,14 +20,10 @@ tests::integration::test_create_and_execute_swap::given_right_swap_order_params_
 
 // incorrect received amount
 tests::deposit::test_deposit_vault::given_more_balance_when_2nd_record_transfer_in_then_works
-
-// incorrect received amount
 tests::withdrawal::test_withdrawal_vault::given_more_balance_when_2nd_record_transfer_in_then_works
 
 // Expected to panic but didn't
 tests::deposit::test_deposit_vault::given_less_balance_when_2nd_record_transfer_in_then_fails
-
-// Expected to panic but didn't
 tests::withdrawal::test_withdrawal_vault::given_less_balance_when_2nd_record_transfer_in_then_fails
 
 // incorrect next balance
@@ -37,6 +36,8 @@ tests::fee::test_fee_handler::given_normal_conditions_when_fee_handler_then_work
 // empty market
 tests::deposit::test_deposit_utils::given_normal_conditions_when_deposit_then_works
 tests::deposit::test_deposit_utils::given_normal_conditions_when_cancel_deposit_then_works
+tests::deposit::test_deposit_utils::given_empty_deposit_amount_then_fails
+tests::deposit::test_deposit_utils::given_unsufficient_fee_token_amount_for_deposit_then_fails
 
 // contract not deployed: need to deploy market token
 tests::exchange::test_withdrawal_handler::given_normal_conditions_when_create_withdrawal_then_works
@@ -50,26 +51,12 @@ tests::exchange::test_withdrawal_handler::given_normal_conditions_when_cancel_wi
 tests::exchange::test_deposit_handler::given_normal_conditions_when_create_cancel_deposit_then_works
 tests::exchange::test_deposit_handler::given_normal_conditions_when_create_execute_deposit_then_works
 
-// empty market
-tests::exchange::test_liquidation_handler::given_unauthorized_access_when_create_execute_liquidation_then_fails
-tests::exchange::test_liquidation_handler::given_empty_price_feed_multiplier_when_create_execute_liquidation_then_fails
-
 // empty primary price
-tests::exchange::test_liquidation_handler::given_negative_open_interest_when_create_execute_liquidation_then_fails
-tests::exchange::test_liquidation_handler::given_normal_conditions_when_create_execute_liquidation_then_works
-
-// The test panic right, but somehow the test runner could catch it
-// (0x696e76616c69645f6f726465725f7072696365 ('invalid_order_price'), 0x4c696d69744465637265617365 ('LimitDecrease'))
-tests::integration::test_long_integration::test_takeprofit_long_decrease_fails
-tests::integration::test_long_integration::test_takeprofit_long_close_fails
-tests::integration::test_long_integration::test_takeprofit_long_increase_fails
+tests::position::test_decrease_position_utils::given_normal_conditions_when_partially_decrease_position
+tests::position::test_decrease_position_utils::given_normal_conditions_when_totally_decrease_position
 
 // (0x696e76616c696420746f6b656e20696e ('invalid token in'), 0x636f6c6c61746572616c5f746f6b656e ('collateral_token'), 0x6c6f6e675f746f6b656e ('long_token'))
 tests::position::test_decrease_position_swap_utils::given_normal_conditions_when_swap_to_pnl_token_then_works
-
-// Not implemented
-tests::position::test_decrease_position_utils::given_normal_conditions_when_partially_decrease_position
-tests::position::test_decrease_position_utils::given_normal_conditions_when_totally_decrease_position
 
 // (0x7573642064656c74612065786365656473206c6f6e6720696e746572657374 ('usd delta exceeds long interest'), 0x800000000000010ffffffffffffffffffffffffffffffffffffffffffc2f701, 0x0 (''))
 tests::reader::test_reader::given_normal_conditions_when_get_position_info_then_works
@@ -83,3 +70,20 @@ tests::reader::test_reader::given_normal_conditions_when_get_swap_price_impact_t
 
 // 0x656d7074795f6d61726b6574 ('empty_market')
 tests::referral::test_referral_utils::given_normal_conditions_when_claim_affiliate_reward_then_works
+
+// Invalid position liquidation
+tests::position::test_position_utils::given_below_min_collateral_leverage_when_checking_liquidatability_then_invalid_position
+
+// collateral should insufficient
+tests::position::test_position_utils::test_will_position_collateral_be_sufficient
+
+-----
+
+// Ignored tests
+
+// The test panic right, but somehow the test runner could catch it
+// (0x696e76616c69645f6f726465725f7072696365 ('invalid_order_price'), 0x4c696d69744465637265617365 ('LimitDecrease'))
+tests::integration::test_long_integration::test_takeprofit_long_decrease_fails
+tests::integration::test_long_integration::test_takeprofit_long_close_fails
+tests::integration::test_long_integration::test_takeprofit_long_increase_fails
+tests::exchange::test_liquidation_handler::given_empty_price_feed_multiplier_when_create_execute_liquidation_then_fails

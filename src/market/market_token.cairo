@@ -22,16 +22,18 @@ trait IMarketToken<TState> {
 
 #[starknet::contract]
 mod MarketToken {
-    use integer::BoundedInt;
-    use starknet::ContractAddress;
-    use starknet::get_caller_address;
-    use zeroable::Zeroable;
+    use core::num::traits::Bounded;
 
-    use satoru::role::role;
-    use satoru::bank::bank::{Bank, IBank};
-    use satoru::role::role_module::{RoleModule, IRoleModule};
+    use freyr::bank::bank::{IBankLibraryDispatcher, IBankDispatcherTrait};
+    use freyr::data::data_store::{IDataStoreDispatcher};
+    use freyr::role::role_module::{IRoleModuleLibraryDispatcher, IRoleModuleDispatcherTrait};
+    use freyr::role::role_store::{IRoleStoreDispatcher};
+    use starknet::get_caller_address;
+    use starknet::storage::Map;
+    use starknet::{ContractAddress, ClassHash};
 
     use super::IMarketToken;
+    use zeroable::Zeroable;
 
     const NAME: felt252 = 'Wolfy Market';
     const SYMBOL: felt252 = 'WM';
@@ -42,8 +44,12 @@ mod MarketToken {
         name: felt252,
         symbol: felt252,
         total_supply: u256,
-        balances: LegacyMap<ContractAddress, u256>,
-        allowances: LegacyMap<(ContractAddress, ContractAddress), u256>,
+        balances: Map<ContractAddress, u256>,
+        allowances: Map<(ContractAddress, ContractAddress), u256>,
+        bank: IBankLibraryDispatcher,
+        // Bank storage
+        role_module: IRoleModuleLibraryDispatcher,
+        // role_store: IRoleStoreDispatcher,
     }
 
     #[event]
@@ -68,11 +74,16 @@ mod MarketToken {
     }
 
     #[constructor]
-    fn constructor(ref self: ContractState, role_store_address: ContractAddress, data_store_address: ContractAddress) {
-        self.initializer(NAME, SYMBOL);
-
-        let mut bank: Bank::ContractState = Bank::unsafe_new_contract_state();
-        IBank::initialize(ref bank, data_store_address, role_store_address);
+    fn constructor(
+        ref self: ContractState,
+        role_store_address: ContractAddress,
+        data_store_address: ContractAddress,
+        bank_class_hash: ClassHash,
+        role_module_class_hash: ClassHash
+    ) {
+        self._initializer(NAME, SYMBOL);
+        self.bank.write(IBankLibraryDispatcher { class_hash: bank_class_hash });
+        self.bank.read().initialize(data_store_address, role_store_address, role_module_class_hash);
     }
 
     //
@@ -127,15 +138,13 @@ mod MarketToken {
 
         fn mint(ref self: ContractState, recipient: ContractAddress, amount: u256) {
             // Check that the caller has permission to set the value.
-            let mut role_module: RoleModule::ContractState = RoleModule::unsafe_new_contract_state();
-            role_module.only_controller();
+            self.role_module.read().only_controller();
             self._mint(recipient, amount);
         }
 
         fn burn(ref self: ContractState, recipient: ContractAddress, amount: u256) {
             // Check that the caller has permission to set the value.
-            let mut role_module: RoleModule::ContractState = RoleModule::unsafe_new_contract_state();
-            role_module.only_controller();
+            self.role_module.read().only_controller();
             self._burn(recipient, amount);
         }
         fn transfer_out(
@@ -145,8 +154,7 @@ mod MarketToken {
             receiver: ContractAddress,
             amount: u256,
         ) {
-            let mut bank: Bank::ContractState = Bank::unsafe_new_contract_state();
-            IBank::transfer_out(ref bank, sender, token, receiver, amount);
+            self.bank.read().transfer_out(sender, token, receiver, amount);
         }
     }
 
@@ -176,7 +184,7 @@ mod MarketToken {
 
     #[generate_trait]
     impl InternalImpl of InternalTrait {
-        fn initializer(ref self: ContractState, name_: felt252, symbol_: felt252) {
+        fn _initializer(ref self: ContractState, name_: felt252, symbol_: felt252) {
             self.name.write(name_);
             self.symbol.write(symbol_);
         }
@@ -224,7 +232,7 @@ mod MarketToken {
 
         fn _spend_allowance(ref self: ContractState, owner: ContractAddress, spender: ContractAddress, amount: u256) {
             let current_allowance = self.allowances.read((owner, spender));
-            if current_allowance != BoundedInt::max() {
+            if current_allowance != Bounded::MAX {
                 self._approve(owner, spender, current_allowance - amount);
             }
         }

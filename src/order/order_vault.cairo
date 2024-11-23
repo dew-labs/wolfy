@@ -48,17 +48,30 @@ mod OrderVault {
     // *************************************************************************
 
     // Core lib imports.
-    use starknet::{get_caller_address, ContractAddress, contract_address_const};
+    use debug::PrintTrait;
+    use freyr::bank::bank::{IBankLibraryDispatcher};
 
     // Local imports.
-    use satoru::bank::strict_bank::{StrictBank, IStrictBank};
-    use debug::PrintTrait;
+    use freyr::bank::strict_bank::{IStrictBankLibraryDispatcher, IStrictBankDispatcherTrait};
+    use freyr::data::data_store::{IDataStoreDispatcher};
+    use freyr::role::role_module::{IRoleModuleLibraryDispatcher};
+    use freyr::role::role_store::{IRoleStoreDispatcher};
+    use starknet::storage::Map;
+    use starknet::{get_caller_address, ContractAddress, contract_address_const, ClassHash};
 
     // *************************************************************************
     //                              STORAGE
     // *************************************************************************
     #[storage]
-    struct Storage {}
+    struct Storage {
+        strict_bank: IStrictBankLibraryDispatcher,
+        // StrictBank storage
+    // token_balances: Map::<ContractAddress, u256>,
+    // bank: IBankLibraryDispatcher,
+    // data_store: IDataStoreDispatcher,
+    // role_module: IRoleModuleLibraryDispatcher,
+    // role_store: IRoleStoreDispatcher,
+    }
 
     // *************************************************************************
     //                              CONSTRUCTOR
@@ -68,9 +81,19 @@ mod OrderVault {
     /// * `data_store_address` - The address of the data store contract.
     /// * `role_store_address` - The address of the role store contract.
     #[constructor]
-    fn constructor(ref self: ContractState, data_store_address: ContractAddress, role_store_address: ContractAddress,) {
-        let mut state: StrictBank::ContractState = StrictBank::unsafe_new_contract_state();
-        IStrictBank::initialize(ref state, data_store_address, role_store_address);
+    fn constructor(
+        ref self: ContractState,
+        data_store_address: ContractAddress,
+        role_store_address: ContractAddress,
+        strict_bank_class_hash: ClassHash,
+        bank_class_hash: ClassHash,
+        role_module_class_hash: ClassHash
+    ) {
+        self.strict_bank.write(IStrictBankLibraryDispatcher { class_hash: strict_bank_class_hash });
+        self
+            .strict_bank
+            .read()
+            .initialize(data_store_address, role_store_address, bank_class_hash, role_module_class_hash);
     }
 
     // *************************************************************************
@@ -85,18 +108,15 @@ mod OrderVault {
             receiver: ContractAddress,
             amount: u256,
         ) {
-            let mut state: StrictBank::ContractState = StrictBank::unsafe_new_contract_state();
-            IStrictBank::transfer_out(ref state, sender, token, receiver, amount);
+            self.strict_bank.read().transfer_out(sender, token, receiver, amount);
         }
 
         fn sync_token_balance(ref self: ContractState, token: ContractAddress) -> u256 {
-            let mut state: StrictBank::ContractState = StrictBank::unsafe_new_contract_state();
-            IStrictBank::sync_token_balance(ref state, token)
+            self.strict_bank.read().sync_token_balance(token)
         }
 
         fn record_transfer_in(ref self: ContractState, token: ContractAddress) -> u256 {
-            let mut state: StrictBank::ContractState = StrictBank::unsafe_new_contract_state();
-            IStrictBank::record_transfer_in(ref state, token)
+            self.strict_bank.read().record_transfer_in(token)
         }
     }
 }

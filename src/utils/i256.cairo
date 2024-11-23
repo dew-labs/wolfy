@@ -5,6 +5,11 @@
 // The original source code is subject to the Apache 2.0 license, the terms of which can be found here:
 // http://www.apache.org/licenses/LICENSE-2.0
 
+use core::num::traits::Bounded;
+
+use core::num::traits::WideMul;
+use core::ops::{AddAssign, SubAssign, MulAssign, DivAssign, RemAssign};
+use freyr::utils::felt_math::{felt_abs, felt_sign};
 /// Trait
 ///
 /// new - Constructs a new `signed_integer
@@ -185,9 +190,6 @@ trait IntegerTrait<T, U> {
     ///
     fn min(self: T, other: T) -> T;
 }
-
-use integer::{BoundedInt, u256_wide_mul};
-use satoru::utils::felt_math::{felt_abs, felt_sign};
 // ====================== INT 256 ======================
 
 // i256 represents a 256-bit integer.
@@ -235,10 +237,10 @@ impl i256Add of Add<i256> {
 }
 
 // Implements the AddEq trait for i256.
-impl i256AddEq of AddEq<i256> {
+impl i256AddAssign of AddAssign<i256, i256> {
     #[inline(always)]
-    fn add_eq(ref self: i256, other: i256) {
-        self = Add::add(self, other);
+    fn add_assign(ref self: i256, rhs: i256) {
+        self = Add::add(self, rhs);
     }
 }
 
@@ -249,11 +251,11 @@ impl i256Sub of Sub<i256> {
     }
 }
 
-// Implements the SubEq trait for i256.
-impl i256SubEq of SubEq<i256> {
+// Implements the SubAssign trait for i256.
+impl i256SubAssign of SubAssign<i256, i256> {
     #[inline(always)]
-    fn sub_eq(ref self: i256, other: i256) {
-        self = Sub::sub(self, other);
+    fn sub_assign(ref self: i256, rhs: i256) {
+        self = Sub::sub(self, rhs);
     }
 }
 
@@ -264,11 +266,11 @@ impl i256Mul of Mul<i256> {
     }
 }
 
-// Implements the MulEq trait for i256.
-impl i256MulEq of MulEq<i256> {
+// Implements the MulAssign trait for i256.
+impl i256MulAssign of MulAssign<i256, i256> {
     #[inline(always)]
-    fn mul_eq(ref self: i256, other: i256) {
-        self = Mul::mul(self, other);
+    fn mul_assign(ref self: i256, rhs: i256) {
+        self = Mul::mul(self, rhs);
     }
 }
 
@@ -279,11 +281,11 @@ impl i256Div of Div<i256> {
     }
 }
 
-// Implements the DivEq trait for i256.
-impl i256DivEq of DivEq<i256> {
+// Implements the DivAssign trait for i256.
+impl i256DivAssign of DivAssign<i256, i256> {
     #[inline(always)]
-    fn div_eq(ref self: i256, other: i256) {
-        self = Div::div(self, other);
+    fn div_assign(ref self: i256, rhs: i256) {
+        self = Div::div(self, rhs);
     }
 }
 
@@ -294,11 +296,11 @@ impl i256Rem of Rem<i256> {
     }
 }
 
-// Implements the RemEq trait for i256.
-impl i256RemEq of RemEq<i256> {
+// Implements the RemAssign trait for i256.
+impl i256RemAssign of RemAssign<i256, i256> {
     #[inline(always)]
-    fn rem_eq(ref self: i256, other: i256) {
-        self = Rem::rem(self, other);
+    fn rem_assign(ref self: i256, rhs: i256) {
+        self = Rem::rem(self, rhs);
     }
 }
 
@@ -388,11 +390,11 @@ impl i256Zeroable of Zeroable<i256> {
     }
     #[inline(always)]
     fn is_zero(self: i256) -> bool {
-        self == i256Zeroable::zero()
+        self == Self::zero()
     }
     #[inline(always)]
     fn is_non_zero(self: i256) -> bool {
-        self != i256Zeroable::zero()
+        self != Self::zero()
     }
 }
 
@@ -410,9 +412,9 @@ fn i256_check_sign_zero(x: i256) {
 /// Cf: IntegerTrait::new docstring
 fn i256_new(mag: u256, sign: bool) -> i256 {
     if sign == true {
-        assert(mag <= BoundedInt::<u256>::max(), 'i256 Overflow');
+        assert(mag <= Bounded::<u256>::MAX, 'i256 Overflow');
     } else {
-        assert(mag <= (BoundedInt::<u256>::max() - 1), 'i256 Overflow');
+        assert(mag <= (Bounded::<u256>::MAX - 1), 'i256 Overflow');
     }
     i256 { mag, sign }
 }
@@ -494,7 +496,7 @@ fn i256_mul(a: i256, b: i256) -> i256 {
     // The sign of the product is the XOR of the signs of the operands.
     let sign = a.sign ^ b.sign;
     // The product is the product of the absolute values of the operands.
-    let mag_512 = u256_wide_mul(a.mag, b.mag);
+    let mag_512 = WideMul::wide_mul(a.mag, b.mag);
     assert(mag_512.limb2 == 0 && mag_512.limb3 == 0, 'mul i256 overflow');
 
     let result = u256 { low: mag_512.limb0, high: mag_512.limb1 };

@@ -1,15 +1,20 @@
-use starknet::{ContractAddress, get_caller_address, Felt252TryIntoContractAddress, contract_address_const};
-use snforge_std::{declare, start_cheat_caller_address, stop_cheat_caller_address, ContractClassTrait};
-
-use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
-use satoru::fee::fee_handler::{IFeeHandlerDispatcher, IFeeHandlerDispatcherTrait};
-use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
-use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
-use satoru::role::role;
-use satoru::test_utils::tests_lib;
-use satoru::data::keys;
-
 use debug::PrintTrait;
+use freyr::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
+use freyr::data::keys;
+
+use freyr::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
+use freyr::fee::fee_handler::{IFeeHandlerDispatcher, IFeeHandlerDispatcherTrait};
+use freyr::role::role;
+use freyr::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
+use freyr::test_utils::tests_lib;
+use snforge_std::{
+    declare, start_cheat_caller_address, stop_cheat_caller_address, ContractClass, ContractClassTrait,
+    DeclareResultTrait
+};
+use starknet::{
+    ContractAddress, get_caller_address, Felt252TryIntoContractAddress, contract_address_const, ClassHash,
+    ClassHashIntoFelt252
+};
 
 #[test]
 fn given_normal_conditions_when_fee_handler_then_works() {
@@ -41,14 +46,22 @@ fn given_wrong_inputs_when_fee_handler_then_fails() {
 }
 
 fn deploy_fee_handler(
-    role_store_address: ContractAddress, data_store_address: ContractAddress, event_emitter_address: ContractAddress
+    role_store_address: ContractAddress,
+    data_store_address: ContractAddress,
+    event_emitter_address: ContractAddress,
+    role_module_class_hash: ClassHash,
+    market_utils_class_hash: ClassHash,
 ) -> ContractAddress {
-    let contract = declare("FeeHandler").unwrap();
+    let contract = declare("FeeHandler").unwrap().contract_class();
     let caller_address: ContractAddress = tests_lib::get_c4ller_address();
     let deployed_contract_address = contract_address_const::<'fee_handler'>();
     start_cheat_caller_address(deployed_contract_address, caller_address);
-    let constructor_calldata = array![
-        data_store_address.into(), role_store_address.into(), event_emitter_address.into()
+    let constructor_calldata: Array<felt252> = array![
+        data_store_address.into(),
+        role_store_address.into(),
+        event_emitter_address.into(),
+        role_module_class_hash.into(),
+        market_utils_class_hash.into(),
     ];
     let (contract_address, _) = contract.deploy_at(@constructor_calldata, deployed_contract_address).unwrap();
     contract_address
@@ -62,6 +75,10 @@ fn setup() -> (ContractAddress, IDataStoreDispatcher, IEventEmitterDispatcher, I
         _decrease_order_class,
         _swap_order_class,
         _order_utils_class,
+        role_module_class,
+        _bank_class,
+        _governable_class,
+        market_utils_class,
         _market_factory,
         role_store,
         data_store,
@@ -85,7 +102,11 @@ fn setup() -> (ContractAddress, IDataStoreDispatcher, IEventEmitterDispatcher, I
         tests_lib::setup();
 
     let fee_handler_address = deploy_fee_handler(
-        role_store.contract_address, data_store.contract_address, event_emitter.contract_address
+        role_store.contract_address,
+        data_store.contract_address,
+        event_emitter.contract_address,
+        role_module_class.class_hash,
+        market_utils_class.class_hash,
     );
     let fee_handler = IFeeHandlerDispatcher { contract_address: fee_handler_address };
     role_store.grant_role(caller_address, role::FEE_KEEPER);

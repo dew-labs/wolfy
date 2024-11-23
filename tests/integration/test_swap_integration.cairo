@@ -4,56 +4,55 @@
 
 // Core lib imports.
 
-use result::ResultTrait;
 use debug::PrintTrait;
-use traits::{TryInto, Into};
-use starknet::{ContractAddress, get_caller_address, Felt252TryIntoContractAddress, contract_address_const, ClassHash,};
-use snforge_std::{
-    declare, start_cheat_caller_address, stop_cheat_caller_address, start_cheat_block_number, ContractClassTrait,
-    ContractClass
-};
+use freyr::bank::bank::{IBankDispatcherTrait, IBankDispatcher};
+use freyr::bank::strict_bank::{IStrictBankDispatcher, IStrictBankDispatcherTrait};
 
 
 // Local imports.
-use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
-use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
-use satoru::market::market_factory::{IMarketFactoryDispatcher, IMarketFactoryDispatcherTrait};
-use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
-use satoru::deposit::deposit_vault::{IDepositVaultDispatcher, IDepositVaultDispatcherTrait};
-use satoru::deposit::deposit::Deposit;
-use satoru::withdrawal::withdrawal::Withdrawal;
+use freyr::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
+use freyr::data::keys;
+use freyr::deposit::deposit::Deposit;
+use freyr::deposit::deposit_utils::CreateDepositParams;
+use freyr::deposit::deposit_utils;
+use freyr::deposit::deposit_vault::{IDepositVaultDispatcher, IDepositVaultDispatcherTrait};
+use freyr::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
+use freyr::exchange::deposit_handler::{IDepositHandlerDispatcher, IDepositHandlerDispatcherTrait};
+use freyr::exchange::order_handler::{OrderHandler, IOrderHandlerDispatcher, IOrderHandlerDispatcherTrait};
 
-use satoru::exchange::withdrawal_handler::{IWithdrawalHandlerDispatcher, IWithdrawalHandlerDispatcherTrait};
-use satoru::exchange::deposit_handler::{IDepositHandlerDispatcher, IDepositHandlerDispatcherTrait};
-use satoru::router::exchange_router::{IExchangeRouterDispatcher, IExchangeRouterDispatcherTrait};
-use satoru::mock::referral_storage::{IReferralStorageDispatcher, IReferralStorageDispatcherTrait};
-use satoru::reader::reader::{IReaderDispatcher, IReaderDispatcherTrait};
-use satoru::market::market::{Market, UniqueIdMarket};
-use satoru::market::market_token::{IMarketTokenDispatcher, IMarketTokenDispatcherTrait};
-use satoru::role::role;
-use satoru::oracle::oracle_utils::SetPricesParams;
-use satoru::test_utils::tests_lib;
-use satoru::deposit::deposit_utils::CreateDepositParams;
-use satoru::utils::span32::{Span32, DefaultSpan32, Array32Trait};
-use satoru::deposit::deposit_utils;
-use satoru::bank::bank::{IBankDispatcherTrait, IBankDispatcher};
-use satoru::bank::strict_bank::{IStrictBankDispatcher, IStrictBankDispatcherTrait};
-use satoru::token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
-use satoru::oracle::oracle::{IOracleDispatcher, IOracleDispatcherTrait};
-use satoru::withdrawal::withdrawal_vault::{IWithdrawalVaultDispatcher, IWithdrawalVaultDispatcherTrait};
-use satoru::data::keys;
-use satoru::market::market_utils;
-use satoru::price::price::{Price, PriceTrait};
-use satoru::position::position_utils;
-use satoru::withdrawal::withdrawal_utils;
+use freyr::exchange::withdrawal_handler::{IWithdrawalHandlerDispatcher, IWithdrawalHandlerDispatcherTrait};
+use freyr::market::market::{Market, UniqueIdMarket};
+use freyr::market::market_factory::{IMarketFactoryDispatcher, IMarketFactoryDispatcherTrait};
+use freyr::market::market_token::{IMarketTokenDispatcher, IMarketTokenDispatcherTrait};
+use freyr::market::{market::{UniqueIdMarketImpl},};
+use freyr::mock::referral_storage::{IReferralStorageDispatcher, IReferralStorageDispatcherTrait};
+use freyr::oracle::oracle::{IOracleDispatcher, IOracleDispatcherTrait};
+use freyr::oracle::oracle_store::{IOracleStoreDispatcher, IOracleStoreDispatcherTrait};
+use freyr::oracle::oracle_utils::SetPricesParams;
+use freyr::order::base_order_utils::{CreateOrderParams};
 
-use satoru::order::order::{Order, OrderType, SecondaryOrderType, DecreasePositionSwapType};
-use satoru::order::order_vault::{IOrderVaultDispatcher, IOrderVaultDispatcherTrait};
-use satoru::order::base_order_utils::{CreateOrderParams};
-use satoru::oracle::oracle_store::{IOracleStoreDispatcher, IOracleStoreDispatcherTrait};
-use satoru::swap::swap_handler::{ISwapHandlerDispatcher, ISwapHandlerDispatcherTrait};
-use satoru::market::{market::{UniqueIdMarketImpl},};
-use satoru::exchange::order_handler::{OrderHandler, IOrderHandlerDispatcher, IOrderHandlerDispatcherTrait};
+use freyr::order::order::{Order, OrderType, SecondaryOrderType, DecreasePositionSwapType};
+use freyr::order::order_vault::{IOrderVaultDispatcher, IOrderVaultDispatcherTrait};
+use freyr::position::position_utils;
+use freyr::price::price::{Price, PriceTrait};
+use freyr::reader::reader::{IReaderDispatcher, IReaderDispatcherTrait};
+use freyr::role::role;
+use freyr::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
+use freyr::router::exchange_router::{IExchangeRouterDispatcher, IExchangeRouterDispatcherTrait};
+use freyr::swap::swap_handler::{ISwapHandlerDispatcher, ISwapHandlerDispatcherTrait};
+use freyr::test_utils::tests_lib;
+use freyr::token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
+use freyr::utils::span32::{Span32, DefaultSpan32, Array32Trait};
+use freyr::withdrawal::withdrawal::Withdrawal;
+use freyr::withdrawal::withdrawal_utils;
+use freyr::withdrawal::withdrawal_vault::{IWithdrawalVaultDispatcher, IWithdrawalVaultDispatcherTrait};
+use result::ResultTrait;
+use snforge_std::{
+    declare, start_cheat_caller_address, stop_cheat_caller_address, start_cheat_block_number, ContractClassTrait,
+    DeclareResultTrait, ContractClass
+};
+use starknet::{ContractAddress, get_caller_address, Felt252TryIntoContractAddress, contract_address_const, ClassHash,};
+use traits::{TryInto, Into};
 const INITIAL_TOKENS_MINTED: felt252 = 1000;
 
 #[test]
@@ -67,6 +66,8 @@ fn test_swap_market_integration() {
         role_store_address,
         data_store_address,
         market_token_class,
+        _governable_class,
+        _market_utils_class,
         market_factory,
         role_store,
         data_store,

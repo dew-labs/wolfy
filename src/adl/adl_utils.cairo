@@ -13,23 +13,24 @@
 //                                  IMPORTS
 // *************************************************************************
 // Core lib imports.
-use starknet::{get_caller_address, ContractAddress, contract_address_const};
-use integer::BoundedInt;
+use core::num::traits::Bounded;
+use freyr::adl::error::AdlError;
+use freyr::callback::callback_utils::get_saved_callback_contract;
 // Local imports.
-use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
-use satoru::event::{event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait},};
-use satoru::oracle::oracle::{IOracleDispatcher, IOracleDispatcherTrait};
-use satoru::market::market_utils::{MarketPrices, get_enabled_market, get_market_prices, is_pnl_factor_exceeded_check};
-use satoru::adl::error::AdlError;
-use satoru::data::keys;
-use satoru::utils::arrays::are_gte_u64;
-use satoru::position::position_utils;
-use satoru::position::position::Position;
-use satoru::order::order::{Order, OrderType, DecreasePositionSwapType};
-use satoru::nonce::nonce_utils;
-use satoru::callback::callback_utils::get_saved_callback_contract;
-use satoru::utils::span32::{Span32, Array32Trait};
-use satoru::utils::i256::i256;
+use freyr::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
+use freyr::data::keys;
+use freyr::event::{event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait},};
+use freyr::market::market_utils::{MarketPrices, IMarketUtilsLibraryDispatcher, IMarketUtilsDispatcherTrait};
+use freyr::nonce::nonce_utils;
+use freyr::oracle::oracle::{IOracleDispatcher, IOracleDispatcherTrait};
+use freyr::order::order::{Order, OrderType, DecreasePositionSwapType};
+use freyr::position::position::Position;
+use freyr::position::position_utils;
+use freyr::utils::arrays::are_gte_u64;
+use freyr::utils::i256::i256;
+use freyr::utils::span32::{Span32, Array32Trait};
+use starknet::{get_caller_address, ContractAddress, contract_address_const};
+
 /// CreateAdlOrderParams struct used in createAdlOrder to avoid stack
 #[derive(Drop, Copy, starknet::Store, Serde)]
 struct CreateAdlOrderParams {
@@ -85,22 +86,22 @@ fn update_adl_state(
     oracle: IOracleDispatcher,
     market: ContractAddress,
     is_long: bool,
-    max_oracle_block_numbers: Span<u64>
+    max_oracle_block_numbers: Span<u64>,
+    market_utils: IMarketUtilsLibraryDispatcher
 ) {
     let latest_adl_block = get_latest_adl_block(data_store, market, is_long);
     assert(
         are_gte_u64(max_oracle_block_numbers, latest_adl_block),
         AdlError::ORACLE_BLOCK_NUMBERS_ARE_SMALLER_THAN_REQUIRED
     );
-    let _market = get_enabled_market(data_store, market);
-    let prices: MarketPrices = get_market_prices(oracle, _market);
+    let enabled_market = market_utils.get_enabled_market(data_store, market);
+    let prices: MarketPrices = market_utils.get_market_prices(oracle, enabled_market);
     // if the MAX_PNL_FACTOR_FOR_ADL is set to be higher than MAX_PNL_FACTOR_FOR_WITHDRAWALS
     // it is possible for a pool to be in a state where withdrawals and ADL is not allowed
     // this is similar to the case where there is a large amount of open positions relative
     // to the amount of tokens in the pool
-    let (should_enable_adl, pnl_to_pool_factor, max_pnl_factor) = is_pnl_factor_exceeded_check(
-        data_store, _market, prices, is_long, keys::max_pnl_factor_for_adl()
-    );
+    let (should_enable_adl, pnl_to_pool_factor, max_pnl_factor) = market_utils
+        .is_pnl_factor_exceeded_check(data_store, enabled_market, prices, is_long, keys::max_pnl_factor_for_adl());
     set_adl_enabled(data_store, market, is_long, should_enable_adl);
     // the latest ADL block is always updated, an ADL keeper could continually
     // cause the latest ADL block to be updated and prevent ADL orders
@@ -147,7 +148,7 @@ fn create_adl_order(params: CreateAdlOrderParams) -> felt252 {
     let acceptable_price_: u256 = if position.is_long {
         0_u256
     } else {
-        BoundedInt::max()
+        Bounded::MAX
     };
     let key = nonce_utils::get_next_key(params.data_store);
     let order = Order {

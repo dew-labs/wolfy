@@ -1,14 +1,14 @@
 import { Market } from "apps/indexer/.checkpoint/models";
 import { createLogger } from "@freyr/shared/utils";
-import { toStarknetHexString } from "satoru-sdk";
+import { toStarknetHexString } from "wolfy-sdk";
 
-import { type SatoruEventWriter } from "../type";
+import { type WolfyEventWriter } from "../type";
 
-import type { SatoruEvent } from "satoru-sdk";
+import type { WolfyEvent } from "wolfy-sdk";
 
 const logger = createLogger("MarketCreatedWriter");
 
-export const handleMarketCreated: SatoruEventWriter<SatoruEvent.MarketCreated> = async ({
+export const handleMarketCreated: WolfyEventWriter<WolfyEvent.MarketCreated> = async ({
     block,
     tx,
     rawEvent,

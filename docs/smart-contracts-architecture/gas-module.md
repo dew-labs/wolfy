@@ -3,7 +3,7 @@
 The Gas Module is developed to manage execution fee estimations and payments within the system.
 
 This module comprises the following Cairo library files:
-- [GasUtils.cairo](https://github.com/keep-starknet-strange/satoru/blob/main/src/gas/gas_utils.cairo): Entrusted with the responsibility for execution fee estimation and payments.
+- [GasUtils.cairo](https://github.com/dew-labs/wolfy/blob/main/src/gas/gas_utils.cairo): Entrusted with the responsibility for execution fee estimation and payments.
 
 ## Structures and Types
 

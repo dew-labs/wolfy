@@ -1,13 +1,12 @@
+use freyr::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
+use freyr::deposit::deposit::Deposit;
+use freyr::role::role;
+use freyr::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
+use freyr::test_utils::tests_lib;
+use freyr::utils::span32::{Span32, Array32Trait};
+
+use snforge_std::{declare, start_cheat_caller_address, ContractClassTrait, DeclareResultTrait};
 use starknet::{ContractAddress, contract_address_const};
-
-use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
-use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
-use satoru::role::role;
-use satoru::deposit::deposit::Deposit;
-use satoru::test_utils::tests_lib;
-use satoru::utils::span32::{Span32, Array32Trait};
-
-use snforge_std::{declare, start_cheat_caller_address, ContractClassTrait};
 
 /// Utility function to setup the test environment.
 ///
@@ -24,6 +23,10 @@ fn setup() -> (ContractAddress, IRoleStoreDispatcher, IDataStoreDispatcher) {
         _decrease_order_class,
         _swap_order_class,
         _order_utils_class,
+        _role_module_class,
+        _bank_class,
+        _governable_class,
+        _market_utils_class,
         _market_factory,
         role_store,
         data_store,

@@ -1,5 +1,5 @@
 import { gql } from "graphql-request";
-import { OrderType } from "satoru-sdk";
+import { OrderType } from "wolfy-sdk";
 
 export type TriggerOrdersQueryResponse = {
     orders: {

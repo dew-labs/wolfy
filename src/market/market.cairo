@@ -29,15 +29,15 @@
 // *************************************************************************
 
 // Core lib imports.
-use starknet::{ContractAddress, contract_address_const};
+
+// Local imports.
+use freyr::market::error::MarketError;
+use freyr::market::market_token::{IMarketTokenDispatcher, IMarketTokenDispatcherTrait};
 use poseidon::poseidon_hash_span;
+use starknet::{ContractAddress, contract_address_const};
 
 
 use zeroable::Zeroable;
-
-// Local imports.
-use satoru::market::error::MarketError;
-use satoru::market::market_token::{IMarketTokenDispatcher, IMarketTokenDispatcherTrait};
 
 /// Deriving the `storage_access::Store` trait
 /// allows us to store the `Market` struct in a contract's storage.

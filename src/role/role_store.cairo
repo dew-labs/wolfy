@@ -32,14 +32,6 @@ trait IRoleStore<TContractState> {
     /// * `role_key` - The role to revoke.
     fn revoke_role(ref self: TContractState, account: ContractAddress, role_key: felt252);
 
-    /// Asserts that the given account has only the given role.
-    /// # Arguments
-    /// * `account` - The account to check.
-    /// * `role_key` - The role to check.
-    /// # Reverts
-    /// * If the account doesn't have the role.
-    fn assert_only_role(self: @TContractState, account: ContractAddress, role_key: felt252);
-
     /// Returns the number of roles stored in the contract.
     /// # Return
     /// The number of roles.
@@ -75,10 +67,11 @@ mod RoleStore {
 
     // Core lib imports.
     use core::zeroable::Zeroable;
-    use starknet::{ContractAddress, get_caller_address, contract_address_const};
 
     // Local imports.
-    use satoru::role::{role, error::RoleError};
+    use freyr::role::{role, error::RoleError};
+    use starknet::storage::Map;
+    use starknet::{ContractAddress, get_caller_address, contract_address_const};
 
 
     // *************************************************************************
@@ -87,17 +80,17 @@ mod RoleStore {
     #[storage]
     struct Storage {
         /// Maps accounts to their roles.
-        has_role: LegacyMap::<(felt252, ContractAddress), bool>,
+        has_role: Map::<(felt252, ContractAddress), bool>,
         /// Stores the number of the indexes used to a specific role.
-        role_members_count: LegacyMap::<felt252, u32>,
+        role_members_count: Map::<felt252, u32>,
         /// Stores all the account that have a specific role.
-        role_members: LegacyMap::<(felt252, u32), ContractAddress>,
+        role_members: Map::<(felt252, u32), ContractAddress>,
         /// Stores unique role names.
-        role_names: LegacyMap::<felt252, bool>,
+        role_names: Map::<felt252, bool>,
         /// Store the number of indexes of the roles.
         roles_count: u32,
         /// List of all role keys.
-        roles: LegacyMap::<u32, felt252>,
+        roles: Map::<u32, felt252>,
     }
 
     // *************************************************************************
@@ -140,7 +133,7 @@ mod RoleStore {
     fn constructor(ref self: ContractState, admin: ContractAddress) {
         // Grant the caller admin role.
         self._grant_role(admin, role::ROLE_ADMIN);
-    // Initialize the role_count to 1 due to the line just above.
+        // Initialize the role_count to 1 due to the line just above.
     }
 
     // *************************************************************************
@@ -168,10 +161,6 @@ mod RoleStore {
             }
             // Revoke the role.
             self._revoke_role(account, role_key);
-        }
-
-        fn assert_only_role(self: @ContractState, account: ContractAddress, role_key: felt252) {
-            self._assert_only_role(account, role_key);
         }
 
         fn get_role_count(self: @ContractState) -> u32 {

@@ -2,10 +2,10 @@ import {
     cairoIntToBigInt,
     getProvider,
     ProviderType,
-    SatoruEvent,
+    WolfyEvent,
     toStarknetHexString,
-    type SatoruEventHandler,
-} from "satoru-sdk";
+    type WolfyEventHandler,
+} from "wolfy-sdk";
 import type { TypedContractV2 } from "starknet";
 
 import {
@@ -36,12 +36,12 @@ const removeOpenPositionKey = (key: string): void => {
     setOpenPositionKeys(openPositionKeys);
 };
 
-const onPositionIncreasedHandler: SatoruEventHandler<SatoruEvent.PositionIncrease> = (event) => {
+const onPositionIncreasedHandler: WolfyEventHandler<WolfyEvent.PositionIncrease> = (event) => {
     const positionKey = toStarknetHexString(event.position_key);
     addOpenPositionKey(positionKey);
 };
 
-const onPositionDecreasedHandler: SatoruEventHandler<SatoruEvent.PositionDecrease> = (event) => {
+const onPositionDecreasedHandler: WolfyEventHandler<WolfyEvent.PositionDecrease> = (event) => {
     if (cairoIntToBigInt(event.size_in_usd) > 0n) {
         return;
     }
@@ -56,8 +56,8 @@ export function createPositionKeeper() {
             const wssProvider = getProvider(ProviderType.WSS, chainId);
             wssProvider.onClose(run);
 
-            await wssProvider.subscribeTo(SatoruEvent.PositionIncrease, onPositionIncreasedHandler);
-            await wssProvider.subscribeTo(SatoruEvent.PositionDecrease, onPositionDecreasedHandler);
+            await wssProvider.subscribeTo(WolfyEvent.PositionIncrease, onPositionIncreasedHandler);
+            await wssProvider.subscribeTo(WolfyEvent.PositionDecrease, onPositionDecreasedHandler);
         } catch (error) {
             logger.error(error, "Failed to start");
             throw error;

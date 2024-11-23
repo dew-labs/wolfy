@@ -4,10 +4,10 @@
 //                                  IMPORTS
 // *************************************************************************
 // Core lib imports.
-use starknet::ContractAddress;
 
 // Local imports.
-use satoru::swap::swap_utils::{SwapParams};
+use freyr::swap::swap_utils::{SwapParams};
+use starknet::ContractAddress;
 
 // *************************************************************************
 //                  Interface of the `SwapHandler` contract.
@@ -28,16 +28,20 @@ mod SwapHandler {
     //                               IMPORTS
     // *************************************************************************
     // Core lib imports
-    use starknet::ContractAddress;
+
+    use freyr::market::market_utils::{IMarketUtilsLibraryDispatcher, IMarketUtilsDispatcherTrait};
+    use freyr::role::role;
+    use freyr::role::role_module::{IRoleModuleLibraryDispatcher, IRoleModuleDispatcherTrait};
+    use freyr::role::role_module::{RoleModule, IRoleModule};
+    use freyr::role::role_store::{IRoleStoreDispatcher};
 
     // Local imports.
-    use satoru::swap::swap_utils::SwapParams;
-    use satoru::swap::swap_utils;
-    use satoru::role::role_module::{RoleModule, IRoleModule};
-    use satoru::utils::i256::i256;
-    use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
-
+    use freyr::swap::swap_utils::SwapParams;
+    use freyr::swap::swap_utils;
+    use freyr::utils::i256::i256;
     use openzeppelin::security::ReentrancyGuardComponent;
+    use starknet::{ContractAddress, ClassHash};
+
 
     component!(path: ReentrancyGuardComponent, storage: reentrancy_guard, event: ReentrancyGuardEvent);
 
@@ -51,8 +55,8 @@ mod SwapHandler {
     struct Storage {
         #[substorage(v0)]
         reentrancy_guard: ReentrancyGuardComponent::Storage,
-        /// Interface to interact with the `DataStore` contract.
-        data_store: IDataStoreDispatcher
+        role_module: IRoleModuleLibraryDispatcher,
+        market_utils: IMarketUtilsLibraryDispatcher,
     }
 
     // *************************************************************************
@@ -72,9 +76,15 @@ mod SwapHandler {
 
     /// Constructor of the contract.
     #[constructor]
-    fn constructor(ref self: ContractState, role_store_address: ContractAddress,) {
-        let mut role_module: RoleModule::ContractState = RoleModule::unsafe_new_contract_state();
-        IRoleModule::initialize(ref role_module, role_store_address);
+    fn constructor(
+        ref self: ContractState,
+        role_store_address: ContractAddress,
+        role_module_class_hash: ClassHash,
+        market_utils_class_hash: ClassHash,
+    ) {
+        self.role_module.write(IRoleModuleLibraryDispatcher { class_hash: role_module_class_hash });
+        self.role_module.read().initialize(role_store_address);
+        self.market_utils.write(IMarketUtilsLibraryDispatcher { class_hash: market_utils_class_hash });
     }
 
 
@@ -84,12 +94,11 @@ mod SwapHandler {
     #[abi(embed_v0)]
     impl SwapHandler of super::ISwapHandler<ContractState> {
         fn swap(ref self: ContractState, params: SwapParams) -> (ContractAddress, u256) {
-            let mut role_module: RoleModule::ContractState = RoleModule::unsafe_new_contract_state();
-            role_module.only_controller();
+            self.role_module.read().only_controller();
 
             self.reentrancy_guard.start();
 
-            let (token_out, swap_output_amount) = swap_utils::swap(@params);
+            let (token_out, swap_output_amount) = swap_utils::swap(@params, self.market_utils.read());
 
             self.reentrancy_guard.end();
 

@@ -4,28 +4,28 @@
 
 // Core lib imports.
 
+// Local imports.
+use debug::PrintTrait;
+use freyr::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
+use freyr::data::keys;
+use freyr::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
+use freyr::market::market::{Market, UniqueIdMarket, IntoMarketToken};
+use freyr::market::market_factory::{IMarketFactoryDispatcher, IMarketFactoryDispatcherTrait};
+use freyr::market::market_token::{IMarketTokenDispatcher, IMarketTokenDispatcherTrait};
+use freyr::market::market_utils::{IMarketUtilsLibraryDispatcher, IMarketUtilsDispatcherTrait};
+
+use freyr::price::price::{Price, PriceTrait};
+use freyr::role::role;
+use freyr::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
+use freyr::test_utils::tests_lib;
+use freyr::utils::i256::{i256, i256_new};
 use result::ResultTrait;
-use traits::{TryInto, Into};
-use starknet::{ContractAddress, get_caller_address, Felt252TryIntoContractAddress, contract_address_const, ClassHash,};
 use snforge_std::{
     declare, start_cheat_caller_address, stop_cheat_caller_address, start_cheat_block_timestamp_global,
-    stop_cheat_block_timestamp_global, ContractClassTrait, ContractClass
+    stop_cheat_block_timestamp_global, ContractClassTrait, DeclareResultTrait, ContractClass
 };
-
-
-// Local imports.
-use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
-use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
-use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
-use satoru::market::market_factory::{IMarketFactoryDispatcher, IMarketFactoryDispatcherTrait};
-use satoru::market::market::{Market, UniqueIdMarket, IntoMarketToken};
-use satoru::market::market_token::{IMarketTokenDispatcher, IMarketTokenDispatcherTrait};
-use satoru::market::market_utils;
-use satoru::data::keys;
-use satoru::role::role;
-use satoru::price::price::{Price, PriceTrait};
-use satoru::utils::i256::{i256, i256_new};
-use satoru::test_utils::tests_lib;
+use starknet::{ContractAddress, get_caller_address, Felt252TryIntoContractAddress, contract_address_const, ClassHash,};
+use traits::{TryInto, Into};
 
 #[test]
 fn given_normal_conditions_when_get_open_interest_then_works() {
@@ -42,6 +42,7 @@ fn given_normal_conditions_when_get_open_interest_then_works() {
         _role_store,
         data_store,
         _event_emitter,
+        market_utils,
     ) =
         setup();
 
@@ -71,9 +72,8 @@ fn given_normal_conditions_when_get_open_interest_then_works() {
     );
     data_store.set_u256(open_interest_data_store_key, 300);
 
-    let open_interest = market_utils::get_open_interest_div(
-        data_store, market_token_deployed_address, collateral_token, is_long, divisor
-    );
+    let open_interest = market_utils
+        .get_open_interest_div(data_store, market_token_deployed_address, collateral_token, is_long, divisor);
     // Open interest is 300, so 300 / 3 = 100.
     assert(open_interest == 100, 'wrong open interest');
 
@@ -105,6 +105,7 @@ fn given_normal_conditions_when_get_open_interest_in_tokens_then_works() {
         _role_store,
         data_store,
         _event_emitter,
+        market_utils,
     ) =
         setup();
 
@@ -120,9 +121,8 @@ fn given_normal_conditions_when_get_open_interest_in_tokens_then_works() {
     let open_interest_in_tokens_key = keys::open_interest_in_tokens_key(market_address, collateral_token, is_long);
     data_store.set_u256(open_interest_in_tokens_key, 300);
 
-    let open_interest_in_tokens = market_utils::get_open_interest_in_tokens(
-        data_store, market_address, collateral_token, is_long, divisor
-    );
+    let open_interest_in_tokens = market_utils
+        .get_open_interest_in_tokens(data_store, market_address, collateral_token, is_long, divisor);
     // Open interest is 300, so 300 / 3 = 100.
     assert(open_interest_in_tokens == 100, 'wrong open interest');
 
@@ -147,6 +147,7 @@ fn given_normal_conditions_when_get_open_interest_in_tokens_for_market_then_work
         _role_store,
         data_store,
         _event_emitter,
+        market_utils,
     ) =
         setup();
 
@@ -179,9 +180,8 @@ fn given_normal_conditions_when_get_open_interest_in_tokens_for_market_then_work
     data_store.set_u256(open_interest_in_tokens_key_for_short, 200);
 
     // Actual test case.
-    let open_interest_in_tokens_for_market = market_utils::get_open_interest_in_tokens_for_market(
-        data_store, @market, is_long
-    );
+    let open_interest_in_tokens_for_market = market_utils
+        .get_open_interest_in_tokens_for_market(data_store, market, is_long);
 
     // Perform assertions.
 
@@ -210,6 +210,7 @@ fn given_normal_conditions_when_get_pool_amount_then_works() {
         _role_store,
         data_store,
         _event_emitter,
+        market_utils,
     ) =
         setup();
 
@@ -231,7 +232,7 @@ fn given_normal_conditions_when_get_pool_amount_then_works() {
     let pool_amount_key = keys::pool_amount_key(market_token_address, token_address);
     data_store.set_u256(pool_amount_key, 1000);
 
-    let pool_amount = market_utils::get_pool_amount(data_store, @market, token_address);
+    let pool_amount = market_utils.get_pool_amount(data_store, market, token_address);
     // long_token != short_token, so the pool amount is 1000 because the divisor is 1.
     assert(pool_amount == 1000, 'wrong pool amount');
 
@@ -248,7 +249,7 @@ fn given_normal_conditions_when_get_pool_amount_then_works() {
     };
     let pool_amount_key_2 = keys::pool_amount_key(market_token_address_2, token_address_2);
     data_store.set_u256(pool_amount_key_2, 1000);
-    let pool_amount_2 = market_utils::get_pool_amount(data_store, @market_2, token_address_2);
+    let pool_amount_2 = market_utils.get_pool_amount(data_store, market_2, token_address_2);
     // long_token == short_token, so the pool amount is 500 because the divisor is 2.
     assert(pool_amount_2 == 500, 'wrong pool amount');
 
@@ -273,6 +274,7 @@ fn given_normal_conditions_when_get_max_pool_amount_then_works() {
         _role_store,
         data_store,
         _event_emitter,
+        market_utils,
     ) =
         setup();
 
@@ -291,7 +293,7 @@ fn given_normal_conditions_when_get_max_pool_amount_then_works() {
     // Actual test case.
 
     // Get the max pool amount.
-    let max_pool_amount = market_utils::get_max_pool_amount(data_store, market_token_address, token_address);
+    let max_pool_amount = market_utils.get_max_pool_amount(data_store, market_token_address, token_address);
 
     // Perform assertions.
 
@@ -318,6 +320,7 @@ fn given_normal_conditions_when_get_max_open_interest_then_works() {
         _role_store,
         data_store,
         _event_emitter,
+        market_utils,
     ) =
         setup();
 
@@ -338,7 +341,7 @@ fn given_normal_conditions_when_get_max_open_interest_then_works() {
 
     // Get the max open interest.
 
-    let max_open_interest = market_utils::get_max_open_interest(data_store, market_token_address, is_long);
+    let max_open_interest = market_utils.get_max_open_interest(data_store, market_token_address, is_long);
 
     // Perform assertions.
 
@@ -365,6 +368,7 @@ fn given_normal_conditions_when_increment_claimable_collateral_amount_then_works
         _role_store,
         data_store,
         event_emitter,
+        market_utils,
     ) =
         setup();
 
@@ -378,31 +382,34 @@ fn given_normal_conditions_when_increment_claimable_collateral_amount_then_works
     let token = contract_address_const::<'token'>();
     let account = contract_address_const::<'account'>();
     let delta = 50;
-    // The key for the claimable collateral amount for the account.
-    // This is the key that will be used to assert the result.
-    let claimable_collatoral_amount_for_account_key = 0x11df62b70ad974a354ae7d38b9e985489300785772473d224995d4dd6ac2d81;
-    // The key for the claimable collateral amount for the market.
-    // This is the key that will be used to assert the result.
-    let claimable_collateral_amount_key = 0x7af284cf9ac7ef4a7bb96ad1004a1fb2b9d3c545ea9600edca47d4b033f9b85;
+    let divisor = 1;
+
+    // let claimable_collatoral_amount_for_account_key =
+    // keys::claimable_collateral_amount_for_account_key(market_address, token, current_timestamp / divisor, account);
+    let claimable_collatoral_amount_for_account_key = 0x49399229dbfc89764dce3cd3a2fa4ef58482e9f3dd2ec718332691c89976188;
+    let claimable_collateral_amount_key = keys::claimable_collateral_amount_key(market_address, token);
 
     // Setup pre conditions.
 
     // Fill required data store keys.
-    data_store.set_u256(keys::claimable_collateral_time_divisor(), 1);
+    data_store.set_u256(keys::claimable_collateral_time_divisor(), divisor);
 
     // Actual test case.
-    start_cheat_block_timestamp_global(current_timestamp);
-    market_utils::increment_claimable_collateral_amount(
-        data_store, event_emitter, market_address, token, account, delta
-    );
+    start_cheat_block_timestamp_global(current_timestamp.try_into().unwrap());
+    market_utils
+        .increment_claimable_collateral_amount(data_store, event_emitter, market_address, token, account, delta);
     stop_cheat_block_timestamp_global();
 
     // Perform assertions.
 
     // The value of the claimable collateral amount for the account should now be 50.
     // Read the value from the data store using the hardcoded key and assert it.
-    assert(data_store.get_u256(claimable_collatoral_amount_for_account_key) == 50, 'wrong value');
-    assert(data_store.get_u256(claimable_collateral_amount_key) == 50, 'wrong value');
+
+    let claimable_collatoral_amount_for_account = data_store.get_u256(claimable_collatoral_amount_for_account_key);
+    let claimable_collateral_amount = data_store.get_u256(claimable_collateral_amount_key);
+
+    assert(claimable_collatoral_amount_for_account == delta, 'wrong value 1');
+    assert(claimable_collateral_amount == delta, 'wrong value 2');
 
     // *********************************************************************************************
     // *                              TEARDOWN                                                     *
@@ -425,6 +432,7 @@ fn given_normal_conditions_when_increment_claimable_funding_amount_then_works() 
         _role_store,
         data_store,
         event_emitter,
+        market_utils,
     ) =
         setup();
 
@@ -445,7 +453,7 @@ fn given_normal_conditions_when_increment_claimable_funding_amount_then_works() 
     let claimable_funding_amount_key = 0x3ae3e6b61acb60cab724b0b9a1fc05e4f520a578ddbcd0ca40d05885207249;
 
     // Actual test case.
-    market_utils::increment_claimable_funding_amount(data_store, event_emitter, market_address, token, account, delta);
+    market_utils.increment_claimable_funding_amount(data_store, event_emitter, market_address, token, account, delta);
 
     // Perform assertions.
 
@@ -464,16 +472,36 @@ fn given_normal_conditions_when_increment_claimable_funding_amount_then_works() 
 
 #[test]
 fn given_normal_conditions_when_get_pool_divisor_then_works() {
+    // *********************************************************************************************
+    // *                              SETUP                                                        *
+    // *********************************************************************************************
+    let (
+        _caller_address,
+        _market_factory_address,
+        _role_store_address,
+        _data_store_address,
+        _market_token_class,
+        _market_factory,
+        _role_store,
+        _data_store,
+        _event_emitter,
+        market_utils,
+    ) =
+        setup();
     // long token == short token, should return 2.
     assert(
-        market_utils::get_pool_divisor(contract_address_const::<1>(), contract_address_const::<1>()) == 2,
+        market_utils.get_pool_divisor(contract_address_const::<1>(), contract_address_const::<1>()) == 2,
         'wrong pool divisor'
     );
     // long token != short token, should return 1.
     assert(
-        market_utils::get_pool_divisor(contract_address_const::<1>(), contract_address_const::<2>()) == 1,
+        market_utils.get_pool_divisor(contract_address_const::<1>(), contract_address_const::<2>()) == 1,
         'wrong pool divisor'
     );
+    // *********************************************************************************************
+    // *                              TEARDOWN                                                     *
+    // *********************************************************************************************
+    tests_lib::teardown();
 }
 
 #[test]
@@ -491,6 +519,7 @@ fn given_normal_conditions_when_get_pnl_then_works() {
         _role_store,
         data_store,
         _event_emitter,
+        market_utils,
     ) =
         setup();
 
@@ -532,7 +561,7 @@ fn given_normal_conditions_when_get_pnl_then_works() {
     data_store.set_u256(open_interest_in_tokens_key_for_short, 250);
 
     // Actual test case.
-    let pnl = market_utils::get_pnl(data_store, @market, @price, is_long, maximize);
+    let pnl = market_utils.get_pnl(data_store, market, price, is_long, maximize);
 
     // Perform assertions.
     assert(pnl == i256_new(22250, false), 'wrong pnl');
@@ -558,6 +587,7 @@ fn given_zero_open_interest_when_get_pnl_then_returns_zero_pnl() {
         _role_store,
         data_store,
         _event_emitter,
+        market_utils,
     ) =
         setup();
 
@@ -599,7 +629,7 @@ fn given_zero_open_interest_when_get_pnl_then_returns_zero_pnl() {
     data_store.set_u256(open_interest_in_tokens_key_for_short, 250);
 
     // Actual test case.
-    let pnl = market_utils::get_pnl(data_store, @market, @price, is_long, maximize);
+    let pnl = market_utils.get_pnl(data_store, market, price, is_long, maximize);
 
     // Perform assertions.
     assert(pnl == i256_new(0, false), 'wrong pnl');
@@ -625,6 +655,7 @@ fn given_zero_open_interest_in_tokens_when_get_pnl_then_returns_zero_pnl() {
         _role_store,
         data_store,
         _event_emitter,
+        market_utils,
     ) =
         setup();
 
@@ -666,7 +697,7 @@ fn given_zero_open_interest_in_tokens_when_get_pnl_then_returns_zero_pnl() {
     data_store.set_u256(open_interest_in_tokens_key_for_short, 0);
 
     // Actual test case.
-    let pnl = market_utils::get_pnl(data_store, @market, @price, is_long, maximize);
+    let pnl = market_utils.get_pnl(data_store, market, price, is_long, maximize);
 
     // Perform assertions.
     assert(pnl == i256_new(0, false), 'wrong pnl');
@@ -692,6 +723,7 @@ fn given_normal_conditions_when_get_position_impact_pool_amount_then_works() {
         _role_store,
         data_store,
         _event_emitter,
+        market_utils,
     ) =
         setup();
 
@@ -709,7 +741,7 @@ fn given_normal_conditions_when_get_position_impact_pool_amount_then_works() {
     data_store.set_u256(position_impact_pool_amount_key, 1000);
 
     // Actual test case.
-    let position_impact_pool_amount = market_utils::get_position_impact_pool_amount(data_store, market_token_address);
+    let position_impact_pool_amount = market_utils.get_position_impact_pool_amount(data_store, market_token_address);
 
     // Perform assertions.
 
@@ -736,6 +768,7 @@ fn given_normal_conditions_when_get_swap_impact_pool_amount_then_works() {
         _role_store,
         data_store,
         _event_emitter,
+        market_utils,
     ) =
         setup();
 
@@ -754,7 +787,7 @@ fn given_normal_conditions_when_get_swap_impact_pool_amount_then_works() {
     data_store.set_u256(swap_impact_pool_amount_key, 1000);
 
     // Actual test case.
-    let swap_impact_pool_amount = market_utils::get_swap_impact_pool_amount(data_store, market_token_address, token,);
+    let swap_impact_pool_amount = market_utils.get_swap_impact_pool_amount(data_store, market_token_address, token,);
 
     // Perform assertions.
 
@@ -781,6 +814,7 @@ fn given_normal_conditions_when_apply_delta_to_position_impact_pool_then_works()
         _role_store,
         data_store,
         event_emitter,
+        market_utils,
     ) =
         setup();
 
@@ -799,9 +833,8 @@ fn given_normal_conditions_when_apply_delta_to_position_impact_pool_then_works()
     data_store.set_u256(key, 1000);
 
     // Actual test case.
-    let next_value = market_utils::apply_delta_to_position_impact_pool(
-        data_store, event_emitter, market_token_address, delta
-    );
+    let next_value = market_utils
+        .apply_delta_to_position_impact_pool(data_store, event_emitter, market_token_address, delta);
 
     // Perform assertions.
 
@@ -828,6 +861,7 @@ fn given_normal_conditions_when_apply_delta_to_swap_impact_pool_then_works() {
         _role_store,
         data_store,
         event_emitter,
+        market_utils,
     ) =
         setup();
 
@@ -847,9 +881,8 @@ fn given_normal_conditions_when_apply_delta_to_swap_impact_pool_then_works() {
     data_store.set_u256(key, 1000);
 
     // Actual test case.
-    let next_value = market_utils::apply_delta_to_swap_impact_pool(
-        data_store, event_emitter, market_token_address, token, delta
-    );
+    let next_value = market_utils
+        .apply_delta_to_swap_impact_pool(data_store, event_emitter, market_token_address, token, delta);
 
     // Perform assertions.
 
@@ -873,6 +906,7 @@ fn setup() -> (
     IRoleStoreDispatcher,
     IDataStoreDispatcher,
     IEventEmitterDispatcher,
+    IMarketUtilsLibraryDispatcher,
 ) {
     let (
         caller_address,
@@ -881,6 +915,10 @@ fn setup() -> (
         _decrease_order_class,
         _swap_order_class,
         _order_utils_class,
+        _role_module_class,
+        _bank_class,
+        _governable_class,
+        market_utils_class,
         market_factory,
         role_store,
         data_store,
@@ -903,6 +941,8 @@ fn setup() -> (
     ) =
         tests_lib::setup();
 
+    let market_utils = IMarketUtilsLibraryDispatcher { class_hash: market_utils_class.class_hash };
+
     (
         caller_address,
         market_factory.contract_address,
@@ -913,5 +953,6 @@ fn setup() -> (
         role_store,
         data_store,
         event_emitter,
+        market_utils,
     )
 }

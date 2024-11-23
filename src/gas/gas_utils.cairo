@@ -2,27 +2,27 @@
 //                                  IMPORTS
 // *************************************************************************
 // Core lib imports.
-use starknet::ContractAddress;
+use freyr::bank::bank::{IBankDispatcher, IBankDispatcherTrait};
+use freyr::bank::strict_bank::{IStrictBankDispatcher, IStrictBankDispatcherTrait};
 
 // Local imports.
-use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
-use satoru::data::keys;
-use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
-use satoru::bank::bank::{IBankDispatcher, IBankDispatcherTrait};
-use satoru::bank::strict_bank::{IStrictBankDispatcher, IStrictBankDispatcherTrait};
-use satoru::order::{
+use freyr::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
+use freyr::data::keys;
+use freyr::deposit::deposit::Deposit;
+use freyr::deposit::deposit_vault::{IDepositVaultDispatcher, IDepositVaultDispatcherTrait};
+use freyr::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
+use freyr::gas::error::GasError;
+use freyr::order::{
     order_vault::{IOrderVaultDispatcher, IOrderVaultDispatcherTrait}, order::{Order, DecreasePositionSwapType},
     base_order_utils::{is_increase_order, is_decrease_order, is_swap_order, OrderError}
 };
-use satoru::deposit::deposit::Deposit;
-use satoru::withdrawal::{
+use freyr::token::token_utils;
+use freyr::utils::span32::{Span32, Span32Trait};
+use freyr::utils::{precision, starknet_utils::{sn_gasleft, sn_gasprice}};
+use freyr::withdrawal::{
     withdrawal::Withdrawal, withdrawal_vault::{IWithdrawalVaultDispatcher, IWithdrawalVaultDispatcherTrait}
 };
-use satoru::deposit::deposit_vault::{IDepositVaultDispatcher, IDepositVaultDispatcherTrait};
-use satoru::utils::{precision, starknet_utils::{sn_gasleft, sn_gasprice}};
-use satoru::utils::span32::{Span32, Span32Trait};
-use satoru::token::token_utils;
-use satoru::gas::error::GasError;
+use starknet::ContractAddress;
 
 /// Get the minimal gas to handle execution.
 /// # Arguments

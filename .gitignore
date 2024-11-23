@@ -27,3 +27,6 @@ output.txt
 .mise.local.toml
 .mise.*.local.toml
 
+katana-db
+contracts.dev-local.json
+tokens.dev-local.json

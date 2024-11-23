@@ -3,15 +3,15 @@
 // *************************************************************************
 
 // Core lib imports.
-use starknet::ContractAddress;
+use freyr::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
+use freyr::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
+use freyr::event::event_utils::{Felt252IntoContractAddress, ContractAddressDictValue, I256252DictValue};
+use freyr::mock::referral_storage::{IReferralStorageDispatcher, IReferralStorageDispatcherTrait};
 // Local imports.
-use satoru::oracle::oracle_utils::{SetPricesParams, SimulatePricesParams};
-use satoru::order::{base_order_utils::{CreateOrderParams, ExecuteOrderParams}, order::Order};
-use satoru::order::order_vault::{IOrderVaultDispatcher, IOrderVaultDispatcherTrait};
-use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
-use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
-use satoru::mock::referral_storage::{IReferralStorageDispatcher, IReferralStorageDispatcherTrait};
-use satoru::event::event_utils::{Felt252IntoContractAddress, ContractAddressDictValue, I256252DictValue};
+use freyr::oracle::oracle_utils::{SetPricesParams, SimulatePricesParams};
+use freyr::order::order_vault::{IOrderVaultDispatcher, IOrderVaultDispatcherTrait};
+use freyr::order::{base_order_utils::{CreateOrderParams, ExecuteOrderParams}, order::Order};
+use starknet::ContractAddress;
 // *************************************************************************
 //                  Interface of the `OrderUtils` contract.
 // *************************************************************************
@@ -95,60 +95,42 @@ trait IOrderUtils<TContractState> {
 #[starknet::contract]
 mod OrderUtils {
     // Core lib imports.
-    use satoru::order::swap_order_utils::ISwapOrderUtilsDispatcherTrait;
-    use satoru::order::decrease_order_utils::IDecreaseOrderUtilsDispatcherTrait;
-    use satoru::order::increase_order_utils::IIncreaseOrderUtilsDispatcherTrait;
-    use starknet::{ContractAddress, contract_address_const, ClassHash};
     use clone::Clone;
+    use freyr::callback::callback_utils;
+    use freyr::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
+    use freyr::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
+    use freyr::event::event_utils::{Felt252IntoContractAddress, ContractAddressDictValue, I256252DictValue};
+    use freyr::gas::gas_utils;
+    use freyr::market::market_utils::{IMarketUtilsLibraryDispatcher, IMarketUtilsDispatcherTrait};
+    use freyr::mock::referral_storage::{IReferralStorageDispatcher, IReferralStorageDispatcherTrait};
+    use freyr::nonce::nonce_utils;
     // Local imports.
-    use satoru::order::base_order_utils::{ExecuteOrderParams, CreateOrderParams};
-    use satoru::order::base_order_utils;
-    use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
-    use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
-    use satoru::order::order_vault::{IOrderVaultDispatcher, IOrderVaultDispatcherTrait};
-    use satoru::mock::referral_storage::{IReferralStorageDispatcher, IReferralStorageDispatcherTrait};
-    use satoru::market::market_utils;
-    use satoru::nonce::nonce_utils;
-    use satoru::utils::account_utils;
-    use satoru::referral::referral_utils;
-    use satoru::token::token_utils;
-    use satoru::callback::callback_utils;
-    use satoru::gas::gas_utils;
-    use satoru::order::order::{Order, OrderType, OrderTrait};
-    use satoru::event::event_utils::{Felt252IntoContractAddress, ContractAddressDictValue, I256252DictValue};
-    use satoru::utils::serializable_dict::{SerializableFelt252Dict, SerializableFelt252DictTrait};
-    use satoru::order::error::OrderError;
+    use freyr::order::base_order_utils::{ExecuteOrderParams, CreateOrderParams};
+    use freyr::order::base_order_utils;
+    use freyr::order::decrease_order_utils::IDecreaseOrderUtilsDispatcherTrait;
+    use freyr::order::decrease_order_utils::IDecreaseOrderUtilsLibraryDispatcher;
+    use freyr::order::error::OrderError;
+    use freyr::order::increase_order_utils::IIncreaseOrderUtilsDispatcherTrait;
 
-    use satoru::order::increase_order_utils::IIncreaseOrderUtilsLibraryDispatcher;
-    use satoru::order::decrease_order_utils::IDecreaseOrderUtilsLibraryDispatcher;
-    use satoru::order::swap_order_utils::ISwapOrderUtilsLibraryDispatcher;
+    use freyr::order::increase_order_utils::IIncreaseOrderUtilsLibraryDispatcher;
+    use freyr::order::order::{Order, OrderType, OrderTrait};
+    use freyr::order::order_vault::{IOrderVaultDispatcher, IOrderVaultDispatcherTrait};
+    use freyr::order::swap_order_utils::ISwapOrderUtilsDispatcherTrait;
+    use freyr::order::swap_order_utils::ISwapOrderUtilsLibraryDispatcher;
+    use freyr::referral::referral_utils;
 
-    use satoru::token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
+    use freyr::token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
+    use freyr::token::token_utils;
+    use freyr::utils::account_utils;
+    use freyr::utils::serializable_dict::{SerializableFelt252Dict, SerializableFelt252DictTrait};
+    use starknet::{ContractAddress, contract_address_const, ClassHash};
 
     #[storage]
     struct Storage {
         increase_order_utils_lib: IIncreaseOrderUtilsLibraryDispatcher,
         decrease_order_utils_lib: IDecreaseOrderUtilsLibraryDispatcher,
         swap_order_utils_lib: ISwapOrderUtilsLibraryDispatcher,
-    }
-
-    // *************************************************************************
-    //                              CONSTRUCTOR
-    // *************************************************************************
-    #[constructor]
-    fn constructor(
-        ref self: ContractState,
-        increase_order_class_hash: ClassHash,
-        decrease_order_class_hash: ClassHash,
-        swap_order_class_hash: ClassHash
-    ) {
-        self
-            .increase_order_utils_lib
-            .write(IIncreaseOrderUtilsLibraryDispatcher { class_hash: increase_order_class_hash });
-        self
-            .decrease_order_utils_lib
-            .write(IDecreaseOrderUtilsLibraryDispatcher { class_hash: decrease_order_class_hash });
-        self.swap_order_utils_lib.write(ISwapOrderUtilsLibraryDispatcher { class_hash: swap_order_class_hash });
+        market_utils: IMarketUtilsLibraryDispatcher,
     }
 
     // *************************************************************************
@@ -166,7 +148,8 @@ mod OrderUtils {
         /// * `params` - The parameters used to create the order.
         /// # Returns
         /// Return the key of the created order.
-        fn create_order_utils( //TODO and fix when fee_token is implememted
+        //TODO and fix when fee_token is implememted
+        fn create_order_utils(
             ref self: ContractState,
             data_store: IDataStoreDispatcher,
             event_emitter: IEventEmitterDispatcher,
@@ -217,12 +200,14 @@ mod OrderUtils {
                 params.execution_fee = fee_token_amount;
             }
 
+            let market_utils = self.market_utils.read();
+
             if (base_order_utils::is_position_order(params.order_type)) {
-                market_utils::validate_position_market(data_store, params.market);
+                market_utils.validate_position_market(data_store, params.market);
             }
 
             // validate swap path markets
-            market_utils::validate_swap_path(data_store, params.swap_path);
+            market_utils.validate_swap_path(data_store, params.swap_path);
             let key = nonce_utils::get_next_key(data_store);
 
             let mut order = Order {
@@ -305,15 +290,17 @@ mod OrderUtils {
             // it may be possible to invoke external contracts before the validations
             // are called
 
+            let market_utils = self.market_utils.read();
+
             if (params.market.market_token != contract_address_const::<0>()) {
-                market_utils::validate_market_token_balance_check(params.contracts.data_store, params.market);
+                market_utils.validate_market_token_balance_check(params.contracts.data_store, params.market);
             }
-            market_utils::validate_market_token_balance_array(params.contracts.data_store, params.swap_path_markets);
+            market_utils.validate_market_token_balance_array(params.contracts.data_store, params.swap_path_markets);
 
             params.contracts.event_emitter.emit_order_executed(params.key, params.secondary_order_type);
-        // callback_utils::after_order_execution(params.key, params.order, event_data);
+            // callback_utils::after_order_execution(params.key, params.order, event_data);
 
-        // the order.executionFee for liquidation / adl orders is zero
+            // the order.executionFee for liquidation / adl orders is zero
         // gas costs for liquidations / adl is subsidised by the treasury
         // TODO crashing
         // gas_utils::pay_execution_fee_order(
@@ -385,10 +372,10 @@ mod OrderUtils {
             }
 
             event_emitter.emit_order_cancelled(key, reason, reason_bytes.span());
-        // let mut event_data: LogData = Default::default();
+            // let mut event_data: LogData = Default::default();
         // callback_utils::after_order_cancellation(key, order, event_data);
 
-        // TODO: enable when gas utils is ready
+            // TODO: enable when gas utils is ready
         // gas_utils::pay_execution_fee_order(
         //     data_store, event_emitter, order_vault, order.execution_fee, starting_gas, keeper, order.account
         // );
@@ -433,10 +420,10 @@ mod OrderUtils {
             data_store.set_order(key, order);
 
             event_emitter.emit_order_frozen(key, reason, reason_bytes.span());
-        // let mut event_data: LogData = Default::default();
+            // let mut event_data: LogData = Default::default();
         // callback_utils::after_order_frozen(key, order, event_data);
 
-        // TODO: enable when gas utils is ready
+            // TODO: enable when gas utils is ready
         // gas_utils::pay_execution_fee_order(
         //     data_store, event_emitter, order_vault, execution_fee, starting_gas, keeper, order.account
         // );

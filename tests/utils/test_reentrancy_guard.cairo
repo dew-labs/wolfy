@@ -1,6 +1,6 @@
-use satoru::data::data_store::IDataStoreDispatcherTrait;
-use satoru::utils::global_reentrancy_guard::{non_reentrant_before, non_reentrant_after};
-use satoru::test_utils::tests_lib;
+use freyr::data::data_store::IDataStoreDispatcherTrait;
+use freyr::test_utils::tests_lib;
+use freyr::utils::global_reentrancy_guard::{non_reentrant_before, non_reentrant_after};
 
 #[test]
 fn given_normal_conditions_when_non_reentrancy_before_and_after_then_works() {
@@ -14,6 +14,10 @@ fn given_normal_conditions_when_non_reentrancy_before_and_after_then_works() {
         _decrease_order_class,
         _swap_order_class,
         _order_utils_class,
+        _role_module_class,
+        _bank_class,
+        _governable_class,
+        _market_utils_class,
         _market_factory,
         _role_store,
         data_store,
@@ -72,6 +76,10 @@ fn given_reentrant_call_when_reentrancy_before_and_after_then_fails() {
         _decrease_order_class,
         _swap_order_class,
         _order_utils_class,
+        _role_module_class,
+        _bank_class,
+        _governable_class,
+        _market_utils_class,
         _market_factory,
         _role_store,
         data_store,

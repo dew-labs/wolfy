@@ -1,6 +1,6 @@
 FROM oven/bun:alpine AS base
 
-WORKDIR /satoru
+WORKDIR /freyr
 
 ARG NET
 ENV NET=${NET}
@@ -22,7 +22,7 @@ COPY tsconfig.json ./
 
 FROM base AS keeper
 
-WORKDIR /satoru/apps/keeper
+WORKDIR /freyr/apps/keeper
 
 COPY apps/keeper/src ./src
 COPY apps/keeper/tsconfig.json ./tsconfig.json

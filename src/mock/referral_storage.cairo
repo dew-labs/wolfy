@@ -4,18 +4,16 @@
 //                                  IMPORTS
 // *************************************************************************
 // Core lib imports.
-use starknet::ContractAddress;
 
 // Local imports.
-use satoru::referral::referral_tier::ReferralTier;
+use freyr::referral::referral_tier::ReferralTier;
+use starknet::ContractAddress;
 
 // *************************************************************************
 //                  Interface of the `ReferralStorage` contract.
 // *************************************************************************
 #[starknet::interface]
 trait IReferralStorage<TContractState> {
-    fn initialize(ref self: TContractState, event_emitter_address: ContractAddress);
-
     fn only_handler(ref self: TContractState);
 
     /// Set an address as a handler.
@@ -119,33 +117,38 @@ mod ReferralStorage {
     // *************************************************************************
 
     // Core lib imports.
-    use starknet::{get_caller_address, ContractAddress, contract_address_const};
-    use result::ResultTrait;
 
     // Local imports.
-    use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
-    use satoru::referral::referral_tier::ReferralTier;
-    use satoru::mock::error::MockError;
-    use satoru::mock::governable::{IGovernableDispatcher, IGovernableDispatcherTrait};
-    use satoru::mock::governable::{Governable, IGovernable};
+    use freyr::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
+    use freyr::mock::error::MockError;
+    use freyr::mock::governable::{IGovernableLibraryDispatcher, IGovernableDispatcherTrait};
+    use freyr::referral::referral_tier::ReferralTier;
+    use result::ResultTrait;
+    use starknet::storage::Map;
+    use starknet::{get_caller_address, ContractAddress, contract_address_const, ClassHash};
 
     // *************************************************************************
     //                              STORAGE
     // *************************************************************************
     #[storage]
     struct Storage {
-        referrer_discount_shares: LegacyMap<ContractAddress, u256>,
-        referrer_tiers: LegacyMap<ContractAddress, u256>,
-        tiers: LegacyMap<u256, ReferralTier>,
-        is_handler: LegacyMap<ContractAddress, bool>,
-        code_owners: LegacyMap<felt252, ContractAddress>,
-        trader_referral_codes: LegacyMap<ContractAddress, felt252>,
-        event_emitter: IEventEmitterDispatcher
+        referrer_discount_shares: Map<ContractAddress, u256>,
+        referrer_tiers: Map<ContractAddress, u256>,
+        tiers: Map<u256, ReferralTier>,
+        is_handler: Map<ContractAddress, bool>,
+        code_owners: Map<felt252, ContractAddress>,
+        trader_referral_codes: Map<ContractAddress, felt252>,
+        governable: IGovernableLibraryDispatcher,
+        // Governable storage
+        event_emitter: IEventEmitterDispatcher,
+        gov: ContractAddress,
+        pending_gov: ContractAddress,
     }
 
     #[constructor]
-    fn constructor(ref self: ContractState, event_emitter_address: ContractAddress) {
-        self.initialize(event_emitter_address);
+    fn constructor(ref self: ContractState, event_emitter_address: ContractAddress, governable_class_hash: ClassHash) {
+        self.governable.write(IGovernableLibraryDispatcher { class_hash: governable_class_hash });
+        self.governable.read().initialize(event_emitter_address);
     }
 
     const BASIS_POINTS: u256 = 10000;
@@ -155,11 +158,6 @@ mod ReferralStorage {
     // *************************************************************************
     #[abi(embed_v0)]
     impl ReferralStorageImpl of super::IReferralStorage<ContractState> {
-        fn initialize(ref self: ContractState, event_emitter_address: ContractAddress) {
-            let mut gov_state = Governable::unsafe_new_contract_state();
-            gov_state.initialize(event_emitter_address);
-        }
-
         fn code_owners(self: @ContractState, code: felt252) -> ContractAddress {
             self.code_owners.read(code)
         }
@@ -185,15 +183,13 @@ mod ReferralStorage {
         }
 
         fn set_handler(ref self: ContractState, handler: ContractAddress, is_active: bool) {
-            let gov_state = Governable::unsafe_new_contract_state();
-            gov_state.only_gov();
+            self.governable.read().only_gov();
             self.is_handler.write(handler, is_active);
             self.event_emitter.read().emit_set_handler(handler, is_active);
         }
 
         fn set_tier(ref self: ContractState, tier_id: u256, total_rebate: u256, discount_share: u256) {
-            let gov_state = Governable::unsafe_new_contract_state();
-            gov_state.only_gov();
+            self.governable.read().only_gov();
             assert(total_rebate <= BASIS_POINTS, MockError::INVALID_TOTAL_REBATE);
             assert(discount_share <= BASIS_POINTS, MockError::INVALID_DISCOUNT_SHARE);
 
@@ -205,8 +201,7 @@ mod ReferralStorage {
         }
 
         fn set_referrer_tier(ref self: ContractState, referrer: ContractAddress, tier_id: u256) {
-            let gov_state = Governable::unsafe_new_contract_state();
-            gov_state.only_gov();
+            self.governable.read().only_gov();
             self.referrer_tiers.write(referrer, tier_id);
             self.event_emitter.read().emit_set_referrer_tier(referrer, tier_id);
         }
@@ -245,8 +240,7 @@ mod ReferralStorage {
         }
 
         fn gov_set_code_owner(ref self: ContractState, code: felt252, new_account: ContractAddress) {
-            let gov_state = Governable::unsafe_new_contract_state();
-            gov_state.only_gov();
+            self.governable.read().only_gov();
             assert(code != 0, MockError::INVALID_CODE);
 
             self.code_owners.write(code, new_account);

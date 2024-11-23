@@ -1,12 +1,13 @@
-use starknet::{ContractAddress, get_caller_address, Felt252TryIntoContractAddress, contract_address_const};
-use snforge_std::{declare, start_cheat_caller_address, stop_cheat_caller_address, ContractClassTrait};
+use freyr::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
+use freyr::market::market::{Market};
+use freyr::role::role;
+use freyr::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
+use freyr::test_utils::tests_lib;
 use poseidon::poseidon_hash_span;
-
-use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
-use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
-use satoru::role::role;
-use satoru::market::market::{Market};
-use satoru::test_utils::tests_lib;
+use snforge_std::{
+    declare, start_cheat_caller_address, stop_cheat_caller_address, ContractClassTrait, DeclareResultTrait
+};
+use starknet::{ContractAddress, get_caller_address, Felt252TryIntoContractAddress, contract_address_const};
 
 
 /// Utility function to setup the test environment.
@@ -24,6 +25,10 @@ fn setup() -> (ContractAddress, IRoleStoreDispatcher, IDataStoreDispatcher) {
         _decrease_order_class,
         _swap_order_class,
         _order_utils_class,
+        _role_module_class,
+        _bank_class,
+        _governable_class,
+        _market_utils_class,
         _market_factory,
         role_store,
         data_store,
@@ -89,7 +94,7 @@ fn given_normal_conditions_when_set_market_and_get_by_salt_then_works() {
         market_token: key, index_token: address_zero, long_token: address_zero, short_token: address_zero,
     };
 
-    let salt = poseidon_hash_span(array!['SATORU_MARKET', 0, 0, 0, 0].span());
+    let salt = poseidon_hash_span(array!['WOLFY_MARKET', 0, 0, 0, 0].span());
 
     // Test logic
 

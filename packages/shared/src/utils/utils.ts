@@ -1,5 +1,4 @@
 import { findUpSync } from "find-up";
-import fs from "node:fs";
 import readline from "node:readline";
 import {
     Account,
@@ -17,38 +16,46 @@ import {
 } from "starknet";
 import {
     createCall,
-    createSatoruContract,
+    createWolfyContract,
     executeAndWait,
     getProvider,
     OrderHandlerABI,
     OrderType,
     poseidonHash,
     ProviderType,
-    SatoruContract,
+    WolfyContract,
     StarknetChainId,
     type Hashable,
-    type SatoruContractAbi,
-} from "satoru-sdk";
+    type WolfyContractAbi,
+} from "wolfy-sdk";
 
 import type { Contracts, Order, Token } from "@freyr/shared/interfaces";
 
 import { createLogger } from "./logger";
 import { setup } from "./setup";
 import invariant from "tiny-invariant";
+import { toStarknetHexString } from "wolfy-sdk";
+import fs from "node:fs";
 
 const logger = createLogger("Utils");
 
+export function getCompiledSierraPath(contractName: string) {
+    return `./target/release/freyr_${contractName}.contract_class.json`;
+}
+
+export function getCompiledCasmPath(contractName: string) {
+    return `./target/release/freyr_${contractName}.compiled_contract_class.json`;
+}
+
 export function getCompiledSierra(contractPath: string) {
     return json.parse(
-        fs.readFileSync(`./target/dev/satoru_${contractPath}.contract_class.json`).toString("ascii")
+        fs.readFileSync(getCompiledSierraPath(contractPath)).toString("ascii")
     ) as CompiledSierra;
 }
 
 export function getCompiledCasm(contractPath: string) {
     return json.parse(
-        fs
-            .readFileSync(`./target/dev/satoru_${contractPath}.compiled_contract_class.json`)
-            .toString("ascii")
+        fs.readFileSync(getCompiledCasmPath(contractPath)).toString("ascii")
     ) as CairoAssembly;
 }
 
@@ -57,7 +64,7 @@ export function getClassHashFromSierra(compiledSierra: CompiledSierra) {
 }
 
 export function getClassHash(path: string) {
-    return hash.computeSierraContractClassHash(getCompiledSierra(path));
+    return toStarknetHexString(hash.computeSierraContractClassHash(getCompiledSierra(path)));
 }
 
 export function getClassHashFromCasm(compiledContract: CompiledContract | string) {
@@ -159,6 +166,10 @@ export function getNetAndChainId() {
                 return StarknetChainId.SN_MAIN;
             case "sepolia":
                 return StarknetChainId.SN_SEPOLIA;
+            case "dev":
+                return StarknetChainId.SN_SEPOLIA;
+            case "dev-local":
+                return StarknetChainId.SN_KATANA;
             default:
                 return StarknetChainId.SN_SEPOLIA;
         }
@@ -218,6 +229,7 @@ export async function settingUp() {
         net,
         chainId,
         account: account0,
+        provider,
         hermesUrl: process.env.HERMES_URL,
         feeToken: process.env.FEE_TOKEN,
     };
@@ -466,8 +478,8 @@ export async function executeOrder(
         [shortTokenAddress, executionShortPrice],
     ]);
 
-    const orderHandlerContract: TypedContractV2<SatoruContractAbi<SatoruContract.OrderHandler>> =
-        createSatoruContract(chainId, SatoruContract.OrderHandler, OrderHandlerABI, account);
+    const orderHandlerContract: TypedContractV2<WolfyContractAbi<WolfyContract.OrderHandler>> =
+        createWolfyContract(chainId, WolfyContract.OrderHandler, OrderHandlerABI, account);
 
     logger.info(
         `Order ${order.key} [${order.orderType}]: Executing with price: ${executionIndexPrice} (acceptable: ${order.acceptablePrice})`
@@ -518,3 +530,19 @@ export const getEnvVariable = (name: string): string => {
 
     return value;
 };
+
+export function getContractNames(type: "casm" | "sierra" = "sierra") {
+    const PROJECT_NAME = "freyr";
+    return fs
+        .readdirSync("./target/release", { withFileTypes: true })
+        .filter(
+            (file) =>
+                file.isFile() &&
+                file.name.endsWith(`.${type === "casm" ? "compiled_" : ""}contract_class.json`) &&
+                !file.name.startsWith(`${PROJECT_NAME}_tests`) &&
+                !file.name.startsWith(`${PROJECT_NAME}_unittest`)
+        )
+        .map((file) =>
+            file.name.replace(PROJECT_NAME + "_", "").replace(".contract_class.json", "")
+        );
+}

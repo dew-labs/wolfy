@@ -1,32 +1,35 @@
-use starknet::{ContractAddress, contract_address_const};
 use debug::PrintTrait;
 
-use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
-use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
-use satoru::reader::reader::{IReaderDispatcher, IReaderDispatcherTrait, MarketInfo};
-use satoru::mock::referral_storage::{IReferralStorageDispatcher, IReferralStorageDispatcherTrait};
-use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
-use satoru::market::market_token::{IMarketTokenDispatcher, IMarketTokenDispatcherTrait};
+use freyr::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
+use freyr::data::keys;
+use freyr::deposit::deposit::{Deposit};
+use freyr::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
+use freyr::market::market::{Market};
+use freyr::market::market_pool_value_info::{MarketPoolValueInfo};
+use freyr::market::market_token::{IMarketTokenDispatcher, IMarketTokenDispatcherTrait};
+use freyr::market::market_utils::MarketPrices;
+use freyr::mock::referral_storage::{IReferralStorageDispatcher, IReferralStorageDispatcherTrait};
+use freyr::order::order::{Order, OrderType, OrderTrait, DecreasePositionSwapType};
+use freyr::position::position::{Position};
+use freyr::price::price::{Price, PriceTrait};
+use freyr::reader::reader::{IReaderDispatcher, IReaderDispatcherTrait, MarketInfo};
 
-use satoru::reader::{
+use freyr::reader::{
     reader_utils::PositionInfo, reader_utils::BaseFundingValues, reader_pricing_utils::ExecutionPriceResult,
     reader::VirtualInventory
 };
-use satoru::role::role;
-use satoru::order::order::{Order, OrderType, OrderTrait, DecreasePositionSwapType};
-use satoru::test_utils::tests_lib;
-use satoru::utils::span32::{Span32, Array32Trait};
-use satoru::market::market::{Market};
-use satoru::market::market_pool_value_info::{MarketPoolValueInfo};
-use snforge_std::{declare, start_cheat_caller_address, stop_cheat_caller_address, ContractClass, ContractClassTrait};
+use freyr::role::role;
+use freyr::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
+use freyr::test_utils::tests_lib;
+use freyr::utils::i256::{i256, i256_new};
+use freyr::utils::span32::{Span32, Array32Trait};
+use freyr::withdrawal::withdrawal::{Withdrawal};
 use poseidon::poseidon_hash_span;
-use satoru::deposit::deposit::{Deposit};
-use satoru::withdrawal::withdrawal::{Withdrawal};
-use satoru::position::position::{Position};
-use satoru::data::keys;
-use satoru::price::price::{Price, PriceTrait};
-use satoru::utils::i256::{i256, i256_new};
-use satoru::market::market_utils::{get_capped_pnl, MarketPrices};
+use snforge_std::{
+    declare, start_cheat_caller_address, stop_cheat_caller_address, ContractClass, ContractClassTrait,
+    DeclareResultTrait
+};
+use starknet::{ContractAddress, contract_address_const, ClassHash};
 
 
 #[test]
@@ -34,7 +37,17 @@ fn given_normal_conditions_when_get_market_then_works() {
     //
     // Setup
     //
-    let (_caller_address, _role_store, data_store, _market_token_class, reader, _referral_storage) = setup();
+    let (
+        _caller_address,
+        _role_store,
+        data_store,
+        _market_token_class,
+        reader,
+        _referral_storage,
+        _role_module_class,
+        _bank_class
+    ) =
+        setup();
 
     let key: ContractAddress = 123456789.try_into().unwrap();
     let mut market = Market {
@@ -59,7 +72,17 @@ fn given_normal_conditions_when_get_market_by_salt_then_works() {
     //
     // Setup
     //
-    let (_caller_address, _role_store, data_store, _market_token_class, reader, _referral_storage) = setup();
+    let (
+        _caller_address,
+        _role_store,
+        data_store,
+        _market_token_class,
+        reader,
+        _referral_storage,
+        _role_module_class,
+        _bank_class
+    ) =
+        setup();
 
     let key: ContractAddress = 123456789.try_into().unwrap();
     let mut market = Market {
@@ -77,8 +100,8 @@ fn given_normal_conditions_when_get_market_by_salt_then_works() {
         short_token: 8901234.try_into().unwrap(),
     };
 
-    let salt: felt252 = 'satoru_market';
-    let salt2: felt252 = 'satoru_market2';
+    let salt: felt252 = 'freyr_market';
+    let salt2: felt252 = 'freyr_market2';
 
     // Test logic
 
@@ -100,7 +123,17 @@ fn given_normal_conditions_when_get_deposit_then_works() {
     //
     // Setup
     //
-    let (_caller_address, _role_store, data_store, _market_token_class, reader, _referral_storage) = setup();
+    let (
+        _caller_address,
+        _role_store,
+        data_store,
+        _market_token_class,
+        reader,
+        _referral_storage,
+        _role_module_class,
+        _bank_class
+    ) =
+        setup();
 
     let key = 123456789;
     // Create random deposit
@@ -127,7 +160,17 @@ fn given_normal_conditions_when_get_withdrawal_then_works() {
     //
     // Setup
     //
-    let (_caller_address, _role_store, data_store, _market_token_class, reader, _referral_storage) = setup();
+    let (
+        _caller_address,
+        _role_store,
+        data_store,
+        _market_token_class,
+        reader,
+        _referral_storage,
+        _role_module_class,
+        _bank_class
+    ) =
+        setup();
 
     let key = 123456789;
     // Create random withdrawal
@@ -154,7 +197,17 @@ fn given_normal_conditions_when_get_position_then_works() {
     //
     // Setup
     //
-    let (_caller_address, _role_store, data_store, _market_token_class, reader, _referral_storage) = setup();
+    let (
+        _caller_address,
+        _role_store,
+        data_store,
+        _market_token_class,
+        reader,
+        _referral_storage,
+        _role_module_class,
+        _bank_class
+    ) =
+        setup();
     let key = 123456789;
     // Create random position
     let mut position: Position = Default::default();
@@ -180,7 +233,17 @@ fn given_normal_conditions_when_get_order_then_works() {
     //
     // Setup
     //
-    let (_caller_address, _role_store, data_store, _market_token_class, reader, _referral_storage) = setup();
+    let (
+        _caller_address,
+        _role_store,
+        data_store,
+        _market_token_class,
+        reader,
+        _referral_storage,
+        _role_module_class,
+        _bank_class
+    ) =
+        setup();
 
     let key = 123456789;
     // Create random order
@@ -207,7 +270,17 @@ fn given_normal_conditions_when_get_position_pnl_usd_then_works() {
     //
     // Setup
     //
-    let (_caller_address, _role_store, data_store, _market_token_class, reader, _referral_storage) = setup();
+    let (
+        _caller_address,
+        _role_store,
+        data_store,
+        _market_token_class,
+        reader,
+        _referral_storage,
+        _role_module_class,
+        _bank_class
+    ) =
+        setup();
 
     let key: ContractAddress = 123456789.try_into().unwrap();
     let account = 'account'.try_into().unwrap();
@@ -250,7 +323,17 @@ fn given_normal_conditions_when_get_account_positions_then_works() {
     //
     // Setup
     //
-    let (_caller_address, _role_store, data_store, _market_token_class, reader, _referral_storage) = setup();
+    let (
+        _caller_address,
+        _role_store,
+        data_store,
+        _market_token_class,
+        reader,
+        _referral_storage,
+        _role_module_class,
+        _bank_class
+    ) =
+        setup();
 
     let key_1 = 1111111111;
     let account = 'account'.try_into().unwrap();
@@ -302,7 +385,17 @@ fn given_normal_conditions_when_get_account_positions_then_works() {
 
 #[test]
 fn given_normal_conditions_when_get_position_info_then_works() {
-    let (_caller_address, _role_store, data_store, _market_token_class, reader, referral_storage) = setup();
+    let (
+        _caller_address,
+        _role_store,
+        data_store,
+        _market_token_class,
+        reader,
+        referral_storage,
+        _role_module_class,
+        _bank_class
+    ) =
+        setup();
 
     //create random position
     let key_4: felt252 = 44444444444;
@@ -340,7 +433,17 @@ fn given_normal_conditions_when_get_position_info_then_works() {
 
 #[test]
 fn given_normal_conditions_when_get_account_position_info_list_then_works() {
-    let (_caller_address, _role_store, data_store, _market_token_class, reader, referral_storage) = setup();
+    let (
+        _caller_address,
+        _role_store,
+        data_store,
+        _market_token_class,
+        reader,
+        referral_storage,
+        _role_module_class,
+        _bank_class
+    ) =
+        setup();
 
     //create random position
     let key_1: felt252 = 44444444444;
@@ -432,7 +535,17 @@ fn given_normal_conditions_when_get_account_orders_then_works() {
     //
     // Setup
     //
-    let (_caller_address, _role_store, data_store, _market_token_class, reader, _referral_storage) = setup();
+    let (
+        _caller_address,
+        _role_store,
+        data_store,
+        _market_token_class,
+        reader,
+        _referral_storage,
+        _role_module_class,
+        _bank_class
+    ) =
+        setup();
 
     let key_1 = 1111111111;
     let account = 'account'.try_into().unwrap();
@@ -487,7 +600,17 @@ fn given_normal_conditions_when_get_markets_then_works() {
     //
     // Setup
     //
-    let (_caller_address, _role_store, data_store, _market_token_class, reader, _referral_storage) = setup();
+    let (
+        _caller_address,
+        _role_store,
+        data_store,
+        _market_token_class,
+        reader,
+        _referral_storage,
+        _role_module_class,
+        _bank_class
+    ) =
+        setup();
 
     let key_1: ContractAddress = 1111111111.try_into().unwrap();
     let key_2: ContractAddress = 22222222222.try_into().unwrap();
@@ -532,7 +655,17 @@ fn given_normal_conditions_when_get_market_info_then_works() {
     //
     // Setup
     //
-    let (_caller_address, _role_store, data_store, _market_token_class, reader, _referral_storage) = setup();
+    let (
+        _caller_address,
+        _role_store,
+        data_store,
+        _market_token_class,
+        reader,
+        _referral_storage,
+        _role_module_class,
+        _bank_class
+    ) =
+        setup();
 
     let key: ContractAddress = 123456789.try_into().unwrap();
 
@@ -558,7 +691,17 @@ fn given_normal_conditions_when_get_market_info_then_works() {
 
 #[test]
 fn given_normal_conditions_when_get_market_info_list_then_works() {
-    let (_caller_address, _role_store, data_store, _market_token_class, reader, _referral_storage) = setup();
+    let (
+        _caller_address,
+        _role_store,
+        data_store,
+        _market_token_class,
+        reader,
+        _referral_storage,
+        _role_module_class,
+        _bank_class
+    ) =
+        setup();
 
     let market_key_1: ContractAddress = 123456789.try_into().unwrap();
     let market_1 = Market {
@@ -614,9 +757,24 @@ fn given_normal_conditions_when_get_market_info_list_then_works() {
 
 #[test]
 fn given_normal_conditions_when_get_market_token_price_then_works() {
-    let (caller_address, role_store, data_store, market_token_class, reader, _referral_storage) = setup();
+    let (
+        caller_address,
+        role_store,
+        data_store,
+        market_token_class,
+        reader,
+        _referral_storage,
+        role_module_class,
+        bank_class
+    ) =
+        setup();
     let market_address = deploy_market_token(
-        market_token_class, role_store.contract_address, data_store.contract_address, caller_address
+        market_token_class,
+        role_store.contract_address,
+        data_store.contract_address,
+        bank_class.class_hash,
+        role_module_class.class_hash,
+        caller_address
     );
 
     let key: ContractAddress = market_address;
@@ -642,7 +800,7 @@ fn given_normal_conditions_when_get_market_token_price_then_works() {
             data_store, market, index_prices_one, index_prices_two, index_prices_three, pnl_factor, true
         );
     let market_token_price_felt: felt252 = market_token_price_.into();
-    let expected_price = 100000000000000000000;
+    let expected_price = 1000000000000000000000000000000;
     assert(market_token_price_felt == expected_price, 'invalid_token_price');
     tests_lib::teardown();
 }
@@ -653,7 +811,17 @@ fn given_normal_conditions_when_get_net_pnl_then_works() {
     //
     // Setup
     //
-    let (_caller_address, _role_store, data_store, _market_token_class, reader, _referral_storage) = setup();
+    let (
+        _caller_address,
+        _role_store,
+        data_store,
+        _market_token_class,
+        reader,
+        _referral_storage,
+        _role_module_class,
+        _bank_class
+    ) =
+        setup();
 
     let market_token_address: ContractAddress = 123456789.try_into().unwrap();
     let mut market = Market {
@@ -696,7 +864,17 @@ fn given_normal_conditions_when_get_pnl_then_works() {
     //
     // Setup
     //
-    let (_caller_address, _role_store, data_store, _market_token_class, reader, _referral_storage) = setup();
+    let (
+        _caller_address,
+        _role_store,
+        data_store,
+        _market_token_class,
+        reader,
+        _referral_storage,
+        _role_module_class,
+        _bank_class
+    ) =
+        setup();
 
     let market_token_address = contract_address_const::<'market_token'>();
     let market = Market {
@@ -738,10 +916,19 @@ fn given_normal_conditions_when_get_pnl_then_works() {
 
     tests_lib::teardown();
 }
-// TODO missing libraries  'market_utils::get_open_interest_with_pnl' not implemented
 #[test]
 fn given_normal_conditions_when_get_open_interest_with_pnl_then_works() {
-    let (_caller_address, _role_store, data_store, _market_token_class, reader, _referral_storage) = setup();
+    let (
+        _caller_address,
+        _role_store,
+        data_store,
+        _market_token_class,
+        reader,
+        _referral_storage,
+        _role_module_class,
+        _bank_class
+    ) =
+        setup();
 
     let market_token_address = contract_address_const::<'market_token'>();
     let market = Market {
@@ -779,10 +966,19 @@ fn given_normal_conditions_when_get_open_interest_with_pnl_then_works() {
     tests_lib::teardown();
 }
 // audit, return value is 0x0
-// TODO missing libraries  'market_utils::get_pnl_to_pool_factor' not implemented
 #[test]
 fn given_normal_conditions_when_get_pnl_to_pool_factor_then_works() {
-    let (_caller_address, _role_store, data_store, _market_token_class, reader, _referral_storage) = setup();
+    let (
+        _caller_address,
+        _role_store,
+        data_store,
+        _market_token_class,
+        reader,
+        _referral_storage,
+        _role_module_class,
+        _bank_class
+    ) =
+        setup();
 
     let market_token_address = contract_address_const::<'market_token'>();
     let market = Market {
@@ -817,10 +1013,19 @@ fn given_normal_conditions_when_get_pnl_to_pool_factor_then_works() {
 }
 
 // audit //panic error, unwrap failed
-// TODO missing libraries reader_pricing_utils::get_swap_amount_out  use not implemented functions
 #[test]
 fn given_normal_conditions_when_get_swap_amount_out_then_works() {
-    let (_caller_address, _role_store, data_store, _market_token_class, reader, _referral_storage) = setup();
+    let (
+        _caller_address,
+        _role_store,
+        data_store,
+        _market_token_class,
+        reader,
+        _referral_storage,
+        _role_module_class,
+        _bank_class
+    ) =
+        setup();
     let market_token_address = contract_address_const::<'market_token'>();
     let token_ = contract_address_const::<'_token'>();
     let ui_fee_receiver: ContractAddress = 5746789.try_into().unwrap();
@@ -843,10 +1048,19 @@ fn given_normal_conditions_when_get_swap_amount_out_then_works() {
 }
 
 // // audit, function call returns 0x0
-// TODO missing libraries 'market_utils::get_virtual_inventory_for_swaps' and 'market_utils::get_virtual_inventory_for_positions' not implemented
 #[test]
 fn given_normal_conditions_when_get_virtual_inventory_then_works() {
-    let (_caller_address, _role_store, data_store, _market_token_class, reader, _referral_storage) = setup();
+    let (
+        _caller_address,
+        _role_store,
+        data_store,
+        _market_token_class,
+        reader,
+        _referral_storage,
+        _role_module_class,
+        _bank_class
+    ) =
+        setup();
     let market_token_address = contract_address_const::<'market_token'>();
     let market = Market {
         market_token: market_token_address,
@@ -863,7 +1077,17 @@ fn given_normal_conditions_when_get_virtual_inventory_then_works() {
 
 #[test]
 fn given_normal_conditions_when_get_execution_price_then_works() {
-    let (_caller_address, _role_store, data_store, _market_token_class, reader, _referral_storage) = setup();
+    let (
+        _caller_address,
+        _role_store,
+        data_store,
+        _market_token_class,
+        reader,
+        _referral_storage,
+        _role_module_class,
+        _bank_class
+    ) =
+        setup();
     let market_key_1: ContractAddress = 123456789.try_into().unwrap();
     let market_1 = Market {
         market_token: market_key_1,
@@ -896,10 +1120,19 @@ fn given_normal_conditions_when_get_execution_price_then_works() {
 }
 
 //audit, returns a panicked crates error
-// TODO missing libraries 'swap_pricing_utils::get_price_impact_usd' and 'market_utils::get_swap_impact_amount_with_cap' not implemented
 #[test]
 fn given_normal_conditions_when_get_swap_price_impact_then_works() {
-    let (_caller_address, _role_store, data_store, _market_token_class, reader, _referral_storage) = setup();
+    let (
+        _caller_address,
+        _role_store,
+        data_store,
+        _market_token_class,
+        reader,
+        _referral_storage,
+        _role_module_class,
+        _bank_class
+    ) =
+        setup();
 
     let market_key_1: ContractAddress = 123456789.try_into().unwrap();
     let market_1 = Market {
@@ -923,10 +1156,19 @@ fn given_normal_conditions_when_get_swap_price_impact_then_works() {
 }
 
 //audit, returns an unwrap failed error
-// TODO missing libraries 'market_utils::is_pnl_factor_exceeded_direct' and 'market_utils::get_enabled_market' not implemented
 #[test]
 fn given_normal_conditions_when_get_adl_state_then_works() {
-    let (_caller_address, _role_store, data_store, _market_token_class, reader, _referral_storage) = setup();
+    let (
+        _caller_address,
+        _role_store,
+        data_store,
+        _market_token_class,
+        reader,
+        _referral_storage,
+        _role_module_class,
+        _bank_class
+    ) =
+        setup();
     let market_token_address = contract_address_const::<'market_token'>();
     let market = Market {
         market_token: market_token_address,
@@ -950,12 +1192,20 @@ fn given_normal_conditions_when_get_adl_state_then_works() {
 // *************************************************************************
 
 fn deploy_market_token(
-    contract: ContractClass, role_store: ContractAddress, data_store: ContractAddress, caller_address: ContractAddress
+    contract: ContractClass,
+    role_store: ContractAddress,
+    data_store: ContractAddress,
+    bank_class_hash: ClassHash,
+    role_module_class_hash: ClassHash,
+    caller_address: ContractAddress,
 ) -> ContractAddress {
     let deployed_contract_address = contract_address_const::<'market_token'>();
     start_cheat_caller_address(deployed_contract_address, caller_address);
     let (contract_address, _) = contract
-        .deploy_at(@array![role_store.into(), data_store.into()], deployed_contract_address)
+        .deploy_at(
+            @array![role_store.into(), data_store.into(), bank_class_hash.into(), role_module_class_hash.into()],
+            deployed_contract_address
+        )
         .unwrap();
     contract_address
 }
@@ -966,7 +1216,9 @@ fn setup() -> (
     IDataStoreDispatcher,
     ContractClass,
     IReaderDispatcher,
-    IReferralStorageDispatcher
+    IReferralStorageDispatcher,
+    ContractClass,
+    ContractClass,
 ) {
     let (
         caller_address,
@@ -975,6 +1227,10 @@ fn setup() -> (
         _decrease_order_class,
         _swap_order_class,
         _order_utils_class,
+        role_module_class,
+        bank_class,
+        _governable_class,
+        _market_utils_class,
         _market_factory,
         role_store,
         data_store,
@@ -997,5 +1253,5 @@ fn setup() -> (
     ) =
         tests_lib::setup();
 
-    (caller_address, role_store, data_store, market_token_class, reader, referal_storage)
+    (caller_address, role_store, data_store, market_token_class, reader, referal_storage, role_module_class, bank_class)
 }

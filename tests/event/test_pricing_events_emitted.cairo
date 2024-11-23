@@ -1,14 +1,15 @@
+use freyr::event::event_emitter::EventEmitter::{SwapInfo, SwapFeesCollected};
+
+use freyr::event::event_emitter::{EventEmitter, IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
+
+
+use freyr::pricing::swap_pricing_utils::SwapFees;
+use freyr::test_utils::tests_lib::deploy_event_emitter;
+use freyr::utils::i256::{i256, i256_new};
+use snforge_std::{
+    declare, ContractClassTrait, DeclareResultTrait, spy_events, EventSpy, EventSpyTrait, Event, EventSpyAssertionsTrait
+};
 use starknet::{ContractAddress, contract_address_const};
-use snforge_std::{declare, ContractClassTrait, spy_events, EventSpy, EventSpyTrait, Event, EventSpyAssertionsTrait};
-use satoru::test_utils::tests_lib::deploy_event_emitter;
-
-use satoru::event::event_emitter::{EventEmitter, IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
-
-use satoru::event::event_emitter::EventEmitter::{SwapInfo, SwapFeesCollected};
-
-
-use satoru::pricing::swap_pricing_utils::SwapFees;
-use satoru::utils::i256::{i256, i256_new};
 
 #[test]
 fn given_normal_conditions_when_emit_swap_info_then_works() {

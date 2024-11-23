@@ -9,8 +9,8 @@ mod adl {
 // `bank` is a module handling storing and transferring of tokens.
 mod bank {
     mod bank;
-    mod strict_bank;
     mod error;
+    mod strict_bank;
 }
 
 // `callback` is a module that allows for better composability with other contracts.
@@ -38,15 +38,15 @@ mod config {
 
 // `event` is a module event management functions.
 mod event {
-    mod event_utils;
     mod event_emitter;
+    mod event_utils;
 }
 
 // `data` is a module that contains the data store for the system.
 mod data {
     mod data_store;
-    mod keys;
     mod error;
+    mod keys;
 }
 
 // `deposit` handles the depositing of funds into the system.
@@ -58,7 +58,7 @@ mod deposit {
     mod execute_deposit_utils;
 }
 
-// `exchange` contains main satoru handlers to create and execute actions.
+// `exchange` contains main freyr handlers to create and execute actions.
 mod exchange {
     mod adl_handler;
     mod base_order_handler;
@@ -72,21 +72,21 @@ mod exchange {
 
 // `feature` is used to validate if a feature is enabled or disabled.
 mod feature {
-    mod feature_utils;
     mod error;
+    mod feature_utils;
 }
 
 // `fee` is used for fees actions.
 mod fee {
+    mod error;
     mod fee_handler;
     mod fee_utils;
-    mod error;
 }
 
 // `gas` is used for execution fee estimation and payments.
 mod gas {
-    mod gas_utils;
     mod error;
+    mod gas_utils;
 }
 
 // `nonce` is a module that maintains a progressively increasing nonce value.
@@ -97,16 +97,16 @@ mod nonce {
 // 'reader' is a module that retrieves the financial market data and trading utility.
 mod reader {
     mod error;
+    mod reader;
     mod reader_pricing_utils;
     mod reader_utils;
-    mod reader;
 }
 
 // 'router' is a module where users utilize the router to initiate token transactions, exchanges, and transfers.
 mod router {
-    mod router;
-    mod exchange_router;
     mod error;
+    mod exchange_router;
+    mod router;
 }
 
 // `role` is a module that contains the role store and role management functions.
@@ -115,10 +115,10 @@ mod role {
     mod error;
     // The definition of the different roles in the system.
     mod role;
-    // The contract handling the roles and store them.
-    mod role_store;
     // The contract handling the role modifiers
     mod role_module;
+    // The contract handling the roles and store them.
+    mod role_store;
 }
 
 // `price` contains utility functions for calculating prices.
@@ -132,23 +132,23 @@ mod utils {
     mod arrays;
     mod bits;
     mod calc;
+    mod default;
     mod enumerable_set;
     mod enumerable_values;
     mod error;
+    mod error_utils;
+    mod felt_math;
     mod global_reentrancy_guard;
-    mod precision;
-    mod span32;
-    mod u256_mask;
     mod hash;
     mod i256;
     mod i256_test_storage_contract;
-    mod store_arrays;
-    mod error_utils;
-    mod starknet_utils;
-    mod traits;
-    mod default;
+    mod precision;
     mod serializable_dict;
-    mod felt_math;
+    mod span32;
+    mod starknet_utils;
+    mod store_arrays;
+    mod traits;
+    mod u256_mask;
 }
 
 // `liquidation` function to help with liquidations.
@@ -170,17 +170,17 @@ mod market {
 mod mock {
     mod error;
     mod governable;
-    mod referral_storage;
     mod mock_account;
+    mod referral_storage;
 }
 
-// `oracle` contains functions related to oracles used by Satoru.
+// `oracle` contains functions related to oracles used by Wolfy.
 mod oracle {
     mod error;
+    mod oracle;
     mod oracle_modules;
     mod oracle_store;
     mod oracle_utils;
-    mod oracle;
     mod price_feed;
     mod interfaces {
         mod account;
@@ -190,12 +190,12 @@ mod oracle {
 // `order` contains order management functions.
 mod order {
     mod base_order_utils;
-    mod order_utils;
     mod decrease_order_utils;
-    mod increase_order_utils;
-    mod order_vault;
-    mod order;
     mod error;
+    mod increase_order_utils;
+    mod order;
+    mod order_utils;
+    mod order_vault;
     mod swap_order_utils;
 }
 
@@ -204,11 +204,11 @@ mod position {
     mod decrease_position_collateral_utils;
     mod decrease_position_swap_utils;
     mod decrease_position_utils;
+    mod error;
     mod increase_position_utils;
+    mod position;
     mod position_event_utils;
     mod position_utils;
-    mod position;
-    mod error;
 }
 
 // `pricing` contains pricing utils
@@ -221,14 +221,14 @@ mod pricing {
 
 // `referral` contains referral logic.
 mod referral {
-    mod referral_utils;
     mod referral_tier;
+    mod referral_utils;
 }
 
 mod swap {
-    mod swap_utils;
-    mod swap_handler;
     mod error;
+    mod swap_handler;
+    mod swap_utils;
 }
 
 // Copied from `https://github.com/OpenZeppelin/cairo-contracts/blob/cairo-2/src/token`.
@@ -246,7 +246,7 @@ mod test_utils {
 // `withdrawal` contains withdrawal management functions
 mod withdrawal {
     mod error;
+    mod withdrawal;
     mod withdrawal_utils;
     mod withdrawal_vault;
-    mod withdrawal;
 }

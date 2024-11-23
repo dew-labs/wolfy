@@ -1,52 +1,52 @@
 //! Test file for `src/deposit/deposit_utils.cairo`.
-use starknet::{ContractAddress, contract_address_const};
 
-use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
-use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
-use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
-use satoru::data::keys;
-use satoru::market::market::Market;
-use satoru::role::role;
-use satoru::test_utils::tests_lib;
-use satoru::utils::span32::{Span32, Array32Trait};
-use satoru::deposit::{
+use freyr::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
+use freyr::data::keys;
+use freyr::deposit::{
     deposit::Deposit, deposit_utils::CreateDepositParams, deposit_utils::create_deposit, deposit_utils::cancel_deposit,
     deposit_vault::{IDepositVaultDispatcher, IDepositVaultDispatcherTrait}
 };
+use freyr::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
+use freyr::market::market::Market;
+use freyr::market::market_utils::{IMarketUtilsLibraryDispatcher, IMarketUtilsDispatcherTrait};
+use freyr::role::role;
+use freyr::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
+use freyr::test_utils::tests_lib;
+use freyr::utils::span32::{Span32, Array32Trait};
 
-
-use snforge_std::{declare, start_cheat_caller_address, ContractClassTrait};
+use snforge_std::{declare, start_cheat_caller_address, ContractClassTrait, DeclareResultTrait};
+use starknet::{ContractAddress, contract_address_const};
 
 
 #[test]
 fn given_normal_conditions_when_deposit_then_works() {
-    let (_caller_address, data_store, _role_store, event_emitter, deposit_vault) = setup();
+    let (_caller_address, data_store, _role_store, event_emitter, deposit_vault, market_utils) = setup();
     let account = tests_lib::deploy_mock_account();
     let deposit_param = create_dummy_deposit_param();
-    let _key = create_deposit(data_store, event_emitter, deposit_vault, account, deposit_param);
+    let _key = create_deposit(data_store, event_emitter, deposit_vault, account, deposit_param, market_utils);
 }
 
 #[test]
 #[should_panic(expected: ('insufficient_execution_fee',))]
 fn given_unsufficient_fee_token_amount_for_deposit_then_fails() {
-    let (_caller_address, data_store, role_store, event_emitter, deposit_vault) = setup();
+    let (_caller_address, data_store, role_store, event_emitter, deposit_vault, market_utils) = setup();
     let account = tests_lib::deploy_mock_account();
     let deposit_param = create_dummy_deposit_param_market(data_store, role_store);
-    let _key = create_deposit(data_store, event_emitter, deposit_vault, account, deposit_param);
+    let _key = create_deposit(data_store, event_emitter, deposit_vault, account, deposit_param, market_utils);
 }
 
 #[test]
 #[should_panic(expected: ('empty_deposit_amounts',))]
 fn given_empty_deposit_amount_then_fails() {
-    let (_caller_address, data_store, _role_store, event_emitter, deposit_vault) = setup();
+    let (_caller_address, data_store, _role_store, event_emitter, deposit_vault, market_utils) = setup();
     let account = tests_lib::deploy_mock_account();
     let deposit_param = create_dummy_deposit_param();
-    let _key = create_deposit(data_store, event_emitter, deposit_vault, account, deposit_param);
+    let _key = create_deposit(data_store, event_emitter, deposit_vault, account, deposit_param, market_utils);
 }
 
 #[test]
 fn given_normal_conditions_when_cancel_deposit_then_works() {
-    let (_caller_address, data_store, _role_store, event_emitter, deposit_vault) = setup();
+    let (_caller_address, data_store, _role_store, event_emitter, deposit_vault, market_utils) = setup();
     let account: ContractAddress = 'account'.try_into().unwrap();
     let keeper: ContractAddress = 'keeper'.try_into().unwrap();
     // TODO: create real market instead of dummy
@@ -55,7 +55,7 @@ fn given_normal_conditions_when_cancel_deposit_then_works() {
     let reason = 'key';
     let starting_gas = 2;
     let reason_bytes = array!['reason_bytes_1', 'reason_bytes_2',];
-    let key = create_deposit(data_store, event_emitter, deposit_vault, account, deposit_param);
+    let key = create_deposit(data_store, event_emitter, deposit_vault, account, deposit_param, market_utils);
 
     cancel_deposit(data_store, event_emitter, deposit_vault, key, keeper, starting_gas, reason, reason_bytes);
 }
@@ -63,7 +63,12 @@ fn given_normal_conditions_when_cancel_deposit_then_works() {
 
 /// Utility function to setup the test environment.
 fn setup() -> (
-    ContractAddress, IDataStoreDispatcher, IRoleStoreDispatcher, IEventEmitterDispatcher, IDepositVaultDispatcher
+    ContractAddress,
+    IDataStoreDispatcher,
+    IRoleStoreDispatcher,
+    IEventEmitterDispatcher,
+    IDepositVaultDispatcher,
+    IMarketUtilsLibraryDispatcher
 ) {
     let (
         caller_address,
@@ -72,6 +77,10 @@ fn setup() -> (
         _decrease_order_class,
         _swap_order_class,
         _order_utils_class,
+        _role_module_class,
+        _bank_class,
+        _governable_class,
+        market_utils_class,
         _market_factory,
         role_store,
         data_store,
@@ -94,7 +103,9 @@ fn setup() -> (
     ) =
         tests_lib::setup();
 
-    (caller_address, data_store, role_store, event_emitter, deposit_vault)
+    let market_utils = IMarketUtilsLibraryDispatcher { class_hash: market_utils_class.class_hash };
+
+    (caller_address, data_store, role_store, event_emitter, deposit_vault, market_utils)
 }
 
 fn create_dummy_deposit_param() -> CreateDepositParams {
@@ -112,9 +123,9 @@ fn create_dummy_deposit_param() -> CreateDepositParams {
         /// The initial short token address.
         initial_short_token: 'initial_short_token'.try_into().unwrap(),
         /// The swap path into markets for the long token.
-        long_token_swap_path: array![1.try_into().unwrap(), 2.try_into().unwrap(), 3.try_into().unwrap()].span32(),
+        long_token_swap_path: array![].span32(),
         /// The swap path into markets for the short token.
-        short_token_swap_path: array![4.try_into().unwrap(), 5.try_into().unwrap(), 6.try_into().unwrap()].span32(),
+        short_token_swap_path: array![].span32(),
         /// The minimum acceptable number of liquidity tokens.
         min_market_tokens: 10,
         /// The execution fee for keepers.
@@ -153,9 +164,9 @@ fn create_dummy_deposit_param_market(
         /// The initial short token address.
         initial_short_token: 'initial_short_token'.try_into().unwrap(),
         /// The swap path into markets for the long token.
-        long_token_swap_path: array![1.try_into().unwrap(), 2.try_into().unwrap(), 3.try_into().unwrap()].span32(),
+        long_token_swap_path: array![].span32(),
         /// The swap path into markets for the short token.
-        short_token_swap_path: array![4.try_into().unwrap(), 5.try_into().unwrap(), 6.try_into().unwrap()].span32(),
+        short_token_swap_path: array![].span32(),
         /// The minimum acceptable number of liquidity tokens.
         min_market_tokens: 10,
         /// The execution fee for keepers.

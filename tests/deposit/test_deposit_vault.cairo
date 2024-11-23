@@ -4,19 +4,22 @@
 //                                  IMPORTS
 // *************************************************************************
 // Core lib imports.
-use integer::{u256_from_felt252};
-use result::ResultTrait;
-use starknet::{ContractAddress, get_caller_address, Felt252TryIntoContractAddress, contract_address_const, ClassHash,};
-use snforge_std::{declare, start_cheat_caller_address, stop_cheat_caller_address, start_mock_call, ContractClassTrait};
-use traits::{TryInto, Into};
 
 // Local imports.
-use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
-use satoru::deposit::deposit_vault::{IDepositVaultDispatcher, IDepositVaultDispatcherTrait};
-use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
-use satoru::role::role;
-use satoru::test_utils::tests_lib;
-use satoru::token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
+use freyr::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
+use freyr::deposit::deposit_vault::{IDepositVaultDispatcher, IDepositVaultDispatcherTrait};
+use freyr::role::role;
+use freyr::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
+use freyr::test_utils::tests_lib;
+use freyr::token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
+use integer::{u256_from_felt252};
+use result::ResultTrait;
+use snforge_std::{
+    declare, start_cheat_caller_address, stop_cheat_caller_address, start_mock_call, ContractClassTrait,
+    DeclareResultTrait
+};
+use starknet::{ContractAddress, get_caller_address, Felt252TryIntoContractAddress, contract_address_const, ClassHash,};
+use traits::{TryInto, Into};
 
 // *********************************************************************************************
 // *                                     TEST CONSTANTS                                        *
@@ -27,14 +30,6 @@ const INITIAL_TOKENS_MINTED: felt252 = 1000;
 // *********************************************************************************************
 // *                                      TEST LOGIC                                           *
 // *********************************************************************************************
-#[test]
-#[should_panic(expected: ('already_initialized',))]
-fn given_already_intialized_when_initialize_then_fails() {
-    let (_, _, role_store, data_store, deposit_vault, _) = setup();
-    deposit_vault.initialize(data_store.contract_address, role_store.contract_address);
-    teardown(deposit_vault);
-}
-
 #[test]
 fn given_normal_conditions_when_transfer_out_then_works() {
     let (_, receiver_address, _, _data_store, deposit_vault, erc20) = setup();
@@ -59,7 +54,7 @@ fn given_normal_conditions_when_transfer_out_then_works() {
 }
 
 #[test]
-#[should_panic(expected: ('u256_sub Overflow',))]
+#[should_panic(expected: ('ERC20: insufficient balance',))]
 fn given_not_enough_token_when_transfer_out_then_fails() {
     let (_, receiver_address, _, _data_store, deposit_vault, erc20) = setup();
 
@@ -183,6 +178,10 @@ fn setup() -> (
         _decrease_order_class,
         _swap_order_class,
         _order_utils_class,
+        _role_module_class,
+        _bank_class,
+        _governable_class,
+        _market_utils_class,
         _market_factory,
         role_store,
         data_store,

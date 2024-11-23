@@ -1,19 +1,20 @@
-use satoru::data::keys;
-use satoru::pricing::swap_pricing_utils::{
+use freyr::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
+use freyr::data::keys;
+use freyr::market::market::Market;
+use freyr::market::market_utils::{IMarketUtilsLibraryDispatcher, IMarketUtilsDispatcherTrait};
+use freyr::pricing::swap_pricing_utils::{
     GetPriceImpactUsdParams, get_price_impact_usd_, get_price_impact_usd, get_next_pool_amount_usd, get_swap_fees
 };
-use satoru::market::market::Market;
-use satoru::utils::calc;
-use satoru::test_utils::tests_lib;
-use satoru::utils::i256::{i256, i256_new};
-use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
+use freyr::test_utils::tests_lib;
+use freyr::utils::calc;
+use freyr::utils::i256::{i256, i256_new};
 
 #[test]
 fn given_normal_conditions_when_swap_pricing_utils_functions_then_works() {
     // *********************************************************************************************
     // *                              SETUP                                                        *
     // *********************************************************************************************
-    let data_store = setup();
+    let (data_store, market_utils) = setup();
 
     let market_token = 'market_token'.try_into().unwrap();
     let index_token = 'index_token'.try_into().unwrap();
@@ -38,7 +39,7 @@ fn given_normal_conditions_when_swap_pricing_utils_functions_then_works() {
         usd_delta_for_token_b: i256_new(4, false),
     };
 
-    let impact = get_price_impact_usd(params);
+    let impact = get_price_impact_usd(params, market_utils);
     // TODO change to real value when precision::apply_exponent_factor is implemented
     assert(impact == i256_new(0, false), 'foo');
 
@@ -53,7 +54,7 @@ fn given_normal_conditions_when_get_next_pool_amount_usd_then_works() {
     // *********************************************************************************************
     // *                              SETUP                                                        *
     // *********************************************************************************************
-    let data_store = setup();
+    let (data_store, market_utils) = setup();
 
     let market_token = 'market_token'.try_into().unwrap();
     let index_token = 'index_token'.try_into().unwrap();
@@ -81,7 +82,7 @@ fn given_normal_conditions_when_get_next_pool_amount_usd_then_works() {
         usd_delta_for_token_b: i256_new(4, false),
     };
 
-    let pool_params = get_next_pool_amount_usd(params);
+    let pool_params = get_next_pool_amount_usd(params, market_utils);
     assert(pool_params.pool_usd_for_token_a == 101000, 'invalid');
     assert(pool_params.pool_usd_for_token_b == 99000, 'invalid');
     assert(pool_params.next_pool_usd_for_token_a == 101005, 'invalid');
@@ -98,7 +99,7 @@ fn given_normal_conditions_when_get_swap_fees_then_works() {
     // *********************************************************************************************
     // *                              SETUP                                                        *
     // *********************************************************************************************
-    let data_store = setup();
+    let (data_store, market_utils) = setup();
 
     let market_token = 'market_token'.try_into().unwrap();
     let ui_fee_receiver = 'ui_fee_receiver'.try_into().unwrap();
@@ -114,7 +115,7 @@ fn given_normal_conditions_when_get_swap_fees_then_works() {
     // *********************************************************************************************
 
     let amount = 1000;
-    let fees = get_swap_fees(data_store, market_token, amount, for_positive_impact, ui_fee_receiver);
+    let fees = get_swap_fees(data_store, market_token, amount, for_positive_impact, ui_fee_receiver, market_utils);
 
     assert(fees.fee_receiver_amount == 0, 'invalid');
     assert(fees.fee_amount_for_pool == 0, 'invalid');
@@ -128,7 +129,7 @@ fn given_normal_conditions_when_get_swap_fees_then_works() {
     tests_lib::teardown();
 }
 
-fn setup() -> IDataStoreDispatcher {
+fn setup() -> (IDataStoreDispatcher, IMarketUtilsLibraryDispatcher) {
     let (
         _caller_address,
         _market_token_class,
@@ -136,6 +137,10 @@ fn setup() -> IDataStoreDispatcher {
         _decrease_order_class,
         _swap_order_class,
         _order_utils_class,
+        _role_module_class,
+        _bank_class,
+        _governable_class,
+        market_utils_class,
         _market_factory,
         _role_store,
         data_store,
@@ -158,5 +163,7 @@ fn setup() -> IDataStoreDispatcher {
     ) =
         tests_lib::setup();
 
-    data_store
+    let market_utils = IMarketUtilsLibraryDispatcher { class_hash: market_utils_class.class_hash };
+
+    (data_store, market_utils)
 }

@@ -4,7 +4,7 @@ The Price Module helps manage everything related to prices. It organizes how to 
 
 ## Cairo Library Files
 
-### [price.cairo](https://github.com/keep-starknet-strange/satoru/blob/main/src/price/price.cairo)
+### [price.cairo](https://github.com/dew-labs/wolfy/blob/main/src/price/price.cairo)
 Defines the `Price` struct and associated methods, serving as a utility to streamline price-related operations in contracts.
 
 ## Structures and Types

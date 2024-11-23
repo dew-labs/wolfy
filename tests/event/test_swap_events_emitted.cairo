@@ -1,14 +1,15 @@
-use starknet::{ContractAddress, contract_address_const};
-use snforge_std::{declare, ContractClassTrait, spy_events, EventSpy, EventSpyTrait, Event, EventSpyAssertionsTrait};
-use satoru::test_utils::tests_lib::deploy_event_emitter;
+use freyr::event::event_emitter::EventEmitter::{SwapReverted};
 
-use satoru::pricing::position_pricing_utils::{
+use freyr::event::event_emitter::{EventEmitter, IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
+
+use freyr::pricing::position_pricing_utils::{
     PositionFees, PositionUiFees, PositionBorrowingFees, PositionReferralFees, PositionFundingFees
 };
-
-use satoru::event::event_emitter::{EventEmitter, IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
-
-use satoru::event::event_emitter::EventEmitter::{SwapReverted};
+use freyr::test_utils::tests_lib::deploy_event_emitter;
+use snforge_std::{
+    declare, ContractClassTrait, DeclareResultTrait, spy_events, EventSpy, EventSpyTrait, Event, EventSpyAssertionsTrait
+};
+use starknet::{ContractAddress, contract_address_const};
 
 
 #[test]

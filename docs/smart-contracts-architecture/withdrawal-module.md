@@ -4,14 +4,14 @@ The Withdrawal Module role is to manage the operations related to withdrawals.
 
 ## Smart Contracts
 
-### [WithdrawalVault](https://github.com/keep-starknet-strange/satoru/blob/main/src/withdrawal/withdrawal_vault.cairo)
+### [WithdrawalVault](https://github.com/dew-labs/wolfy/blob/main/src/withdrawal/withdrawal_vault.cairo)
 The WithdrawalVault is the vault specifically designed for withdrawals, ensuring the secure management of funds during the withdrawal processes.
 
 ## Cairo Library Files
 
-- [error.cairo](https://github.com/keep-starknet-strange/satoru/blob/main/src/withdrawal/error.cairo): Holds the module-specific error codes.
-- [withdrawal_utils.cairo](https://github.com/keep-starknet-strange/satoru/blob/main/src/withdrawal/withdrawal_utils.cairo): Encapsulates withdrawal-related utility functions.
-- [withdrawal.cairo](https://github.com/keep-starknet-strange/satoru/blob/main/src/withdrawal/withdrawal.cairo): Defines the structures related to withdrawal.
+- [error.cairo](https://github.com/dew-labs/wolfy/blob/main/src/withdrawal/error.cairo): Holds the module-specific error codes.
+- [withdrawal_utils.cairo](https://github.com/dew-labs/wolfy/blob/main/src/withdrawal/withdrawal_utils.cairo): Encapsulates withdrawal-related utility functions.
+- [withdrawal.cairo](https://github.com/dew-labs/wolfy/blob/main/src/withdrawal/withdrawal.cairo): Defines the structures related to withdrawal.
 
 ### Withdrawal Creation and Execution
 In this module, withdrawals can be created through the `create_withdrawal` function, which needs parameters such as the account initiating the withdrawal, the receiver of the tokens, and various other details related to the withdrawal.

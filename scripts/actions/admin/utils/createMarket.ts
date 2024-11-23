@@ -1,6 +1,6 @@
-import { createCall } from "satoru-sdk";
+import { createCall } from "wolfy-sdk";
 
-import { createSatoruContract, executeAndWait, MarketFactoryABI, SatoruContract } from "satoru-sdk";
+import { createWolfyContract, executeAndWait, MarketFactoryABI, WolfyContract } from "wolfy-sdk";
 import { CairoUint256, type Account } from "starknet";
 
 export default async function createMarket(
@@ -11,9 +11,9 @@ export default async function createMarket(
 ) {
     const chainId = await account.getChainId();
 
-    const marketFactoryContract = createSatoruContract(
+    const marketFactoryContract = createWolfyContract(
         chainId,
-        SatoruContract.MarketFactory,
+        WolfyContract.MarketFactory,
         MarketFactoryABI,
         account
     );

@@ -3,31 +3,30 @@
 // *************************************************************************
 
 // Core lib imports.
-use starknet::{ContractAddress, contract_address_const};
-
-// Local imports.
-use satoru::oracle::oracle::{IOracleDispatcher, IOracleDispatcherTrait};
-use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
-use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
-use satoru::oracle::oracle_utils;
-use satoru::position::decrease_position_utils::DecreasePositionResult;
-use satoru::position::decrease_position_utils;
-use satoru::order::{base_order_utils::ExecuteOrderParams, order::Order, order::OrderType, error::OrderError, order};
-use satoru::bank::bank::{IBankDispatcher, IBankDispatcherTrait};
-
-use satoru::utils::arrays;
-use satoru::market::market_utils;
-use satoru::position::position_utils;
-use satoru::position::position::Position;
-use satoru::swap::swap_utils::{SwapParams};
-use satoru::position::position_utils::UpdatePositionParams;
-use satoru::event::event_utils::{
+use freyr::bank::bank::{IBankDispatcher, IBankDispatcherTrait};
+use freyr::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
+use freyr::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
+use freyr::event::event_utils::{
     Felt252IntoContractAddress, ContractAddressDictValue, I256252DictValue, U256252DictValue, U256IntoFelt252
 };
-use satoru::utils::serializable_dict::{SerializableFelt252Dict, SerializableFelt252DictTrait};
-use satoru::market::market_token::{IMarketTokenDispatcher, IMarketTokenDispatcherTrait};
-use satoru::utils::span32::{Span32, Array32Trait};
-use satoru::swap::swap_handler::{ISwapHandlerDispatcher, ISwapHandlerDispatcherTrait};
+use freyr::market::market_token::{IMarketTokenDispatcher, IMarketTokenDispatcherTrait};
+
+// Local imports.
+use freyr::oracle::oracle::{IOracleDispatcher, IOracleDispatcherTrait};
+use freyr::oracle::oracle_utils;
+use freyr::order::{base_order_utils::ExecuteOrderParams, order::Order, order::OrderType, error::OrderError, order};
+use freyr::position::decrease_position_utils::DecreasePositionResult;
+use freyr::position::decrease_position_utils;
+use freyr::position::position::Position;
+use freyr::position::position_utils::UpdatePositionParams;
+use freyr::position::position_utils;
+use freyr::swap::swap_handler::{ISwapHandlerDispatcher, ISwapHandlerDispatcherTrait};
+use freyr::swap::swap_utils::{SwapParams};
+
+use freyr::utils::arrays;
+use freyr::utils::serializable_dict::{SerializableFelt252Dict, SerializableFelt252DictTrait};
+use freyr::utils::span32::{Span32, Array32Trait};
+use starknet::{ContractAddress, contract_address_const, ClassHash};
 
 // *************************************************************************
 //                  Interface of the `OrderUtils` contract.
@@ -74,7 +73,7 @@ trait IDecreaseOrderUtils<TContractState> {
         secondary_output_amount: u256,
         min_output_amount: u256
     );
-// fn handle_swap_error(
+    // fn handle_swap_error(
 //     ref self: TContractState,
 //     oracle: IOracleDispatcher,
 //     order: Order,
@@ -88,34 +87,36 @@ trait IDecreaseOrderUtils<TContractState> {
 #[starknet::contract]
 mod DecreaseOrderUtils {
     // Core lib imports.
-    use starknet::{ContractAddress, contract_address_const};
-
-    // Local imports.
-    use satoru::oracle::oracle::{IOracleDispatcher, IOracleDispatcherTrait};
-    use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
-    use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
-    use satoru::oracle::oracle_utils;
-    use satoru::position::decrease_position_utils::DecreasePositionResult;
-    use satoru::position::decrease_position_utils;
-    use satoru::order::{base_order_utils::ExecuteOrderParams, order::Order, order::OrderType, error::OrderError, order};
-    use satoru::bank::bank::{IBankDispatcher, IBankDispatcherTrait};
-
-    use satoru::utils::arrays;
-    use satoru::market::market_utils;
-    use satoru::position::position_utils;
-    use satoru::position::position::Position;
-    use satoru::swap::swap_utils::{SwapParams};
-    use satoru::position::position_utils::UpdatePositionParams;
-    use satoru::event::event_utils::{
+    use freyr::bank::bank::{IBankDispatcher, IBankDispatcherTrait};
+    use freyr::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
+    use freyr::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
+    use freyr::event::event_utils::{
         Felt252IntoContractAddress, ContractAddressDictValue, I256252DictValue, U256252DictValue, U256IntoFelt252
     };
-    use satoru::utils::serializable_dict::{SerializableFelt252Dict, SerializableFelt252DictTrait};
-    use satoru::market::market_token::{IMarketTokenDispatcher, IMarketTokenDispatcherTrait};
-    use satoru::utils::span32::{Span32, Array32Trait};
-    use satoru::swap::swap_handler::{ISwapHandlerDispatcher, ISwapHandlerDispatcherTrait};
+    use freyr::market::market_token::{IMarketTokenDispatcher, IMarketTokenDispatcherTrait};
+    use freyr::market::market_utils::{IMarketUtilsLibraryDispatcher, IMarketUtilsDispatcherTrait};
+
+    // Local imports.
+    use freyr::oracle::oracle::{IOracleDispatcher, IOracleDispatcherTrait};
+    use freyr::oracle::oracle_utils;
+    use freyr::order::{base_order_utils::ExecuteOrderParams, order::Order, order::OrderType, error::OrderError, order};
+    use freyr::position::decrease_position_utils::DecreasePositionResult;
+    use freyr::position::decrease_position_utils;
+    use freyr::position::position::Position;
+    use freyr::position::position_utils::UpdatePositionParams;
+    use freyr::position::position_utils;
+    use freyr::swap::swap_handler::{ISwapHandlerDispatcher, ISwapHandlerDispatcherTrait};
+    use freyr::swap::swap_utils::{SwapParams};
+
+    use freyr::utils::arrays;
+    use freyr::utils::serializable_dict::{SerializableFelt252Dict, SerializableFelt252DictTrait};
+    use freyr::utils::span32::{Span32, Array32Trait};
+    use starknet::{ContractAddress, contract_address_const, ClassHash};
 
     #[storage]
-    struct Storage {}
+    struct Storage {
+        market_utils: IMarketUtilsLibraryDispatcher,
+    }
 
     // *************************************************************************
     //                          EXTERNAL FUNCTIONS
@@ -129,7 +130,9 @@ mod DecreaseOrderUtils {
         ) { //TODO check with refactor with callback_utils
             let order: Order = params.order;
 
-            market_utils::validate_position_market_check(params.contracts.data_store, params.market);
+            let market_utils = self.market_utils.read();
+
+            market_utils.validate_position_market_check(params.contracts.data_store, params.market);
 
             let position_key: felt252 = position_utils::get_position_key(
                 order.account, order.market, order.initial_collateral_token, order.is_long
@@ -156,7 +159,9 @@ mod DecreaseOrderUtils {
                 position_key,
                 secondary_order_type: params.secondary_order_type
             };
-            let mut result: DecreasePositionResult = decrease_position_utils::decrease_position(update_position_params);
+            let mut result: DecreasePositionResult = decrease_position_utils::decrease_position(
+                update_position_params, market_utils
+            );
             // if the pnl_token and the collateral_token are different
             // and if a swap fails or no swap was requested
             // then it is possible to receive two separate tokens from decreasing
@@ -180,7 +185,9 @@ mod DecreaseOrderUtils {
                     .transfer_out(
                         order.market, result.secondary_output_token, order.receiver, result.secondary_output_amount
                     );
-            // return get_output_event_data(
+
+                return;
+                // return get_output_event_data(
             //     result.output_token,
             //     result.output_amount,
             //     result.secondary_output_token,
@@ -209,7 +216,7 @@ mod DecreaseOrderUtils {
                 .validate_output_amount(
                     params.contracts.oracle, token_out, swap_output_amount, order.min_output_amount
                 );
-        // return get_output_event_data(token_out, swap_output_amount, contract_address_const::<0>(), 0);
+            // return get_output_event_data(token_out, swap_output_amount, contract_address_const::<0>(), 0);
         }
 
 
@@ -302,7 +309,7 @@ mod DecreaseOrderUtils {
                 OrderError::INSUFFICIENT_OUTPUT_AMOUNT(output_usd, output_token_price);
             }
         }
-    // fn handle_swap_error(
+        // fn handle_swap_error(
     //     ref self: ContractState,
     //     oracle: IOracleDispatcher,
     //     order: Order,
@@ -313,12 +320,12 @@ mod DecreaseOrderUtils {
     // ) {
     //     event_emitter.emit_swap_reverted(reason, reason_bytes);
 
-    //     self
+        //     self
     //         .validate_output_amount(
     //             oracle, result.output_token, result.output_amount, order.min_output_amount
     //         );
 
-    //     IMarketTokenDispatcher { contract_address: order.market }
+        //     IMarketTokenDispatcher { contract_address: order.market }
     //         .transfer_out(
     //             order.market, result.output_token, order.receiver, result.output_amount
     //         );
@@ -333,13 +340,13 @@ mod DecreaseOrderUtils {
     // ) { //-> LogData {
     //     let mut log_data: LogData = Default::default();
 
-    //     log_data.address_dict.insert_single('output_token', output_token);
+        //     log_data.address_dict.insert_single('output_token', output_token);
     //     log_data.address_dict.insert_single('secondary_output_token', secondary_output_token);
 
-    //     log_data.uint_dict.insert_single('output_amount', output_amount);
+        //     log_data.uint_dict.insert_single('output_amount', output_amount);
     //     log_data.uint_dict.insert_single('secondary_output_amount', secondary_output_amount);
 
-    //     //log_data
+        //     //log_data
     // }
     }
 }

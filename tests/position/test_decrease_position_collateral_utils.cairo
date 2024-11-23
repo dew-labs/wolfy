@@ -1,30 +1,31 @@
 // Core lib imports.
 use array::ArrayTrait;
 use core::traits::{Into, TryInto};
-use snforge_std::{declare, ContractClassTrait, start_cheat_caller_address};
-use starknet::{ContractAddress, contract_address_const};
+
+use debug::PrintTrait;
 
 // Local imports.
-use satoru::data::{data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait}, keys};
-use satoru::event::event_emitter::IEventEmitterDispatcher;
-use satoru::market::{market::Market, market_utils::MarketPrices};
-use satoru::mock::referral_storage::IReferralStorageDispatcher;
-use satoru::oracle::oracle::IOracleDispatcher;
-use satoru::order::{
+use freyr::data::{data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait}, keys};
+use freyr::event::event_emitter::IEventEmitterDispatcher;
+use freyr::market::market::Market;
+use freyr::market::market_utils::{IMarketUtilsLibraryDispatcher, IMarketUtilsDispatcherTrait, MarketPrices};
+use freyr::mock::referral_storage::IReferralStorageDispatcher;
+use freyr::oracle::oracle::IOracleDispatcher;
+use freyr::order::{
     order::{DecreasePositionSwapType, Order, OrderType, SecondaryOrderType},
     base_order_utils::{ExecuteOrderParams, ExecuteOrderParamsContracts}, order_vault::IOrderVaultDispatcher
 };
-use satoru::position::{
+use freyr::position::{
     position_utils::{UpdatePositionParams, DecreasePositionCache, DecreasePositionCollateralValues}, position::Position,
     decrease_position_collateral_utils
 };
-use satoru::price::price::Price;
-use satoru::swap::swap_handler::ISwapHandlerDispatcher;
-use satoru::test_utils::tests_lib;
-use satoru::utils::span32::{Span32, Array32Trait};
-use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
-
-use debug::PrintTrait;
+use freyr::price::price::Price;
+use freyr::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
+use freyr::swap::swap_handler::ISwapHandlerDispatcher;
+use freyr::test_utils::tests_lib;
+use freyr::utils::span32::{Span32, Array32Trait};
+use snforge_std::{declare, ContractClassTrait, DeclareResultTrait, start_cheat_caller_address};
+use starknet::{ContractAddress, contract_address_const};
 
 fn setup() -> (
     ContractAddress,
@@ -32,7 +33,8 @@ fn setup() -> (
     IDataStoreDispatcher,
     IEventEmitterDispatcher,
     IReferralStorageDispatcher,
-    ISwapHandlerDispatcher
+    ISwapHandlerDispatcher,
+    IMarketUtilsLibraryDispatcher
 ) {
     let (
         caller_address,
@@ -41,6 +43,10 @@ fn setup() -> (
         _decrease_order_class,
         _swap_order_class,
         _order_utils_class,
+        _role_module_class,
+        _bank_class,
+        _governable_class,
+        market_utils_class,
         _market_factory,
         role_store,
         data_store,
@@ -63,12 +69,14 @@ fn setup() -> (
     ) =
         tests_lib::setup();
 
-    (caller_address, role_store, data_store, event_emitter, referral_storage, swap_handler)
+    let market_utils = IMarketUtilsLibraryDispatcher { class_hash: market_utils_class.class_hash };
+
+    (caller_address, role_store, data_store, event_emitter, referral_storage, swap_handler, market_utils)
 }
 
 fn deploy_token() -> ContractAddress {
-    let contract = declare("ERC20").unwrap();
-    let constructor_calldata = array!['Test', 'TST', 18, 1000000, 0, 0x101];
+    let contract = declare("ERC20").unwrap().contract_class();
+    let constructor_calldata: Array<felt252> = array!['Test', 'TST', 18, 1000000, 0, 0x101];
     let (contract_address, _) = contract.deploy(@constructor_calldata).unwrap();
     contract_address
 }
@@ -78,7 +86,8 @@ fn given_good_params_when_process_collateral_then_succeed() {
     //
     // Setup
     //
-    let (_caller_address, _role_store, data_store, event_emitter, referral_storage, swap_handler) = setup();
+    let (_caller_address, _role_store, data_store, event_emitter, referral_storage, swap_handler, market_utils) =
+        setup();
     let long_token_address = deploy_token();
 
     // setting open_interest to 10_000 to allow decreasing position.
@@ -101,7 +110,7 @@ fn given_good_params_when_process_collateral_then_succeed() {
     //
     // Execution
     //
-    decrease_position_collateral_utils::process_collateral(params, values);
+    decrease_position_collateral_utils::process_collateral(params, values, market_utils);
 
     // Checks
     data_store.get_u256(keys::open_interest_key(contract_address_const::<'market_token'>(), long_token_address, true),);
@@ -112,7 +121,8 @@ fn given_good_params_get_execution_price_then_succeed() {
     //
     // Setup
     //
-    let (_caller_address, _role_store, data_store, event_emitter, referral_storage, swap_handler) = setup();
+    let (_caller_address, _role_store, data_store, event_emitter, referral_storage, swap_handler, market_utils) =
+        setup();
     let long_token_address = deploy_token();
 
     // setting open_interest to 10_000 to allow decreasing position.
@@ -134,7 +144,7 @@ fn given_good_params_get_execution_price_then_succeed() {
     // Execution
     //
     let (_, _, execution_price) = decrease_position_collateral_utils::get_execution_price(
-        params, Price { min: 10, max: 10 }
+        params, Price { min: 10, max: 10 }, market_utils
     );
     //
     // Checks

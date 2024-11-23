@@ -1,4 +1,4 @@
-// use satoru::utils::i256::I256Serde;
+// use freyr::utils::i256::I256Serde;
 
 // #[starknet::interface]
 // trait ITestI256Storage<TContractState> {
@@ -8,7 +8,7 @@
 
 // #[starknet::contract]
 // mod test_i256_storage_contract {
-//     use satoru::utils::i256::{I256Store, I256Serde};
+//     use freyr::utils::i256::{I256Store, I256Serde};
 //     use super::ITestI256Storage;
 
 //     #[storage]

@@ -40,35 +40,31 @@ mod Config {
     // *************************************************************************
 
     // Core lib imports.
-    use core::clone::Clone;
-    use starknet::{get_caller_address, ContractAddress, contract_address_const,};
-    use poseidon::poseidon_hash_span;
-
-
-    // Local imports.
-    use satoru::role::role;
-    use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
-    use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
-    use satoru::data::keys;
-    use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
-    use satoru::config::error::ConfigError;
 
     // External imports.
     use alexandria_data_structures::array_ext::ArrayTraitExt;
+    use core::clone::Clone;
+    use freyr::config::error::ConfigError;
+    use freyr::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
+    use freyr::data::keys;
+    use freyr::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
+
+
+    // Local imports.
+    use freyr::role::role_module::{IRoleModuleLibraryDispatcher, IRoleModuleDispatcherTrait};
+    use poseidon::poseidon_hash_span;
+    use starknet::storage::Map;
+    use starknet::{get_caller_address, ContractAddress, contract_address_const, ClassHash};
 
     // *************************************************************************
     //                              STORAGE
     // *************************************************************************
     #[storage]
     struct Storage {
-        /// An interface to interact with the `RoleStore` contract.
-        role_store: IRoleStoreDispatcher,
-        /// An interface to interact with the `DataStore` contract.
         data_store: IDataStoreDispatcher,
-        /// An interface to interact with the `EventEmitter` contract.
         event_emitter: IEventEmitterDispatcher,
-        /// The base keys that can be set.
-        allowed_based_keys: LegacyMap<felt252, bool>,
+        allowed_based_keys: Map<felt252, bool>,
+        role_module: IRoleModuleLibraryDispatcher,
     }
 
     // *************************************************************************
@@ -80,10 +76,12 @@ mod Config {
         role_store_address: ContractAddress,
         data_store_address: ContractAddress,
         event_emitter_address: ContractAddress,
+        role_module_class_hash: ClassHash,
     ) {
-        self.role_store.write(IRoleStoreDispatcher { contract_address: role_store_address });
         self.data_store.write(IDataStoreDispatcher { contract_address: data_store_address });
         self.event_emitter.write(IEventEmitterDispatcher { contract_address: event_emitter_address });
+        self.role_module.write(IRoleModuleLibraryDispatcher { class_hash: role_module_class_hash });
+        self.role_module.read().initialize(role_store_address);
         // Initialize the allowed base keys.
         self.init_allowed_base_keys();
     }
@@ -95,7 +93,7 @@ mod Config {
     impl ConfigImpl of super::IConfig<ContractState> {
         fn set_bool(ref self: ContractState, base_key: felt252, data: Array<felt252>, value: bool,) {
             // Check that the caller has the `CONFIG_KEEPER` role.
-            self.role_store.read().assert_only_role(get_caller_address(), role::CONFIG_KEEPER);
+            self.role_module.read().only_config_keeper();
             // Validate the base key.
             self.validate_key(base_key);
             // Get the full key.
@@ -106,7 +104,7 @@ mod Config {
 
         fn set_address(ref self: ContractState, base_key: felt252, data: Array<felt252>, value: ContractAddress,) {
             // Check that the caller has the `CONFIG_KEEPER` role.
-            self.role_store.read().assert_only_role(get_caller_address(), role::CONFIG_KEEPER);
+            self.role_module.read().only_config_keeper();
             // Validate the base key.
             self.validate_key(base_key);
             // Get the full key.
@@ -117,7 +115,7 @@ mod Config {
 
         fn set_felt252(ref self: ContractState, base_key: felt252, data: Array<felt252>, value: felt252,) {
             // Check that the caller has the `CONFIG_KEEPER` role.
-            self.role_store.read().assert_only_role(get_caller_address(), role::CONFIG_KEEPER);
+            self.role_module.read().only_config_keeper();
             // Validate the base key.
             self.validate_key(base_key);
             // Get the full key.

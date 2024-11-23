@@ -1,6 +1,6 @@
-use satoru::utils::u256_mask::validate_unique_and_set_index;
-use integer::BoundedInt;
+use core::num::traits::Bounded;
 use debug::PrintTrait;
+use freyr::utils::u256_mask::validate_unique_and_set_index;
 
 #[test]
 fn given_valid_index_bit_not_set_when_validate_unique_and_set_index_then_works() {

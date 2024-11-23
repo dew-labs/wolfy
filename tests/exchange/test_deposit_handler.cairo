@@ -1,15 +1,17 @@
-use snforge_std::{declare, start_cheat_caller_address, stop_cheat_caller_address, ContractClassTrait, ContractClass};
+use freyr::deposit::deposit_utils::CreateDepositParams;
+use freyr::exchange::deposit_handler::{IDepositHandlerDispatcher, IDepositHandlerDispatcherTrait};
+use freyr::oracle::oracle_utils::SetPricesParams;
+use freyr::role::role;
+use freyr::role::role_module::{IRoleModuleDispatcher, IRoleModuleDispatcherTrait};
+use freyr::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
+use freyr::test_utils::tests_lib;
+use freyr::utils::span32::{Span32, Array32Trait};
+use snforge_std::{
+    declare, start_cheat_caller_address, stop_cheat_caller_address, ContractClassTrait, DeclareResultTrait,
+    ContractClass
+};
 use starknet::{ContractAddress, contract_address_const, ClassHash, Felt252TryIntoContractAddress};
 use traits::Default;
-
-use satoru::deposit::deposit_utils::CreateDepositParams;
-use satoru::oracle::oracle_utils::SetPricesParams;
-use satoru::exchange::deposit_handler::{IDepositHandlerDispatcher, IDepositHandlerDispatcherTrait};
-use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
-use satoru::role::role;
-use satoru::role::role_module::{IRoleModuleDispatcher, IRoleModuleDispatcherTrait};
-use satoru::utils::span32::{Span32, Array32Trait};
-use satoru::test_utils::tests_lib;
 
 // TODO add assert and tests when deposit_vault will be implemented
 
@@ -76,6 +78,10 @@ fn setup() -> IDepositHandlerDispatcher {
         _decrease_order_class,
         _swap_order_class,
         _order_utils_class,
+        _role_module_class,
+        _bank_class,
+        _governable_class,
+        _market_utils_class,
         _market_factory,
         _role_store,
         _data_store,

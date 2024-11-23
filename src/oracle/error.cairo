@@ -1,6 +1,6 @@
 mod OracleError {
-    use starknet::ContractAddress;
     use serde::Serde;
+    use starknet::ContractAddress;
 
     const ALREADY_INITIALIZED: felt252 = 'already_initialized';
     const EMPTY_ORACLE_BLOCK_NUMBERS: felt252 = 'empty_oracle_block_numbers';

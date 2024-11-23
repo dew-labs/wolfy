@@ -6,8 +6,8 @@
 //! when block production resumes.
 //! The effects of disabling features should be carefully considered.
 
-use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
-use satoru::feature::error::FeatureError;
+use freyr::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
+use freyr::feature::error::FeatureError;
 
 /// Return if a feature is disabled.
 /// # Arguments

@@ -1,13 +1,12 @@
-use core::serde::Serde;
-use core::array::SpanTrait;
+use alexandria_data_structures::array_ext::ArrayTraitExt;
 use core::array::ArrayTrait;
+use core::array::SpanTrait;
+use core::serde::Serde;
 use core::traits::Into;
-use starknet::{get_caller_address, ContractAddress, contract_address_const};
-use traits::Default;
 use dict::{Felt252DictTrait, Felt252Dict};
 use nullable::{nullable_from_box, match_nullable, FromNullableResult, Nullable};
-
-use alexandria_data_structures::array_ext::ArrayTraitExt;
+use starknet::{get_caller_address, ContractAddress, contract_address_const};
+use traits::Default;
 
 ///
 /// Item
@@ -137,7 +136,7 @@ impl SerializableFelt252DictTraitImpl<
 
     fn insert_single(ref self: SerializableFelt252Dict<T>, key: felt252, value: T) {
         let value = Item::Single(value);
-        if !self.keys.contains(key) {
+        if !self.keys.contains(@key) {
             self.keys.append(key);
         }
         self.values.insert(key, nullable_from_box(BoxTrait::new(value)));
@@ -145,7 +144,7 @@ impl SerializableFelt252DictTraitImpl<
 
     fn insert_span(ref self: SerializableFelt252Dict<T>, key: felt252, values: Span<T>) {
         let values = Item::Span(values);
-        if !self.keys.contains(key) {
+        if !self.keys.contains(@key) {
             self.keys.append(key);
         }
         self.values.insert(key, nullable_from_box(BoxTrait::new(values)));

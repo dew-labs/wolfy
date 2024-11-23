@@ -1,6 +1,6 @@
-// Satoru imports
-use satoru::withdrawal::withdrawal::Withdrawal;
-use satoru::event::event_utils::LogData;
+// Wolfy imports
+use freyr::event::event_utils::LogData;
+use freyr::withdrawal::withdrawal::Withdrawal;
 
 // *************************************************************************
 //                  Interface of the `WithdrawalCallbackReceiver` contract.
@@ -12,7 +12,6 @@ trait IWithdrawalCallbackReceiver<TContractState> {
     /// * `key` - They key of the withdrawal.
     /// * `withdrawal` - The withdrawal that was executed.
     /// * `log_data` - The log data.
-    // TODO uncomment withdrawal when available
     fn after_withdrawal_execution(
         ref self: TContractState, key: felt252, withdrawal: Withdrawal, log_data: Array<felt252>,
     );

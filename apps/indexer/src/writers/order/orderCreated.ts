@@ -6,17 +6,17 @@ import {
     parseDecreasePositionSwapType,
     parseOrderType,
     toStarknetHexString,
-} from "satoru-sdk";
+} from "wolfy-sdk";
 
-import { type SatoruEventWriter } from "../type";
+import { type WolfyEventWriter } from "../type";
 
-import type { SatoruEvent } from "satoru-sdk";
+import type { WolfyEvent } from "wolfy-sdk";
 import { getTradeHistoryAction } from "../utils";
 import { TradeHistoryEvent } from "@freyr/shared/interfaces";
 
 const logger = createLogger("OrderCreatedWriter");
 
-export const handleOrderCreated: SatoruEventWriter<SatoruEvent.OrderCreated> = async ({
+export const handleOrderCreated: WolfyEventWriter<WolfyEvent.OrderCreated> = async ({
     block,
     tx,
     rawEvent,

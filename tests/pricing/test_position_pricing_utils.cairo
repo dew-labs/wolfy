@@ -1,41 +1,44 @@
+use freyr::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
+use freyr::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
+use freyr::market::market::Market;
+use freyr::market::market_utils::{IMarketUtilsLibraryDispatcher, IMarketUtilsDispatcherTrait};
+use freyr::mock::governable::{IGovernableDispatcher, IGovernableDispatcherTrait};
+use freyr::mock::referral_storage::{IReferralStorageDispatcher, IReferralStorageDispatcherTrait};
+use freyr::position::position::Position;
+use freyr::price::price::Price;
+use freyr::pricing::position_pricing_utils::{GetPositionFeesParams, PositionFundingFees, GetPriceImpactUsdParams};
+use freyr::pricing::position_pricing_utils;
+use freyr::role::role;
+use freyr::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
+use freyr::test_utils::tests_lib;
+use freyr::utils::i256::{i256, i256_new};
+use freyr::utils::precision::{FLOAT_PRECISION, FLOAT_PRECISION_SQRT};
+use snforge_std::{
+    declare, start_cheat_caller_address, stop_cheat_caller_address, ContractClassTrait, DeclareResultTrait
+};
 use starknet::{ContractAddress, contract_address_const};
-use satoru::price::price::Price;
-use satoru::position::position::Position;
-use satoru::pricing::position_pricing_utils;
-use satoru::mock::referral_storage::{IReferralStorageDispatcher, IReferralStorageDispatcherTrait};
-use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
-use satoru::mock::governable::{IGovernableDispatcher, IGovernableDispatcherTrait};
-use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
-use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
-use satoru::role::role;
-use satoru::market::market::Market;
-use satoru::pricing::position_pricing_utils::{GetPositionFeesParams, PositionFundingFees, GetPriceImpactUsdParams};
-use snforge_std::{declare, start_cheat_caller_address, stop_cheat_caller_address, ContractClassTrait};
-use satoru::utils::precision::{FLOAT_PRECISION, FLOAT_PRECISION_SQRT};
-use satoru::utils::i256::{i256, i256_new};
-use satoru::test_utils::tests_lib;
 
 // TODO add asserts for each test when possible
 
 #[test]
 fn given_normal_conditions_when_get_price_impact_usd_then_works() {
-    let (data_store, _referral_storage) = setup();
+    let (data_store, _referral_storage, market_utils) = setup();
 
     let get_price_impact_params = create_get_price_impact_usd_params(data_store);
-    position_pricing_utils::get_price_impact_usd(get_price_impact_params);
+    position_pricing_utils::get_price_impact_usd(get_price_impact_params, market_utils);
 }
 
 #[test]
 fn given_normal_conditions_when_get_next_open_interest_then_works() {
-    let (data_store, _referral_storage) = setup();
+    let (data_store, _referral_storage, market_utils) = setup();
 
     let get_price_impact_params = create_get_price_impact_usd_params(data_store);
-    position_pricing_utils::get_next_open_interest(get_price_impact_params);
+    position_pricing_utils::get_next_open_interest(get_price_impact_params, market_utils);
 }
 
 #[test]
 fn given_normal_conditions_when_get_next_open_interest_for_virtual_inventory_then_works() {
-    let (data_store, _referral_storage) = setup();
+    let (data_store, _referral_storage, _market_utils) = setup();
 
     let get_price_impact_params = create_get_price_impact_usd_params(data_store);
     position_pricing_utils::get_next_open_interest_for_virtual_inventory(get_price_impact_params, i256_new(50, false));
@@ -43,7 +46,7 @@ fn given_normal_conditions_when_get_next_open_interest_for_virtual_inventory_the
 
 #[test]
 fn given_normal_conditions_when_get_next_open_interest_params_then_works() {
-    let (data_store, _referral_storage) = setup();
+    let (data_store, _referral_storage, _market_utils) = setup();
 
     let get_price_impact_params = create_get_price_impact_usd_params(data_store);
     position_pricing_utils::get_next_open_interest_params(get_price_impact_params, 100, 20);
@@ -51,7 +54,7 @@ fn given_normal_conditions_when_get_next_open_interest_params_then_works() {
 
 #[test]
 fn given_normal_conditions_when_get_position_fees_then_works() {
-    let (data_store, referral_storage) = setup();
+    let (data_store, referral_storage, _market_utils) = setup();
 
     let position = Position {
         key: 1,
@@ -87,7 +90,7 @@ fn given_normal_conditions_when_get_position_fees_then_works() {
 
 #[test]
 fn given_normal_conditions_when_get_borrowing_fees_then_works() {
-    let (data_store, _referral_storage) = setup();
+    let (data_store, _referral_storage, _market_utils) = setup();
     let price = Price { min: 5, max: 10 };
 
     position_pricing_utils::get_borrowing_fees(data_store, price, 3);
@@ -95,6 +98,8 @@ fn given_normal_conditions_when_get_borrowing_fees_then_works() {
 
 #[test]
 fn given_normal_conditions_when_get_funding_fees_then_works() {
+    let (_data_store, _referral_storage, market_utils) = setup();
+
     let position_funding_fees = PositionFundingFees {
         funding_fee_amount: 10,
         claimable_long_token_amount: 100,
@@ -121,20 +126,20 @@ fn given_normal_conditions_when_get_funding_fees_then_works() {
         is_long: false
     };
 
-    position_pricing_utils::get_funding_fees(position_funding_fees, position);
+    position_pricing_utils::get_funding_fees(position_funding_fees, position, market_utils);
 }
 
 #[test]
 fn given_normal_conditions_when_get_ui_fees_then_works() {
-    let (data_store, _referral_storage) = setup();
+    let (data_store, _referral_storage, market_utils) = setup();
     let price = Price { min: 5, max: 10 };
     let ui_fee_receiver = contract_address_const::<'ui_fee_receiver'>();
-    position_pricing_utils::get_ui_fees(data_store, price, 10, ui_fee_receiver);
+    position_pricing_utils::get_ui_fees(data_store, price, 10, ui_fee_receiver, market_utils);
 }
 
 #[test]
 fn given_normal_conditions_when_get_position_fees_after_referral_then_works() {
-    let (data_store, referral_storage) = setup();
+    let (data_store, referral_storage, _market_utils) = setup();
     let price = Price { min: 5, max: 10 };
     let account = contract_address_const::<'account'>();
     let market = contract_address_const::<'market'>();
@@ -154,7 +159,7 @@ fn create_get_price_impact_usd_params(data_store: IDataStoreDispatcher) -> GetPr
     GetPriceImpactUsdParams { data_store, market, usd_delta: i256_new(50, false), is_long: true }
 }
 
-fn setup() -> (IDataStoreDispatcher, IReferralStorageDispatcher) {
+fn setup() -> (IDataStoreDispatcher, IReferralStorageDispatcher, IMarketUtilsLibraryDispatcher) {
     let (
         _caller_address,
         _market_token_class,
@@ -162,6 +167,10 @@ fn setup() -> (IDataStoreDispatcher, IReferralStorageDispatcher) {
         _decrease_order_class,
         _swap_order_class,
         _order_utils_class,
+        _role_module_class,
+        _bank_class,
+        _governable_class,
+        market_utils_class,
         _market_factory,
         _role_store,
         data_store,
@@ -184,5 +193,7 @@ fn setup() -> (IDataStoreDispatcher, IReferralStorageDispatcher) {
     ) =
         tests_lib::setup();
 
-    (data_store, referral_storage)
+    let market_utils = IMarketUtilsLibraryDispatcher { class_hash: market_utils_class.class_hash };
+
+    (data_store, referral_storage, market_utils)
 }

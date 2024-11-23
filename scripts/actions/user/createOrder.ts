@@ -17,7 +17,7 @@ import {
     OrderType,
     toCairoCustomEnum,
     toStarknetHexString,
-} from "satoru-sdk";
+} from "wolfy-sdk";
 import { CairoUint256, shortString } from "starknet";
 
 async function createOrder() {

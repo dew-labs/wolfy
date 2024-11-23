@@ -1,5 +1,5 @@
+use freyr::utils::account_utils::{validate_account, validate_receiver};
 use starknet::{ContractAddress, contract_address_const};
-use satoru::utils::account_utils::{validate_account, validate_receiver};
 
 #[test]
 fn given_normal_conditions_when_validate_account_then_works() {
