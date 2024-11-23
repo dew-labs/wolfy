@@ -4,6 +4,7 @@ use freyr::deposit::deposit::Deposit;
 use freyr::event::event_emitter::EventEmitter::{AffiliateRewardUpdated, AffiliateRewardClaimed};
 use freyr::event::event_emitter::{EventEmitter, IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
 use freyr::market::market_token::{IMarketTokenDispatcher, IMarketTokenDispatcherTrait};
+use freyr::market::market_utils::{IMarketUtilsLibraryDispatcher, IMarketUtilsDispatcherTrait};
 use freyr::mock::governable::{IGovernableDispatcher, IGovernableDispatcherTrait};
 use freyr::mock::referral_storage::{IReferralStorageDispatcher, IReferralStorageDispatcherTrait};
 use freyr::referral::referral_utils;
@@ -22,7 +23,16 @@ use starknet::{ContractAddress, contract_address_const, ClassHash};
 #[test]
 fn given_normal_conditions_when_trader_referral_codes_then_works() {
     // Setup
-    let (caller_address, _role_store, _data_store, _event_emitter, referral_storage, _governable, _market_token) =
+    let (
+        caller_address,
+        _role_store,
+        _data_store,
+        _event_emitter,
+        referral_storage,
+        _governable,
+        _market_token,
+        _market_utils
+    ) =
         setup();
 
     // Test
@@ -58,7 +68,16 @@ fn given_normal_conditions_when_trader_referral_codes_then_works() {
 #[should_panic(expected: ('forbidden',))]
 fn given_forbidden_when_trader_referral_codes_then_fails() {
     // Setup
-    let (_caller_address, _role_store, _data_store, _event_emitter, referral_storage, _governable, _market_token) =
+    let (
+        _caller_address,
+        _role_store,
+        _data_store,
+        _event_emitter,
+        referral_storage,
+        _governable,
+        _market_token,
+        _market_utils
+    ) =
         setup();
 
     // forbidden access
@@ -77,7 +96,16 @@ fn given_forbidden_when_trader_referral_codes_then_fails() {
 #[test]
 fn given_normal_conditions_when_increment_affiliate_reward_then_works() {
     // Setup
-    let (_caller_address, _role_store, data_store, event_emitter, _referral_storage, _governable, _market_token) =
+    let (
+        _caller_address,
+        _role_store,
+        data_store,
+        event_emitter,
+        _referral_storage,
+        _governable,
+        _market_token,
+        _market_utils
+    ) =
         setup();
 
     let mut spy = spy_events();
@@ -134,7 +162,16 @@ fn given_normal_conditions_when_increment_affiliate_reward_then_works() {
 #[test]
 fn given_no_code_when_get_referral_info_then_works() {
     // Setup
-    let (caller_address, _role_store, _data_store, _event_emitter, referral_storage, _governable, _market_token) =
+    let (
+        caller_address,
+        _role_store,
+        _data_store,
+        _event_emitter,
+        referral_storage,
+        _governable,
+        _market_token,
+        _market_utils
+    ) =
         setup();
 
     let (code, affiliate, total_rebate, discount_share) = referral_utils::get_referral_info(
@@ -152,7 +189,16 @@ fn given_no_code_when_get_referral_info_then_works() {
 #[test]
 fn given_normal_conditions_when_get_referral_info_then_works() {
     // Setup
-    let (caller_address, _role_store, _data_store, _event_emitter, referral_storage, _governable, _market_token) =
+    let (
+        caller_address,
+        _role_store,
+        _data_store,
+        _event_emitter,
+        referral_storage,
+        _governable,
+        _market_token,
+        _market_utils
+    ) =
         setup();
 
     let owner: ContractAddress = 'owner'.try_into().unwrap();
@@ -193,7 +239,16 @@ fn given_normal_conditions_when_get_referral_info_then_works() {
 #[test]
 fn given_refferal_discountshare_when_get_referral_info_then_works() {
     // Setup
-    let (caller_address, _role_store, _data_store, _event_emitter, referral_storage, _governable, _market_token) =
+    let (
+        caller_address,
+        _role_store,
+        _data_store,
+        _event_emitter,
+        referral_storage,
+        _governable,
+        _market_token,
+        _market_utils
+    ) =
         setup();
 
     let tier_level = 200;
@@ -233,7 +288,16 @@ fn given_refferal_discountshare_when_get_referral_info_then_works() {
 #[test]
 fn given_normal_conditions_when_claim_affiliate_reward_then_works() {
     // Setup
-    let (caller_address, _role_store, data_store, event_emitter, _referral_storage, _governable, market_token) =
+    let (
+        caller_address,
+        _role_store,
+        data_store,
+        event_emitter,
+        _referral_storage,
+        _governable,
+        market_token,
+        market_utils
+    ) =
         setup();
     let (token_address, token_dispatcher) = setup_mock_token(caller_address, market_token.contract_address);
     let mut spy = spy_events();
@@ -257,7 +321,7 @@ fn given_normal_conditions_when_claim_affiliate_reward_then_works() {
     assert(caller_balance == 0, 'invalid init balance');
 
     let retrieved_amount: u256 = referral_utils::claim_affiliate_reward(
-        data_store, event_emitter, market, token_address, account, caller_address
+        data_store, event_emitter, market, token_address, account, caller_address, market_utils
     );
 
     assert(retrieved_amount == reward_amount, 'invalid retrieved_amount');
@@ -346,6 +410,7 @@ fn setup() -> (
     IReferralStorageDispatcher,
     IGovernableDispatcher,
     IMarketTokenDispatcher,
+    IMarketUtilsLibraryDispatcher,
 ) {
     let (
         caller_address,
@@ -357,6 +422,7 @@ fn setup() -> (
         role_module_class,
         bank_class,
         governable_class,
+        market_utils_class,
         _market_factory,
         role_store,
         data_store,
@@ -392,5 +458,7 @@ fn setup() -> (
     let governable_address = deploy_governable(governable_class, event_emitter.contract_address);
     let governable = IGovernableDispatcher { contract_address: governable_address };
 
-    (caller_address, role_store, data_store, event_emitter, referral_storage, governable, market_token)
+    let market_utils = IMarketUtilsLibraryDispatcher { class_hash: market_utils_class.class_hash };
+
+    (caller_address, role_store, data_store, event_emitter, referral_storage, governable, market_token, market_utils)
 }

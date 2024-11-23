@@ -82,6 +82,7 @@ fn setup() -> (IDataStoreDispatcher, IEventEmitterDispatcher) {
         _role_module_class,
         _bank_class,
         _governable_class,
+        _market_utils_class,
         _market_factory,
         _role_store,
         data_store,

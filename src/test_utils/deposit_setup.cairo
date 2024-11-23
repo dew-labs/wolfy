@@ -26,7 +26,7 @@ use freyr::exchange::withdrawal_handler::{IWithdrawalHandlerDispatcher, IWithdra
 use freyr::market::market::{Market, UniqueIdMarket};
 use freyr::market::market_factory::{IMarketFactoryDispatcher, IMarketFactoryDispatcherTrait};
 use freyr::market::market_token::{IMarketTokenDispatcher, IMarketTokenDispatcherTrait};
-use freyr::market::market_utils;
+use freyr::market::market_utils::{IMarketUtilsLibraryDispatcher, IMarketUtilsDispatcherTrait};
 use freyr::market::{market::{UniqueIdMarketImpl},};
 use freyr::mock::referral_storage::{IReferralStorageDispatcher, IReferralStorageDispatcherTrait};
 use freyr::oracle::oracle::{IOracleDispatcher, IOracleDispatcherTrait};
@@ -78,6 +78,7 @@ fn deposit_setup(
     IWithdrawalVaultDispatcher,
     ILiquidationHandlerDispatcher,
     Market,
+    IMarketUtilsLibraryDispatcher,
 ) {
     // *********************************************************************************************
     // *                              SETUP                                                        *
@@ -92,6 +93,7 @@ fn deposit_setup(
         _role_module_class,
         _bank_class,
         _governable_class,
+        market_utils_class,
         market_factory,
         role_store,
         data_store,
@@ -117,6 +119,8 @@ fn deposit_setup(
     // *********************************************************************************************
     // *                              TEST LOGIC                                                   *
     // *********************************************************************************************
+
+    let market_utils = IMarketUtilsLibraryDispatcher { class_hash: market_utils_class.class_hash };
 
     // Create a market.
     let market = data_store.get_market(tests_lib::create_market(market_factory));
@@ -316,7 +320,8 @@ fn deposit_setup(
         withdrawal_handler,
         withdrawal_vault,
         liquidation_handler,
-        market
+        market,
+        market_utils
     )
 }
 

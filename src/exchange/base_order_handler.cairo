@@ -6,6 +6,7 @@
 
 // Core lib imports.
 use core::traits::Into;
+use freyr::market::market_utils::{IMarketUtilsLibraryDispatcher, IMarketUtilsDispatcherTrait};
 
 use freyr::oracle::oracle_utils::SetPricesParams;
 use freyr::order::{order::SecondaryOrderType, base_order_utils::ExecuteOrderParams};
@@ -28,6 +29,7 @@ trait IBaseOrderHandler<TContractState> {
         increase_order_utils_class_hash: ClassHash,
         decrease_order_utils_class_hash: ClassHash,
         swap_order_utils_class_hash: ClassHash,
+        market_utils_class_hash: ClassHash,
     );
 
     fn get_execute_order_params(
@@ -54,6 +56,7 @@ mod BaseOrderHandler {
     use freyr::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
     use freyr::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
     use freyr::exchange::error::ExchangeError;
+    use freyr::market::market_utils::{IMarketUtilsLibraryDispatcher, IMarketUtilsDispatcherTrait};
     use freyr::market::{market::Market, market_utils};
     use freyr::mock::referral_storage::{IReferralStorageDispatcher, IReferralStorageDispatcherTrait};
     use freyr::oracle::{
@@ -105,14 +108,16 @@ mod BaseOrderHandler {
         /// Interface to interact with the `DecreaseOrderUtils` lib.
         pub decrease_order_utils_lib: IDecreaseOrderUtilsLibraryDispatcher,
         /// Interface to interact with the `SwapOrderUtils` lib.
-        pub swap_order_utils_lib: ISwapOrderUtilsLibraryDispatcher
+        pub swap_order_utils_lib: ISwapOrderUtilsLibraryDispatcher,
+        /// Interface to interact with the `MarketUtils` lib.
+        pub market_utils: IMarketUtilsLibraryDispatcher,
     }
 
     // *************************************************************************
     //                          EXTERNAL FUNCTIONS
     // *************************************************************************
     #[abi(embed_v0)]
-    impl BaseOrderHandlerImpl of super::IBaseOrderHandler<ContractState> {
+    impl BaseOrderHandlerImpl of IBaseOrderHandler<ContractState> {
         fn initialize(
             ref self: ContractState,
             data_store_address: ContractAddress,
@@ -125,6 +130,7 @@ mod BaseOrderHandler {
             increase_order_utils_class_hash: ClassHash,
             decrease_order_utils_class_hash: ClassHash,
             swap_order_utils_class_hash: ClassHash,
+            market_utils_class_hash: ClassHash,
         ) {
             // Make sure the contract is not already initialized.
             assert(self.data_store.read().contract_address.is_zero(), ExchangeError::ALREADY_INITIALIZED);
@@ -144,6 +150,7 @@ mod BaseOrderHandler {
             self
                 .swap_order_utils_lib
                 .write(ISwapOrderUtilsLibraryDispatcher { class_hash: swap_order_utils_class_hash });
+            self.market_utils.write(IMarketUtilsLibraryDispatcher { class_hash: market_utils_class_hash });
         }
 
         fn get_execute_order_params(
@@ -158,7 +165,9 @@ mod BaseOrderHandler {
 
             let order = data_store.get_order(key);
 
-            let swap_path_markets = market_utils::get_swap_path_markets(data_store, order.swap_path);
+            let market_utils = self.market_utils.read();
+
+            let swap_path_markets = market_utils.get_swap_path_markets(data_store, order.swap_path);
 
             let execute_order_params_contract = ExecuteOrderParamsContracts {
                 data_store: data_store,
@@ -181,7 +190,7 @@ mod BaseOrderHandler {
             let mut market = Default::default();
 
             if (order.market != address_zero) {
-                market = market_utils::get_enabled_market(data_store, order.market);
+                market = market_utils.get_enabled_market(data_store, order.market);
             }
 
             ExecuteOrderParams {

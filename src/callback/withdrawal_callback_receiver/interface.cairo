@@ -12,7 +12,6 @@ trait IWithdrawalCallbackReceiver<TContractState> {
     /// * `key` - They key of the withdrawal.
     /// * `withdrawal` - The withdrawal that was executed.
     /// * `log_data` - The log data.
-    // TODO uncomment withdrawal when available
     fn after_withdrawal_execution(
         ref self: TContractState, key: felt252, withdrawal: Withdrawal, log_data: Array<felt252>,
     );

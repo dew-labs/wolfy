@@ -3,13 +3,13 @@ use core::traits::Into;
 use freyr::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
 use freyr::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
 use freyr::market::market::Market;
+use freyr::market::market_utils::{IMarketUtilsLibraryDispatcher, IMarketUtilsDispatcherTrait};
 use freyr::mock::referral_storage::{IReferralStorageDispatcher, IReferralStorageDispatcherTrait};
 use freyr::oracle::oracle::{IOracleDispatcher, IOracleDispatcherTrait};
 use freyr::order::{
     order::{Order, SecondaryOrderType, OrderType, DecreasePositionSwapType},
     order_vault::{IOrderVaultDispatcher, IOrderVaultDispatcherTrait}, base_order_utils::ExecuteOrderParamsContracts
 };
-
 use freyr::position::{position::Position, decrease_position_utils, position_utils::UpdatePositionParams};
 use freyr::role::{role, role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait}};
 
@@ -24,62 +24,62 @@ use starknet::{get_caller_address, ContractAddress, contract_address_const};
 
 #[test]
 fn given_normal_conditions_when_partially_decrease_position() {
-    let (_caller_address, swap_handler) = setup();
+    let (_caller_address, swap_handler, market_utils) = setup();
 
     let mut params = create_new_update_position_params(OrderType::LimitSwap, swap_handler);
     params.order.size_delta_usd = 800;
 
-    decrease_position_utils::decrease_position(params);
+    decrease_position_utils::decrease_position(params, market_utils);
     assert(true, 'Not implemented yet');
 }
 
 #[test]
 fn given_normal_conditions_when_totally_decrease_position() {
-    let (_caller_address, swap_handler) = setup();
+    let (_caller_address, swap_handler, market_utils) = setup();
 
     let mut params = create_new_update_position_params(OrderType::LimitSwap, swap_handler);
 
-    decrease_position_utils::decrease_position(params);
+    decrease_position_utils::decrease_position(params, market_utils);
     assert(true, 'Not implemented yet');
 }
 #[test]
 #[should_panic]
 fn given_invalid_decrease_order_size_when_decrease_position_then_fails() {
-    let (_caller_address, swap_handler) = setup();
+    let (_caller_address, swap_handler, market_utils) = setup();
 
     let mut params = create_new_update_position_params(OrderType::LimitSwap, swap_handler);
     params.order.size_delta_usd = 1500;
 
-    decrease_position_utils::decrease_position(params);
+    decrease_position_utils::decrease_position(params, market_utils);
     panic(array!['Not implemented yet']);
 }
 
 #[test]
 #[should_panic]
 fn given_unable_to_withdraw_collateral_when_decrease_position_then_fails() {
-    let (_caller_address, swap_handler) = setup();
+    let (_caller_address, swap_handler, market_utils) = setup();
 
     let mut params = create_new_update_position_params(OrderType::LimitDecrease, swap_handler);
     params.order.size_delta_usd = 1000;
     params.position.collateral_amount = 1000;
 
-    decrease_position_utils::decrease_position(params);
+    decrease_position_utils::decrease_position(params, market_utils);
     panic(array!['Not implemented yet']);
 }
 
 #[test]
 #[should_panic]
 fn given_position_should_be_liquidated_when_decrease_position_then_fails() {
-    let (_caller_address, swap_handler) = setup();
+    let (_caller_address, swap_handler, market_utils) = setup();
 
     let mut params = create_new_update_position_params(OrderType::Liquidation, swap_handler);
     params.order.size_delta_usd = 800;
 
-    decrease_position_utils::decrease_position(params);
+    decrease_position_utils::decrease_position(params, market_utils);
     panic(array!['Not implemented yet']);
 }
 
-fn setup() -> (ContractAddress, ISwapHandlerDispatcher) {
+fn setup() -> (ContractAddress, ISwapHandlerDispatcher, IMarketUtilsLibraryDispatcher) {
     let (
         caller_address,
         _market_token_class,
@@ -90,6 +90,7 @@ fn setup() -> (ContractAddress, ISwapHandlerDispatcher) {
         _role_module_class,
         _bank_class,
         _governable_class,
+        _market_utils_class,
         _market_factory,
         _role_store,
         _data_store,
@@ -112,7 +113,9 @@ fn setup() -> (ContractAddress, ISwapHandlerDispatcher) {
     ) =
         tests_lib::setup();
 
-    (caller_address, swap_handler)
+    let market_utils = IMarketUtilsLibraryDispatcher { class_hash: _market_utils_class.class_hash };
+
+    (caller_address, swap_handler, market_utils)
 }
 
 

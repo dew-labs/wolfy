@@ -8,7 +8,8 @@ use freyr::bank::bank::{IBankDispatcher, IBankDispatcherTrait};
 use freyr::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
 use freyr::data::keys;
 use freyr::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
-use freyr::market::{market, market_utils::validate_market_token_balance_with_address};
+use freyr::market::market_utils::{IMarketUtilsLibraryDispatcher, IMarketUtilsDispatcherTrait};
+use freyr::market::{market};
 use freyr::utils::account_utils::validate_receiver;
 use starknet::ContractAddress;
 
@@ -84,6 +85,7 @@ fn claim_fees(
     market: ContractAddress,
     token: ContractAddress,
     receiver: ContractAddress,
+    market_utils: IMarketUtilsLibraryDispatcher,
 ) {
     validate_receiver(receiver);
 
@@ -94,7 +96,7 @@ fn claim_fees(
 
     IBankDispatcher { contract_address: market }.transfer_out(market, token, receiver, fee_amount);
 
-    validate_market_token_balance_with_address(data_store, market);
+    market_utils.validate_market_token_balance_with_address(data_store, market);
 
     event_emitter.emit_fees_claimed(market, receiver, fee_amount);
 }
@@ -114,6 +116,7 @@ fn claim_ui_fees(
     market: ContractAddress,
     token: ContractAddress,
     receiver: ContractAddress,
+    market_utils: IMarketUtilsLibraryDispatcher,
 ) -> u256 {
     validate_receiver(receiver);
 
@@ -125,7 +128,7 @@ fn claim_ui_fees(
 
     IBankDispatcher { contract_address: market }.transfer_out(market, token, receiver, fee_amount);
 
-    validate_market_token_balance_with_address(data_store, market);
+    market_utils.validate_market_token_balance_with_address(data_store, market);
 
     event_emitter.emit_ui_fees_claimed(ui_fee_receiver, market, receiver, fee_amount, next_pool_value);
 

@@ -25,7 +25,7 @@ use freyr::exchange::order_handler::{OrderHandler, IOrderHandlerDispatcher, IOrd
 use freyr::exchange::withdrawal_handler::{IWithdrawalHandlerDispatcher, IWithdrawalHandlerDispatcherTrait};
 use freyr::market::market::{Market, UniqueIdMarket};
 use freyr::market::market_token::{IMarketTokenDispatcher, IMarketTokenDispatcherTrait};
-use freyr::market::market_utils;
+use freyr::market::market_utils::{IMarketUtilsLibraryDispatcher, IMarketUtilsDispatcherTrait};
 use freyr::market::{market::{UniqueIdMarketImpl},};
 use freyr::mock::referral_storage::{IReferralStorageDispatcher, IReferralStorageDispatcherTrait};
 use freyr::oracle::oracle::{IOracleDispatcher, IOracleDispatcherTrait};
@@ -56,6 +56,7 @@ use snforge_std::{
 };
 use starknet::{ContractAddress, get_caller_address, Felt252TryIntoContractAddress, contract_address_const, ClassHash,};
 use traits::{TryInto, Into};
+
 const INITIAL_TOKENS_MINTED: felt252 = 1000;
 
 #[test]
@@ -79,6 +80,7 @@ fn test_swap_market() {
         _withdrawal_vault,
         _liquidation_handler,
         market,
+        market_utils,
     ) =
         deposit_setup(
         20000000000000000000, 100000000000000000000000
@@ -96,15 +98,16 @@ fn test_swap_market() {
     assert(balance_caller_ETH == 10000000000000000000, 'balanc ETH should be 10 ETH');
     assert(balance_caller_USDC == 50000000000000000000000, 'USDC be 50 000 USDC');
 
-    let pool_value_info = market_utils::get_pool_value_info(
-        data_store,
-        market,
-        Price { min: 5000, max: 5000, },
-        Price { min: 5000, max: 5000, },
-        Price { min: 1, max: 1, },
-        keys::max_pnl_factor_for_deposits(),
-        true,
-    );
+    let pool_value_info = market_utils
+        .get_pool_value_info(
+            data_store,
+            market,
+            Price { min: 5000, max: 5000, },
+            Price { min: 5000, max: 5000, },
+            Price { min: 1, max: 1, },
+            keys::max_pnl_factor_for_deposits(),
+            true,
+        );
 
     // 200 000 USD
     assert(pool_value_info.pool_value.mag == 200000000000000000000000, 'wrong pool_value balance');
@@ -229,15 +232,16 @@ fn test_swap_market() {
     // 55 000 USDC
     assert(balance_USDC_after == 55000000000000000000000, 'wrng USDC blce after exec');
 
-    let first_swap_pool_value_info = market_utils::get_pool_value_info(
-        data_store,
-        market,
-        Price { min: 5000, max: 5000, },
-        Price { min: 5000, max: 5000, },
-        Price { min: 1, max: 1, },
-        keys::max_pnl_factor_for_deposits(),
-        true,
-    );
+    let first_swap_pool_value_info = market_utils
+        .get_pool_value_info(
+            data_store,
+            market,
+            Price { min: 5000, max: 5000, },
+            Price { min: 5000, max: 5000, },
+            Price { min: 1, max: 1, },
+            keys::max_pnl_factor_for_deposits(),
+            true,
+        );
 
     // 200 000 USD
     assert(first_swap_pool_value_info.pool_value.mag == 200000000000000000000000, 'wrong pool_value balance');

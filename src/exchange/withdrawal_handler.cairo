@@ -58,6 +58,7 @@ mod WithdrawalHandler {
     use freyr::feature::feature_utils;
     use freyr::gas::gas_utils;
     use freyr::market::market::Market;
+    use freyr::market::market_utils::{IMarketUtilsLibraryDispatcher, IMarketUtilsDispatcherTrait};
     use freyr::oracle::{
         oracle::{IOracleDispatcher, IOracleDispatcherTrait},
         oracle_modules::{with_oracle_prices_before, with_oracle_prices_after},
@@ -94,6 +95,7 @@ mod WithdrawalHandler {
         /// Interface to interact with the `Oracle` contract.
         oracle: IOracleDispatcher,
         role_module: IRoleModuleLibraryDispatcher,
+        market_utils: IMarketUtilsLibraryDispatcher,
     }
 
     // *************************************************************************
@@ -116,6 +118,7 @@ mod WithdrawalHandler {
         withdrawal_vault_address: ContractAddress,
         oracle_address: ContractAddress,
         role_module_class_hash: ClassHash,
+        market_utils_class_hash: ClassHash
     ) {
         self.data_store.write(IDataStoreDispatcher { contract_address: data_store_address });
         self.event_emitter.write(IEventEmitterDispatcher { contract_address: event_emitter_address });
@@ -123,8 +126,8 @@ mod WithdrawalHandler {
         self.oracle.write(IOracleDispatcher { contract_address: oracle_address });
         self.role_module.write(IRoleModuleLibraryDispatcher { class_hash: role_module_class_hash });
         self.role_module.read().initialize(role_store_address);
+        self.market_utils.write(IMarketUtilsLibraryDispatcher { class_hash: market_utils_class_hash });
     }
-
 
     // *************************************************************************
     //                          EXTERNAL FUNCTIONS
@@ -145,7 +148,12 @@ mod WithdrawalHandler {
             );
 
             let result = withdrawal_utils::create_withdrawal(
-                data_store, self.event_emitter.read(), self.withdrawal_vault.read(), account, params
+                data_store,
+                self.event_emitter.read(),
+                self.withdrawal_vault.read(),
+                account,
+                params,
+                self.market_utils.read(),
             );
 
             global_reentrancy_guard::non_reentrant_after(data_store); // Finalizes re-entrancy
@@ -314,7 +322,7 @@ mod WithdrawalHandler {
                 starting_gas
             };
 
-            withdrawal_utils::execute_withdrawal(params);
+            withdrawal_utils::execute_withdrawal(params, self.market_utils.read());
         }
     }
 }

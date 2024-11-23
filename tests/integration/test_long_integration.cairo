@@ -25,7 +25,7 @@ use freyr::exchange::order_handler::{OrderHandler, IOrderHandlerDispatcher, IOrd
 use freyr::exchange::withdrawal_handler::{IWithdrawalHandlerDispatcher, IWithdrawalHandlerDispatcherTrait};
 use freyr::market::market::{Market, UniqueIdMarket};
 use freyr::market::market_token::{IMarketTokenDispatcher, IMarketTokenDispatcherTrait};
-use freyr::market::market_utils;
+use freyr::market::market_utils::{IMarketUtilsLibraryDispatcher, IMarketUtilsDispatcherTrait, MarketPrices};
 use freyr::market::{market::{UniqueIdMarketImpl},};
 use freyr::mock::referral_storage::{IReferralStorageDispatcher, IReferralStorageDispatcherTrait};
 use freyr::oracle::oracle::{IOracleDispatcher, IOracleDispatcherTrait};
@@ -81,6 +81,7 @@ fn test_long_increase_decrease_close() {
         _withdrawal_vault,
         _liquidation_handler,
         market,
+        _market_utils,
     ) =
         deposit_setup(
         50000000000000000000000000000, 50000000000000000000000000000
@@ -92,7 +93,7 @@ fn test_long_increase_decrease_close() {
     assert(balance_caller_ETH == 10000000000000000000, 'balanc ETH should be 10 ETH');
     assert(balance_caller_USDC == 50000000000000000000000, 'USDC be 50 000 USDC');
 
-    // let pool_value_info = market_utils::get_pool_value_info(
+    // let pool_value_info = market_utils.get_pool_value_info(
     //     data_store,
     //     market,
     //     Price { min: 5000, max: 5000, },
@@ -173,7 +174,7 @@ fn test_long_increase_decrease_close() {
     assert(first_position.borrowing_factor == 0, 'Borrow should be 0');
     assert(first_position.collateral_amount == 1000000000000000000, 'Collat should be 1 ETH');
 
-    let market_prices = market_utils::MarketPrices {
+    let market_prices = MarketPrices {
         index_token_price: Price { min: 3850, max: 3850, },
         long_token_price: Price { min: 3850, max: 3850, },
         short_token_price: Price { min: 1, max: 1, },
@@ -233,7 +234,7 @@ fn test_long_increase_decrease_close() {
     assert(first_position_inc.borrowing_factor == 0, 'borrow should be 0');
     assert(first_position_inc.collateral_amount == 3000000000000000000, 'Collat should be 3 ETH');
 
-    let market_prices = market_utils::MarketPrices {
+    let market_prices = MarketPrices {
         index_token_price: Price { min: 3850, max: 3850, },
         long_token_price: Price { min: 3850, max: 3850, },
         short_token_price: Price { min: 1, max: 1, },
@@ -300,7 +301,7 @@ fn test_long_increase_decrease_close() {
     assert(first_position_dec.borrowing_factor == 0, 'Borrow should be 0');
     assert(first_position_dec.collateral_amount == 2250000000000000000, 'Collat should be 2.25 ETH');
 
-    let market_prices = market_utils::MarketPrices {
+    let market_prices = MarketPrices {
         index_token_price: Price { min: 3850, max: 3850, },
         long_token_price: Price { min: 3850, max: 3850, },
         short_token_price: Price { min: 1, max: 1, },
@@ -331,7 +332,7 @@ fn test_long_increase_decrease_close() {
     let balance_ETH_bef_close = IERC20Dispatcher { contract_address: contract_address_const::<'ETH'>() }
         .balance_of(caller_address);
 
-    let market_prices = market_utils::MarketPrices {
+    let market_prices = MarketPrices {
         index_token_price: Price { min: 4000, max: 4000, },
         long_token_price: Price { min: 4000, max: 4000, },
         short_token_price: Price { min: 1, max: 1, },
@@ -423,6 +424,7 @@ fn test_takeprofit_long() {
         _withdrawal_vault,
         _liquidation_handler,
         market,
+        _market_utils,
     ) =
         deposit_setup(
         50000000000000000000000000000, 50000000000000000000000000000
@@ -434,7 +436,7 @@ fn test_takeprofit_long() {
     assert(balance_caller_ETH == 10000000000000000000, 'balanc ETH should be 10 ETH');
     assert(balance_caller_USDC == 50000000000000000000000, 'USDC be 50 000 USDC');
 
-    // let pool_value_info = market_utils::get_pool_value_info(
+    // let pool_value_info = market_utils.get_pool_value_info(
     //     data_store,
     //     market,
     //     Price { min: 5000, max: 5000, },
@@ -508,7 +510,7 @@ fn test_takeprofit_long() {
     assert(first_position.borrowing_factor == 0, 'Borrow should be 0');
     assert(first_position.collateral_amount == 1000000000000000000, 'Collat should be 1 ETH');
 
-    let market_prices = market_utils::MarketPrices {
+    let market_prices = MarketPrices {
         index_token_price: Price { min: 3850, max: 3850, },
         long_token_price: Price { min: 3850, max: 3850, },
         short_token_price: Price { min: 1, max: 1, },
@@ -572,7 +574,7 @@ fn test_takeprofit_long() {
     assert(first_position_inc.borrowing_factor == 0, 'borrow should be 0');
     assert(first_position_inc.collateral_amount == 3000000000000000000, 'Collat should be 3 ETH');
 
-    let market_prices = market_utils::MarketPrices {
+    let market_prices = MarketPrices {
         index_token_price: Price { min: 3850, max: 3850, },
         long_token_price: Price { min: 3850, max: 3850, },
         short_token_price: Price { min: 1, max: 1, },
@@ -640,7 +642,7 @@ fn test_takeprofit_long() {
     assert(first_position_dec.borrowing_factor == 0, 'Borrow should be 0');
     assert(first_position_dec.collateral_amount == 2250000000000000000, 'Collat should be 2.25 ETH');
 
-    let market_prices = market_utils::MarketPrices {
+    let market_prices = MarketPrices {
         index_token_price: Price { min: 3950, max: 3950, },
         long_token_price: Price { min: 3950, max: 3950, },
         short_token_price: Price { min: 1, max: 1, },
@@ -671,7 +673,7 @@ fn test_takeprofit_long() {
     let balance_ETH_bef_close = IERC20Dispatcher { contract_address: contract_address_const::<'ETH'>() }
         .balance_of(caller_address);
 
-    let market_prices = market_utils::MarketPrices {
+    let market_prices = MarketPrices {
         index_token_price: Price { min: 4000, max: 4000, },
         long_token_price: Price { min: 4000, max: 4000, },
         short_token_price: Price { min: 1, max: 1, },
@@ -765,6 +767,7 @@ fn test_takeprofit_long_increase_fails() {
         _withdrawal_vault,
         _liquidation_handler,
         market,
+        _market_utils,
     ) =
         deposit_setup(
         50000000000000000000000000000, 50000000000000000000000000000
@@ -776,7 +779,7 @@ fn test_takeprofit_long_increase_fails() {
     assert(balance_caller_ETH == 10000000000000000000, 'balanc ETH should be 10 ETH');
     assert(balance_caller_USDC == 50000000000000000000000, 'USDC be 50 000 USDC');
 
-    // let pool_value_info = market_utils::get_pool_value_info(
+    // let pool_value_info = market_utils.get_pool_value_info(
     //     data_store,
     //     market,
     //     Price { min: 5000, max: 5000, },
@@ -850,7 +853,7 @@ fn test_takeprofit_long_increase_fails() {
     assert(first_position.borrowing_factor == 0, 'Borrow should be 0');
     assert(first_position.collateral_amount == 1000000000000000000, 'Collat should be 1 ETH');
 
-    let market_prices = market_utils::MarketPrices {
+    let market_prices = MarketPrices {
         index_token_price: Price { min: 3850, max: 3850, },
         long_token_price: Price { min: 3850, max: 3850, },
         short_token_price: Price { min: 1, max: 1, },
@@ -913,7 +916,7 @@ fn test_takeprofit_long_increase_fails() {
     assert(first_position_inc.borrowing_factor == 0, 'borrow should be 0');
     assert(first_position_inc.collateral_amount == 3000000000000000000, 'Collat should be 3 ETH');
 
-    let market_prices = market_utils::MarketPrices {
+    let market_prices = MarketPrices {
         index_token_price: Price { min: 3850, max: 3850, },
         long_token_price: Price { min: 3850, max: 3850, },
         short_token_price: Price { min: 1, max: 1, },
@@ -980,7 +983,7 @@ fn test_takeprofit_long_increase_fails() {
     assert(first_position_dec.borrowing_factor == 0, 'Borrow should be 0');
     assert(first_position_dec.collateral_amount == 2250000000000000000, 'Collat should be 2.25 ETH');
 
-    let market_prices = market_utils::MarketPrices {
+    let market_prices = MarketPrices {
         index_token_price: Price { min: 3950, max: 3950, },
         long_token_price: Price { min: 3950, max: 3950, },
         short_token_price: Price { min: 1, max: 1, },
@@ -1011,7 +1014,7 @@ fn test_takeprofit_long_increase_fails() {
     let balance_ETH_bef_close = IERC20Dispatcher { contract_address: contract_address_const::<'ETH'>() }
         .balance_of(caller_address);
 
-    let market_prices = market_utils::MarketPrices {
+    let market_prices = MarketPrices {
         index_token_price: Price { min: 4000, max: 4000, },
         long_token_price: Price { min: 4000, max: 4000, },
         short_token_price: Price { min: 1, max: 1, },
@@ -1105,6 +1108,7 @@ fn test_takeprofit_long_decrease_fails() {
         _withdrawal_vault,
         _liquidation_handler,
         market,
+        _market_utils,
     ) =
         deposit_setup(
         50000000000000000000000000000, 50000000000000000000000000000
@@ -1116,7 +1120,7 @@ fn test_takeprofit_long_decrease_fails() {
     assert(balance_caller_ETH == 10000000000000000000, 'balanc ETH should be 10 ETH');
     assert(balance_caller_USDC == 50000000000000000000000, 'USDC be 50 000 USDC');
 
-    // let pool_value_info = market_utils::get_pool_value_info(
+    // let pool_value_info = market_utils.get_pool_value_info(
     //     data_store,
     //     market,
     //     Price { min: 5000, max: 5000, },
@@ -1190,7 +1194,7 @@ fn test_takeprofit_long_decrease_fails() {
     assert(first_position.borrowing_factor == 0, 'Borrow should be 0');
     assert(first_position.collateral_amount == 1000000000000000000, 'Collat should be 1 ETH');
 
-    let market_prices = market_utils::MarketPrices {
+    let market_prices = MarketPrices {
         index_token_price: Price { min: 3850, max: 3850, },
         long_token_price: Price { min: 3850, max: 3850, },
         short_token_price: Price { min: 1, max: 1, },
@@ -1253,7 +1257,7 @@ fn test_takeprofit_long_decrease_fails() {
     assert(first_position_inc.borrowing_factor == 0, 'borrow should be 0');
     assert(first_position_inc.collateral_amount == 3000000000000000000, 'Collat should be 3 ETH');
 
-    let market_prices = market_utils::MarketPrices {
+    let market_prices = MarketPrices {
         index_token_price: Price { min: 3850, max: 3850, },
         long_token_price: Price { min: 3850, max: 3850, },
         short_token_price: Price { min: 1, max: 1, },
@@ -1320,7 +1324,7 @@ fn test_takeprofit_long_decrease_fails() {
     assert(first_position_dec.borrowing_factor == 0, 'Borrow should be 0');
     assert(first_position_dec.collateral_amount == 2250000000000000000, 'Collat should be 2.25 ETH');
 
-    let market_prices = market_utils::MarketPrices {
+    let market_prices = MarketPrices {
         index_token_price: Price { min: 3950, max: 3950, },
         long_token_price: Price { min: 3950, max: 3950, },
         short_token_price: Price { min: 1, max: 1, },
@@ -1351,7 +1355,7 @@ fn test_takeprofit_long_decrease_fails() {
     let balance_ETH_bef_close = IERC20Dispatcher { contract_address: contract_address_const::<'ETH'>() }
         .balance_of(caller_address);
 
-    let market_prices = market_utils::MarketPrices {
+    let market_prices = MarketPrices {
         index_token_price: Price { min: 4000, max: 4000, },
         long_token_price: Price { min: 4000, max: 4000, },
         short_token_price: Price { min: 1, max: 1, },
@@ -1444,6 +1448,7 @@ fn test_takeprofit_long_close_fails() {
         _withdrawal_vault,
         _liquidation_handler,
         market,
+        _market_utils,
     ) =
         deposit_setup(
         50000000000000000000000000000, 50000000000000000000000000000
@@ -1455,7 +1460,7 @@ fn test_takeprofit_long_close_fails() {
     assert(balance_caller_ETH == 10000000000000000000, 'balanc ETH should be 10 ETH');
     assert(balance_caller_USDC == 50000000000000000000000, 'USDC be 50 000 USDC');
 
-    // let pool_value_info = market_utils::get_pool_value_info(
+    // let pool_value_info = market_utils.get_pool_value_info(
     //     data_store,
     //     market,
     //     Price { min: 5000, max: 5000, },
@@ -1529,7 +1534,7 @@ fn test_takeprofit_long_close_fails() {
     assert(first_position.borrowing_factor == 0, 'Borrow should be 0');
     assert(first_position.collateral_amount == 1000000000000000000, 'Collat should be 1 ETH');
 
-    let market_prices = market_utils::MarketPrices {
+    let market_prices = MarketPrices {
         index_token_price: Price { min: 3850, max: 3850, },
         long_token_price: Price { min: 3850, max: 3850, },
         short_token_price: Price { min: 1, max: 1, },
@@ -1592,7 +1597,7 @@ fn test_takeprofit_long_close_fails() {
     assert(first_position_inc.borrowing_factor == 0, 'borrow should be 0');
     assert(first_position_inc.collateral_amount == 3000000000000000000, 'Collat should be 3 ETH');
 
-    let market_prices = market_utils::MarketPrices {
+    let market_prices = MarketPrices {
         index_token_price: Price { min: 3850, max: 3850, },
         long_token_price: Price { min: 3850, max: 3850, },
         short_token_price: Price { min: 1, max: 1, },
@@ -1659,7 +1664,7 @@ fn test_takeprofit_long_close_fails() {
     assert(first_position_dec.borrowing_factor == 0, 'Borrow should be 0');
     assert(first_position_dec.collateral_amount == 2250000000000000000, 'Collat should be 2.25 ETH');
 
-    let market_prices = market_utils::MarketPrices {
+    let market_prices = MarketPrices {
         index_token_price: Price { min: 3950, max: 3950, },
         long_token_price: Price { min: 3950, max: 3950, },
         short_token_price: Price { min: 1, max: 1, },
@@ -1690,7 +1695,7 @@ fn test_takeprofit_long_close_fails() {
     let balance_ETH_bef_close = IERC20Dispatcher { contract_address: contract_address_const::<'ETH'>() }
         .balance_of(caller_address);
 
-    let market_prices = market_utils::MarketPrices {
+    let market_prices = MarketPrices {
         index_token_price: Price { min: 4000, max: 4000, },
         long_token_price: Price { min: 4000, max: 4000, },
         short_token_price: Price { min: 1, max: 1, },
@@ -1782,6 +1787,7 @@ fn test_long_liquidation() {
         _withdrawal_vault,
         liquidation_handler,
         market,
+        market_utils,
     ) =
         deposit_setup(
         50000000000000000000000000000, 50000000000000000000000000000
@@ -1793,15 +1799,16 @@ fn test_long_liquidation() {
     assert(balance_caller_ETH == 10000000000000000000, 'balanc ETH should be 10 ETH');
     assert(balance_caller_USDC == 50000000000000000000000, 'USDC be 50 000 USDC');
 
-    let pool_value_info = market_utils::get_pool_value_info(
-        data_store,
-        market,
-        Price { min: 3500, max: 3500, },
-        Price { min: 3500, max: 3500, },
-        Price { min: 1, max: 1, },
-        keys::max_pnl_factor_for_deposits(),
-        true,
-    );
+    let pool_value_info = market_utils
+        .get_pool_value_info(
+            data_store,
+            market,
+            Price { min: 3500, max: 3500, },
+            Price { min: 3500, max: 3500, },
+            Price { min: 1, max: 1, },
+            keys::max_pnl_factor_for_deposits(),
+            true,
+        );
 
     assert(pool_value_info.pool_value.mag == 175050000000000000000000000000000, 'wrong pool value 1');
     assert(pool_value_info.long_token_amount == 50000000000000000000000000000, 'wrong long token amount 1');
@@ -1871,7 +1878,7 @@ fn test_long_liquidation() {
     assert(first_position.borrowing_factor == 0, 'Borrow should be 0');
     assert(first_position.collateral_amount == 1000000000000000000, 'Collat should be 1 ETH');
 
-    let market_prices = market_utils::MarketPrices {
+    let market_prices = MarketPrices {
         index_token_price: Price { min: 3850, max: 3850, },
         long_token_price: Price { min: 3850, max: 3850, },
         short_token_price: Price { min: 1, max: 1, },
@@ -1891,15 +1898,16 @@ fn test_long_liquidation() {
     assert(balance_USDC == 50000000000000000000000, 'balance USDC 50 000$');
     assert(balance_ETH == 9000000000000000000, 'balance ETH 9');
 
-    let pool_value_info = market_utils::get_pool_value_info(
-        data_store,
-        market,
-        Price { min: 3500, max: 3500, },
-        Price { min: 3500, max: 3500, },
-        Price { min: 1, max: 1, },
-        keys::max_pnl_factor_for_deposits(),
-        true,
-    );
+    let pool_value_info = market_utils
+        .get_pool_value_info(
+            data_store,
+            market,
+            Price { min: 3500, max: 3500, },
+            Price { min: 3500, max: 3500, },
+            Price { min: 1, max: 1, },
+            keys::max_pnl_factor_for_deposits(),
+            true,
+        );
 
     assert(pool_value_info.pool_value.mag == 175050000000000000000000000000001, 'wrong pool value 2');
     assert(pool_value_info.long_token_amount == 50000000000000000000000000000, 'wrong long token amount 2');
@@ -1909,31 +1917,31 @@ fn test_long_liquidation() {
 
     'Check if liquidable 1000$'.print();
 
-    let market_prices = market_utils::MarketPrices {
+    let market_prices = MarketPrices {
         index_token_price: Price { min: 1000, max: 1000, },
         long_token_price: Price { min: 1000, max: 1000, },
         short_token_price: Price { min: 1, max: 1, },
     };
 
-    let (is_liquiditable, reason) = reader
+    let (is_liquiditable, _reason) = reader
         .is_position_liquidable(data_store, referal_storage, first_position, market, market_prices, true);
 
     assert(is_liquiditable == true, 'Position is liquidable');
 
     'Check if liquidable 3000$'.print();
 
-    let market_prices = market_utils::MarketPrices {
+    let market_prices = MarketPrices {
         index_token_price: Price { min: 3000, max: 3000, },
         long_token_price: Price { min: 3000, max: 3000, },
         short_token_price: Price { min: 1, max: 1, },
     };
 
-    let (is_liquiditable, reason) = reader
+    let (is_liquiditable, _reason) = reader
         .is_position_liquidable(data_store, referal_storage, first_position, market, market_prices, true);
 
     assert(is_liquiditable == false, 'Position is not liquidable');
 
-    let signatures: Span<felt252> = array![0].span();
+    let _signatures: Span<felt252> = array![0].span();
     let set_price_params = SetPricesParams {
         signer_info: 0,
         tokens: array![contract_address_const::<'ETH'>(), contract_address_const::<'USDC'>()],
@@ -1977,15 +1985,16 @@ fn test_long_liquidation() {
     assert(balance_USDC_af_liq == 50000000000000000000000, 'balance USDC 50 000$');
     assert(balance_ETH_af_liq == 9000000000000000000, 'balance ETH 9');
 
-    let pool_value_info = market_utils::get_pool_value_info(
-        data_store,
-        market,
-        Price { min: 3500, max: 3500, },
-        Price { min: 3500, max: 3500, },
-        Price { min: 1, max: 1, },
-        keys::max_pnl_factor_for_deposits(),
-        true,
-    );
+    let pool_value_info = market_utils
+        .get_pool_value_info(
+            data_store,
+            market,
+            Price { min: 3500, max: 3500, },
+            Price { min: 3500, max: 3500, },
+            Price { min: 1, max: 1, },
+            keys::max_pnl_factor_for_deposits(),
+            true,
+        );
 
     assert(pool_value_info.pool_value.mag == 175050000003500000000000000000000, 'wrong pool value 3');
     assert(pool_value_info.long_token_amount == 50000000001000000000000000000, 'wrong long token amount 3');
@@ -2021,6 +2030,7 @@ fn test_long_leverage_positif_close() {
         _withdrawal_vault,
         _liquidation_handler,
         market,
+        _market_utils,
     ) =
         deposit_setup(
         50000000000000000000000000000, 50000000000000000000000000000
@@ -2032,7 +2042,7 @@ fn test_long_leverage_positif_close() {
     assert(balance_caller_ETH == 10000000000000000000, 'balanc ETH should be 10 ETH');
     assert(balance_caller_USDC == 50000000000000000000000, 'USDC be 50 000 USDC');
 
-    // let pool_value_info = market_utils::get_pool_value_info(
+    // let pool_value_info = market_utils.get_pool_value_info(
     //     data_store,
     //     market,
     //     Price { min: 5000, max: 5000, },
@@ -2106,7 +2116,7 @@ fn test_long_leverage_positif_close() {
     assert(first_position.borrowing_factor == 0, 'Borrow should be 0');
     assert(first_position.collateral_amount == 1000000000000000000, 'Collat should be 1 ETH');
 
-    let market_prices = market_utils::MarketPrices {
+    let market_prices = MarketPrices {
         index_token_price: Price { min: 3850, max: 3850, },
         long_token_price: Price { min: 3850, max: 3850, },
         short_token_price: Price { min: 1, max: 1, },
@@ -2125,7 +2135,7 @@ fn test_long_leverage_positif_close() {
     let balance_ETH_bef_close = IERC20Dispatcher { contract_address: contract_address_const::<'ETH'>() }
         .balance_of(caller_address);
 
-    let market_prices = market_utils::MarketPrices {
+    let market_prices = MarketPrices {
         index_token_price: Price { min: 4000, max: 4000, },
         long_token_price: Price { min: 4000, max: 4000, },
         short_token_price: Price { min: 1, max: 1, },
@@ -2217,6 +2227,7 @@ fn test_long_leverage_liquidation() {
         _withdrawal_vault,
         liquidation_handler,
         market,
+        market_utils,
     ) =
         deposit_setup(
         50000000000000000000000000000, 50000000000000000000000000000
@@ -2228,15 +2239,16 @@ fn test_long_leverage_liquidation() {
     assert(balance_caller_ETH == 10000000000000000000, 'balanc ETH should be 10 ETH');
     assert(balance_caller_USDC == 50000000000000000000000, 'USDC be 50 000 USDC');
 
-    let pool_value_info = market_utils::get_pool_value_info(
-        data_store,
-        market,
-        Price { min: 3500, max: 3500, },
-        Price { min: 3500, max: 3500, },
-        Price { min: 1, max: 1, },
-        keys::max_pnl_factor_for_deposits(),
-        true,
-    );
+    let pool_value_info = market_utils
+        .get_pool_value_info(
+            data_store,
+            market,
+            Price { min: 3500, max: 3500, },
+            Price { min: 3500, max: 3500, },
+            Price { min: 1, max: 1, },
+            keys::max_pnl_factor_for_deposits(),
+            true,
+        );
 
     assert(pool_value_info.pool_value.mag == 175050000000000000000000000000000, 'wrong pool value 1');
     assert(pool_value_info.long_token_amount == 50000000000000000000000000000, 'wrong long token amount 1');
@@ -2302,7 +2314,7 @@ fn test_long_leverage_liquidation() {
     assert(first_position.borrowing_factor == 0, 'Borrow should be 0');
     assert(first_position.collateral_amount == 1000000000000000000, 'Collat should be 1 ETH');
 
-    let market_prices = market_utils::MarketPrices {
+    let market_prices = MarketPrices {
         index_token_price: Price { min: 3850, max: 3850, },
         long_token_price: Price { min: 3850, max: 3850, },
         short_token_price: Price { min: 1, max: 1, },
@@ -2321,15 +2333,16 @@ fn test_long_leverage_liquidation() {
     assert(balance_USDC == 50000000000000000000000, 'balance USDC 50 000$');
     assert(balance_ETH == 9000000000000000000, 'balance ETH 9');
 
-    let pool_value_info = market_utils::get_pool_value_info(
-        data_store,
-        market,
-        Price { min: 3500, max: 3500, },
-        Price { min: 3500, max: 3500, },
-        Price { min: 1, max: 1, },
-        keys::max_pnl_factor_for_deposits(),
-        true,
-    );
+    let pool_value_info = market_utils
+        .get_pool_value_info(
+            data_store,
+            market,
+            Price { min: 3500, max: 3500, },
+            Price { min: 3500, max: 3500, },
+            Price { min: 1, max: 1, },
+            keys::max_pnl_factor_for_deposits(),
+            true,
+        );
 
     assert(pool_value_info.pool_value.mag == 175050000000000000000000000000001, 'wrong pool value 2');
     assert(pool_value_info.long_token_amount == 50000000000000000000000000000, 'wrong long token amount 2');
@@ -2339,18 +2352,18 @@ fn test_long_leverage_liquidation() {
 
     'Check if liquidable 3000$'.print();
 
-    let market_prices = market_utils::MarketPrices {
+    let market_prices = MarketPrices {
         index_token_price: Price { min: 3000, max: 3000, },
         long_token_price: Price { min: 3000, max: 3000, },
         short_token_price: Price { min: 1, max: 1, },
     };
 
-    let (is_liquiditable, reason) = reader
+    let (is_liquiditable, _reason) = reader
         .is_position_liquidable(data_store, referal_storage, first_position, market, market_prices, true);
     // position x10 leverage is liquidable at 3000$, position x1 leverage is not liquidable at 3000$
     assert(is_liquiditable == true, 'Position is liquidable');
 
-    let signatures: Span<felt252> = array![0].span();
+    let _signatures: Span<felt252> = array![0].span();
     let set_price_params = SetPricesParams {
         signer_info: 0,
         tokens: array![contract_address_const::<'ETH'>(), contract_address_const::<'USDC'>()],
@@ -2394,15 +2407,16 @@ fn test_long_leverage_liquidation() {
     assert(balance_USDC_af_liq == 50000000000000000000000, 'balance USDC 50 000$');
     assert(balance_ETH_af_liq == 9000000000000000000, 'balance ETH 9');
 
-    let pool_value_info = market_utils::get_pool_value_info(
-        data_store,
-        market,
-        Price { min: 3500, max: 3500, },
-        Price { min: 3500, max: 3500, },
-        Price { min: 1, max: 1, },
-        keys::max_pnl_factor_for_deposits(),
-        true,
-    );
+    let pool_value_info = market_utils
+        .get_pool_value_info(
+            data_store,
+            market,
+            Price { min: 3500, max: 3500, },
+            Price { min: 3500, max: 3500, },
+            Price { min: 1, max: 1, },
+            keys::max_pnl_factor_for_deposits(),
+            true,
+        );
 
     assert(pool_value_info.pool_value.mag == 175050000003500000000000000000000, 'wrong pool value 3');
     assert(pool_value_info.long_token_amount == 50000000001000000000000000000, 'wrong long token amount 3');
@@ -2423,8 +2437,8 @@ fn test_long_increase_then_cancel() {
         caller_address,
         _market_token_class,
         _market_factory,
-        role_store,
-        data_store,
+        _role_store,
+        _data_store,
         _event_emitter,
         exchange_router,
         _deposit_handler,
@@ -2432,12 +2446,13 @@ fn test_long_increase_then_cancel() {
         _oracle,
         order_handler,
         order_vault,
-        reader,
-        referal_storage,
+        _reader,
+        _referal_storage,
         _withdrawal_handler,
         _withdrawal_vault,
         _liquidation_handler,
         market,
+        _market_utils,
     ) =
         deposit_setup(
         50000000000000000000000000000, 50000000000000000000000000000
@@ -2449,7 +2464,7 @@ fn test_long_increase_then_cancel() {
     assert(balance_caller_ETH == 10000000000000000000, 'balanc ETH should be 10 ETH');
     assert(balance_caller_USDC == 50000000000000000000000, 'USDC be 50 000 USDC');
 
-    // let pool_value_info = market_utils::get_pool_value_info(
+    // let pool_value_info = market_utils.get_pool_value_info(
     //     data_store,
     //     market,
     //     Price { min: 5000, max: 5000, },

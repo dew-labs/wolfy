@@ -17,7 +17,7 @@
         "action:execute-order": "bun ./scripts/actions/keeper/executeOrder.ts",
         "action:create-swap-order": "bun ./scripts/actions/user/createSwapOrder.ts",
         "action:execute-liquidation": "bun ./scripts/actions/keeper/executeLiquidation.ts",
-        "full-flow": "bun action:create-market && bun action:config-market && bun action:create-deposit && bun action:execute-deposit && bun action:create-order && bun action:execute-order",
+        "full-flow": "bun action:bulk:create-and-config-markets && bun action:create-deposit && bun action:execute-deposit && bun action:create-order && bun action:execute-order",
         "sepolia:deploy": "mise -P sepolia x -- bun run deploy",
         "sepolia:misc:deploy:multicall": "mise -P sepolia x -- bun run misc:deploy:multicall",
         "sepolia:misc:deploy:account": "mise -P sepolia x -- bun run misc:deploy:account",
@@ -75,7 +75,7 @@
         "starknet": "^6.12.1",
         "tiny-invariant": "^1.3.3",
         "typescript": "^5.5.3",
-        "wolfy-sdk": "^1.2.0"
+        "wolfy-sdk": "^1.3.0"
     },
     "devDependencies": {
         "@flydotio/dockerfile": "^0.5.8",

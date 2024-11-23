@@ -50,6 +50,7 @@ fn deploy_fee_handler(
     data_store_address: ContractAddress,
     event_emitter_address: ContractAddress,
     role_module_class_hash: ClassHash,
+    market_utils_class_hash: ClassHash,
 ) -> ContractAddress {
     let contract = declare("FeeHandler").unwrap().contract_class();
     let caller_address: ContractAddress = tests_lib::get_c4ller_address();
@@ -60,6 +61,7 @@ fn deploy_fee_handler(
         role_store_address.into(),
         event_emitter_address.into(),
         role_module_class_hash.into(),
+        market_utils_class_hash.into(),
     ];
     let (contract_address, _) = contract.deploy_at(@constructor_calldata, deployed_contract_address).unwrap();
     contract_address
@@ -76,6 +78,7 @@ fn setup() -> (ContractAddress, IDataStoreDispatcher, IEventEmitterDispatcher, I
         role_module_class,
         _bank_class,
         _governable_class,
+        market_utils_class,
         _market_factory,
         role_store,
         data_store,
@@ -102,7 +105,8 @@ fn setup() -> (ContractAddress, IDataStoreDispatcher, IEventEmitterDispatcher, I
         role_store.contract_address,
         data_store.contract_address,
         event_emitter.contract_address,
-        role_module_class.class_hash
+        role_module_class.class_hash,
+        market_utils_class.class_hash,
     );
     let fee_handler = IFeeHandlerDispatcher { contract_address: fee_handler_address };
     role_store.grant_role(caller_address, role::FEE_KEEPER);

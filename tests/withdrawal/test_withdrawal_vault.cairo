@@ -8,6 +8,7 @@
 // Local imports.
 use freyr::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
 use freyr::market::market_factory::{IMarketFactoryDispatcher, IMarketFactoryDispatcherTrait};
+use freyr::market::market_utils::{IMarketUtilsLibraryDispatcher, IMarketUtilsDispatcherTrait};
 use freyr::role::role;
 use freyr::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
 use freyr::test_utils::tests_lib;
@@ -228,6 +229,7 @@ fn setup() -> (
         _role_module_class,
         _bank_class,
         _governable_class,
+        _market_utils_class,
         market_factory,
         role_store,
         data_store,

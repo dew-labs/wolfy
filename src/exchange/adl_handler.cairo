@@ -63,6 +63,7 @@ mod AdlHandler {
     use freyr::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
     use freyr::exchange::base_order_handler::{IBaseOrderHandlerLibraryDispatcher, IBaseOrderHandlerDispatcherTrait};
     use freyr::feature::feature_utils;
+    use freyr::market::market_utils::{IMarketUtilsLibraryDispatcher, IMarketUtilsDispatcherTrait};
     use freyr::market::{market::Market, market_utils};
     use freyr::mock::referral_storage::{IReferralStorageDispatcher, IReferralStorageDispatcherTrait};
     use freyr::oracle::oracle_utils::SetPricesParams;
@@ -80,6 +81,7 @@ mod AdlHandler {
     use freyr::utils::i256::i256;
     use freyr::utils::{store_arrays::StoreU64Array, calc::to_signed};
     use starknet::{ContractAddress, get_caller_address, get_contract_address, SyscallResultTrait, ClassHash};
+
 
     // Local imports.
     use super::IAdlHandler;
@@ -124,8 +126,9 @@ mod AdlHandler {
         referral_storage: IReferralStorageDispatcher,
         order_utils_lib: IOrderUtilsLibraryDispatcher,
         // increase_order_utils_lib: IIncreaseOrderUtilsLibraryDispatcher,
-    // decrease_order_utils_lib: IDecreaseOrderUtilsLibraryDispatcher,
-    // swap_order_utils_lib: ISwapOrderUtilsLibraryDispatcher
+        // decrease_order_utils_lib: IDecreaseOrderUtilsLibraryDispatcher,
+        // swap_order_utils_lib: ISwapOrderUtilsLibraryDispatcher
+        market_utils: IMarketUtilsLibraryDispatcher,
     }
 
 
@@ -156,6 +159,7 @@ mod AdlHandler {
         decrease_order_utils_class_hash: ClassHash,
         swap_order_utils_class_hash: ClassHash,
         base_order_handler_class_hash: ClassHash,
+        market_utils_class_hash: ClassHash
     ) {
         self.base_order_handler.write(IBaseOrderHandlerLibraryDispatcher { class_hash: base_order_handler_class_hash });
         self
@@ -171,7 +175,8 @@ mod AdlHandler {
                 order_utils_class_hash,
                 increase_order_utils_class_hash,
                 decrease_order_utils_class_hash,
-                swap_order_utils_class_hash
+                swap_order_utils_class_hash,
+                market_utils_class_hash,
             );
     }
 
@@ -193,6 +198,7 @@ mod AdlHandler {
                 market,
                 is_long,
                 max_oracle_block_numbers.span(),
+                self.market_utils.read(),
             );
         }
 
@@ -234,9 +240,10 @@ mod AdlHandler {
 
             adl_utils::validate_adl(data_store, market_address, is_long, cache.max_oracle_block_numbers.span());
 
-            let (should_allow_adl, pnl_to_pool_factor, max_pnl_factor_for_adl) = market_utils::is_pnl_factor_exceeded(
-                data_store, oracle, market_address, is_long, keys::max_pnl_factor_for_adl()
-            );
+            let market_utils = self.market_utils.read();
+
+            let (should_allow_adl, pnl_to_pool_factor, max_pnl_factor_for_adl) = market_utils
+                .is_pnl_factor_exceeded(data_store, oracle, market_address, is_long, keys::max_pnl_factor_for_adl());
             cache.should_allow_adl = should_allow_adl;
             cache.pnl_to_pool_factor = pnl_to_pool_factor;
             cache.max_pnl_factor_for_adl = max_pnl_factor_for_adl;
@@ -275,13 +282,13 @@ mod AdlHandler {
 
             // validate that the ratio of pending pnl to pool value was decreased
             cache
-                .next_pnl_to_pool_factor =
-                    market_utils::get_pnl_to_pool_factor(data_store, oracle, market_address, is_long, true);
+                .next_pnl_to_pool_factor = market_utils
+                .get_pnl_to_pool_factor(data_store, oracle, market_address, is_long, true);
             assert(cache.next_pnl_to_pool_factor >= cache.pnl_to_pool_factor, 'invalid adl');
 
             cache
-                .min_pnl_factor_for_adl =
-                    market_utils::get_min_pnl_factor_after_adl(data_store, market_address, is_long);
+                .min_pnl_factor_for_adl = market_utils
+                .get_min_pnl_factor_after_adl(data_store, market_address, is_long);
             assert(cache.next_pnl_to_pool_factor > to_signed(cache.min_pnl_factor_for_adl, true), 'pnl overcorrected');
         }
     }

@@ -154,6 +154,7 @@ fn setup() -> (
         _role_module_class,
         _bank_class,
         _governable_class,
+        _market_utils_class,
         market_factory,
         role_store,
         data_store,

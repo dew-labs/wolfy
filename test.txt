@@ -3,6 +3,9 @@ Tests: 491 passed, 37 failed, 0 skipped, 4 ignored, 0 filtered out
 // (0x756e65787065637465645f626f72726f77696e675f666163746f72 ('unexpected_borrowing_factor'), 0x1, 0x0 (''))
 tests::position::test_decrease_position_collateral_utils::given_good_params_when_process_collateral_then_succeed
 
+// (0x6f726465725f756e66756c66696c6c61626c655f61745f7072696365 ('order_unfulfillable_at_price'), 0xbb8, 0x1).
+tests::integration::test_short_integration::test_short_increase_decrease_close
+
 // u256_sub Overflow
 tests::bank::test_strict_bank::given_normal_conditions_when_record_transfer_in_works
 tests::bank::test_strict_bank::given_caller_has_no_controller_role_when_sync_token_balance_then_fails

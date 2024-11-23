@@ -187,7 +187,7 @@ mod ExchangeRouter {
     };
     use freyr::feature::feature_utils;
     use freyr::fee::fee_utils;
-    use freyr::market::market_utils;
+    use freyr::market::market_utils::{IMarketUtilsLibraryDispatcher, IMarketUtilsDispatcherTrait};
     use freyr::oracle::oracle_utils::SimulatePricesParams;
     use freyr::order::base_order_utils::CreateOrderParams;
     use freyr::order::order::Order;
@@ -198,7 +198,7 @@ mod ExchangeRouter {
     use freyr::withdrawal::{withdrawal::Withdrawal, withdrawal_utils::CreateWithdrawalParams};
 
     use openzeppelin::security::ReentrancyGuardComponent;
-    use starknet::{get_caller_address, ContractAddress, contract_address_const, get_contract_address};
+    use starknet::{get_caller_address, ContractAddress, contract_address_const, get_contract_address, ClassHash};
 
     use super::IExchangeRouter;
 
@@ -218,7 +218,8 @@ mod ExchangeRouter {
         event_emitter: IEventEmitterDispatcher,
         deposit_handler: IDepositHandlerDispatcher,
         withdrawal_handler: IWithdrawalHandlerDispatcher,
-        order_handler: IOrderHandlerDispatcher
+        order_handler: IOrderHandlerDispatcher,
+        market_utils: IMarketUtilsLibraryDispatcher,
     }
 
     // *************************************************************************
@@ -251,7 +252,8 @@ mod ExchangeRouter {
         event_emitter_address: ContractAddress,
         deposit_handler_address: ContractAddress,
         withdrawal_handler_address: ContractAddress,
-        order_handler_address: ContractAddress
+        order_handler_address: ContractAddress,
+        market_utils_class_hash: ClassHash,
     ) {
         self.router.write(IRouterDispatcher { contract_address: router_address });
         self.data_store.write(IDataStoreDispatcher { contract_address: data_store_address });
@@ -259,6 +261,7 @@ mod ExchangeRouter {
         self.deposit_handler.write(IDepositHandlerDispatcher { contract_address: deposit_handler_address });
         self.withdrawal_handler.write(IWithdrawalHandlerDispatcher { contract_address: withdrawal_handler_address });
         self.order_handler.write(IOrderHandlerDispatcher { contract_address: order_handler_address });
+        self.market_utils.write(IMarketUtilsLibraryDispatcher { class_hash: market_utils_class_hash });
     }
 
     // *************************************************************************
@@ -450,6 +453,7 @@ mod ExchangeRouter {
 
             let mut claimed_amounts: Array<u256> = ArrayTrait::new();
 
+            let market_utils = self.market_utils.read();
             let mut i = 0;
             loop {
                 if i == markets.len() {
@@ -457,9 +461,10 @@ mod ExchangeRouter {
                 }
                 claimed_amounts
                     .append(
-                        market_utils::claim_funding_fees(
-                            data_store, self.event_emitter.read(), *markets[i], *tokens[i], account, receiver
-                        )
+                        market_utils
+                            .claim_funding_fees(
+                                data_store, self.event_emitter.read(), *markets[i], *tokens[i], account, receiver
+                            )
                     );
                 i += 1;
             };
@@ -494,6 +499,8 @@ mod ExchangeRouter {
 
             let mut claimed_amounts: Array<u256> = ArrayTrait::new();
 
+            let market_utils = self.market_utils.read();
+
             let mut i = 0;
             loop {
                 if i == markets.len() {
@@ -501,15 +508,16 @@ mod ExchangeRouter {
                 }
                 claimed_amounts
                     .append(
-                        market_utils::claim_collateral(
-                            data_store,
-                            self.event_emitter.read(),
-                            *markets[i],
-                            *tokens[i],
-                            *time_keys[i],
-                            account,
-                            receiver
-                        )
+                        market_utils
+                            .claim_collateral(
+                                data_store,
+                                self.event_emitter.read(),
+                                *markets[i],
+                                *tokens[i],
+                                *time_keys[i],
+                                account,
+                                receiver
+                            )
                     );
                 i += 1;
             };
@@ -549,7 +557,13 @@ mod ExchangeRouter {
                 claimed_amounts
                     .append(
                         referral_utils::claim_affiliate_reward(
-                            data_store, self.event_emitter.read(), *markets[i], *tokens[i], account, receiver
+                            data_store,
+                            self.event_emitter.read(),
+                            *markets[i],
+                            *tokens[i],
+                            account,
+                            receiver,
+                            self.market_utils.read()
                         )
                     );
                 i = i + 1;
@@ -566,7 +580,8 @@ mod ExchangeRouter {
             let data_store = self.data_store.read();
 
             let account = get_caller_address();
-            market_utils::set_ui_fee_factor(data_store, self.event_emitter.read(), account, ui_fee_factor);
+            let market_utils = self.market_utils.read();
+            market_utils.set_ui_fee_factor(data_store, self.event_emitter.read(), account, ui_fee_factor);
 
             self.reentrancy_guard.end();
         }
@@ -601,7 +616,13 @@ mod ExchangeRouter {
                 claimed_amounts
                     .append(
                         fee_utils::claim_ui_fees(
-                            data_store, self.event_emitter.read(), ui_fee_receiver, *markets[i], *tokens[i], receiver
+                            data_store,
+                            self.event_emitter.read(),
+                            ui_fee_receiver,
+                            *markets[i],
+                            *tokens[i],
+                            receiver,
+                            self.market_utils.read()
                         )
                     );
                 i += 1;

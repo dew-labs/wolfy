@@ -9,9 +9,7 @@ use freyr::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatch
 
 // Local imports.
 use freyr::market::market::Market;
-use freyr::market::market_utils::{
-    MarketPrices, get_opposite_token, get_cached_token_price, get_swap_impact_amount_with_cap, validate_swap_market
-};
+use freyr::market::market_utils::{MarketPrices, IMarketUtilsLibraryDispatcher, IMarketUtilsDispatcherTrait};
 use freyr::mock::referral_storage::{IReferralStorageDispatcher, IReferralStorageDispatcherTrait};
 
 use freyr::oracle::oracle::{IOracleDispatcher, IOracleDispatcherTrait};
@@ -78,7 +76,8 @@ fn get_swap_amount_out(
     prices: MarketPrices,
     token_in: ContractAddress,
     amount_in: u256,
-    ui_fee_receiver: ContractAddress
+    ui_fee_receiver: ContractAddress,
+    market_utils: IMarketUtilsLibraryDispatcher
 ) -> (u256, i256, SwapFees) {
     let mut cache: SwapCache = Default::default();
 
@@ -86,11 +85,11 @@ fn get_swap_amount_out(
         ReaderError::INVALID_TOKEN_IN(token_in, market.long_token);
     }
 
-    validate_swap_market(data_store, market);
+    market_utils.validate_swap_market(data_store, market);
 
-    cache.token_out = get_opposite_token(token_in, @market);
-    cache.token_in_price = get_cached_token_price(token_in, market, prices);
-    cache.token_out_price = get_cached_token_price(cache.token_out, market, prices);
+    cache.token_out = market_utils.get_opposite_token(token_in, market);
+    cache.token_in_price = market_utils.get_cached_token_price(token_in, market, prices);
+    cache.token_out_price = market_utils.get_cached_token_price(cache.token_out, market, prices);
 
     let param = GetPriceImpactUsdParams {
         data_store,
@@ -103,10 +102,10 @@ fn get_swap_amount_out(
         usd_delta_for_token_b: calc::to_signed(amount_in * cache.token_in_price.mid_price(), false)
     };
 
-    let price_impact_usd: i256 = get_price_impact_usd(param);
+    let price_impact_usd: i256 = get_price_impact_usd(param, market_utils);
 
     let fees: SwapFees = get_swap_fees(
-        data_store, market.market_token, amount_in, price_impact_usd > Zeroable::zero(), ui_fee_receiver
+        data_store, market.market_token, amount_in, price_impact_usd > Zeroable::zero(), ui_fee_receiver, market_utils
     );
 
     let mut impact_amount: i256 = Zeroable::zero();
@@ -124,8 +123,8 @@ fn get_swap_amount_out(
         cache.amount_out = cache.amount_in * cache.token_in_price.min / cache.token_out_price.max;
         cache.pool_amount_out = cache.amount_out;
 
-        impact_amount =
-            get_swap_impact_amount_with_cap(
+        impact_amount = market_utils
+            .get_swap_impact_amount_with_cap(
                 data_store, market.market_token, cache.token_out, cache.token_out_price, price_impact_usd
             );
 
@@ -137,8 +136,8 @@ fn get_swap_amount_out(
         // only 9.995 ETH may be swapped in
         // the remaining 0.005 ETH will be stored in the swap impact pool
 
-        impact_amount =
-            get_swap_impact_amount_with_cap(
+        impact_amount = market_utils
+            .get_swap_impact_amount_with_cap(
                 data_store, market.market_token, token_in, cache.token_in_price, price_impact_usd
             );
 
@@ -168,7 +167,8 @@ fn get_execution_price(
     position_size_in_usd: u256,
     position_size_in_tokens: u256,
     size_delta_usd: i256,
-    is_long: bool
+    is_long: bool,
+    market_utils: IMarketUtilsLibraryDispatcher
 ) -> ExecutionPriceResult {
     let mut params: UpdatePositionParams = Default::default();
 
@@ -206,7 +206,7 @@ fn get_execution_price(
     };
     if size_delta_usd > Zeroable::zero() {
         let (price_impact_usd, _, _, execution_price) = increase_position_utils::get_execution_price(
-            params, index_token_price
+            params, index_token_price, market_utils
         );
 
         result.price_impact_usd = price_impact_usd;
@@ -214,7 +214,7 @@ fn get_execution_price(
     } else {
         let (price_impact_usd, price_impact_diff_usd, execution_price) =
             decrease_position_collateral_utils::get_execution_price(
-            params, index_token_price
+            params, index_token_price, market_utils
         );
         result.price_impact_usd = price_impact_usd;
         result.price_impact_diff_usd = price_impact_diff_usd;
@@ -242,7 +242,8 @@ fn get_swap_price_impact(
     token_out: ContractAddress,
     amount_in: u256,
     token_in_price: Price,
-    token_out_price: Price
+    token_out_price: Price,
+    market_utils: IMarketUtilsLibraryDispatcher
 ) -> (i256, i256) {
     let mut _cache: SwapCache = Default::default();
 
@@ -257,17 +258,17 @@ fn get_swap_price_impact(
         usd_delta_for_token_b: calc::to_signed(amount_in * token_in_price.mid_price(), false)
     };
 
-    let price_impact_usd_before_cap: i256 = get_price_impact_usd(param);
+    let price_impact_usd_before_cap: i256 = get_price_impact_usd(param, market_utils);
 
     let mut price_impact_amount = Zeroable::zero();
     if price_impact_usd_before_cap > Zeroable::zero() {
-        price_impact_amount =
-            get_swap_impact_amount_with_cap(
+        price_impact_amount = market_utils
+            .get_swap_impact_amount_with_cap(
                 data_store, market.market_token, token_out, token_out_price, price_impact_usd_before_cap,
             );
     } else {
-        price_impact_amount =
-            get_swap_impact_amount_with_cap(
+        price_impact_amount = market_utils
+            .get_swap_impact_amount_with_cap(
                 data_store, market.market_token, token_in, token_in_price, price_impact_usd_before_cap,
             );
     }

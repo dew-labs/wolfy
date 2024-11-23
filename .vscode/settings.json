@@ -1,6 +1,19 @@
 {
     "typescript.tsdk": "node_modules/typescript/lib",
     "eslint.enable": false,
-    "cSpell.words": ["dotenvx", "jiti", "sepolia", "freyr", "wolfy"],
+    "cSpell.words": [
+        "dotenvx",
+        "jiti",
+        "sepolia",
+        "freyr",
+        "wolfy",
+        "erc",
+        "ierc",
+        "reentrancy",
+        "elysia",
+        "elysiajs",
+        "snforge",
+        "usize"
+    ],
     "svg.preview.background": "dark-transparent"
 }
