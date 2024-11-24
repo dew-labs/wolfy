@@ -10,6 +10,7 @@ RUN mkdir apps
 COPY package.json ./
 COPY bun.lockb ./
 
+COPY patches ./patches
 COPY packages ./packages
 COPY apps/indexer/package.json ./apps/indexer/package.json
 

@@ -7,6 +7,7 @@ RUN mkdir apps
 COPY package.json ./
 COPY bun.lockb ./
 
+COPY patches ./patches
 COPY packages ./packages
 COPY apps/backend/package.json ./apps/backend/package.json
 
