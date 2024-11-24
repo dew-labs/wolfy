@@ -75,14 +75,30 @@ export const getTradeHistory = async (
 
 const buildSelectClause = (table: TradeHistoryTable) => ({
     id: table.uid,
+    market: table.market,
+    action: table.action,
+    isLong: table.isLong,
     price:
         "triggerPrice" in table
             ? sql<string>`${table.triggerPrice}`.as("price")
             : sql<string>`${table.executionPrice}`.as("price"),
+    acceptablePrice:
+        "acceptablePrice" in table
+            ? sql<string>`${table.acceptablePrice}`.as("acceptablePrice")
+            : sql<null>`null`.as("acceptablePrice"),
+    collateralToken:
+        "initialCollateralToken" in table
+            ? sql<string>`${table.initialCollateralToken}`.as("collateralToken")
+            : sql<string>`${table.collateralToken}`.as("collateralToken"),
+    collateralAmount:
+        "collateralAmount" in table
+            ? sql<string>`${table.collateralAmount}`.as("collateralAmount")
+            : sql<null>`null`.as("collateralAmount"),
+    collateralDeltaAmount:
+        "initialCollateralDeltaAmount" in table
+            ? sql<string>`${table.initialCollateralDeltaAmount}`.as("collateralDeltaAmount")
+            : sql<string>`${table.collateralDeltaAmount}`.as("collateralDeltaAmount"),
     size: table.sizeDeltaUsd,
-    isLong: table.isLong,
-    action: table.action,
-    market: table.market,
     rpnl:
         "basePnlUsd" in table
             ? sql<string>`${table.basePnlUsd}`.as("rpnl")
