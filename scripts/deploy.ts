@@ -1,7 +1,9 @@
 import {
     createAsker,
+    decimalToFloat,
     ensureDeclared,
     ensureDeployed,
+    expandDecimals,
     getContracts,
     settingUp,
 } from "@freyr/shared/utils";
@@ -18,6 +20,64 @@ import {
 
 import type { Contracts } from "@freyr/shared/interfaces";
 import fs from "node:fs";
+import * as dataStoreKeys from "wolfy-sdk/dataStore";
+
+export const GENERAL_CONFIGS = {
+    maxUiFeeFactor: decimalToFloat(2, 4), // 0.0002, 0.02%,
+    minHandleExecutionErrorGas: 1_000, // measured gas required for an order cancellation: ~600
+
+    maxSwapPathLength: 5,
+
+    depositGasLimitSingle: 1_500,
+    depositGasLimitMultiple: 1_800,
+    withdrawalGasLimit: 1_500,
+
+    singleSwapGasLimit: 1_000, // measured gas required for a swap in a market increase order: ~600
+    increaseOrderGasLimit: 4_000,
+    decreaseOrderGasLimit: 4_000,
+    swapOrderGasLimit: 3_000,
+
+    tokenTransferGasLimit: 200,
+    nativeTokenTransferGasLimit: 50,
+
+    estimatedGasFeeBaseAmount: 500, // measured gas for an order execution without any main logic: ~500
+    estimatedGasFeeMultiplierFactor: expandDecimals(1, 30),
+
+    executionGasFeeBaseAmount: 500, // measured gas for an order execution without any main logic: ~500
+    executionGasFeeMultiplierFactor: expandDecimals(1, 30),
+
+    maxCallbackGasLimit: 2_000,
+    minCollateralUsd: decimalToFloat(1),
+
+    minPositionSizeUsd: decimalToFloat(1),
+    claimableCollateralTimeDivisor: 60 * 60,
+
+    positionFeeReceiverFactor: decimalToFloat(37, 2), // 37%
+    swapFeeReceiverFactor: decimalToFloat(37, 2), // 37%
+    borrowingFeeReceiverFactor: decimalToFloat(37, 2), // 37%
+
+    skipBorrowingFeeForSmallerSide: true,
+    requestExpirationBlockAge: 0,
+};
+
+// const networkConfigs = {
+//     arbitrumGoerli: {
+//         requestExpirationBlockAge: 1200, // about 5 minutes assuming 4 blocks per second
+//     },
+//     avalancheFuji: {
+//         requestExpirationBlockAge: 200, // about 5 minutes assuming 1 block per 3 seconds
+//     },
+//     arbitrum: {
+//         requestExpirationBlockAge: 1200, // about 5 minutes assuming 4 blocks per second
+//         estimatedGasFeeBaseAmount: 2_500_000,
+//         executionGasFeeBaseAmount: 2_500_000,
+//     },
+//     avalanche: {
+//         requestExpirationBlockAge: 200, // about 5 minutes assuming 1 block per 3 seconds
+//         estimatedGasFeeBaseAmount: 1_000_000,
+//         executionGasFeeBaseAmount: 1_000_000,
+//     },
+// };
 
 async function deploy() {
     const { account, net } = await settingUp();
@@ -494,11 +554,119 @@ async function config() {
 
     const dataStoreContract = createWolfyContract(chainId, WolfyContract.DataStore, DataStoreABI);
 
+    const configs = {
+        ...GENERAL_CONFIGS,
+        feeToken,
+        feeReceiver: account.address,
+        holdingAddress: account.address,
+    };
+
     await executeAndWait(account, [
-        // set fee token
-        createCall(dataStoreContract, "set_address", [poseidonHash("FEE_TOKEN"), feeToken]),
-        // set max swap path length
-        createCall(dataStoreContract, "set_u256", [poseidonHash("MAX_SWAP_PATH_LENGTH"), 5]),
+        createCall(dataStoreContract, "set_address", [dataStoreKeys.FEE_TOKEN, configs.feeToken]),
+        createCall(dataStoreContract, "set_address", [
+            dataStoreKeys.FEE_RECEIVER,
+            configs.feeReceiver,
+        ]),
+        createCall(dataStoreContract, "set_address", [
+            dataStoreKeys.HOLDING_ADDRESS,
+            configs.holdingAddress,
+        ]),
+        createCall(dataStoreContract, "set_u256", [
+            dataStoreKeys.MAX_UI_FEE_FACTOR,
+            configs.maxUiFeeFactor,
+        ]),
+        createCall(dataStoreContract, "set_u256", [
+            dataStoreKeys.MIN_HANDLE_EXECUTION_ERROR_GAS,
+            configs.minHandleExecutionErrorGas,
+        ]),
+        createCall(dataStoreContract, "set_u256", [
+            dataStoreKeys.MAX_CALLBACK_GAS_LIMIT,
+            configs.maxCallbackGasLimit,
+        ]),
+        createCall(dataStoreContract, "set_u256", [
+            poseidonHash("MAX_SWAP_PATH_LENGTH"),
+            configs.maxSwapPathLength,
+        ]),
+        createCall(dataStoreContract, "set_u256", [
+            dataStoreKeys.MIN_COLLATERAL_USD,
+            configs.minCollateralUsd,
+        ]),
+        createCall(dataStoreContract, "set_u256", [
+            dataStoreKeys.MIN_POSITION_SIZE_USD,
+            configs.minPositionSizeUsd,
+        ]),
+        createCall(dataStoreContract, "set_u256", [
+            dataStoreKeys.SWAP_FEE_RECEIVER_FACTOR,
+            configs.swapFeeReceiverFactor,
+        ]),
+        createCall(dataStoreContract, "set_u256", [
+            dataStoreKeys.POSITION_FEE_RECEIVER_FACTOR,
+            configs.positionFeeReceiverFactor,
+        ]),
+        createCall(dataStoreContract, "set_u256", [
+            dataStoreKeys.BORROWING_FEE_RECEIVER_FACTOR,
+            configs.borrowingFeeReceiverFactor,
+        ]),
+        createCall(dataStoreContract, "set_u256", [
+            dataStoreKeys.CLAIMABLE_COLLATERAL_TIME_DIVISOR,
+            configs.claimableCollateralTimeDivisor,
+        ]),
+        createCall(dataStoreContract, "set_u256", [
+            dataStoreKeys.depositGasLimitKey(true),
+            configs.depositGasLimitSingle,
+        ]),
+        createCall(dataStoreContract, "set_u256", [
+            dataStoreKeys.depositGasLimitKey(false),
+            configs.depositGasLimitMultiple,
+        ]),
+        createCall(dataStoreContract, "set_u256", [
+            dataStoreKeys.WITHDRAWAL_GAS_LIMIT,
+            configs.withdrawalGasLimit,
+        ]),
+        createCall(dataStoreContract, "set_u256", [
+            dataStoreKeys.SINGLE_SWAP_GAS_LIMIT,
+            configs.singleSwapGasLimit,
+        ]),
+        createCall(dataStoreContract, "set_u256", [
+            dataStoreKeys.INCREASE_ORDER_GAS_LIMIT,
+            configs.increaseOrderGasLimit,
+        ]),
+        createCall(dataStoreContract, "set_u256", [
+            dataStoreKeys.DECREASE_ORDER_GAS_LIMIT,
+            configs.decreaseOrderGasLimit,
+        ]),
+        createCall(dataStoreContract, "set_u256", [
+            dataStoreKeys.SWAP_ORDER_GAS_LIMIT,
+            configs.swapOrderGasLimit,
+        ]),
+        createCall(dataStoreContract, "set_u256", [
+            dataStoreKeys.NATIVE_TOKEN_TRANSFER_GAS_LIMIT,
+            configs.nativeTokenTransferGasLimit,
+        ]),
+        createCall(dataStoreContract, "set_u256", [
+            dataStoreKeys.ESTIMATED_GAS_FEE_BASE_AMOUNT,
+            configs.estimatedGasFeeBaseAmount,
+        ]),
+        createCall(dataStoreContract, "set_u256", [
+            dataStoreKeys.ESTIMATED_GAS_FEE_MULTIPLIER_FACTOR,
+            configs.estimatedGasFeeMultiplierFactor,
+        ]),
+        createCall(dataStoreContract, "set_u256", [
+            dataStoreKeys.EXECUTION_GAS_FEE_BASE_AMOUNT,
+            configs.executionGasFeeBaseAmount,
+        ]),
+        createCall(dataStoreContract, "set_u256", [
+            dataStoreKeys.EXECUTION_GAS_FEE_MULTIPLIER_FACTOR,
+            configs.executionGasFeeMultiplierFactor,
+        ]),
+        createCall(dataStoreContract, "set_bool", [
+            dataStoreKeys.SKIP_BORROWING_FEE_FOR_SMALLER_SIDE,
+            configs.skipBorrowingFeeForSmallerSide,
+        ]),
+        createCall(dataStoreContract, "set_u256", [
+            dataStoreKeys.REQUEST_EXPIRATION_BLOCK_AGE,
+            configs.requestExpirationBlockAge,
+        ]),
     ]);
 
     console.log("Done config");
