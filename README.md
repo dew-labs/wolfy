@@ -22,10 +22,18 @@ rustup default stable # to set rust to stable version, required to run scarb
 ## Test contracts
 
 ```sh
-scarb --dev test
-scarb --dev test --ignored
-scarb --dev test --save-trace-data
-scarb --dev test --build-profile
+scarb test
+scarb test -e <full-test-name> # run a specific test without compile anyother tests
+scarb test --rerun-failed # rerun only failed tests
+scarb test --ignored # run only ignored
+scarb test --include-ignored # run all tests including ignored
+
+# Coverage https://foundry-rs.github.io/starknet-foundry/testing/coverage.html
+scarb test --coverage # run tests and generate coverage report
+
+# Profiling https://foundry-rs.github.io/starknet-foundry/snforge-advanced-features/profiling.html
+scarb test --save-trace-data
+scarb test --build-profile
 ```
 
 This will execute the tests in `tests` directory and print the results.
@@ -74,6 +82,12 @@ Prepare `.env.<PROFILE>` based on `.env.example`
 
 ```sh
 bun run <PROFILE>:deploy
+```
+
+## Troubleshooting
+
+```sh
+scarb clean-cache
 ```
 
 ## Deployed Contracts

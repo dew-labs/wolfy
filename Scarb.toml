@@ -15,26 +15,28 @@ readme = "README.md"
 
 [scripts]
 test = "snforge test"
+clean-cache = "snforge clean-cache"
 
 [[target.starknet-contract]]
 sierra = true
 casm = true
-# allowed-libfuncs-deny = true
+
+[[profile.dev.target.starknet-contract]]
+casm = false # disable casm on dev profile to speed up compilation
+allowed-libfuncs-list.name = "experimental" # enable experimental libfuncs
 
 [cairo]
-enable-gas = false
+sierra-replace-ids = false # disable sierra replace ids to reduce the size of the contract, with faster compilation time
 
 [profile.release.cairo]
-enable-gas = true
 # allow-warnings = false
-sierra-replace-ids = false
-inlining-strategy = "avoid"
+inlining-strategy = "avoid" # no inlining to reduce the size of the contract
+allowed-libfuncs-deny = true
 
 [profile.dev.cairo]
-enable-gas = true
 allow-warnings = true
-sierra-replace-ids = true
-inlining-strategy = "default"
+inlining-strategy = "default" # faster compilation
+allowed-libfuncs = true # enable experimental libfuncs
 # unstable-add-statements-functions-debug-info = true
 # unstable-add-statements-code-locations-debug-info = true
 
