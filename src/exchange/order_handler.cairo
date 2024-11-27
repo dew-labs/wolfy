@@ -86,6 +86,14 @@ trait IOrderHandler<TContractState> {
     /// * `key` - The key of the order to execute.
     /// * `oracle_params` - The oracle params to simulate prices.
     fn simulate_execute_order(ref self: TContractState, key: felt252, params: SimulatePricesParams);
+
+    /// Handle the error when executing an order, marking the order as frozen. This originally automatically called in a
+    /// try/catch block, but cairo does not support try/catch so it is manually called by the keeper.
+    /// # Arguments
+    /// * `key` - The key of the order to execute.
+    /// * `starting_gas` - The starting gas of the transaction.
+    /// * `reason_bytes` - The reason of the error.
+    fn handle_order_error(ref self: TContractState, key: felt252, starting_gas: u256, reason_bytes: Array<felt252>);
 }
 
 #[starknet::contract]
@@ -106,17 +114,17 @@ mod OrderHandler {
     use freyr::exchange::base_order_handler::{
         IBaseOrderHandler, BaseOrderHandler, IBaseOrderHandlerLibraryDispatcher, IBaseOrderHandlerDispatcherTrait
     };
-    // use freyr::market::error::MarketError;
-    // use freyr::position::error::PositionError;
-    // use freyr::feature::error::FeatureError;
     use freyr::exchange::exchange_utils;
+    use freyr::feature::error::FeatureError;
     use freyr::feature::feature_utils::{validate_feature};
     use freyr::gas::gas_utils;
+    use freyr::market::error::MarketError;
     use freyr::market::market_utils::{IMarketUtilsLibraryDispatcher, IMarketUtilsDispatcherTrait};
     use freyr::mock::referral_storage::{IReferralStorageDispatcher, IReferralStorageDispatcherTrait};
     use freyr::oracle::oracle_modules;
 
     use freyr::oracle::oracle_utils::{SetPricesParams, SimulatePricesParams};
+    use freyr::oracle::oracle_utils;
     use freyr::oracle::{oracle::{IOracleDispatcher, IOracleDispatcherTrait},};
     use freyr::order::base_order_utils;
     use freyr::order::order_utils::IOrderUtilsDispatcherTrait;
@@ -128,6 +136,7 @@ mod OrderHandler {
         decrease_order_utils::IDecreaseOrderUtilsLibraryDispatcher, swap_order_utils::ISwapOrderUtilsLibraryDispatcher
     };
     use freyr::order::{base_order_utils::CreateOrderParams, order_utils::{IOrderUtilsDispatcher},};
+    use freyr::position::error::PositionError;
     use freyr::role::role::FROZEN_ORDER_KEEPER;
     use freyr::role::role;
     use freyr::role::role_module::{IRoleModuleLibraryDispatcher, IRoleModuleDispatcherTrait};
@@ -350,57 +359,59 @@ mod OrderHandler {
         /// * `key` - The key of the deposit to handle error for.
         /// * `starting_gas` - The starting gas of the transaction.
         /// * `reason` - The reason of the error.
-        // fn handle_order_error(
-        //     self: @ContractState, key: felt252, starting_gas: u256, reason_bytes: Array<felt252>
-        // ) {
-        //     let error_selector = error_utils::get_error_selector_from_data(reason_bytes.span());
+        fn handle_order_error(ref self: ContractState, key: felt252, starting_gas: u256, reason_bytes: Array<felt252>) {
+            let error_selector = error_utils::get_error_selector_from_data(reason_bytes.span());
 
-        //     let data_store = self.data_store.read();
+            let data_store = self.data_store.read();
 
-        //     let order = data_store.get_order(key);
-        //     // let is_market_order = base_order_utils::is_market_order(order.order_type);
+            let order = data_store.get_order(key);
+            let is_market_order = base_order_utils::is_market_order(order.order_type);
 
-        //     if (oracle_utils::is_oracle_error(error_selector)
-        //         || order.is_frozen
-        //         // || (!is_market_order && error_selector == PositionError::EMPTY_POSITION)
-        //         || error_selector == OrderError::EMPTY_ORDER
-        //         || error_selector == FeatureError::DISABLED_FEATURE
-        //         || error_selector == OrderError::INVALID_KEEPER_FOR_FROZEN_ORDER
-        //         || error_selector == OrderError::UNSUPPORTED_ORDER_TYPE
-        //         || error_selector == OrderError::INVALID_ORDER_PRICES) {
-        //         assert(false, error_utils::revert_with_custom_error(reason_bytes.span()))
-        //     }
+            if (oracle_utils::is_oracle_error(error_selector)
+                || order.is_frozen
+                || (!is_market_order && error_selector == PositionError::EMPTY_POSITION)
+                || error_selector == OrderError::EMPTY_ORDER
+                || error_selector == FeatureError::DISABLED_FEATURE
+                || error_selector == OrderError::INVALID_KEEPER_FOR_FROZEN_ORDER
+                || error_selector == OrderError::UNSUPPORTED_ORDER_TYPE
+                || error_selector == OrderError::INVALID_ORDER_PRICES) {
+                assert(false, error_utils::revert_with_custom_error(reason_bytes.span()))
+            }
 
-        //     let reason = error_utils::get_revert_message(reason_bytes.span());
+            let reason = error_utils::get_revert_message(reason_bytes.span());
 
-        //     if (is_market_order
-        //         || error_selector == MarketError::INVALID_POSITION_MARKET
-        //         || error_selector == MarketError::INVALID_COLLATERAL_TOKEN_FOR_MARKET
-        //         || error_selector == PositionError::INVALID_POSITION_SIZE_VALUES) {
-        //         order_utils::cancel_order(
-        //             data_store,
-        //             self.event_emitter.read(),
-        //             self.order_vault.read(),
-        //             key,
-        //             order.account,
-        //             starting_gas,
-        //             reason,
-        //             reason_bytes,
-        //         );
-        //         return ();
-        //     }
+            let order_utils = self.order_utils_lib.read();
 
-        //     order_utils::freeze_order(
-        //         data_store,
-        //         self.event_emitter.read(),
-        //         self.order_vault.read(),
-        //         key,
-        //         get_caller_address(),
-        //         starting_gas,
-        //         reason,
-        //         reason_bytes
-        //     );
-        // }
+            if (is_market_order
+                || error_selector == MarketError::INVALID_POSITION_MARKET
+                || error_selector == MarketError::INVALID_COLLATERAL_TOKEN_FOR_MARKET
+                || error_selector == PositionError::INVALID_POSITION_SIZE_VALUES) {
+                order_utils
+                    .cancel_order(
+                        data_store,
+                        self.event_emitter.read(),
+                        self.order_vault.read(),
+                        key,
+                        order.account,
+                        starting_gas,
+                        reason,
+                        reason_bytes,
+                    );
+                return ();
+            }
+
+            order_utils
+                .freeze_order(
+                    data_store,
+                    self.event_emitter.read(),
+                    self.order_vault.read(),
+                    key,
+                    get_caller_address(),
+                    starting_gas,
+                    reason,
+                    reason_bytes
+                );
+        }
 
         fn execute_order(ref self: ContractState, key: felt252, oracle_params: SetPricesParams) {
             // Check only order keeper.
@@ -412,7 +423,6 @@ mod OrderHandler {
             oracle_modules::with_oracle_prices_before(
                 self.oracle.read(), data_store, self.event_emitter.read(), @oracle_params
             );
-            // TODO: Did not implement starting gas and try / catch logic as not available in Cairo
             self._execute_order(key, oracle_params, get_contract_address());
             oracle_modules::with_oracle_prices_after(self.oracle.read());
             non_reentrant_after(data_store);

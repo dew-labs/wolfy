@@ -41,6 +41,16 @@ trait IWithdrawalHandler<TContractState> {
     /// * `key` - The key of the withdrawal to execute.
     /// * `oracle_params` - The oracle params to set prices before simulation.
     fn simulate_execute_withdrawal(ref self: TContractState, key: felt252, params: SimulatePricesParams);
+
+    /// Handle the error when executing a withdrawal: cancel the withdrawal. This originally automatically called in a
+    /// try/catch block, but cairo does not support try/catch so it is manually called by the keeper.
+    /// # Arguments
+    /// * `key` - The key of the order to execute.
+    /// * `starting_gas` - The starting gas of the transaction.
+    /// * `reason_bytes` - The reason of the error.
+    fn handle_withdrawal_error(
+        ref self: TContractState, key: felt252, starting_gas: u256, reason_bytes: Array<felt252>
+    );
 }
 
 #[starknet::contract]
@@ -259,13 +269,7 @@ mod WithdrawalHandler {
 
             oracle_modules::with_simulated_oracle_prices_after();
         }
-    }
 
-    // *************************************************************************
-    //                          INTERNAL FUNCTIONS
-    // *************************************************************************
-    #[generate_trait]
-    impl InternalImpl of InternalTrait {
         /// Handles error from withdrawal.
         /// # Arguments
         /// * `key` - The key of the withdrawal to handle error for.
@@ -275,6 +279,8 @@ mod WithdrawalHandler {
             ref self: ContractState, key: felt252, starting_gas: u256, reason_bytes: Array<felt252>
         ) {
             // Just cancels withdrawal. There is no way to handle revert and revert reason right now.
+
+            // TODo: add more logic
 
             withdrawal_utils::cancel_withdrawal(
                 self.data_store.read(),
@@ -287,7 +293,12 @@ mod WithdrawalHandler {
                 reason_bytes
             );
         }
-
+    }
+    // *************************************************************************
+    //                          INTERNAL FUNCTIONS
+    // *************************************************************************
+    #[generate_trait]
+    impl InternalImpl of InternalTrait {
         /// Executes a withdrawal with keeper.
         /// # Arguments
         /// * `key` - The key of the withdrawal to execute.
