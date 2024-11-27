@@ -14,6 +14,7 @@ IDE Integration:
 
 
 ```sh
+mise plugins install https://github.com/dojoengine/asdf-dojo
 mise install # to install rust, scarb, starknet-foundry, bun, dojo
 bun install
 rustup default stable # to set rust to stable version, required to run scarb

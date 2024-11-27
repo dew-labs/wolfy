@@ -1,4 +1,4 @@
-Tests: 491 passed, 37 failed, 0 skipped, 4 ignored, 0 filtered out
+Tests: 492 passed, 36 failed, 0 skipped, 4 ignored, 0 filtered out
 
 // (0x756e65787065637465645f626f72726f77696e675f666163746f72 ('unexpected_borrowing_factor'), 0x1, 0x0 (''))
 freyr_tests::position::test_decrease_position_collateral_utils::given_good_params_when_process_collateral_then_succeed
@@ -27,7 +27,6 @@ freyr_tests::deposit::test_deposit_vault::given_less_balance_when_2nd_record_tra
 freyr_tests::withdrawal::test_withdrawal_vault::given_less_balance_when_2nd_record_transfer_in_then_fails
 
 // incorrect next balance
-freyr_tests::withdrawal::test_withdrawal_vault::given_more_balance_when_sync_token_balance_then_works
 freyr_tests::withdrawal::test_withdrawal_vault::given_less_balance_when_sync_token_balance_then_works
 
 // need real market deployed

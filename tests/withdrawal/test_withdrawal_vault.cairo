@@ -161,8 +161,11 @@ fn given_more_balance_when_sync_token_balance_then_works() {
     assert(tokens_received == initial_balance, 'should be initial balance');
 
     let tokens_transfered_in: u256 = 250;
-    let mock_balance_with_more_tokens: u256 = (initial_balance + tokens_transfered_in).into();
-    start_mock_call(erc20.contract_address, 'balance_of', mock_balance_with_more_tokens);
+    let mock_balance_with_more_tokens: u256 = initial_balance + tokens_transfered_in;
+    // TODO: mock useless
+    // start_mock_call(erc20.contract_address, 'balance_of', 123);
+
+    erc20.mint(withdrawal_vault.contract_address, tokens_transfered_in);
 
     let next_balance: u256 = withdrawal_vault.sync_token_balance(erc20.contract_address);
     assert(next_balance.into() == mock_balance_with_more_tokens, 'incorrect next balance');
