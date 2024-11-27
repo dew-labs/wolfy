@@ -29,6 +29,9 @@ scarb test --rerun-failed # rerun only failed tests
 scarb test --ignored # run only ignored
 scarb test --include-ignored # run all tests including ignored
 
+# Debug, backtrace
+SNFORGE_BACKTRACE=1 scarb -P verbose test
+
 # Coverage https://foundry-rs.github.io/starknet-foundry/testing/coverage.html
 scarb test --coverage # run tests and generate coverage report
 
