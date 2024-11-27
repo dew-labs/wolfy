@@ -36,6 +36,7 @@ import { setup } from "./setup";
 import invariant from "tiny-invariant";
 import { toStarknetHexString } from "wolfy-sdk";
 import fs from "node:fs";
+import { USD_DECIMALS } from "./config";
 
 const logger = createLogger("Utils");
 
@@ -344,7 +345,7 @@ export function shrinkDecimals(
 }
 
 export function decimalToFloat(value: BigNumberish, decimals = 0) {
-    return expandDecimals(value, 30 - decimals);
+    return expandDecimals(value, USD_DECIMALS - decimals);
 }
 
 // export const MAX_UINT8 = 255n; // 2^8 - 1

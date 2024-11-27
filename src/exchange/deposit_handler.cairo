@@ -50,6 +50,14 @@ trait IDepositHandler<TContractState> {
     fn execute_deposit_keeper(
         ref self: TContractState, key: felt252, oracle_params: SetPricesParams, keeper: ContractAddress
     );
+
+    /// Handle the error when executing a deposit. This originally automatically called in a try/catch block, but cairo
+    /// does not support try/catch so it is manually called by the keeper.
+    /// # Arguments
+    /// * `key` - The key of the order to execute.
+    /// * `starting_gas` - The starting gas of the transaction.
+    /// * `reason_bytes` - The reason of the error.
+    fn handle_deposit_error(ref self: TContractState, key: felt252, starting_gas: u256, reason_bytes: Array<felt252>);
 }
 
 #[starknet::contract]
@@ -262,21 +270,21 @@ mod DepositHandler {
 
             execute_deposit_utils::execute_deposit(params, self.market_utils.read());
         }
+
+        /// Handles error from deposit.
+        /// # Arguments
+        /// * `key` - The key of the deposit to handle error for.
+        /// * `starting_gas` - The starting gas of the transaction.
+        /// * `reason_bytes` - The reason of the error.
+        fn handle_deposit_error(
+            ref self: ContractState, key: felt252, starting_gas: u256, reason_bytes: Array<felt252>
+        ) {// TODO
+        }
     }
-    /// TODO no try catch, we need to find alternative
-// // *************************************************************************
+    // // *************************************************************************
 // //                          INTERNAL FUNCTIONS
 // // *************************************************************************
 // #[generate_trait]
 // impl InternalImpl of InternalTrait {
-//     /// Handles error from deposit.
-//     /// # Arguments
-//     /// * `key` - The key of the deposit to handle error for.
-//     /// * `starting_gas` - The starting gas of the transaction.
-//     /// * `reason_bytes` - The reason of the error.
-//     fn handle_deposit_error(
-//         ref self: ContractState, key: felt252, starting_gas: u256, reason_bytes: Array<felt252>
-//     ) { // TODO
-//     }
 // }
 }

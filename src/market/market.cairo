@@ -71,7 +71,6 @@ impl DefaultMarket of Default<Market> {
 // *************************************************************************
 
 /// Trait for getting the `MarketToken` contract interface of a market.
-/// TODO: Use proper `Into` trait.
 trait IntoMarketToken {
     /// Returns the `MarketToken` contract interface of the market.
     /// # Arguments

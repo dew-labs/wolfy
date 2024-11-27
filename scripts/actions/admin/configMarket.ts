@@ -26,6 +26,7 @@ async function promptConfigMarket() {
     const marketName = await ask("Enter market name (eg: ETH/USD)");
     const maxLongTokenPoolAmount = Number(await ask("Enter max long token pool amount"));
     const maxShortTokenPoolAmount = Number(await ask("Enter max short token pool amount"));
+    const isSwapOnly = (await ask("Is swap only? (y/N)")).toLowerCase() === "y";
 
     await configMarket(
         chainId,
@@ -33,7 +34,8 @@ async function promptConfigMarket() {
         marketName,
         marketToken,
         maxLongTokenPoolAmount,
-        maxShortTokenPoolAmount
+        maxShortTokenPoolAmount,
+        isSwapOnly
     );
 
     doneAsking();
