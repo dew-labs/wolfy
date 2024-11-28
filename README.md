@@ -14,6 +14,7 @@ IDE Integration:
 
 
 ```sh
+mise trust
 mise plugins install https://github.com/dojoengine/asdf-dojo
 mise install # to install rust, scarb, starknet-foundry, bun, dojo
 bun install
@@ -23,21 +24,21 @@ rustup default stable # to set rust to stable version, required to run scarb
 ## Test contracts
 
 ```sh
-scarb test
-scarb test -e <full-test-name> # run a specific test without compile anyother tests
-scarb test --rerun-failed # rerun only failed tests
-scarb test --ignored # run only ignored
-scarb test --include-ignored # run all tests including ignored
+scarb --dev test
+scarb --dev test -e <full-test-name> # run a specific test without compile anyother tests
+scarb --dev test --rerun-failed # rerun only failed tests
+scarb --dev test --ignored # run only ignored
+scarb --dev test --include-ignored # run all tests including ignored
 
 # Debug, backtrace
 SNFORGE_BACKTRACE=1 scarb -P verbose test
 
 # Coverage https://foundry-rs.github.io/starknet-foundry/testing/coverage.html
-scarb test --coverage # run tests and generate coverage report
+scarb --dev test --coverage # run tests and generate coverage report
 
 # Profiling https://foundry-rs.github.io/starknet-foundry/snforge-advanced-features/profiling.html
-scarb test --save-trace-data
-scarb test --build-profile
+scarb --dev test --save-trace-data
+scarb --dev test --build-profile
 ```
 
 This will execute the tests in `tests` directory and print the results.
