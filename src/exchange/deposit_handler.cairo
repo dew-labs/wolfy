@@ -278,7 +278,7 @@ mod DepositHandler {
         /// * `reason_bytes` - The reason of the error.
         fn handle_deposit_error(
             ref self: ContractState, key: felt252, starting_gas: u256, reason_bytes: Array<felt252>
-        ) {// TODO
+        ) { // TODO
         }
     }
     // // *************************************************************************

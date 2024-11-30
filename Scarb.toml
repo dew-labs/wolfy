@@ -11,11 +11,11 @@ documentation = "https://github.com/dew-labs/wolfy"
 homepage = "https://github.com/dew-labs/wolfy"
 repository = "https://github.com/dew-labs/wolfy"
 readme = "README.md"
+edition = "2023_01" # Prelude https://book.cairo-lang.org/appendix-04-cairo-prelude.html https://github.com/starkware-libs/cairo/tree/main/corelib/src/prelude
 # experimental-features = ["negative_impls"]
 
 [scripts]
 test = "snforge test"
-clean-cache = "snforge clean-cache"
 
 [[target.starknet-contract]]
 sierra = true
