@@ -215,10 +215,10 @@ fn given_normal_conditions_when_emit_order_cancelled_then_works() {
     // Create dummy data.
     let key = 100;
     let reason = 'none';
-    let reason_bytes = array!['0x00', '0x01'];
+    let reason_key = 'empty_order';
 
     // Emit the event.
-    event_emitter.emit_order_cancelled(key, reason, reason_bytes.span());
+    event_emitter.emit_order_cancelled(key, reason, reason_key);
 
     // Assert the event was emitted.
     spy
@@ -227,7 +227,7 @@ fn given_normal_conditions_when_emit_order_cancelled_then_works() {
                 (
                     contract_address,
                     EventEmitter::Event::OrderCancelled(
-                        OrderCancelled { key: key, reason: reason, reason_bytes: reason_bytes.span(), }
+                        OrderCancelled { key: key, reason: reason, reason_key: reason_key, }
                     )
                 )
             ]
@@ -251,10 +251,10 @@ fn given_normal_conditions_when_emit_order_frozen_then_works() {
     // Create dummy data.
     let key = 100;
     let reason = 'frozen';
-    let reason_bytes = array!['0x00', '0x01'];
+    let reason_key = 'empty_order';
 
     // Emit the event.
-    event_emitter.emit_order_frozen(key, reason, reason_bytes.span());
+    event_emitter.emit_order_frozen(key, reason, reason_key);
 
     // Assert the event was emitted.
     spy
@@ -262,9 +262,7 @@ fn given_normal_conditions_when_emit_order_frozen_then_works() {
             @array![
                 (
                     contract_address,
-                    EventEmitter::Event::OrderFrozen(
-                        OrderFrozen { key: key, reason: reason, reason_bytes: reason_bytes.span(), }
-                    )
+                    EventEmitter::Event::OrderFrozen(OrderFrozen { key: key, reason: reason, reason_key: reason_key, })
                 )
             ]
         );

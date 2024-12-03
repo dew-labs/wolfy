@@ -1205,7 +1205,9 @@ mod DataStore {
         fn set_withdrawal(ref self: ContractState, key: felt252, withdrawal: Withdrawal) {
             // Check that the caller has permission to set the value.
             self.role_module.read().only_controller();
-            assert(withdrawal.account != contract_address_const::<0>(), WithdrawalError::WITHDRAWAL_ACCOUNT_CANT_BE_ZERO);
+            assert(
+                withdrawal.account != contract_address_const::<0>(), WithdrawalError::WITHDRAWAL_ACCOUNT_CANT_BE_ZERO
+            );
 
             let mut withdrawals = self.withdrawals.read();
             let mut account_withdrawals = self.account_withdrawals.read(withdrawal.account);

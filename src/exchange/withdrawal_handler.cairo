@@ -47,9 +47,10 @@ trait IWithdrawalHandler<TContractState> {
     /// # Arguments
     /// * `key` - The key of the order to execute.
     /// * `starting_gas` - The starting gas of the transaction.
-    /// * `reason_bytes` - The reason of the error.
+    /// * `reason` - The reason of the error.
+    /// * `reason_key` - The reason key of the error.
     fn handle_withdrawal_error(
-        ref self: TContractState, key: felt252, starting_gas: u256, reason_bytes: Array<felt252>
+        ref self: TContractState, key: felt252, starting_gas: u256, reason: felt252, reason_key: felt252
     );
 }
 
@@ -195,7 +196,7 @@ mod WithdrawalHandler {
                 withdrawal.account,
                 starting_gas,
                 keys::user_initiated_cancel(),
-                array![]
+                ''
             );
 
             global_reentrancy_guard::non_reentrant_after(data_store); // Finalizes re-entrancy
@@ -274,9 +275,10 @@ mod WithdrawalHandler {
         /// # Arguments
         /// * `key` - The key of the withdrawal to handle error for.
         /// * `starting_gas` - The starting gas of the transaction.
-        /// * `reason_bytes` - The reason of the error.
+        /// * `reason` - The reason of the error.
+        /// * `reason_key` - The reason key of the error.
         fn handle_withdrawal_error(
-            ref self: ContractState, key: felt252, starting_gas: u256, reason_bytes: Array<felt252>
+            ref self: ContractState, key: felt252, starting_gas: u256, reason: felt252, reason_key: felt252
         ) {
             // Just cancels withdrawal. There is no way to handle revert and revert reason right now.
 
@@ -290,7 +292,7 @@ mod WithdrawalHandler {
                 get_caller_address(),
                 starting_gas,
                 '', // TODO: There is no way to get revert message currently.
-                reason_bytes
+                reason_key
             );
         }
     }

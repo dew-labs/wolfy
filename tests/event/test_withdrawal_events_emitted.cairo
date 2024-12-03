@@ -116,10 +116,10 @@ fn given_normal_conditions_when_emit_withdrawal_cancelled_then_works() {
     // Create dummy data.
     let key: felt252 = 100;
     let reason: felt252 = 'cancel';
-    let reason_bytes = array!['0x00', '0x01'];
+    let reason_key = '';
 
     // Emit the event.
-    event_emitter.emit_withdrawal_cancelled(key, reason, reason_bytes.span());
+    event_emitter.emit_withdrawal_cancelled(key, reason, reason_key);
 
     // Assert the event was emitted.
     spy
@@ -128,7 +128,7 @@ fn given_normal_conditions_when_emit_withdrawal_cancelled_then_works() {
                 (
                     contract_address,
                     EventEmitter::Event::WithdrawalCancelled(
-                        WithdrawalCancelled { key: key, reason: reason, reason_bytes: reason_bytes.span() }
+                        WithdrawalCancelled { key: key, reason: reason, reason_key: reason_key }
                     )
                 )
             ]

@@ -148,7 +148,7 @@ fn cancel_deposit(
     keeper: ContractAddress,
     mut starting_gas: u256,
     reason: felt252,
-    reason_bytes: Array<felt252>
+    reason_key: felt252
 ) {
     starting_gas -= (starknet_utils::sn_gasleft(array![]) / 63);
 
@@ -184,7 +184,7 @@ fn cancel_deposit(
             );
     }
 
-    event_emitter.emit_deposit_cancelled(key, reason, reason_bytes.span());
+    event_emitter.emit_deposit_cancelled(key, reason, reason_key);
 
     let mut log_data: LogData = Default::default();
     after_deposit_cancellation(key, deposit, log_data);

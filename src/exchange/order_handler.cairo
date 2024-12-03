@@ -92,8 +92,11 @@ trait IOrderHandler<TContractState> {
     /// # Arguments
     /// * `key` - The key of the order to execute.
     /// * `starting_gas` - The starting gas of the transaction.
-    /// * `reason_bytes` - The reason of the error.
-    fn handle_order_error(ref self: TContractState, key: felt252, starting_gas: u256, reason_bytes: Array<felt252>);
+    /// * `reason` - The reason of the error.
+    /// * `reason_key` - The reason key of the error.
+    fn handle_order_error(
+        ref self: TContractState, key: felt252, starting_gas: u256, reason: felt252, reason_key: felt252
+    );
 }
 
 #[starknet::contract]
@@ -347,7 +350,7 @@ mod OrderHandler {
                     order.account,
                     starting_gas,
                     keys::user_initiated_cancel(),
-                    ArrayTrait::<felt252>::new(),
+                    '',
                 );
 
             non_reentrant_after(data_store);
@@ -359,33 +362,32 @@ mod OrderHandler {
         /// * `key` - The key of the deposit to handle error for.
         /// * `starting_gas` - The starting gas of the transaction.
         /// * `reason` - The reason of the error.
-        fn handle_order_error(ref self: ContractState, key: felt252, starting_gas: u256, reason_bytes: Array<felt252>) {
-            let error_selector = error_utils::get_error_selector_from_data(reason_bytes.span());
-
+        /// * `reason_key` - The reason key of the error.
+        fn handle_order_error(
+            ref self: ContractState, key: felt252, starting_gas: u256, reason: felt252, reason_key: felt252
+        ) {
             let data_store = self.data_store.read();
 
             let order = data_store.get_order(key);
             let is_market_order = base_order_utils::is_market_order(order.order_type);
 
-            if (oracle_utils::is_oracle_error(error_selector)
+            if (oracle_utils::is_oracle_error(reason_key)
                 || order.is_frozen
-                || (!is_market_order && error_selector == PositionError::EMPTY_POSITION)
-                || error_selector == OrderError::EMPTY_ORDER
-                || error_selector == FeatureError::DISABLED_FEATURE
-                || error_selector == OrderError::INVALID_KEEPER_FOR_FROZEN_ORDER
-                || error_selector == OrderError::UNSUPPORTED_ORDER_TYPE
-                || error_selector == OrderError::INVALID_ORDER_PRICES) {
-                assert(false, error_utils::revert_with_custom_error(reason_bytes.span()))
+                || (!is_market_order && reason_key == PositionError::EMPTY_POSITION)
+                || reason_key == OrderError::EMPTY_ORDER
+                || reason_key == FeatureError::DISABLED_FEATURE
+                || reason_key == OrderError::INVALID_KEEPER_FOR_FROZEN_ORDER
+                || reason_key == OrderError::UNSUPPORTED_ORDER_TYPE
+                || reason_key == OrderError::INVALID_ORDER_PRICES) {
+                assert(false, reason_key)
             }
-
-            let reason = error_utils::get_revert_message(reason_bytes.span());
 
             let order_utils = self.order_utils_lib.read();
 
             if (is_market_order
-                || error_selector == MarketError::INVALID_POSITION_MARKET
-                || error_selector == MarketError::INVALID_COLLATERAL_TOKEN_FOR_MARKET
-                || error_selector == PositionError::INVALID_POSITION_SIZE_VALUES) {
+                || reason_key == MarketError::INVALID_POSITION_MARKET
+                || reason_key == MarketError::INVALID_COLLATERAL_TOKEN_FOR_MARKET
+                || reason_key == PositionError::INVALID_POSITION_SIZE_VALUES) {
                 order_utils
                     .cancel_order(
                         data_store,
@@ -395,7 +397,7 @@ mod OrderHandler {
                         order.account,
                         starting_gas,
                         reason,
-                        reason_bytes,
+                        reason_key,
                     );
                 return ();
             }
@@ -409,7 +411,7 @@ mod OrderHandler {
                     get_caller_address(),
                     starting_gas,
                     reason,
-                    reason_bytes
+                    reason_key
                 );
         }
 
