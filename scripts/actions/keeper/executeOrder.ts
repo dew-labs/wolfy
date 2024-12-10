@@ -39,7 +39,7 @@ async function executeOrder() {
     const order = await dataStoreContract.get_order(orderKey);
 
     console.log("Execution fee:", order.execution_fee);
-    // TODO: shouldn't execute the order if fee is lowwer than configured
+    // TODO: shouldn't execute the order if fee is lower than configured
 
     const market = await dataStoreContract.get_market(order.market);
     const indexTokenAddress = toStarknetHexString(market.index_token);

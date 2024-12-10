@@ -11,6 +11,7 @@ import {
     createCall,
     createWolfyContract,
     DataStoreABI,
+    ExchangeRouterABI,
     executeAndWait,
     grantRole,
     poseidonHash,
@@ -21,10 +22,13 @@ import {
 import type { Contracts } from "@freyr/shared/interfaces";
 import fs from "node:fs";
 import * as dataStoreKeys from "wolfy-sdk/dataStore";
+import { cairoIntToBigInt } from "wolfy-sdk";
 
 export const GENERAL_CONFIGS = {
     maxUiFeeFactor: decimalToFloat(2, 4), // 0.0002, 0.02%,
-    minHandleExecutionErrorGas: 1_000, // measured gas required for an order cancellation: ~600
+    // NOTE: have to set to 0 because starknet cannot handle gas yet
+    // minHandleExecutionErrorGas: 1_000, // measured gas required for an order cancellation: ~600
+    minHandleExecutionErrorGas: 0,
 
     maxSwapPathLength: 5,
 
@@ -552,6 +556,8 @@ async function grantRoles(additionAdmins?: string[]) {
 async function config() {
     const { account, chainId, feeToken } = await settingUp();
 
+    const { ask, doneAsking } = createAsker();
+
     const dataStoreContract = createWolfyContract(chainId, WolfyContract.DataStore, DataStoreABI);
 
     const configs = {
@@ -669,7 +675,52 @@ async function config() {
         ]),
     ]);
 
+    const setupUIFee = (await ask("Setup UI fee? (Y/n)")) || "y";
+
+    if (setupUIFee.toLowerCase() === "y") {
+        const percentage = (await ask("Enter percentage (0-100) (Default: 0.002)")) || "0.002";
+
+        const contractPercentage = percentageToContractPercentage(percentage);
+        const maxUiFeeFactor = cairoIntToBigInt(
+            await dataStoreContract.get_u256(dataStoreKeys.MAX_UI_FEE_FACTOR)
+        );
+
+        if (contractPercentage > maxUiFeeFactor) {
+            throw new Error("Percentage is greater than max UI fee factor");
+        }
+
+        const exchangeRouterContract = createWolfyContract(
+            chainId,
+            WolfyContract.ExchangeRouter,
+            ExchangeRouterABI
+        );
+
+        await executeAndWait(account, [
+            createCall(exchangeRouterContract, "set_ui_fee_factor", [contractPercentage]),
+        ]);
+    }
+
     console.log("Done config");
+
+    doneAsking();
+}
+
+function percentageToContractPercentage(percentage: string) {
+    const num = Number(percentage);
+    if (isNaN(num)) {
+        throw new Error("Invalid percentage");
+
+        if (num < 0 || num > 100) {
+            throw new Error("Invalid percentage");
+        }
+    }
+
+    percentage = percentage.replace(".", ".00");
+
+    const numberOfZeros = percentage.split(".")[1]?.replace(/0+$/, "")?.length ?? 0;
+    const number = Number(percentage.split(".")[1]?.replace(/0+$/, ""));
+
+    return decimalToFloat(number, numberOfZeros);
 }
 
 async function deployApp() {

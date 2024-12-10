@@ -27,17 +27,16 @@ async function executeWithdrawal() {
     // Get withdrawal key from DataStore.get_withdrawal_keys
     let withdrawalKey = await ask("Enter withdrawal key (default to latest withdrawal)");
 
-    // TODO: can only works when this function available https://github.com/dew-labs/wolfy/pull/8/files
-    // if (!withdrawalKey) {
-    //     const withdrawalCount = BigInt(await dataStoreContract.get_withdrawal_count());
-    //     if (withdrawalCount === 0n) throw new Error("No withdrawal available");
-    //     const lastWithdrawal = (
-    //         await dataStoreContract.get_withdrawal_keys(withdrawalCount - 1n, withdrawalCount)
-    //     )[0];
-    //     if (!lastWithdrawal) throw new Error("Invalid withdrawal");
-    //     withdrawalKey = toStarknetHexString(lastWithdrawal);
-    //     console.log("Withdrawal key:", withdrawalKey);
-    // }
+    if (!withdrawalKey) {
+        const withdrawalCount = BigInt(await dataStoreContract.get_withdrawal_count());
+        if (withdrawalCount === 0n) throw new Error("No withdrawal available");
+        const lastWithdrawal = (
+            await dataStoreContract.get_withdrawal_keys(withdrawalCount - 1n, withdrawalCount)
+        )[0];
+        if (!lastWithdrawal) throw new Error("Invalid withdrawal");
+        withdrawalKey = toStarknetHexString(lastWithdrawal);
+        console.log("Withdrawal key:", withdrawalKey);
+    }
     if (!withdrawalKey) {
         throw new Error("Withdrawal key is required");
     }
