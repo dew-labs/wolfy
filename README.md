@@ -18,12 +18,16 @@ mise trust
 mise plugins install https://github.com/dojoengine/asdf-dojo
 mise install # to install rust, scarb, starknet-foundry, bun, dojo
 bun install
+rustup install stable
 rustup default stable # to set rust to stable version, required to run scarb
+rustup install nightly
+cargo +nightly install scarb-cairo-lint --git https://github.com/keep-starknet-strange/cairo-lint
 ```
 
 ## Test contracts
 
 ```sh
+scarb-cairo-lint --fix
 scarb --dev test
 scarb --dev test -e <full-test-name> # run a specific test without compile anyother tests
 scarb --dev test --rerun-failed # rerun only failed tests
