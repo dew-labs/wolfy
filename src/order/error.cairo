@@ -10,9 +10,9 @@ mod OrderError {
     const INVALID_FROZEN_ORDER_KEEPER: felt252 = 'invalid_frozen_order_keeper';
     const ORDER_NOT_FOUND: felt252 = 'order_not_found';
     const ORDER_INDEX_NOT_FOUND: felt252 = 'order_index_not_found';
-    const CANT_BE_ZERO: felt252 = 'order account cant be 0';
+    const ORDER_ACCOUNT_CANT_BE_ZERO: felt252 = 'order_account_cant_be_0';
     const EMPTY_SIZE_DELTA_IN_TOKENS: felt252 = 'empty_size_delta_in_tokens';
-    const UNEXPECTED_MARKET: felt252 = 'unexpected market';
+    const UNEXPECTED_MARKET: felt252 = 'unexpected_market';
     const INVALID_SIZE_DELTA_FOR_ADL: felt252 = 'invalid_size_delta_for_adl';
     const POSITION_NOT_VALID: felt252 = 'position_not_valid';
     const ORDER_ALREADY_FROZEN: felt252 = 'order_already_frozen';

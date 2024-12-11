@@ -6,7 +6,7 @@ mod PositionError {
     const POSITION_NOT_FOUND: felt252 = 'position_not_found';
     const POSITION_INDEX_NOT_FOUND: felt252 = 'position_index_not_found';
     const UNEXPECTED_POSITION_STATE: felt252 = 'unexpected_position_state';
-    const CANT_BE_ZERO: felt252 = 'position_account_cant_be_0';
+    const POSITION_ACCOUNT_CANT_BE_ZERO: felt252 = 'position_account_cant_be_0';
     const INVALID_OUTPUT_TOKEN: felt252 = 'invalid_output_token';
     const MIN_POSITION_SIZE: felt252 = 'minimum_position_size';
     const LIQUIDATABLE_POSITION: felt252 = 'liquidatable_position';

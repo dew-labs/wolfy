@@ -237,7 +237,7 @@ fn cancel_withdrawal(
     keeper: ContractAddress,
     mut starting_gas: u256,
     reason: felt252,
-    reason_bytes: Array<felt252>,
+    reason_key: felt252,
 ) {
     // 63/64 gas is forwarded to external calls, reduce the startingGas to account for this
     // startingGas -= gasleft() / 63;
@@ -255,7 +255,7 @@ fn cancel_withdrawal(
             withdrawal_vault.contract_address, withdrawal.market, withdrawal.account, withdrawal.market_token_amount
         );
 
-    event_emitter.emit_withdrawal_cancelled(key, reason, reason_bytes.span());
+    event_emitter.emit_withdrawal_cancelled(key, reason, reason_key);
 
     gas_utils::pay_execution_fee_withdrawal(
         data_store, event_emitter, withdrawal_vault, withdrawal.execution_fee, starting_gas, keeper, withdrawal.account

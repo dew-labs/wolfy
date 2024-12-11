@@ -27,10 +27,10 @@ fn given_normal_conditions_when_emit_swap_reverted_then_works() {
 
     // Create a dummy data.
     let reason = 'reverted';
-    let reason_bytes = array!['0x01'];
+    let reason_key = '';
 
     // Emit the event.
-    event_emitter.emit_swap_reverted(reason, reason_bytes.span());
+    event_emitter.emit_swap_reverted(reason, reason_key);
 
     // Assert the event was emitted.
     spy
@@ -38,9 +38,7 @@ fn given_normal_conditions_when_emit_swap_reverted_then_works() {
             @array![
                 (
                     contract_address,
-                    EventEmitter::Event::SwapReverted(
-                        SwapReverted { reason: reason, reason_bytes: reason_bytes.span() }
-                    )
+                    EventEmitter::Event::SwapReverted(SwapReverted { reason: reason, reason_key: reason_key })
                 )
             ]
         );

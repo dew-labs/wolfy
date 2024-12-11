@@ -56,8 +56,11 @@ trait IDepositHandler<TContractState> {
     /// # Arguments
     /// * `key` - The key of the order to execute.
     /// * `starting_gas` - The starting gas of the transaction.
-    /// * `reason_bytes` - The reason of the error.
-    fn handle_deposit_error(ref self: TContractState, key: felt252, starting_gas: u256, reason_bytes: Array<felt252>);
+    /// * `reason` - The reason of the error.
+    /// * `reason_key` - The reason key of the error.
+    fn handle_deposit_error(
+        ref self: TContractState, key: felt252, starting_gas: u256, reason: felt252, reason_key: felt252
+    );
 }
 
 #[starknet::contract]
@@ -200,7 +203,7 @@ mod DepositHandler {
                 deposit.account,
                 0, //starting_gas
                 keys::user_initiated_cancel(),
-                array!['']
+                ''
             );
 
             global_reentrancy_guard::non_reentrant_after(data_store);
@@ -275,9 +278,10 @@ mod DepositHandler {
         /// # Arguments
         /// * `key` - The key of the deposit to handle error for.
         /// * `starting_gas` - The starting gas of the transaction.
-        /// * `reason_bytes` - The reason of the error.
+        /// * `reason` - The reason of the error.
+        /// * `reason_key` - The reason key of the error.
         fn handle_deposit_error(
-            ref self: ContractState, key: felt252, starting_gas: u256, reason_bytes: Array<felt252>
+            ref self: ContractState, key: felt252, starting_gas: u256, reason: felt252, reason_key: felt252
         ) { // TODO
         }
     }

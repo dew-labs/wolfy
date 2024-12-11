@@ -64,7 +64,7 @@ trait IOrderUtils<TContractState> {
         keeper: ContractAddress,
         starting_gas: u256,
         reason: felt252,
-        reason_bytes: Array<felt252>
+        reason_key: felt252
     );
 
     /// Freezes an order.
@@ -87,7 +87,7 @@ trait IOrderUtils<TContractState> {
         keeper: ContractAddress,
         starting_gas: u256,
         reason: felt252,
-        reason_bytes: Array<felt252>
+        reason_key: felt252
     );
 }
 
@@ -349,7 +349,7 @@ mod OrderUtils {
             keeper: ContractAddress,
             starting_gas: u256,
             reason: felt252,
-            reason_bytes: Array<felt252>
+            reason_key: felt252
         ) {
             // 63/64 gas is forwarded to external calls, reduce the startingGas to account for this
             // starting_gas -= gas_left() / 63;
@@ -371,7 +371,7 @@ mod OrderUtils {
                 }
             }
 
-            event_emitter.emit_order_cancelled(key, reason, reason_bytes.span());
+            event_emitter.emit_order_cancelled(key, reason, reason_key);
             // let mut event_data: LogData = Default::default();
         // callback_utils::after_order_cancellation(key, order, event_data);
 
@@ -401,7 +401,7 @@ mod OrderUtils {
             keeper: ContractAddress,
             starting_gas: u256,
             reason: felt252,
-            reason_bytes: Array<felt252>
+            reason_key: felt252
         ) {
             // 63/64 gas is forwarded to external calls, reduce the startingGas to account for this
             // startingGas -= gas_left() / 63;
@@ -419,7 +419,7 @@ mod OrderUtils {
             order.is_frozen = true;
             data_store.set_order(key, order);
 
-            event_emitter.emit_order_frozen(key, reason, reason_bytes.span());
+            event_emitter.emit_order_frozen(key, reason, reason_key);
             // let mut event_data: LogData = Default::default();
         // callback_utils::after_order_frozen(key, order, event_data);
 

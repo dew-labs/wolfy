@@ -68,7 +68,7 @@ fn given_normal_conditions_when_set_order_new_and_override_then_works() {
 
 
 #[test]
-#[should_panic(expected: ('order account cant be 0',))]
+#[should_panic(expected: ('order_account_cant_be_0',))]
 fn given_order_account_0_when_set_order_then_fails() {
     // Setup
     let (_caller_address, _role_store, data_store) = setup();

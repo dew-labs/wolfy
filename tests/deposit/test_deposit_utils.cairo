@@ -54,10 +54,10 @@ fn given_normal_conditions_when_cancel_deposit_then_works() {
     let _key = 'key';
     let reason = 'key';
     let starting_gas = 2;
-    let reason_bytes = array!['reason_bytes_1', 'reason_bytes_2',];
+    let reason_key = '';
     let key = create_deposit(data_store, event_emitter, deposit_vault, account, deposit_param, market_utils);
 
-    cancel_deposit(data_store, event_emitter, deposit_vault, key, keeper, starting_gas, reason, reason_bytes);
+    cancel_deposit(data_store, event_emitter, deposit_vault, key, keeper, starting_gas, reason, reason_key);
 }
 
 

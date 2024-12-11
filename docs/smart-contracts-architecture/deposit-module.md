@@ -36,7 +36,7 @@ Module for deposit-specific error operations.
 
 - `DEPOSIT_NOT_FOUND`: Deposit not found.
 - `DEPOSIT_INDEX_NOT_FOUND`: Deposit index not found.
-- `CANT_BE_ZERO`: Can't be zero.
+- `DEPOSIT_ACCOUNT_CANT_BE_ZERO`: Can't be zero.
 - `EMPTY_DEPOSIT_AMOUNTS`: Empty deposit amounts.
 - `EMPTY_DEPOSIT`: Empty deposit.
 

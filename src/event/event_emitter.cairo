@@ -123,7 +123,7 @@ trait IEventEmitter<TContractState> {
     );
 
     /// Emits the `DepositCancelled` event.
-    fn emit_deposit_cancelled(ref self: TContractState, key: felt252, reason: felt252, reason_bytes: Span<felt252>);
+    fn emit_deposit_cancelled(ref self: TContractState, key: felt252, reason: felt252, reason_key: felt252);
 
     /// Emits the `WithdrawalCreated` event.
     fn emit_withdrawal_created(ref self: TContractState, key: felt252, withdrawal: Withdrawal);
@@ -139,7 +139,7 @@ trait IEventEmitter<TContractState> {
     );
 
     /// Emits the `WithdrawalCancelled` event.
-    fn emit_withdrawal_cancelled(ref self: TContractState, key: felt252, reason: felt252, reason_bytes: Span<felt252>);
+    fn emit_withdrawal_cancelled(ref self: TContractState, key: felt252, reason: felt252, reason_key: felt252);
 
     /// Emits the `PositionIncrease` event.
     fn emit_position_increase(ref self: TContractState, params: PositionIncreaseParams);
@@ -228,10 +228,10 @@ trait IEventEmitter<TContractState> {
     );
 
     /// Emits the `OrderCancelled` event.
-    fn emit_order_cancelled(ref self: TContractState, key: felt252, reason: felt252, reason_bytes: Span<felt252>);
+    fn emit_order_cancelled(ref self: TContractState, key: felt252, reason: felt252, reason_key: felt252);
 
     /// Emits the `OrderFrozen` event.
-    fn emit_order_frozen(ref self: TContractState, key: felt252, reason: felt252, reason_bytes: Span<felt252>);
+    fn emit_order_frozen(ref self: TContractState, key: felt252, reason: felt252, reason_key: felt252);
 
     /// Emits the `AffiliateRewardUpdated` event.
     fn emit_affiliate_reward_updated(
@@ -489,7 +489,7 @@ trait IEventEmitter<TContractState> {
     fn emit_signer_removed(ref self: TContractState, account: ContractAddress);
 
     /// Emits the `SwapReverted` event.
-    fn emit_swap_reverted(ref self: TContractState, reason: felt252, reason_bytes: Span<felt252>);
+    fn emit_swap_reverted(ref self: TContractState, reason: felt252, reason_key: felt252);
 
     /// Emits the `SwapInfo` event.
     fn emit_swap_info(
@@ -789,7 +789,7 @@ mod EventEmitter {
     struct DepositCancelled {
         key: felt252,
         reason: felt252,
-        reason_bytes: Span<felt252>,
+        reason_key: felt252,
     }
 
     #[derive(Drop, starknet::Event)]
@@ -822,7 +822,7 @@ mod EventEmitter {
     struct WithdrawalCancelled {
         key: felt252,
         reason: felt252,
-        reason_bytes: Span<felt252>
+        reason_key: felt252
     }
 
     #[derive(Drop, starknet::Event)]
@@ -1021,14 +1021,14 @@ mod EventEmitter {
     struct OrderCancelled {
         key: felt252,
         reason: felt252,
-        reason_bytes: Span<felt252>
+        reason_key: felt252
     }
 
     #[derive(Drop, starknet::Event)]
     struct OrderFrozen {
         key: felt252,
         reason: felt252,
-        reason_bytes: Span<felt252>
+        reason_key: felt252
     }
 
     #[derive(Drop, starknet::Event)]
@@ -1378,7 +1378,7 @@ mod EventEmitter {
     #[derive(Drop, starknet::Event)]
     struct SwapReverted {
         reason: felt252,
-        reason_bytes: Span<felt252>
+        reason_key: felt252
     }
 
     #[derive(Drop, starknet::Event)]
@@ -1617,8 +1617,8 @@ mod EventEmitter {
         }
 
         /// Emits the `DepositCancelled` event.
-        fn emit_deposit_cancelled(ref self: ContractState, key: felt252, reason: felt252, reason_bytes: Span<felt252>) {
-            self.emit(DepositCancelled { key, reason, reason_bytes });
+        fn emit_deposit_cancelled(ref self: ContractState, key: felt252, reason: felt252, reason_key: felt252) {
+            self.emit(DepositCancelled { key, reason, reason_key });
         }
 
         /// Emits the `WithdrawalCreated` event.
@@ -1661,10 +1661,8 @@ mod EventEmitter {
         }
 
         /// Emits the `WithdrawalCancelled` event.
-        fn emit_withdrawal_cancelled(
-            ref self: ContractState, key: felt252, reason: felt252, reason_bytes: Span<felt252>
-        ) {
-            self.emit(WithdrawalCancelled { key, reason, reason_bytes });
+        fn emit_withdrawal_cancelled(ref self: ContractState, key: felt252, reason: felt252, reason_key: felt252) {
+            self.emit(WithdrawalCancelled { key, reason, reason_key });
         }
 
         /// Emits the `PositionIncrease` event.
@@ -1981,13 +1979,13 @@ mod EventEmitter {
         }
 
         /// Emits the `OrderCancelled` event.
-        fn emit_order_cancelled(ref self: ContractState, key: felt252, reason: felt252, reason_bytes: Span<felt252>) {
-            self.emit(OrderCancelled { key, reason, reason_bytes });
+        fn emit_order_cancelled(ref self: ContractState, key: felt252, reason: felt252, reason_key: felt252) {
+            self.emit(OrderCancelled { key, reason, reason_key });
         }
 
         /// Emits the `OrderFrozen` event.
-        fn emit_order_frozen(ref self: ContractState, key: felt252, reason: felt252, reason_bytes: Span<felt252>) {
-            self.emit(OrderFrozen { key, reason, reason_bytes });
+        fn emit_order_frozen(ref self: ContractState, key: felt252, reason: felt252, reason_key: felt252) {
+            self.emit(OrderFrozen { key, reason, reason_key });
         }
 
         /// Emits the `AffiliateRewardUpdated` event.
@@ -2365,8 +2363,8 @@ mod EventEmitter {
         }
 
         /// Emits the `SwapReverted` event.
-        fn emit_swap_reverted(ref self: ContractState, reason: felt252, reason_bytes: Span<felt252>) {
-            self.emit(SwapReverted { reason, reason_bytes });
+        fn emit_swap_reverted(ref self: ContractState, reason: felt252, reason_key: felt252) {
+            self.emit(SwapReverted { reason, reason_key });
         }
 
         /// Emits the `SwapInfo` event.

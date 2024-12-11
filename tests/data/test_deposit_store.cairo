@@ -100,7 +100,7 @@ fn given_normal_conditions_when_set_and_override_new_deposit_then_works() {
 }
 
 #[test]
-#[should_panic(expected: ('deposit account cant be 0',))]
+#[should_panic(expected: ('deposit_account_cant_be_0',))]
 fn given_deposit_account_0_when_set_deposit_then_fails() {
     // Setup
     let (_caller_address, _role_store, data_store) = setup();

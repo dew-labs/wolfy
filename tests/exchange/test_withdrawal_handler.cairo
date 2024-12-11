@@ -49,9 +49,9 @@ fn given_normal_conditions_when_create_withdrawal_then_works() {
 
 // This tests check withdrawal creation when market_token_amount is 0
 // It calls withdrawal_handler.create_withdrawal
-// The test expects the call to panic with error empty withdrawal amount
+// The test expects the call to panic with error empty_withdrawal_amount
 #[test]
-#[should_panic(expected: ('empty withdrawal amount',))]
+#[should_panic(expected: ('empty_withdrawal_amount',))]
 fn given_market_token_amount_equal_zero_when_create_withdrawal_then_fails() {
     let (caller_address, _data_store, _event_emitter, withdrawal_handler, _withdrawal_vault, _) = setup();
     start_cheat_caller_address(withdrawal_handler.contract_address, caller_address);
@@ -154,7 +154,7 @@ fn given_normal_conditions_when_cancel_withdrawal_then_works() {
 // It calls withdrawal_handler.cancel_withdrawal
 // The test expects the call to panic with the error 'get_withdrawal failed'.
 #[test]
-#[should_panic(expected: ('empty withdrawal',))]
+#[should_panic(expected: ('empty_withdrawal',))]
 fn given_unexisting_key_when_cancel_withdrawal_then_fails() {
     let (caller_address, _data_store, _event_emitter, withdrawal_handler, _, _) = setup();
     start_cheat_caller_address(withdrawal_handler.contract_address, caller_address);
@@ -167,9 +167,9 @@ fn given_unexisting_key_when_cancel_withdrawal_then_fails() {
 
 // This tests check withdrawal cancellation when account address is 0
 // It calls withdrawal_handler.cancel_withdrawal
-// The test expects the call to panic with the error 'empty withdrawal'.
+// The test expects the call to panic with the error 'empty_withdrawal'.
 #[test]
-#[should_panic(expected: ('empty withdrawal',))]
+#[should_panic(expected: ('empty_withdrawal',))]
 fn given_account_address_zero_when_cancel_withdrawal_then_fails() {
     let mut withdrawal = Withdrawal {
         key: 0,
@@ -217,9 +217,9 @@ fn given_account_address_zero_when_cancel_withdrawal_then_fails() {
 
 // This tests check withdrawal cancellation when market token amount is 0
 // It calls withdrawal_handler.cancel_withdrawal
-// The test expects the call to panic with the error 'empty withdrawal'.
+// The test expects the call to panic with the error 'empty_withdrawal'.
 #[test]
-#[should_panic(expected: ('empty withdrawal amount',))]
+#[should_panic(expected: ('empty_withdrawal_amount',))]
 fn given_market_token_equals_zero_when_cancel_withdrawal_then_fails() {
     let mut withdrawal = Withdrawal {
         key: 0,
@@ -294,7 +294,7 @@ fn given_caller_not_keeper_when_execute_withdrawal_then_fails() {
 }
 
 #[test]
-#[should_panic(expected: ('withdrawal not found',))]
+#[should_panic(expected: ('withdrawal_not_found',))]
 fn given_invalid_withdrawal_key_when_execute_withdrawal_then_fails() {
     let oracle_params = SetPricesParams {
         signer_info: Default::default(),
@@ -346,7 +346,7 @@ fn given_caller_not_controller_when_simulate_execute_withdrawal_then_fails() {
 // It calls withdrawal_handler.simulate_execute_withdrawal
 // The test expects the call to panic with the error 'invalid withdrawal key','SAMPLE_WITHDRAW'.
 #[test]
-#[should_panic(expected: ('withdrawal not found',))]
+#[should_panic(expected: ('withdrawal_not_found',))]
 fn given_invalid_withdrawal_key_when_simulate_execute_withdrawal_then_fails() {
     let (caller_address, _data_store, _event_emitter, withdrawal_handler, _, _) = setup();
     let oracle_params = SimulatePricesParams {

@@ -81,7 +81,7 @@ Synchronizes the token balance and returns a `u128` type representing the synchr
 The module employs `WithdrawalError` to address errors inherent to withdrawal operations. Here are the defined errors:
 - `ALREADY_INITIALIZED`: Triggered if the contract has already been initialized, represented by the constant `'already_initialized'`.
 - `NOT_FOUND`: Triggered when a specified withdrawal is not found in the system, represented by the constant `'withdrawal not found'`.
-- `CANT_BE_ZERO`: Triggered when a withdrawal account is zero, represented by the constant `'withdrawal account cant be 0'`.
+- `WITHDRAWAL_ACCOUNT_CANT_BE_ZERO`: Triggered when a withdrawal account is zero, represented by the constant `'withdrawal account cant be 0'`.
 - `EMPTY_WITHDRAWAL_AMOUNT`: Occurs when an attempt is made to withdraw an empty amount, represented by the constant `'empty withdrawal amount'`.
 - `EMPTY_WITHDRAWAL`: Occurs when a withdrawal is empty, represented by the constant `'empty withdrawal'`.
 
