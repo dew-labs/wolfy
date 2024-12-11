@@ -84,7 +84,7 @@
         "type-fest": "^4.26.0"
     },
     "patchedDependencies": {
-        "@snapshot-labs/checkpoint@0.1.0-beta.43": "patches/@snapshot-labs%2Fcheckpoint@0.1.0-beta.43.patch"
+        "@snapshot-labs/checkpoint@0.1.0-beta.44": "patches/@snapshot-labs%2Fcheckpoint@0.1.0-beta.44.patch"
     },
     "trustedDependencies": [
         "rome"
