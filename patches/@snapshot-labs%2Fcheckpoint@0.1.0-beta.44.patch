@@ -1,0 +1,12 @@
+diff --git a/dist/src/orm/model.js b/dist/src/orm/model.js
+index 0543c3fb2a1815093b6b4f5174f4274c68f0ed05..a585b738f9f8f4d8e98960196457efe8a542e536 100644
+--- a/dist/src/orm/model.js
++++ b/dist/src/orm/model.js
+@@ -50,6 +50,7 @@ class Model {
+             .getKnex()
+             .table(this.tableName)
+             .where('id', this.get('id'))
++            .andWhereRaw('upper_inf(block_range)')
+             .update({
+             block_range: register_1.register.getKnex().raw('int8range(lower(block_range), ?)', [currentBlock])
+         });
