@@ -58,7 +58,8 @@
         "gen": "bun run --parallel --aggregate-output --reporter-hide-prefix '/^gen:(.+)$/'",
         "check:contract-sizes": "bun ./scripts/check/checkContractSizes.ts",
         "typecheck": "tsc --noEmit",
-        "test": "bun ./scripts/test.ts"
+        "test": "bun ./scripts/test.ts",
+        "prepare": "husky"
     },
     "type": "module",
     "workspaces": [
@@ -81,6 +82,7 @@
         "@flydotio/dockerfile": "^0.5.8",
         "@total-typescript/ts-reset": "^0.6.1",
         "@types/bun": "^1.1.8",
+        "husky": "^9.1.7",
         "type-fest": "^4.26.0"
     },
     "patchedDependencies": {
