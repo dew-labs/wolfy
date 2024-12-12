@@ -11,8 +11,10 @@ import {
     handlePositionIncrease,
     handleDepositExecuted,
     handleDepositCreated,
+    handleDepositCancelled,
     handleWithdrawalExecuted,
     handleWithdrawalCreated,
+    handleWithdrawalCancelled,
     handleMarketCreated,
 } from "./writers";
 
@@ -65,12 +67,20 @@ export const getConfig = () => {
             fn: handleDepositExecuted.name,
         },
         {
+            name: WolfyEvent.DepositCancelled,
+            fn: handleDepositCancelled.name,
+        },
+        {
             name: WolfyEvent.WithdrawalCreated,
             fn: handleWithdrawalCreated.name,
         },
         {
             name: WolfyEvent.WithdrawalExecuted,
             fn: handleWithdrawalExecuted.name,
+        },
+        {
+            name: WolfyEvent.WithdrawalCancelled,
+            fn: handleWithdrawalCancelled.name,
         },
     ];
 
