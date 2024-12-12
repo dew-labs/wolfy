@@ -109,7 +109,7 @@ export class Order extends Model {
     this.initialSet('initial_collateral_token', "");
     this.initialSet('initial_collateral_delta_amount', "0");
     this.initialSet('is_frozen', false);
-    this.initialSet('swap_path', []);
+    this.initialSet('swap_path', "[]");
     this.initialSet('decrease_position_swap_type', "");
     this.initialSet('execution_fee', "0");
     this.initialSet('ui_fee_receiver', "");
@@ -661,13 +661,15 @@ export class Deposit extends Model {
     this.initialSet('short_token', "");
     this.initialSet('long_token_amount', "0");
     this.initialSet('short_token_amount', "0");
-    this.initialSet('long_token_swap_path', []);
-    this.initialSet('short_token_swap_path', []);
+    this.initialSet('long_token_swap_path', "[]");
+    this.initialSet('short_token_swap_path', "[]");
     this.initialSet('min_market_tokens', "0");
     this.initialSet('received_market_tokens', null);
     this.initialSet('execution_fee', "0");
     this.initialSet('callback_contract', "");
     this.initialSet('callback_gas_limit', "0");
+    this.initialSet('cancelled_reason', null);
+    this.initialSet('cancelled_reason_key', null);
     this.initialSet('tx_hash', "");
     this.initialSet('created_at', 0);
     this.initialSet('created_at_block', 0);
@@ -826,6 +828,22 @@ export class Deposit extends Model {
     this.set('callback_gas_limit', value);
   }
 
+  get cancelled_reason(): string | null {
+    return this.get('cancelled_reason');
+  }
+
+  set cancelled_reason(value: string | null) {
+    this.set('cancelled_reason', value);
+  }
+
+  get cancelled_reason_key(): string | null {
+    return this.get('cancelled_reason_key');
+  }
+
+  set cancelled_reason_key(value: string | null) {
+    this.set('cancelled_reason_key', value);
+  }
+
   get tx_hash(): string {
     return this.get('tx_hash');
   }
@@ -865,12 +883,14 @@ export class Withdrawal extends Model {
     this.initialSet('action', 0);
     this.initialSet('min_long_token_amount', "0");
     this.initialSet('min_short_token_amount', "0");
-    this.initialSet('long_token_swap_path', []);
-    this.initialSet('short_token_swap_path', []);
+    this.initialSet('long_token_swap_path', "[]");
+    this.initialSet('short_token_swap_path', "[]");
     this.initialSet('market_token_amount', "0");
     this.initialSet('execution_fee', "");
     this.initialSet('callback_contract', "");
     this.initialSet('callback_gas_limit', "");
+    this.initialSet('cancelled_reason', null);
+    this.initialSet('cancelled_reason_key', null);
     this.initialSet('tx_hash', "");
     this.initialSet('created_at', 0);
     this.initialSet('created_at_block', 0);
@@ -1003,6 +1023,22 @@ export class Withdrawal extends Model {
 
   set callback_gas_limit(value: string) {
     this.set('callback_gas_limit', value);
+  }
+
+  get cancelled_reason(): string | null {
+    return this.get('cancelled_reason');
+  }
+
+  set cancelled_reason(value: string | null) {
+    this.set('cancelled_reason', value);
+  }
+
+  get cancelled_reason_key(): string | null {
+    return this.get('cancelled_reason_key');
+  }
+
+  set cancelled_reason_key(value: string | null) {
+    this.set('cancelled_reason_key', value);
   }
 
   get tx_hash(): string {

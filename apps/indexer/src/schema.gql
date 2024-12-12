@@ -90,6 +90,8 @@ type Deposit {
     execution_fee: Int256!
     callback_contract: String!
     callback_gas_limit: Int256!
+    cancelled_reason: String
+    cancelled_reason_key: String
     tx_hash: String!
     created_at: Int!
     created_at_block: Int!
@@ -110,6 +112,8 @@ type Withdrawal {
     execution_fee: String!
     callback_contract: String!
     callback_gas_limit: String!
+    cancelled_reason: String
+    cancelled_reason_key: String
     tx_hash: String!
     created_at: Int!
     created_at_block: Int!
