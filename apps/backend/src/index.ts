@@ -17,8 +17,14 @@ const app = new Elysia()
             scalarConfig: {
                 proxy: "",
                 servers: [
-                    { url: `http://localhost:${config.BACKEND_PORT || 3002}`, description: "Development server" },
-                    { url: "https://backend-sepolia.wolfy.trade", description: "Sepolia prod server" },
+                    {
+                        url: `http://localhost:${config.BACKEND_PORT || 3002}`,
+                        description: "Development server",
+                    },
+                    {
+                        url: "https://backend-sepolia.wolfy.trade",
+                        description: "Sepolia prod server",
+                    },
                 ],
             },
         })
