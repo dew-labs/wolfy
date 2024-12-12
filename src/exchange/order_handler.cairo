@@ -366,6 +366,7 @@ mod OrderHandler {
         fn handle_order_error(
             ref self: ContractState, key: felt252, starting_gas: u256, reason: felt252, reason_key: felt252
         ) {
+            // TODO: move this to private function and try/catch in execute_order when available
             let data_store = self.data_store.read();
 
             let order = data_store.get_order(key);
