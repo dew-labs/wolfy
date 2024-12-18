@@ -1,16 +1,18 @@
 import { int8range } from "apps/backend/drizzle/types/int8Range";
 import {
-    bigint,
-    boolean,
-    index,
-    integer,
-    json,
-    numeric,
     pgTable,
-    serial,
+    index,
     uuid,
     varchar,
+    integer,
+    boolean,
+    numeric,
+    jsonb,
+    unique,
+    bigint,
+    serial,
 } from "drizzle-orm/pg-core";
+import { sql } from "drizzle-orm";
 
 export const markets = pgTable(
     "markets",
@@ -62,7 +64,7 @@ export const orders = pgTable(
             scale: 0,
         }).notNull(),
         isFrozen: boolean("is_frozen").notNull(),
-        swapPath: json("swap_path").notNull(),
+        swapPath: jsonb("swap_path").notNull(),
         decreasePositionSwapType: varchar("decrease_position_swap_type", { length: 256 }).notNull(),
         executionFee: numeric("execution_fee", { precision: 78, scale: 0 }).notNull(),
         uiFeeReceiver: varchar("ui_fee_receiver", { length: 256 }).notNull(),
@@ -106,6 +108,7 @@ export const orders = pgTable(
             orderTypeIdx: index().using("btree", table.orderType.asc().nullsLast()),
             receiverIdx: index().using("btree", table.receiver.asc().nullsLast()),
             sizeDeltaUsdIdx: index().using("btree", table.sizeDeltaUsd.asc().nullsLast()),
+            swapPathIdx: index().using("btree", table.swapPath.asc().nullsLast()),
             triggerPriceIdx: index().using("btree", table.triggerPrice.asc().nullsLast()),
             txHashIdx: index().using("btree", table.txHash.asc().nullsLast()),
             uiFeeReceiverIdx: index().using("btree", table.uiFeeReceiver.asc().nullsLast()),
@@ -252,13 +255,15 @@ export const deposits = pgTable(
         shortToken: varchar("short_token", { length: 256 }).notNull(),
         longTokenAmount: numeric("long_token_amount", { precision: 78, scale: 0 }).notNull(),
         shortTokenAmount: numeric("short_token_amount", { precision: 78, scale: 0 }).notNull(),
-        longTokenSwapPath: json("long_token_swap_path").notNull(),
-        shortTokenSwapPath: json("short_token_swap_path").notNull(),
+        longTokenSwapPath: jsonb("long_token_swap_path").notNull(),
+        shortTokenSwapPath: jsonb("short_token_swap_path").notNull(),
         minMarketTokens: numeric("min_market_tokens", { precision: 78, scale: 0 }).notNull(),
         receivedMarketTokens: numeric("received_market_tokens", { precision: 78, scale: 0 }),
         executionFee: numeric("execution_fee", { precision: 78, scale: 0 }).notNull(),
         callbackContract: varchar("callback_contract", { length: 256 }).notNull(),
         callbackGasLimit: numeric("callback_gas_limit", { precision: 78, scale: 0 }).notNull(),
+        cancelledReason: varchar("cancelled_reason", { length: 256 }),
+        cancelledReasonKey: varchar("cancelled_reason_key", { length: 256 }),
         txHash: varchar("tx_hash", { length: 256 }).notNull(),
         createdAt: integer("created_at").notNull(),
         createdAtBlock: integer("created_at_block").notNull(),
@@ -269,6 +274,11 @@ export const deposits = pgTable(
             actionIdx: index().using("btree", table.action.asc().nullsLast()),
             callbackContractIdx: index().using("btree", table.callbackContract.asc().nullsLast()),
             callbackGasLimitIdx: index().using("btree", table.callbackGasLimit.asc().nullsLast()),
+            cancelledReasonIdx: index().using("btree", table.cancelledReason.asc().nullsLast()),
+            cancelledReasonKeyIdx: index().using(
+                "btree",
+                table.cancelledReasonKey.asc().nullsLast()
+            ),
             createdAtBlockIdx: index().using("btree", table.createdAtBlock.asc().nullsLast()),
             createdAtIdx: index().using("btree", table.createdAt.asc().nullsLast()),
             executionFeeIdx: index().using("btree", table.executionFee.asc().nullsLast()),
@@ -276,6 +286,7 @@ export const deposits = pgTable(
             keyIdx: index().using("btree", table.key.asc().nullsLast()),
             longTokenAmountIdx: index().using("btree", table.longTokenAmount.asc().nullsLast()),
             longTokenIdx: index().using("btree", table.longToken.asc().nullsLast()),
+            longTokenSwapPathIdx: index().using("btree", table.longTokenSwapPath.asc().nullsLast()),
             marketIdx: index().using("btree", table.market.asc().nullsLast()),
             minMarketTokensIdx: index().using("btree", table.minMarketTokens.asc().nullsLast()),
             receivedMarketTokensIdx: index().using(
@@ -285,6 +296,10 @@ export const deposits = pgTable(
             receiverIdx: index().using("btree", table.receiver.asc().nullsLast()),
             shortTokenAmountIdx: index().using("btree", table.shortTokenAmount.asc().nullsLast()),
             shortTokenIdx: index().using("btree", table.shortToken.asc().nullsLast()),
+            shortTokenSwapPathIdx: index().using(
+                "btree",
+                table.shortTokenSwapPath.asc().nullsLast()
+            ),
             txHashIdx: index().using("btree", table.txHash.asc().nullsLast()),
         };
     }
@@ -307,12 +322,14 @@ export const withdrawals = pgTable(
             precision: 78,
             scale: 0,
         }).notNull(),
-        longTokenSwapPath: json("long_token_swap_path").notNull(),
-        shortTokenSwapPath: json("short_token_swap_path").notNull(),
+        longTokenSwapPath: jsonb("long_token_swap_path").notNull(),
+        shortTokenSwapPath: jsonb("short_token_swap_path").notNull(),
         marketTokenAmount: numeric("market_token_amount", { precision: 78, scale: 0 }).notNull(),
         executionFee: varchar("execution_fee", { length: 256 }).notNull(),
         callbackContract: varchar("callback_contract", { length: 256 }).notNull(),
         callbackGasLimit: varchar("callback_gas_limit", { length: 256 }).notNull(),
+        cancelledReason: varchar("cancelled_reason", { length: 256 }),
+        cancelledReasonKey: varchar("cancelled_reason_key", { length: 256 }),
         txHash: varchar("tx_hash", { length: 256 }).notNull(),
         createdAt: integer("created_at").notNull(),
         createdAtBlock: integer("created_at_block").notNull(),
@@ -323,11 +340,17 @@ export const withdrawals = pgTable(
             actionIdx: index().using("btree", table.action.asc().nullsLast()),
             callbackContractIdx: index().using("btree", table.callbackContract.asc().nullsLast()),
             callbackGasLimitIdx: index().using("btree", table.callbackGasLimit.asc().nullsLast()),
+            cancelledReasonIdx: index().using("btree", table.cancelledReason.asc().nullsLast()),
+            cancelledReasonKeyIdx: index().using(
+                "btree",
+                table.cancelledReasonKey.asc().nullsLast()
+            ),
             createdAtBlockIdx: index().using("btree", table.createdAtBlock.asc().nullsLast()),
             createdAtIdx: index().using("btree", table.createdAt.asc().nullsLast()),
             executionFeeIdx: index().using("btree", table.executionFee.asc().nullsLast()),
             idIdx: index().using("btree", table.id.asc().nullsLast()),
             keyIdx: index().using("btree", table.key.asc().nullsLast()),
+            longTokenSwapPathIdx: index().using("btree", table.longTokenSwapPath.asc().nullsLast()),
             marketIdx: index().using("btree", table.market.asc().nullsLast()),
             marketTokenAmountIdx: index().using("btree", table.marketTokenAmount.asc().nullsLast()),
             minLongTokenAmountIdx: index().using(
@@ -339,7 +362,25 @@ export const withdrawals = pgTable(
                 table.minShortTokenAmount.asc().nullsLast()
             ),
             receiverIdx: index().using("btree", table.receiver.asc().nullsLast()),
+            shortTokenSwapPathIdx: index().using(
+                "btree",
+                table.shortTokenSwapPath.asc().nullsLast()
+            ),
             txHashIdx: index().using("btree", table.txHash.asc().nullsLast()),
+        };
+    }
+);
+
+export const blocks = pgTable(
+    "_blocks",
+    {
+        // You can use { mode: "bigint" } if numbers are exceeding js number limitations
+        blockNumber: bigint("block_number", { mode: "number" }).primaryKey().notNull(),
+        hash: varchar({ length: 255 }).notNull(),
+    },
+    (table) => {
+        return {
+            blocksHashUnique: unique("_blocks_hash_unique").on(table.hash),
         };
     }
 );

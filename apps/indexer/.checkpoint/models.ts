@@ -886,7 +886,7 @@ export class Withdrawal extends Model {
     this.initialSet('long_token_swap_path', "[]");
     this.initialSet('short_token_swap_path', "[]");
     this.initialSet('market_token_amount', "0");
-    this.initialSet('execution_fee', "");
+    this.initialSet('execution_fee', "0");
     this.initialSet('callback_contract', "");
     this.initialSet('callback_gas_limit', "");
     this.initialSet('cancelled_reason', null);
