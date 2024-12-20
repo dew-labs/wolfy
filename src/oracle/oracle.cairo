@@ -14,7 +14,7 @@
 use freyr::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
 use freyr::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
 use freyr::oracle::{
-    oracle_store::{IOracleStoreDispatcher, IOracleStoreDispatcherTrait}, oracle_utils::{SetPricesParams, ReportInfo},
+    oracle_utils::{SetPricesParams, ReportInfo},
     error::OracleError,
 };
 use freyr::price::price::Price;
@@ -188,8 +188,7 @@ mod Oracle {
     // Local imports.
     use freyr::data::{data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait}, keys};
     use freyr::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
-    use freyr::oracle::{
-        oracle_store::{IOracleStoreDispatcher, IOracleStoreDispatcherTrait}, oracle_utils,
+    use freyr::oracle::{oracle_utils,
         oracle_utils::{SetPricesParams, ReportInfo}, error::OracleError,
     };
     use freyr::price::price::Price;
@@ -227,8 +226,6 @@ mod Oracle {
     // *************************************************************************
     #[storage]
     struct Storage {
-        /// Interface to interact with the `OracleStore` contract.
-        oracle_store: IOracleStoreDispatcher,
         /// Interface to interact with the Pragma Oracle.
         price_feed: IPragmaABIDispatcher,
         /// List of Prices related to a token.
@@ -245,19 +242,16 @@ mod Oracle {
     /// Constructor of the contract.
     /// # Arguments
     /// * `role_store_address` - The address of the role store contract.
-    /// * `oracle_store_address` - The address of the oracle store contract.
     #[constructor]
     fn constructor(
         ref self: ContractState,
         role_store_address: ContractAddress,
-        oracle_store_address: ContractAddress,
         pragma_address: ContractAddress,
         role_module_class_hash: ClassHash,
     ) {
-        self.oracle_store.write(IOracleStoreDispatcher { contract_address: oracle_store_address });
-        self.price_feed.write(IPragmaABIDispatcher { contract_address: pragma_address });
         self.role_module.write(IRoleModuleLibraryDispatcher { class_hash: role_module_class_hash });
         self.role_module.read().initialize(role_store_address);
+        self.price_feed.write(IPragmaABIDispatcher { contract_address: pragma_address });
     }
 
     // *************************************************************************

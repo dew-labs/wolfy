@@ -22,7 +22,6 @@ use freyr::market::market_token::{IMarketTokenDispatcher, IMarketTokenDispatcher
 use freyr::market::{market::{UniqueIdMarketImpl},};
 use freyr::mock::referral_storage::{IReferralStorageDispatcher, IReferralStorageDispatcherTrait};
 use freyr::oracle::oracle::{IOracleDispatcher, IOracleDispatcherTrait};
-use freyr::oracle::oracle_store::{IOracleStoreDispatcher, IOracleStoreDispatcherTrait};
 use freyr::oracle::oracle_utils::SetPricesParams;
 use freyr::order::base_order_utils::{CreateOrderParams};
 use freyr::order::order::{Order, OrderType, SecondaryOrderType, DecreasePositionSwapType};
@@ -138,7 +137,6 @@ fn setup() -> (
     ISwapHandlerDispatcher,
     IBankDispatcher,
     IStrictBankDispatcher,
-    IOracleStoreDispatcher,
 ) {
     let (
         caller_address,
@@ -169,7 +167,6 @@ fn setup() -> (
         swap_handler,
         bank,
         strict_bank,
-        oracle_store,
     ) =
         setup_contracts();
 
@@ -204,7 +201,6 @@ fn setup() -> (
         swap_handler,
         bank,
         strict_bank,
-        oracle_store,
     )
 }
 
@@ -227,7 +223,6 @@ fn teardown() {
     stop_cheat_caller_address(get_bank_address());
     stop_cheat_caller_address(get_strict_bank_address());
     stop_cheat_caller_address(get_event_emitter_address());
-    stop_cheat_caller_address(get_oracle_store_address());
     stop_cheat_caller_address(get_router_address());
     stop_cheat_caller_address(get_deposit_handler_address());
     stop_cheat_caller_address(get_oracle_address());
@@ -273,7 +268,6 @@ fn setup_contracts() -> (
     ISwapHandlerDispatcher,
     IBankDispatcher,
     IStrictBankDispatcher,
-    IOracleStoreDispatcher,
 ) {
     let caller_address = get_c4ller_address();
 
@@ -335,16 +329,12 @@ fn setup_contracts() -> (
     );
     let market_factory = IMarketFactoryDispatcher { contract_address: market_factory_address };
 
-    // Deploy the oracle store
-    let oracle_store_address = deploy_oracle_store(event_emitter_address);
-    let oracle_store = IOracleStoreDispatcher { contract_address: oracle_store_address };
-
     // Deploy mock data feed
     let pragma_address = deploy_price_feed();
 
     // Deploy the oracle
     let oracle_address = deploy_oracle(
-        role_store_address, oracle_store_address, pragma_address, role_module_class.class_hash
+        role_store_address, pragma_address, role_module_class.class_hash
     );
     let oracle = IOracleDispatcher { contract_address: oracle_address };
 
@@ -491,7 +481,6 @@ fn setup_contracts() -> (
         swap_handler,
         bank,
         strict_bank,
-        oracle_store,
     )
 }
 
@@ -598,20 +587,8 @@ fn deploy_deposit_handler(
     contract_address
 }
 
-fn deploy_oracle_store(event_emitter_address: ContractAddress,) -> ContractAddress {
-    let contract = declare("OracleStore").unwrap().contract_class();
-    let caller_address: ContractAddress = get_c4ller_address();
-    let deployed_contract_address = get_oracle_store_address();
-    start_cheat_caller_address(deployed_contract_address, caller_address);
-    let (contract_address, _) = contract
-        .deploy_at(@array![event_emitter_address.into()], deployed_contract_address)
-        .unwrap();
-    contract_address
-}
-
 fn deploy_oracle(
     role_store_address: ContractAddress,
-    oracle_store_address: ContractAddress,
     pragma_address: ContractAddress,
     role_module_class_hash: @ClassHash,
 ) -> ContractAddress {
@@ -623,7 +600,6 @@ fn deploy_oracle(
         .deploy_at(
             @array![
                 role_store_address.into(),
-                oracle_store_address.into(),
                 pragma_address.into(),
                 (*role_module_class_hash).into()
             ],
@@ -994,10 +970,6 @@ fn get_router_address() -> ContractAddress {
 
 fn get_deposit_handler_address() -> ContractAddress {
     contract_address_const::<'deposit_handler'>()
-}
-
-fn get_oracle_store_address() -> ContractAddress {
-    contract_address_const::<'oracle_store'>()
 }
 
 fn get_oracle_address() -> ContractAddress {

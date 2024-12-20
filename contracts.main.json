@@ -6,7 +6,6 @@
     "Router": "",
     "ReferralStorage": "",
     "DataStore": "",
-    "OracleStore": "",
     "SwapHandler": "",
     "MarketFactory": "",
     "OrderVault": "",

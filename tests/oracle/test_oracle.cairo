@@ -2,7 +2,6 @@ use freyr::data::data_store::{DataStore, IDataStoreDispatcher, IDataStoreDispatc
 use freyr::data::keys;
 use freyr::event::event_emitter::{EventEmitter, IEventEmitterDispatcher};
 use freyr::oracle::oracle::{Oracle, IOracleDispatcher, IOracleDispatcherTrait, SetPricesParams};
-use freyr::oracle::oracle_store::{IOracleStoreDispatcher, IOracleStoreDispatcherTrait};
 use freyr::oracle::price_feed::PriceFeed;
 use freyr::price::price::Price;
 use freyr::role::role;
@@ -43,7 +42,6 @@ fn setup() -> (IDataStoreDispatcher, IOracleDispatcher) {
         _withdrawal_vault,
         _liquidation_handler,
         _swap_handler,
-        _,
         _,
         _,
     ) =

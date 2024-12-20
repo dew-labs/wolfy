@@ -65,7 +65,6 @@ fn setup() -> (ContractAddress, IRoleStoreDispatcher, ISwapHandlerDispatcher) {
         swap_handler,
         _,
         _,
-        _,
     ) =
         tests_lib::setup();
 

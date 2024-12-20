@@ -189,7 +189,6 @@ fn setup() -> (IDataStoreDispatcher, IReferralStorageDispatcher, IMarketUtilsLib
         _,
         _,
         _,
-        _,
     ) =
         tests_lib::setup();
 

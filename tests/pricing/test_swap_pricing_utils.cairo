@@ -159,7 +159,6 @@ fn setup() -> (IDataStoreDispatcher, IMarketUtilsLibraryDispatcher) {
         _,
         _,
         _,
-        _,
     ) =
         tests_lib::setup();
 

@@ -100,7 +100,6 @@ fn setup() -> IDepositHandlerDispatcher {
         _,
         _,
         _,
-        _,
     ) =
         tests_lib::setup();
     deposit_handler

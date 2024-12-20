@@ -187,12 +187,6 @@ async function deploy() {
 
     // -------------------------------------------------------------------------
 
-    const oracleStore = await ensureDeployed(account, contracts.OracleStore, "OracleStore", {
-        event_emitter_address: eventEmitter.address,
-    });
-
-    // -------------------------------------------------------------------------
-
     const swapHandler = await ensureDeployed(account, contracts.SwapHandler, "SwapHandler", {
         role_store_address: roleStore.address,
         role_module_class_hash: roleModuleClassHash,
@@ -260,7 +254,6 @@ async function deploy() {
     // Oracle change will lead to OrderHandler, DepositHandler, WithdrawalHandler, and ExchangeRouter change
     const oracle = await ensureDeployed(account, contracts.Oracle, "Oracle", {
         role_store_address: roleStore.address,
-        oracle_store_address: oracleStore.address,
         pragma_address: pragmaAddress,
         role_module_class_hash: roleModuleClassHash,
     });
@@ -388,7 +381,6 @@ async function deploy() {
         Router: router.address, // depends on roleStore
         ReferralStorage: referralStorage.address, // depends on eventEmitter
         DataStore: dataStore.address, // depends on roleStore
-        OracleStore: oracleStore.address, // depends on roleStore and EventEmitter
         SwapHandler: swapHandler.address, // depends on roleStore
         //-------------------------------------------------
         FeeHandler: feeHandler.address, // depends on dataStore, eventEmitter

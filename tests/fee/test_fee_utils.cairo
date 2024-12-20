@@ -101,7 +101,6 @@ fn setup() -> (IDataStoreDispatcher, IEventEmitterDispatcher) {
         _,
         _,
         _,
-        _,
     ) =
         tests_lib::setup();
 

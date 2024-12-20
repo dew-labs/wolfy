@@ -36,7 +36,6 @@ fn given_normal_conditions_when_non_reentrancy_before_and_after_then_works() {
         _,
         _,
         _,
-        _,
     ) =
         tests_lib::setup();
     // *********************************************************************************************
@@ -95,7 +94,6 @@ fn given_reentrant_call_when_reentrancy_before_and_after_then_fails() {
         _withdrawal_handler,
         _withdrawal_vault,
         _liquidation_handler,
-        _,
         _,
         _,
         _,

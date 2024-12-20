@@ -64,7 +64,6 @@ fn setup_contracts() -> (
         _,
         bank,
         strict_bank,
-        _,
     ) =
         tests_lib::setup();
 

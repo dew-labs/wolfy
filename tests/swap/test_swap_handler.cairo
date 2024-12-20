@@ -91,7 +91,6 @@ fn setup() -> (
         swap_handler,
         bank,
         _,
-        _,
     ) =
         tests_lib::setup();
 

@@ -1,7 +1,6 @@
 use freyr::data::data_store::{DataStore, IDataStoreDispatcher, IDataStoreDispatcherTrait};
 use freyr::event::event_emitter::{EventEmitter, IEventEmitterDispatcher};
 use freyr::oracle::oracle::{Oracle, IOracleDispatcher, IOracleDispatcherTrait, SetPricesParams};
-use freyr::oracle::oracle_store::{IOracleStoreDispatcher, IOracleStoreDispatcherTrait};
 use freyr::oracle::price_feed::PriceFeed;
 use freyr::order::base_order_utils::{
     is_market_order, is_limit_order, is_swap_order, is_position_order, is_increase_order, is_decrease_order,
@@ -324,7 +323,6 @@ fn setup() -> (IOracleDispatcher, ContractAddress, Price) {
         _withdrawal_handler,
         _withdrawal_vault,
         _liquidation_handler,
-        _,
         _,
         _,
         _,

@@ -57,7 +57,6 @@ fn setup() -> (
         _,
         bank,
         _,
-        _,
     ) =
         tests_lib::setup();
 

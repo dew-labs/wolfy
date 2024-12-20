@@ -179,7 +179,6 @@ mod oracle {
     mod error;
     mod oracle;
     mod oracle_modules;
-    mod oracle_store;
     mod oracle_utils;
     mod price_feed;
     mod interfaces {

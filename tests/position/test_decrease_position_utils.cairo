@@ -109,7 +109,6 @@ fn setup() -> (ContractAddress, ISwapHandlerDispatcher, IMarketUtilsLibraryDispa
         swap_handler,
         _bank,
         _strict_bank,
-        _oracle_store,
     ) =
         tests_lib::setup();
 

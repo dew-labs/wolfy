@@ -14,7 +14,6 @@ use freyr::market::market::{Market, UniqueIdMarketImpl};
 use freyr::market::market_utils::{IMarketUtilsLibraryDispatcher, IMarketUtilsDispatcherTrait};
 use freyr::mock::referral_storage::{IReferralStorageDispatcher, IReferralStorageDispatcherTrait};
 use freyr::oracle::oracle::{IOracleDispatcher, IOracleDispatcherTrait};
-use freyr::oracle::oracle_store::{IOracleStoreDispatcher, IOracleStoreDispatcherTrait};
 use freyr::oracle::oracle_utils::SetPricesParams;
 use freyr::order::base_order_utils::ExecuteOrderParamsContracts;
 use freyr::order::order::{Order, OrderType, SecondaryOrderType, DecreasePositionSwapType};
@@ -310,7 +309,6 @@ fn setup_contracts() -> (
         _withdrawal_vault,
         _liquidation_handler,
         swap_handler,
-        _,
         _,
         _,
     ) =

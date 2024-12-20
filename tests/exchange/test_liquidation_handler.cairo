@@ -12,7 +12,6 @@ use freyr::mock::referral_storage;
 use freyr::nonce::nonce_utils;
 use freyr::oracle::{
     oracle::{Oracle, IOracleDispatcher, IOracleDispatcherTrait},
-    oracle_store::{IOracleStoreDispatcher, IOracleStoreDispatcherTrait},
     interfaces::account::{IAccount, IAccountDispatcher, IAccountDispatcherTrait}, oracle_utils::SetPricesParams
 };
 
@@ -474,7 +473,6 @@ fn _setup() -> (
         _,
         _,
         _,
-        oracle_store,
     ) =
         tests_lib::setup();
 
@@ -483,11 +481,6 @@ fn _setup() -> (
     let (signer1, signer2) = deploy_signers(
         contract_address_const::<'signer1'>(), contract_address_const::<'signer2'>()
     );
-
-    start_cheat_caller_address(oracle_store.contract_address, admin());
-    oracle_store.add_signer(signer1);
-    oracle_store.add_signer(signer2);
-    stop_cheat_caller_address(oracle_store.contract_address);
 
     start_cheat_caller_address(role_store.contract_address, admin());
     role_store.grant_role(liquidation_handler.contract_address, role::CONTROLLER);

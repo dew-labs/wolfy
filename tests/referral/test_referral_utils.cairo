@@ -441,7 +441,6 @@ fn setup() -> (
         _,
         _,
         _,
-        _,
     ) =
         tests_lib::setup();
 

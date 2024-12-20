@@ -97,7 +97,6 @@ fn setup() -> (ContractAddress, IDataStoreDispatcher, IEventEmitterDispatcher, I
         _,
         _,
         _,
-        _,
     ) =
         tests_lib::setup();
 

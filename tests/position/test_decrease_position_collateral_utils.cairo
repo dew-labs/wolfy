@@ -65,7 +65,6 @@ fn setup() -> (
         swap_handler,
         _,
         _,
-        _,
     ) =
         tests_lib::setup();
 

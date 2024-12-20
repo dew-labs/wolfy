@@ -6,7 +6,6 @@ enum InternalWolfyContract {
     DecreaseOrderUtils = "DecreaseOrderUtils",
     SwapOrderUtils = "SwapOrderUtils",
     OrderUtils = "OrderUtils",
-    OracleStore = "OracleStore",
     Oracle = "Oracle",
 }
 

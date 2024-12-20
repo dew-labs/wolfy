@@ -15,7 +15,6 @@ use freyr::market::{
 };
 use freyr::oracle::oracle::{IOracleDispatcher, IOracleDispatcherTrait};
 use freyr::oracle::oracle::{Oracle, SetPricesParams};
-use freyr::oracle::oracle_store::{IOracleStoreDispatcher, IOracleStoreDispatcherTrait};
 use freyr::position::position::Position;
 use freyr::price::price::{Price, PriceTrait};
 use freyr::token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
@@ -661,7 +660,6 @@ mod MarketUtils {
     };
     use freyr::oracle::oracle::{IOracleDispatcher, IOracleDispatcherTrait};
     use freyr::oracle::oracle::{Oracle, SetPricesParams};
-    use freyr::oracle::oracle_store::{IOracleStoreDispatcher, IOracleStoreDispatcherTrait};
     use freyr::position::position::Position;
     use freyr::price::price::{Price, PriceTrait};
     use freyr::token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};

@@ -36,7 +36,6 @@ fn given_normal_conditions_when_nonce_utils_functions_then_works() {
         _,
         _,
         _,
-        _,
     ) =
         tests_lib::setup();
 

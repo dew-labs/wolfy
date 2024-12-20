@@ -27,7 +27,6 @@ use freyr::market::market_token::{IMarketTokenDispatcher, IMarketTokenDispatcher
 use freyr::market::{market::{UniqueIdMarketImpl},};
 use freyr::mock::referral_storage::{IReferralStorageDispatcher, IReferralStorageDispatcherTrait};
 use freyr::oracle::oracle::{IOracleDispatcher, IOracleDispatcherTrait};
-use freyr::oracle::oracle_store::{IOracleStoreDispatcher, IOracleStoreDispatcherTrait};
 use freyr::oracle::oracle_utils::SetPricesParams;
 use freyr::order::base_order_utils::{CreateOrderParams};
 
@@ -848,7 +847,6 @@ fn setup() -> (
         withdrawal_handler,
         withdrawal_vault,
         liquidation_handler,
-        _,
         _,
         _,
         _,

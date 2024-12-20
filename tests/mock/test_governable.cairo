@@ -52,7 +52,6 @@ fn setup() -> (IEventEmitterDispatcher, IGovernableDispatcher,) {
         _,
         _,
         _,
-        _,
     ) =
         tests_lib::setup();
 
@@ -89,7 +88,6 @@ fn setup_with_other_address() -> (IEventEmitterDispatcher, IGovernableDispatcher
         _withdrawal_handler,
         _withdrawal_vault,
         _liquidation_handler,
-        _,
         _,
         _,
         _,

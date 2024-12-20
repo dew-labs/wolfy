@@ -8,7 +8,7 @@
 use starknet::ContractAddress;
 
 // *************************************************************************
-//                  Interface of the `OracleStore` contract.
+//                  Interface of the `Governable` contract.
 // *************************************************************************
 #[starknet::interface]
 trait IGovernable<TContractState> {
