@@ -1,8 +1,8 @@
 [package]
 name = "freyr"
 version = "0.1.0"
-cairo-version = "2.8.5"
-scarb-version = "2.8.5"
+cairo-version = "2.9.2"
+scarb-version = "2.9.2"
 authors = ["Huynh Duc Duy <@huynhducduy>"]
 license = "MIT"
 keywords = ["starknet", "defi", "syntethics"]
@@ -47,14 +47,14 @@ unstable-add-statements-code-locations-debug-info = true
 unstable-add-statements-functions-debug-info = true
 
 [dependencies]
-starknet = ">=2.8.5"
-alexandria_data_structures = { git = "https://github.com/keep-starknet-strange/alexandria.git", rev = "95d98a5182001d07673b856a356eff0e6bd05354" }
-alexandria_math = { git = "https://github.com/keep-starknet-strange/alexandria.git", rev = "95d98a5182001d07673b856a356eff0e6bd05354" }
-alexandria_storage = { git = "https://github.com/keep-starknet-strange/alexandria.git", rev = "95d98a5182001d07673b856a356eff0e6bd05354" }
-alexandria_sorting = { git = "https://github.com/keep-starknet-strange/alexandria.git", rev = "95d98a5182001d07673b856a356eff0e6bd05354" }
-pragma_lib = { git = "https://github.com/astraly-labs/pragma-lib", tag = "2.8.2" }
-openzeppelin = "0.19.0"
-snforge_std = "0.34.0"
+starknet = ">=2.9.2"
+alexandria_data_structures = { git = "https://github.com/keep-starknet-strange/alexandria.git", rev = "162bed1c636d31ccaaa90ed3eb32c9eb1d5e3bd3" }
+alexandria_math = { git = "https://github.com/keep-starknet-strange/alexandria.git", rev = "162bed1c636d31ccaaa90ed3eb32c9eb1d5e3bd3" }
+alexandria_storage = { git = "https://github.com/keep-starknet-strange/alexandria.git", rev = "162bed1c636d31ccaaa90ed3eb32c9eb1d5e3bd3" }
+alexandria_sorting = { git = "https://github.com/keep-starknet-strange/alexandria.git", rev = "162bed1c636d31ccaaa90ed3eb32c9eb1d5e3bd3" }
+pragma_lib = { git = "https://github.com/astraly-labs/pragma-lib", tag = "2.9.1" }
+openzeppelin = "0.20.0"
+snforge_std = "0.35.1"
 
 [dev-dependencies]
 
