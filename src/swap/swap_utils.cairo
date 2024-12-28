@@ -123,7 +123,6 @@ fn swap(params: @SwapParams, market_utils: IMarketUtilsLibraryDispatcher) -> (Co
         return (*params.token_in, *params.amount_in);
     }
 
-    //TODO
     let first_path: Market = *params.swap_path_markets[0];
     if (params.bank.contract_address != @first_path.market_token) {
         (*params.bank)
@@ -161,9 +160,6 @@ fn swap(params: @SwapParams, market_utils: IMarketUtilsLibraryDispatcher) -> (Co
         output_amount = _output_amount_res;
         i += 1;
     };
-
-    // let balance_ETH_after = IERC20Dispatcher { contract_address: contract_address_const::<'ETH'>() }
-    //     .balance_of(get_caller_address());
 
     i = 0;
     loop {

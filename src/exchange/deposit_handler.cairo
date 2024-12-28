@@ -42,15 +42,6 @@ trait IDepositHandler<TContractState> {
     /// * `oracle_params` - The oracle params to set prices before simulation.
     fn simulate_execute_deposit(ref self: TContractState, key: felt252, params: SimulatePricesParams);
 
-    /// Executes a deposit with keeper.
-    /// # Arguments
-    /// * `key` - The key of the deposit to execute.
-    /// * `oracle_params` - The oracle params to set prices before execution.
-    /// * `keeper` - The keeper executing the deposit.
-    fn execute_deposit_keeper(
-        ref self: TContractState, key: felt252, oracle_params: SetPricesParams, keeper: ContractAddress
-    );
-
     /// Handle the error when executing a deposit. This originally automatically called in a try/catch block, but cairo
     /// does not support try/catch so it is manually called by the keeper.
     /// # Arguments
@@ -221,7 +212,7 @@ mod DepositHandler {
             // let starting_gas = gas_left();
             let _execution_gas = gas_utils::get_execution_gas(data_store, 0);
 
-            self.execute_deposit_keeper(key, oracle_params, get_caller_address());
+            self._execute_deposit(key, oracle_params, get_caller_address());
 
             oracle_modules::with_oracle_prices_after(oracle);
             global_reentrancy_guard::non_reentrant_after(data_store);
@@ -237,13 +228,29 @@ mod DepositHandler {
 
             let oracleParams = Default::default();
 
-            self.execute_deposit_keeper(key, oracleParams, get_caller_address());
+            self._execute_deposit(key, oracleParams, get_caller_address());
 
             oracle_modules::with_simulated_oracle_prices_after();
             global_reentrancy_guard::non_reentrant_after(data_store);
         }
 
-        fn execute_deposit_keeper(
+        /// Handles error from deposit.
+        /// # Arguments
+        /// * `key` - The key of the deposit to handle error for.
+        /// * `starting_gas` - The starting gas of the transaction.
+        /// * `reason` - The reason of the error.
+        /// * `reason_key` - The reason key of the error.
+        fn handle_deposit_error(
+            ref self: ContractState, key: felt252, starting_gas: u256, reason: felt252, reason_key: felt252
+        ) { // TODO
+        }
+    }
+    // *************************************************************************
+    //                          INTERNAL FUNCTIONS
+    // *************************************************************************
+    #[generate_trait]
+    impl InternalImpl of InternalTrait {
+        fn _execute_deposit(
             ref self: ContractState, key: felt252, oracle_params: SetPricesParams, keeper: ContractAddress
         ) {
             // let starting_gas = gas_left();
@@ -273,22 +280,5 @@ mod DepositHandler {
 
             execute_deposit_utils::execute_deposit(params, self.market_utils.read());
         }
-
-        /// Handles error from deposit.
-        /// # Arguments
-        /// * `key` - The key of the deposit to handle error for.
-        /// * `starting_gas` - The starting gas of the transaction.
-        /// * `reason` - The reason of the error.
-        /// * `reason_key` - The reason key of the error.
-        fn handle_deposit_error(
-            ref self: ContractState, key: felt252, starting_gas: u256, reason: felt252, reason_key: felt252
-        ) { // TODO
-        }
     }
-    // // *************************************************************************
-// //                          INTERNAL FUNCTIONS
-// // *************************************************************************
-// #[generate_trait]
-// impl InternalImpl of InternalTrait {
-// }
 }

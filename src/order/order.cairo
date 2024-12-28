@@ -88,7 +88,6 @@ impl DefaultOrder of Default<Order> {
 #[generate_trait]
 impl OrderImpl of OrderTrait {
     fn touch(ref self: Order) {
-        // TODO: Fix when it's possible to do starknet calls in pure Cairo programs.
         self.updated_at_block = get_block_number();
     }
 }

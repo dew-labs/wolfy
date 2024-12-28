@@ -272,7 +272,6 @@ mod AdlHandler {
                     cache.key, oracle_params, get_caller_address(), cache.starting_gas, SecondaryOrderType::Adl(())
                 );
 
-            // let order_type: felt252 = params.order.order_type.into();
             feature_utils::validate_feature(
                 params.contracts.data_store,
                 keys::execute_adl_feature_disabled_key(get_contract_address(), params.order.order_type.into())

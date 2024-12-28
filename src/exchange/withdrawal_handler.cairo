@@ -223,8 +223,6 @@ mod WithdrawalHandler {
                 price_feed_tokens: oracle_params.price_feed_tokens.clone(),
             };
 
-            // withOraclePrices, only for mock
-            // TODO: comment
             oracle_modules::with_oracle_prices_before(
                 self.oracle.read(), self.data_store.read(), self.event_emitter.read(), @oracle_params
             );
@@ -232,9 +230,8 @@ mod WithdrawalHandler {
             let starting_gas = starknet_utils::sn_gasleft(array![100]);
             let _execution_gas = gas_utils::get_execution_gas(data_store, starting_gas);
 
-            self.execute_withdrawal_keeper(key, oracle_params_copy, get_caller_address());
+            self._execute_withdrawal(key, oracle_params_copy, get_caller_address());
 
-            // TODO: comment
             oracle_modules::with_oracle_prices_after(self.oracle.read());
 
             global_reentrancy_guard::non_reentrant_after(data_store); // Finalizes re-entrancy
@@ -264,7 +261,7 @@ mod WithdrawalHandler {
                 price_feed_tokens: Default::default(),
             }; // Initiates default values for this struct. Derive Default is not working for that size.
 
-            self.execute_withdrawal_keeper(key, oracle_params, get_caller_address());
+            self._execute_withdrawal(key, oracle_params, get_caller_address());
 
             global_reentrancy_guard::non_reentrant_after(data_store); // Finalizes re-entrancy
 
@@ -306,7 +303,7 @@ mod WithdrawalHandler {
         /// * `key` - The key of the withdrawal to execute.
         /// * `oracle_params` - The oracle params to set prices before execution.
         /// * `keeper` - The keeper executing the withdrawal.
-        fn execute_withdrawal_keeper(
+        fn _execute_withdrawal(
             ref self: ContractState, key: felt252, oracle_params: SetPricesParams, keeper: ContractAddress
         ) {
             let starting_gas = starknet_utils::sn_gasleft(array![100]);

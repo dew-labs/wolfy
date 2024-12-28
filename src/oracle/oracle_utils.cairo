@@ -87,49 +87,10 @@ struct ReportInfo {
     max_price: u256,
 }
 
-// compacted prices have a length of 32 bits
-const COMPACTED_PRICE_BIT_LENGTH: usize = 32;
-fn COMPACTED_PRICE_BITMASK() -> u256 {
-    BITMASK_32
-}
-
-// compacted precisions have a length of 8 bits
-const COMPACTED_PRECISION_BIT_LENGTH: usize = 8;
-fn COMPACTED_PRECISION_BITMASK() -> u256 {
-    BITMASK_8
-}
-
 // compacted block numbers have a length of 64 bits
 const COMPACTED_BLOCK_NUMBER_BIT_LENGTH: usize = 64;
 fn COMPACTED_BLOCK_NUMBER_BITMASK() -> u64 {
     BITMASK_64
-}
-
-// compacted timestamps have a length of 64 bits
-const COMPACTED_TIMESTAMP_BIT_LENGTH: usize = 64;
-fn COMPACTED_TIMESTAMP_BITMASK() -> u64 {
-    BITMASK_64
-}
-
-// compacted price indexes have a length of 8 bits
-const COMPACTED_PRICE_INDEX_BIT_LENGTH: usize = 8;
-fn COMPACTED_PRICE_INDEX_BITMASK() -> u256 {
-    BITMASK_8
-}
-
-/// Validates wether a block number is in range.
-/// # Arguments
-/// * `min_oracle_block_numbers` - The oracles block number that should be less than block_number.
-/// * `max_oracle_block_numbers` - The oracles block number that should be higher than block_number.
-/// * `block_number` - The block number to compare to.
-fn validate_block_number_within_range(
-    min_oracle_block_numbers: Span<u64>, max_oracle_block_numbers: Span<u64>, block_number: u64
-) {
-    if !is_block_number_within_range(min_oracle_block_numbers, max_oracle_block_numbers, block_number) {
-        OracleError::ORACLE_BLOCK_NUMBERS_NOT_WITHIN_RANGE(
-            min_oracle_block_numbers, max_oracle_block_numbers, block_number
-        );
-    }
 }
 
 /// Validates wether a block number is in range.
@@ -150,6 +111,21 @@ fn is_block_number_within_range(
     }
 
     true
+}
+
+/// Validates wether a block number is in range.
+/// # Arguments
+/// * `min_oracle_block_numbers` - The oracles block number that should be less than block_number.
+/// * `max_oracle_block_numbers` - The oracles block number that should be higher than block_number.
+/// * `block_number` - The block number to compare to.
+fn validate_block_number_within_range(
+    min_oracle_block_numbers: Span<u64>, max_oracle_block_numbers: Span<u64>, block_number: u64
+) {
+    if !is_block_number_within_range(min_oracle_block_numbers, max_oracle_block_numbers, block_number) {
+        OracleError::ORACLE_BLOCK_NUMBERS_NOT_WITHIN_RANGE(
+            min_oracle_block_numbers, max_oracle_block_numbers, block_number
+        );
+    }
 }
 
 /// Get the uncompacted oracle block numbers.

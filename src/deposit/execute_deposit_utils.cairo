@@ -224,6 +224,7 @@ fn execute_deposit(params: ExecuteDepositParams, market_utils: IMarketUtilsLibra
             params.key, cache.long_token_amount, cache.short_token_amount, cache.received_market_tokens,
         );
 
+    // TODO: emit events
     // MarketPoolValueInfo.Props memory poolValueInfo = MarketUtils.getPoolValueInfo(
     //     params.dataStore,
     //     market,

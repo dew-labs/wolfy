@@ -148,7 +148,6 @@ mod OrderUtils {
         /// * `params` - The parameters used to create the order.
         /// # Returns
         /// Return the key of the created order.
-        //TODO and fix when fee_token is implememted
         fn create_order_utils(
             ref self: ContractState,
             data_store: IDataStoreDispatcher,
@@ -302,7 +301,7 @@ mod OrderUtils {
 
             // the order.executionFee for liquidation / adl orders is zero
         // gas costs for liquidations / adl is subsidised by the treasury
-        // TODO crashing
+        // TODO
         // gas_utils::pay_execution_fee_order(
         //     params.contracts.data_store,
         //     params.contracts.event_emitter,

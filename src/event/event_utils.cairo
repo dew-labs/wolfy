@@ -61,7 +61,6 @@ impl ContractAddressDictValue of Felt252DictValue<ContractAddress> {
 #[derive(Default, Serde, Destruct)]
 struct EventLogData {
     cant_be_empty: u256, // remove
-    // TODO
 }
 
 #[derive(Default, Destruct)]
