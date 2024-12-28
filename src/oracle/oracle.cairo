@@ -108,7 +108,8 @@ trait IOracle<TContractState> {
         self: @TContractState, data_store: IDataStoreDispatcher, token: ContractAddress,
     ) -> u256;
 
-    /// Validate prices in `params` for oracles. TODO implement price validations
+    // TODO implement price validations
+    /// Validate prices in `params` for oracles.
     /// # Arguments
     /// * `data_store` - The `DataStore` contract dispatcher.
     /// * `params` - The parameters used to set prices in oracle.
@@ -278,7 +279,8 @@ mod Oracle {
             if params.tokens.len().is_zero() {
                 return;
             }
-            // only for testing
+
+            // TODO: only set primary prices for validated prices
             let mut i = 0;
             loop {
                 if i == params.tokens.len() {
@@ -289,8 +291,6 @@ mod Oracle {
                 self.set_primary_price_(token, price);
                 i += 1;
             };
-            // end for testing
-        // self.set_prices_(data_store, event_emitter, params); // TODO uncomment
         }
 
         // Set the primary price
@@ -312,14 +312,6 @@ mod Oracle {
                 self.remove_primary_price(token);
             };
         }
-
-        //USAGE/
-        // let KEY :felt252 = 18669995996566340; // felt252 conversion of "BTC/USD", can also write const KEY : felt252
-        // = 'BTC/USD';
-        // Sepolia contract address : 0x36031daa264c24520b11d93af622c848b2499b66b41d611bac95e13cfca131a
-        // let oracle_address : ContractAddress =
-        // contract_address_const::<0x06df335982dddce41008e4c03f2546fa27276567b5274c7d0c1262f3c2b5d167>();
-        // let price = get_asset_price_median(DataType::SpotEntry(KEY));
 
         fn get_tokens_with_prices_count(self: @ContractState) -> u32 {
             let token_with_prices = self.tokens_with_prices.read();
@@ -376,10 +368,6 @@ mod Oracle {
             data_store.get_u256(keys::stable_price_key(token))
         }
 
-        fn get_asset_price_median(self: @ContractState, asset: DataType) -> PragmaPricesResponse {
-            self.price_feed.read().get_data_median(asset)
-        }
-
         fn get_price_feed_multiplier(
             self: @ContractState, data_store: IDataStoreDispatcher, token: ContractAddress,
         ) -> u256 {
@@ -389,6 +377,14 @@ mod Oracle {
                 OracleError::EMPTY_PRICE_FEED_MULTIPLIER();
             }
             multiplier
+        }
+
+        // let KEY :felt252 = 18669995996566340; // felt252 conversion of "BTC/USD"
+        // const KEY : felt252 = 'BTC/USD';
+        // let price = get_asset_price_median(DataType::SpotEntry(KEY));
+
+        fn get_asset_price_median(self: @ContractState, asset: DataType) -> PragmaPricesResponse {
+            self.price_feed.read().get_data_median(asset)
         }
     }
 

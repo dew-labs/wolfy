@@ -192,7 +192,7 @@ fn get_execution_price(
     params
         .order
         .acceptable_price = if should_execution_price_be_smaller {
-            340282366920938463463374607431768211455
+            115792089237316195423570985008687907853269984665640564039457584007913129639935
         } else {
             0
         };

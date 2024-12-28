@@ -142,14 +142,15 @@ mod DecreaseOrderUtils {
             let position = data_store.get_position(position_key);
             position_utils::validate_non_empty_position(position);
 
-            // validate_oracle_block_numbers(
-            //     params.min_oracle_block_numbers.span(),
-            //     params.max_oracle_block_numbers.span(),
-            //     order.order_type,
-            //     order.updated_at_block,
-            //     position.increased_at_block,
-            //     position.decreased_at_block
-            // );
+            self.validate_oracle_block_numbers(
+                params.min_oracle_block_numbers.span(),
+                params.max_oracle_block_numbers.span(),
+                order.order_type,
+                order.updated_at_block,
+                position.increased_at_block,
+                position.decreased_at_block
+            );
+
             let mut update_position_params: UpdatePositionParams = UpdatePositionParams {
                 contracts: params.contracts,
                 market: params.market,

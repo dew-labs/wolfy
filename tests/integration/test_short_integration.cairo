@@ -50,7 +50,7 @@ use freyr::withdrawal::withdrawal_utils;
 use freyr::withdrawal::withdrawal_vault::{IWithdrawalVaultDispatcher, IWithdrawalVaultDispatcherTrait};
 use result::ResultTrait;
 use snforge_std::{
-    declare, start_cheat_caller_address, stop_cheat_caller_address, start_cheat_block_number, ContractClassTrait,
+    declare, start_cheat_caller_address, stop_cheat_caller_address, start_cheat_block_number_global, ContractClassTrait,
     DeclareResultTrait, ContractClass
 };
 use starknet::{ContractAddress, get_caller_address, Felt252TryIntoContractAddress, contract_address_const, ClassHash,};
@@ -155,8 +155,9 @@ fn test_short_increase_decrease_close() {
     };
     // Create the short order.
     role_store.grant_role(exchange_router.contract_address, role::CONTROLLER);
-    start_cheat_block_number(exchange_router.contract_address, 1930);
+    start_cheat_block_number_global(1930);
     'try to create order'.print();
+
     start_cheat_caller_address(exchange_router.contract_address, caller_address);
     let key_short = exchange_router.create_order(order_params_short);
     'short created'.print();
@@ -168,8 +169,9 @@ fn test_short_increase_decrease_close() {
     assert(balance_caller_USDC == 43000000000000000000000, 'USDC be 43 000 USDC');
 
     // Execute the swap order.
-    start_cheat_block_number(order_handler.contract_address, 1935);
-    exec_order(order_handler, role_store, key_short, 3500, 1);
+    exec_order(order_handler, role_store, key_short, 3500, 1, 1929, 1931);
+
+    start_cheat_block_number_global(1935);
     'short position SUCCEEDED'.print();
 
     let position_key = data_store.get_account_position_keys(caller_address, 0, 10);
@@ -245,15 +247,16 @@ fn test_short_increase_decrease_close() {
     };
     // Create the long order.
     role_store.grant_role(exchange_router.contract_address, role::CONTROLLER);
-    start_cheat_block_number(exchange_router.contract_address, 1960);
+    start_cheat_block_number_global(1960);
     'try to create order'.print();
     start_cheat_caller_address(exchange_router.contract_address, caller_address);
     let key_short_dec_2 = exchange_router.create_order(order_params_short_dec_2);
     'short decrease created'.print();
 
     // Execute the swap order.
-    start_cheat_block_number(order_handler.contract_address, 1965);
-    exec_order(order_handler, role_store, key_short_dec_2, 3000, 1);
+    exec_order(order_handler, role_store, key_short_dec_2, 3000, 1, 1959, 1961);
+
+    start_cheat_block_number_global(1965);
     'Short pos close SUCCEEDED'.print();
 
     let first_position_close = data_store.get_position(position_key_1);

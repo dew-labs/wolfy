@@ -80,12 +80,14 @@ mod SwapOrderUtils {
             if (params.order.market.is_non_zero()) {
                 panic(array![OrderError::UNEXPECTED_MARKET]);
             }
-            // validate_oracle_block_numbers(
-            //     params.min_oracle_block_numbers.span(),
-            //     params.max_oracle_block_numbers.span(),
-            //     params.order.order_type,
-            //     params.order.updated_at_block
-            // );
+
+            self.validate_oracle_block_numbers(
+                params.min_oracle_block_numbers.span(),
+                params.max_oracle_block_numbers.span(),
+                params.order.order_type,
+                params.order.updated_at_block
+            );
+
             let (_output_token, _output_amount) = swap_utils::swap(
                 @swap_utils::SwapParams {
                     data_store: params.contracts.data_store,

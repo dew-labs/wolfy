@@ -137,12 +137,14 @@ mod IncreaseOrderUtils {
                 position.collateral_token = collateral_token;
                 position.is_long = params.order.is_long;
             };
-            // validate_oracle_block_numbers(
-            //     params.min_oracle_block_numbers.span(),
-            //     params.max_oracle_block_numbers.span(),
-            //     params.order.order_type,
-            //     params.order.updated_at_block
-            // );
+
+            self.validate_oracle_block_numbers(
+                params.min_oracle_block_numbers.span(),
+                params.max_oracle_block_numbers.span(),
+                params.order.order_type,
+                params.order.updated_at_block
+            );
+
             increase_position_utils::increase_position(
                 position_utils::UpdatePositionParams {
                     contracts: params.contracts,

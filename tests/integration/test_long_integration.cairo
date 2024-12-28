@@ -50,7 +50,7 @@ use freyr::withdrawal::withdrawal_utils;
 use freyr::withdrawal::withdrawal_vault::{IWithdrawalVaultDispatcher, IWithdrawalVaultDispatcherTrait};
 use result::ResultTrait;
 use snforge_std::{
-    declare, start_cheat_caller_address, stop_cheat_caller_address, start_cheat_block_number, ContractClassTrait,
+    declare, start_cheat_caller_address, stop_cheat_caller_address, start_cheat_block_number_global, ContractClassTrait,
     ContractClass
 };
 use starknet::{ContractAddress, get_caller_address, Felt252TryIntoContractAddress, contract_address_const, ClassHash,};
@@ -145,9 +145,9 @@ fn test_long_increase_decrease_close() {
 
     // Create the long order.
 
-    'try to create prder'.print();
+    'try to create order'.print();
 
-    start_cheat_block_number(exchange_router.contract_address, 1930);
+    start_cheat_block_number_global(1930);
     start_cheat_caller_address(exchange_router.contract_address, caller_address);
 
     let key_long = exchange_router.create_order(order_params_long);
@@ -160,8 +160,9 @@ fn test_long_increase_decrease_close() {
     let max_key_open_interest = keys::max_open_interest_key(market.market_token, true);
     data_store.set_u256(max_key_open_interest, 1000000000000000000000000000000000000000000000000000); // 1 000 000
 
-    start_cheat_block_number(order_handler.contract_address, 1935);
-    exec_order(order_handler, role_store, key_long, 3500, 1);
+    exec_order(order_handler, role_store, key_long, 3500, 1, 1929, 1931);
+
+    start_cheat_block_number_global(1935);
     'long position SUCCEEDED'.print();
 
     let position_key = data_store.get_account_position_keys(caller_address, 0, 10);
@@ -213,15 +214,16 @@ fn test_long_increase_decrease_close() {
     };
     // Create the long order.
     role_store.grant_role(exchange_router.contract_address, role::CONTROLLER);
-    start_cheat_block_number(exchange_router.contract_address, 1940);
+    start_cheat_block_number_global(1940);
     'try to create order'.print();
     start_cheat_caller_address(exchange_router.contract_address, caller_address);
     let key_long_inc = exchange_router.create_order(order_params_long_inc);
     'Long increase created'.print();
 
     // Execute the swap order.
-    start_cheat_block_number(order_handler.contract_address, 1945);
-    exec_order(order_handler, role_store, key_long_inc, 3850, 1);
+    exec_order(order_handler, role_store, key_long_inc, 3850, 1, 1939, 1941);
+
+    start_cheat_block_number_global(1945);
     'long pos inc SUCCEEDED'.print();
 
     let position_key = data_store.get_account_position_keys(caller_address, 0, 10);
@@ -280,15 +282,16 @@ fn test_long_increase_decrease_close() {
     };
     // Create the long order.
     role_store.grant_role(exchange_router.contract_address, role::CONTROLLER);
-    start_cheat_block_number(exchange_router.contract_address, 1950);
+    start_cheat_block_number_global(1950);
     'try to create order'.print();
     start_cheat_caller_address(exchange_router.contract_address, caller_address);
     let key_long_dec = exchange_router.create_order(order_params_long_dec);
     'long decrease created'.print();
 
     // Execute the swap order.
-    start_cheat_block_number(order_handler.contract_address, 1955);
-    exec_order(order_handler, role_store, key_long_dec, 3850, 1);
+    exec_order(order_handler, role_store, key_long_dec, 3850, 1, 1949, 1951);
+
+    start_cheat_block_number_global(1955);
     'long pos dec SUCCEEDED'.print();
 
     // Recieved 2974.999 USDC
@@ -364,15 +367,16 @@ fn test_long_increase_decrease_close() {
     };
     // Create the long order.
     role_store.grant_role(exchange_router.contract_address, role::CONTROLLER);
-    start_cheat_block_number(exchange_router.contract_address, 1960);
+    start_cheat_block_number_global(1960);
     'try to create order'.print();
     start_cheat_caller_address(exchange_router.contract_address, caller_address);
     let key_long_dec_2 = exchange_router.create_order(order_params_long_dec_2);
     'long decrease created'.print();
 
     // Execute the swap order.
-    start_cheat_block_number(order_handler.contract_address, 1965);
-    exec_order(order_handler, role_store, key_long_dec_2, 4000, 1);
+    exec_order(order_handler, role_store, key_long_dec_2, 4000, 1, 1959, 1961);
+
+    start_cheat_block_number_global(1965);
     'Long pos close SUCCEEDED'.print();
 
     let first_position_close = data_store.get_position(position_key_1);
@@ -489,15 +493,16 @@ fn test_takeprofit_long() {
     };
     // Create the swap order.
     role_store.grant_role(exchange_router.contract_address, role::CONTROLLER);
-    start_cheat_block_number(exchange_router.contract_address, 1930);
-    'try to create prder'.print();
+    start_cheat_block_number_global(1930);
+    'try to create order'.print();
     start_cheat_caller_address(exchange_router.contract_address, caller_address);
     let key_long = exchange_router.create_order(order_params_long);
     'long created'.print();
 
     // Execute the swap order.
-    start_cheat_block_number(order_handler.contract_address, 1935);
-    exec_order(order_handler, role_store, key_long, 3500, 1);
+    exec_order(order_handler, role_store, key_long, 3500, 1, 1929, 1931);
+
+    start_cheat_block_number_global(1935);
     'long position SUCCEEDED'.print();
 
     let position_key = data_store.get_account_position_keys(caller_address, 0, 10);
@@ -550,16 +555,16 @@ fn test_takeprofit_long() {
 
     // Create the long order.
     role_store.grant_role(exchange_router.contract_address, role::CONTROLLER);
-    start_cheat_block_number(exchange_router.contract_address, 1940);
+    start_cheat_block_number_global(1940);
     'try to create order'.print();
     start_cheat_caller_address(exchange_router.contract_address, caller_address);
     let key_long_inc = exchange_router.create_order(order_params_long_inc);
     'Long increase created'.print();
 
     // Execute the swap order.
-    start_cheat_block_number(order_handler.contract_address, 1945);
+    start_cheat_block_number_global(1945);
     // ERR
-    exec_order(order_handler, role_store, key_long_inc, 3850, 1);
+    exec_order(order_handler, role_store, key_long_inc, 3850, 1, 1944, 1946);
     'long pos inc SUCCEEDED'.print();
 
     let position_key = data_store.get_account_position_keys(caller_address, 0, 10);
@@ -620,7 +625,7 @@ fn test_takeprofit_long() {
     };
     // Create the long order.
     role_store.grant_role(exchange_router.contract_address, role::CONTROLLER);
-    start_cheat_block_number(exchange_router.contract_address, 1950);
+    start_cheat_block_number_global(1950);
     'try to create order'.print();
     start_cheat_caller_address(exchange_router.contract_address, caller_address);
     let key_long_dec = exchange_router.create_order(order_params_long_dec);
@@ -628,8 +633,8 @@ fn test_takeprofit_long() {
     let _got_order_long_dec = data_store.get_order(key_long_dec);
 
     // Execute the swap order.
-    start_cheat_block_number(order_handler.contract_address, 1955);
-    exec_order(order_handler, role_store, key_long_dec, 3950, 1);
+    start_cheat_block_number_global(1955);
+    exec_order(order_handler, role_store, key_long_dec, 3950, 1, 1954, 1956);
     'long pos dec SUCCEEDED'.print();
 
     // Recieved 2974.999 USDC
@@ -705,15 +710,15 @@ fn test_takeprofit_long() {
     };
     // Create the long order.
     role_store.grant_role(exchange_router.contract_address, role::CONTROLLER);
-    start_cheat_block_number(exchange_router.contract_address, 1960);
+    start_cheat_block_number_global(1960);
     'try to create order'.print();
     start_cheat_caller_address(exchange_router.contract_address, caller_address);
     let key_long_dec_2 = exchange_router.create_order(order_params_long_dec_2);
     'long decrease created'.print();
 
     // Execute the swap order.
-    start_cheat_block_number(order_handler.contract_address, 1965);
-    exec_order(order_handler, role_store, key_long_dec_2, 4000, 1);
+    start_cheat_block_number_global(1965);
+    exec_order(order_handler, role_store, key_long_dec_2, 4000, 1, 1964, 1966);
     'Long pos close SUCCEEDED'.print();
 
     let first_position_close = data_store.get_position(position_key_1);
@@ -832,15 +837,16 @@ fn test_takeprofit_long_increase_fails() {
     };
     // Create the swap order.
     role_store.grant_role(exchange_router.contract_address, role::CONTROLLER);
-    start_cheat_block_number(exchange_router.contract_address, 1930);
-    'try to create prder'.print();
+    start_cheat_block_number_global(1930);
+    'try to create order'.print();
     start_cheat_caller_address(exchange_router.contract_address, caller_address);
     let key_long = exchange_router.create_order(order_params_long);
     'long created'.print();
 
     // Execute the swap order.
-    start_cheat_block_number(order_handler.contract_address, 1935);
-    exec_order(order_handler, role_store, key_long, 3500, 1);
+    exec_order(order_handler, role_store, key_long, 3500, 1, 1929, 1931);
+
+    start_cheat_block_number_global(1935);
     'long position SUCCEEDED'.print();
 
     let position_key = data_store.get_account_position_keys(caller_address, 0, 10);
@@ -893,15 +899,15 @@ fn test_takeprofit_long_increase_fails() {
 
     // Create the long order.
     role_store.grant_role(exchange_router.contract_address, role::CONTROLLER);
-    start_cheat_block_number(exchange_router.contract_address, 1940);
+    start_cheat_block_number_global(1940);
     'try to create order'.print();
     start_cheat_caller_address(exchange_router.contract_address, caller_address);
     let key_long_inc = exchange_router.create_order(order_params_long_inc);
     'Long increase created'.print();
 
     // Execute the swap order.
-    start_cheat_block_number(order_handler.contract_address, 1945);
-    exec_order(order_handler, role_store, key_long_inc, 3860, 1);
+    start_cheat_block_number_global(1945);
+    exec_order(order_handler, role_store, key_long_inc, 3860, 1, 1944, 1946);
     'long pos inc SUCCEEDED'.print();
 
     let position_key = data_store.get_account_position_keys(caller_address, 0, 10);
@@ -962,15 +968,15 @@ fn test_takeprofit_long_increase_fails() {
     };
     // Create the long order.
     role_store.grant_role(exchange_router.contract_address, role::CONTROLLER);
-    start_cheat_block_number(exchange_router.contract_address, 1950);
+    start_cheat_block_number_global(1950);
     'try to create order'.print();
     start_cheat_caller_address(exchange_router.contract_address, caller_address);
     let key_long_dec = exchange_router.create_order(order_params_long_dec);
     'long decrease created'.print();
 
     // Execute the swap order.
-    start_cheat_block_number(order_handler.contract_address, 1955);
-    exec_order(order_handler, role_store, key_long_dec, 3950, 1);
+    start_cheat_block_number_global(1955);
+    exec_order(order_handler, role_store, key_long_dec, 3950, 1, 1954, 1956);
     'long pos dec SUCCEEDED'.print();
 
     // Recieved 2974.999 USDC
@@ -1046,15 +1052,15 @@ fn test_takeprofit_long_increase_fails() {
     };
     // Create the long order.
     role_store.grant_role(exchange_router.contract_address, role::CONTROLLER);
-    start_cheat_block_number(exchange_router.contract_address, 1960);
+    start_cheat_block_number_global(1960);
     'try to create order'.print();
     start_cheat_caller_address(exchange_router.contract_address, caller_address);
     let key_long_dec_2 = exchange_router.create_order(order_params_long_dec_2);
     'long decrease created'.print();
 
     // Execute the swap order.
-    start_cheat_block_number(order_handler.contract_address, 1965);
-    exec_order(order_handler, role_store, key_long_dec_2, 4000, 1);
+    start_cheat_block_number_global(1965);
+    exec_order(order_handler, role_store, key_long_dec_2, 4000, 1, 1964, 1966);
     'Long pos close SUCCEEDED'.print();
 
     let first_position_close = data_store.get_position(position_key_1);
@@ -1173,15 +1179,16 @@ fn test_takeprofit_long_decrease_fails() {
     };
     // Create the swap order.
     role_store.grant_role(exchange_router.contract_address, role::CONTROLLER);
-    start_cheat_block_number(exchange_router.contract_address, 1930);
-    'try to create prder'.print();
+    start_cheat_block_number_global(1930);
+    'try to create order'.print();
     start_cheat_caller_address(exchange_router.contract_address, caller_address);
     let key_long = exchange_router.create_order(order_params_long);
     'long created'.print();
 
     // Execute the swap order.
-    start_cheat_block_number(order_handler.contract_address, 1935);
-    exec_order(order_handler, role_store, key_long, 3500, 1);
+    exec_order(order_handler, role_store, key_long, 3500, 1, 1929, 1931);
+
+    start_cheat_block_number_global(1935);
     'long position SUCCEEDED'.print();
 
     let position_key = data_store.get_account_position_keys(caller_address, 0, 10);
@@ -1234,15 +1241,15 @@ fn test_takeprofit_long_decrease_fails() {
 
     // Create the long order.
     role_store.grant_role(exchange_router.contract_address, role::CONTROLLER);
-    start_cheat_block_number(exchange_router.contract_address, 1940);
+    start_cheat_block_number_global(1940);
     'try to create order'.print();
     start_cheat_caller_address(exchange_router.contract_address, caller_address);
     let key_long_inc = exchange_router.create_order(order_params_long_inc);
     'Long increase created'.print();
 
     // Execute the swap order.
-    start_cheat_block_number(order_handler.contract_address, 1945);
-    exec_order(order_handler, role_store, key_long_inc, 3850, 1);
+    start_cheat_block_number_global(1945);
+    exec_order(order_handler, role_store, key_long_inc, 3850, 1, 1944, 1946);
     'long pos inc SUCCEEDED'.print();
 
     let position_key = data_store.get_account_position_keys(caller_address, 0, 10);
@@ -1303,15 +1310,15 @@ fn test_takeprofit_long_decrease_fails() {
     };
     // Create the long order.
     role_store.grant_role(exchange_router.contract_address, role::CONTROLLER);
-    start_cheat_block_number(exchange_router.contract_address, 1950);
+    start_cheat_block_number_global(1950);
     'try to create order'.print();
     start_cheat_caller_address(exchange_router.contract_address, caller_address);
     let key_long_dec = exchange_router.create_order(order_params_long_dec);
     'long decrease created'.print();
 
     // Execute the swap order.
-    start_cheat_block_number(order_handler.contract_address, 1955);
-    exec_order(order_handler, role_store, key_long_dec, 3940, 1);
+    start_cheat_block_number_global(1955);
+    exec_order(order_handler, role_store, key_long_dec, 3940, 1, 1954, 1956);
     'long pos dec SUCCEEDED'.print();
 
     // Recieved 2974.999 USDC
@@ -1387,14 +1394,14 @@ fn test_takeprofit_long_decrease_fails() {
     };
     // Create the long order.
     role_store.grant_role(exchange_router.contract_address, role::CONTROLLER);
-    start_cheat_block_number(exchange_router.contract_address, 1960);
+    start_cheat_block_number_global(1960);
     'try to create order'.print();
     start_cheat_caller_address(exchange_router.contract_address, caller_address);
     let key_long_dec_2 = exchange_router.create_order(order_params_long_dec_2);
     'long decrease created'.print();
     // Execute the swap order.
-    start_cheat_block_number(order_handler.contract_address, 1965);
-    exec_order(order_handler, role_store, key_long_dec_2, 4000, 1);
+    start_cheat_block_number_global(1965);
+    exec_order(order_handler, role_store, key_long_dec_2, 4000, 1, 1964, 1966);
     'Long pos close SUCCEEDED'.print();
 
     let first_position_close = data_store.get_position(position_key_1);
@@ -1513,15 +1520,16 @@ fn test_takeprofit_long_close_fails() {
     };
     // Create the swap order.
     role_store.grant_role(exchange_router.contract_address, role::CONTROLLER);
-    start_cheat_block_number(exchange_router.contract_address, 1930);
-    'try to create prder'.print();
+    start_cheat_block_number_global(1930);
+    'try to create order'.print();
     start_cheat_caller_address(exchange_router.contract_address, caller_address);
     let key_long = exchange_router.create_order(order_params_long);
     'long created'.print();
 
     // Execute the swap order.
-    start_cheat_block_number(order_handler.contract_address, 1935);
-    exec_order(order_handler, role_store, key_long, 3500, 1);
+    exec_order(order_handler, role_store, key_long, 3500, 1, 1929, 1931);
+
+    start_cheat_block_number_global(1935);
     'long position SUCCEEDED'.print();
 
     let position_key = data_store.get_account_position_keys(caller_address, 0, 10);
@@ -1574,15 +1582,15 @@ fn test_takeprofit_long_close_fails() {
 
     // Create the long order.
     role_store.grant_role(exchange_router.contract_address, role::CONTROLLER);
-    start_cheat_block_number(exchange_router.contract_address, 1940);
+    start_cheat_block_number_global(1940);
     'try to create order'.print();
     start_cheat_caller_address(exchange_router.contract_address, caller_address);
     let key_long_inc = exchange_router.create_order(order_params_long_inc);
     'Long increase created'.print();
 
     // Execute the swap order.
-    start_cheat_block_number(order_handler.contract_address, 1945);
-    exec_order(order_handler, role_store, key_long_inc, 3850, 1);
+    start_cheat_block_number_global(1945);
+    exec_order(order_handler, role_store, key_long_inc, 3850, 1, 1944, 1946);
     'long pos inc SUCCEEDED'.print();
 
     let position_key = data_store.get_account_position_keys(caller_address, 0, 10);
@@ -1643,15 +1651,15 @@ fn test_takeprofit_long_close_fails() {
     };
     // Create the long order.
     role_store.grant_role(exchange_router.contract_address, role::CONTROLLER);
-    start_cheat_block_number(exchange_router.contract_address, 1950);
+    start_cheat_block_number_global(1950);
     'try to create order'.print();
     start_cheat_caller_address(exchange_router.contract_address, caller_address);
     let key_long_dec = exchange_router.create_order(order_params_long_dec);
     'long decrease created'.print();
 
     // Execute the swap order.
-    start_cheat_block_number(order_handler.contract_address, 1955);
-    exec_order(order_handler, role_store, key_long_dec, 3950, 1);
+    start_cheat_block_number_global(1955);
+    exec_order(order_handler, role_store, key_long_dec, 3950, 1, 1954, 1956);
     'long pos dec SUCCEEDED'.print();
 
     // Recieved 2974.999 USDC
@@ -1727,15 +1735,15 @@ fn test_takeprofit_long_close_fails() {
     };
     // Create the long order.
     role_store.grant_role(exchange_router.contract_address, role::CONTROLLER);
-    start_cheat_block_number(exchange_router.contract_address, 1960);
+    start_cheat_block_number_global(1960);
     'try to create order'.print();
     start_cheat_caller_address(exchange_router.contract_address, caller_address);
     let key_long_dec_2 = exchange_router.create_order(order_params_long_dec_2);
     'long decrease created'.print();
 
     // Execute the swap order.
-    start_cheat_block_number(order_handler.contract_address, 1965);
-    exec_order(order_handler, role_store, key_long_dec_2, 3990, 1);
+    start_cheat_block_number_global(1965);
+    exec_order(order_handler, role_store, key_long_dec_2, 3990, 1, 1964, 1966);
     'Long pos close SUCCEEDED'.print();
 
     let first_position_close = data_store.get_position(position_key_1);
@@ -1853,15 +1861,16 @@ fn test_long_liquidation() {
     };
     // Create the swap order.
     role_store.grant_role(exchange_router.contract_address, role::CONTROLLER);
-    start_cheat_block_number(exchange_router.contract_address, 1930);
-    'try to create prder'.print();
+    start_cheat_block_number_global(1930);
+    'try to create order'.print();
     start_cheat_caller_address(exchange_router.contract_address, caller_address);
     let key_long = exchange_router.create_order(order_params_long);
     'long created'.print();
 
     // Execute the swap order.
-    start_cheat_block_number(order_handler.contract_address, 1935);
-    exec_order(order_handler, role_store, key_long, 3500, 1);
+    exec_order(order_handler, role_store, key_long, 3500, 1, 1929, 1931);
+
+    start_cheat_block_number_global(1935);
     'long position SUCCEEDED'.print();
 
     let balance_ETH = IERC20Dispatcher { contract_address: contract_address_const::<'ETH'>() }
@@ -1940,12 +1949,14 @@ fn test_long_liquidation() {
 
     assert(is_liquiditable == false, 'Position is not liquidable');
 
+    start_cheat_block_number_global(1935);
+
     let _signatures: Span<felt252> = array![0].span();
     let set_price_params = SetPricesParams {
         signer_info: 0,
         tokens: array![contract_address_const::<'ETH'>(), contract_address_const::<'USDC'>()],
-        compacted_min_oracle_block_numbers: array![1910, 1910],
-        compacted_max_oracle_block_numbers: array![1920, 1920],
+        compacted_min_oracle_block_numbers: array![1934, 1934],
+        compacted_max_oracle_block_numbers: array![1936, 1936],
         compacted_oracle_timestamps: array![9999, 9999],
         compacted_decimals: array![1, 1],
         compacted_min_prices: array![2147483648010000], // 500000, 10000 compacted
@@ -2095,15 +2106,16 @@ fn test_long_leverage_positif_close() {
     };
     // Create the swap order.
     role_store.grant_role(exchange_router.contract_address, role::CONTROLLER);
-    start_cheat_block_number(exchange_router.contract_address, 1930);
-    'try to create prder'.print();
+    start_cheat_block_number_global(1930);
+    'try to create order'.print();
     start_cheat_caller_address(exchange_router.contract_address, caller_address);
     let key_long = exchange_router.create_order(order_params_long);
     'long created'.print();
 
     // Execute the swap order.
-    start_cheat_block_number(order_handler.contract_address, 1935);
-    exec_order(order_handler, role_store, key_long, 3500, 1);
+    exec_order(order_handler, role_store, key_long, 3500, 1, 1929, 1931);
+
+    start_cheat_block_number_global(1935);
     'long position SUCCEEDED'.print();
 
     let position_key = data_store.get_account_position_keys(caller_address, 0, 10);
@@ -2167,15 +2179,16 @@ fn test_long_leverage_positif_close() {
     };
     // Create the long order.
     role_store.grant_role(exchange_router.contract_address, role::CONTROLLER);
-    start_cheat_block_number(exchange_router.contract_address, 1960);
+    start_cheat_block_number_global(1960);
     'try to create order'.print();
     start_cheat_caller_address(exchange_router.contract_address, caller_address);
     let key_long_dec_2 = exchange_router.create_order(order_params_long_dec_2);
     'long decrease created'.print();
 
     // Execute the swap order.
-    start_cheat_block_number(order_handler.contract_address, 1965);
-    exec_order(order_handler, role_store, key_long_dec_2, 3850, 1);
+    exec_order(order_handler, role_store, key_long_dec_2, 3850, 1, 1959, 1961);
+
+    start_cheat_block_number_global(1965);
     'Long pos close SUCCEEDED'.print();
 
     let first_position_close = data_store.get_position(position_key_1);
@@ -2293,15 +2306,16 @@ fn test_long_leverage_liquidation() {
     };
     // Create the swap order.
     role_store.grant_role(exchange_router.contract_address, role::CONTROLLER);
-    start_cheat_block_number(exchange_router.contract_address, 1930);
-    'try to create prder'.print();
+    start_cheat_block_number_global(1930);
+    'try to create order'.print();
     start_cheat_caller_address(exchange_router.contract_address, caller_address);
     let key_long = exchange_router.create_order(order_params_long);
     'long created'.print();
 
     // Execute the swap order.
-    start_cheat_block_number(order_handler.contract_address, 1935);
-    exec_order(order_handler, role_store, key_long, 3500, 1);
+    exec_order(order_handler, role_store, key_long, 3500, 1, 1929, 1931);
+
+    start_cheat_block_number_global(1935);
     'long position SUCCEEDED'.print();
 
     let position_key = data_store.get_account_position_keys(caller_address, 0, 10);
@@ -2362,12 +2376,14 @@ fn test_long_leverage_liquidation() {
     // position x10 leverage is liquidable at 3000$, position x1 leverage is not liquidable at 3000$
     assert(is_liquiditable == true, 'Position is liquidable');
 
+    start_cheat_block_number_global(1935);
+
     let _signatures: Span<felt252> = array![0].span();
     let set_price_params = SetPricesParams {
         signer_info: 0,
         tokens: array![contract_address_const::<'ETH'>(), contract_address_const::<'USDC'>()],
-        compacted_min_oracle_block_numbers: array![1910, 1910],
-        compacted_max_oracle_block_numbers: array![1920, 1920],
+        compacted_min_oracle_block_numbers: array![1934, 1934],
+        compacted_max_oracle_block_numbers: array![1936, 1936],
         compacted_oracle_timestamps: array![9999, 9999],
         compacted_decimals: array![1, 1],
         compacted_min_prices: array![2147483648010000], // 500000, 10000 compacted
@@ -2516,9 +2532,9 @@ fn test_long_increase_then_cancel() {
 
     // Create the long order.
 
-    'try to create prder'.print();
+    'try to create order'.print();
 
-    start_cheat_block_number(exchange_router.contract_address, 1930);
+    start_cheat_block_number_global(1930);
     start_cheat_caller_address(exchange_router.contract_address, caller_address);
 
     let key_long = exchange_router.create_order(order_params_long);
@@ -2526,7 +2542,7 @@ fn test_long_increase_then_cancel() {
 
     // cancel the long order.
 
-    start_cheat_block_number(order_handler.contract_address, 2001);
+    start_cheat_block_number_global(2001);
     start_cheat_caller_address(order_handler.contract_address, caller_address);
 
     order_handler.cancel_order(key_long);

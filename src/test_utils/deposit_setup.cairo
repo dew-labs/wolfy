@@ -328,14 +328,16 @@ fn exec_order(
     role_store: IRoleStoreDispatcher,
     key: felt252,
     long_token_price: u256,
-    short_token_price: u256
+    short_token_price: u256,
+    min_oracle_block_number: u64,
+    max_oracle_block_number: u64
 ) -> () {
     let _signatures: Span<felt252> = array![0].span();
     let set_price_params = SetPricesParams {
         signer_info: 0,
         tokens: array![contract_address_const::<'ETH'>(), contract_address_const::<'USDC'>()],
-        compacted_min_oracle_block_numbers: array![1910, 1910],
-        compacted_max_oracle_block_numbers: array![1920, 1920],
+        compacted_min_oracle_block_numbers: array![min_oracle_block_number, min_oracle_block_number],
+        compacted_max_oracle_block_numbers: array![max_oracle_block_number, max_oracle_block_number],
         compacted_oracle_timestamps: array![9999, 9999],
         compacted_decimals: array![1, 1],
         compacted_min_prices: array![2147483648010000], // 500000, 10000 compacted
