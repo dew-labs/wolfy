@@ -6,7 +6,7 @@
 
 // Core lib imports.
 use core::traits::Into;
-use starknet::{ContractAddress, ClassHash};
+use starknet::{ClassHash, ContractAddress};
 
 // *************************************************************************
 //                  Interface of the `Bank` contract.
@@ -21,7 +21,7 @@ trait IBank<TContractState> {
         ref self: TContractState,
         data_store_address: ContractAddress,
         role_store_address: ContractAddress,
-        role_module_class_hash: ClassHash
+        role_module_class_hash: ClassHash,
     );
 
     /// Transfer tokens from this contract to a receiver.
@@ -51,11 +51,11 @@ mod Bank {
     // Local imports.
     use freyr::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
     use freyr::role::role;
-    use freyr::role::role_module::{IRoleModuleLibraryDispatcher, IRoleModuleDispatcherTrait};
+    use freyr::role::role_module::{IRoleModuleDispatcherTrait, IRoleModuleLibraryDispatcher};
     use freyr::role::role_store::{IRoleStoreDispatcher};
     use freyr::token::erc20::interface::{IERC20, IERC20Dispatcher, IERC20DispatcherTrait};
     use freyr::token::token_utils::transfer;
-    use starknet::{get_caller_address, get_contract_address, ContractAddress, ClassHash};
+    use starknet::{ClassHash, ContractAddress, get_caller_address, get_contract_address};
     use super::IBank;
 
     // *************************************************************************
@@ -78,7 +78,7 @@ mod Bank {
             ref self: ContractState,
             data_store_address: ContractAddress,
             role_store_address: ContractAddress,
-            role_module_class_hash: ClassHash
+            role_module_class_hash: ClassHash,
         ) {
             // Make sure the contract is not already initialized.
             assert(self.data_store.read().contract_address.is_zero(), BankError::ALREADY_INITIALIZED);

@@ -32,7 +32,7 @@ mod PositionError {
 
     fn INSUFFICIENT_FUNDS_TO_PAY_FOR_COSTS(remaining_cost_usd: u256, step: felt252) {
         let mut data = array![
-            'InsufficientFundsToPayForCosts', remaining_cost_usd.try_into().expect('u256 into felt failed'), step
+            'InsufficientFundsToPayForCosts', remaining_cost_usd.try_into().expect('u256 into felt failed'), step,
         ];
         panic(data);
     }
@@ -41,7 +41,7 @@ mod PositionError {
         let mut data = array![
             'Insufficient collateral amount',
             collateral_amount.try_into().expect('u256 into felt failed'),
-            collateral_delta_amount.into()
+            collateral_delta_amount.into(),
         ];
         panic(data);
     }
@@ -53,7 +53,7 @@ mod PositionError {
 
     fn PRICE_IMPACT_LARGER_THAN_ORDER_SIZE(price_impact_usd: i256, size_delta_usd: u256) {
         let mut data = array![
-            'Price impact larger order size', size_delta_usd.try_into().expect('u256 into felt failed')
+            'Price impact larger order size', size_delta_usd.try_into().expect('u256 into felt failed'),
         ];
         panic(data);
     }

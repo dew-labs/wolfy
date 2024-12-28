@@ -3,18 +3,18 @@
 use freyr::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
 use freyr::data::keys;
 use freyr::deposit::{
-    deposit::Deposit, deposit_utils::CreateDepositParams, deposit_utils::create_deposit, deposit_utils::cancel_deposit,
-    deposit_vault::{IDepositVaultDispatcher, IDepositVaultDispatcherTrait}
+    deposit::Deposit, deposit_utils::CreateDepositParams, deposit_utils::cancel_deposit, deposit_utils::create_deposit,
+    deposit_vault::{IDepositVaultDispatcher, IDepositVaultDispatcherTrait},
 };
 use freyr::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
 use freyr::market::market::Market;
-use freyr::market::market_utils::{IMarketUtilsLibraryDispatcher, IMarketUtilsDispatcherTrait};
+use freyr::market::market_utils::{IMarketUtilsDispatcherTrait, IMarketUtilsLibraryDispatcher};
 use freyr::role::role;
 use freyr::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
 use freyr::test_utils::tests_lib;
-use freyr::utils::span32::{Span32, Array32Trait};
+use freyr::utils::span32::{Array32Trait, Span32};
 
-use snforge_std::{declare, start_cheat_caller_address, ContractClassTrait, DeclareResultTrait};
+use snforge_std::{ContractClassTrait, DeclareResultTrait, declare, start_cheat_caller_address};
 use starknet::{ContractAddress, contract_address_const};
 
 
@@ -68,7 +68,7 @@ fn setup() -> (
     IRoleStoreDispatcher,
     IEventEmitterDispatcher,
     IDepositVaultDispatcher,
-    IMarketUtilsLibraryDispatcher
+    IMarketUtilsLibraryDispatcher,
 ) {
     let (
         caller_address,
@@ -130,12 +130,12 @@ fn create_dummy_deposit_param() -> CreateDepositParams {
         /// The execution fee for keepers.
         execution_fee: 1,
         /// The gas limit for the callback_contract.
-        callback_gas_limit: 20
+        callback_gas_limit: 20,
     }
 }
 
 fn create_dummy_deposit_param_market(
-    data_store: IDataStoreDispatcher, role_store: IRoleStoreDispatcher
+    data_store: IDataStoreDispatcher, role_store: IRoleStoreDispatcher,
 ) -> CreateDepositParams {
     let key: ContractAddress = 12345.try_into().unwrap();
     let address_zero: ContractAddress = 42.try_into().unwrap();
@@ -171,6 +171,6 @@ fn create_dummy_deposit_param_market(
         /// The execution fee for keepers.
         execution_fee: 1,
         /// The gas limit for the callback_contract.
-        callback_gas_limit: 20
+        callback_gas_limit: 20,
     }
 }

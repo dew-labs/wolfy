@@ -9,10 +9,10 @@ use debug::PrintTrait;
 use freyr::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
 use freyr::data::keys;
 use freyr::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
-use freyr::market::market::{Market, UniqueIdMarket, IntoMarketToken};
+use freyr::market::market::{IntoMarketToken, Market, UniqueIdMarket};
 use freyr::market::market_factory::{IMarketFactoryDispatcher, IMarketFactoryDispatcherTrait};
 use freyr::market::market_token::{IMarketTokenDispatcher, IMarketTokenDispatcherTrait};
-use freyr::market::market_utils::{IMarketUtilsLibraryDispatcher, IMarketUtilsDispatcherTrait};
+use freyr::market::market_utils::{IMarketUtilsDispatcherTrait, IMarketUtilsLibraryDispatcher};
 
 use freyr::price::price::{Price, PriceTrait};
 use freyr::role::role;
@@ -21,11 +21,11 @@ use freyr::test_utils::tests_lib;
 use freyr::utils::i256::{i256, i256_new};
 use result::ResultTrait;
 use snforge_std::{
-    declare, start_cheat_caller_address, stop_cheat_caller_address, start_cheat_block_timestamp_global,
-    stop_cheat_block_timestamp_global, ContractClassTrait, DeclareResultTrait, ContractClass
+    ContractClass, ContractClassTrait, DeclareResultTrait, declare, start_cheat_block_timestamp_global,
+    start_cheat_caller_address, stop_cheat_block_timestamp_global, stop_cheat_caller_address,
 };
-use starknet::{ContractAddress, get_caller_address, Felt252TryIntoContractAddress, contract_address_const, ClassHash,};
-use traits::{TryInto, Into};
+use starknet::{ClassHash, ContractAddress, Felt252TryIntoContractAddress, contract_address_const, get_caller_address};
+use traits::{Into, TryInto};
 
 #[test]
 fn given_normal_conditions_when_get_open_interest_then_works() {
@@ -68,7 +68,7 @@ fn given_normal_conditions_when_get_open_interest_then_works() {
     let divisor = 3;
 
     let open_interest_data_store_key = keys::open_interest_key(
-        market_token_deployed_address, collateral_token, is_long
+        market_token_deployed_address, collateral_token, is_long,
     );
     data_store.set_u256(open_interest_data_store_key, 300);
 
@@ -169,13 +169,13 @@ fn given_normal_conditions_when_get_open_interest_in_tokens_for_market_then_work
 
     // Set open interest for long token.
     let open_interest_in_tokens_key_for_long = keys::open_interest_in_tokens_key(
-        market_token_address, market.long_token, is_long
+        market_token_address, market.long_token, is_long,
     );
     data_store.set_u256(open_interest_in_tokens_key_for_long, 100);
 
     // Set open interest for short token.
     let open_interest_in_tokens_key_for_short = keys::open_interest_in_tokens_key(
-        market_token_address, market.short_token, is_long
+        market_token_address, market.short_token, is_long,
     );
     data_store.set_u256(open_interest_in_tokens_key_for_short, 200);
 
@@ -491,12 +491,12 @@ fn given_normal_conditions_when_get_pool_divisor_then_works() {
     // long token == short token, should return 2.
     assert(
         market_utils.get_pool_divisor(contract_address_const::<1>(), contract_address_const::<1>()) == 2,
-        'wrong pool divisor'
+        'wrong pool divisor',
     );
     // long token != short token, should return 1.
     assert(
         market_utils.get_pool_divisor(contract_address_const::<1>(), contract_address_const::<2>()) == 1,
-        'wrong pool divisor'
+        'wrong pool divisor',
     );
     // *********************************************************************************************
     // *                              TEARDOWN                                                     *
@@ -550,13 +550,13 @@ fn given_normal_conditions_when_get_pnl_then_works() {
 
     // Set open interest in tokens for long token.
     let open_interest_in_tokens_key_for_long = keys::open_interest_in_tokens_key(
-        market_token_address, market.long_token, is_long
+        market_token_address, market.long_token, is_long,
     );
     data_store.set_u256(open_interest_in_tokens_key_for_long, 200);
 
     // Set open interest in tokens for short token.
     let open_interest_in_tokens_key_for_short = keys::open_interest_in_tokens_key(
-        market_token_address, market.short_token, is_long
+        market_token_address, market.short_token, is_long,
     );
     data_store.set_u256(open_interest_in_tokens_key_for_short, 250);
 
@@ -618,13 +618,13 @@ fn given_zero_open_interest_when_get_pnl_then_returns_zero_pnl() {
 
     // Set open interest in tokens for long token.
     let open_interest_in_tokens_key_for_long = keys::open_interest_in_tokens_key(
-        market_token_address, market.long_token, is_long
+        market_token_address, market.long_token, is_long,
     );
     data_store.set_u256(open_interest_in_tokens_key_for_long, 200);
 
     // Set open interest in tokens for short token.
     let open_interest_in_tokens_key_for_short = keys::open_interest_in_tokens_key(
-        market_token_address, market.short_token, is_long
+        market_token_address, market.short_token, is_long,
     );
     data_store.set_u256(open_interest_in_tokens_key_for_short, 250);
 
@@ -686,13 +686,13 @@ fn given_zero_open_interest_in_tokens_when_get_pnl_then_returns_zero_pnl() {
 
     // Set open interest in tokens for long token.
     let open_interest_in_tokens_key_for_long = keys::open_interest_in_tokens_key(
-        market_token_address, market.long_token, is_long
+        market_token_address, market.long_token, is_long,
     );
     data_store.set_u256(open_interest_in_tokens_key_for_long, 0);
 
     // Set open interest in tokens for short token.
     let open_interest_in_tokens_key_for_short = keys::open_interest_in_tokens_key(
-        market_token_address, market.short_token, is_long
+        market_token_address, market.short_token, is_long,
     );
     data_store.set_u256(open_interest_in_tokens_key_for_short, 0);
 
@@ -787,7 +787,7 @@ fn given_normal_conditions_when_get_swap_impact_pool_amount_then_works() {
     data_store.set_u256(swap_impact_pool_amount_key, 1000);
 
     // Actual test case.
-    let swap_impact_pool_amount = market_utils.get_swap_impact_pool_amount(data_store, market_token_address, token,);
+    let swap_impact_pool_amount = market_utils.get_swap_impact_pool_amount(data_store, market_token_address, token);
 
     // Perform assertions.
 

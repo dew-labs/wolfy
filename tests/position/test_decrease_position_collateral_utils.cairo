@@ -8,23 +8,23 @@ use debug::PrintTrait;
 use freyr::data::{data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait}, keys};
 use freyr::event::event_emitter::IEventEmitterDispatcher;
 use freyr::market::market::Market;
-use freyr::market::market_utils::{IMarketUtilsLibraryDispatcher, IMarketUtilsDispatcherTrait, MarketPrices};
+use freyr::market::market_utils::{IMarketUtilsDispatcherTrait, IMarketUtilsLibraryDispatcher, MarketPrices};
 use freyr::mock::referral_storage::IReferralStorageDispatcher;
 use freyr::oracle::oracle::IOracleDispatcher;
 use freyr::order::{
-    order::{DecreasePositionSwapType, Order, OrderType, SecondaryOrderType},
-    base_order_utils::{ExecuteOrderParams, ExecuteOrderParamsContracts}, order_vault::IOrderVaultDispatcher
+    base_order_utils::{ExecuteOrderParams, ExecuteOrderParamsContracts},
+    order::{DecreasePositionSwapType, Order, OrderType, SecondaryOrderType}, order_vault::IOrderVaultDispatcher,
 };
 use freyr::position::{
-    position_utils::{UpdatePositionParams, DecreasePositionCache, DecreasePositionCollateralValues}, position::Position,
-    decrease_position_collateral_utils
+    decrease_position_collateral_utils, position::Position,
+    position_utils::{DecreasePositionCache, DecreasePositionCollateralValues, UpdatePositionParams},
 };
 use freyr::price::price::Price;
 use freyr::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
 use freyr::swap::swap_handler::ISwapHandlerDispatcher;
 use freyr::test_utils::tests_lib;
-use freyr::utils::span32::{Span32, Array32Trait};
-use snforge_std::{declare, ContractClassTrait, DeclareResultTrait, start_cheat_caller_address};
+use freyr::utils::span32::{Array32Trait, Span32};
+use snforge_std::{ContractClassTrait, DeclareResultTrait, declare, start_cheat_caller_address};
 use starknet::{ContractAddress, contract_address_const};
 
 fn setup() -> (
@@ -34,7 +34,7 @@ fn setup() -> (
     IEventEmitterDispatcher,
     IReferralStorageDispatcher,
     ISwapHandlerDispatcher,
-    IMarketUtilsLibraryDispatcher
+    IMarketUtilsLibraryDispatcher,
 ) {
     let (
         caller_address,
@@ -92,7 +92,7 @@ fn given_good_params_when_process_collateral_then_succeed() {
     // setting open_interest to 10_000 to allow decreasing position.
     data_store
         .set_u256(
-            keys::open_interest_key(contract_address_const::<'market_token'>(), long_token_address, true), 10_000
+            keys::open_interest_key(contract_address_const::<'market_token'>(), long_token_address, true), 10_000,
         );
 
     let params = create_new_update_position_params(
@@ -112,7 +112,7 @@ fn given_good_params_when_process_collateral_then_succeed() {
     decrease_position_collateral_utils::process_collateral(params, values, market_utils);
 
     // Checks
-    data_store.get_u256(keys::open_interest_key(contract_address_const::<'market_token'>(), long_token_address, true),);
+    data_store.get_u256(keys::open_interest_key(contract_address_const::<'market_token'>(), long_token_address, true));
 }
 
 #[test]
@@ -127,7 +127,7 @@ fn given_good_params_get_execution_price_then_succeed() {
     // setting open_interest to 10_000 to allow decreasing position.
     data_store
         .set_u256(
-            keys::open_interest_key(contract_address_const::<'market_token'>(), long_token_address, true), 10_000
+            keys::open_interest_key(contract_address_const::<'market_token'>(), long_token_address, true), 10_000,
         );
 
     let params = create_new_update_position_params(
@@ -136,14 +136,14 @@ fn given_good_params_get_execution_price_then_succeed() {
         data_store.contract_address,
         event_emitter.contract_address,
         referral_storage.contract_address,
-        long_token_address
+        long_token_address,
     );
 
     //
     // Execution
     //
     let (_, _, execution_price) = decrease_position_collateral_utils::get_execution_price(
-        params, Price { min: 10, max: 10 }, market_utils
+        params, Price { min: 10, max: 10 }, market_utils,
     );
     //
     // Checks
@@ -159,7 +159,7 @@ fn create_new_update_position_params(
     data_store_address: ContractAddress,
     event_emitter_address: ContractAddress,
     referral_storage_address: ContractAddress,
-    long_token_address: ContractAddress
+    long_token_address: ContractAddress,
 ) -> UpdatePositionParams {
     let order_vault = tests_lib::get_order_vault_address();
     let oracle = tests_lib::get_oracle_address();
@@ -169,14 +169,14 @@ fn create_new_update_position_params(
         order_vault: IOrderVaultDispatcher { contract_address: order_vault },
         oracle: IOracleDispatcher { contract_address: oracle },
         swap_handler,
-        referral_storage: IReferralStorageDispatcher { contract_address: referral_storage_address }
+        referral_storage: IReferralStorageDispatcher { contract_address: referral_storage_address },
     };
 
     let market = Market {
         market_token: contract_address_const::<'market_token'>(),
         index_token: long_token_address,
         long_token: long_token_address,
-        short_token: contract_address_const::<'short_token'>()
+        short_token: contract_address_const::<'short_token'>(),
     };
 
     let order = Order {
@@ -200,7 +200,7 @@ fn create_new_update_position_params(
         min_output_amount: 10,
         updated_at_block: 1,
         is_long: true,
-        is_frozen: false
+        is_frozen: false,
     };
 
     let position = Position {
@@ -227,7 +227,7 @@ fn create_new_update_position_params(
         order_key: 123456789,
         position,
         position_key: 123456789,
-        secondary_order_type: SecondaryOrderType::None
+        secondary_order_type: SecondaryOrderType::None,
     };
 
     params
@@ -237,7 +237,7 @@ fn create_new_update_position_params(
 fn create_new_decrease_position_cache(long_token_address: ContractAddress) -> DecreasePositionCache {
     let price = Price { min: 1, max: 1 };
     DecreasePositionCache {
-        prices: MarketPrices { index_token_price: price, long_token_price: price, short_token_price: price, },
+        prices: MarketPrices { index_token_price: price, long_token_price: price, short_token_price: price },
         estimated_position_pnl_usd: 100.into(),
         estimated_realized_pnl_usd: 0.into(),
         estimated_remaining_pnl_usd: 100.into(),

@@ -19,7 +19,7 @@ mod OrderError {
 
 
     fn ORACLE_BLOCK_NUMBERS_ARE_SMALLER_THAN_REQUIRED(
-        min_oracle_block_numbers: Span<u64>, latest_updated_at_block: u64
+        min_oracle_block_numbers: Span<u64>, latest_updated_at_block: u64,
     ) {
         let mut data: Array<felt252> = array!['Block nbs smaller than required'];
         let len: u32 = min_oracle_block_numbers.len();
@@ -75,7 +75,7 @@ mod OrderError {
         price: u256,
         position_size_in_usd: u256,
         adjusted_price_impact_usd: i256,
-        size_delta_usd: u256
+        size_delta_usd: u256,
     ) {
         let mut data: Array<felt252> = array![];
         data.append('negative_execution_price');
@@ -87,7 +87,7 @@ mod OrderError {
         panic(data);
     }
 
-    fn ORDER_TYPE_CANNOT_BE_CREATED(order_type: OrderType,) {
+    fn ORDER_TYPE_CANNOT_BE_CREATED(order_type: OrderType) {
         let mut data: Array<felt252> = array![];
         data.append('order_type_cannot_be_created');
         data.append(order_type.into());

@@ -1,5 +1,5 @@
 use freyr::callback::callback_utils::{
-    validate_callback_gas_limit, set_saved_callback_contract, get_saved_callback_contract, after_deposit_execution
+    after_deposit_execution, get_saved_callback_contract, set_saved_callback_contract, validate_callback_gas_limit,
 };
 use freyr::callback::mocks::{ICallbackMockDispatcherTrait, deploy_callback_mock};
 
@@ -10,7 +10,7 @@ use freyr::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatch
 use freyr::event::event_utils::{LogData, LogDataTrait};
 use freyr::test_utils::tests_lib;
 use snforge_std::{
-    declare, start_cheat_caller_address, stop_cheat_caller_address, ContractClassTrait, DeclareResultTrait
+    ContractClassTrait, DeclareResultTrait, declare, start_cheat_caller_address, stop_cheat_caller_address,
 };
 use starknet::ContractAddress;
 

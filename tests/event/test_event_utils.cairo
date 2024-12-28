@@ -10,14 +10,14 @@
 
 use debug::PrintTrait;
 use freyr::event::event_utils::{
-    Felt252IntoBool, Felt252IntoContractAddress, I256252DictValue, ContractAddressDictValue, LogData, LogDataTrait,
-    U256252DictValue, U256IntoFelt252
+    ContractAddressDictValue, Felt252IntoBool, Felt252IntoContractAddress, I256252DictValue, LogData, LogDataTrait,
+    U256252DictValue, U256IntoFelt252,
 };
-use freyr::utils::serializable_dict::{Item, ItemTrait, SerializableFelt252Dict, SerializableFelt252DictTrait,};
+use freyr::utils::serializable_dict::{Item, ItemTrait, SerializableFelt252Dict, SerializableFelt252DictTrait};
 use freyr::utils::traits::{ContractAddressDefault};
 use starknet::{
-    get_caller_address, ContractAddress, Felt252TryIntoContractAddress, ContractAddressIntoFelt252,
-    contract_address_const
+    ContractAddress, ContractAddressIntoFelt252, Felt252TryIntoContractAddress, contract_address_const,
+    get_caller_address,
 };
 use traits::Default;
 
@@ -51,7 +51,7 @@ fn test_log_data_default_each() {
         int_dict: Default::default(),
         bool_dict: Default::default(),
         felt252_dict: Default::default(),
-        string_dict: Default::default()
+        string_dict: Default::default(),
     };
 
     // try to add things
@@ -73,7 +73,7 @@ fn test_log_data_multiple_types() {
     let mut log_data: LogData = Default::default();
 
     let arr_to_add: Array<ContractAddress> = array![
-        contract_address_const::<'cairo'>(), contract_address_const::<'starknet'>(), contract_address_const::<'rust'>()
+        contract_address_const::<'cairo'>(), contract_address_const::<'starknet'>(), contract_address_const::<'rust'>(),
     ];
 
     // try to add unique
@@ -140,7 +140,7 @@ fn test_log_data_serialization() {
 fn assert_same_single_value_for_dicts<
     T, +Felt252DictValue<T>, +Drop<T>, +Copy<T>, +Into<felt252, T>, +Into<T, felt252>, +PartialEq<T>,
 >(
-    ref lhs: SerializableFelt252Dict<T>, ref rhs: SerializableFelt252Dict<T>, key: felt252
+    ref lhs: SerializableFelt252Dict<T>, ref rhs: SerializableFelt252Dict<T>, key: felt252,
 ) {
     assert(lhs.contains(key), 'key not found: lhs');
     assert(rhs.contains(key), 'key not found: rhs');

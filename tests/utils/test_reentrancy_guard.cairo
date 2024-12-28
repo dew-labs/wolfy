@@ -1,6 +1,6 @@
 use freyr::data::data_store::IDataStoreDispatcherTrait;
 use freyr::test_utils::tests_lib;
-use freyr::utils::global_reentrancy_guard::{non_reentrant_before, non_reentrant_after};
+use freyr::utils::global_reentrancy_guard::{non_reentrant_after, non_reentrant_before};
 
 #[test]
 fn given_normal_conditions_when_non_reentrancy_before_and_after_then_works() {

@@ -5,15 +5,15 @@
 // Core lib imports.
 
 // Local imports.
-use freyr::order::order::{Order, OrderType, OrderTrait, DecreasePositionSwapType};
+use freyr::order::order::{DecreasePositionSwapType, Order, OrderTrait, OrderType};
 use freyr::test_utils::tests_lib;
-use freyr::utils::span32::{Span32, Array32Trait};
+use freyr::utils::span32::{Array32Trait, Span32};
 use result::ResultTrait;
 use snforge_std::{
-    declare, ContractClassTrait, DeclareResultTrait, start_cheat_block_number_global, stop_cheat_block_number_global
+    ContractClassTrait, DeclareResultTrait, declare, start_cheat_block_number_global, stop_cheat_block_number_global,
 };
-use starknet::{ContractAddress, get_caller_address, Felt252TryIntoContractAddress, contract_address_const, ClassHash,};
-use traits::{TryInto, Into};
+use starknet::{ClassHash, ContractAddress, Felt252TryIntoContractAddress, contract_address_const, get_caller_address};
+use traits::{Into, TryInto};
 
 #[test]
 fn given_normal_conditions_when_touch_then_expected_results() {
@@ -36,7 +36,7 @@ fn given_normal_conditions_when_touch_then_expected_results() {
 
 fn create_dummy_order() -> Order {
     let swap_path: Span32<ContractAddress> = array![
-        contract_address_const::<'swap_path_0'>(), contract_address_const::<'swap_path_1'>()
+        contract_address_const::<'swap_path_0'>(), contract_address_const::<'swap_path_1'>(),
     ]
         .span32();
     Order {

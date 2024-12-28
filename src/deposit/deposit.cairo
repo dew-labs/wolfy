@@ -1,5 +1,5 @@
 // Core Lib imports
-use freyr::utils::span32::{Span32, Array32Trait, DefaultSpan32};
+use freyr::utils::span32::{Array32Trait, DefaultSpan32, Span32};
 
 // Wolfy imports
 use freyr::utils::store_arrays::StoreContractAddressArray;

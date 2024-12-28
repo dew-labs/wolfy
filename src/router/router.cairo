@@ -24,7 +24,7 @@ trait IRouter<TContractState> {
         token: ContractAddress,
         account: ContractAddress,
         receiver: ContractAddress,
-        amount: u256
+        amount: u256,
     );
 }
 
@@ -37,7 +37,7 @@ mod Router {
     // Core lib imports.
     use core::zeroable::Zeroable;
     use freyr::role::role;
-    use freyr::role::role_module::{IRoleModuleLibraryDispatcher, IRoleModuleDispatcherTrait};
+    use freyr::role::role_module::{IRoleModuleDispatcherTrait, IRoleModuleLibraryDispatcher};
 
 
     // Local imports.
@@ -45,7 +45,7 @@ mod Router {
     use freyr::router::error::RouterError;
     use freyr::token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
 
-    use starknet::{ContractAddress, get_caller_address, ClassHash};
+    use starknet::{ClassHash, ContractAddress, get_caller_address};
     use super::IRouter;
 
     // *************************************************************************
@@ -64,7 +64,7 @@ mod Router {
     /// # Arguments
     /// * `role_store_address` - The address of the role store contract.
     #[constructor]
-    fn constructor(ref self: ContractState, role_store_address: ContractAddress, role_module_class_hash: ClassHash,) {
+    fn constructor(ref self: ContractState, role_store_address: ContractAddress, role_module_class_hash: ClassHash) {
         self.role_module.write(IRoleModuleLibraryDispatcher { class_hash: role_module_class_hash });
         self.role_module.read().initialize(role_store_address);
     }
@@ -79,7 +79,7 @@ mod Router {
             token: ContractAddress,
             account: ContractAddress,
             receiver: ContractAddress,
-            amount: u256
+            amount: u256,
         ) {
             // Check that the caller has the `ROUTER_PLUGIN` role.
             self.role_module.read().only_router_plugin();

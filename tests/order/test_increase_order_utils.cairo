@@ -1,8 +1,8 @@
 use freyr::data::data_store::IDataStoreDispatcherTrait;
-use freyr::nonce::nonce_utils::{get_current_nonce, increment_nonce, compute_key};
-use freyr::oracle::oracle::{IOracleSafeDispatcher, IOracleDispatcher, IOracleDispatcherTrait};
+use freyr::nonce::nonce_utils::{compute_key, get_current_nonce, increment_nonce};
+use freyr::oracle::oracle::{IOracleDispatcher, IOracleDispatcherTrait, IOracleSafeDispatcher};
 use freyr::order::increase_order_utils::IncreaseOrderUtils::{validate_oracle_block_numbers};
-use freyr::order::{error::OrderError, order::{Order, SecondaryOrderType, OrderType, DecreasePositionSwapType},};
+use freyr::order::{error::OrderError, order::{DecreasePositionSwapType, Order, OrderType, SecondaryOrderType}};
 use snforge_std::{start_mock_call, stop_mock_call};
 use starknet::ContractAddress;
 

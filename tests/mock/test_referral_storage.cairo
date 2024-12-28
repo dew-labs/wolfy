@@ -16,8 +16,8 @@ use freyr::referral::referral_utils;
 use freyr::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
 use freyr::test_utils::tests_lib;
 use snforge_std::{
-    declare, start_cheat_caller_address, stop_cheat_caller_address, ContractClass, ContractClassTrait,
-    DeclareResultTrait
+    ContractClass, ContractClassTrait, DeclareResultTrait, declare, start_cheat_caller_address,
+    stop_cheat_caller_address,
 };
 use starknet::{ContractAddress, contract_address_const};
 
@@ -332,7 +332,7 @@ fn given_code_owner_not_set_when_fetching_trader_referral_info_from_storage_then
 // *********************************************************************************************
 /// Utility function to setup the test environment
 fn setup() -> (
-    ContractAddress, IRoleStoreDispatcher, IEventEmitterDispatcher, IReferralStorageDispatcher, IGovernableDispatcher
+    ContractAddress, IRoleStoreDispatcher, IEventEmitterDispatcher, IReferralStorageDispatcher, IGovernableDispatcher,
 ) {
     let (
         caller_address,

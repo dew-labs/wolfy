@@ -11,12 +11,12 @@ use freyr::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatch
 use freyr::exchange::base_order_handler::BaseOrderHandler;
 use freyr::exchange::base_order_handler::{IBaseOrderHandlerDispatcher, IBaseOrderHandlerDispatcherTrait};
 use freyr::market::market::{Market, UniqueIdMarketImpl};
-use freyr::market::market_utils::{IMarketUtilsLibraryDispatcher, IMarketUtilsDispatcherTrait};
+use freyr::market::market_utils::{IMarketUtilsDispatcherTrait, IMarketUtilsLibraryDispatcher};
 use freyr::mock::referral_storage::{IReferralStorageDispatcher, IReferralStorageDispatcherTrait};
 use freyr::oracle::oracle::{IOracleDispatcher, IOracleDispatcherTrait};
 use freyr::oracle::oracle_utils::SetPricesParams;
 use freyr::order::base_order_utils::ExecuteOrderParamsContracts;
-use freyr::order::order::{Order, OrderType, SecondaryOrderType, DecreasePositionSwapType};
+use freyr::order::order::{DecreasePositionSwapType, Order, OrderType, SecondaryOrderType};
 use freyr::order::order_vault::{IOrderVaultDispatcher, IOrderVaultDispatcherTrait};
 
 // Local imports.
@@ -25,13 +25,13 @@ use freyr::role::role;
 use freyr::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
 use freyr::swap::swap_handler::{ISwapHandlerDispatcher, ISwapHandlerDispatcherTrait};
 use freyr::test_utils::tests_lib;
-use freyr::utils::span32::{Span32, Array32};
+use freyr::utils::span32::{Array32, Span32};
 use poseidon::poseidon_hash_span;
 use snforge_std::{
-    declare, start_cheat_caller_address, stop_cheat_caller_address, start_mock_call, test_address, ContractClass,
-    ContractClassTrait
+    ContractClass, ContractClassTrait, declare, start_cheat_caller_address, start_mock_call, stop_cheat_caller_address,
+    test_address,
 };
-use starknet::{ContractAddress, get_caller_address, Felt252TryIntoContractAddress, contract_address_const};
+use starknet::{ContractAddress, Felt252TryIntoContractAddress, contract_address_const, get_caller_address};
 use traits::Default;
 
 // *********************************************************************************************
@@ -105,7 +105,7 @@ fn given_normal_conditions_when_get_execute_order_params_then_works() {
 
     // test call
     let execute_order_params = BaseOrderHandler::BaseOrderHandlerImpl::get_execute_order_params(
-        ref base_order_handler_state, key, set_prices_params, caller_address, starting_gas, secondary_order_type
+        ref base_order_handler_state, key, set_prices_params, caller_address, starting_gas, secondary_order_type,
     );
 
     // assertions
@@ -116,7 +116,7 @@ fn given_normal_conditions_when_get_execute_order_params_then_works() {
         order_vault_address: order_vault.contract_address,
         oracle_address: oracle.contract_address,
         swap_handler_address: swap_handler.contract_address,
-        referral_storage_address: referral_storage.contract_address
+        referral_storage_address: referral_storage.contract_address,
     );
     assert(execute_order_params.key == key, 'wrong key');
     assert(execute_order_params.order == Default::default(), 'wrong order');
@@ -157,7 +157,7 @@ fn given_non_found_order_when_get_execute_order_params_then_returns_empty_order(
     let secondary_order_type = SecondaryOrderType::Adl(());
 
     let execute_order_params = BaseOrderHandler::BaseOrderHandlerImpl::get_execute_order_params(
-        ref base_order_handler_state, key, set_prices_params, caller_address, starting_gas, secondary_order_type
+        ref base_order_handler_state, key, set_prices_params, caller_address, starting_gas, secondary_order_type,
     );
 
     assert(execute_order_params.order.account.is_zero(), 'order shouldnt exists');
@@ -178,7 +178,7 @@ fn _assert_contracts_are_equals(
     order_vault_address: ContractAddress,
     oracle_address: ContractAddress,
     swap_handler_address: ContractAddress,
-    referral_storage_address: ContractAddress
+    referral_storage_address: ContractAddress,
 ) {
     assert(contracts.data_store.contract_address == data_store_address, 'wrong data_store');
     assert(contracts.event_emitter.contract_address == event_emitter_address, 'wrong event_emitter');
@@ -195,7 +195,7 @@ fn mock_market() -> Market {
     let address_zero = contract_address_const::<0>();
     let key = contract_address_const::<123456789>();
 
-    Market { market_token: key, index_token: address_zero, long_token: address_zero, short_token: address_zero, }
+    Market { market_token: key, index_token: address_zero, long_token: address_zero, short_token: address_zero }
 }
 
 fn mock_key() -> felt252 {
@@ -206,7 +206,7 @@ fn mock_set_prices_params() -> SetPricesParams {
     SetPricesParams {
         signer_info: 1,
         tokens: array![
-            contract_address_const::<'ETH'>(), contract_address_const::<'USDC'>(), contract_address_const::<'DAI'>()
+            contract_address_const::<'ETH'>(), contract_address_const::<'USDC'>(), contract_address_const::<'DAI'>(),
         ],
         compacted_min_oracle_block_numbers: array![6301, 6301, 6301],
         compacted_max_oracle_block_numbers: array![6400, 6400, 6400],
@@ -218,8 +218,8 @@ fn mock_set_prices_params() -> SetPricesParams {
         compacted_max_prices_indexes: array![1, 2, 3],
         signatures: array![array!['signatures'].span()],
         price_feed_tokens: array![
-            contract_address_const::<'ETH'>(), contract_address_const::<'USDC'>(), contract_address_const::<'DAI'>()
-        ]
+            contract_address_const::<'ETH'>(), contract_address_const::<'USDC'>(), contract_address_const::<'DAI'>(),
+        ],
     }
 }
 

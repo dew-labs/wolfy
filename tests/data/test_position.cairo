@@ -5,7 +5,7 @@ use freyr::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
 use freyr::test_utils::tests_lib;
 
 use snforge_std::{
-    declare, start_cheat_caller_address, stop_cheat_caller_address, ContractClassTrait, DeclareResultTrait
+    ContractClassTrait, DeclareResultTrait, declare, start_cheat_caller_address, stop_cheat_caller_address,
 };
 use starknet::{ContractAddress, contract_address_const};
 
@@ -22,7 +22,7 @@ fn given_normal_conditions_when_set_position_new_and_override_then_works() {
         contract_address_const::<'market1'>(),
         contract_address_const::<'token1'>(),
         is_long: false,
-        position_no: 1
+        position_no: 1,
     );
 
     // Test logic
@@ -77,7 +77,7 @@ fn given_position_account_0_when_set_position_then_fails() {
         contract_address_const::<'market1'>(),
         contract_address_const::<'token1'>(),
         is_long: false,
-        position_no: 1
+        position_no: 1,
     );
 
     // Test logic
@@ -103,7 +103,7 @@ fn given_caller_not_controller_when_set_position_then_fails() {
         contract_address_const::<'market1'>(),
         contract_address_const::<'token1'>(),
         is_long: false,
-        position_no: 1
+        position_no: 1,
     );
 
     // Test logic
@@ -128,7 +128,7 @@ fn given_normal_conditions_when_get_position_keys_then_works() {
         contract_address_const::<'market1'>(),
         contract_address_const::<'token1'>(),
         is_long: false,
-        position_no: 1
+        position_no: 1,
     );
 
     data_store.set_position(key, position);
@@ -163,7 +163,7 @@ fn given_normal_conditions_when_remove_only_position_then_works() {
         contract_address_const::<'market1'>(),
         contract_address_const::<'token1'>(),
         is_long: false,
-        position_no: 1
+        position_no: 1,
     );
 
     data_store.set_position(key, position);
@@ -200,7 +200,7 @@ fn given_normal_conditions_when_remove_1_of_n_position_then_works() {
         contract_address_const::<'market1'>(),
         contract_address_const::<'token1'>(),
         is_long: false,
-        position_no: 1
+        position_no: 1,
     );
 
     let key_2: felt252 = 22222222222;
@@ -210,7 +210,7 @@ fn given_normal_conditions_when_remove_1_of_n_position_then_works() {
         contract_address_const::<'market1'>(),
         contract_address_const::<'token1'>(),
         is_long: false,
-        position_no: 1
+        position_no: 1,
     );
 
     data_store.set_position(key_1, position_1);
@@ -255,7 +255,7 @@ fn given_normal_conditions_when_remove_last_position_then_works() {
         contract_address_const::<'market1'>(),
         contract_address_const::<'token1'>(),
         is_long: false,
-        position_no: 1
+        position_no: 1,
     );
 
     let key_2: felt252 = 22222222222;
@@ -265,7 +265,7 @@ fn given_normal_conditions_when_remove_last_position_then_works() {
         contract_address_const::<'market1'>(),
         contract_address_const::<'token1'>(),
         is_long: false,
-        position_no: 1
+        position_no: 1,
     );
 
     data_store.set_position(key_1, position_1);
@@ -313,7 +313,7 @@ fn given_caller_not_controller_when_remove_1_of_n_position_then_fails() {
         contract_address_const::<'market1'>(),
         contract_address_const::<'token1'>(),
         is_long: false,
-        position_no: 1
+        position_no: 1,
     );
 
     data_store.set_position(key, position);
@@ -345,7 +345,7 @@ fn given_caller_not_controller_when_multiple_account_keys_then_fails() {
         contract_address_const::<'market1'>(),
         contract_address_const::<'token1'>(),
         is_long: false,
-        position_no: 1
+        position_no: 1,
     );
 
     let key_2: felt252 = 22222222222;
@@ -356,7 +356,7 @@ fn given_caller_not_controller_when_multiple_account_keys_then_fails() {
         contract_address_const::<'market1'>(),
         contract_address_const::<'token1'>(),
         is_long: false,
-        position_no: 2
+        position_no: 2,
     );
     let key_3: felt252 = 3333344455667;
     let mut position_3: Position = create_new_position(
@@ -365,7 +365,7 @@ fn given_caller_not_controller_when_multiple_account_keys_then_fails() {
         contract_address_const::<'market1'>(),
         contract_address_const::<'token1'>(),
         is_long: false,
-        position_no: 1
+        position_no: 1,
     );
     let key_4: felt252 = 444445556777889;
     let mut position_4: Position = create_new_position(
@@ -374,7 +374,7 @@ fn given_caller_not_controller_when_multiple_account_keys_then_fails() {
         contract_address_const::<'market1'>(),
         contract_address_const::<'token1'>(),
         is_long: false,
-        position_no: 1
+        position_no: 1,
     );
 
     data_store.set_position(key_1, position_1);
@@ -432,7 +432,7 @@ fn create_new_position(
     market: ContractAddress,
     collateral_token: ContractAddress,
     is_long: bool,
-    position_no: u256
+    position_no: u256,
 ) -> Position {
     let size_in_usd = 1000 * position_no;
     let size_in_tokens = 1000 * position_no;

@@ -31,7 +31,7 @@ mod Governable {
     use freyr::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
     use freyr::mock::error::MockError;
     use result::ResultTrait;
-    use starknet::{get_caller_address, ContractAddress};
+    use starknet::{ContractAddress, get_caller_address};
 
     // *************************************************************************
     //                              STORAGE

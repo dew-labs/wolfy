@@ -12,12 +12,12 @@ trait IDepositCallbackReceiver<TContractState> {
     /// * `key` - They key of the deposit.
     /// * `event_data` - The event log data.
     /// * `deposit` - The deposit that was executed.
-    fn after_deposit_execution(ref self: TContractState, key: felt252, deposit: Deposit, log_data: Array<felt252>,);
+    fn after_deposit_execution(ref self: TContractState, key: felt252, deposit: Deposit, log_data: Array<felt252>);
 
     /// Called after a deposit cancellation.
     /// # Arguments
     /// * `key` - They key of the deposit.
     /// * `event_data` - The event log data.
     /// * `deposit` - The deposit that was cancelled.
-    fn after_deposit_cancellation(ref self: TContractState, key: felt252, deposit: Deposit, log_data: Array<felt252>,);
+    fn after_deposit_cancellation(ref self: TContractState, key: felt252, deposit: Deposit, log_data: Array<felt252>);
 }

@@ -1,9 +1,9 @@
 // IMPORTS
 use freyr::utils::i256::{i256, i256_new};
-use freyr::utils::precision::{
-    FLOAT_PRECISION, FLOAT_PRECISION_SQRT, WEI_PRECISION, BASIS_POINTS_DIVISOR, FLOAT_TO_WEI_DIVISOR
-};
 use freyr::utils::precision;
+use freyr::utils::precision::{
+    BASIS_POINTS_DIVISOR, FLOAT_PRECISION, FLOAT_PRECISION_SQRT, FLOAT_TO_WEI_DIVISOR, WEI_PRECISION,
+};
 
 #[test]
 fn test_apply_factor_u256() {

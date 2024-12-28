@@ -32,7 +32,7 @@ fn with_oracle_prices_before(
     oracle: IOracleDispatcher,
     data_store: IDataStoreDispatcher,
     event_emitter: IEventEmitterDispatcher,
-    params: @SetPricesParams
+    params: @SetPricesParams,
 ) {
     oracle.set_prices(data_store, event_emitter, params.clone());
 }

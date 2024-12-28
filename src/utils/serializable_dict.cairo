@@ -3,9 +3,9 @@ use core::array::ArrayTrait;
 use core::array::SpanTrait;
 use core::serde::Serde;
 use core::traits::Into;
-use dict::{Felt252DictTrait, Felt252Dict};
-use nullable::{nullable_from_box, match_nullable, FromNullableResult, Nullable};
-use starknet::{get_caller_address, ContractAddress, contract_address_const};
+use dict::{Felt252Dict, Felt252DictTrait};
+use nullable::{FromNullableResult, Nullable, match_nullable, nullable_from_box};
+use starknet::{ContractAddress, contract_address_const, get_caller_address};
 use traits::Default;
 
 ///
@@ -18,7 +18,7 @@ use traits::Default;
 #[derive(Drop, Copy)]
 enum Item<T> {
     Single: T,
-    Span: Span<T>
+    Span: Span<T>,
 }
 
 #[generate_trait]
@@ -26,7 +26,7 @@ impl ItemImpl<T> of ItemTrait<T> {
     fn is_single(self: @Item<T>) -> bool {
         match self {
             Item::Single(_) => true,
-            Item::Span(_) => false
+            Item::Span(_) => false,
         }
     }
 
@@ -37,21 +37,21 @@ impl ItemImpl<T> of ItemTrait<T> {
     fn len(self: @Item<T>) -> usize {
         match self {
             Item::Single(_) => 1,
-            Item::Span(s) => (*s).len()
+            Item::Span(s) => (*s).len(),
         }
     }
 
     fn unwrap_single<impl TCopy: Copy<T>>(self: @Item<T>) -> T {
         match self {
             Item::Single(v) => (*v),
-            Item::Span(_) => panic_with_felt252('should be single')
+            Item::Span(_) => panic_with_felt252('should be single'),
         }
     }
 
     fn unwrap_span(self: @Item<T>) -> Span<T> {
         match self {
             Item::Single(_) => panic_with_felt252('should be a span'),
-            Item::Span(arr) => *arr
+            Item::Span(arr) => *arr,
         }
     }
 }
@@ -89,7 +89,7 @@ impl ItemPartialEq<T, +Copy<T>, +PartialEq<T>, +Drop<T>> of PartialEq<Item<T>> {
 #[derive(Default)]
 struct SerializableFelt252Dict<T> {
     keys: Array<felt252>,
-    values: Felt252Dict<Nullable<Item<T>>>
+    values: Felt252Dict<Nullable<Item<T>>>,
 }
 
 impl SerializableFelt252DictDestruct<T, +Drop<T>, +Felt252DictValue<T>> of Destruct<SerializableFelt252Dict<T>> {
@@ -224,7 +224,7 @@ impl SerializableFelt252DictTraitImpl<
                             loop { // append each values
                                 match arr.pop_front() {
                                     Option::Some(v) => { output.append((*v).into()); },
-                                    Option::None => { break; }
+                                    Option::None => { break; },
                                 };
                             };
                         },
@@ -254,7 +254,7 @@ impl SerializableFelt252DictTraitImpl<
                             if ((*size) == 1) {
                                 let value: T = match serialized.pop_front() {
                                     Option::Some(value) => (*value).into(),
-                                    Option::None => panic_with_felt252('err getting value')
+                                    Option::None => panic_with_felt252('err getting value'),
                                 };
                                 let value: Item<T> = Item::Single(value);
                                 d.keys.append(*key);
@@ -270,7 +270,7 @@ impl SerializableFelt252DictTraitImpl<
                                 };
                                 let value: T = match serialized.pop_front() {
                                     Option::Some(value) => (*value).into(),
-                                    Option::None => panic_with_felt252('err getting value')
+                                    Option::None => panic_with_felt252('err getting value'),
                                 };
                                 arr_values.append(value);
                                 arr_size -= 1;
@@ -280,7 +280,7 @@ impl SerializableFelt252DictTraitImpl<
                             d.keys.append(*key);
                             d.values.insert(*key, nullable_from_box(BoxTrait::new(values)));
                         },
-                        Option::None => panic_with_felt252('err getting size')
+                        Option::None => panic_with_felt252('err getting size'),
                     }
                 },
                 Option::None => { break; },

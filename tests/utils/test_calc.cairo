@@ -2,8 +2,8 @@ use core::num::traits::Bounded;
 
 use freyr::role::role;
 use freyr::utils::calc::{
-    roundup_division, roundup_magnitude_division, sum_return_uint_256, sum_return_int_256, diff, to_signed, to_unsigned,
-    pow_u64, bounded_add, bounded_sub, max_i256, min_i256
+    bounded_add, bounded_sub, diff, max_i256, min_i256, pow_u64, roundup_division, roundup_magnitude_division,
+    sum_return_int_256, sum_return_uint_256, to_signed, to_unsigned,
 };
 use freyr::utils::i256::{i256, i256_new};
 
@@ -53,9 +53,9 @@ fn given_normal_conditions_when_roundup_magnitude_division_then_works() { // TOD
     assert(
         roundup_magnitude_division(
             i256_new(28948022309329048855892746252171976963317496166410141009864396001978282409983, false),
-            28948022309329048855892746252171976963317496166410141009864396001978282409983
+            28948022309329048855892746252171976963317496166410141009864396001978282409983,
         ) == i256_new(1, false),
-        'max/max should be 1'
+        'max/max should be 1',
     );
     assert(roundup_magnitude_division(i256_new(0, false), 12) == i256_new(0, false), '0/12 should be 0');
 }
@@ -67,7 +67,7 @@ fn given_overflow_when_roundup_magnitude_division_then_works() {
 }
 
 #[test]
-#[should_panic(expected: ('division by zero', 'roundup_magnitude_division',))]
+#[should_panic(expected: ('division by zero', 'roundup_magnitude_division'))]
 fn given_division_by_0_when_roundup_magnitude_division_then_fails() {
     roundup_magnitude_division(i256_new(4, false), 0);
 }
@@ -106,13 +106,13 @@ fn given_normal_conditions_when_sum_return_int_256_then_works() {
 
     assert(
         sum_return_int_256(max_i256_as_u256() - 3, i256_new(2, false)) == max_i256() - i256_new(1, false),
-        'Should be max_i256 -1 (1)'
+        'Should be max_i256 -1 (1)',
     );
 
     assert(sum_return_int_256(max_i256_as_u256() - 1, i256_new(1, false)) == max_i256(), 'Should be max_i256');
     assert(
         sum_return_int_256(max_i256_as_u256(), i256_new(1, true)) == max_i256() - i256_new(1, false),
-        'Should be max_i256 - 1 (2)'
+        'Should be max_i256 - 1 (2)',
     );
 }
 
@@ -171,7 +171,7 @@ fn given_normal_conditions_when_bounded_add_then_works() {
 fn given_normal_conditions_when_bounded_sub_then_works() {
     // This tests the first if
     assert(bounded_sub(i256_new(0, false), i256_new(3, false)) == i256_new(3, true), 'Should be -3');
-    assert(bounded_sub(i256_new(3, false), i256_new(0, false),) == i256_new(3, false), 'Should be 3');
+    assert(bounded_sub(i256_new(3, false), i256_new(0, false)) == i256_new(3, false), 'Should be 3');
     assert(bounded_sub(i256_new(42, false), i256_new(41, false)) == i256_new(1, false), 'Shoud be 1');
     assert(bounded_sub(i256_new(41, false), i256_new(42, false)) == i256_new(1, true), 'Should be -1');
 

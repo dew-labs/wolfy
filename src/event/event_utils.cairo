@@ -5,8 +5,8 @@ use freyr::utils::i256::i256;
 use freyr::utils::serializable_dict::{SerializableFelt252Dict, SerializableFelt252DictTrait};
 use freyr::utils::traits::ContractAddressDefault;
 use starknet::{
-    get_caller_address, ContractAddress, Felt252TryIntoContractAddress, ContractAddressIntoFelt252,
-    contract_address_const
+    ContractAddress, ContractAddressIntoFelt252, Felt252TryIntoContractAddress, contract_address_const,
+    get_caller_address,
 };
 use traits::Default;
 
@@ -60,7 +60,7 @@ impl ContractAddressDictValue of Felt252DictValue<ContractAddress> {
 //TODO Switch the append with a set in the functions when its available
 #[derive(Default, Serde, Destruct)]
 struct EventLogData {
-    cant_be_empty: u256, // remove
+    cant_be_empty: u256 // remove
 }
 
 #[derive(Default, Destruct)]
@@ -70,7 +70,7 @@ struct LogData {
     int_dict: SerializableFelt252Dict<i256>,
     bool_dict: SerializableFelt252Dict<bool>,
     felt252_dict: SerializableFelt252Dict<felt252>,
-    string_dict: SerializableFelt252Dict<felt252>
+    string_dict: SerializableFelt252Dict<felt252>,
 }
 
 /// Number of dicts presents in LogData
@@ -90,7 +90,7 @@ impl LogDataImpl of LogDataTrait {
             self.int_dict.serialize_into(),
             self.bool_dict.serialize_into(),
             self.felt252_dict.serialize_into(),
-            self.string_dict.serialize_into()
+            self.string_dict.serialize_into(),
         ];
         let mut span_arrays = serialized_dicts.span();
         loop {
@@ -100,12 +100,12 @@ impl LogDataImpl of LogDataTrait {
                     loop {
                         match sub_array_span.pop_front() {
                             Option::Some(v) => { output.append(*v); },
-                            Option::None => { break; }
+                            Option::None => { break; },
                         };
                     };
                     output.append(END_OF_DICT);
                 },
-                Option::None => { break; }
+                Option::None => { break; },
             };
         };
     }
@@ -172,7 +172,7 @@ fn get_next_dict_serialized(ref serialized: Span<felt252>) -> Span<felt252> {
             } else {
                 dict_data.append(*v);
             } },
-            Option::None => { break; }
+            Option::None => { break; },
         };
     };
     dict_data.span()

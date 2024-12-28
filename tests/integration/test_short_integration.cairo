@@ -5,7 +5,7 @@
 // Core lib imports.
 
 use debug::PrintTrait;
-use freyr::bank::bank::{IBankDispatcherTrait, IBankDispatcher};
+use freyr::bank::bank::{IBankDispatcher, IBankDispatcherTrait};
 use freyr::bank::strict_bank::{IStrictBankDispatcher, IStrictBankDispatcherTrait};
 
 
@@ -13,25 +13,25 @@ use freyr::bank::strict_bank::{IStrictBankDispatcher, IStrictBankDispatcherTrait
 use freyr::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
 use freyr::data::keys;
 use freyr::deposit::deposit::Deposit;
-use freyr::deposit::deposit_utils::CreateDepositParams;
 use freyr::deposit::deposit_utils;
+use freyr::deposit::deposit_utils::CreateDepositParams;
 use freyr::deposit::deposit_vault::{IDepositVaultDispatcher, IDepositVaultDispatcherTrait};
 use freyr::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
 use freyr::exchange::deposit_handler::{IDepositHandlerDispatcher, IDepositHandlerDispatcherTrait};
 
 use freyr::exchange::liquidation_handler::{ILiquidationHandlerDispatcher, ILiquidationHandlerDispatcherTrait};
-use freyr::exchange::order_handler::{OrderHandler, IOrderHandlerDispatcher, IOrderHandlerDispatcherTrait};
+use freyr::exchange::order_handler::{IOrderHandlerDispatcher, IOrderHandlerDispatcherTrait, OrderHandler};
 
 use freyr::exchange::withdrawal_handler::{IWithdrawalHandlerDispatcher, IWithdrawalHandlerDispatcherTrait};
 use freyr::market::market::{Market, UniqueIdMarket};
 use freyr::market::market_token::{IMarketTokenDispatcher, IMarketTokenDispatcherTrait};
-use freyr::market::market_utils::{IMarketUtilsLibraryDispatcher, IMarketUtilsDispatcherTrait, MarketPrices};
-use freyr::market::{market::{UniqueIdMarketImpl},};
+use freyr::market::market_utils::{IMarketUtilsDispatcherTrait, IMarketUtilsLibraryDispatcher, MarketPrices};
+use freyr::market::{market::{UniqueIdMarketImpl}};
 use freyr::mock::referral_storage::{IReferralStorageDispatcher, IReferralStorageDispatcherTrait};
 use freyr::oracle::oracle::{IOracleDispatcher, IOracleDispatcherTrait};
 use freyr::oracle::oracle_utils::SetPricesParams;
 use freyr::order::base_order_utils::{CreateOrderParams};
-use freyr::order::order::{Order, OrderType, SecondaryOrderType, DecreasePositionSwapType};
+use freyr::order::order::{DecreasePositionSwapType, Order, OrderType, SecondaryOrderType};
 use freyr::order::order_utils::{IOrderUtilsDispatcher, IOrderUtilsDispatcherTrait};
 use freyr::order::order_vault::{IOrderVaultDispatcher, IOrderVaultDispatcherTrait};
 use freyr::position::position_utils;
@@ -44,17 +44,17 @@ use freyr::swap::swap_handler::{ISwapHandlerDispatcher, ISwapHandlerDispatcherTr
 use freyr::test_utils::deposit_setup::{deposit_setup, exec_order};
 use freyr::test_utils::tests_lib;
 use freyr::token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
-use freyr::utils::span32::{Span32, DefaultSpan32, Array32Trait};
+use freyr::utils::span32::{Array32Trait, DefaultSpan32, Span32};
 use freyr::withdrawal::withdrawal::Withdrawal;
 use freyr::withdrawal::withdrawal_utils;
 use freyr::withdrawal::withdrawal_vault::{IWithdrawalVaultDispatcher, IWithdrawalVaultDispatcherTrait};
 use result::ResultTrait;
 use snforge_std::{
-    declare, start_cheat_caller_address, stop_cheat_caller_address, start_cheat_block_number_global, ContractClassTrait,
-    DeclareResultTrait, ContractClass
+    ContractClass, ContractClassTrait, DeclareResultTrait, declare, start_cheat_block_number_global,
+    start_cheat_caller_address, stop_cheat_caller_address,
 };
-use starknet::{ContractAddress, get_caller_address, Felt252TryIntoContractAddress, contract_address_const, ClassHash,};
-use traits::{TryInto, Into};
+use starknet::{ClassHash, ContractAddress, Felt252TryIntoContractAddress, contract_address_const, get_caller_address};
+use traits::{Into, TryInto};
 
 const INITIAL_TOKENS_MINTED: felt252 = 1000;
 
@@ -85,7 +85,7 @@ fn test_short_increase_decrease_close() {
         market_utils,
     ) =
         deposit_setup(
-        50000000000000000000000000000, 50000000000000000000000000000
+        50000000000000000000000000000, 50000000000000000000000000000,
     );
 
     let balance_caller_ETH = IERC20Dispatcher { contract_address: market.long_token }.balance_of(caller_address);
@@ -98,9 +98,9 @@ fn test_short_increase_decrease_close() {
         .get_pool_value_info(
             data_store,
             market,
-            Price { min: 3500, max: 3500, },
-            Price { min: 3500, max: 3500, },
-            Price { min: 1, max: 1, },
+            Price { min: 3500, max: 3500 },
+            Price { min: 3500, max: 3500 },
+            Price { min: 1, max: 1 },
             keys::max_pnl_factor_for_deposits(),
             true,
         );
@@ -151,7 +151,7 @@ fn test_short_increase_decrease_close() {
         order_type: OrderType::MarketIncrease(()),
         decrease_position_swap_type: DecreasePositionSwapType::NoSwap(()),
         is_long: false,
-        referral_code: 0
+        referral_code: 0,
     };
     // Create the short order.
     role_store.grant_role(exchange_router.contract_address, role::CONTROLLER);
@@ -186,9 +186,9 @@ fn test_short_increase_decrease_close() {
 
     // Test the PnL if the price goes up
     let market_prices = MarketPrices {
-        index_token_price: Price { min: 3850, max: 3850, },
-        long_token_price: Price { min: 3850, max: 3850, },
-        short_token_price: Price { min: 1, max: 1, },
+        index_token_price: Price { min: 3850, max: 3850 },
+        long_token_price: Price { min: 3850, max: 3850 },
+        short_token_price: Price { min: 1, max: 1 },
     };
 
     let position_info = reader
@@ -214,9 +214,9 @@ fn test_short_increase_decrease_close() {
         .balance_of(caller_address);
 
     let market_prices = MarketPrices {
-        index_token_price: Price { min: 3000, max: 3000, },
-        long_token_price: Price { min: 3000, max: 3000, },
-        short_token_price: Price { min: 1, max: 1, },
+        index_token_price: Price { min: 3000, max: 3000 },
+        long_token_price: Price { min: 3000, max: 3000 },
+        short_token_price: Price { min: 1, max: 1 },
     };
 
     let position_info = reader
@@ -243,7 +243,7 @@ fn test_short_increase_decrease_close() {
         order_type: OrderType::MarketDecrease(()),
         decrease_position_swap_type: DecreasePositionSwapType::NoSwap(()),
         is_long: false,
-        referral_code: 0
+        referral_code: 0,
     };
     // Create the long order.
     role_store.grant_role(exchange_router.contract_address, role::CONTROLLER);

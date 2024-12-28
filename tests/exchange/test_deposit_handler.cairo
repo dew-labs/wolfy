@@ -5,12 +5,12 @@ use freyr::role::role;
 use freyr::role::role_module::{IRoleModuleDispatcher, IRoleModuleDispatcherTrait};
 use freyr::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
 use freyr::test_utils::tests_lib;
-use freyr::utils::span32::{Span32, Array32Trait};
+use freyr::utils::span32::{Array32Trait, Span32};
 use snforge_std::{
-    declare, start_cheat_caller_address, stop_cheat_caller_address, ContractClassTrait, DeclareResultTrait,
-    ContractClass
+    ContractClass, ContractClassTrait, DeclareResultTrait, declare, start_cheat_caller_address,
+    stop_cheat_caller_address,
 };
-use starknet::{ContractAddress, contract_address_const, ClassHash, Felt252TryIntoContractAddress};
+use starknet::{ClassHash, ContractAddress, Felt252TryIntoContractAddress, contract_address_const};
 use traits::Default;
 
 // TODO add assert and tests when deposit_vault will be implemented

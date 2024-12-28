@@ -9,7 +9,7 @@ use core::traits::Into;
 
 // Local imports.
 use freyr::oracle::oracle_utils::SetPricesParams;
-use starknet::{ContractAddress, ClassHash};
+use starknet::{ClassHash, ContractAddress};
 
 // *************************************************************************
 //                  Interface of the `LiquidationHandler` contract.
@@ -29,7 +29,7 @@ trait ILiquidationHandler<TContractState> {
         market: ContractAddress,
         collateral_token: ContractAddress,
         is_long: bool,
-        oracle_params: SetPricesParams
+        oracle_params: SetPricesParams,
     );
 }
 
@@ -42,39 +42,39 @@ mod LiquidationHandler {
     // Core lib imports.
 
     use freyr::data::{
-        data_store::{IDataStoreSafeDispatcher, IDataStoreSafeDispatcherTrait, DataStore},
-        keys::execute_order_feature_disabled_key
+        data_store::{DataStore, IDataStoreSafeDispatcher, IDataStoreSafeDispatcherTrait},
+        keys::execute_order_feature_disabled_key,
     };
-    use freyr::data::{keys, data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait}};
+    use freyr::data::{data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait}, keys};
     use freyr::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
-    use freyr::exchange::base_order_handler::{IBaseOrderHandlerLibraryDispatcher, IBaseOrderHandlerDispatcherTrait};
+    use freyr::exchange::base_order_handler::{IBaseOrderHandlerDispatcherTrait, IBaseOrderHandlerLibraryDispatcher};
     use freyr::feature::feature_utils::validate_feature;
 
     use freyr::liquidation::liquidation_utils::create_liquidation_order;
     use freyr::market::market::Market;
-    use freyr::market::market_utils::{IMarketUtilsLibraryDispatcher, IMarketUtilsDispatcherTrait};
+    use freyr::market::market_utils::{IMarketUtilsDispatcherTrait, IMarketUtilsLibraryDispatcher};
     use freyr::mock::referral_storage::{IReferralStorageDispatcher, IReferralStorageDispatcherTrait};
     use freyr::oracle::{
         oracle::{IOracleDispatcher, IOracleDispatcherTrait},
-        oracle_modules::{with_oracle_prices_before, with_oracle_prices_after}, oracle_utils::SetPricesParams
+        oracle_modules::{with_oracle_prices_after, with_oracle_prices_before}, oracle_utils::SetPricesParams,
     };
     use freyr::order::{
-        order_utils::{IOrderUtilsDispatcher}, order::{SecondaryOrderType, OrderType, Order},
-        order_vault::{IOrderVaultDispatcher, IOrderVaultDispatcherTrait}, base_order_utils::{ExecuteOrderParams}
+        base_order_utils::{ExecuteOrderParams}, order::{Order, OrderType, SecondaryOrderType},
+        order_utils::{IOrderUtilsDispatcher}, order_vault::{IOrderVaultDispatcher, IOrderVaultDispatcherTrait},
     };
-    use freyr::order::{order_utils::{IOrderUtilsLibraryDispatcher, IOrderUtilsDispatcherTrait}};
+    use freyr::order::{order_utils::{IOrderUtilsDispatcherTrait, IOrderUtilsLibraryDispatcher}};
     use freyr::role::role;
-    use freyr::role::role_module::{IRoleModuleLibraryDispatcher, IRoleModuleDispatcherTrait};
-    use freyr::role::role_module::{RoleModule, IRoleModule};
+    use freyr::role::role_module::{IRoleModule, RoleModule};
+    use freyr::role::role_module::{IRoleModuleDispatcherTrait, IRoleModuleLibraryDispatcher};
     use freyr::role::role_store::{IRoleStoreDispatcher};
     use freyr::role::role_store::{IRoleStoreSafeDispatcher, IRoleStoreSafeDispatcherTrait};
     use freyr::swap::swap_handler::{ISwapHandlerDispatcher, ISwapHandlerDispatcherTrait};
-    use freyr::utils::{starknet_utils, global_reentrancy_guard};
+    use freyr::utils::{global_reentrancy_guard, starknet_utils};
 
     use starknet::storage::{
-        StorageMapReadAccess, StorageMapWriteAccess, StoragePointerReadAccess, StoragePointerWriteAccess
+        StorageMapReadAccess, StorageMapWriteAccess, StoragePointerReadAccess, StoragePointerWriteAccess,
     };
-    use starknet::{ContractAddress, get_caller_address, get_contract_address, ClassHash};
+    use starknet::{ClassHash, ContractAddress, get_caller_address, get_contract_address};
 
     // Local imports.
     use super::ILiquidationHandler;
@@ -129,7 +129,7 @@ mod LiquidationHandler {
         swap_order_utils_class_hash: ClassHash,
         role_module_class_hash: ClassHash,
         base_order_handler_class_hash: ClassHash,
-        market_utils_class_hash: ClassHash
+        market_utils_class_hash: ClassHash,
     ) {
         self.base_order_handler.write(IBaseOrderHandlerLibraryDispatcher { class_hash: base_order_handler_class_hash });
         self
@@ -164,32 +164,32 @@ mod LiquidationHandler {
             market: ContractAddress,
             collateral_token: ContractAddress,
             is_long: bool,
-            oracle_params: SetPricesParams
+            oracle_params: SetPricesParams,
         ) {
             global_reentrancy_guard::non_reentrant_before(self.data_store.read());
 
             self.role_module.read().only_liquidation_keeper();
 
             with_oracle_prices_before(
-                self.oracle.read(), self.data_store.read(), self.event_emitter.read(), @oracle_params
+                self.oracle.read(), self.data_store.read(), self.event_emitter.read(), @oracle_params,
             );
 
             // let starting_gas: u128 = starknet_utils::sn_gasleft(array![100]); TODO GAS
             let starting_gas: u256 = 0;
 
             let key: felt252 = create_liquidation_order(
-                self.data_store.read(), self.event_emitter.read(), account, market, collateral_token, is_long
+                self.data_store.read(), self.event_emitter.read(), account, market, collateral_token, is_long,
             );
             let tmp_oracle_params: SetPricesParams = oracle_params.clone();
             let params: ExecuteOrderParams = self
                 .base_order_handler
                 .read()
                 .get_execute_order_params(
-                    key, tmp_oracle_params, get_caller_address(), starting_gas, SecondaryOrderType::None
+                    key, tmp_oracle_params, get_caller_address(), starting_gas, SecondaryOrderType::None,
                 );
             validate_feature(
                 params.contracts.data_store,
-                execute_order_feature_disabled_key(get_contract_address(), params.order.order_type)
+                execute_order_feature_disabled_key(get_contract_address(), params.order.order_type),
             );
             self.order_utils_lib.read().execute_order_utils(params);
             with_oracle_prices_after(self.oracle.read());

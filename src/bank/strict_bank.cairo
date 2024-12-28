@@ -6,7 +6,7 @@
 
 // Core lib imports.
 use freyr::token::erc20::interface::{IERC20, IERC20Dispatcher, IERC20DispatcherTrait};
-use starknet::{ContractAddress, ClassHash, get_contract_address};
+use starknet::{ClassHash, ContractAddress, get_contract_address};
 use traits::{Into, TryInto};
 
 // *************************************************************************
@@ -57,13 +57,13 @@ mod StrictBank {
     use debug::PrintTrait;
 
     // Local imports.
-    use freyr::bank::bank::{IBankLibraryDispatcher, IBankDispatcherTrait};
+    use freyr::bank::bank::{IBankDispatcherTrait, IBankLibraryDispatcher};
     use freyr::data::data_store::{IDataStoreDispatcher};
-    use freyr::role::role_module::{IRoleModuleLibraryDispatcher, IRoleModuleDispatcherTrait};
+    use freyr::role::role_module::{IRoleModuleDispatcherTrait, IRoleModuleLibraryDispatcher};
     use freyr::role::role_store::{IRoleStoreDispatcher};
     use freyr::token::erc20::interface::{IERC20, IERC20Dispatcher, IERC20DispatcherTrait};
     use starknet::storage::Map;
-    use starknet::{get_caller_address, get_contract_address, ContractAddress, ClassHash, contract_address_const};
+    use starknet::{ClassHash, ContractAddress, contract_address_const, get_caller_address, get_contract_address};
     use super::IStrictBank;
 
     // *************************************************************************

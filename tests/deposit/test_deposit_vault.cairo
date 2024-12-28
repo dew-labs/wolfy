@@ -15,11 +15,11 @@ use freyr::token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
 use integer::{u256_from_felt252};
 use result::ResultTrait;
 use snforge_std::{
-    declare, start_cheat_caller_address, stop_cheat_caller_address, start_mock_call, ContractClassTrait,
-    DeclareResultTrait
+    ContractClassTrait, DeclareResultTrait, declare, start_cheat_caller_address, start_mock_call,
+    stop_cheat_caller_address,
 };
-use starknet::{ContractAddress, get_caller_address, Felt252TryIntoContractAddress, contract_address_const, ClassHash,};
-use traits::{TryInto, Into};
+use starknet::{ClassHash, ContractAddress, Felt252TryIntoContractAddress, contract_address_const, get_caller_address};
+use traits::{Into, TryInto};
 
 // *********************************************************************************************
 // *                                     TEST CONSTANTS                                        *
@@ -41,7 +41,7 @@ fn given_normal_conditions_when_transfer_out_then_works() {
     // check that the contract balance reduces
     let contract_balance = erc20.balance_of(deposit_vault.contract_address);
     let expected_balance: u256 = u256_from_felt252(
-        INITIAL_TOKENS_MINTED - amount_to_transfer.try_into().expect('u256 into felt failed')
+        INITIAL_TOKENS_MINTED - amount_to_transfer.try_into().expect('u256 into felt failed'),
     );
     assert(contract_balance == expected_balance, 'transfer_out failed');
 
@@ -169,7 +169,7 @@ fn setup() -> (
     IRoleStoreDispatcher,
     IDataStoreDispatcher,
     IDepositVaultDispatcher,
-    IERC20Dispatcher
+    IERC20Dispatcher,
 ) {
     let (
         caller_address,

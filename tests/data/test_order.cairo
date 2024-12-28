@@ -1,12 +1,12 @@
 use freyr::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
-use freyr::order::order::{Order, OrderType, OrderTrait, DecreasePositionSwapType};
+use freyr::order::order::{DecreasePositionSwapType, Order, OrderTrait, OrderType};
 use freyr::role::role;
 use freyr::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
 use freyr::test_utils::tests_lib;
-use freyr::utils::span32::{Span32, Array32Trait};
+use freyr::utils::span32::{Array32Trait, Span32};
 
 use snforge_std::{
-    declare, start_cheat_caller_address, stop_cheat_caller_address, ContractClassTrait, DeclareResultTrait
+    ContractClassTrait, DeclareResultTrait, declare, start_cheat_caller_address, stop_cheat_caller_address,
 };
 use starknet::{ContractAddress, contract_address_const};
 
@@ -25,7 +25,7 @@ fn given_normal_conditions_when_set_order_new_and_override_then_works() {
         contract_address_const::<'token1'>(),
         is_long: false,
         is_frozen: false,
-        order_no: 1
+        order_no: 1,
     );
 
     // Test logic
@@ -83,7 +83,7 @@ fn given_order_account_0_when_set_order_then_fails() {
         contract_address_const::<'token1'>(),
         is_long: false,
         is_frozen: false,
-        order_no: 1
+        order_no: 1,
     );
 
     // Test logic
@@ -111,7 +111,7 @@ fn given_caller_not_controller_when_set_order_then_fails() {
         contract_address_const::<'token1'>(),
         is_long: false,
         is_frozen: false,
-        order_no: 1
+        order_no: 1,
     );
 
     // Test logic
@@ -138,7 +138,7 @@ fn given_caller_not_controller_when_get_order_keys_then_fails() {
         contract_address_const::<'token1'>(),
         is_long: false,
         is_frozen: false,
-        order_no: 1
+        order_no: 1,
     );
 
     data_store.set_order(key, order);
@@ -175,7 +175,7 @@ fn given_normal_conditions_when_remove_only_order_then_works() {
         contract_address_const::<'token1'>(),
         is_long: false,
         is_frozen: false,
-        order_no: 1
+        order_no: 1,
     );
 
     data_store.set_order(key, order);
@@ -214,7 +214,7 @@ fn given_normal_conditions_when_remove_1_of_n_order_then_works() {
         contract_address_const::<'token1'>(),
         is_long: false,
         is_frozen: false,
-        order_no: 1
+        order_no: 1,
     );
 
     let key_2: felt252 = 22222222222;
@@ -227,7 +227,7 @@ fn given_normal_conditions_when_remove_1_of_n_order_then_works() {
         contract_address_const::<'token1'>(),
         is_long: false,
         is_frozen: false,
-        order_no: 1
+        order_no: 1,
     );
 
     data_store.set_order(key_1, order_1);
@@ -274,7 +274,7 @@ fn given_normal_conditions_when_remove_last_order_then_works() {
         contract_address_const::<'token1'>(),
         is_long: false,
         is_frozen: false,
-        order_no: 1
+        order_no: 1,
     );
 
     let key_2: felt252 = 22222222222;
@@ -287,7 +287,7 @@ fn given_normal_conditions_when_remove_last_order_then_works() {
         contract_address_const::<'token1'>(),
         is_long: false,
         is_frozen: false,
-        order_no: 1
+        order_no: 1,
     );
 
     data_store.set_order(key_1, order_1);
@@ -337,7 +337,7 @@ fn given_caller_not_controller_when_remove_order_then_fails() {
         contract_address_const::<'token1'>(),
         is_long: false,
         is_frozen: false,
-        order_no: 1
+        order_no: 1,
     );
 
     data_store.set_order(key, order);
@@ -371,7 +371,7 @@ fn given_normal_conditions_when_multiple_account_keys_then_works() {
         contract_address_const::<'token1'>(),
         is_long: false,
         is_frozen: false,
-        order_no: 1
+        order_no: 1,
     );
 
     let key_2: felt252 = 22222222222;
@@ -384,7 +384,7 @@ fn given_normal_conditions_when_multiple_account_keys_then_works() {
         contract_address_const::<'token1'>(),
         is_long: false,
         is_frozen: false,
-        order_no: 2
+        order_no: 2,
     );
     let key_3: felt252 = 3333344455667;
     let mut order_3: Order = create_new_order(
@@ -395,7 +395,7 @@ fn given_normal_conditions_when_multiple_account_keys_then_works() {
         contract_address_const::<'token1'>(),
         is_long: false,
         is_frozen: false,
-        order_no: 1
+        order_no: 1,
     );
     let key_4: felt252 = 444445556777889;
     let mut order_4: Order = create_new_order(
@@ -406,7 +406,7 @@ fn given_normal_conditions_when_multiple_account_keys_then_works() {
         contract_address_const::<'token1'>(),
         is_long: false,
         is_frozen: false,
-        order_no: 1
+        order_no: 1,
     );
 
     data_store.set_order(key_1, order_1);
@@ -476,14 +476,14 @@ fn create_new_order(
     initial_collateral_token: ContractAddress,
     is_long: bool,
     is_frozen: bool,
-    order_no: u256
+    order_no: u256,
 ) -> Order {
     let order_type = OrderType::StopLossDecrease;
     let decrease_position_swap_type = DecreasePositionSwapType::NoSwap(());
     let callback_contract = contract_address_const::<'callback_contract'>();
     let ui_fee_receiver = contract_address_const::<'ui_fee_receiver'>();
     let swap_path: Span32<ContractAddress> = array![
-        contract_address_const::<'swap_path_0'>(), contract_address_const::<'swap_path_1'>()
+        contract_address_const::<'swap_path_0'>(), contract_address_const::<'swap_path_1'>(),
     ]
         .span32();
     let size_delta_usd = 1000 * order_no;

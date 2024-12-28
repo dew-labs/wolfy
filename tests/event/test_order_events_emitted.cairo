@@ -1,16 +1,17 @@
 use freyr::event::event_emitter::EventEmitter::{
-    OrderCreated, OrderExecuted, OrderUpdated, OrderSizeDeltaAutoUpdated, OrderCollateralDeltaAmountAutoUpdated,
-    OrderCancelled, OrderFrozen,
+    OrderCancelled, OrderCollateralDeltaAmountAutoUpdated, OrderCreated, OrderExecuted, OrderFrozen,
+    OrderSizeDeltaAutoUpdated, OrderUpdated,
 };
 
 use freyr::event::event_emitter::{EventEmitter, IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
 
 
-use freyr::order::order::{Order, OrderType, SecondaryOrderType, DecreasePositionSwapType};
+use freyr::order::order::{DecreasePositionSwapType, Order, OrderType, SecondaryOrderType};
 use freyr::test_utils::tests_lib::deploy_event_emitter;
-use freyr::utils::span32::{Span32, Array32Trait};
+use freyr::utils::span32::{Array32Trait, Span32};
 use snforge_std::{
-    declare, ContractClassTrait, DeclareResultTrait, spy_events, EventSpy, EventSpyTrait, Event, EventSpyAssertionsTrait
+    ContractClassTrait, DeclareResultTrait, Event, EventSpy, EventSpyAssertionsTrait, EventSpyTrait, declare,
+    spy_events,
 };
 use starknet::{ContractAddress, contract_address_const};
 
@@ -36,7 +37,7 @@ fn given_normal_conditions_when_emit_order_created_then_works() {
     // Assert the event was emitted.
     spy
         .assert_emitted(
-            @array![(contract_address, EventEmitter::Event::OrderCreated(OrderCreated { key: key, order: order }))]
+            @array![(contract_address, EventEmitter::Event::OrderCreated(OrderCreated { key: key, order: order }))],
         );
     // Assert there are no more events.
     assert(spy.get_events().events.len() == 1, 'There should be no events');
@@ -68,10 +69,10 @@ fn given_normal_conditions_when_emit_order_executed_then_works() {
                 (
                     contract_address,
                     EventEmitter::Event::OrderExecuted(
-                        OrderExecuted { key: key, secondary_order_type: secondary_order_type }
-                    )
-                )
-            ]
+                        OrderExecuted { key: key, secondary_order_type: secondary_order_type },
+                    ),
+                ),
+            ],
         );
     // Assert there are no more events.
     assert(spy.get_events().events.len() == 1, 'There should be no events');
@@ -111,11 +112,11 @@ fn given_normal_conditions_when_emit_order_updated_then_works() {
                             size_delta_usd: size_delta_usd,
                             acceptable_price: acceptable_price,
                             trigger_price: trigger_price,
-                            min_output_amount: min_output_amount
-                        }
-                    )
-                )
-            ]
+                            min_output_amount: min_output_amount,
+                        },
+                    ),
+                ),
+            ],
         );
     // Assert there are no more events.
     assert(spy.get_events().events.len() == 1, 'There should be no events');
@@ -150,10 +151,10 @@ fn given_normal_conditions_when_emit_order_size_delta_auto_updated_then_works() 
                     EventEmitter::Event::OrderSizeDeltaAutoUpdated(
                         OrderSizeDeltaAutoUpdated {
                             key: key, size_delta_usd: size_delta_usd, next_size_delta_usd: next_size_delta_usd,
-                        }
-                    )
-                )
-            ]
+                        },
+                    ),
+                ),
+            ],
         );
     // Assert there are no more events.
     assert(spy.get_events().events.len() == 1, 'There should be no events');
@@ -191,10 +192,10 @@ fn given_normal_conditions_when_emit_order_collateral_delta_amount_auto_updated_
                             key: key,
                             collateral_delta_amount: collateral_delta_amount,
                             next_collateral_delta_amount: next_collateral_delta_amount,
-                        }
-                    )
-                )
-            ]
+                        },
+                    ),
+                ),
+            ],
         );
     // Assert there are no more events.
     assert(spy.get_events().events.len() == 1, 'There should be no events');
@@ -227,10 +228,10 @@ fn given_normal_conditions_when_emit_order_cancelled_then_works() {
                 (
                     contract_address,
                     EventEmitter::Event::OrderCancelled(
-                        OrderCancelled { key: key, reason: reason, reason_key: reason_key, }
-                    )
-                )
-            ]
+                        OrderCancelled { key: key, reason: reason, reason_key: reason_key },
+                    ),
+                ),
+            ],
         );
     // Assert there are no more events.
     assert(spy.get_events().events.len() == 1, 'There should be no events');
@@ -262,9 +263,9 @@ fn given_normal_conditions_when_emit_order_frozen_then_works() {
             @array![
                 (
                     contract_address,
-                    EventEmitter::Event::OrderFrozen(OrderFrozen { key: key, reason: reason, reason_key: reason_key, })
-                )
-            ]
+                    EventEmitter::Event::OrderFrozen(OrderFrozen { key: key, reason: reason, reason_key: reason_key }),
+                ),
+            ],
         );
     // Assert there are no more events.
     assert(spy.get_events().events.len() == 1, 'There should be no events');
@@ -288,7 +289,7 @@ fn setup() -> (ContractAddress, IEventEmitterDispatcher) {
 /// Utility function to create a dummy order.
 fn create_dummy_order(key: felt252) -> Order {
     let swap_path: Span32<ContractAddress> = array![
-        contract_address_const::<'swap_path_0'>(), contract_address_const::<'swap_path_1'>()
+        contract_address_const::<'swap_path_0'>(), contract_address_const::<'swap_path_1'>(),
     ]
         .span32();
     Order {

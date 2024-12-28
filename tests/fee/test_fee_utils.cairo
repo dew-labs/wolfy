@@ -1,5 +1,5 @@
 use freyr::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
-use freyr::data::keys::{claimable_fee_amount_key, claimable_ui_fee_amount_key, claimable_ui_fee_amount_for_account_key};
+use freyr::data::keys::{claimable_fee_amount_key, claimable_ui_fee_amount_for_account_key, claimable_ui_fee_amount_key};
 
 use freyr::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
 use freyr::fee::fee_utils::{increment_claimable_fee_amount, increment_claimable_ui_fee_amount};
@@ -7,9 +7,9 @@ use freyr::role::role;
 use freyr::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
 use freyr::test_utils::tests_lib;
 use snforge_std::{
-    declare, start_cheat_caller_address, stop_cheat_caller_address, ContractClassTrait, DeclareResultTrait
+    ContractClassTrait, DeclareResultTrait, declare, start_cheat_caller_address, stop_cheat_caller_address,
 };
-use starknet::{ContractAddress, get_caller_address, Felt252TryIntoContractAddress, contract_address_const};
+use starknet::{ContractAddress, Felt252TryIntoContractAddress, contract_address_const, get_caller_address};
 
 #[test]
 fn given_normal_conditions_when_increment_claimable_fee_amount_then_works() {

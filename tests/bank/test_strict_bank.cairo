@@ -7,7 +7,7 @@
 use debug::PrintTrait;
 
 // Local imports.
-use freyr::bank::bank::{IBankDispatcherTrait, IBankDispatcher};
+use freyr::bank::bank::{IBankDispatcher, IBankDispatcherTrait};
 use freyr::bank::strict_bank::{IStrictBankDispatcher, IStrictBankDispatcherTrait};
 use freyr::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
 use freyr::role::role;
@@ -17,11 +17,11 @@ use freyr::token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
 use integer::u256_from_felt252;
 use result::ResultTrait;
 use snforge_std::{
-    declare, start_cheat_caller_address, stop_cheat_caller_address, ContractClassTrait, DeclareResultTrait,
-    ContractClass
+    ContractClass, ContractClassTrait, DeclareResultTrait, declare, start_cheat_caller_address,
+    stop_cheat_caller_address,
 };
-use starknet::{ContractAddress, get_caller_address, contract_address_const, ClassHash,};
-use traits::{TryInto, Into};
+use starknet::{ClassHash, ContractAddress, contract_address_const, get_caller_address};
+use traits::{Into, TryInto};
 
 /// Setup required contracts.
 fn setup_contracts() -> (
@@ -86,7 +86,7 @@ fn teardown(data_store: IDataStoreDispatcher, strict_bank: IStrictBankDispatcher
 #[should_panic(expected: ('already_initialized',))]
 fn given_already_initialized_contract_when_initializing_then_fail() {
     let (
-        _caller_address, _receiver_address, role_store, data_store, _bank, strict_bank, role_module_class, bank_class
+        _caller_address, _receiver_address, role_store, data_store, _bank, strict_bank, role_module_class, bank_class,
     ) =
         setup_contracts();
     // try initializing after previously initializing in setup
@@ -95,7 +95,7 @@ fn given_already_initialized_contract_when_initializing_then_fail() {
             data_store.contract_address,
             role_store.contract_address,
             bank_class.class_hash,
-            role_module_class.class_hash
+            role_module_class.class_hash,
         );
     teardown(data_store, strict_bank);
 }

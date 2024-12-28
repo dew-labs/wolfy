@@ -28,7 +28,7 @@ impl Felt252SetImpl of SetTrait<felt252> {
     /// # Returns
     /// * A new set.
     fn new() -> Set {
-        Set { indexes: Default::default(), values: Default::default(), length: 0, }
+        Set { indexes: Default::default(), values: Default::default(), length: 0 }
     }
 
     /// Adds a value to the set.

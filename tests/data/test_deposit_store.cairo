@@ -3,9 +3,9 @@ use freyr::deposit::deposit::Deposit;
 use freyr::role::role;
 use freyr::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
 use freyr::test_utils::tests_lib;
-use freyr::utils::span32::{Span32, Array32Trait};
+use freyr::utils::span32::{Array32Trait, Span32};
 
-use snforge_std::{declare, start_cheat_caller_address, ContractClassTrait, DeclareResultTrait};
+use snforge_std::{ContractClassTrait, DeclareResultTrait, declare, start_cheat_caller_address};
 use starknet::{ContractAddress, contract_address_const};
 
 /// Utility function to setup the test environment.
@@ -58,7 +58,7 @@ fn given_normal_conditions_when_set_and_override_new_deposit_then_works() {
     let key: felt252 = 123456789;
     let account = 'account'.try_into().unwrap();
     let mut deposit: Deposit = create_new_deposit(
-        key, account, contract_address_const::<'market1'>(), contract_address_const::<'token1'>(), deposit_no: 1
+        key, account, contract_address_const::<'market1'>(), contract_address_const::<'token1'>(), deposit_no: 1,
     );
 
     // Test logic
@@ -110,7 +110,7 @@ fn given_deposit_account_0_when_set_deposit_then_fails() {
         contract_address_const::<0>(),
         contract_address_const::<'receiver1'>(),
         contract_address_const::<'market1'>(),
-        deposit_no: 1
+        deposit_no: 1,
     );
 
     // Test logic
@@ -131,7 +131,7 @@ fn given_caller_not_controller_when_set_deposit_then_fails() {
     let key: felt252 = 123456789;
     let account = 'account'.try_into().unwrap();
     let mut deposit: Deposit = create_new_deposit(
-        key, account, contract_address_const::<'receiver1'>(), contract_address_const::<'market1'>(), deposit_no: 1
+        key, account, contract_address_const::<'receiver1'>(), contract_address_const::<'market1'>(), deposit_no: 1,
     );
 
     // Test logic
@@ -148,7 +148,7 @@ fn given_normal_conditions_when_get_deposit_keys_then_works() {
     let key: felt252 = 123456789;
     let account = 'account'.try_into().unwrap();
     let mut deposit: Deposit = create_new_deposit(
-        key, account, contract_address_const::<'receiver1'>(), contract_address_const::<'market1'>(), deposit_no: 1
+        key, account, contract_address_const::<'receiver1'>(), contract_address_const::<'market1'>(), deposit_no: 1,
     );
 
     data_store.set_deposit(key, deposit);
@@ -178,7 +178,7 @@ fn given_normal_conditions_when_remove_one_deposit_then_works() {
     let key: felt252 = 123456789;
     let account = 'account'.try_into().unwrap();
     let mut deposit: Deposit = create_new_deposit(
-        key, account, contract_address_const::<'receiver1'>(), contract_address_const::<'market1'>(), deposit_no: 1
+        key, account, contract_address_const::<'receiver1'>(), contract_address_const::<'market1'>(), deposit_no: 1,
     );
 
     data_store.set_deposit(key, deposit);
@@ -210,13 +210,13 @@ fn given_normal_conditions_when_remove_1_of_n_deposit_then_works() {
     let key_1: felt252 = 123456789;
     let account = 'account'.try_into().unwrap();
     let mut deposit_1: Deposit = create_new_deposit(
-        key_1, account, contract_address_const::<'receiver1'>(), contract_address_const::<'market1'>(), deposit_no: 1
+        key_1, account, contract_address_const::<'receiver1'>(), contract_address_const::<'market1'>(), deposit_no: 1,
     );
 
     let key_2: felt252 = 22222222222;
 
     let mut deposit_2: Deposit = create_new_deposit(
-        key_2, account, contract_address_const::<'receiver1'>(), contract_address_const::<'market1'>(), deposit_no: 1
+        key_2, account, contract_address_const::<'receiver1'>(), contract_address_const::<'market1'>(), deposit_no: 1,
     );
 
     data_store.set_deposit(key_1, deposit_1);
@@ -256,13 +256,13 @@ fn given_normal_conditions_when_remove_last_deposit_then_works() {
     let key_1: felt252 = 123456789;
     let account = 'account'.try_into().unwrap();
     let mut deposit_1: Deposit = create_new_deposit(
-        key_1, account, contract_address_const::<'receiver1'>(), contract_address_const::<'market1'>(), deposit_no: 1
+        key_1, account, contract_address_const::<'receiver1'>(), contract_address_const::<'market1'>(), deposit_no: 1,
     );
 
     let key_2: felt252 = 22222222222;
 
     let mut deposit_2: Deposit = create_new_deposit(
-        key_2, account, contract_address_const::<'receiver1'>(), contract_address_const::<'market1'>(), deposit_no: 1
+        key_2, account, contract_address_const::<'receiver1'>(), contract_address_const::<'market1'>(), deposit_no: 1,
     );
 
     data_store.set_deposit(key_1, deposit_1);
@@ -305,7 +305,7 @@ fn given_caller_not_controller_when_remove_deposit_then_fails() {
     let key: felt252 = 123456789;
     let account = 'account'.try_into().unwrap();
     let mut deposit: Deposit = create_new_deposit(
-        key, account, contract_address_const::<'receiver1'>(), contract_address_const::<'market1'>(), deposit_no: 1
+        key, account, contract_address_const::<'receiver1'>(), contract_address_const::<'market1'>(), deposit_no: 1,
     );
 
     data_store.set_deposit(key, deposit);
@@ -331,21 +331,21 @@ fn given_normal_conditions_when_multiple_get_account_deposit_keys_then_works() {
     let key_1: felt252 = 123456789;
     let account = 'account'.try_into().unwrap();
     let mut deposit_1: Deposit = create_new_deposit(
-        key_1, account, contract_address_const::<'receiver1'>(), contract_address_const::<'market1'>(), deposit_no: 1
+        key_1, account, contract_address_const::<'receiver1'>(), contract_address_const::<'market1'>(), deposit_no: 1,
     );
 
     let key_2: felt252 = 22222222222;
     let account_2 = 'account2222'.try_into().unwrap();
     let mut deposit_2: Deposit = create_new_deposit(
-        key_2, account_2, contract_address_const::<'receiver1'>(), contract_address_const::<'market1'>(), deposit_no: 2
+        key_2, account_2, contract_address_const::<'receiver1'>(), contract_address_const::<'market1'>(), deposit_no: 2,
     );
     let key_3: felt252 = 3333344455667;
     let mut deposit_3: Deposit = create_new_deposit(
-        key_3, account, contract_address_const::<'receiver1'>(), contract_address_const::<'market1'>(), deposit_no: 3
+        key_3, account, contract_address_const::<'receiver1'>(), contract_address_const::<'market1'>(), deposit_no: 3,
     );
     let key_4: felt252 = 444445556777889;
     let mut deposit_4: Deposit = create_new_deposit(
-        key_4, account, contract_address_const::<'receiver1'>(), contract_address_const::<'market1'>(), deposit_no: 4
+        key_4, account, contract_address_const::<'receiver1'>(), contract_address_const::<'market1'>(), deposit_no: 4,
     );
 
     data_store.set_deposit(key_1, deposit_1);
@@ -407,12 +407,12 @@ fn create_new_deposit(
     let initial_short_token = contract_address_const::<'initial_short_token'>();
 
     let long_token_swap_path: Span32<ContractAddress> = array![
-        contract_address_const::<'long_token_swap_path_0'>(), contract_address_const::<'long_token_swap_path_1'>()
+        contract_address_const::<'long_token_swap_path_0'>(), contract_address_const::<'long_token_swap_path_1'>(),
     ]
         .span32();
 
     let short_token_swap_path: Span32<ContractAddress> = array![
-        contract_address_const::<'short_token_swap_path_0'>(), contract_address_const::<'short_token_swap_path_1'>()
+        contract_address_const::<'short_token_swap_path_0'>(), contract_address_const::<'short_token_swap_path_1'>(),
     ]
         .span32();
 
@@ -442,6 +442,6 @@ fn create_new_deposit(
         min_market_tokens,
         updated_at_block,
         execution_fee,
-        callback_gas_limit
+        callback_gas_limit,
     }
 }

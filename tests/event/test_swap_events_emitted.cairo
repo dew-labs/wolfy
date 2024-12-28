@@ -3,11 +3,12 @@ use freyr::event::event_emitter::EventEmitter::{SwapReverted};
 use freyr::event::event_emitter::{EventEmitter, IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
 
 use freyr::pricing::position_pricing_utils::{
-    PositionFees, PositionUiFees, PositionBorrowingFees, PositionReferralFees, PositionFundingFees
+    PositionBorrowingFees, PositionFees, PositionFundingFees, PositionReferralFees, PositionUiFees,
 };
 use freyr::test_utils::tests_lib::deploy_event_emitter;
 use snforge_std::{
-    declare, ContractClassTrait, DeclareResultTrait, spy_events, EventSpy, EventSpyTrait, Event, EventSpyAssertionsTrait
+    ContractClassTrait, DeclareResultTrait, Event, EventSpy, EventSpyAssertionsTrait, EventSpyTrait, declare,
+    spy_events,
 };
 use starknet::{ContractAddress, contract_address_const};
 
@@ -38,9 +39,9 @@ fn given_normal_conditions_when_emit_swap_reverted_then_works() {
             @array![
                 (
                     contract_address,
-                    EventEmitter::Event::SwapReverted(SwapReverted { reason: reason, reason_key: reason_key })
-                )
-            ]
+                    EventEmitter::Event::SwapReverted(SwapReverted { reason: reason, reason_key: reason_key }),
+                ),
+            ],
         );
     // Assert there are no more events.
     assert(spy.get_events().events.len() == 1, 'There should be no events');

@@ -10,8 +10,8 @@ use freyr::market::market::Market;
 use freyr::mock::referral_storage::{IReferralStorageDispatcher, IReferralStorageDispatcherTrait};
 use freyr::oracle::oracle::{IOracleDispatcher, IOracleDispatcherTrait};
 use freyr::order::{
-    error::OrderError, order::{Order, SecondaryOrderType, OrderType, DecreasePositionSwapType},
-    order_vault::{IOrderVaultDispatcher, IOrderVaultDispatcherTrait}
+    error::OrderError, order::{DecreasePositionSwapType, Order, OrderType, SecondaryOrderType},
+    order_vault::{IOrderVaultDispatcher, IOrderVaultDispatcherTrait},
 };
 use freyr::price::price::{Price, PriceTrait};
 use freyr::swap::swap_handler::{ISwapHandlerDispatcher, ISwapHandlerDispatcherTrait};
@@ -21,7 +21,7 @@ use freyr::utils::calc;
 use freyr::utils::i256::{i256, i256_neg};
 use freyr::utils::precision;
 use freyr::utils::span32::Span32;
-use freyr::utils::store_arrays::{StoreMarketArray, StoreU64Array, StoreContractAddressArray};
+use freyr::utils::store_arrays::{StoreContractAddressArray, StoreMarketArray, StoreU64Array};
 use starknet::ContractAddress;
 
 #[derive(Drop, starknet::Store, Serde)]
@@ -44,7 +44,7 @@ struct ExecuteOrderParams {
     /// The starting gas.
     starting_gas: u256,
     /// The secondary order type.
-    secondary_order_type: SecondaryOrderType
+    secondary_order_type: SecondaryOrderType,
 }
 
 
@@ -61,7 +61,7 @@ struct ExecuteOrderParamsContracts {
     /// The dispatcher to interact with the `SwapHandler` contract
     swap_handler: ISwapHandlerDispatcher,
     /// The dispatcher to interact with the `ReferralStorage` contract
-    referral_storage: IReferralStorageDispatcher
+    referral_storage: IReferralStorageDispatcher,
 }
 
 /// CreateOrderParams struct used in create_order.
@@ -106,7 +106,7 @@ struct CreateOrderParams {
     /// Whether the order is for a long or short.
     is_long: bool,
     /// The referral code linked to this order.
-    referral_code: felt252
+    referral_code: felt252,
 }
 
 impl CreateOrderParamsClone of Clone<CreateOrderParams> {
@@ -128,7 +128,7 @@ impl CreateOrderParamsClone of Clone<CreateOrderParams> {
             order_type: *self.order_type,
             decrease_position_swap_type: *self.decrease_position_swap_type,
             is_long: *self.is_long,
-            referral_code: *self.referral_code
+            referral_code: *self.referral_code,
         }
     }
 }
@@ -137,7 +137,7 @@ impl CreateOrderParamsClone of Clone<CreateOrderParams> {
 struct GetExecutionPriceCache {
     price: u256,
     execution_price: u256,
-    adjusted_price_impact_usd: u256
+    adjusted_price_impact_usd: u256,
 }
 
 /// Check if an order_type is a market order.
@@ -222,7 +222,7 @@ fn is_liquidation_order(order_type: OrderType) -> bool {
 /// * `trigger_price` - the order's trigger_price.
 /// * `is_long` - Whether the order is for a long or short.
 fn validate_order_trigger_price(
-    oracle: IOracleDispatcher, index_token: ContractAddress, order_type: OrderType, trigger_price: u256, is_long: bool
+    oracle: IOracleDispatcher, index_token: ContractAddress, order_type: OrderType, trigger_price: u256, is_long: bool,
 ) {
     if is_swap_order(order_type) || is_market_order(order_type) || is_liquidation_order(order_type) {
         return;
@@ -294,7 +294,7 @@ fn validate_order_trigger_price(
 }
 
 fn get_execution_price_for_increase(
-    size_delta_usd: u256, size_delta_in_tokens: u256, acceptable_price: u256, is_long: bool
+    size_delta_usd: u256, size_delta_in_tokens: u256, acceptable_price: u256, is_long: bool,
 ) -> u256 {
     assert(size_delta_in_tokens != 0, OrderError::EMPTY_SIZE_DELTA_IN_TOKENS);
 
@@ -338,7 +338,7 @@ fn get_execution_price_for_decrease(
     size_delta_usd: u256,
     price_impact_usd: i256,
     acceptable_price: u256,
-    is_long: bool
+    is_long: bool,
 ) -> u256 {
     // decrease order:
     //     - long: use the smaller price
@@ -409,7 +409,7 @@ fn get_execution_price_for_decrease(
         }
 
         let numerator = precision::mul_div_inum(
-            position_size_in_usd, adjusted_price_impact_usd, position_size_in_tokens
+            position_size_in_usd, adjusted_price_impact_usd, position_size_in_tokens,
         );
         let adjustment = numerator / calc::to_signed(size_delta_usd, true);
 
@@ -417,7 +417,7 @@ fn get_execution_price_for_decrease(
 
         if _execution_price < Zeroable::zero() {
             OrderError::NEGATIVE_EXECUTION_PRICE(
-                _execution_price, price, position_size_in_usd, adjusted_price_impact_usd, size_delta_usd
+                _execution_price, price, position_size_in_usd, adjusted_price_impact_usd, size_delta_usd,
             );
         }
 

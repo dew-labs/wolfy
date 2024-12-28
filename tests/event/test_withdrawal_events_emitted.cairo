@@ -1,4 +1,4 @@
-use freyr::event::event_emitter::EventEmitter::{WithdrawalCreated, WithdrawalExecuted, WithdrawalCancelled};
+use freyr::event::event_emitter::EventEmitter::{WithdrawalCancelled, WithdrawalCreated, WithdrawalExecuted};
 
 use freyr::event::event_emitter::{EventEmitter, IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
 use freyr::test_utils::tests_lib::deploy_event_emitter;
@@ -6,7 +6,8 @@ use freyr::test_utils::tests_lib::deploy_event_emitter;
 
 use freyr::withdrawal::withdrawal::Withdrawal;
 use snforge_std::{
-    declare, ContractClassTrait, DeclareResultTrait, spy_events, EventSpy, EventSpyTrait, Event, EventSpyAssertionsTrait
+    ContractClassTrait, DeclareResultTrait, Event, EventSpy, EventSpyAssertionsTrait, EventSpyTrait, declare,
+    spy_events,
 };
 use starknet::{ContractAddress, contract_address_const};
 
@@ -51,10 +52,10 @@ fn given_normal_conditions_when_emit_withdrawal_created_then_works() {
                             updated_at_block: withdrawal.updated_at_block,
                             execution_fee: withdrawal.execution_fee,
                             callback_gas_limit: withdrawal.callback_gas_limit,
-                        }
-                    )
-                )
-            ]
+                        },
+                    ),
+                ),
+            ],
         );
     // Assert there are no more events.
     assert(spy.get_events().events.len() == 1, 'There should be no events');
@@ -90,11 +91,15 @@ fn given_normal_conditions_when_emit_withdrawal_executed_then_works() {
                     contract_address,
                     EventEmitter::Event::WithdrawalExecuted(
                         WithdrawalExecuted {
-                            key: key, output_token, output_amount: 0, secondary_output_token, secondary_output_amount: 0
-                        }
-                    )
-                )
-            ]
+                            key: key,
+                            output_token,
+                            output_amount: 0,
+                            secondary_output_token,
+                            secondary_output_amount: 0,
+                        },
+                    ),
+                ),
+            ],
         );
     // Assert there are no more events.
     assert(spy.get_events().events.len() == 1, 'There should be no events');
@@ -128,10 +133,10 @@ fn given_normal_conditions_when_emit_withdrawal_cancelled_then_works() {
                 (
                     contract_address,
                     EventEmitter::Event::WithdrawalCancelled(
-                        WithdrawalCancelled { key: key, reason: reason, reason_key: reason_key }
-                    )
-                )
-            ]
+                        WithdrawalCancelled { key: key, reason: reason, reason_key: reason_key },
+                    ),
+                ),
+            ],
         );
     // Assert there are no more events.
     assert(spy.get_events().events.len() == 1, 'There should be no events');

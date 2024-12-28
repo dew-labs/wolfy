@@ -12,7 +12,7 @@ mod MockAccount {
     // Local imports.
     use freyr::oracle::{interfaces::account::{IAccount, IAccountDispatcher, IAccountDispatcherTrait}};
     use result::ResultTrait;
-    use starknet::{get_caller_address, ContractAddress};
+    use starknet::{ContractAddress, get_caller_address};
 
 
     // *************************************************************************
@@ -32,7 +32,11 @@ mod MockAccount {
             1
         }
         fn __validate_deploy__(
-            self: @ContractState, class_hash: felt252, contract_address_salt: felt252, owner: felt252, guardian: felt252
+            self: @ContractState,
+            class_hash: felt252,
+            contract_address_salt: felt252,
+            owner: felt252,
+            guardian: felt252,
         ) -> felt252 {
             1
         }

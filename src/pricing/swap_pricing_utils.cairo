@@ -10,7 +10,7 @@ use freyr::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
 use freyr::data::keys;
 use freyr::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
 use freyr::market::market::Market;
-use freyr::market::market_utils::{IMarketUtilsLibraryDispatcher, IMarketUtilsDispatcherTrait};
+use freyr::market::market_utils::{IMarketUtilsDispatcherTrait, IMarketUtilsLibraryDispatcher};
 use freyr::pricing::error::PricingError;
 use freyr::pricing::pricing_utils;
 use freyr::utils::calc;
@@ -76,7 +76,7 @@ impl DefaultSwapFees of Default<SwapFees> {
             amount_after_fees: 0,
             ui_fee_receiver: Zeroable::zero(),
             ui_fee_receiver_factor: 0,
-            ui_fee_amount: 0
+            ui_fee_amount: 0,
         }
     }
 }
@@ -136,11 +136,11 @@ fn get_price_impact_usd(params: GetPriceImpactUsdParams, market_utils: IMarketUt
     };
 
     let pool_params_for_virtual_inventory = get_next_pool_amount_params(
-        params, virtual_pool_amount_for_token_a, virtual_pool_amount_for_token_b
+        params, virtual_pool_amount_for_token_a, virtual_pool_amount_for_token_b,
     );
 
     let price_impact_usd_for_virtual_inventory = get_price_impact_usd_(
-        params.data_store, params.market, pool_params_for_virtual_inventory, market_utils
+        params.data_store, params.market, pool_params_for_virtual_inventory, market_utils,
     );
 
     if price_impact_usd_for_virtual_inventory < price_impact_usd {
@@ -161,7 +161,7 @@ fn get_price_impact_usd_(
     data_store: IDataStoreDispatcher,
     market: Market,
     pool_params: PoolParams,
-    market_utils: IMarketUtilsLibraryDispatcher
+    market_utils: IMarketUtilsLibraryDispatcher,
 ) -> i256 {
     let initial_diff_usd = calc::diff(pool_params.pool_usd_for_token_a, pool_params.pool_usd_for_token_b);
     let next_diff_usd = calc::diff(pool_params.next_pool_usd_for_token_a, pool_params.next_pool_usd_for_token_b);
@@ -182,14 +182,14 @@ fn get_price_impact_usd_(
             .get_adjusted_swap_impact_factor(data_store, market.market_token, has_positive_impact);
 
         pricing_utils::get_price_impact_usd_for_same_side_rebalance(
-            initial_diff_usd, next_diff_usd, impact_factor, impact_exponent_factor
+            initial_diff_usd, next_diff_usd, impact_factor, impact_exponent_factor,
         )
     } else {
         let (positive_impact_factor, negative_impact_factor) = market_utils
             .get_adjusted_swap_impact_factors(data_store, market.market_token);
 
         pricing_utils::get_price_impact_usd_for_crossover_rebalance(
-            initial_diff_usd, next_diff_usd, positive_impact_factor, negative_impact_factor, impact_exponent_factor
+            initial_diff_usd, next_diff_usd, positive_impact_factor, negative_impact_factor, impact_exponent_factor,
         )
     }
 }
@@ -200,7 +200,7 @@ fn get_price_impact_usd_(
 /// # Returns
 /// PoolParams
 fn get_next_pool_amount_usd(
-    params: GetPriceImpactUsdParams, market_utils: IMarketUtilsLibraryDispatcher
+    params: GetPriceImpactUsdParams, market_utils: IMarketUtilsLibraryDispatcher,
 ) -> PoolParams {
     let pool_amount_for_token_a = market_utils.get_pool_amount(params.data_store, params.market, params.token_a);
 
@@ -217,7 +217,7 @@ fn get_next_pool_amount_usd(
 /// # Returns
 /// New pool values.
 fn get_next_pool_amount_params(
-    params: GetPriceImpactUsdParams, pool_amount_for_token_a: u256, pool_amount_for_token_b: u256
+    params: GetPriceImpactUsdParams, pool_amount_for_token_a: u256, pool_amount_for_token_b: u256,
 ) -> PoolParams {
     let pool_usd_for_token_a = pool_amount_for_token_a * params.price_for_token_a;
     let pool_usd_for_token_b = pool_amount_for_token_b * params.price_for_token_b;
@@ -233,7 +233,7 @@ fn get_next_pool_amount_params(
     let next_pool_usd_for_token_a = calc::sum_return_uint_256(pool_usd_for_token_a, params.usd_delta_for_token_a);
     let next_pool_usd_for_token_b = calc::sum_return_uint_256(pool_usd_for_token_b, params.usd_delta_for_token_b);
 
-    PoolParams { pool_usd_for_token_a, pool_usd_for_token_b, next_pool_usd_for_token_a, next_pool_usd_for_token_b, }
+    PoolParams { pool_usd_for_token_a, pool_usd_for_token_b, next_pool_usd_for_token_a, next_pool_usd_for_token_b }
 }
 
 /// Get the swap fees.
@@ -251,7 +251,7 @@ fn get_swap_fees(
     amount: u256,
     for_positive_impact: bool,
     ui_fee_receiver: ContractAddress,
-    market_utils: IMarketUtilsLibraryDispatcher
+    market_utils: IMarketUtilsLibraryDispatcher,
 ) -> SwapFees {
     // note that since it is possible to incur both positive and negative price impact values
     // and the negative price impact factor may be larger than the positive impact factor

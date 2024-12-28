@@ -5,9 +5,9 @@ use freyr::adl::adl_utils;
 use freyr::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
 use freyr::event::event_emitter::{EventEmitter, IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
 use freyr::market::market::{Market};
-use freyr::market::market_utils::{IMarketUtilsLibraryDispatcher, IMarketUtilsDispatcherTrait};
+use freyr::market::market_utils::{IMarketUtilsDispatcherTrait, IMarketUtilsLibraryDispatcher};
 use freyr::oracle::oracle::{IOracleDispatcher, IOracleDispatcherTrait};
-use freyr::order::order::{Order, OrderType, OrderTrait, DecreasePositionSwapType};
+use freyr::order::order::{DecreasePositionSwapType, Order, OrderTrait, OrderType};
 use freyr::position::position::{Position};
 use freyr::price::price::{Price, PriceTrait};
 use freyr::role::role;
@@ -16,10 +16,10 @@ use freyr::test_utils::tests_lib;
 use freyr::utils::i256::{i256, i256_new};
 
 use snforge_std::{
-    declare, start_cheat_caller_address, stop_cheat_caller_address, ContractClassTrait, DeclareResultTrait, spy_events,
-    EventSpy, EventSpyAssertionsTrait, Event, EventSpyTrait, start_mock_call
+    ContractClassTrait, DeclareResultTrait, Event, EventSpy, EventSpyAssertionsTrait, EventSpyTrait, declare,
+    spy_events, start_cheat_caller_address, start_mock_call, stop_cheat_caller_address,
 };
-use starknet::{ContractAddress, get_caller_address, Felt252TryIntoContractAddress, contract_address_const};
+use starknet::{ContractAddress, Felt252TryIntoContractAddress, contract_address_const, get_caller_address};
 
 #[test]
 fn given_normal_conditions_when_set_latest_adl_block_then_works() {
@@ -147,7 +147,7 @@ fn given_normal_conditions_when_emit_adl_state_updated_then_works() {
     // Emit event
     start_cheat_caller_address(event_emitter.contract_address, caller_address);
     adl_utils::emit_adl_state_updated(
-        event_emitter, market, is_long, pnl_to_pool_factor, max_pnl_factor, should_enable_adl
+        event_emitter, market, is_long, pnl_to_pool_factor, max_pnl_factor, should_enable_adl,
     );
     stop_cheat_caller_address(event_emitter.contract_address);
     assert(spy.get_events().events.len() == 1, 'There should be one event');
@@ -162,11 +162,11 @@ fn given_normal_conditions_when_emit_adl_state_updated_then_works() {
                             is_long: is_long,
                             pnl_to_pool_factor: pnl_to_pool_factor.into(),
                             max_pnl_factor: max_pnl_factor,
-                            should_enable_adl: should_enable_adl
-                        }
-                    )
-                )
-            ]
+                            should_enable_adl: should_enable_adl,
+                        },
+                    ),
+                ),
+            ],
         );
 
     tests_lib::teardown();
@@ -207,7 +207,7 @@ fn given_non_valid_position_when_create_adl_order_then_fails() {
         collateral_token: collateral_token,
         is_long: false,
         size_delta_usd: 100,
-        updated_at_block: 100
+        updated_at_block: 100,
     };
     adl_utils::create_adl_order(params);
 }
@@ -229,7 +229,7 @@ fn given_normal_conditions_when_create_adl_order_then_works() { // Setup
         collateral_token: collateral_token,
         is_long: true,
         size_delta_usd: 0,
-        updated_at_block: 100
+        updated_at_block: 100,
     };
     let key = adl_utils::create_adl_order(params);
     // Assertions
@@ -274,7 +274,7 @@ fn given_normal_conditions_when_update_adl_state_then_works() {
     let block_numbers = array![1_u64, 2_u64];
 
     adl_utils::update_adl_state(
-        data_store, event_emitter, oracle, market_token_address, is_long, block_numbers.span(), market_utils
+        data_store, event_emitter, oracle, market_token_address, is_long, block_numbers.span(), market_utils,
     );
 
     tests_lib::teardown();
@@ -286,7 +286,7 @@ fn setup() -> (
     IDataStoreDispatcher,
     IEventEmitterDispatcher,
     IOracleDispatcher,
-    IMarketUtilsLibraryDispatcher
+    IMarketUtilsLibraryDispatcher,
 ) {
     let (
         caller_address,

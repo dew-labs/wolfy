@@ -1,20 +1,20 @@
 use freyr::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
 use freyr::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
 use freyr::market::market::Market;
-use freyr::market::market_utils::{IMarketUtilsLibraryDispatcher, IMarketUtilsDispatcherTrait};
+use freyr::market::market_utils::{IMarketUtilsDispatcherTrait, IMarketUtilsLibraryDispatcher};
 use freyr::mock::governable::{IGovernableDispatcher, IGovernableDispatcherTrait};
 use freyr::mock::referral_storage::{IReferralStorageDispatcher, IReferralStorageDispatcherTrait};
 use freyr::position::position::Position;
 use freyr::price::price::Price;
-use freyr::pricing::position_pricing_utils::{GetPositionFeesParams, PositionFundingFees, GetPriceImpactUsdParams};
 use freyr::pricing::position_pricing_utils;
+use freyr::pricing::position_pricing_utils::{GetPositionFeesParams, GetPriceImpactUsdParams, PositionFundingFees};
 use freyr::role::role;
 use freyr::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
 use freyr::test_utils::tests_lib;
 use freyr::utils::i256::{i256, i256_new};
 use freyr::utils::precision::{FLOAT_PRECISION, FLOAT_PRECISION_SQRT};
 use snforge_std::{
-    declare, start_cheat_caller_address, stop_cheat_caller_address, ContractClassTrait, DeclareResultTrait
+    ContractClassTrait, DeclareResultTrait, declare, start_cheat_caller_address, stop_cheat_caller_address,
 };
 use starknet::{ContractAddress, contract_address_const};
 
@@ -70,10 +70,10 @@ fn given_normal_conditions_when_get_position_fees_then_works() {
         short_token_claimable_funding_amount_per_size: 6,
         increased_at_block: 15000,
         decreased_at_block: 15001,
-        is_long: false
+        is_long: false,
     };
 
-    let collateral_token_price = Price { min: 5, max: 10, };
+    let collateral_token_price = Price { min: 5, max: 10 };
 
     GetPositionFeesParams {
         data_store,
@@ -84,7 +84,7 @@ fn given_normal_conditions_when_get_position_fees_then_works() {
         long_token: contract_address_const::<'long_token'>(),
         short_token: contract_address_const::<'short_token'>(),
         size_delta_usd: 10,
-        ui_fee_receiver: contract_address_const::<'ui_fee_receiver'>()
+        ui_fee_receiver: contract_address_const::<'ui_fee_receiver'>(),
     };
 }
 
@@ -123,7 +123,7 @@ fn given_normal_conditions_when_get_funding_fees_then_works() {
         short_token_claimable_funding_amount_per_size: 6_000_000_000_000_000_000_000_000_000_000,
         increased_at_block: 15000,
         decreased_at_block: 15001,
-        is_long: false
+        is_long: false,
     };
 
     position_pricing_utils::get_funding_fees(position_funding_fees, position, market_utils);
@@ -144,7 +144,7 @@ fn given_normal_conditions_when_get_position_fees_after_referral_then_works() {
     let account = contract_address_const::<'account'>();
     let market = contract_address_const::<'market'>();
     position_pricing_utils::get_position_fees_after_referral(
-        data_store, referral_storage, price, true, account, market, 10
+        data_store, referral_storage, price, true, account, market, 10,
     );
 }
 
@@ -153,7 +153,7 @@ fn create_get_price_impact_usd_params(data_store: IDataStoreDispatcher) -> GetPr
         market_token: contract_address_const::<'market_token'>(),
         index_token: contract_address_const::<'index_token'>(),
         long_token: contract_address_const::<'long_token'>(),
-        short_token: contract_address_const::<'short_token'>()
+        short_token: contract_address_const::<'short_token'>(),
     };
 
     GetPriceImpactUsdParams { data_store, market, usd_delta: i256_new(50, false), is_long: true }

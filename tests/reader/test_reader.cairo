@@ -9,27 +9,27 @@ use freyr::market::market_pool_value_info::{MarketPoolValueInfo};
 use freyr::market::market_token::{IMarketTokenDispatcher, IMarketTokenDispatcherTrait};
 use freyr::market::market_utils::MarketPrices;
 use freyr::mock::referral_storage::{IReferralStorageDispatcher, IReferralStorageDispatcherTrait};
-use freyr::order::order::{Order, OrderType, OrderTrait, DecreasePositionSwapType};
+use freyr::order::order::{DecreasePositionSwapType, Order, OrderTrait, OrderType};
 use freyr::position::position::{Position};
 use freyr::price::price::{Price, PriceTrait};
 use freyr::reader::reader::{IReaderDispatcher, IReaderDispatcherTrait, MarketInfo};
 
 use freyr::reader::{
-    reader_utils::PositionInfo, reader_utils::BaseFundingValues, reader_pricing_utils::ExecutionPriceResult,
-    reader::VirtualInventory
+    reader::VirtualInventory, reader_pricing_utils::ExecutionPriceResult, reader_utils::BaseFundingValues,
+    reader_utils::PositionInfo,
 };
 use freyr::role::role;
 use freyr::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
 use freyr::test_utils::tests_lib;
 use freyr::utils::i256::{i256, i256_new};
-use freyr::utils::span32::{Span32, Array32Trait};
+use freyr::utils::span32::{Array32Trait, Span32};
 use freyr::withdrawal::withdrawal::{Withdrawal};
 use poseidon::poseidon_hash_span;
 use snforge_std::{
-    declare, start_cheat_caller_address, stop_cheat_caller_address, ContractClass, ContractClassTrait,
-    DeclareResultTrait
+    ContractClass, ContractClassTrait, DeclareResultTrait, declare, start_cheat_caller_address,
+    stop_cheat_caller_address,
 };
-use starknet::{ContractAddress, contract_address_const, ClassHash};
+use starknet::{ClassHash, ContractAddress, contract_address_const};
 
 
 #[test]
@@ -45,7 +45,7 @@ fn given_normal_conditions_when_get_market_then_works() {
         reader,
         _referral_storage,
         _role_module_class,
-        _bank_class
+        _bank_class,
     ) =
         setup();
 
@@ -80,7 +80,7 @@ fn given_normal_conditions_when_get_market_by_salt_then_works() {
         reader,
         _referral_storage,
         _role_module_class,
-        _bank_class
+        _bank_class,
     ) =
         setup();
 
@@ -131,7 +131,7 @@ fn given_normal_conditions_when_get_deposit_then_works() {
         reader,
         _referral_storage,
         _role_module_class,
-        _bank_class
+        _bank_class,
     ) =
         setup();
 
@@ -168,7 +168,7 @@ fn given_normal_conditions_when_get_withdrawal_then_works() {
         reader,
         _referral_storage,
         _role_module_class,
-        _bank_class
+        _bank_class,
     ) =
         setup();
 
@@ -205,7 +205,7 @@ fn given_normal_conditions_when_get_position_then_works() {
         reader,
         _referral_storage,
         _role_module_class,
-        _bank_class
+        _bank_class,
     ) =
         setup();
     let key = 123456789;
@@ -241,7 +241,7 @@ fn given_normal_conditions_when_get_order_then_works() {
         reader,
         _referral_storage,
         _role_module_class,
-        _bank_class
+        _bank_class,
     ) =
         setup();
 
@@ -278,7 +278,7 @@ fn given_normal_conditions_when_get_position_pnl_usd_then_works() {
         reader,
         _referral_storage,
         _role_module_class,
-        _bank_class
+        _bank_class,
     ) =
         setup();
 
@@ -331,7 +331,7 @@ fn given_normal_conditions_when_get_account_positions_then_works() {
         reader,
         _referral_storage,
         _role_module_class,
-        _bank_class
+        _bank_class,
     ) =
         setup();
 
@@ -393,7 +393,7 @@ fn given_normal_conditions_when_get_position_info_then_works() {
         reader,
         referral_storage,
         _role_module_class,
-        _bank_class
+        _bank_class,
     ) =
         setup();
 
@@ -441,7 +441,7 @@ fn given_normal_conditions_when_get_account_position_info_list_then_works() {
         reader,
         referral_storage,
         _role_module_class,
-        _bank_class
+        _bank_class,
     ) =
         setup();
 
@@ -543,7 +543,7 @@ fn given_normal_conditions_when_get_account_orders_then_works() {
         reader,
         _referral_storage,
         _role_module_class,
-        _bank_class
+        _bank_class,
     ) =
         setup();
 
@@ -608,7 +608,7 @@ fn given_normal_conditions_when_get_markets_then_works() {
         reader,
         _referral_storage,
         _role_module_class,
-        _bank_class
+        _bank_class,
     ) =
         setup();
 
@@ -663,7 +663,7 @@ fn given_normal_conditions_when_get_market_info_then_works() {
         reader,
         _referral_storage,
         _role_module_class,
-        _bank_class
+        _bank_class,
     ) =
         setup();
 
@@ -699,7 +699,7 @@ fn given_normal_conditions_when_get_market_info_list_then_works() {
         reader,
         _referral_storage,
         _role_module_class,
-        _bank_class
+        _bank_class,
     ) =
         setup();
 
@@ -765,7 +765,7 @@ fn given_normal_conditions_when_get_market_token_price_then_works() {
         reader,
         _referral_storage,
         role_module_class,
-        bank_class
+        bank_class,
     ) =
         setup();
     let market_address = deploy_market_token(
@@ -774,7 +774,7 @@ fn given_normal_conditions_when_get_market_token_price_then_works() {
         data_store.contract_address,
         bank_class.class_hash,
         role_module_class.class_hash,
-        caller_address
+        caller_address,
     );
 
     let key: ContractAddress = market_address;
@@ -797,7 +797,7 @@ fn given_normal_conditions_when_get_market_token_price_then_works() {
 
     let (market_token_price_, _pool_val_info) = reader
         .get_market_token_price(
-            data_store, market, index_prices_one, index_prices_two, index_prices_three, pnl_factor, true
+            data_store, market, index_prices_one, index_prices_two, index_prices_three, pnl_factor, true,
         );
     let market_token_price_felt: felt252 = market_token_price_.into();
     let expected_price = 1000000000000000000000000000000;
@@ -819,7 +819,7 @@ fn given_normal_conditions_when_get_net_pnl_then_works() {
         reader,
         _referral_storage,
         _role_module_class,
-        _bank_class
+        _bank_class,
     ) =
         setup();
 
@@ -843,13 +843,13 @@ fn given_normal_conditions_when_get_net_pnl_then_works() {
 
     // Set open interest in tokens for long token.
     let open_interest_in_tokens_key_for_long = keys::open_interest_in_tokens_key(
-        market_token_address, market.long_token, is_long
+        market_token_address, market.long_token, is_long,
     );
     data_store.set_u256(open_interest_in_tokens_key_for_long, 200);
 
     // Set open interest in tokens for short token.
     let _open_interest_in_tokens_key_for_short = keys::open_interest_in_tokens_key(
-        market_token_address, market.short_token, is_long
+        market_token_address, market.short_token, is_long,
     );
 
     data_store.set_market(market_token_address, 0, market);
@@ -872,7 +872,7 @@ fn given_normal_conditions_when_get_pnl_then_works() {
         reader,
         _referral_storage,
         _role_module_class,
-        _bank_class
+        _bank_class,
     ) =
         setup();
 
@@ -898,13 +898,13 @@ fn given_normal_conditions_when_get_pnl_then_works() {
 
     // Set open interest in tokens for long token.
     let open_interest_in_tokens_key_for_long = keys::open_interest_in_tokens_key(
-        market_token_address, market.long_token, is_long
+        market_token_address, market.long_token, is_long,
     );
     data_store.set_u256(open_interest_in_tokens_key_for_long, 200);
 
     // Set open interest in tokens for short token.
     let open_interest_in_tokens_key_for_short = keys::open_interest_in_tokens_key(
-        market_token_address, market.short_token, is_long
+        market_token_address, market.short_token, is_long,
     );
     data_store.set_u256(open_interest_in_tokens_key_for_short, 250);
 
@@ -926,7 +926,7 @@ fn given_normal_conditions_when_get_open_interest_with_pnl_then_works() {
         reader,
         _referral_storage,
         _role_module_class,
-        _bank_class
+        _bank_class,
     ) =
         setup();
 
@@ -952,13 +952,13 @@ fn given_normal_conditions_when_get_open_interest_with_pnl_then_works() {
 
     // Set open interest in tokens for long token.
     let open_interest_in_tokens_key_for_long = keys::open_interest_in_tokens_key(
-        market_token_address, market.long_token, is_long
+        market_token_address, market.long_token, is_long,
     );
     data_store.set_u256(open_interest_in_tokens_key_for_long, 200);
 
     // Set open interest in tokens for short token.
     let open_interest_in_tokens_key_for_short = keys::open_interest_in_tokens_key(
-        market_token_address, market.short_token, is_long
+        market_token_address, market.short_token, is_long,
     );
     data_store.set_u256(open_interest_in_tokens_key_for_short, 250);
     let res = reader.get_open_interest_with_pnl(data_store, market, price, is_long, maximize);
@@ -976,7 +976,7 @@ fn given_normal_conditions_when_get_pnl_to_pool_factor_then_works() {
         reader,
         _referral_storage,
         _role_module_class,
-        _bank_class
+        _bank_class,
     ) =
         setup();
 
@@ -1023,7 +1023,7 @@ fn given_normal_conditions_when_get_swap_amount_out_then_works() {
         reader,
         _referral_storage,
         _role_module_class,
-        _bank_class
+        _bank_class,
     ) =
         setup();
     let market_token_address = contract_address_const::<'market_token'>();
@@ -1058,7 +1058,7 @@ fn given_normal_conditions_when_get_virtual_inventory_then_works() {
         reader,
         _referral_storage,
         _role_module_class,
-        _bank_class
+        _bank_class,
     ) =
         setup();
     let market_token_address = contract_address_const::<'market_token'>();
@@ -1085,7 +1085,7 @@ fn given_normal_conditions_when_get_execution_price_then_works() {
         reader,
         _referral_storage,
         _role_module_class,
-        _bank_class
+        _bank_class,
     ) =
         setup();
     let market_key_1: ContractAddress = 123456789.try_into().unwrap();
@@ -1113,7 +1113,7 @@ fn given_normal_conditions_when_get_execution_price_then_works() {
 
     let res: ExecutionPriceResult = reader
         .get_execution_price(
-            data_store, market_key_1, price1, position2.size_in_usd, position2.size_in_tokens, size, is_long
+            data_store, market_key_1, price1, position2.size_in_usd, position2.size_in_tokens, size, is_long,
         );
     assert(res.execution_price == 200, 'incorrect execution_price');
     tests_lib::teardown();
@@ -1130,7 +1130,7 @@ fn given_normal_conditions_when_get_swap_price_impact_then_works() {
         reader,
         _referral_storage,
         _role_module_class,
-        _bank_class
+        _bank_class,
     ) =
         setup();
 
@@ -1166,7 +1166,7 @@ fn given_normal_conditions_when_get_adl_state_then_works() {
         reader,
         _referral_storage,
         _role_module_class,
-        _bank_class
+        _bank_class,
     ) =
         setup();
     let market_token_address = contract_address_const::<'market_token'>();
@@ -1204,7 +1204,7 @@ fn deploy_market_token(
     let (contract_address, _) = contract
         .deploy_at(
             @array![role_store.into(), data_store.into(), bank_class_hash.into(), role_module_class_hash.into()],
-            deployed_contract_address
+            deployed_contract_address,
         )
         .unwrap();
     contract_address

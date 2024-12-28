@@ -8,8 +8,8 @@
 use freyr::market::market::{Market};
 use freyr::price::price::{Price};
 use result::ResultTrait;
-use starknet::storage_access::{Store, StorageBaseAddress,};
-use starknet::{ContractAddress, SyscallResult,};
+use starknet::storage_access::{StorageBaseAddress, Store};
+use starknet::{ContractAddress, SyscallResult};
 
 impl StoreContractAddressArray of Store<Array<ContractAddress>> {
     fn read(address_domain: u32, base: StorageBaseAddress) -> SyscallResult<Array<ContractAddress>> {
@@ -21,7 +21,7 @@ impl StoreContractAddressArray of Store<Array<ContractAddress>> {
     }
 
     fn read_at_offset(
-        address_domain: u32, base: StorageBaseAddress, mut offset: u8
+        address_domain: u32, base: StorageBaseAddress, mut offset: u8,
     ) -> SyscallResult<Array<ContractAddress>> {
         let mut arr: Array<ContractAddress> = array![];
 
@@ -47,7 +47,7 @@ impl StoreContractAddressArray of Store<Array<ContractAddress>> {
     }
 
     fn write_at_offset(
-        address_domain: u32, base: StorageBaseAddress, mut offset: u8, mut value: Array<ContractAddress>
+        address_domain: u32, base: StorageBaseAddress, mut offset: u8, mut value: Array<ContractAddress>,
     ) -> SyscallResult<()> {
         // // Store the length of the array in the first storage slot.
         let len: u8 = value.len().try_into().expect('Storage - Span too large');
@@ -62,7 +62,7 @@ impl StoreContractAddressArray of Store<Array<ContractAddress>> {
                         .expect('write_at_offset failed');
                     offset += Store::<ContractAddress>::size();
                 },
-                Option::None(_) => { break Result::Ok(()); }
+                Option::None(_) => { break Result::Ok(()); },
             };
         }
     }
@@ -105,7 +105,7 @@ impl StoreMarketArray of Store<Array<Market>> {
     }
 
     fn write_at_offset(
-        address_domain: u32, base: StorageBaseAddress, mut offset: u8, mut value: Array<Market>
+        address_domain: u32, base: StorageBaseAddress, mut offset: u8, mut value: Array<Market>,
     ) -> SyscallResult<()> {
         // // Store the length of the array in the first storage slot.
         let len: u8 = value.len().try_into().expect('Storage - Span too large');
@@ -120,7 +120,7 @@ impl StoreMarketArray of Store<Array<Market>> {
                         .expect('write_at_offset failed');
                     offset += Store::<Market>::size();
                 },
-                Option::None(_) => { break Result::Ok(()); }
+                Option::None(_) => { break Result::Ok(()); },
             };
         }
     }
@@ -163,7 +163,7 @@ impl StoreMarketSpan of Store<Span<Market>> {
     }
 
     fn write_at_offset(
-        address_domain: u32, base: StorageBaseAddress, mut offset: u8, mut value: Span<Market>
+        address_domain: u32, base: StorageBaseAddress, mut offset: u8, mut value: Span<Market>,
     ) -> SyscallResult<()> {
         // Store the length of the array in the first storage slot.
         let len: u8 = value.len().try_into().expect('Storage - Span too large');
@@ -178,7 +178,7 @@ impl StoreMarketSpan of Store<Span<Market>> {
                         .expect('write_at_offset failed');
                     offset += Store::<Market>::size();
                 },
-                Option::None(_) => { break Result::Ok(()); }
+                Option::None(_) => { break Result::Ok(()); },
             };
         }
     }
@@ -221,7 +221,7 @@ impl StorePriceArray of Store<Array<Price>> {
     }
 
     fn write_at_offset(
-        address_domain: u32, base: StorageBaseAddress, mut offset: u8, mut value: Array<Price>
+        address_domain: u32, base: StorageBaseAddress, mut offset: u8, mut value: Array<Price>,
     ) -> SyscallResult<()> {
         // // Store the length of the array in the first storage slot.
         let len: u8 = value.len().try_into().expect('Storage - Span too large');
@@ -236,7 +236,7 @@ impl StorePriceArray of Store<Array<Price>> {
                         .expect('write_at_offset failed');
                     offset += Store::<Price>::size();
                 },
-                Option::None(_) => { break Result::Ok(()); }
+                Option::None(_) => { break Result::Ok(()); },
             };
         }
     }
@@ -279,7 +279,7 @@ impl StoreU256Array of Store<Array<u256>> {
     }
 
     fn write_at_offset(
-        address_domain: u32, base: StorageBaseAddress, mut offset: u8, mut value: Array<u256>
+        address_domain: u32, base: StorageBaseAddress, mut offset: u8, mut value: Array<u256>,
     ) -> SyscallResult<()> {
         // // Store the length of the array in the first storage slot.
         let len: u8 = value.len().try_into().expect('Storage - Span too large');
@@ -294,7 +294,7 @@ impl StoreU256Array of Store<Array<u256>> {
                         .expect('write_at_offset failed');
                     offset += Store::<u256>::size();
                 },
-                Option::None(_) => { break Result::Ok(()); }
+                Option::None(_) => { break Result::Ok(()); },
             };
         }
     }
@@ -337,7 +337,7 @@ impl StoreU64Array of Store<Array<u64>> {
     }
 
     fn write_at_offset(
-        address_domain: u32, base: StorageBaseAddress, mut offset: u8, mut value: Array<u64>
+        address_domain: u32, base: StorageBaseAddress, mut offset: u8, mut value: Array<u64>,
     ) -> SyscallResult<()> {
         // // Store the length of the array in the first storage slot.
         let len: u8 = value.len().try_into().expect('Storage - Span too large');
@@ -352,7 +352,7 @@ impl StoreU64Array of Store<Array<u64>> {
                         .expect('write_at_offset failed');
                     offset += Store::<u64>::size();
                 },
-                Option::None(_) => { break Result::Ok(()); }
+                Option::None(_) => { break Result::Ok(()); },
             };
         }
     }
@@ -395,7 +395,7 @@ impl StoreFelt252Array of Store<Array<felt252>> {
     }
 
     fn write_at_offset(
-        address_domain: u32, base: StorageBaseAddress, mut offset: u8, mut value: Array<felt252>
+        address_domain: u32, base: StorageBaseAddress, mut offset: u8, mut value: Array<felt252>,
     ) -> SyscallResult<()> {
         // // Store the length of the array in the first storage slot.
         let len: u8 = value.len().try_into().expect('Storage - Span too large');
@@ -410,7 +410,7 @@ impl StoreFelt252Array of Store<Array<felt252>> {
                         .expect('write_at_offset failed');
                     offset += Store::<felt252>::size();
                 },
-                Option::None(_) => { break Result::Ok(()); }
+                Option::None(_) => { break Result::Ok(()); },
             };
         }
     }

@@ -12,17 +12,17 @@ use core::traits::TryInto;
 use freyr::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
 use freyr::deposit::deposit::Deposit;
 use freyr::market::market_utils::{
-    IMarketUtilsLibraryDispatcher, IMarketUtilsDispatcherTrait, MarketPrices, GetNextFundingAmountPerSizeResult
+    GetNextFundingAmountPerSizeResult, IMarketUtilsDispatcherTrait, IMarketUtilsLibraryDispatcher, MarketPrices,
 };
 use freyr::market::{market::Market, market_pool_value_info::MarketPoolValueInfo};
 use freyr::mock::referral_storage::{IReferralStorageDispatcher};
 use freyr::order::order::{Order};
-use freyr::position::{position_utils, position::Position};
+use freyr::position::{position::Position, position_utils};
 use freyr::price::price::Price;
 use freyr::pricing::swap_pricing_utils::SwapFees;
 
 use freyr::reader::{
-    reader_utils::PositionInfo, reader_utils::BaseFundingValues, reader_pricing_utils::ExecutionPriceResult,
+    reader_pricing_utils::ExecutionPriceResult, reader_utils::BaseFundingValues, reader_utils::PositionInfo,
 };
 use freyr::utils::i256::i256;
 use freyr::withdrawal::withdrawal::Withdrawal;
@@ -116,7 +116,7 @@ trait IReader<TContractState> {
         market: Market,
         prices: MarketPrices,
         position_key: felt252,
-        size_delta_usd: u256
+        size_delta_usd: u256,
     ) -> (i256, i256, u256);
 
     /// Retrieve an array of position data associated with a specific account within a specified range.
@@ -128,7 +128,7 @@ trait IReader<TContractState> {
     /// # Returns
     /// Returns an array of Position.
     fn get_account_positions(
-        self: @TContractState, data_store: IDataStoreDispatcher, account: ContractAddress, start: u32, end: u32
+        self: @TContractState, data_store: IDataStoreDispatcher, account: ContractAddress, start: u32, end: u32,
     ) -> Array<Position>;
 
     /// Retrieve an array of position data associated with a specific account within a specified range.
@@ -146,7 +146,7 @@ trait IReader<TContractState> {
         referral_storage: IReferralStorageDispatcher,
         position_keys: Array<felt252>,
         prices: Array<MarketPrices>,
-        ui_fee_receiver: ContractAddress
+        ui_fee_receiver: ContractAddress,
     ) -> Array<PositionInfo>;
 
     /// Retrieve an array of position data associated with a specific account within a specified range.
@@ -169,7 +169,7 @@ trait IReader<TContractState> {
         prices: MarketPrices,
         size_delta_usd: u256,
         ui_fee_receiver: ContractAddress,
-        use_position_size_as_size_delta_usd: bool
+        use_position_size_as_size_delta_usd: bool,
     ) -> PositionInfo;
     /// Retrieve an array of Order associated with a specific account within a specified range of order keys.
     /// # Arguments
@@ -181,7 +181,7 @@ trait IReader<TContractState> {
     /// Returns an array of Order structs representing the properties of orders associated with the specified account
     /// within the specified range.
     fn get_account_orders(
-        self: @TContractState, data_store: IDataStoreDispatcher, account: ContractAddress, start: u32, end: u32
+        self: @TContractState, data_store: IDataStoreDispatcher, account: ContractAddress, start: u32, end: u32,
     ) -> Array<Order>;
 
     /// Retrieve an array of Market within a specified range of market keys.
@@ -209,7 +209,7 @@ trait IReader<TContractState> {
         data_store: IDataStoreDispatcher,
         market_price_list: Array<MarketPrices>,
         start: usize,
-        end: usize
+        end: usize,
     ) -> Array<MarketInfo>;
 
     /// Retrieves comprehensive information about a specific market identified by market_key.
@@ -221,7 +221,7 @@ trait IReader<TContractState> {
     /// # Returns
     /// Returns MarketInfo struct containing comprehensive information about the specified market.
     fn get_market_info(
-        self: @TContractState, data_store: IDataStoreDispatcher, prices: MarketPrices, market_key: ContractAddress
+        self: @TContractState, data_store: IDataStoreDispatcher, prices: MarketPrices, market_key: ContractAddress,
     ) -> MarketInfo;
 
     /// Retrieves comprehensive information about a specific market identified by market_key.
@@ -244,7 +244,7 @@ trait IReader<TContractState> {
         long_token_price: Price,
         short_token_price: Price,
         pnl_factor_type: felt252,
-        maximize: bool
+        maximize: bool,
     ) -> (i256, MarketPoolValueInfo);
 
     /// Calculate and return the net profit and loss (PnL) for a specific market based on various input parameters.
@@ -260,7 +260,7 @@ trait IReader<TContractState> {
         data_store: IDataStoreDispatcher,
         market: Market,
         index_token_price: Price,
-        maximize: bool
+        maximize: bool,
     ) -> i256;
 
     /// Calculate and return the profit and loss (PnL) for a specific market position, either long or short, based on
@@ -278,7 +278,7 @@ trait IReader<TContractState> {
         market: Market,
         index_token_price: Price,
         is_long: bool,
-        maximize: bool
+        maximize: bool,
     ) -> i256;
 
     /// Calculate and return the open interest with profit and loss (PnL) for a specific market position.
@@ -296,7 +296,7 @@ trait IReader<TContractState> {
         market: Market,
         index_token_price: Price,
         is_long: bool,
-        maximize: bool
+        maximize: bool,
     ) -> i256;
 
 
@@ -315,7 +315,7 @@ trait IReader<TContractState> {
         market_address: ContractAddress,
         prices: MarketPrices,
         is_long: bool,
-        maximize: bool
+        maximize: bool,
     ) -> i256;
 
     /// Calculate and return various values related to a swap operation, including the amount of the output token, fees
@@ -339,7 +339,7 @@ trait IReader<TContractState> {
         prices: MarketPrices,
         token_in: ContractAddress,
         amount_in: u256,
-        ui_fee_receiver: ContractAddress
+        ui_fee_receiver: ContractAddress,
     ) -> (u256, i256, SwapFees);
 
     /// Calculate and return information about the virtual inventory for a specific market.
@@ -349,7 +349,7 @@ trait IReader<TContractState> {
     /// # Returns
     /// Returns VirtualInventory struct containing information about the virtual inventory for the specified market.
     fn get_virtual_inventory(
-        self: @TContractState, data_store: IDataStoreDispatcher, market: Market
+        self: @TContractState, data_store: IDataStoreDispatcher, market: Market,
     ) -> VirtualInventory;
 
     /// Calculate and return information related to the execution price for a specific market position.
@@ -373,7 +373,7 @@ trait IReader<TContractState> {
         position_size_in_usd: u256,
         position_size_in_token: u256,
         size_delta_usd: i256,
-        is_long: bool
+        is_long: bool,
     ) -> ExecutionPriceResult;
 
     /// Calculate and return the price impact of a swap operation between two tokens within a specific market.
@@ -397,7 +397,7 @@ trait IReader<TContractState> {
         token_out: ContractAddress,
         amount_in: u256,
         token_in_price: Price,
-        token_out_price: Price
+        token_out_price: Price,
     ) -> (i256, i256);
 
     /// Retrieve and return the state of the Account Deleveraging (ADL) system for a specific market and position
@@ -416,7 +416,7 @@ trait IReader<TContractState> {
         data_store: IDataStoreDispatcher,
         market: ContractAddress,
         is_long: bool,
-        prices: MarketPrices
+        prices: MarketPrices,
     ) -> (u64, bool, i256, u256);
 
     fn is_position_liquidable(
@@ -444,26 +444,26 @@ mod Reader {
     use freyr::adl::adl_utils;
     use freyr::data::keys;
     use freyr::deposit::deposit::Deposit;
-    use freyr::market::market_utils::{GetNextFundingAmountPerSizeResult, Market, MarketPrices, MarketPoolValueInfo};
-    use freyr::market::market_utils::{IMarketUtilsLibraryDispatcher, IMarketUtilsDispatcherTrait};
+    use freyr::market::market_utils::{GetNextFundingAmountPerSizeResult, Market, MarketPoolValueInfo, MarketPrices};
+    use freyr::market::market_utils::{IMarketUtilsDispatcherTrait, IMarketUtilsLibraryDispatcher};
     use freyr::mock::referral_storage::{IReferralStorageDispatcher, IReferralStorageDispatcherTrait};
     use freyr::order::order::{Order};
-    use freyr::position::{position_utils, position::Position};
+    use freyr::position::{position::Position, position_utils};
     use freyr::price::price::Price;
     use freyr::pricing::swap_pricing_utils::SwapFees;
     use freyr::reader::{
-        reader_utils, reader_utils::PositionInfo, reader_utils::BaseFundingValues, reader_pricing_utils,
-        reader_pricing_utils::ExecutionPriceResult,
+        reader_pricing_utils, reader_pricing_utils::ExecutionPriceResult, reader_utils, reader_utils::BaseFundingValues,
+        reader_utils::PositionInfo,
     };
     use freyr::utils::i256::i256;
     use freyr::withdrawal::withdrawal::Withdrawal;
     use result::ResultTrait;
-    use starknet::{ContractAddress, ClassHash};
+    use starknet::{ClassHash, ContractAddress};
 
     use super::IReader;
 
     // Local imports.
-    use super::{MarketInfo, VirtualInventory, IDataStoreDispatcher, IDataStoreDispatcherTrait};
+    use super::{IDataStoreDispatcher, IDataStoreDispatcherTrait, MarketInfo, VirtualInventory};
 
     // *************************************************************************
     //                              STORAGE
@@ -514,16 +514,16 @@ mod Reader {
             market: Market,
             prices: MarketPrices,
             position_key: felt252,
-            size_delta_usd: u256
+            size_delta_usd: u256,
         ) -> (i256, i256, u256) {
             let position = data_store.get_position(position_key);
             position_utils::get_position_pnl_usd(
-                data_store, market, prices, position, size_delta_usd, self.market_utils.read()
+                data_store, market, prices, position, size_delta_usd, self.market_utils.read(),
             )
         }
 
         fn get_account_positions(
-            self: @ContractState, data_store: IDataStoreDispatcher, account: ContractAddress, start: u32, end: u32
+            self: @ContractState, data_store: IDataStoreDispatcher, account: ContractAddress, start: u32, end: u32,
         ) -> Array<Position> {
             let position_keys = data_store.get_account_position_keys(account, start, end);
             let length = position_keys.len();
@@ -546,7 +546,7 @@ mod Reader {
             referral_storage: IReferralStorageDispatcher,
             position_keys: Array<felt252>,
             prices: Array<MarketPrices>,
-            ui_fee_receiver: ContractAddress
+            ui_fee_receiver: ContractAddress,
         ) -> Array<PositionInfo> {
             let mut position_info_list = ArrayTrait::<PositionInfo>::new();
             let length = position_keys.len();
@@ -558,7 +558,7 @@ mod Reader {
                 let position_key = *position_keys.at(i);
                 let info = self
                     .get_position_info(
-                        data_store, referral_storage, position_key, *prices.at(i), 0, ui_fee_receiver, true
+                        data_store, referral_storage, position_key, *prices.at(i), 0, ui_fee_receiver, true,
                     );
                 position_info_list.append(info);
                 i += 1;
@@ -584,12 +584,12 @@ mod Reader {
                 size_delta_usd,
                 ui_fee_receiver,
                 use_position_size_as_size_delta_usd,
-                self.market_utils.read()
+                self.market_utils.read(),
             )
         }
 
         fn get_account_orders(
-            self: @ContractState, data_store: IDataStoreDispatcher, account: ContractAddress, start: u32, end: u32
+            self: @ContractState, data_store: IDataStoreDispatcher, account: ContractAddress, start: u32, end: u32,
         ) -> Array<Order> {
             let order_keys = data_store.get_account_order_keys(account, start, end);
             let length = order_keys.len();
@@ -627,7 +627,7 @@ mod Reader {
             data_store: IDataStoreDispatcher,
             market_price_list: Array<MarketPrices>,
             start: usize,
-            end: usize
+            end: usize,
         ) -> Array<MarketInfo> {
             let market_keys = data_store.get_market_keys(start, end);
             let mut market_info_list = ArrayTrait::<MarketInfo>::new();
@@ -646,7 +646,7 @@ mod Reader {
         }
 
         fn get_market_info(
-            self: @ContractState, data_store: IDataStoreDispatcher, prices: MarketPrices, market_key: ContractAddress
+            self: @ContractState, data_store: IDataStoreDispatcher, prices: MarketPrices, market_key: ContractAddress,
         ) -> MarketInfo {
             let market = data_store.get_market(market_key);
             let market_utils = self.market_utils.read();
@@ -657,7 +657,7 @@ mod Reader {
 
             let base_funding = reader_utils::get_base_funding_values(data_store, market, self.market_utils.read());
             let next_funding = reader_utils::get_next_funding_amount_per_size(
-                data_store, market, prices, self.market_utils.read()
+                data_store, market, prices, self.market_utils.read(),
             );
 
             let virtual_inventory = self.get_virtual_inventory(data_store, market);
@@ -670,7 +670,7 @@ mod Reader {
                 base_funding,
                 next_funding,
                 virtual_inventory,
-                is_disabled
+                is_disabled,
             }
         }
 
@@ -682,7 +682,7 @@ mod Reader {
             long_token_price: Price,
             short_token_price: Price,
             pnl_factor_type: felt252,
-            maximize: bool
+            maximize: bool,
         ) -> (i256, MarketPoolValueInfo) {
             let market_utils = self.market_utils.read();
             market_utils
@@ -693,7 +693,7 @@ mod Reader {
                     long_token_price,
                     short_token_price,
                     pnl_factor_type,
-                    maximize
+                    maximize,
                 )
         }
 
@@ -702,7 +702,7 @@ mod Reader {
             data_store: IDataStoreDispatcher,
             market: Market,
             index_token_price: Price,
-            maximize: bool
+            maximize: bool,
         ) -> i256 {
             let market_utils = self.market_utils.read();
             market_utils.get_net_pnl(data_store, market, index_token_price, maximize)
@@ -714,7 +714,7 @@ mod Reader {
             market: Market,
             index_token_price: Price,
             is_long: bool,
-            maximize: bool
+            maximize: bool,
         ) -> i256 {
             let market_utils = self.market_utils.read();
             market_utils.get_pnl(data_store, market, index_token_price, is_long, maximize)
@@ -726,7 +726,7 @@ mod Reader {
             market: Market,
             index_token_price: Price,
             is_long: bool,
-            maximize: bool
+            maximize: bool,
         ) -> i256 {
             let market_utils = self.market_utils.read();
             market_utils.get_open_interest_with_pnl(data_store, market, index_token_price, is_long, maximize)
@@ -738,7 +738,7 @@ mod Reader {
             market_address: ContractAddress,
             prices: MarketPrices,
             is_long: bool,
-            maximize: bool
+            maximize: bool,
         ) -> i256 {
             let market = data_store.get_market(market_address);
             let market_utils = self.market_utils.read();
@@ -752,15 +752,15 @@ mod Reader {
             prices: MarketPrices,
             token_in: ContractAddress,
             amount_in: u256,
-            ui_fee_receiver: ContractAddress
+            ui_fee_receiver: ContractAddress,
         ) -> (u256, i256, SwapFees) {
             reader_pricing_utils::get_swap_amount_out(
-                data_store, market, prices, token_in, amount_in, ui_fee_receiver, self.market_utils.read()
+                data_store, market, prices, token_in, amount_in, ui_fee_receiver, self.market_utils.read(),
             )
         }
 
         fn get_virtual_inventory(
-            self: @ContractState, data_store: IDataStoreDispatcher, market: Market
+            self: @ContractState, data_store: IDataStoreDispatcher, market: Market,
         ) -> VirtualInventory {
             let market_utils = self.market_utils.read();
             let (_, virtual_pool_amount_for_long_token, virtual_pool_amount_for_short_token) = market_utils
@@ -768,7 +768,9 @@ mod Reader {
             let (_, virtual_inventory_for_positions) = market_utils
                 .get_virtual_inventory_for_positions(data_store, market.index_token);
             VirtualInventory {
-                virtual_pool_amount_for_long_token, virtual_pool_amount_for_short_token, virtual_inventory_for_positions
+                virtual_pool_amount_for_long_token,
+                virtual_pool_amount_for_short_token,
+                virtual_inventory_for_positions,
             }
         }
 
@@ -780,7 +782,7 @@ mod Reader {
             position_size_in_usd: u256,
             position_size_in_token: u256,
             size_delta_usd: i256,
-            is_long: bool
+            is_long: bool,
         ) -> ExecutionPriceResult {
             let market = data_store.get_market(market_key);
             reader_pricing_utils::get_execution_price(
@@ -803,7 +805,7 @@ mod Reader {
             token_out: ContractAddress,
             amount_in: u256,
             token_in_price: Price,
-            token_out_price: Price
+            token_out_price: Price,
         ) -> (i256, i256) {
             let market = data_store.get_market(market_key);
             reader_pricing_utils::get_swap_price_impact(
@@ -814,7 +816,7 @@ mod Reader {
                 amount_in,
                 token_in_price,
                 token_out_price,
-                self.market_utils.read()
+                self.market_utils.read(),
             )
         }
 
@@ -823,7 +825,7 @@ mod Reader {
             data_store: IDataStoreDispatcher,
             market: ContractAddress,
             is_long: bool,
-            prices: MarketPrices
+            prices: MarketPrices,
         ) -> (u64, bool, i256, u256) {
             let market_utils = self.market_utils.read();
             let latest_adl_block = adl_utils::get_latest_adl_block(data_store, market, is_long);
@@ -840,7 +842,7 @@ mod Reader {
             position: Position,
             market: Market,
             prices: MarketPrices,
-            should_validate_min_collateral_usd: bool
+            should_validate_min_collateral_usd: bool,
         ) -> (bool, felt252) {
             position_utils::is_position_liquiditable(
                 data_store,
@@ -849,7 +851,7 @@ mod Reader {
                 market,
                 prices,
                 should_validate_min_collateral_usd,
-                self.market_utils.read()
+                self.market_utils.read(),
             )
         }
     }

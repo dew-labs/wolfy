@@ -1,9 +1,9 @@
 use freyr::event::event_emitter::EventEmitter::{
-    MarketPoolValueInfoEvent, PoolAmountUpdated, SwapImpactPoolAmountUpdated, PositionImpactPoolAmountUpdated,
-    OpenInterestInTokensUpdated, OpenInterestUpdated, VirtualSwapInventoryUpdated, VirtualPositionInventoryUpdated,
-    CollateralSumUpdated, CumulativeBorrowingFactorUpdated, FundingFeeAmountPerSizeUpdated,
-    ClaimableFundingAmountPerSizeUpdated, ClaimableFundingUpdated, FundingFeesClaimed, ClaimableCollateralUpdated,
-    CollateralClaimed, UiFeeFactorUpdated, MarketCreated
+    ClaimableCollateralUpdated, ClaimableFundingAmountPerSizeUpdated, ClaimableFundingUpdated, CollateralClaimed,
+    CollateralSumUpdated, CumulativeBorrowingFactorUpdated, FundingFeeAmountPerSizeUpdated, FundingFeesClaimed,
+    MarketCreated, MarketPoolValueInfoEvent, OpenInterestInTokensUpdated, OpenInterestUpdated, PoolAmountUpdated,
+    PositionImpactPoolAmountUpdated, SwapImpactPoolAmountUpdated, UiFeeFactorUpdated, VirtualPositionInventoryUpdated,
+    VirtualSwapInventoryUpdated,
 };
 
 use freyr::event::event_emitter::{EventEmitter, IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
@@ -13,7 +13,8 @@ use freyr::market::market_pool_value_info::MarketPoolValueInfo;
 use freyr::test_utils::tests_lib::deploy_event_emitter;
 use freyr::utils::i256::{i256, i256_new};
 use snforge_std::{
-    declare, ContractClassTrait, DeclareResultTrait, spy_events, EventSpy, EventSpyTrait, EventSpyAssertionsTrait, Event
+    ContractClassTrait, DeclareResultTrait, Event, EventSpy, EventSpyAssertionsTrait, EventSpyTrait, declare,
+    spy_events,
 };
 use starknet::{ContractAddress, contract_address_const};
 
@@ -47,11 +48,11 @@ fn given_normal_conditions_when_emit_market_pool_value_info_then_works() {
                         MarketPoolValueInfoEvent {
                             market: market,
                             market_pool_value_info: market_pool_value_info,
-                            market_tokens_supply: market_tokens_supply
-                        }
-                    )
-                )
-            ]
+                            market_tokens_supply: market_tokens_supply,
+                        },
+                    ),
+                ),
+            ],
         );
     // Assert there are no more events.
     assert(spy.get_events().events.len() == 1, 'There should be no events');
@@ -85,10 +86,10 @@ fn given_normal_conditions_when_emit_pool_amount_updated_then_works() {
                 (
                     contract_address,
                     EventEmitter::Event::PoolAmountUpdated(
-                        PoolAmountUpdated { market: market, token: token, delta: delta, next_value: next_value }
-                    )
-                )
-            ]
+                        PoolAmountUpdated { market: market, token: token, delta: delta, next_value: next_value },
+                    ),
+                ),
+            ],
         );
     // Assert there are no more events.
     assert(spy.get_events().events.len() == 1, 'There should be no events');
@@ -123,11 +124,11 @@ fn given_normal_conditions_when_emit_swap_impact_pool_amount_updated_then_works(
                     contract_address,
                     EventEmitter::Event::SwapImpactPoolAmountUpdated(
                         SwapImpactPoolAmountUpdated {
-                            market: market, token: token, delta: delta, next_value: next_value
-                        }
-                    )
-                )
-            ]
+                            market: market, token: token, delta: delta, next_value: next_value,
+                        },
+                    ),
+                ),
+            ],
         );
     // Assert there are no more events.
     assert(spy.get_events().events.len() == 1, 'There should be no events');
@@ -160,10 +161,10 @@ fn given_normal_conditions_when_emit_position_impact_pool_amount_updated_then_wo
                 (
                     contract_address,
                     EventEmitter::Event::PositionImpactPoolAmountUpdated(
-                        PositionImpactPoolAmountUpdated { market: market, delta: delta, next_value: next_value }
-                    )
-                )
-            ]
+                        PositionImpactPoolAmountUpdated { market: market, delta: delta, next_value: next_value },
+                    ),
+                ),
+            ],
         );
     // Assert there are no more events.
     assert(spy.get_events().events.len() == 1, 'There should be no events');
@@ -203,11 +204,11 @@ fn given_normal_conditions_when_emit_open_interest_in_tokens_updated_then_works(
                             collateral_token: collateral_token,
                             is_long: is_long,
                             delta: delta,
-                            next_value: next_value
-                        }
-                    )
-                )
-            ]
+                            next_value: next_value,
+                        },
+                    ),
+                ),
+            ],
         );
     // Assert there are no more events.
     assert(spy.get_events().events.len() == 1, 'There should be no events');
@@ -247,11 +248,11 @@ fn given_normal_conditions_when_emit_open_interest_updated_then_works() {
                             collateral_token: collateral_token,
                             is_long: is_long,
                             delta: delta,
-                            next_value: next_value
-                        }
-                    )
-                )
-            ]
+                            next_value: next_value,
+                        },
+                    ),
+                ),
+            ],
         );
     // Assert there are no more events.
     assert(spy.get_events().events.len() == 1, 'There should be no events');
@@ -291,11 +292,11 @@ fn given_normal_conditions_when_emit_virtual_swap_inventory_updated_then_works()
                             is_long_token: is_long_token,
                             virtual_market_id: virtual_market_id,
                             delta: delta,
-                            next_value: next_value
-                        }
-                    )
-                )
-            ]
+                            next_value: next_value,
+                        },
+                    ),
+                ),
+            ],
         );
     // Assert there are no more events.
     assert(spy.get_events().events.len() == 1, 'There should be no events');
@@ -331,10 +332,10 @@ fn given_normal_conditions_when_emit_virtual_position_inventory_updated_then_wor
                     EventEmitter::Event::VirtualPositionInventoryUpdated(
                         VirtualPositionInventoryUpdated {
                             token: token, virtual_token_id: virtual_token_id, delta: delta, next_value: next_value,
-                        }
-                    )
-                )
-            ]
+                        },
+                    ),
+                ),
+            ],
         );
     // Assert there are no more events.
     assert(spy.get_events().events.len() == 1, 'There should be no events');
@@ -374,11 +375,11 @@ fn given_normal_conditions_when_emit_collateral_sum_updated_then_works() {
                             collateral_token: collateral_token,
                             is_long: is_long,
                             delta: delta,
-                            next_value: next_value
-                        }
-                    )
-                )
-            ]
+                            next_value: next_value,
+                        },
+                    ),
+                ),
+            ],
         );
     // Assert there are no more events.
     assert(spy.get_events().events.len() == 1, 'There should be no events');
@@ -414,11 +415,11 @@ fn given_normal_conditions_when_emit_cumulative_borrowing_factor_updated_then_wo
                     contract_address,
                     EventEmitter::Event::CumulativeBorrowingFactorUpdated(
                         CumulativeBorrowingFactorUpdated {
-                            market: market, is_long: is_long, delta: delta, next_value: next_value
-                        }
-                    )
-                )
-            ]
+                            market: market, is_long: is_long, delta: delta, next_value: next_value,
+                        },
+                    ),
+                ),
+            ],
         );
     // Assert there are no more events.
     assert(spy.get_events().events.len() == 1, 'There should be no events');
@@ -459,11 +460,11 @@ fn given_normal_conditions_when_emit_funding_fee_amount_per_size_updated_then_wo
                             collateral_token: collateral_token,
                             is_long: is_long,
                             delta: delta,
-                            next_value: next_value
-                        }
-                    )
-                )
-            ]
+                            next_value: next_value,
+                        },
+                    ),
+                ),
+            ],
         );
     // Assert there are no more events.
     assert(spy.get_events().events.len() == 1, 'There should be no events');
@@ -503,11 +504,11 @@ fn given_normal_conditions_when_emit_claimable_funding_amount_per_size_updated_t
                             collateral_token: collateral_token,
                             is_long: is_long,
                             delta: delta,
-                            next_value: next_value
-                        }
-                    )
-                )
-            ]
+                            next_value: next_value,
+                        },
+                    ),
+                ),
+            ],
         );
     // Assert there are no more events.
     assert(spy.get_events().events.len() == 1, 'There should be no events');
@@ -549,11 +550,11 @@ fn given_normal_conditions_when_emit_claimable_funding_updated_then_works() {
                             account: account,
                             delta: delta,
                             next_value: next_value,
-                            next_pool_value: next_pool_value
-                        }
-                    )
-                )
-            ]
+                            next_pool_value: next_pool_value,
+                        },
+                    ),
+                ),
+            ],
         );
     // Assert there are no more events.
     assert(spy.get_events().events.len() == 1, 'There should be no events');
@@ -595,11 +596,11 @@ fn given_normal_conditions_when_emit_funding_fees_claimed_then_works() {
                             account: account,
                             receiver: receiver,
                             amount: amount,
-                            next_pool_value: next_pool_value
-                        }
-                    )
-                )
-            ]
+                            next_pool_value: next_pool_value,
+                        },
+                    ),
+                ),
+            ],
         );
     // Assert there are no more events.
     assert(spy.get_events().events.len() == 1, 'There should be no events');
@@ -645,11 +646,11 @@ fn given_normal_conditions_when_emit_claimable_collateral_updated_then_works() {
                             time_key: time_key,
                             delta: delta,
                             next_value: next_value,
-                            next_pool_value: next_pool_value
-                        }
-                    )
-                )
-            ]
+                            next_pool_value: next_pool_value,
+                        },
+                    ),
+                ),
+            ],
         );
     // Assert there are no more events.
     assert(spy.get_events().events.len() == 1, 'There should be no events');
@@ -694,11 +695,11 @@ fn given_normal_conditions_when_emit_collateral_claimed_then_works() {
                             receiver: receiver,
                             time_key: time_key,
                             amount: amount,
-                            next_pool_value: next_pool_value
-                        }
-                    )
-                )
-            ]
+                            next_pool_value: next_pool_value,
+                        },
+                    ),
+                ),
+            ],
         );
     // Assert there are no more events.
     assert(spy.get_events().events.len() == 1, 'There should be no events');
@@ -730,10 +731,10 @@ fn given_normal_conditions_when_emit_ui_fee_factor_updated_then_works() {
                 (
                     contract_address,
                     EventEmitter::Event::UiFeeFactorUpdated(
-                        UiFeeFactorUpdated { account: account, ui_fee_factor: ui_fee_factor }
-                    )
-                )
-            ]
+                        UiFeeFactorUpdated { account: account, ui_fee_factor: ui_fee_factor },
+                    ),
+                ),
+            ],
         );
     // Assert there are no more events.
     assert(spy.get_events().events.len() == 1, 'There should be no events');
@@ -775,11 +776,11 @@ fn given_normal_conditions_when_emit_market_created_then_works() {
                             index_token: index_token,
                             long_token: long_token,
                             short_token: short_token,
-                            market_type: market_type
-                        }
-                    )
-                )
-            ]
+                            market_type: market_type,
+                        },
+                    ),
+                ),
+            ],
         );
     // Assert there are no more events.
     assert(spy.get_events().events.len() == 1, 'There should be no events');

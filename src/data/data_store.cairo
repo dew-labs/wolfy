@@ -19,12 +19,12 @@ use starknet::ContractAddress;
 trait IDataStore<TContractState> {
     fn get_max_pool_amount_key(self: @TContractState, market_token: ContractAddress, token: ContractAddress) -> felt252;
     fn get_open_interest_key(
-        self: @TContractState, market: ContractAddress, collateral_token: ContractAddress, is_long: bool
+        self: @TContractState, market: ContractAddress, collateral_token: ContractAddress, is_long: bool,
     ) -> felt252;
     fn get_max_open_interest_key(self: @TContractState, market: ContractAddress, is_long: bool) -> felt252;
     fn get_pool_amount_key(self: @TContractState, market: ContractAddress, token: ContractAddress) -> felt252;
     fn get_max_pnl_factor_key(
-        self: @TContractState, pnl_factor_type: felt252, market: ContractAddress, is_long: bool
+        self: @TContractState, pnl_factor_type: felt252, market: ContractAddress, is_long: bool,
     ) -> felt252;
     fn get_max_pnl_factor_for_deposit_key(self: @TContractState) -> felt252;
     fn get_max_pnl_factor_for_withdrawals_key(self: @TContractState) -> felt252;
@@ -255,7 +255,7 @@ trait IDataStore<TContractState> {
     /// * `start` - Start index
     /// * `end` - Start index
     fn get_account_order_keys(
-        self: @TContractState, account: ContractAddress, start: usize, end: usize
+        self: @TContractState, account: ContractAddress, start: usize, end: usize,
     ) -> Array<felt252>;
 
 
@@ -305,7 +305,7 @@ trait IDataStore<TContractState> {
     /// * `start` - Start index
     /// * `end` - Start index
     fn get_account_position_keys(
-        self: @TContractState, account: ContractAddress, start: usize, end: usize
+        self: @TContractState, account: ContractAddress, start: usize, end: usize,
     ) -> Array<felt252>;
 
     // *************************************************************************
@@ -358,7 +358,7 @@ trait IDataStore<TContractState> {
     /// * `start` - The starting index of the withdrawal keys to retrieve.
     /// * `end` - The ending index of the withdrawal keys to retrieve.
     fn get_account_withdrawal_keys(
-        self: @TContractState, account: ContractAddress, start: u32, end: u32
+        self: @TContractState, account: ContractAddress, start: u32, end: u32,
     ) -> Array<felt252>;
 
     // *************************************************************************
@@ -403,7 +403,7 @@ trait IDataStore<TContractState> {
     /// * `start` - Start index
     /// * `end` - Start index
     fn get_account_deposit_keys(
-        self: @TContractState, account: ContractAddress, start: u32, end: u32
+        self: @TContractState, account: ContractAddress, start: u32, end: u32,
     ) -> Array<felt252>;
 
 
@@ -457,7 +457,7 @@ mod DataStore {
     // *************************************************************************
 
     // Core lib imports.
-    use alexandria_storage::list::{ListTrait, List};
+    use alexandria_storage::list::{List, ListTrait};
     use core::option::OptionTrait;
     use core::traits::TryInto;
     use freyr::data::error::DataError;
@@ -465,18 +465,18 @@ mod DataStore {
     // Local imports.
     use freyr::data::keys;
     use freyr::deposit::{deposit::Deposit, error::DepositError};
-    use freyr::market::{market::{Market, ValidateMarket}, error::MarketError};
-    use freyr::order::{order::Order, error::OrderError};
-    use freyr::position::{position::Position, error::PositionError};
-    use freyr::role::role_module::{IRoleModuleLibraryDispatcher, IRoleModuleDispatcherTrait};
-    use freyr::utils::calc::{sum_return_uint_256, to_signed, to_unsigned};
+    use freyr::market::{error::MarketError, market::{Market, ValidateMarket}};
+    use freyr::order::{error::OrderError, order::Order};
+    use freyr::position::{error::PositionError, position::Position};
+    use freyr::role::role_module::{IRoleModuleDispatcherTrait, IRoleModuleLibraryDispatcher};
     use freyr::utils::calc;
+    use freyr::utils::calc::{sum_return_uint_256, to_signed, to_unsigned};
     use freyr::utils::i256::{i256, i256_neg};
-    use freyr::withdrawal::{withdrawal::Withdrawal, error::WithdrawalError};
+    use freyr::withdrawal::{error::WithdrawalError, withdrawal::Withdrawal};
     use nullable::NullableTrait;
     use poseidon::poseidon_hash_span;
     use starknet::storage::Map;
-    use starknet::{get_caller_address, ContractAddress, contract_address_const, ClassHash};
+    use starknet::{ClassHash, ContractAddress, contract_address_const, get_caller_address};
     use zeroable::Zeroable;
 
     // *************************************************************************
@@ -521,7 +521,7 @@ mod DataStore {
     //                              CONSTRUCTOR
     // *************************************************************************
     #[constructor]
-    fn constructor(ref self: ContractState, role_store_address: ContractAddress, role_module_class_hash: ClassHash,) {
+    fn constructor(ref self: ContractState, role_store_address: ContractAddress, role_module_class_hash: ClassHash) {
         self.role_module.write(IRoleModuleLibraryDispatcher { class_hash: role_module_class_hash });
         self.role_module.read().initialize(role_store_address);
     }
@@ -532,13 +532,13 @@ mod DataStore {
     #[abi(embed_v0)]
     impl DataStore of super::IDataStore<ContractState> {
         fn get_max_pool_amount_key(
-            self: @ContractState, market_token: ContractAddress, token: ContractAddress
+            self: @ContractState, market_token: ContractAddress, token: ContractAddress,
         ) -> felt252 {
             keys::max_pool_amount_key(market_token, token)
         }
 
         fn get_open_interest_key(
-            self: @ContractState, market: ContractAddress, collateral_token: ContractAddress, is_long: bool
+            self: @ContractState, market: ContractAddress, collateral_token: ContractAddress, is_long: bool,
         ) -> felt252 {
             keys::open_interest_key(market, collateral_token, is_long)
         }
@@ -552,7 +552,7 @@ mod DataStore {
         }
 
         fn get_max_pnl_factor_key(
-            self: @ContractState, pnl_factor_type: felt252, market: ContractAddress, is_long: bool
+            self: @ContractState, pnl_factor_type: felt252, market: ContractAddress, is_long: bool,
         ) -> felt252 {
             keys::max_pnl_factor_key(pnl_factor_type, market, is_long)
         }
@@ -570,7 +570,7 @@ mod DataStore {
         }
 
         fn get_open_interest_reserve_factor_key(
-            self: @ContractState, market: ContractAddress, is_long: bool
+            self: @ContractState, market: ContractAddress, is_long: bool,
         ) -> felt252 {
             keys::open_interest_reserve_factor_key(market, is_long)
         }
@@ -803,7 +803,7 @@ mod DataStore {
             let market_maybe = markets.get(offsetted_index - 1).unwrap();
             match market_maybe {
                 Option::Some(market) => { market },
-                Option::None => { Default::default() }
+                Option::None => { Default::default() },
             }
         }
 
@@ -859,7 +859,7 @@ mod DataStore {
                 Option::None => {
                     // This case should never happen, because index is always <= length
                     return;
-                }
+                },
             }
         }
 
@@ -886,7 +886,7 @@ mod DataStore {
             keys
         }
 
-        fn get_market_count(self: @ContractState,) -> u32 {
+        fn get_market_count(self: @ContractState) -> u32 {
             self.markets.read().len()
         }
 
@@ -924,7 +924,7 @@ mod DataStore {
             let order_maybe = orders.get(offsetted_index - 1).unwrap();
             match order_maybe {
                 Option::Some(order) => { order },
-                Option::None => { Default::default() }
+                Option::None => { Default::default() },
             }
         }
 
@@ -984,7 +984,7 @@ mod DataStore {
                 Option::None => {
                     // This case should never happen, because index is always <= length
                     return;
-                }
+                },
             }
         }
 
@@ -1011,7 +1011,7 @@ mod DataStore {
             keys
         }
 
-        fn get_order_count(self: @ContractState,) -> u32 {
+        fn get_order_count(self: @ContractState) -> u32 {
             self.orders.read().len()
         }
 
@@ -1020,7 +1020,7 @@ mod DataStore {
         }
 
         fn get_account_order_keys(
-            self: @ContractState, account: ContractAddress, start: u32, mut end: u32
+            self: @ContractState, account: ContractAddress, start: u32, mut end: u32,
         ) -> Array<felt252> {
             let mut keys: Array<felt252> = Default::default();
             let mut account_orders = self.account_orders.read(account);
@@ -1063,7 +1063,7 @@ mod DataStore {
             let position_maybe = positions.get(offsetted_index - 1).unwrap();
             match position_maybe {
                 Option::Some(position) => { position },
-                Option::None => { pos }
+                Option::None => { pos },
             }
         }
 
@@ -1123,7 +1123,7 @@ mod DataStore {
                 Option::None => {
                     // This case should never happen, because index is always <= length
                     return;
-                }
+                },
             }
         }
 
@@ -1159,7 +1159,7 @@ mod DataStore {
         }
 
         fn get_account_position_keys(
-            self: @ContractState, account: ContractAddress, start: u32, mut end: u32
+            self: @ContractState, account: ContractAddress, start: u32, mut end: u32,
         ) -> Array<felt252> {
             let mut keys: Array<felt252> = Default::default();
             let mut account_positions = self.account_positions.read(account);
@@ -1198,7 +1198,7 @@ mod DataStore {
             let withdrawal_maybe = withdrawals.get(offsetted_index - 1).unwrap();
             match withdrawal_maybe {
                 Option::Some(withdrawal) => { withdrawal },
-                Option::None => { Default::default() }
+                Option::None => { Default::default() },
             }
         }
 
@@ -1206,7 +1206,7 @@ mod DataStore {
             // Check that the caller has permission to set the value.
             self.role_module.read().only_controller();
             assert(
-                withdrawal.account != contract_address_const::<0>(), WithdrawalError::WITHDRAWAL_ACCOUNT_CANT_BE_ZERO
+                withdrawal.account != contract_address_const::<0>(), WithdrawalError::WITHDRAWAL_ACCOUNT_CANT_BE_ZERO,
             );
 
             let mut withdrawals = self.withdrawals.read();
@@ -1260,7 +1260,7 @@ mod DataStore {
                 Option::None => {
                     // This case should never happen, because index is always <= length
                     return;
-                }
+                },
             }
         }
 
@@ -1296,7 +1296,7 @@ mod DataStore {
         }
 
         fn get_account_withdrawal_keys(
-            self: @ContractState, account: ContractAddress, start: u32, mut end: u32
+            self: @ContractState, account: ContractAddress, start: u32, mut end: u32,
         ) -> Array<felt252> {
             let mut keys: Array<felt252> = Default::default();
             let mut account_withdrawals = self.account_withdrawals.read(account);
@@ -1335,7 +1335,7 @@ mod DataStore {
             let deposit_maybe = deposits.get(offsetted_index - 1).unwrap();
             match deposit_maybe {
                 Option::Some(deposit) => { deposit },
-                Option::None => { Default::default() }
+                Option::None => { Default::default() },
             }
         }
 
@@ -1394,7 +1394,7 @@ mod DataStore {
                 Option::None => {
                     // This case should never happen, because index is always <= length
                     return;
-                }
+                },
             }
         }
 
@@ -1430,7 +1430,7 @@ mod DataStore {
         }
 
         fn get_account_deposit_keys(
-            self: @ContractState, account: ContractAddress, start: u32, mut end: u32
+            self: @ContractState, account: ContractAddress, start: u32, mut end: u32,
         ) -> Array<felt252> {
             let mut keys: Array<felt252> = Default::default();
             let mut account_deposits = self.account_deposits.read(account);
@@ -1483,7 +1483,7 @@ mod DataStore {
                         Option::None => {
                             // This case should never happen, because index is always < length
                             break;
-                        }
+                        },
                     }
                     break;
                 }
@@ -1515,7 +1515,7 @@ mod DataStore {
                         Option::None => {
                             // This case should never happen, because index is always < length
                             break;
-                        }
+                        },
                     }
                     break;
                 }
@@ -1547,7 +1547,7 @@ mod DataStore {
                         Option::None => {
                             // This case should never happen, because index is always < length
                             break;
-                        }
+                        },
                     }
                     break;
                 }
@@ -1579,7 +1579,7 @@ mod DataStore {
                         Option::None => {
                             // This case should never happen, because index is always < length
                             break;
-                        }
+                        },
                     }
                     break;
                 }

@@ -4,7 +4,7 @@
 //                                  IMPORTS
 // *************************************************************************
 use freyr::utils::i256::i256;
-use freyr::utils::{precision, calc};
+use freyr::utils::{calc, precision};
 
 /// Get the price impact USD if there is no crossover in balance
 /// a crossover in balance is for example if the long open interest is larger
@@ -42,7 +42,7 @@ fn get_price_impact_usd_for_crossover_rebalance(
 }
 
 /// Apply the impact factor calculation to a USD diff value.
-fn apply_impact_factor(diff_usd: u256, impact_factor: u256, impact_exponent_factor: u256,) -> u256 {
+fn apply_impact_factor(diff_usd: u256, impact_factor: u256, impact_exponent_factor: u256) -> u256 {
     let exponent_value = precision::apply_exponent_factor(diff_usd, impact_exponent_factor);
     precision::apply_factor_u256(exponent_value, impact_factor)
 }

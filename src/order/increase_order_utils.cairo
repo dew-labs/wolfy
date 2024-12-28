@@ -30,7 +30,7 @@ trait IIncreaseOrderUtils<TContractState> {
         min_oracle_block_numbers: Span<u64>,
         max_oracle_block_numbers: Span<u64>,
         order_type: OrderType,
-        order_updated_at_block: u64
+        order_updated_at_block: u64,
     );
 }
 
@@ -40,10 +40,10 @@ mod IncreaseOrderUtils {
     use core::integer::U64PartialOrd;
     use freyr::bank::bank::{IBankDispatcher, IBankDispatcherTrait};
     use freyr::data::{data_store::IDataStoreDispatcherTrait, error::DataError};
-    use freyr::market::market_utils::{IMarketUtilsLibraryDispatcher, IMarketUtilsDispatcherTrait};
-    use freyr::oracle::{oracle_utils, error::OracleError};
-    use freyr::order::{base_order_utils::ExecuteOrderParams, order::{Order, OrderType}, error::OrderError};
-    use freyr::position::{position_utils, error::PositionError, increase_position_utils};
+    use freyr::market::market_utils::{IMarketUtilsDispatcherTrait, IMarketUtilsLibraryDispatcher};
+    use freyr::oracle::{error::OracleError, oracle_utils};
+    use freyr::order::{base_order_utils::ExecuteOrderParams, error::OrderError, order::{Order, OrderType}};
+    use freyr::position::{error::PositionError, increase_position_utils, position_utils};
     use freyr::swap::swap_utils;
     use starknet::{ClassHash};
 
@@ -51,11 +51,11 @@ mod IncreaseOrderUtils {
         min_oracle_block_numbers: Span<u64>,
         max_oracle_block_numbers: Span<u64>,
         order_type: OrderType,
-        order_updated_at_block: u64
+        order_updated_at_block: u64,
     ) {
         if order_type == OrderType::MarketIncrease {
             oracle_utils::validate_block_number_within_range(
-                min_oracle_block_numbers, max_oracle_block_numbers, order_updated_at_block
+                min_oracle_block_numbers, max_oracle_block_numbers, order_updated_at_block,
             );
             return;
         };
@@ -73,7 +73,7 @@ mod IncreaseOrderUtils {
                 .expect(OracleError::EMPTY_ORACLE_BLOCK_NUMBERS);
             if min_oracle_block_number < order_updated_at_block {
                 OracleError::ORACLE_BLOCK_NUMBERS_ARE_SMALLER_THAN_REQUIRED(
-                    min_oracle_block_numbers, order_updated_at_block
+                    min_oracle_block_numbers, order_updated_at_block,
                 );
             }
             return;
@@ -118,7 +118,7 @@ mod IncreaseOrderUtils {
                     receiver: params.order.market,
                     ui_fee_receiver: params.order.ui_fee_receiver,
                 },
-                market_utils
+                market_utils,
             );
 
             market_utils.validate_market_collateral_token(params.market, collateral_token);
@@ -138,12 +138,13 @@ mod IncreaseOrderUtils {
                 position.is_long = params.order.is_long;
             };
 
-            self.validate_oracle_block_numbers(
-                params.min_oracle_block_numbers.span(),
-                params.max_oracle_block_numbers.span(),
-                params.order.order_type,
-                params.order.updated_at_block
-            );
+            self
+                .validate_oracle_block_numbers(
+                    params.min_oracle_block_numbers.span(),
+                    params.max_oracle_block_numbers.span(),
+                    params.order.order_type,
+                    params.order.updated_at_block,
+                );
 
             increase_position_utils::increase_position(
                 position_utils::UpdatePositionParams {
@@ -156,7 +157,7 @@ mod IncreaseOrderUtils {
                     secondary_order_type: params.secondary_order_type,
                 },
                 collateral_increment_amount,
-                market_utils
+                market_utils,
             );
             let _position_updated = params.contracts.data_store.get_position(position_key);
         }
@@ -172,10 +173,10 @@ mod IncreaseOrderUtils {
             min_oracle_block_numbers: Span<u64>,
             max_oracle_block_numbers: Span<u64>,
             order_type: OrderType,
-            order_updated_at_block: u64
+            order_updated_at_block: u64,
         ) {
             validate_oracle_block_numbers(
-                min_oracle_block_numbers, max_oracle_block_numbers, order_type, order_updated_at_block
+                min_oracle_block_numbers, max_oracle_block_numbers, order_type, order_updated_at_block,
             )
         }
     }

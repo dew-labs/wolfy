@@ -10,7 +10,7 @@ use freyr::order::order::DecreasePositionSwapType;
 // Local imports.
 use freyr::position::{
     error::PositionError,
-    position_utils::{DecreasePositionCollateralValues, UpdatePositionParams, DecreasePositionCollateralValuesOutput}
+    position_utils::{DecreasePositionCollateralValues, DecreasePositionCollateralValuesOutput, UpdatePositionParams},
 };
 use freyr::swap::swap_handler::{ISwapHandlerDispatcher, ISwapHandlerDispatcherTrait};
 use freyr::swap::swap_utils::{SwapParams};
@@ -19,7 +19,7 @@ use starknet::ContractAddress;
 
 /// Swap the withdrawn collateral from collateral_token to pnl_token if needed.
 fn swap_withdrawn_collateral_to_pnl_token(
-    params: UpdatePositionParams, mut values: DecreasePositionCollateralValues
+    params: UpdatePositionParams, mut values: DecreasePositionCollateralValues,
 ) -> DecreasePositionCollateralValues {
     let mut swap_path_markets = ArrayTrait::<Market>::new();
     if (values.output.output_amount > 0
@@ -41,7 +41,7 @@ fn swap_withdrawn_collateral_to_pnl_token(
                     min_output_amount: 0,
                     receiver: params.market.market_token,
                     ui_fee_receiver: params.order.ui_fee_receiver,
-                }
+                },
             );
 
         if (token_out != values.output.secondary_output_token) {
@@ -61,7 +61,7 @@ fn swap_withdrawn_collateral_to_pnl_token(
 /// # Returns
 /// DecreasePositionCollateralValues
 fn swap_profit_to_collateral_token(
-    params: UpdatePositionParams, pnl_token: ContractAddress, profit_amount: u256
+    params: UpdatePositionParams, pnl_token: ContractAddress, profit_amount: u256,
 ) -> (bool, u256) {
     let mut swap_path_markets = ArrayTrait::<Market>::new();
     if (profit_amount > 0
@@ -83,7 +83,7 @@ fn swap_profit_to_collateral_token(
                     min_output_amount: 0,
                     receiver: params.market.market_token,
                     ui_fee_receiver: params.order.ui_fee_receiver,
-                }
+                },
             );
         return (true, swap_output_amount);
     }

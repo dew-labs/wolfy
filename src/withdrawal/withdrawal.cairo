@@ -5,7 +5,7 @@
 // Core lib imports.
 use alexandria_storage::list::List;
 use freyr::utils::arrays::StoreContractAddressSpan;
-use freyr::utils::span32::{Span32, DefaultSpan32};
+use freyr::utils::span32::{DefaultSpan32, Span32};
 
 // Local imports.
 use freyr::utils::store_arrays::StoreContractAddressArray;

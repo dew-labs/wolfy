@@ -36,7 +36,7 @@ mod RoleModule {
     // Core lib imports.
 
     // Local imports.
-    use freyr::role::{role, error::RoleError, role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait}};
+    use freyr::role::{error::RoleError, role, role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait}};
     use starknet::{ContractAddress, get_caller_address, get_contract_address};
 
     #[storage]

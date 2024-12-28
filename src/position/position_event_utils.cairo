@@ -7,7 +7,7 @@
 
 use freyr::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
 use freyr::order::order::OrderType;
-use freyr::position::{position_utils::DecreasePositionCollateralValues, position::Position,};
+use freyr::position::{position::Position, position_utils::DecreasePositionCollateralValues};
 use freyr::price::price::Price;
 use freyr::pricing::position_pricing_utils::PositionFees;
 use freyr::utils::i256::i256;
@@ -42,5 +42,5 @@ struct PositionIncreaseParams {
     /// The position increase price impact in tokens.
     price_impact_amount: i256,
     /// The type of the order.
-    order_type: OrderType
+    order_type: OrderType,
 }

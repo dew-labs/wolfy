@@ -8,7 +8,7 @@
 use core::num::traits::Bounded;
 
 use core::num::traits::WideMul;
-use core::ops::{AddAssign, SubAssign, MulAssign, DivAssign, RemAssign};
+use core::ops::{AddAssign, DivAssign, MulAssign, RemAssign, SubAssign};
 use freyr::utils::felt_math::{felt_abs, felt_sign};
 /// Trait
 ///

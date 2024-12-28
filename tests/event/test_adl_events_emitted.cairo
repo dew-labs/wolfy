@@ -3,7 +3,8 @@ use freyr::event::event_emitter::{EventEmitter, IEventEmitterDispatcher, IEventE
 use freyr::test_utils::tests_lib::deploy_event_emitter;
 use option::OptionTrait;
 use snforge_std::{
-    declare, ContractClassTrait, DeclareResultTrait, spy_events, EventSpy, EventSpyTrait, Event, EventSpyAssertionsTrait
+    ContractClassTrait, DeclareResultTrait, Event, EventSpy, EventSpyAssertionsTrait, EventSpyTrait, declare,
+    spy_events,
 };
 use starknet::{ContractAddress, contract_address_const};
 
@@ -41,11 +42,11 @@ fn given_normal_conditions_when_emit_adl_state_updated_then_works() {
                             is_long: is_long.into(),
                             pnl_to_pool_factor: pnl_to_pool_factor,
                             max_pnl_factor: max_pnl_factor.into(),
-                            should_enable_adl: should_enable_adl.into()
-                        }
-                    )
-                )
-            ]
+                            should_enable_adl: should_enable_adl.into(),
+                        },
+                    ),
+                ),
+            ],
         );
     // Assert there are no more events.
     assert(spy.get_events().events.len() == 1, 'There should be no events');

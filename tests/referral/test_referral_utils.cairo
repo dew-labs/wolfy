@@ -1,10 +1,10 @@
 use freyr::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
 use freyr::data::keys;
 use freyr::deposit::deposit::Deposit;
-use freyr::event::event_emitter::EventEmitter::{AffiliateRewardUpdated, AffiliateRewardClaimed};
+use freyr::event::event_emitter::EventEmitter::{AffiliateRewardClaimed, AffiliateRewardUpdated};
 use freyr::event::event_emitter::{EventEmitter, IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
 use freyr::market::market_token::{IMarketTokenDispatcher, IMarketTokenDispatcherTrait};
-use freyr::market::market_utils::{IMarketUtilsLibraryDispatcher, IMarketUtilsDispatcherTrait};
+use freyr::market::market_utils::{IMarketUtilsDispatcherTrait, IMarketUtilsLibraryDispatcher};
 use freyr::mock::governable::{IGovernableDispatcher, IGovernableDispatcherTrait};
 use freyr::mock::referral_storage::{IReferralStorageDispatcher, IReferralStorageDispatcherTrait};
 use freyr::referral::referral_utils;
@@ -13,12 +13,12 @@ use freyr::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
 use freyr::test_utils::tests_lib;
 use freyr::token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
 use freyr::utils::precision;
-use freyr::utils::span32::{Span32, Array32Trait};
+use freyr::utils::span32::{Array32Trait, Span32};
 use snforge_std::{
-    declare, ContractClass, ContractClassTrait, DeclareResultTrait, spy_events, EventSpy, Event,
-    start_cheat_caller_address, stop_cheat_caller_address, EventSpyAssertionsTrait, EventSpyTrait
+    ContractClass, ContractClassTrait, DeclareResultTrait, Event, EventSpy, EventSpyAssertionsTrait, EventSpyTrait,
+    declare, spy_events, start_cheat_caller_address, stop_cheat_caller_address,
 };
-use starknet::{ContractAddress, contract_address_const, ClassHash};
+use starknet::{ClassHash, ContractAddress, contract_address_const};
 
 #[test]
 fn given_normal_conditions_when_trader_referral_codes_then_works() {
@@ -31,7 +31,7 @@ fn given_normal_conditions_when_trader_referral_codes_then_works() {
         referral_storage,
         _governable,
         _market_token,
-        _market_utils
+        _market_utils,
     ) =
         setup();
 
@@ -76,7 +76,7 @@ fn given_forbidden_when_trader_referral_codes_then_fails() {
         referral_storage,
         _governable,
         _market_token,
-        _market_utils
+        _market_utils,
     ) =
         setup();
 
@@ -104,7 +104,7 @@ fn given_normal_conditions_when_increment_affiliate_reward_then_works() {
         _referral_storage,
         _governable,
         _market_token,
-        _market_utils
+        _market_utils,
     ) =
         setup();
 
@@ -148,11 +148,11 @@ fn given_normal_conditions_when_increment_affiliate_reward_then_works() {
                             affiliate: affiliate,
                             delta: delta,
                             next_value: expected_value,
-                            next_pool_value: expected_pool
-                        }
-                    )
-                )
-            ]
+                            next_pool_value: expected_pool,
+                        },
+                    ),
+                ),
+            ],
         );
 
     tests_lib::teardown();
@@ -170,12 +170,12 @@ fn given_no_code_when_get_referral_info_then_works() {
         referral_storage,
         _governable,
         _market_token,
-        _market_utils
+        _market_utils,
     ) =
         setup();
 
     let (code, affiliate, total_rebate, discount_share) = referral_utils::get_referral_info(
-        referral_storage, caller_address
+        referral_storage, caller_address,
     );
 
     assert(code == 0, 'invalid code');
@@ -197,7 +197,7 @@ fn given_normal_conditions_when_get_referral_info_then_works() {
         referral_storage,
         _governable,
         _market_token,
-        _market_utils
+        _market_utils,
     ) =
         setup();
 
@@ -224,7 +224,7 @@ fn given_normal_conditions_when_get_referral_info_then_works() {
     // Test
 
     let (retrived_code, affiliate, total_rebate, discount_share) = referral_utils::get_referral_info(
-        referral_storage, caller_address
+        referral_storage, caller_address,
     );
 
     assert(code == retrived_code, 'invalid code');
@@ -247,7 +247,7 @@ fn given_refferal_discountshare_when_get_referral_info_then_works() {
         referral_storage,
         _governable,
         _market_token,
-        _market_utils
+        _market_utils,
     ) =
         setup();
 
@@ -273,7 +273,7 @@ fn given_refferal_discountshare_when_get_referral_info_then_works() {
     // Test
 
     let (retrived_code, affiliate, total_rebate, discount_share) = referral_utils::get_referral_info(
-        referral_storage, caller_address
+        referral_storage, caller_address,
     );
 
     assert(code == retrived_code, 'invalid code');
@@ -296,7 +296,7 @@ fn given_normal_conditions_when_claim_affiliate_reward_then_works() {
         _referral_storage,
         _governable,
         market_token,
-        market_utils
+        market_utils,
     ) =
         setup();
     let (token_address, token_dispatcher) = setup_mock_token(caller_address, market_token.contract_address);
@@ -321,7 +321,7 @@ fn given_normal_conditions_when_claim_affiliate_reward_then_works() {
     assert(caller_balance == 0, 'invalid init balance');
 
     let retrieved_amount: u256 = referral_utils::claim_affiliate_reward(
-        data_store, event_emitter, market, token_address, account, caller_address, market_utils
+        data_store, event_emitter, market, token_address, account, caller_address, market_utils,
     );
 
     assert(retrieved_amount == reward_amount, 'invalid retrieved_amount');
@@ -350,10 +350,10 @@ fn given_normal_conditions_when_claim_affiliate_reward_then_works() {
                             receiver: caller_address,
                             amount: reward_amount,
                             next_pool_value: retrived_value2,
-                        }
-                    )
-                )
-            ]
+                        },
+                    ),
+                ),
+            ],
         );
 
     tests_lib::teardown();
@@ -385,7 +385,7 @@ fn deploy_market_token(
     let deployed_contract_address = contract_address_const::<'market_token'>();
     start_cheat_caller_address(deployed_contract_address, caller_address);
     let constructor_calldata: Array<felt252> = array![
-        role_store_address.into(), data_store_address.into(), bank_class_hash.into(), role_module_class_hash.into()
+        role_store_address.into(), data_store_address.into(), bank_class_hash.into(), role_module_class_hash.into(),
     ];
     let (contract_address, _) = contract.deploy_at(@constructor_calldata, deployed_contract_address).unwrap();
     contract_address
@@ -450,7 +450,7 @@ fn setup() -> (
         role_store.contract_address,
         data_store.contract_address,
         bank_class.class_hash,
-        role_module_class.class_hash
+        role_module_class.class_hash,
     );
     let market_token = IMarketTokenDispatcher { contract_address: market_token_address };
 

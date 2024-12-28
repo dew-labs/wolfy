@@ -6,11 +6,11 @@
 
 // Core lib imports.
 use core::traits::Into;
-use freyr::market::market_utils::{IMarketUtilsLibraryDispatcher, IMarketUtilsDispatcherTrait};
+use freyr::market::market_utils::{IMarketUtilsDispatcherTrait, IMarketUtilsLibraryDispatcher};
 
 use freyr::oracle::oracle_utils::SetPricesParams;
-use freyr::order::{order::SecondaryOrderType, base_order_utils::ExecuteOrderParams};
-use starknet::{ContractAddress, contract_address_const, ClassHash};
+use freyr::order::{base_order_utils::ExecuteOrderParams, order::SecondaryOrderType};
+use starknet::{ClassHash, ContractAddress, contract_address_const};
 
 // *************************************************************************
 //                  Interface of the `BaseOrderHandler` contract.
@@ -38,7 +38,7 @@ trait IBaseOrderHandler<TContractState> {
         oracle_params: SetPricesParams,
         keeper: ContractAddress,
         starting_gas: u256,
-        secondary_order_type: SecondaryOrderType
+        secondary_order_type: SecondaryOrderType,
     ) -> ExecuteOrderParams;
 }
 
@@ -56,28 +56,29 @@ mod BaseOrderHandler {
     use freyr::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
     use freyr::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
     use freyr::exchange::error::ExchangeError;
-    use freyr::market::market_utils::{IMarketUtilsLibraryDispatcher, IMarketUtilsDispatcherTrait};
+    use freyr::market::market_utils::{IMarketUtilsDispatcherTrait, IMarketUtilsLibraryDispatcher};
     use freyr::market::{market::Market, market_utils};
     use freyr::mock::referral_storage::{IReferralStorageDispatcher, IReferralStorageDispatcherTrait};
     use freyr::oracle::{
         oracle::{IOracleDispatcher, IOracleDispatcherTrait},
-        oracle_modules::{with_oracle_prices_before, with_oracle_prices_after},
+        oracle_modules::{with_oracle_prices_after, with_oracle_prices_before},
         oracle_utils::{SetPricesParams, get_uncompacted_oracle_block_numbers},
     };
     use freyr::order::{
-        error::OrderError, order::{SecondaryOrderType, OrderType, Order, DecreasePositionSwapType},
-        order_vault::{IOrderVaultDispatcher, IOrderVaultDispatcherTrait},
-        base_order_utils::{ExecuteOrderParams, ExecuteOrderParamsContracts}, order_utils::IOrderUtilsLibraryDispatcher,
+        base_order_utils::{ExecuteOrderParams, ExecuteOrderParamsContracts},
+        decrease_order_utils::IDecreaseOrderUtilsLibraryDispatcher, error::OrderError,
         increase_order_utils::IIncreaseOrderUtilsLibraryDispatcher,
-        decrease_order_utils::IDecreaseOrderUtilsLibraryDispatcher, swap_order_utils::ISwapOrderUtilsLibraryDispatcher
+        order::{DecreasePositionSwapType, Order, OrderType, SecondaryOrderType},
+        order_utils::IOrderUtilsLibraryDispatcher, order_vault::{IOrderVaultDispatcher, IOrderVaultDispatcherTrait},
+        swap_order_utils::ISwapOrderUtilsLibraryDispatcher,
     };
-    use freyr::role::role_module::{IRoleModuleDispatcher, IRoleModuleDispatcherTrait, RoleModule, IRoleModule};
+    use freyr::role::role_module::{IRoleModule, IRoleModuleDispatcher, IRoleModuleDispatcherTrait, RoleModule};
     use freyr::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
     use freyr::swap::swap_handler::{ISwapHandlerDispatcher, ISwapHandlerDispatcherTrait};
     use freyr::utils::span32::Array32Trait;
 
     use result::ResultTrait;
-    use starknet::{get_caller_address, ContractAddress, contract_address_const, ClassHash};
+    use starknet::{ClassHash, ContractAddress, contract_address_const, get_caller_address};
 
     // Local imports.
     use super::IBaseOrderHandler;
@@ -159,7 +160,7 @@ mod BaseOrderHandler {
             oracle_params: SetPricesParams,
             keeper: ContractAddress,
             starting_gas: u256,
-            secondary_order_type: SecondaryOrderType
+            secondary_order_type: SecondaryOrderType,
         ) -> ExecuteOrderParams {
             let data_store = self.data_store.read();
 
@@ -179,10 +180,10 @@ mod BaseOrderHandler {
             };
 
             let min_oracle_block_numbers = get_uncompacted_oracle_block_numbers(
-                oracle_params.compacted_min_oracle_block_numbers.span(), oracle_params.tokens.len()
+                oracle_params.compacted_min_oracle_block_numbers.span(), oracle_params.tokens.len(),
             );
             let max_oracle_block_numbers = get_uncompacted_oracle_block_numbers(
-                oracle_params.compacted_max_oracle_block_numbers.span(), oracle_params.tokens.len()
+                oracle_params.compacted_max_oracle_block_numbers.span(), oracle_params.tokens.len(),
             );
 
             let address_zero = contract_address_const::<0>();
@@ -203,7 +204,7 @@ mod BaseOrderHandler {
                 market: market,
                 keeper: keeper,
                 starting_gas: starting_gas,
-                secondary_order_type: secondary_order_type
+                secondary_order_type: secondary_order_type,
             }
         }
     }

@@ -12,7 +12,7 @@ use core::option::Option;
 use core::traits::TryInto;
 use freyr::utils::calc::{roundup_division, roundup_magnitude_division};
 use freyr::utils::i256::{i256, i256_neg};
-use integer::{u512_safe_div_rem_by_u256, BoundedU256, u256_try_as_non_zero, U256TryIntoFelt252};
+use integer::{BoundedU256, U256TryIntoFelt252, u256_try_as_non_zero, u512_safe_div_rem_by_u256};
 
 const FLOAT_PRECISION: u256 = 1_000000000000000000000000000000; // 10^30
 const FLOAT_PRECISION_SQRT: u256 = 1_000000000000000; // 10^15

@@ -9,7 +9,7 @@ use freyr::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
 use freyr::data::keys;
 use freyr::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
 use freyr::market::market_token::{IMarketTokenDispatcher, IMarketTokenDispatcherTrait};
-use freyr::market::market_utils::{IMarketUtilsLibraryDispatcher, IMarketUtilsDispatcherTrait};
+use freyr::market::market_utils::{IMarketUtilsDispatcherTrait, IMarketUtilsLibraryDispatcher};
 
 // Local imports.
 use freyr::mock::referral_storage::{IReferralStorageDispatcher, IReferralStorageDispatcherTrait};
@@ -25,7 +25,7 @@ use starknet::{ContractAddress, contract_address_const};
 /// * `account` - The account of the trader.
 /// * `referral_code` - The referral code.
 fn set_trader_referral_code(
-    referral_storage: IReferralStorageDispatcher, account: ContractAddress, referral_code: felt252
+    referral_storage: IReferralStorageDispatcher, account: ContractAddress, referral_code: felt252,
 ) {
     if (referral_code == 0) {
         return;
@@ -47,7 +47,7 @@ fn increment_affiliate_reward(
     market: ContractAddress,
     token: ContractAddress,
     affiliate: ContractAddress,
-    delta: u256
+    delta: u256,
 ) {
     if (delta == 0) {
         return;
@@ -66,7 +66,7 @@ fn increment_affiliate_reward(
 /// # Returns
 /// The referral code, the affiliate's address, the total rebate, and the discount share.
 fn get_referral_info(
-    referral_storage: IReferralStorageDispatcher, trader: ContractAddress
+    referral_storage: IReferralStorageDispatcher, trader: ContractAddress,
 ) -> (felt252, ContractAddress, u256, u256) {
     let code: felt252 = referral_storage.trader_referral_codes(trader);
     let mut affiliate = contract_address_const::<0>();
@@ -88,7 +88,7 @@ fn get_referral_info(
         code,
         affiliate,
         precision::basis_points_to_float(total_rebate),
-        precision::basis_points_to_float(discount_share)
+        precision::basis_points_to_float(discount_share),
     );
 }
 
@@ -109,7 +109,7 @@ fn claim_affiliate_reward(
     token: ContractAddress,
     account: ContractAddress,
     receiver: ContractAddress,
-    market_utils: IMarketUtilsLibraryDispatcher
+    market_utils: IMarketUtilsLibraryDispatcher,
 ) -> u256 {
     let key: felt252 = keys::affiliate_reward_for_account_key(market, token, account);
 

@@ -4,11 +4,11 @@ use freyr::data::keys;
 use freyr::exchange::exchange_utils::validate_request_cancellation;
 use freyr::test_utils::tests_lib;
 use snforge_std::{
-    declare, start_cheat_caller_address, stop_cheat_caller_address, start_cheat_block_number, ContractClassTrait
+    ContractClassTrait, declare, start_cheat_block_number, start_cheat_caller_address, stop_cheat_caller_address,
 };
 use starknet::info::get_block_number;
 use starknet::{
-    ContractAddress, get_caller_address, get_contract_address, Felt252TryIntoContractAddress, contract_address_const
+    ContractAddress, Felt252TryIntoContractAddress, contract_address_const, get_caller_address, get_contract_address,
 };
 
 #[test]

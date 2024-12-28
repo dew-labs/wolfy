@@ -18,8 +18,8 @@ use freyr::swap::swap_utils::SwapParams;
 // Local imports.
 use freyr::test_utils::tests_lib;
 use freyr::token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
-use snforge_std::{declare, ContractClassTrait, DeclareResultTrait, start_cheat_caller_address, ContractClass};
-use starknet::{get_caller_address, ContractAddress, contract_address_const,};
+use snforge_std::{ContractClass, ContractClassTrait, DeclareResultTrait, declare, start_cheat_caller_address};
+use starknet::{ContractAddress, contract_address_const, get_caller_address};
 
 
 //TODO Tests need to be added after implementation of swap_utils
@@ -60,7 +60,7 @@ fn setup() -> (
     IMarketFactoryDispatcher,
     IERC20Dispatcher,
     IERC20Dispatcher,
-    IERC20Dispatcher
+    IERC20Dispatcher,
 ) {
     let (
         caller_address,
@@ -118,7 +118,7 @@ fn setup() -> (
         market_factory,
         index_token_handler,
         long_token_handler,
-        short_token_handler
+        short_token_handler,
     )
 }
 
@@ -137,7 +137,7 @@ fn given_caller_not_controller_when_swap_then_fails() {
         _market_factory,
         _index_token_handler,
         _long_token_handler,
-        _short_token_handler
+        _short_token_handler,
     ) =
         setup();
 
@@ -184,7 +184,7 @@ fn given_amount_in_is_zero_then_works() {
         _market_factory,
         _index_token_handler,
         _long_token_handler,
-        _short_token_handler
+        _short_token_handler,
     ) =
         setup();
 
@@ -232,7 +232,7 @@ fn given_insufficient_output_then_fails() {
         _market_factory,
         _index_token_handler,
         _long_token_handler,
-        _short_token_handler
+        _short_token_handler,
     ) =
         setup();
 
@@ -278,7 +278,7 @@ fn given_normal_conditions_swap_then_works() {
         _market_factory,
         _index_token_handler,
         long_token_handler,
-        _short_token_handler
+        _short_token_handler,
     ) =
         setup();
 
@@ -324,7 +324,7 @@ fn given_swap_path_market_then_works() {
         market_factory,
         index_token_handler,
         long_token_handler,
-        short_token_handler
+        short_token_handler,
     ) =
         setup();
 

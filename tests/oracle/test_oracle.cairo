@@ -1,7 +1,7 @@
 use freyr::data::data_store::{DataStore, IDataStoreDispatcher, IDataStoreDispatcherTrait};
 use freyr::data::keys;
 use freyr::event::event_emitter::{EventEmitter, IEventEmitterDispatcher};
-use freyr::oracle::oracle::{Oracle, IOracleDispatcher, IOracleDispatcherTrait, SetPricesParams};
+use freyr::oracle::oracle::{IOracleDispatcher, IOracleDispatcherTrait, Oracle, SetPricesParams};
 use freyr::oracle::price_feed::PriceFeed;
 use freyr::price::price::Price;
 use freyr::role::role;
@@ -10,7 +10,7 @@ use freyr::test_utils::tests_lib;
 use freyr::utils::precision;
 
 use snforge_std::{
-    declare, start_cheat_caller_address, stop_cheat_caller_address, ContractClassTrait, DeclareResultTrait
+    ContractClassTrait, DeclareResultTrait, declare, start_cheat_caller_address, stop_cheat_caller_address,
 };
 use starknet::{ContractAddress, contract_address_const};
 
@@ -181,7 +181,7 @@ fn given_normal_conditions_when_price_feed_multiplier_then_works() {
 fn mock_set_prices_params() -> SetPricesParams {
     SetPricesParams {
         signer_info: 1,
-        tokens: array![contract_address_const::<'ETH'>(),],
+        tokens: array![contract_address_const::<'ETH'>()],
         compacted_min_oracle_block_numbers: array![10],
         compacted_max_oracle_block_numbers: array![20],
         compacted_oracle_timestamps: array![1000],
@@ -191,7 +191,7 @@ fn mock_set_prices_params() -> SetPricesParams {
         compacted_max_prices: array![888888],
         compacted_max_prices_indexes: array![0],
         signatures: array![array!['signatures1', 'signatures2'].span()],
-        price_feed_tokens: array![]
+        price_feed_tokens: array![],
     }
 }
 

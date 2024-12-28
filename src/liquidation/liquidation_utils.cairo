@@ -10,9 +10,9 @@ use freyr::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
 use freyr::data::keys;
 use freyr::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
 use freyr::nonce::nonce_utils::get_next_key;
-use freyr::order::order::{SecondaryOrderType, OrderType, Order, DecreasePositionSwapType};
+use freyr::order::order::{DecreasePositionSwapType, Order, OrderType, SecondaryOrderType};
 use freyr::position::position_utils::get_position_key;
-use freyr::utils::span32::{Span32, Array32Trait};
+use freyr::utils::span32::{Array32Trait, Span32};
 use starknet::ContractAddress;
 
 /// Creates a liquidation order for a position.
@@ -29,7 +29,7 @@ fn create_liquidation_order(
     account: ContractAddress,
     market: ContractAddress,
     collateral_token: ContractAddress,
-    is_long: bool
+    is_long: bool,
 ) -> felt252 {
     let position_key = get_position_key(account, market, collateral_token, is_long);
     let position = data_store.get_position(position_key);

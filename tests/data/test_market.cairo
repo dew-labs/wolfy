@@ -5,9 +5,9 @@ use freyr::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
 use freyr::test_utils::tests_lib;
 use poseidon::poseidon_hash_span;
 use snforge_std::{
-    declare, start_cheat_caller_address, stop_cheat_caller_address, ContractClassTrait, DeclareResultTrait
+    ContractClassTrait, DeclareResultTrait, declare, start_cheat_caller_address, stop_cheat_caller_address,
 };
-use starknet::{ContractAddress, get_caller_address, Felt252TryIntoContractAddress, contract_address_const};
+use starknet::{ContractAddress, Felt252TryIntoContractAddress, contract_address_const, get_caller_address};
 
 
 /// Utility function to setup the test environment.

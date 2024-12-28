@@ -3,22 +3,23 @@ use core::traits::Into;
 use freyr::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
 use freyr::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
 use freyr::market::market::Market;
-use freyr::market::market_utils::{IMarketUtilsLibraryDispatcher, IMarketUtilsDispatcherTrait};
+use freyr::market::market_utils::{IMarketUtilsDispatcherTrait, IMarketUtilsLibraryDispatcher};
 use freyr::mock::referral_storage::{IReferralStorageDispatcher, IReferralStorageDispatcherTrait};
 use freyr::oracle::oracle::{IOracleDispatcher, IOracleDispatcherTrait};
 use freyr::order::{
-    order::{Order, SecondaryOrderType, OrderType, DecreasePositionSwapType},
-    order_vault::{IOrderVaultDispatcher, IOrderVaultDispatcherTrait}, base_order_utils::ExecuteOrderParamsContracts
+    base_order_utils::ExecuteOrderParamsContracts,
+    order::{DecreasePositionSwapType, Order, OrderType, SecondaryOrderType},
+    order_vault::{IOrderVaultDispatcher, IOrderVaultDispatcherTrait},
 };
-use freyr::position::{position::Position, decrease_position_utils, position_utils::UpdatePositionParams};
+use freyr::position::{decrease_position_utils, position::Position, position_utils::UpdatePositionParams};
 use freyr::role::{role, role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait}};
 
 use freyr::swap::swap_handler::{ISwapHandlerDispatcher, ISwapHandlerDispatcherTrait};
 use freyr::test_utils::tests_lib;
-use freyr::utils::span32::{Span32, Array32Trait};
+use freyr::utils::span32::{Array32Trait, Span32};
 
-use snforge_std::{declare, ContractClassTrait, DeclareResultTrait, start_cheat_caller_address};
-use starknet::{get_caller_address, ContractAddress, contract_address_const};
+use snforge_std::{ContractClassTrait, DeclareResultTrait, declare, start_cheat_caller_address};
+use starknet::{ContractAddress, contract_address_const, get_caller_address};
 
 // TODO: implement them
 
@@ -120,7 +121,7 @@ fn setup() -> (ContractAddress, ISwapHandlerDispatcher, IMarketUtilsLibraryDispa
 
 /// Utility function to create new UpdatePositionParams struct
 fn create_new_update_position_params(
-    order_type: OrderType, swap_handler: ISwapHandlerDispatcher
+    order_type: OrderType, swap_handler: ISwapHandlerDispatcher,
 ) -> UpdatePositionParams {
     let data_store = tests_lib::get_data_store_address();
     let event_emitter = tests_lib::get_event_emitter_address();
@@ -134,14 +135,14 @@ fn create_new_update_position_params(
         order_vault: IOrderVaultDispatcher { contract_address: order_vault },
         oracle: IOracleDispatcher { contract_address: oracle },
         swap_handler,
-        referral_storage: IReferralStorageDispatcher { contract_address: referral_storage }
+        referral_storage: IReferralStorageDispatcher { contract_address: referral_storage },
     };
 
     let market = Market {
         market_token: contract_address_const::<'market_token'>(),
         index_token: contract_address_const::<'index_token'>(),
         long_token: contract_address_const::<'long_token'>(),
-        short_token: contract_address_const::<'short_token'>()
+        short_token: contract_address_const::<'short_token'>(),
     };
 
     let order = Order {
@@ -165,7 +166,7 @@ fn create_new_update_position_params(
         min_output_amount: 10,
         updated_at_block: 1,
         is_long: false,
-        is_frozen: false
+        is_frozen: false,
     };
 
     let position = Position {
@@ -192,7 +193,7 @@ fn create_new_update_position_params(
         order_key: 123456789,
         position,
         position_key: 123456789,
-        secondary_order_type: SecondaryOrderType::None
+        secondary_order_type: SecondaryOrderType::None,
     };
 
     params

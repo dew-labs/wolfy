@@ -52,7 +52,7 @@ mod WithdrawalVault {
     // Core lib imports.
     use core::zeroable::Zeroable;
     use freyr::bank::bank::{IBankLibraryDispatcher};
-    use freyr::bank::strict_bank::{IStrictBankLibraryDispatcher, IStrictBankDispatcherTrait};
+    use freyr::bank::strict_bank::{IStrictBankDispatcherTrait, IStrictBankLibraryDispatcher};
     use freyr::data::data_store::{IDataStoreDispatcher};
     use freyr::role::role_module::{IRoleModuleLibraryDispatcher};
     use freyr::role::role_store::{IRoleStoreDispatcher};
@@ -60,7 +60,7 @@ mod WithdrawalVault {
     // Local imports.
     use freyr::withdrawal::error::WithdrawalError;
     use starknet::storage::Map;
-    use starknet::{ContractAddress, ClassHash};
+    use starknet::{ClassHash, ContractAddress};
 
     // *************************************************************************
     //                              STORAGE
@@ -91,7 +91,7 @@ mod WithdrawalVault {
         role_store_address: ContractAddress,
         strict_bank_class_hash: ClassHash,
         bank_class_hash: ClassHash,
-        role_module_class_hash: ClassHash
+        role_module_class_hash: ClassHash,
     ) {
         self.strict_bank.write(IStrictBankLibraryDispatcher { class_hash: strict_bank_class_hash });
         self

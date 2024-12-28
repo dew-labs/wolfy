@@ -1,9 +1,9 @@
 use freyr::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
 use freyr::data::keys;
 use freyr::market::market::Market;
-use freyr::market::market_utils::{IMarketUtilsLibraryDispatcher, IMarketUtilsDispatcherTrait};
+use freyr::market::market_utils::{IMarketUtilsDispatcherTrait, IMarketUtilsLibraryDispatcher};
 use freyr::pricing::swap_pricing_utils::{
-    GetPriceImpactUsdParams, get_price_impact_usd_, get_price_impact_usd, get_next_pool_amount_usd, get_swap_fees
+    GetPriceImpactUsdParams, get_next_pool_amount_usd, get_price_impact_usd, get_price_impact_usd_, get_swap_fees,
 };
 use freyr::test_utils::tests_lib;
 use freyr::utils::calc;

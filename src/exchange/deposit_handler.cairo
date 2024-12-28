@@ -10,7 +10,7 @@ use freyr::deposit::deposit_utils::CreateDepositParams;
 
 // Local imports.
 use freyr::oracle::oracle_utils::{SetPricesParams, SimulatePricesParams};
-use starknet::{ContractAddress, ClassHash};
+use starknet::{ClassHash, ContractAddress};
 
 // *************************************************************************
 //                  Interface of the `DepositHandler` contract.
@@ -50,7 +50,7 @@ trait IDepositHandler<TContractState> {
     /// * `reason` - The reason of the error.
     /// * `reason_key` - The reason key of the error.
     fn handle_deposit_error(
-        ref self: TContractState, key: felt252, starting_gas: u256, reason: felt252, reason_key: felt252
+        ref self: TContractState, key: felt252, starting_gas: u256, reason: felt252, reason_key: felt252,
     );
 }
 
@@ -66,28 +66,28 @@ mod DepositHandler {
     use freyr::deposit::deposit_utils;
     use freyr::deposit::execute_deposit_utils;
     use freyr::deposit::{
-        deposit_utils::CreateDepositParams, deposit_vault::{IDepositVaultDispatcher, IDepositVaultDispatcherTrait}
+        deposit_utils::CreateDepositParams, deposit_vault::{IDepositVaultDispatcher, IDepositVaultDispatcherTrait},
     };
     use freyr::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
     use freyr::exchange::exchange_utils;
     use freyr::feature::feature_utils;
     use freyr::gas::gas_utils;
     use freyr::market::market::Market;
-    use freyr::market::market_utils::{IMarketUtilsLibraryDispatcher, IMarketUtilsDispatcherTrait};
+    use freyr::market::market_utils::{IMarketUtilsDispatcherTrait, IMarketUtilsLibraryDispatcher};
     use freyr::oracle::oracle_utils;
     use freyr::oracle::{
         oracle::{IOracleDispatcher, IOracleDispatcherTrait}, oracle_modules,
-        oracle_modules::{with_oracle_prices_before, with_oracle_prices_after},
-        oracle_utils::{SetPricesParams, SimulatePricesParams}
+        oracle_modules::{with_oracle_prices_after, with_oracle_prices_before},
+        oracle_utils::{SetPricesParams, SimulatePricesParams},
     };
     use freyr::order::base_order_utils::{ExecuteOrderParams};
     use freyr::role::role;
-    use freyr::role::role_module::{IRoleModuleLibraryDispatcher, IRoleModuleDispatcherTrait};
-    use freyr::role::role_module::{RoleModule, IRoleModule};
+    use freyr::role::role_module::{IRoleModule, RoleModule};
+    use freyr::role::role_module::{IRoleModuleDispatcherTrait, IRoleModuleLibraryDispatcher};
     use freyr::role::role_store::{IRoleStoreDispatcher};
     use freyr::swap::swap_handler::{ISwapHandlerDispatcher, ISwapHandlerDispatcherTrait};
     use freyr::utils::global_reentrancy_guard;
-    use starknet::{get_caller_address, get_contract_address, ContractAddress, ClassHash};
+    use starknet::{ClassHash, ContractAddress, get_caller_address, get_contract_address};
 
 
     // Local imports.
@@ -154,7 +154,7 @@ mod DepositHandler {
             global_reentrancy_guard::non_reentrant_before(data_store);
 
             feature_utils::validate_feature(
-                self.data_store.read(), keys::create_deposit_feature_disabled_key(get_contract_address())
+                self.data_store.read(), keys::create_deposit_feature_disabled_key(get_contract_address()),
             );
 
             let key = deposit_utils::create_deposit(
@@ -163,7 +163,7 @@ mod DepositHandler {
                 self.deposit_vault.read(),
                 account,
                 params,
-                self.market_utils.read()
+                self.market_utils.read(),
             );
 
             global_reentrancy_guard::non_reentrant_after(data_store);
@@ -182,7 +182,7 @@ mod DepositHandler {
             let deposit = data_store.get_deposit(key);
 
             feature_utils::validate_feature(
-                data_store, keys::cancel_deposit_feature_disabled_key(get_contract_address())
+                data_store, keys::cancel_deposit_feature_disabled_key(get_contract_address()),
             );
             exchange_utils::validate_request_cancellation(data_store, deposit.updated_at_block, 'Deposit');
 
@@ -194,7 +194,7 @@ mod DepositHandler {
                 deposit.account,
                 0, //starting_gas
                 keys::user_initiated_cancel(),
-                ''
+                '',
             );
 
             global_reentrancy_guard::non_reentrant_after(data_store);
@@ -241,7 +241,7 @@ mod DepositHandler {
         /// * `reason` - The reason of the error.
         /// * `reason_key` - The reason key of the error.
         fn handle_deposit_error(
-            ref self: ContractState, key: felt252, starting_gas: u256, reason: felt252, reason_key: felt252
+            ref self: ContractState, key: felt252, starting_gas: u256, reason: felt252, reason_key: felt252,
         ) { // TODO
         }
     }
@@ -251,19 +251,19 @@ mod DepositHandler {
     #[generate_trait]
     impl InternalImpl of InternalTrait {
         fn _execute_deposit(
-            ref self: ContractState, key: felt252, oracle_params: SetPricesParams, keeper: ContractAddress
+            ref self: ContractState, key: felt252, oracle_params: SetPricesParams, keeper: ContractAddress,
         ) {
             // let starting_gas = gas_left();
             let data_store = self.data_store.read();
             feature_utils::validate_feature(
-                data_store, keys::execute_deposit_feature_disabled_key(get_contract_address())
+                data_store, keys::execute_deposit_feature_disabled_key(get_contract_address()),
             );
             let min_oracle_block_numbers = oracle_utils::get_uncompacted_oracle_block_numbers(
-                oracle_params.compacted_min_oracle_block_numbers.span(), oracle_params.tokens.len()
+                oracle_params.compacted_min_oracle_block_numbers.span(), oracle_params.tokens.len(),
             );
 
             let max_oracle_block_numbers = oracle_utils::get_uncompacted_oracle_block_numbers(
-                oracle_params.compacted_max_oracle_block_numbers.span(), oracle_params.tokens.len()
+                oracle_params.compacted_max_oracle_block_numbers.span(), oracle_params.tokens.len(),
             );
 
             let params = execute_deposit_utils::ExecuteDepositParams {

@@ -6,12 +6,12 @@
 // http://www.apache.org/licenses/LICENSE-2.0
 
 use core::num::traits::Bounded;
-use core::ops::{AddAssign, SubAssign, MulAssign, DivAssign, RemAssign};
+use core::ops::{AddAssign, DivAssign, MulAssign, RemAssign, SubAssign};
 
 /// Core lib imports.
 use starknet::{
-    storage_access::{Store, StorageBaseAddress},
-    {SyscallResult, syscalls::{storage_read_syscall, storage_write_syscall}}
+    storage_access::{StorageBaseAddress, Store},
+    {SyscallResult, syscalls::{storage_read_syscall, storage_write_syscall}},
 };
 /// Trait
 ///
@@ -253,10 +253,10 @@ impl Felt252TryIntoI128 of TryInto<felt252, i128> {
         match try_to_u128 {
             Option::Some(data) => {
                 return Option::Some(
-                    IntegerTrait::<i128>::new(data, false)
+                    IntegerTrait::<i128>::new(data, false),
                 ); //TODO check if the sign might be negative sometimes
             },
-            Option::None => { return Option::None; }
+            Option::None => { return Option::None; },
         }
     }
 }

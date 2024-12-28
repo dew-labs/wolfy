@@ -10,10 +10,10 @@ use freyr::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
 use freyr::data::keys;
 use freyr::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
 use freyr::fee::fee_utils;
-use freyr::market::market_utils::{IMarketUtilsLibraryDispatcher, IMarketUtilsDispatcherTrait, MarketPrices};
+use freyr::market::market_utils::{IMarketUtilsDispatcherTrait, IMarketUtilsLibraryDispatcher, MarketPrices};
 use freyr::market::{market::Market};
 use freyr::oracle::oracle::{IOracleDispatcher, IOracleDispatcherTrait};
-use freyr::price::price::{Price, PriceTrait, PriceDefault};
+use freyr::price::price::{Price, PriceDefault, PriceTrait};
 use freyr::pricing::swap_pricing_utils;
 use freyr::swap::error::SwapError;
 use freyr::token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
@@ -152,9 +152,7 @@ fn swap(params: @SwapParams, market_utils: IMarketUtilsLibraryDispatcher) -> (Co
             receiver = *params.receiver;
         }
 
-        let _params = _SwapParams {
-            market: market, token_in: token_out, amount_in: output_amount, receiver: receiver,
-        };
+        let _params = _SwapParams { market: market, token_in: token_out, amount_in: output_amount, receiver: receiver };
         let (_token_out_res, _output_amount_res) = _swap(params, @_params, market_utils);
         token_out = _token_out_res;
         output_amount = _output_amount_res;
@@ -183,7 +181,7 @@ fn swap(params: @SwapParams, market_utils: IMarketUtilsLibraryDispatcher) -> (Co
 /// # Returns
 /// The token and amount that was swapped.
 fn _swap(
-    params: @SwapParams, _params: @_SwapParams, market_utils: IMarketUtilsLibraryDispatcher
+    params: @SwapParams, _params: @_SwapParams, market_utils: IMarketUtilsLibraryDispatcher,
 ) -> (ContractAddress, u256) {
     if (_params.token_in != _params.market.long_token && _params.token_in != _params.market.short_token) {
         SwapError::INVALID_TOKEN_IN(*_params.token_in, *_params.market.long_token);
@@ -211,7 +209,7 @@ fn _swap(
             usd_delta_for_token_a: calc::to_signed(usd_delta, true),
             usd_delta_for_token_b: calc::to_signed(usd_delta, false),
         },
-        market_utils
+        market_utils,
     );
 
     let fees = swap_pricing_utils::get_swap_fees(
@@ -220,7 +218,7 @@ fn _swap(
         *_params.amount_in,
         price_impact_usd > Zeroable::zero(),
         *params.ui_fee_receiver,
-        market_utils
+        market_utils,
     );
 
     fee_utils::increment_claimable_fee_amount(
@@ -261,7 +259,7 @@ fn _swap(
                 *_params.market.market_token,
                 cache.token_out,
                 cache.token_out_price,
-                price_impact_usd
+                price_impact_usd,
             );
 
         cache.amount_out += calc::to_unsigned(price_impact_amount);
@@ -278,7 +276,7 @@ fn _swap(
                 *_params.market.market_token,
                 *_params.token_in,
                 cache.token_in_price,
-                price_impact_usd
+                price_impact_usd,
             );
 
         if fees.amount_after_fees <= calc::to_unsigned(i256_neg(price_impact_amount)) {
@@ -352,7 +350,7 @@ fn _swap(
                 keys::max_pnl_factor_for_withdrawals()
             } else {
                 keys::max_pnl_factor_for_deposits()
-            }
+            },
         );
 
     (*params.event_emitter)
@@ -373,7 +371,7 @@ fn _swap(
 
     (*params.event_emitter)
         .emit_swap_fees_collected(
-            *_params.market.market_token, *_params.token_in, cache.token_in_price.min, 'swap', fees
+            *_params.market.market_token, *_params.token_in, cache.token_in_price.min, 'swap', fees,
         );
     (cache.token_out, cache.amount_out)
 }

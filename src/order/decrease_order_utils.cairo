@@ -7,26 +7,26 @@ use freyr::bank::bank::{IBankDispatcher, IBankDispatcherTrait};
 use freyr::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
 use freyr::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
 use freyr::event::event_utils::{
-    Felt252IntoContractAddress, ContractAddressDictValue, I256252DictValue, U256252DictValue, U256IntoFelt252
+    ContractAddressDictValue, Felt252IntoContractAddress, I256252DictValue, U256252DictValue, U256IntoFelt252,
 };
 use freyr::market::market_token::{IMarketTokenDispatcher, IMarketTokenDispatcherTrait};
 
 // Local imports.
 use freyr::oracle::oracle::{IOracleDispatcher, IOracleDispatcherTrait};
 use freyr::oracle::oracle_utils;
-use freyr::order::{base_order_utils::ExecuteOrderParams, order::Order, order::OrderType, error::OrderError, order};
-use freyr::position::decrease_position_utils::DecreasePositionResult;
+use freyr::order::{base_order_utils::ExecuteOrderParams, error::OrderError, order, order::Order, order::OrderType};
 use freyr::position::decrease_position_utils;
+use freyr::position::decrease_position_utils::DecreasePositionResult;
 use freyr::position::position::Position;
-use freyr::position::position_utils::UpdatePositionParams;
 use freyr::position::position_utils;
+use freyr::position::position_utils::UpdatePositionParams;
 use freyr::swap::swap_handler::{ISwapHandlerDispatcher, ISwapHandlerDispatcherTrait};
 use freyr::swap::swap_utils::{SwapParams};
 
 use freyr::utils::arrays;
 use freyr::utils::serializable_dict::{SerializableFelt252Dict, SerializableFelt252DictTrait};
-use freyr::utils::span32::{Span32, Array32Trait};
-use starknet::{ContractAddress, contract_address_const, ClassHash};
+use freyr::utils::span32::{Array32Trait, Span32};
+use starknet::{ClassHash, ContractAddress, contract_address_const};
 
 // *************************************************************************
 //                  Interface of the `OrderUtils` contract.
@@ -52,7 +52,7 @@ trait IDecreaseOrderUtils<TContractState> {
         order_type: OrderType,
         order_updated_at_block: u64,
         position_increased_at_block: u64,
-        position_decreased_at_block: u64
+        position_decreased_at_block: u64,
     );
 
     fn validate_output_amount(
@@ -60,7 +60,7 @@ trait IDecreaseOrderUtils<TContractState> {
         oracle: IOracleDispatcher,
         output_token: ContractAddress,
         output_amount: u256,
-        min_output_amount: u256
+        min_output_amount: u256,
     );
 
     // Note: that min_output_amount is treated as a USD value for this validation
@@ -71,7 +71,7 @@ trait IDecreaseOrderUtils<TContractState> {
         output_amount: u256,
         secondary_output_token: ContractAddress,
         secondary_output_amount: u256,
-        min_output_amount: u256
+        min_output_amount: u256,
     );
     // fn handle_swap_error(
 //     ref self: TContractState,
@@ -91,27 +91,27 @@ mod DecreaseOrderUtils {
     use freyr::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
     use freyr::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
     use freyr::event::event_utils::{
-        Felt252IntoContractAddress, ContractAddressDictValue, I256252DictValue, U256252DictValue, U256IntoFelt252
+        ContractAddressDictValue, Felt252IntoContractAddress, I256252DictValue, U256252DictValue, U256IntoFelt252,
     };
     use freyr::market::market_token::{IMarketTokenDispatcher, IMarketTokenDispatcherTrait};
-    use freyr::market::market_utils::{IMarketUtilsLibraryDispatcher, IMarketUtilsDispatcherTrait};
+    use freyr::market::market_utils::{IMarketUtilsDispatcherTrait, IMarketUtilsLibraryDispatcher};
 
     // Local imports.
     use freyr::oracle::oracle::{IOracleDispatcher, IOracleDispatcherTrait};
     use freyr::oracle::oracle_utils;
-    use freyr::order::{base_order_utils::ExecuteOrderParams, order::Order, order::OrderType, error::OrderError, order};
-    use freyr::position::decrease_position_utils::DecreasePositionResult;
+    use freyr::order::{base_order_utils::ExecuteOrderParams, error::OrderError, order, order::Order, order::OrderType};
     use freyr::position::decrease_position_utils;
+    use freyr::position::decrease_position_utils::DecreasePositionResult;
     use freyr::position::position::Position;
-    use freyr::position::position_utils::UpdatePositionParams;
     use freyr::position::position_utils;
+    use freyr::position::position_utils::UpdatePositionParams;
     use freyr::swap::swap_handler::{ISwapHandlerDispatcher, ISwapHandlerDispatcherTrait};
     use freyr::swap::swap_utils::{SwapParams};
 
     use freyr::utils::arrays;
     use freyr::utils::serializable_dict::{SerializableFelt252Dict, SerializableFelt252DictTrait};
-    use freyr::utils::span32::{Span32, Array32Trait};
-    use starknet::{ContractAddress, contract_address_const, ClassHash};
+    use freyr::utils::span32::{Array32Trait, Span32};
+    use starknet::{ClassHash, ContractAddress, contract_address_const};
 
     #[storage]
     struct Storage {
@@ -126,7 +126,7 @@ mod DecreaseOrderUtils {
         // This function should return an EventLogData cause the callback_utils
         // needs it. We need to find a solution for that case.
         fn process_order(
-            ref self: ContractState, params: ExecuteOrderParams
+            ref self: ContractState, params: ExecuteOrderParams,
         ) { //TODO check with refactor with callback_utils
             let order: Order = params.order;
 
@@ -135,21 +135,22 @@ mod DecreaseOrderUtils {
             market_utils.validate_position_market_check(params.contracts.data_store, params.market);
 
             let position_key: felt252 = position_utils::get_position_key(
-                order.account, order.market, order.initial_collateral_token, order.is_long
+                order.account, order.market, order.initial_collateral_token, order.is_long,
             );
 
             let data_store: IDataStoreDispatcher = params.contracts.data_store;
             let position = data_store.get_position(position_key);
             position_utils::validate_non_empty_position(position);
 
-            self.validate_oracle_block_numbers(
-                params.min_oracle_block_numbers.span(),
-                params.max_oracle_block_numbers.span(),
-                order.order_type,
-                order.updated_at_block,
-                position.increased_at_block,
-                position.decreased_at_block
-            );
+            self
+                .validate_oracle_block_numbers(
+                    params.min_oracle_block_numbers.span(),
+                    params.max_oracle_block_numbers.span(),
+                    order.order_type,
+                    order.updated_at_block,
+                    position.increased_at_block,
+                    position.decreased_at_block,
+                );
 
             let mut update_position_params: UpdatePositionParams = UpdatePositionParams {
                 contracts: params.contracts,
@@ -158,10 +159,10 @@ mod DecreaseOrderUtils {
                 order_key: params.key,
                 position: position,
                 position_key,
-                secondary_order_type: params.secondary_order_type
+                secondary_order_type: params.secondary_order_type,
             };
             let mut result: DecreasePositionResult = decrease_position_utils::decrease_position(
-                update_position_params, market_utils
+                update_position_params, market_utils,
             );
             // if the pnl_token and the collateral_token are different
             // and if a swap fails or no swap was requested
@@ -177,14 +178,14 @@ mod DecreaseOrderUtils {
                         result.output_amount,
                         result.secondary_output_token,
                         result.secondary_output_amount,
-                        order.min_output_amount
+                        order.min_output_amount,
                     );
                 IMarketTokenDispatcher { contract_address: order.market }
                     .transfer_out(order.market, result.output_token, order.receiver, result.output_amount);
 
                 IMarketTokenDispatcher { contract_address: order.market }
                     .transfer_out(
-                        order.market, result.secondary_output_token, order.receiver, result.secondary_output_amount
+                        order.market, result.secondary_output_token, order.receiver, result.secondary_output_amount,
                     );
 
                 return;
@@ -215,7 +216,7 @@ mod DecreaseOrderUtils {
 
             self
                 .validate_output_amount(
-                    params.contracts.oracle, token_out, swap_output_amount, order.min_output_amount
+                    params.contracts.oracle, token_out, swap_output_amount, order.min_output_amount,
                 );
             // return get_output_event_data(token_out, swap_output_amount, contract_address_const::<0>(), 0);
         }
@@ -236,11 +237,11 @@ mod DecreaseOrderUtils {
             order_type: OrderType,
             order_updated_at_block: u64,
             position_increased_at_block: u64,
-            position_decreased_at_block: u64
+            position_decreased_at_block: u64,
         ) {
             if order_type == OrderType::MarketDecrease {
                 oracle_utils::validate_block_number_within_range(
-                    min_oracle_block_numbers, max_oracle_block_numbers, order_updated_at_block
+                    min_oracle_block_numbers, max_oracle_block_numbers, order_updated_at_block,
                 );
                 return;
             }
@@ -252,7 +253,7 @@ mod DecreaseOrderUtils {
                 }
                 if (!arrays::are_gte_u64(min_oracle_block_numbers, latest_updated_at_block)) {
                     OrderError::ORACLE_BLOCK_NUMBERS_ARE_SMALLER_THAN_REQUIRED(
-                        min_oracle_block_numbers, latest_updated_at_block
+                        min_oracle_block_numbers, latest_updated_at_block,
                     );
                 }
                 return;
@@ -264,7 +265,7 @@ mod DecreaseOrderUtils {
                 }
                 if (!arrays::are_gte_u64(min_oracle_block_numbers, latest_updated_at_block)) {
                     OrderError::ORACLE_BLOCK_NUMBERS_ARE_SMALLER_THAN_REQUIRED(
-                        min_oracle_block_numbers, latest_updated_at_block
+                        min_oracle_block_numbers, latest_updated_at_block,
                     );
                 }
                 return;
@@ -278,7 +279,7 @@ mod DecreaseOrderUtils {
             oracle: IOracleDispatcher,
             output_token: ContractAddress,
             output_amount: u256,
-            min_output_amount: u256
+            min_output_amount: u256,
         ) {
             let output_token_price: u256 = oracle.get_primary_price(output_token).min;
             let output_usd: u256 = output_amount * output_token_price;
@@ -296,7 +297,7 @@ mod DecreaseOrderUtils {
             output_amount: u256,
             secondary_output_token: ContractAddress,
             secondary_output_amount: u256,
-            min_output_amount: u256
+            min_output_amount: u256,
         ) {
             let output_token_price: u256 = oracle.get_primary_price(output_token).min;
             let output_usd: u256 = output_amount * output_token_price;

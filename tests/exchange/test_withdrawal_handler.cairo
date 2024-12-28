@@ -14,9 +14,9 @@ use freyr::withdrawal::withdrawal::Withdrawal;
 use freyr::withdrawal::withdrawal_utils::CreateWithdrawalParams;
 use freyr::withdrawal::withdrawal_vault::{IWithdrawalVaultDispatcher, IWithdrawalVaultDispatcherTrait};
 use snforge_std::{
-    declare, start_cheat_caller_address, stop_cheat_caller_address, start_mock_call, stop_mock_call, ContractClassTrait
+    ContractClassTrait, declare, start_cheat_caller_address, start_mock_call, stop_cheat_caller_address, stop_mock_call,
 };
-use starknet::{ContractAddress, get_caller_address, Felt252TryIntoContractAddress, contract_address_const};
+use starknet::{ContractAddress, Felt252TryIntoContractAddress, contract_address_const, get_caller_address};
 use traits::Default;
 
 // This tests check withdrawal creation under normal condition
@@ -126,7 +126,7 @@ fn given_normal_conditions_when_cancel_withdrawal_then_works() {
     start_mock_call(
         withdrawal_vault.contract_address,
         'transfer_out',
-        array![contract_address_const::<'market_token'>().into(), account.into(), '1']
+        array![contract_address_const::<'market_token'>().into(), account.into(), '1'],
     );
     // Key cleaning should be done in withdrawal_utils. We only check call here.
     withdrawal_handler.cancel_withdrawal(withdrawal_key);
@@ -333,9 +333,7 @@ fn given_caller_not_controller_when_simulate_execute_withdrawal_then_fails() {
     let caller: ContractAddress = contract_address_const::<0x847>();
     start_cheat_caller_address(withdrawal_handler.contract_address, caller);
 
-    let oracle_params = SimulatePricesParams {
-        primary_tokens: Default::default(), primary_prices: Default::default(),
-    };
+    let oracle_params = SimulatePricesParams { primary_tokens: Default::default(), primary_prices: Default::default() };
 
     let withdrawal_key = 'SAMPLE_WITHDRAW';
 
@@ -349,9 +347,7 @@ fn given_caller_not_controller_when_simulate_execute_withdrawal_then_fails() {
 #[should_panic(expected: ('withdrawal_not_found',))]
 fn given_invalid_withdrawal_key_when_simulate_execute_withdrawal_then_fails() {
     let (caller_address, _data_store, _event_emitter, withdrawal_handler, _, _) = setup();
-    let oracle_params = SimulatePricesParams {
-        primary_tokens: Default::default(), primary_prices: Default::default(),
-    };
+    let oracle_params = SimulatePricesParams { primary_tokens: Default::default(), primary_prices: Default::default() };
 
     start_cheat_caller_address(withdrawal_handler.contract_address, caller_address);
 
@@ -381,7 +377,7 @@ fn setup() -> (
     IEventEmitterDispatcher,
     IWithdrawalHandlerDispatcher,
     IWithdrawalVaultDispatcher,
-    IRoleStoreDispatcher
+    IRoleStoreDispatcher,
 ) {
     let (
         caller_address,

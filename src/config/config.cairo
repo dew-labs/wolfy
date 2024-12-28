@@ -23,14 +23,14 @@ trait IConfig<TContractState> {
     /// * `base_key` - The base key of the value to set.
     /// * `data` - The additional data to be combined with the base key.
     /// * `value` - The value to set.
-    fn set_address(ref self: TContractState, base_key: felt252, data: Array<felt252>, value: ContractAddress,);
+    fn set_address(ref self: TContractState, base_key: felt252, data: Array<felt252>, value: ContractAddress);
 
     /// Set a felt252 value.
     /// # Arguments
     /// * `base_key` - The base key of the value to set.
     /// * `data` - The additional data to be combined with the base key.
     /// * `value` - The value to set.
-    fn set_felt252(ref self: TContractState, base_key: felt252, data: Array<felt252>, value: felt252,);
+    fn set_felt252(ref self: TContractState, base_key: felt252, data: Array<felt252>, value: felt252);
 }
 
 #[starknet::contract]
@@ -51,10 +51,10 @@ mod Config {
 
 
     // Local imports.
-    use freyr::role::role_module::{IRoleModuleLibraryDispatcher, IRoleModuleDispatcherTrait};
+    use freyr::role::role_module::{IRoleModuleDispatcherTrait, IRoleModuleLibraryDispatcher};
     use poseidon::poseidon_hash_span;
     use starknet::storage::Map;
-    use starknet::{get_caller_address, ContractAddress, contract_address_const, ClassHash};
+    use starknet::{ClassHash, ContractAddress, contract_address_const, get_caller_address};
 
     // *************************************************************************
     //                              STORAGE
@@ -91,7 +91,7 @@ mod Config {
     // *************************************************************************
     #[abi(embed_v0)]
     impl ConfigImpl of super::IConfig<ContractState> {
-        fn set_bool(ref self: ContractState, base_key: felt252, data: Array<felt252>, value: bool,) {
+        fn set_bool(ref self: ContractState, base_key: felt252, data: Array<felt252>, value: bool) {
             // Check that the caller has the `CONFIG_KEEPER` role.
             self.role_module.read().only_config_keeper();
             // Validate the base key.
@@ -102,7 +102,7 @@ mod Config {
             self.data_store.read().set_bool(full_key, value);
         }
 
-        fn set_address(ref self: ContractState, base_key: felt252, data: Array<felt252>, value: ContractAddress,) {
+        fn set_address(ref self: ContractState, base_key: felt252, data: Array<felt252>, value: ContractAddress) {
             // Check that the caller has the `CONFIG_KEEPER` role.
             self.role_module.read().only_config_keeper();
             // Validate the base key.
@@ -113,7 +113,7 @@ mod Config {
             self.data_store.read().set_address(full_key, value);
         }
 
-        fn set_felt252(ref self: ContractState, base_key: felt252, data: Array<felt252>, value: felt252,) {
+        fn set_felt252(ref self: ContractState, base_key: felt252, data: Array<felt252>, value: felt252) {
             // Check that the caller has the `CONFIG_KEEPER` role.
             self.role_module.read().only_config_keeper();
             // Validate the base key.

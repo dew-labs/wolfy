@@ -69,9 +69,9 @@ mod RoleStore {
     use core::zeroable::Zeroable;
 
     // Local imports.
-    use freyr::role::{role, error::RoleError};
+    use freyr::role::{error::RoleError, role};
     use starknet::storage::Map;
-    use starknet::{ContractAddress, get_caller_address, contract_address_const};
+    use starknet::{ContractAddress, contract_address_const, get_caller_address};
 
 
     // *************************************************************************
@@ -111,7 +111,7 @@ mod RoleStore {
     struct RoleGranted {
         role_key: felt252,
         account: ContractAddress,
-        sender: ContractAddress
+        sender: ContractAddress,
     }
 
     /// Emitted when `account` is revoked `role`.
@@ -123,7 +123,7 @@ mod RoleStore {
     struct RoleRevoked {
         role_key: felt252,
         account: ContractAddress,
-        sender: ContractAddress
+        sender: ContractAddress,
     }
 
     // *************************************************************************
@@ -214,7 +214,7 @@ mod RoleStore {
         }
 
         fn get_role_members(
-            self: @ContractState, role_key: felt252, start: u32, mut end: u32
+            self: @ContractState, role_key: felt252, start: u32, mut end: u32,
         ) -> Array<ContractAddress> {
             let mut arr: Array<ContractAddress> = array![];
             let mut i = start;

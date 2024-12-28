@@ -25,7 +25,7 @@ trait IAdlHandler<TContractState> {
     /// * `oracle_params` - The oracle set price parameters used to set price
     /// before performing checks
     fn update_adl_state(
-        ref self: TContractState, market: ContractAddress, is_long: bool, oracle_params: SetPricesParams
+        ref self: TContractState, market: ContractAddress, is_long: bool, oracle_params: SetPricesParams,
     );
 
     /// Auto-deleverages a position.
@@ -47,7 +47,7 @@ trait IAdlHandler<TContractState> {
         collateral_token: ContractAddress,
         is_long: bool,
         size_delta_usd: u256,
-        oracle_params: SetPricesParams
+        oracle_params: SetPricesParams,
     );
 }
 
@@ -59,28 +59,29 @@ mod AdlHandler {
 
     // Core lib imports.
     use freyr::adl::adl_utils;
-    use freyr::data::{keys, data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait}};
+    use freyr::data::{data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait}, keys};
     use freyr::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
-    use freyr::exchange::base_order_handler::{IBaseOrderHandlerLibraryDispatcher, IBaseOrderHandlerDispatcherTrait};
+    use freyr::exchange::base_order_handler::{IBaseOrderHandlerDispatcherTrait, IBaseOrderHandlerLibraryDispatcher};
     use freyr::feature::feature_utils;
-    use freyr::market::market_utils::{IMarketUtilsLibraryDispatcher, IMarketUtilsDispatcherTrait};
+    use freyr::market::market_utils::{IMarketUtilsDispatcherTrait, IMarketUtilsLibraryDispatcher};
     use freyr::market::{market::Market, market_utils};
     use freyr::mock::referral_storage::{IReferralStorageDispatcher, IReferralStorageDispatcherTrait};
     use freyr::oracle::oracle_utils::SetPricesParams;
 
     use freyr::oracle::{
         oracle::{IOracleDispatcher, IOracleDispatcherTrait},
-        oracle_modules::{with_oracle_prices_before, with_oracle_prices_after}, oracle_utils
+        oracle_modules::{with_oracle_prices_after, with_oracle_prices_before}, oracle_utils,
     };
     use freyr::order::{
-        order::{SecondaryOrderType, OrderType, Order}, order_vault::{IOrderVaultDispatcher, IOrderVaultDispatcherTrait},
-        base_order_utils::{ExecuteOrderParams}, order_utils::{IOrderUtilsLibraryDispatcher, IOrderUtilsDispatcherTrait},
+        base_order_utils::{ExecuteOrderParams}, order::{Order, OrderType, SecondaryOrderType},
+        order_utils::{IOrderUtilsDispatcherTrait, IOrderUtilsLibraryDispatcher},
+        order_vault::{IOrderVaultDispatcher, IOrderVaultDispatcherTrait},
     };
     use freyr::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
     use freyr::swap::swap_handler::{ISwapHandlerDispatcher, ISwapHandlerDispatcherTrait};
     use freyr::utils::i256::i256;
-    use freyr::utils::{store_arrays::StoreU64Array, calc::to_signed};
-    use starknet::{ContractAddress, get_caller_address, get_contract_address, SyscallResultTrait, ClassHash};
+    use freyr::utils::{calc::to_signed, store_arrays::StoreU64Array};
+    use starknet::{ClassHash, ContractAddress, SyscallResultTrait, get_caller_address, get_contract_address};
 
 
     // Local imports.
@@ -107,7 +108,7 @@ mod AdlHandler {
         /// The new factor between pnl and pool.
         next_pnl_to_pool_factor: i256,
         /// The minimal pnl factor for adl.
-        min_pnl_factor_for_adl: u256
+        min_pnl_factor_for_adl: u256,
     }
 
     // *************************************************************************
@@ -159,7 +160,7 @@ mod AdlHandler {
         decrease_order_utils_class_hash: ClassHash,
         swap_order_utils_class_hash: ClassHash,
         base_order_handler_class_hash: ClassHash,
-        market_utils_class_hash: ClassHash
+        market_utils_class_hash: ClassHash,
     ) {
         self.base_order_handler.write(IBaseOrderHandlerLibraryDispatcher { class_hash: base_order_handler_class_hash });
         self
@@ -186,10 +187,10 @@ mod AdlHandler {
     #[abi(embed_v0)]
     impl AdlHandlerImpl of super::IAdlHandler<ContractState> {
         fn update_adl_state(
-            ref self: ContractState, market: ContractAddress, is_long: bool, oracle_params: SetPricesParams
+            ref self: ContractState, market: ContractAddress, is_long: bool, oracle_params: SetPricesParams,
         ) {
             let max_oracle_block_numbers = oracle_utils::get_uncompacted_oracle_block_numbers(
-                oracle_params.compacted_max_oracle_block_numbers.span(), oracle_params.tokens.len().into()
+                oracle_params.compacted_max_oracle_block_numbers.span(), oracle_params.tokens.len().into(),
             );
             adl_utils::update_adl_state(
                 self.data_store.read(),
@@ -209,7 +210,7 @@ mod AdlHandler {
             collateral_token: ContractAddress,
             is_long: bool,
             size_delta_usd: u256,
-            oracle_params: oracle_utils::SetPricesParams
+            oracle_params: oracle_utils::SetPricesParams,
         ) {
             let mut cache = ExecuteAdlCache {
                 starting_gas: 0,
@@ -220,19 +221,19 @@ mod AdlHandler {
                 max_pnl_factor_for_adl: 0,
                 pnl_to_pool_factor: Zeroable::zero(),
                 next_pnl_to_pool_factor: Zeroable::zero(),
-                min_pnl_factor_for_adl: 0
+                min_pnl_factor_for_adl: 0,
             };
 
             cache
                 .min_oracle_block_numbers =
                     oracle_utils::get_uncompacted_oracle_block_numbers(
-                        oracle_params.compacted_min_oracle_block_numbers.span(), oracle_params.tokens.len().into()
+                        oracle_params.compacted_min_oracle_block_numbers.span(), oracle_params.tokens.len().into(),
                     );
 
             cache
                 .max_oracle_block_numbers =
                     oracle_utils::get_uncompacted_oracle_block_numbers(
-                        oracle_params.compacted_min_oracle_block_numbers.span(), oracle_params.tokens.len().into()
+                        oracle_params.compacted_min_oracle_block_numbers.span(), oracle_params.tokens.len().into(),
                     );
 
             let data_store = self.data_store.read();
@@ -261,20 +262,20 @@ mod AdlHandler {
                             collateral_token,
                             is_long,
                             size_delta_usd,
-                            updated_at_block: (*cache.min_oracle_block_numbers.at(0))
-                        }
+                            updated_at_block: (*cache.min_oracle_block_numbers.at(0)),
+                        },
                     );
 
             let params: ExecuteOrderParams = self
                 .base_order_handler
                 .read()
                 .get_execute_order_params(
-                    cache.key, oracle_params, get_caller_address(), cache.starting_gas, SecondaryOrderType::Adl(())
+                    cache.key, oracle_params, get_caller_address(), cache.starting_gas, SecondaryOrderType::Adl(()),
                 );
 
             feature_utils::validate_feature(
                 params.contracts.data_store,
-                keys::execute_adl_feature_disabled_key(get_contract_address(), params.order.order_type.into())
+                keys::execute_adl_feature_disabled_key(get_contract_address(), params.order.order_type.into()),
             );
 
             self.order_utils_lib.read().execute_order_utils(params);

@@ -24,13 +24,13 @@ trait IMarketToken<TState> {
 mod MarketToken {
     use core::num::traits::Bounded;
 
-    use freyr::bank::bank::{IBankLibraryDispatcher, IBankDispatcherTrait};
+    use freyr::bank::bank::{IBankDispatcherTrait, IBankLibraryDispatcher};
     use freyr::data::data_store::{IDataStoreDispatcher};
-    use freyr::role::role_module::{IRoleModuleLibraryDispatcher, IRoleModuleDispatcherTrait};
+    use freyr::role::role_module::{IRoleModuleDispatcherTrait, IRoleModuleLibraryDispatcher};
     use freyr::role::role_store::{IRoleStoreDispatcher};
     use starknet::get_caller_address;
     use starknet::storage::Map;
-    use starknet::{ContractAddress, ClassHash};
+    use starknet::{ClassHash, ContractAddress};
 
     use super::IMarketToken;
     use zeroable::Zeroable;
@@ -63,14 +63,14 @@ mod MarketToken {
     struct Transfer {
         from: ContractAddress,
         to: ContractAddress,
-        value: u256
+        value: u256,
     }
 
     #[derive(Drop, starknet::Event)]
     struct Approval {
         owner: ContractAddress,
         spender: ContractAddress,
-        value: u256
+        value: u256,
     }
 
     #[constructor]
@@ -79,7 +79,7 @@ mod MarketToken {
         role_store_address: ContractAddress,
         data_store_address: ContractAddress,
         bank_class_hash: ClassHash,
-        role_module_class_hash: ClassHash
+        role_module_class_hash: ClassHash,
     ) {
         self._initializer(NAME, SYMBOL);
         self.bank.write(IBankLibraryDispatcher { class_hash: bank_class_hash });
@@ -122,7 +122,7 @@ mod MarketToken {
         }
 
         fn transfer_from(
-            ref self: ContractState, sender: ContractAddress, recipient: ContractAddress, amount: u256
+            ref self: ContractState, sender: ContractAddress, recipient: ContractAddress, amount: u256,
         ) -> bool {
             let caller = get_caller_address();
             self._spend_allowance(sender, caller, amount);

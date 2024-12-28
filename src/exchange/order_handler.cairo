@@ -55,7 +55,7 @@ trait IOrderHandler<TContractState> {
         acceptable_price: u256,
         trigger_price: u256,
         min_output_amount: u256,
-        order: Order
+        order: Order,
     ) -> Order;
 
     /// Cancels the given order. The `cancelOrder()` feature must be enabled for the given order
@@ -86,7 +86,7 @@ trait IOrderHandler<TContractState> {
     /// * `reason` - The reason of the error.
     /// * `reason_key` - The reason key of the error.
     fn handle_order_error(
-        ref self: TContractState, key: felt252, starting_gas: u256, reason: felt252, reason_key: felt252
+        ref self: TContractState, key: felt252, starting_gas: u256, reason: felt252, reason_key: felt252,
     );
 }
 
@@ -102,48 +102,49 @@ mod OrderHandler {
     use core::traits::Into;
     use debug::PrintTrait;
     use freyr::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
-    use freyr::data::keys::{create_order_feature_disabled_key, execute_order_feature_disabled_key};
     use freyr::data::keys;
+    use freyr::data::keys::{create_order_feature_disabled_key, execute_order_feature_disabled_key};
     use freyr::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
     use freyr::exchange::base_order_handler::{
-        IBaseOrderHandler, BaseOrderHandler, IBaseOrderHandlerLibraryDispatcher, IBaseOrderHandlerDispatcherTrait
+        BaseOrderHandler, IBaseOrderHandler, IBaseOrderHandlerDispatcherTrait, IBaseOrderHandlerLibraryDispatcher,
     };
     use freyr::exchange::exchange_utils;
     use freyr::feature::error::FeatureError;
     use freyr::feature::feature_utils::{validate_feature};
     use freyr::gas::gas_utils;
     use freyr::market::error::MarketError;
-    use freyr::market::market_utils::{IMarketUtilsLibraryDispatcher, IMarketUtilsDispatcherTrait};
+    use freyr::market::market_utils::{IMarketUtilsDispatcherTrait, IMarketUtilsLibraryDispatcher};
     use freyr::mock::referral_storage::{IReferralStorageDispatcher, IReferralStorageDispatcherTrait};
     use freyr::oracle::oracle_modules;
+    use freyr::oracle::oracle_utils;
 
     use freyr::oracle::oracle_utils::{SetPricesParams, SimulatePricesParams};
-    use freyr::oracle::oracle_utils;
-    use freyr::oracle::{oracle::{IOracleDispatcher, IOracleDispatcherTrait},};
+    use freyr::oracle::{oracle::{IOracleDispatcher, IOracleDispatcherTrait}};
     use freyr::order::base_order_utils;
     use freyr::order::order_utils::IOrderUtilsDispatcherTrait;
+    use freyr::order::{base_order_utils::CreateOrderParams, order_utils::{IOrderUtilsDispatcher}};
     use freyr::order::{
-        error::OrderError, order::{SecondaryOrderType, OrderType, Order, OrderTrait, DecreasePositionSwapType},
-        order_vault::{IOrderVaultDispatcher, IOrderVaultDispatcherTrait},
-        base_order_utils::{ExecuteOrderParams, ExecuteOrderParamsContracts}, order_utils::IOrderUtilsLibraryDispatcher,
+        base_order_utils::{ExecuteOrderParams, ExecuteOrderParamsContracts},
+        decrease_order_utils::IDecreaseOrderUtilsLibraryDispatcher, error::OrderError,
         increase_order_utils::IIncreaseOrderUtilsLibraryDispatcher,
-        decrease_order_utils::IDecreaseOrderUtilsLibraryDispatcher, swap_order_utils::ISwapOrderUtilsLibraryDispatcher
+        order::{DecreasePositionSwapType, Order, OrderTrait, OrderType, SecondaryOrderType},
+        order_utils::IOrderUtilsLibraryDispatcher, order_vault::{IOrderVaultDispatcher, IOrderVaultDispatcherTrait},
+        swap_order_utils::ISwapOrderUtilsLibraryDispatcher,
     };
-    use freyr::order::{base_order_utils::CreateOrderParams, order_utils::{IOrderUtilsDispatcher},};
     use freyr::position::error::PositionError;
-    use freyr::role::role::FROZEN_ORDER_KEEPER;
     use freyr::role::role;
-    use freyr::role::role_module::{IRoleModuleLibraryDispatcher, IRoleModuleDispatcherTrait};
-    use freyr::role::role_module::{RoleModule, IRoleModule};
+    use freyr::role::role::FROZEN_ORDER_KEEPER;
+    use freyr::role::role_module::{IRoleModule, RoleModule};
+    use freyr::role::role_module::{IRoleModuleDispatcherTrait, IRoleModuleLibraryDispatcher};
     use freyr::role::role_store::{IRoleStoreDispatcher};
     use freyr::swap::swap_handler::{ISwapHandlerDispatcher, ISwapHandlerDispatcherTrait};
     use freyr::token::erc20::interface::{IERC20, IERC20Dispatcher, IERC20DispatcherTrait};
     use freyr::token::token_utils;
     use freyr::utils::error_utils;
-    use freyr::utils::global_reentrancy_guard::{non_reentrant_before, non_reentrant_after};
+    use freyr::utils::global_reentrancy_guard::{non_reentrant_after, non_reentrant_before};
     use starknet::ContractAddress;
     use starknet::contract_address_const;
-    use starknet::{get_caller_address, get_contract_address, ClassHash};
+    use starknet::{ClassHash, get_caller_address, get_contract_address};
 
     // Local imports.
     use super::IOrderHandler;
@@ -198,7 +199,7 @@ mod OrderHandler {
         swap_order_utils_class_hash: ClassHash,
         role_module_class_hash: ClassHash,
         base_order_handler_class_hash: ClassHash,
-        market_utils_class_hash: ClassHash
+        market_utils_class_hash: ClassHash,
     ) {
         self.base_order_handler.write(IBaseOrderHandlerLibraryDispatcher { class_hash: base_order_handler_class_hash });
         self
@@ -215,7 +216,7 @@ mod OrderHandler {
                 increase_order_utils_class_hash,
                 decrease_order_utils_class_hash,
                 swap_order_utils_class_hash,
-                market_utils_class_hash
+                market_utils_class_hash,
             );
         self.role_module.write(IRoleModuleLibraryDispatcher { class_hash: role_module_class_hash });
         self.role_module.read().initialize(role_store_address);
@@ -247,7 +248,7 @@ mod OrderHandler {
                     self.order_vault.read(),
                     self.referral_storage.read(),
                     account,
-                    params
+                    params,
                 );
 
             non_reentrant_after(data_store);
@@ -262,7 +263,7 @@ mod OrderHandler {
             acceptable_price: u256,
             trigger_price: u256,
             min_output_amount: u256,
-            order: Order
+            order: Order,
         ) -> Order {
             // Check only controller.
             self.role_module.read().only_controller();
@@ -275,7 +276,7 @@ mod OrderHandler {
 
             // Validate feature.
             validate_feature(
-                data_store, keys::update_order_feature_disabled_key(get_contract_address(), order.order_type)
+                data_store, keys::update_order_feature_disabled_key(get_contract_address(), order.order_type),
             );
 
             assert(base_order_utils::is_market_order(order.order_type), 'OrderNotUpdatable');
@@ -323,7 +324,7 @@ mod OrderHandler {
 
             // Validate feature.
             validate_feature(
-                data_store, keys::cancel_order_feature_disabled_key(get_contract_address(), order.order_type)
+                data_store, keys::cancel_order_feature_disabled_key(get_contract_address(), order.order_type),
             );
 
             if base_order_utils::is_market_order(order.order_type) {
@@ -355,7 +356,7 @@ mod OrderHandler {
         /// * `reason` - The reason of the error.
         /// * `reason_key` - The reason key of the error.
         fn handle_order_error(
-            ref self: ContractState, key: felt252, starting_gas: u256, reason: felt252, reason_key: felt252
+            ref self: ContractState, key: felt252, starting_gas: u256, reason: felt252, reason_key: felt252,
         ) {
             // TODO: move this to private function and try/catch in execute_order when available
             let data_store = self.data_store.read();
@@ -403,7 +404,7 @@ mod OrderHandler {
                     get_caller_address(),
                     starting_gas,
                     reason,
-                    reason_key
+                    reason_key,
                 );
         }
 
@@ -415,7 +416,7 @@ mod OrderHandler {
             let data_store = self.data_store.read();
             non_reentrant_before(data_store);
             oracle_modules::with_oracle_prices_before(
-                self.oracle.read(), data_store, self.event_emitter.read(), @oracle_params
+                self.oracle.read(), data_store, self.event_emitter.read(), @oracle_params,
             );
             self._execute_order(key, oracle_params, get_contract_address());
             oracle_modules::with_oracle_prices_after(self.oracle.read());
@@ -430,9 +431,7 @@ mod OrderHandler {
             let data_store = self.data_store.read();
 
             non_reentrant_before(data_store);
-            oracle_modules::with_simulated_oracle_prices_before(
-                self.oracle.read(), params
-            );
+            oracle_modules::with_simulated_oracle_prices_before(self.oracle.read(), params);
 
             let oracle_params: SetPricesParams = Default::default();
             self._execute_order(key, oracle_params, get_contract_address());
@@ -458,7 +457,7 @@ mod OrderHandler {
             let params = self
                 .base_order_handler
                 .read()
-                .get_execute_order_params(key, oracle_params, keeper, starting_gas, SecondaryOrderType::None(()),);
+                .get_execute_order_params(key, oracle_params, keeper, starting_gas, SecondaryOrderType::None(()));
 
             if params.order.is_frozen || params.order.order_type == OrderType::LimitSwap(()) {
                 self._validate_state_frozen_order_keeper(keeper);
@@ -467,7 +466,7 @@ mod OrderHandler {
             // Validate feature.
             validate_feature(
                 params.contracts.data_store,
-                execute_order_feature_disabled_key(get_contract_address(), params.order.order_type)
+                execute_order_feature_disabled_key(get_contract_address(), params.order.order_type),
             );
 
             self.order_utils_lib.read().execute_order_utils(params);

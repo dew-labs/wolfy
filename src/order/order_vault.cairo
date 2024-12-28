@@ -52,12 +52,12 @@ mod OrderVault {
     use freyr::bank::bank::{IBankLibraryDispatcher};
 
     // Local imports.
-    use freyr::bank::strict_bank::{IStrictBankLibraryDispatcher, IStrictBankDispatcherTrait};
+    use freyr::bank::strict_bank::{IStrictBankDispatcherTrait, IStrictBankLibraryDispatcher};
     use freyr::data::data_store::{IDataStoreDispatcher};
     use freyr::role::role_module::{IRoleModuleLibraryDispatcher};
     use freyr::role::role_store::{IRoleStoreDispatcher};
     use starknet::storage::Map;
-    use starknet::{get_caller_address, ContractAddress, contract_address_const, ClassHash};
+    use starknet::{ClassHash, ContractAddress, contract_address_const, get_caller_address};
 
     // *************************************************************************
     //                              STORAGE
@@ -87,7 +87,7 @@ mod OrderVault {
         role_store_address: ContractAddress,
         strict_bank_class_hash: ClassHash,
         bank_class_hash: ClassHash,
-        role_module_class_hash: ClassHash
+        role_module_class_hash: ClassHash,
     ) {
         self.strict_bank.write(IStrictBankLibraryDispatcher { class_hash: strict_bank_class_hash });
         self

@@ -8,23 +8,23 @@ use freyr::market::market::Market;
 use freyr::mock::referral_storage::{IReferralStorageDispatcher, IReferralStorageDispatcherTrait};
 use freyr::oracle::oracle::{IOracleDispatcher, IOracleDispatcherTrait};
 use freyr::order::{
-    order::{SecondaryOrderType, OrderType, Order, DecreasePositionSwapType},
+    base_order_utils::{ExecuteOrderParams, ExecuteOrderParamsContracts},
+    order::{DecreasePositionSwapType, Order, OrderType, SecondaryOrderType}, order_utils,
     order_vault::{IOrderVaultDispatcher, IOrderVaultDispatcherTrait},
-    base_order_utils::{ExecuteOrderParams, ExecuteOrderParamsContracts}, order_utils
 };
 use freyr::position::{
-    position::Position, decrease_position_swap_utils,
-    position_utils::{UpdatePositionParams, DecreasePositionCollateralValues, DecreasePositionCollateralValuesOutput}
+    decrease_position_swap_utils, position::Position,
+    position_utils::{DecreasePositionCollateralValues, DecreasePositionCollateralValuesOutput, UpdatePositionParams},
 };
 use freyr::role::{role, role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait}};
 use freyr::swap::swap_handler::{ISwapHandlerDispatcher, ISwapHandlerDispatcherTrait};
 use freyr::swap::swap_utils::SwapParams;
 use freyr::test_utils::tests_lib;
 use freyr::utils::i256::{i256, i256_new};
-use freyr::utils::span32::{Span32, Array32Trait};
+use freyr::utils::span32::{Array32Trait, Span32};
 
-use snforge_std::{declare, ContractClassTrait, DeclareResultTrait, start_cheat_caller_address};
-use starknet::{get_caller_address, ContractAddress, contract_address_const};
+use snforge_std::{ContractClassTrait, DeclareResultTrait, declare, start_cheat_caller_address};
+use starknet::{ContractAddress, contract_address_const, get_caller_address};
 
 //TODO Tests need to be added after implementation of decrease_position_swap_utils
 
@@ -81,14 +81,14 @@ fn given_unauthorized_access_role_when_swap_to_pnl_token_then_fails() {
     role_store.revoke_role(caller_address, role::CONTROLLER);
 
     let params = create_new_update_position_params(
-        DecreasePositionSwapType::SwapCollateralTokenToPnlToken, swap_handler
+        DecreasePositionSwapType::SwapCollateralTokenToPnlToken, swap_handler,
     );
 
     let output = DecreasePositionCollateralValuesOutput {
         output_token: contract_address_const::<'output_token'>(),
         output_amount: 10,
         secondary_output_token: contract_address_const::<'secondary_output_token'>(),
-        secondary_output_amount: 5
+        secondary_output_amount: 5,
     };
 
     let values = create_new_decrease_position_collateral_values(output);
@@ -101,14 +101,14 @@ fn given_normal_conditions_when_swap_to_pnl_token_then_works() {
     let (_caller_address, _role_store, swap_handler) = setup();
 
     let params = create_new_update_position_params(
-        DecreasePositionSwapType::SwapCollateralTokenToPnlToken, swap_handler
+        DecreasePositionSwapType::SwapCollateralTokenToPnlToken, swap_handler,
     );
 
     let output = DecreasePositionCollateralValuesOutput {
         output_token: contract_address_const::<'output_token'>(),
         output_amount: 10,
         secondary_output_token: 0.try_into().unwrap(),
-        secondary_output_amount: 5
+        secondary_output_amount: 5,
     };
 
     let values = create_new_decrease_position_collateral_values(output);
@@ -122,7 +122,7 @@ fn given_normal_conditions_when_swap_to_pnl_token_then_works() {
 
 /// Utility function to create new UpdatePositionParams struct
 fn create_new_update_position_params(
-    decrease_position_swap_type: DecreasePositionSwapType, swap_handler: ISwapHandlerDispatcher
+    decrease_position_swap_type: DecreasePositionSwapType, swap_handler: ISwapHandlerDispatcher,
 ) -> UpdatePositionParams {
     let data_store = tests_lib::get_data_store_address();
     let event_emitter = tests_lib::get_event_emitter_address();
@@ -136,14 +136,14 @@ fn create_new_update_position_params(
         order_vault: IOrderVaultDispatcher { contract_address: order_vault },
         oracle: IOracleDispatcher { contract_address: oracle },
         swap_handler,
-        referral_storage: IReferralStorageDispatcher { contract_address: referral_storage }
+        referral_storage: IReferralStorageDispatcher { contract_address: referral_storage },
     };
 
     let market = Market {
         market_token: contract_address_const::<'market_token'>(),
         index_token: contract_address_const::<'index_token'>(),
         long_token: contract_address_const::<'long_token'>(),
-        short_token: contract_address_const::<'short_token'>()
+        short_token: contract_address_const::<'short_token'>(),
     };
 
     let order = Order {
@@ -167,7 +167,7 @@ fn create_new_update_position_params(
         min_output_amount: 10,
         updated_at_block: 1,
         is_long: false,
-        is_frozen: false
+        is_frozen: false,
     };
 
     let position = Position {
@@ -194,7 +194,7 @@ fn create_new_update_position_params(
         order_key: 123456789,
         position,
         position_key: 123456789,
-        secondary_order_type: SecondaryOrderType::None
+        secondary_order_type: SecondaryOrderType::None,
     };
 
     params
@@ -212,7 +212,7 @@ fn create_new_decrease_position_collateral_values(
         size_delta_in_tokens: 1000,
         price_impact_usd: i256_new(1000, false),
         price_impact_diff_usd: 500,
-        output
+        output,
     };
 
     value

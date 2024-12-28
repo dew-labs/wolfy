@@ -27,7 +27,7 @@ cargo +nightly install scarb-cairo-lint --git https://github.com/keep-starknet-s
 ## Test contracts
 
 ```sh
-scarb-cairo-lint --fix
+scarb-cairo-lint --fix --test
 scarb --dev test
 scarb --dev test -e <full-test-name> # run a specific test without compile anyother tests
 scarb --dev test --rerun-failed # rerun only failed tests

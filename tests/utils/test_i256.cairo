@@ -2,7 +2,7 @@ mod TestInteger256 {
     mod New {
         use core::num::traits::Bounded;
 
-        use freyr::utils::i256::{i256, IntegerTrait};
+        use freyr::utils::i256::{IntegerTrait, i256};
 
         // Test new i256 max
         #[test]
@@ -34,7 +34,7 @@ mod TestInteger256 {
     mod Add {
         use core::num::traits::Bounded;
 
-        use freyr::utils::i256::{i256, IntegerTrait};
+        use freyr::utils::i256::{IntegerTrait, i256};
 
         // Test addition of two positive integers
         #[test]
@@ -100,7 +100,7 @@ mod TestInteger256 {
     mod Sub {
         use core::num::traits::Bounded;
 
-        use freyr::utils::i256::{i256, IntegerTrait};
+        use freyr::utils::i256::{IntegerTrait, i256};
 
         // Test subtraction of two positive integers with larger first
         #[test]
@@ -206,7 +206,7 @@ mod TestInteger256 {
     mod Mul {
         use core::num::traits::Bounded;
 
-        use freyr::utils::i256::{i256, IntegerTrait};
+        use freyr::utils::i256::{IntegerTrait, i256};
 
         // Test multiplication of positive integers
         #[test]
@@ -272,7 +272,7 @@ mod TestInteger256 {
     mod DivRem {
         use core::num::traits::Bounded;
 
-        use freyr::utils::i256::{i256, IntegerTrait};
+        use freyr::utils::i256::{IntegerTrait, i256};
 
         // Test division and remainder of positive integers
         #[test]
@@ -423,7 +423,7 @@ mod TestInteger256 {
     mod i256IntoU256 {
         use core::num::traits::Bounded;
 
-        use freyr::utils::i256::{i256, IntegerTrait};
+        use freyr::utils::i256::{IntegerTrait, i256};
 
         #[test]
         fn test_positive_conversion_within_range() {
@@ -457,7 +457,7 @@ mod TestInteger256 {
     mod TwoComplementTests {
         use core::num::traits::Bounded;
 
-        use freyr::utils::i256::{i256, two_complement_if_nec, IntegerTrait};
+        use freyr::utils::i256::{IntegerTrait, i256, two_complement_if_nec};
 
         // Some expected values where calculated in Python with a script
 
@@ -499,7 +499,7 @@ mod TestInteger256 {
             let input = IntegerTrait::<i256>::new(Bounded::MAX / 2, true);
             let actual = two_complement_if_nec(input);
             let expected = i256 {
-                mag: 57896044618658097711785492504343953926634992332820282019728792003956564819969, sign: true
+                mag: 57896044618658097711785492504343953926634992332820282019728792003956564819969, sign: true,
             };
 
             assert(actual == expected, 'negative max wrong val');
@@ -519,7 +519,7 @@ mod TestInteger256 {
             let input = IntegerTrait::<i256>::new(54321, true);
             let actual = two_complement_if_nec(input);
             let expected = i256 {
-                mag: 115792089237316195423570985008687907853269984665640564039457584007913129585615, sign: true
+                mag: 115792089237316195423570985008687907853269984665640564039457584007913129585615, sign: true,
             };
 
             assert(actual == expected, 'negative non zero wrong value');

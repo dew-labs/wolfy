@@ -1,21 +1,21 @@
 use freyr::data::data_store::{DataStore, IDataStoreDispatcher, IDataStoreDispatcherTrait};
 use freyr::event::event_emitter::{EventEmitter, IEventEmitterDispatcher};
-use freyr::oracle::oracle::{Oracle, IOracleDispatcher, IOracleDispatcherTrait, SetPricesParams};
+use freyr::oracle::oracle::{IOracleDispatcher, IOracleDispatcherTrait, Oracle, SetPricesParams};
 use freyr::oracle::price_feed::PriceFeed;
 use freyr::order::base_order_utils::{
-    is_market_order, is_limit_order, is_swap_order, is_position_order, is_increase_order, is_decrease_order,
-    is_liquidation_order, validate_order_trigger_price, get_execution_price_for_increase,
-    get_execution_price_for_decrease, validate_non_empty_order
+    get_execution_price_for_decrease, get_execution_price_for_increase, is_decrease_order, is_increase_order,
+    is_limit_order, is_liquidation_order, is_market_order, is_position_order, is_swap_order, validate_non_empty_order,
+    validate_order_trigger_price,
 };
 
-use freyr::order::{order::{OrderType, Order},};
+use freyr::order::{order::{Order, OrderType}};
 use freyr::price::price::{Price, PriceTrait};
 use freyr::role::role;
 use freyr::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
 use freyr::test_utils::tests_lib;
 use freyr::utils::i256::{i256, i256_new};
 use snforge_std::{
-    declare, start_cheat_caller_address, stop_cheat_caller_address, ContractClassTrait, DeclareResultTrait
+    ContractClassTrait, DeclareResultTrait, declare, start_cheat_caller_address, stop_cheat_caller_address,
 };
 use starknet::{ContractAddress, contract_address_const};
 
@@ -226,8 +226,8 @@ fn given_normal_conditions_when_get_execution_price_for_decrease_then_works() {
 #[test]
 #[should_panic(
     expected: (
-        'price_impact_too_large', 3618502788666131213697322783095070105623107215331596699973092056135872020466, 1
-    )
+        'price_impact_too_large', 3618502788666131213697322783095070105623107215331596699973092056135872020466, 1,
+    ),
 )]
 fn given_price_impact_larger_than_order_when_get_execution_price_for_decrease_then_fails() {
     get_execution_price_for_decrease(
@@ -249,8 +249,8 @@ fn given_price_impact_larger_than_order_when_get_execution_price_for_decrease_th
         1,
         200000000,
         3618502788666131213697322783095070105623107215331596699973092056135872020466,
-        50000
-    )
+        50000,
+    ),
 )]
 fn given_negative_execution_price_than_order_when_get_execution_price_for_decrease_then_fails() {
     get_execution_price_for_decrease(
@@ -266,7 +266,7 @@ fn given_negative_execution_price_than_order_when_get_execution_price_for_decrea
 
 
 #[test]
-#[should_panic(expected: ('order_unfulfillable_at_price', 1002, 10000,))]
+#[should_panic(expected: ('order_unfulfillable_at_price', 1002, 10000))]
 fn given_not_acceptable_price_when_get_execution_price_for_decrease_then_fails() {
     get_execution_price_for_decrease(
         index_token_price: Price { min: 1000, max: 1100 },

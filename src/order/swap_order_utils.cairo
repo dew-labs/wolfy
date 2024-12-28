@@ -5,7 +5,7 @@
 // Core lib imports.
 use freyr::bank::bank::{IBankDispatcher, IBankDispatcherTrait};
 use freyr::event::event_utils::{
-    Felt252IntoContractAddress, ContractAddressDictValue, I256252DictValue, U256252DictValue, U256IntoFelt252
+    ContractAddressDictValue, Felt252IntoContractAddress, I256252DictValue, U256252DictValue, U256IntoFelt252,
 };
 use freyr::oracle::error::OracleError;
 use freyr::oracle::oracle_utils;
@@ -18,7 +18,7 @@ use freyr::swap::swap_utils;
 use freyr::token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
 use freyr::utils::arrays::are_gte_u64;
 use freyr::utils::serializable_dict::{SerializableFelt252Dict, SerializableFelt252DictTrait};
-use freyr::utils::span32::{Span32, DefaultSpan32};
+use freyr::utils::span32::{DefaultSpan32, Span32};
 use starknet::{ContractAddress, contract_address_const};
 
 // *************************************************************************
@@ -39,7 +39,7 @@ trait ISwapOrderUtils<TContractState> {
         min_oracle_block_numbers: Span<u64>,
         max_oracle_block_numbers: Span<u64>,
         order_type: OrderType,
-        order_updated_at_block: u64
+        order_updated_at_block: u64,
     );
 }
 #[starknet::contract]
@@ -49,9 +49,9 @@ mod SwapOrderUtils {
     use debug::PrintTrait;
     use freyr::bank::bank::{IBankDispatcher, IBankDispatcherTrait};
     use freyr::event::event_utils::{
-        Felt252IntoContractAddress, ContractAddressDictValue, I256252DictValue, U256252DictValue, U256IntoFelt252
+        ContractAddressDictValue, Felt252IntoContractAddress, I256252DictValue, U256252DictValue, U256IntoFelt252,
     };
-    use freyr::market::market_utils::{IMarketUtilsLibraryDispatcher, IMarketUtilsDispatcherTrait};
+    use freyr::market::market_utils::{IMarketUtilsDispatcherTrait, IMarketUtilsLibraryDispatcher};
     use freyr::oracle::error::OracleError;
     use freyr::oracle::oracle_utils;
 
@@ -63,7 +63,7 @@ mod SwapOrderUtils {
     use freyr::token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
     use freyr::utils::arrays::are_gte_u64;
     use freyr::utils::serializable_dict::{SerializableFelt252Dict, SerializableFelt252DictTrait};
-    use freyr::utils::span32::{Span32, DefaultSpan32};
+    use freyr::utils::span32::{DefaultSpan32, Span32};
     use starknet::{ContractAddress, contract_address_const};
 
     #[storage]
@@ -81,12 +81,13 @@ mod SwapOrderUtils {
                 panic(array![OrderError::UNEXPECTED_MARKET]);
             }
 
-            self.validate_oracle_block_numbers(
-                params.min_oracle_block_numbers.span(),
-                params.max_oracle_block_numbers.span(),
-                params.order.order_type,
-                params.order.updated_at_block
-            );
+            self
+                .validate_oracle_block_numbers(
+                    params.min_oracle_block_numbers.span(),
+                    params.max_oracle_block_numbers.span(),
+                    params.order.order_type,
+                    params.order.updated_at_block,
+                );
 
             let (_output_token, _output_amount) = swap_utils::swap(
                 @swap_utils::SwapParams {
@@ -102,7 +103,7 @@ mod SwapOrderUtils {
                     receiver: params.order.receiver,
                     ui_fee_receiver: params.order.ui_fee_receiver,
                 },
-                self.market_utils.read()
+                self.market_utils.read(),
             );
             // let mut log_data: LogData = Default::default();
 
@@ -124,18 +125,18 @@ mod SwapOrderUtils {
             min_oracle_block_numbers: Span<u64>,
             max_oracle_block_numbers: Span<u64>,
             order_type: OrderType,
-            order_updated_at_block: u64
+            order_updated_at_block: u64,
         ) {
             if (order_type == OrderType::MarketSwap) {
                 oracle_utils::validate_block_number_within_range(
-                    min_oracle_block_numbers, max_oracle_block_numbers, order_updated_at_block
+                    min_oracle_block_numbers, max_oracle_block_numbers, order_updated_at_block,
                 );
                 return;
             }
             if (order_type == OrderType::LimitSwap) {
                 if (!are_gte_u64(min_oracle_block_numbers, order_updated_at_block)) {
                     OracleError::ORACLE_BLOCK_NUMBERS_ARE_SMALLER_THAN_REQUIRED(
-                        min_oracle_block_numbers, order_updated_at_block
+                        min_oracle_block_numbers, order_updated_at_block,
                     );
                 }
                 return;

@@ -9,19 +9,19 @@ use debug::PrintTrait;
 use freyr::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
 use freyr::data::keys;
 use freyr::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
-use freyr::market::market::{Market, UniqueIdMarket, IntoMarketToken};
+use freyr::market::market::{IntoMarketToken, Market, UniqueIdMarket};
 use freyr::market::market_token::{IMarketTokenDispatcher, IMarketTokenDispatcherTrait};
-use freyr::market::market_utils::{IMarketUtilsLibraryDispatcher, IMarketUtilsDispatcherTrait, MarketPrices};
+use freyr::market::market_utils::{IMarketUtilsDispatcherTrait, IMarketUtilsLibraryDispatcher, MarketPrices};
 use freyr::mock::referral_storage::{IReferralStorageDispatcher, IReferralStorageDispatcherTrait};
 use freyr::oracle::oracle::{IOracleDispatcher, IOracleDispatcherTrait};
 use freyr::order::base_order_utils::ExecuteOrderParamsContracts;
 use freyr::order::{
-    order::{Order, SecondaryOrderType, OrderType, DecreasePositionSwapType},
-    order_vault::{IOrderVaultDispatcher, IOrderVaultDispatcherTrait}
+    order::{DecreasePositionSwapType, Order, OrderType, SecondaryOrderType},
+    order_vault::{IOrderVaultDispatcher, IOrderVaultDispatcherTrait},
 };
 use freyr::position::{
-    position::Position, position_utils::UpdatePositionParams, position_utils::WillPositionCollateralBeSufficientValues,
-    position_utils
+    position::Position, position_utils, position_utils::UpdatePositionParams,
+    position_utils::WillPositionCollateralBeSufficientValues,
 };
 use freyr::price::price::{Price, PriceTrait};
 use freyr::pricing::position_pricing_utils::{PositionFees, PositionReferralFees};
@@ -33,12 +33,12 @@ use freyr::utils::i256::{i256, i256_new};
 use poseidon::poseidon_hash_span;
 use result::ResultTrait;
 use snforge_std::{
-    declare, start_cheat_caller_address, stop_cheat_caller_address, start_cheat_block_timestamp, ContractClassTrait,
-    DeclareResultTrait, ContractClass
+    ContractClass, ContractClassTrait, DeclareResultTrait, declare, start_cheat_block_timestamp,
+    start_cheat_caller_address, stop_cheat_caller_address,
 };
-use starknet::{ContractAddress, get_caller_address, Felt252TryIntoContractAddress, contract_address_const, ClassHash,};
+use starknet::{ClassHash, ContractAddress, Felt252TryIntoContractAddress, contract_address_const, get_caller_address};
 
-use traits::{TryInto, Into};
+use traits::{Into, TryInto};
 use zeroable::Zeroable;
 
 #[test]
@@ -103,11 +103,11 @@ fn given_invalid_position_size_when_validate_position_then_fails() {
     let market: Market = Default::default();
     let price = Price { min: 0, max: 0 };
     let prices: MarketPrices = MarketPrices {
-        index_token_price: price, long_token_price: price, short_token_price: price
+        index_token_price: price, long_token_price: price, short_token_price: price,
     };
     // Test
     position_utils::validate_position(
-        data_store, referral_storage, position, market, prices, false, false, market_utils
+        data_store, referral_storage, position, market, prices, false, false, market_utils,
     );
     tests_lib::teardown();
 }
@@ -127,13 +127,13 @@ fn given_empty_market_when_validate_position_then_fails() {
     let market: Market = Default::default();
     let price = Price { min: 0, max: 0 };
     let prices: MarketPrices = MarketPrices {
-        index_token_price: price, long_token_price: price, short_token_price: price
+        index_token_price: price, long_token_price: price, short_token_price: price,
     };
 
     // Test
     // Should fail at 'validate_enabled_market'
     position_utils::validate_position(
-        data_store, referral_storage, position, market, prices, false, false, market_utils
+        data_store, referral_storage, position, market, prices, false, false, market_utils,
     );
     tests_lib::teardown();
 }
@@ -161,7 +161,7 @@ fn given_minimum_position_size_when_validate_position_then_fails() {
 
     let price = Price { min: 0, max: 0 };
     let prices: MarketPrices = MarketPrices {
-        index_token_price: price, long_token_price: price, short_token_price: price
+        index_token_price: price, long_token_price: price, short_token_price: price,
     };
     let should_validate_min_position_size = true;
 
@@ -176,7 +176,7 @@ fn given_minimum_position_size_when_validate_position_then_fails() {
 
     // Fail
     position_utils::validate_position(
-        data_store, referral_storage, position, market, prices, should_validate_min_position_size, false, market_utils
+        data_store, referral_storage, position, market, prices, should_validate_min_position_size, false, market_utils,
     );
     tests_lib::teardown();
 }
@@ -203,7 +203,7 @@ fn given_normal_conditions_when_increment_claimable_funding_amount_then_works() 
             swap_handler: ISwapHandlerDispatcher { contract_address: Zeroable::zero() },
             referral_storage: IReferralStorageDispatcher { contract_address: Zeroable::zero() },
         },
-        market: Market { market_token, index_token: Zeroable::zero(), long_token, short_token, },
+        market: Market { market_token, index_token: Zeroable::zero(), long_token, short_token },
         order: Default::default(),
         order_key: 0,
         position: Default::default(),
@@ -271,20 +271,20 @@ fn given_negative_remaining_collateral_usd_when_checking_liquidatability_then_in
     let cumulative_borrowing_factor_key = keys::cumulative_borrowing_factor_key(market_token, true);
     data_store.set_u256(cumulative_borrowing_factor_key, 1000);
 
-    let market = Market { market_token, index_token: long_token, long_token, short_token, };
+    let market = Market { market_token, index_token: long_token, long_token, short_token };
 
     let long_token_price = Price { min: 100, max: 110 };
     let index_token_price = Price { min: 100, max: 110 };
     let short_token_price = Price { min: 100, max: 110 };
 
     let prices: MarketPrices = MarketPrices {
-        index_token_price: index_token_price, long_token_price: long_token_price, short_token_price: short_token_price
+        index_token_price: index_token_price, long_token_price: long_token_price, short_token_price: short_token_price,
     };
 
     // Test
 
     let (is_liquiditable, reason) = position_utils::is_position_liquiditable(
-        data_store, referral_storage, position, market, prices, false, market_utils
+        data_store, referral_storage, position, market, prices, false, market_utils,
     );
 
     assert(is_liquiditable, 'Invalid position liquidation');
@@ -320,20 +320,20 @@ fn given_below_minimum_collateral_when_checking_liquidatability_then_invalid_pos
     let cumulative_borrowing_factor_key = keys::cumulative_borrowing_factor_key(market_token, true);
     data_store.set_u256(cumulative_borrowing_factor_key, 1000);
 
-    let market = Market { market_token, index_token: long_token, long_token, short_token, };
+    let market = Market { market_token, index_token: long_token, long_token, short_token };
 
     let long_token_price = Price { min: 100, max: 110 };
     let index_token_price = Price { min: 100, max: 110 };
     let short_token_price = Price { min: 100, max: 110 };
 
     let prices: MarketPrices = MarketPrices {
-        index_token_price: index_token_price, long_token_price: long_token_price, short_token_price: short_token_price
+        index_token_price: index_token_price, long_token_price: long_token_price, short_token_price: short_token_price,
     };
 
     // Test
 
     let (is_liquiditable, reason) = position_utils::is_position_liquiditable(
-        data_store, referral_storage, position, market, prices, true, market_utils
+        data_store, referral_storage, position, market, prices, true, market_utils,
     );
 
     assert(is_liquiditable, 'Invalid position liquidation');
@@ -368,20 +368,20 @@ fn given_valid_position_when_checking_liquidatability_then_valid_position() {
     let cumulative_borrowing_factor_key = keys::cumulative_borrowing_factor_key(market_token, true);
     data_store.set_u256(cumulative_borrowing_factor_key, 1000);
 
-    let market = Market { market_token, index_token: long_token, long_token, short_token, };
+    let market = Market { market_token, index_token: long_token, long_token, short_token };
 
     let long_token_price = Price { min: 100, max: 110 };
     let index_token_price = Price { min: 100, max: 110 };
     let short_token_price = Price { min: 100, max: 110 };
 
     let prices: MarketPrices = MarketPrices {
-        index_token_price: index_token_price, long_token_price: long_token_price, short_token_price: short_token_price
+        index_token_price: index_token_price, long_token_price: long_token_price, short_token_price: short_token_price,
     };
 
     // Test
 
     let (is_liquiditable, reason) = position_utils::is_position_liquiditable(
-        data_store, referral_storage, position, market, prices, true, market_utils
+        data_store, referral_storage, position, market, prices, true, market_utils,
     );
 
     assert(!is_liquiditable, 'Invalid position liquidation');
@@ -420,20 +420,20 @@ fn given_below_min_collateral_leverage_when_checking_liquidatability_then_invali
     let min_collateral_factor_key = keys::min_collateral_factor_key(market_token);
     data_store.set_u256(min_collateral_factor_key, 10_000_000_000_000_000_000);
 
-    let market = Market { market_token, index_token: long_token, long_token, short_token, };
+    let market = Market { market_token, index_token: long_token, long_token, short_token };
 
     let long_token_price = Price { min: 100, max: 110 };
     let index_token_price = Price { min: 100, max: 110 };
     let short_token_price = Price { min: 100, max: 110 };
 
     let prices: MarketPrices = MarketPrices {
-        index_token_price: index_token_price, long_token_price: long_token_price, short_token_price: short_token_price
+        index_token_price: index_token_price, long_token_price: long_token_price, short_token_price: short_token_price,
     };
 
     // Test
 
     let (is_liquiditable, reason) = position_utils::is_position_liquiditable(
-        data_store, referral_storage, position, market, prices, false, market_utils
+        data_store, referral_storage, position, market, prices, false, market_utils,
     );
 
     assert(is_liquiditable, 'Invalid position liquidation');
@@ -462,7 +462,7 @@ fn given_initial_total_borrowing_when_updating_then_correct_total_borrowing() {
             swap_handler: ISwapHandlerDispatcher { contract_address: Zeroable::zero() },
             referral_storage: IReferralStorageDispatcher { contract_address: Zeroable::zero() },
         },
-        market: Market { market_token, index_token: long_token, long_token, short_token, },
+        market: Market { market_token, index_token: long_token, long_token, short_token },
         order: Default::default(),
         order_key: 0,
         position: Default::default(),
@@ -477,7 +477,7 @@ fn given_initial_total_borrowing_when_updating_then_correct_total_borrowing() {
     let next_position_borrowing_factor: u256 = 20000000;
 
     position_utils::update_total_borrowing(
-        params, next_position_size_in_usd, next_position_borrowing_factor, market_utils
+        params, next_position_size_in_usd, next_position_borrowing_factor, market_utils,
     );
 
     let total_borrowing_value: u256 = data_store.get_u256(total_borrowing_key);
@@ -497,7 +497,7 @@ fn given_initial_open_interest_when_updating_then_correct_open_interest() {
     data_store.set_u256(key_open_interest, 1000);
 
     let key_open_interest_in_tokens = keys::open_interest_in_tokens_key(
-        market_token, contract_address_const::<0>(), false
+        market_token, contract_address_const::<0>(), false,
     );
     data_store.set_u256(key_open_interest_in_tokens, 2000);
 
@@ -510,7 +510,7 @@ fn given_initial_open_interest_when_updating_then_correct_open_interest() {
             swap_handler: ISwapHandlerDispatcher { contract_address: Zeroable::zero() },
             referral_storage: IReferralStorageDispatcher { contract_address: Zeroable::zero() },
         },
-        market: Market { market_token, index_token: long_token, long_token, short_token, },
+        market: Market { market_token, index_token: long_token, long_token, short_token },
         order: Default::default(),
         order_key: 0,
         position: Default::default(),
@@ -551,7 +551,7 @@ fn given_valid_referral_when_handling_then_referral_successfully_processed() {
 
     // Fill required data store keys.
     let affiliate_reward_for_account_key = keys::affiliate_reward_for_account_key(
-        market_token, contract_address_const::<0>(), referral.affiliate
+        market_token, contract_address_const::<0>(), referral.affiliate,
     );
     data_store.set_u256(affiliate_reward_for_account_key, 10);
 
@@ -564,7 +564,7 @@ fn given_valid_referral_when_handling_then_referral_successfully_processed() {
             swap_handler: ISwapHandlerDispatcher { contract_address: Zeroable::zero() },
             referral_storage: IReferralStorageDispatcher { contract_address: Zeroable::zero() },
         },
-        market: Market { market_token, index_token: long_token, long_token, short_token, },
+        market: Market { market_token, index_token: long_token, long_token, short_token },
         order: Default::default(),
         order_key: 0,
         position: Default::default(),
@@ -607,7 +607,7 @@ fn test_will_position_collateral_be_sufficient() {
     data_store.set_u256(min_collateral_factor_key, 10_000_000_000_000_000_000);
 
     let prices: MarketPrices = MarketPrices {
-        index_token_price: index_token_price, long_token_price: long_token_price, short_token_price: short_token_price
+        index_token_price: index_token_price, long_token_price: long_token_price, short_token_price: short_token_price,
     };
 
     let values: WillPositionCollateralBeSufficientValues = WillPositionCollateralBeSufficientValues {
@@ -619,7 +619,7 @@ fn test_will_position_collateral_be_sufficient() {
 
     // invoke the function with scenario where collateral will be sufficient
     let (will_be_sufficient, remaining_collateral_usd) = position_utils::will_position_collateral_be_sufficient(
-        data_store, market, prices, long_token, true, values, market_utils
+        data_store, market, prices, long_token, true, values, market_utils,
     );
     assert(will_be_sufficient, 'collateral supposed sufficient');
     assert(remaining_collateral_usd == i256_new(4990, false), 'eq 4990');
@@ -633,7 +633,7 @@ fn test_will_position_collateral_be_sufficient() {
 
     // invoke the function with scenario where collateral will be insufficient
     let (will_be_sufficient, remaining_collateral_usd) = position_utils::will_position_collateral_be_sufficient(
-        data_store, market, prices, long_token, true, values, market_utils
+        data_store, market, prices, long_token, true, values, market_utils,
     );
     // assert that the function returns that the collateral is not sufficient
     assert(!will_be_sufficient, 'collateral should insufficient');
@@ -646,7 +646,7 @@ fn test_update_funding_and_borrowing_state() {}
 
 
 fn setup() -> (
-    IDataStoreDispatcher, IReferralStorageDispatcher, IEventEmitterDispatcher, IMarketUtilsLibraryDispatcher
+    IDataStoreDispatcher, IReferralStorageDispatcher, IEventEmitterDispatcher, IMarketUtilsLibraryDispatcher,
 ) {
     let (
         _caller_address,

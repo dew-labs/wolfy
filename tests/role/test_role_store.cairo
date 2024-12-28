@@ -6,7 +6,7 @@ use freyr::role::role_store::IRoleStoreDispatcher;
 use freyr::role::role_store::IRoleStoreDispatcherTrait;
 use freyr::test_utils::tests_lib;
 use result::ResultTrait;
-use snforge_std::{declare, start_cheat_caller_address, ContractClassTrait, DeclareResultTrait};
+use snforge_std::{ContractClassTrait, DeclareResultTrait, declare, start_cheat_caller_address};
 use starknet::Felt252TryIntoContractAddress;
 use starknet::{ContractAddress, contract_address_const};
 use traits::TryInto;

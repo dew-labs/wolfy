@@ -12,14 +12,14 @@ use freyr::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
 use freyr::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
 use freyr::market::market::{Market};
 use freyr::oracle::{
-    oracle::{SetPricesCache, SetPricesInnerCache}, error::OracleError,
-    interfaces::account::{IAccountDispatcher, IAccountDispatcherTrait}
+    error::OracleError, interfaces::account::{IAccountDispatcher, IAccountDispatcherTrait},
+    oracle::{SetPricesCache, SetPricesInnerCache},
 };
 use freyr::price::price::{Price};
 use freyr::utils::{
-    store_arrays::{StoreContractAddressArray, StorePriceArray, StoreU256Array, StoreFelt252Array},
-    arrays::{are_lte_u64, are_gte_u64, get_uncompacted_value, get_uncompacted_value_u64},
-    bits::{BITMASK_8, BITMASK_16, BITMASK_32, BITMASK_64}
+    arrays::{are_gte_u64, are_lte_u64, get_uncompacted_value, get_uncompacted_value_u64},
+    bits::{BITMASK_16, BITMASK_32, BITMASK_64, BITMASK_8},
+    store_arrays::{StoreContractAddressArray, StoreFelt252Array, StorePriceArray, StoreU256Array},
 };
 use hash::LegacyHash;
 use result::ResultTrait;
@@ -101,7 +101,7 @@ fn COMPACTED_BLOCK_NUMBER_BITMASK() -> u64 {
 /// # Returns
 /// True if block_number is in range, false else.
 fn is_block_number_within_range(
-    min_oracle_block_numbers: Span<u64>, max_oracle_block_numbers: Span<u64>, block_number: u64
+    min_oracle_block_numbers: Span<u64>, max_oracle_block_numbers: Span<u64>, block_number: u64,
 ) -> bool {
     if (!are_lte_u64(min_oracle_block_numbers, block_number)) {
         return false;
@@ -119,11 +119,11 @@ fn is_block_number_within_range(
 /// * `max_oracle_block_numbers` - The oracles block number that should be higher than block_number.
 /// * `block_number` - The block number to compare to.
 fn validate_block_number_within_range(
-    min_oracle_block_numbers: Span<u64>, max_oracle_block_numbers: Span<u64>, block_number: u64
+    min_oracle_block_numbers: Span<u64>, max_oracle_block_numbers: Span<u64>, block_number: u64,
 ) {
     if !is_block_number_within_range(min_oracle_block_numbers, max_oracle_block_numbers, block_number) {
         OracleError::ORACLE_BLOCK_NUMBERS_NOT_WITHIN_RANGE(
-            min_oracle_block_numbers, max_oracle_block_numbers, block_number
+            min_oracle_block_numbers, max_oracle_block_numbers, block_number,
         );
     }
 }
@@ -163,7 +163,7 @@ fn get_uncompacted_oracle_block_number(compacted_oracle_block_numbers: Span<u64>
         index,
         COMPACTED_BLOCK_NUMBER_BIT_LENGTH,
         COMPACTED_BLOCK_NUMBER_BITMASK(),
-        'get_uncmpctd_oracle_block_numb'
+        'get_uncmpctd_oracle_block_numb',
     );
 
     block_number

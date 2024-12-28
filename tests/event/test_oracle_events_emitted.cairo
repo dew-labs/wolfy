@@ -3,7 +3,7 @@ use freyr::event::event_emitter::EventEmitter::{OraclePriceUpdate, SignerAdded, 
 use freyr::event::event_emitter::{EventEmitter, IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
 
 use freyr::test_utils::tests_lib::deploy_event_emitter;
-use snforge_std::{declare, ContractClassTrait, spy_events, EventSpy, EventSpyTrait, Event, EventSpyAssertionsTrait};
+use snforge_std::{ContractClassTrait, Event, EventSpy, EventSpyAssertionsTrait, EventSpyTrait, declare, spy_events};
 use starknet::{ContractAddress, contract_address_const};
 
 
@@ -36,11 +36,11 @@ fn given_normal_conditions_when_emit_oracle_price_update_then_works() {
                     contract_address,
                     EventEmitter::Event::OraclePriceUpdate(
                         OraclePriceUpdate {
-                            token: token, min_price: min_price, max_price: max_price, is_price_feed: is_price_feed
-                        }
-                    )
-                )
-            ]
+                            token: token, min_price: min_price, max_price: max_price, is_price_feed: is_price_feed,
+                        },
+                    ),
+                ),
+            ],
         );
     // Assert there are no more events.
     assert(spy.get_events().events.len() == 1, 'There should be no events');
@@ -91,7 +91,7 @@ fn given_normal_conditions_when_emit_signer_removed_then_works() {
     // Assert the event was emitted.
     spy
         .assert_emitted(
-            @array![(contract_address, EventEmitter::Event::SignerRemoved(SignerRemoved { account: account }))]
+            @array![(contract_address, EventEmitter::Event::SignerRemoved(SignerRemoved { account: account }))],
         );
     // Assert there are no more events.
     assert(spy.get_events().events.len() == 1, 'There should be no events');

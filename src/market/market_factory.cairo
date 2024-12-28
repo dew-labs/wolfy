@@ -6,7 +6,7 @@
 
 // Core lib imports.
 use core::traits::Into;
-use starknet::{ContractAddress, ClassHash};
+use starknet::{ClassHash, ContractAddress};
 
 // *************************************************************************
 //                  Interface of the `MarketFactory` contract.
@@ -31,7 +31,7 @@ trait IMarketFactory<TContractState> {
     /// # Arguments
     /// * `market_token_class` - The class hash of the `MarketToken` contract to
     /// deploy when creating a new market.
-    fn update_market_token_class(ref self: TContractState, market_token_class: ClassHash,);
+    fn update_market_token_class(ref self: TContractState, market_token_class: ClassHash);
 }
 
 #[starknet::contract]
@@ -45,14 +45,14 @@ mod MarketFactory {
     use freyr::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
     use freyr::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
     use freyr::market::market::{Market, UniqueIdMarket};
-    use freyr::role::role_module::{IRoleModuleLibraryDispatcher, IRoleModuleDispatcherTrait};
+    use freyr::role::role_module::{IRoleModuleDispatcherTrait, IRoleModuleLibraryDispatcher};
 
 
     // Local imports.
     use freyr::role::role_store::{IRoleStoreDispatcher};
     use poseidon::poseidon_hash_span;
     use starknet::syscalls::deploy_syscall;
-    use starknet::{get_caller_address, ContractAddress, contract_address_const, ClassHash};
+    use starknet::{ClassHash, ContractAddress, contract_address_const, get_caller_address};
 
     // *************************************************************************
     //                              STORAGE
@@ -88,7 +88,7 @@ mod MarketFactory {
         event_emitter_address: ContractAddress,
         market_token_class_hash: ClassHash,
         bank_class_hash: ClassHash,
-        role_module_class_hash: ClassHash
+        role_module_class_hash: ClassHash,
     ) {
         self.data_store.write(IDataStoreDispatcher { contract_address: data_store_address });
         self.event_emitter.write(IEventEmitterDispatcher { contract_address: event_emitter_address });
@@ -118,7 +118,7 @@ mod MarketFactory {
             self.role_module.read().only_market_keeper();
 
             // Compute the salt to use when deploying the `MarketToken` contract.
-            let salt = self.compute_salt_for_deploy_market_token(index_token, long_token, short_token, market_type,);
+            let salt = self.compute_salt_for_deploy_market_token(index_token, long_token, short_token, market_type);
 
             // Deploy the `MarketToken` contract.
             // Contructor arguments: [role_store_address, data_store_address].
@@ -126,16 +126,16 @@ mod MarketFactory {
                 self.role_store.read().contract_address.into(),
                 self.data_store.read().contract_address.into(),
                 self.bank_class_hash.read().into(),
-                self.role_module_class_hash.read().into()
+                self.role_module_class_hash.read().into(),
             ];
             // Deploy the contract with the `deploy_syscall`.
             let (market_token_deployed_address, _return_data) = deploy_syscall(
-                self.market_token_class_hash.read(), salt, constructor_calldata.span(), false
+                self.market_token_class_hash.read(), salt, constructor_calldata.span(), false,
             )
                 .expect('failed to deploy market');
 
             // Create the market.
-            let market = Market { market_token: market_token_deployed_address, index_token, long_token, short_token, };
+            let market = Market { market_token: market_token_deployed_address, index_token, long_token, short_token };
             // Add the market to the data store.
             self.data_store.read().set_market(market_token_deployed_address, salt, market);
 
@@ -151,7 +151,7 @@ mod MarketFactory {
             market_token_deployed_address
         }
 
-        fn update_market_token_class(ref self: ContractState, market_token_class: ClassHash,) {
+        fn update_market_token_class(ref self: ContractState, market_token_class: ClassHash) {
             // Get the caller address.
             let caller_address = get_caller_address();
             // Check that the caller has the `MARKET_KEEPER` role.
@@ -166,7 +166,7 @@ mod MarketFactory {
             self
                 .event_emitter
                 .read()
-                .emit_market_token_class_updated(caller_address, old_market_token_class, market_token_class,);
+                .emit_market_token_class_updated(caller_address, old_market_token_class, market_token_class);
         }
     }
 

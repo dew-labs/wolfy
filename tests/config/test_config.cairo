@@ -15,10 +15,10 @@ use freyr::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
 use freyr::test_utils::tests_lib;
 use result::ResultTrait;
 use snforge_std::{
-    declare, start_cheat_caller_address, stop_cheat_caller_address, ContractClassTrait, DeclareResultTrait
+    ContractClassTrait, DeclareResultTrait, declare, start_cheat_caller_address, stop_cheat_caller_address,
 };
-use starknet::{ContractAddress, get_caller_address, contract_address_const, ClassHash,};
-use traits::{TryInto, Into};
+use starknet::{ClassHash, ContractAddress, contract_address_const, get_caller_address};
+use traits::{Into, TryInto};
 
 #[test]
 fn given_normal_conditions_when_set_bool_then_works() {
@@ -204,7 +204,7 @@ fn setup() -> (
         data_store.contract_address,
         role_store.contract_address,
         event_emitter.contract_address,
-        role_module_class.class_hash
+        role_module_class.class_hash,
     );
 
     // Create a safe dispatcher to interact with the contract.

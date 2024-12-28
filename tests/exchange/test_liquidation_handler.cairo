@@ -4,35 +4,35 @@ use freyr::event::event_emitter::{IEventEmitterDispatcher};
 use freyr::exchange::base_order_handler::{IBaseOrderHandler};
 
 use freyr::exchange::liquidation_handler::{
-    LiquidationHandler, ILiquidationHandlerDispatcher, ILiquidationHandler, ILiquidationHandlerDispatcherTrait
+    ILiquidationHandler, ILiquidationHandlerDispatcher, ILiquidationHandlerDispatcherTrait, LiquidationHandler,
 };
 use freyr::liquidation::liquidation_utils::create_liquidation_order;
 use freyr::market::market::{Market};
 use freyr::mock::referral_storage;
 use freyr::nonce::nonce_utils;
 use freyr::oracle::{
-    oracle::{Oracle, IOracleDispatcher, IOracleDispatcherTrait},
-    interfaces::account::{IAccount, IAccountDispatcher, IAccountDispatcherTrait}, oracle_utils::SetPricesParams
+    interfaces::account::{IAccount, IAccountDispatcher, IAccountDispatcherTrait},
+    oracle::{IOracleDispatcher, IOracleDispatcherTrait, Oracle}, oracle_utils::SetPricesParams,
 };
 
-use freyr::order::order::{Order, OrderType, OrderTrait, DecreasePositionSwapType};
+use freyr::order::order::{DecreasePositionSwapType, Order, OrderTrait, OrderType};
 use freyr::position::{position::Position, position_utils::get_position_key};
 use freyr::price::price::Price;
 
 use freyr::role::{
-    role, role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait},
-    role_module::{IRoleModuleDispatcher, IRoleModuleDispatcherTrait}
+    role, role_module::{IRoleModuleDispatcher, IRoleModuleDispatcherTrait},
+    role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait},
 };
 use freyr::test_utils::tests_lib;
 
 use freyr::utils::precision;
-use freyr::utils::span32::{Span32, Array32Trait};
+use freyr::utils::span32::{Array32Trait, Span32};
 use snforge_std::{
-    declare, start_cheat_caller_address, stop_cheat_caller_address, start_cheat_block_number, ContractClassTrait,
-    DeclareResultTrait, ContractClass
+    ContractClass, ContractClassTrait, DeclareResultTrait, declare, start_cheat_block_number,
+    start_cheat_caller_address, stop_cheat_caller_address,
 };
 use starknet::{
-    ContractAddress, contract_address_const, contract_address_to_felt252, ClassHash, Felt252TryIntoContractAddress
+    ClassHash, ContractAddress, Felt252TryIntoContractAddress, contract_address_const, contract_address_to_felt252,
 };
 use traits::Default;
 
@@ -53,7 +53,7 @@ fn given_unauthorized_access_when_create_execute_liquidation_then_fails() {
         _role_store,
         _,
         _,
-        _
+        _,
     ) =
         _setup();
     let oracle_params = Default::default();
@@ -66,7 +66,7 @@ fn given_unauthorized_access_when_create_execute_liquidation_then_fails() {
             market: contract_address_const::<'market'>(),
             collateral_token: collateral_token,
             is_long: true,
-            oracle_params: oracle_params
+            oracle_params: oracle_params,
         );
 }
 
@@ -85,7 +85,7 @@ fn given_empty_price_feed_multiplier_when_create_execute_liquidation_then_fails(
         role_store,
         _,
         _,
-        _
+        _,
     ) =
         _setup();
 
@@ -111,7 +111,7 @@ fn given_empty_price_feed_multiplier_when_create_execute_liquidation_then_fails(
             market: contract_address_const::<'market'>(),
             collateral_token: collateral_token,
             is_long: true,
-            oracle_params: oracle_params
+            oracle_params: oracle_params,
         );
 }
 
@@ -130,7 +130,7 @@ fn given_disabled_feature_when_create_execute_liquidation_then_fails() {
         role_store,
         _oracle,
         signer1,
-        signer2
+        signer2,
     ) =
         _setup();
     let account = contract_address_const::<'account'>();
@@ -191,7 +191,7 @@ fn given_disabled_feature_when_create_execute_liquidation_then_fails() {
             market: market.market_token,
             collateral_token: collateral_token,
             is_long: true,
-            oracle_params: oracle_params
+            oracle_params: oracle_params,
         );
 }
 
@@ -210,7 +210,7 @@ fn given_negative_open_interest_when_create_execute_liquidation_then_fails() {
         role_store,
         _oracle,
         signer1,
-        signer2
+        signer2,
     ) =
         _setup();
     let account = contract_address_const::<'account'>();
@@ -271,7 +271,7 @@ fn given_negative_open_interest_when_create_execute_liquidation_then_fails() {
             market: market.market_token,
             collateral_token: collateral_token,
             is_long: true,
-            oracle_params: oracle_params
+            oracle_params: oracle_params,
         );
 }
 
@@ -289,7 +289,7 @@ fn given_normal_conditions_when_create_execute_liquidation_then_works() {
         role_store,
         oracle,
         signer1,
-        signer2
+        signer2,
     ) =
         _setup();
     let account = contract_address_const::<'account'>();
@@ -359,7 +359,7 @@ fn given_normal_conditions_when_create_execute_liquidation_then_works() {
             market: market.market_token,
             collateral_token: collateral_token,
             is_long: true,
-            oracle_params: oracle_params
+            oracle_params: oracle_params,
         );
 
     // Check 'with_oracle_prices_after' clear the prices
@@ -385,14 +385,14 @@ fn mock_set_prices_params(token1: ContractAddress, token2: ContractAddress) -> S
     SetPricesParams {
         signer_info: 1,
         tokens: array![token1],
-        compacted_min_oracle_block_numbers: array![10,],
+        compacted_min_oracle_block_numbers: array![10],
         compacted_max_oracle_block_numbers: array![20],
-        compacted_oracle_timestamps: array![1000,],
+        compacted_oracle_timestamps: array![1000],
         compacted_decimals: array![18],
-        compacted_min_prices: array![1700,],
-        compacted_min_prices_indexes: array![0,],
+        compacted_min_prices: array![1700],
+        compacted_min_prices_indexes: array![0],
         compacted_max_prices: array![1750],
-        compacted_max_prices_indexes: array![0,],
+        compacted_max_prices_indexes: array![0],
         signatures: array![array!['signature1', 'signature2'].span()],
         price_feed_tokens: array![token2],
     }
@@ -416,7 +416,7 @@ fn setup_tokens() -> (ContractAddress, ContractAddress, ContractAddress) {
     let contract = declare("ERC20").unwrap().contract_class();
     let deployed_contract_address: ContractAddress = contract_address_const::<'USDC'>();
     let mut constructor_calldata: Array<felt252> = array![
-        'USDC', 'USDC', 18, 10000000000000000000000000000, 0, admin().into()
+        'USDC', 'USDC', 18, 10000000000000000000000000000, 0, admin().into(),
     ];
 
     let (usdc_address, _) = contract.deploy_at(@constructor_calldata, deployed_contract_address).unwrap();
@@ -442,7 +442,7 @@ fn _setup() -> (
     IRoleStoreDispatcher,
     IOracleDispatcher,
     IAccountDispatcher,
-    IAccountDispatcher
+    IAccountDispatcher,
 ) {
     let (
         _caller_address,
@@ -479,7 +479,7 @@ fn _setup() -> (
     let liquidation_keeper: ContractAddress = 0x2233.try_into().unwrap();
 
     let (signer1, signer2) = deploy_signers(
-        contract_address_const::<'signer1'>(), contract_address_const::<'signer2'>()
+        contract_address_const::<'signer1'>(), contract_address_const::<'signer2'>(),
     );
 
     start_cheat_caller_address(role_store.contract_address, admin());

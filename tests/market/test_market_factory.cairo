@@ -15,11 +15,11 @@ use freyr::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
 use freyr::test_utils::tests_lib;
 use result::ResultTrait;
 use snforge_std::{
-    declare, start_cheat_caller_address, stop_cheat_caller_address, ContractClassTrait, DeclareResultTrait,
-    ContractClass
+    ContractClass, ContractClassTrait, DeclareResultTrait, declare, start_cheat_caller_address,
+    stop_cheat_caller_address,
 };
-use starknet::{ContractAddress, get_caller_address, Felt252TryIntoContractAddress, contract_address_const, ClassHash,};
-use traits::{TryInto, Into};
+use starknet::{ClassHash, ContractAddress, Felt252TryIntoContractAddress, contract_address_const, get_caller_address};
+use traits::{Into, TryInto};
 
 #[test]
 fn given_normal_conditions_when_create_market_then_market_is_created() {
@@ -103,7 +103,7 @@ fn given_bad_params_when_create_market_then_fail() {
     let short_token = contract_address_const::<'short_token'>();
     let _market_type = 'market_type';
 
-    let _new_market = Market { market_token, index_token, long_token, short_token, };
+    let _new_market = Market { market_token, index_token, long_token, short_token };
 
     // Try to create a market.
     // This must fail because the index token is invalid.

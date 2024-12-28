@@ -1,24 +1,25 @@
 use freyr::event::event_emitter::EventEmitter::{
-    PositionIncrease, PositionDecrease, InsolventClose, InsufficientFundingFeePayment, PositionFeesInfo,
-    PositionFeesCollected
+    InsolventClose, InsufficientFundingFeePayment, PositionDecrease, PositionFeesCollected, PositionFeesInfo,
+    PositionIncrease,
 };
 
 use freyr::event::event_emitter::{EventEmitter, IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
 use freyr::order::order::OrderType;
 use freyr::position::{
-    position_event_utils::PositionIncreaseParams, position::Position,
-    position_utils::{DecreasePositionCollateralValues, DecreasePositionCollateralValuesOutput}
+    position::Position, position_event_utils::PositionIncreaseParams,
+    position_utils::{DecreasePositionCollateralValues, DecreasePositionCollateralValuesOutput},
 };
 use freyr::price::price::Price;
 use freyr::pricing::position_pricing_utils::{
-    PositionFees, PositionUiFees, PositionBorrowingFees, PositionReferralFees, PositionFundingFees
+    PositionBorrowingFees, PositionFees, PositionFundingFees, PositionReferralFees, PositionUiFees,
 };
 use freyr::test_utils::tests_lib::deploy_event_emitter;
 
 
 use freyr::utils::i256::{i256, i256_new};
 use snforge_std::{
-    declare, ContractClassTrait, DeclareResultTrait, spy_events, EventSpy, EventSpyTrait, Event, EventSpyAssertionsTrait
+    ContractClassTrait, DeclareResultTrait, Event, EventSpy, EventSpyAssertionsTrait, EventSpyTrait, declare,
+    spy_events,
 };
 use starknet::{ContractAddress, contract_address_const};
 
@@ -82,10 +83,10 @@ fn given_normal_conditions_when_emit_position_increase_then_works() {
                             is_long: dummy_position_increase_params.position.is_long,
                             order_key: dummy_position_increase_params.order_key,
                             position_key: dummy_position_increase_params.position_key,
-                        }
-                    )
-                )
-            ]
+                        },
+                    ),
+                ),
+            ],
         );
     // Assert there are no more events.
     assert(spy.get_events().events.len() == 1, 'There should be no events');
@@ -126,7 +127,7 @@ fn given_normal_conditions_when_emit_position_decrease_then_works() {
             order_type,
             dummy_collateral_values,
             index_token_price,
-            collateral_token_price
+            collateral_token_price,
         );
 
     // Assert the event was emitted.
@@ -165,10 +166,10 @@ fn given_normal_conditions_when_emit_position_decrease_then_works() {
                             is_long: dummy_position.is_long,
                             order_key: order_key,
                             position_key: position_key,
-                        }
-                    )
-                )
-            ]
+                        },
+                    ),
+                ),
+            ],
         );
     // Assert there are no more events.
     assert(spy.get_events().events.len() == 1, 'There should be no events');
@@ -208,11 +209,11 @@ fn given_normal_conditions_when_emit_insolvent_close_then_works() {
                             order_key: order_key,
                             position_collateral_amount: position_collateral_amount,
                             base_pnl_usd: base_pnl_usd,
-                            remaining_cost_usd: remaining_cost_usd
-                        }
-                    )
-                )
-            ]
+                            remaining_cost_usd: remaining_cost_usd,
+                        },
+                    ),
+                ),
+            ],
         );
     // Assert there are no more events.
     assert(spy.get_events().events.len() == 1, 'There should be no events');
@@ -242,7 +243,7 @@ fn given_normal_conditions_when_emit_insufficient_funding_fee_payment_then_works
     // Emit the event.
     event_emitter
         .emit_insufficient_funding_fee_payment(
-            market, token, expected_amount, amount_paid_in_collateral_token, amount_paid_in_secondary_output_token
+            market, token, expected_amount, amount_paid_in_collateral_token, amount_paid_in_secondary_output_token,
         );
 
     // Assert the event was emitted.
@@ -257,11 +258,11 @@ fn given_normal_conditions_when_emit_insufficient_funding_fee_payment_then_works
                             token: token,
                             expected_amount: expected_amount,
                             amount_paid_in_collateral_token: amount_paid_in_collateral_token,
-                            amount_paid_in_secondary_output_token: amount_paid_in_secondary_output_token
-                        }
-                    )
-                )
-            ]
+                            amount_paid_in_secondary_output_token: amount_paid_in_secondary_output_token,
+                        },
+                    ),
+                ),
+            ],
         );
     // Assert there are no more events.
     assert(spy.get_events().events.len() == 1, 'There should be no events');
@@ -293,7 +294,7 @@ fn given_normal_conditions_when_emit_position_fees_collected_then_works() {
     // Emit the event.
     event_emitter
         .emit_position_fees_collected(
-            order_key, position_key, market, collateral_token, trade_size_usd, is_increase, dummy_position_fees
+            order_key, position_key, market, collateral_token, trade_size_usd, is_increase, dummy_position_fees,
         );
 
     // Assert the event was emitted.
@@ -348,11 +349,11 @@ fn given_normal_conditions_when_emit_position_fees_collected_then_works() {
                             total_cost_amount: dummy_position_fees.total_cost_amount,
                             ui_fee_receiver_factor: dummy_position_fees.ui.ui_fee_receiver_factor,
                             ui_fee_amount: dummy_position_fees.ui.ui_fee_amount,
-                            is_increase: is_increase
-                        }
-                    )
-                )
-            ]
+                            is_increase: is_increase,
+                        },
+                    ),
+                ),
+            ],
         );
     // Assert there are no more events.
     assert(spy.get_events().events.len() == 1, 'There should be no events');
@@ -383,7 +384,7 @@ fn given_normal_conditions_when_emit_position_fees_info_then_works() {
     // Emit the event.
     event_emitter
         .emit_position_fees_info(
-            order_key, position_key, market, collateral_token, trade_size_usd, is_increase, dummy_position_fees
+            order_key, position_key, market, collateral_token, trade_size_usd, is_increase, dummy_position_fees,
         );
 
     // Assert the event was emitted.
@@ -438,11 +439,11 @@ fn given_normal_conditions_when_emit_position_fees_info_then_works() {
                             total_cost_amount: dummy_position_fees.total_cost_amount,
                             ui_fee_receiver_factor: dummy_position_fees.ui.ui_fee_receiver_factor,
                             ui_fee_amount: dummy_position_fees.ui.ui_fee_amount,
-                            is_increase: is_increase
-                        }
-                    )
-                )
-            ]
+                            is_increase: is_increase,
+                        },
+                    ),
+                ),
+            ],
         );
     // Assert there are no more events.
     assert(spy.get_events().events.len() == 1, 'There should be no events');
@@ -462,7 +463,7 @@ fn create_dummy_position_increase_params(event_emitter: IEventEmitterDispatcher)
         collateral_delta_amount: i256_new(2, false),
         price_impact_usd: i256_new(1, false),
         price_impact_amount: i256_new(1, false),
-        order_type: OrderType::MarketSwap(())
+        order_type: OrderType::MarketSwap(()),
     }
 }
 
@@ -481,7 +482,7 @@ fn create_dummy_position() -> Position {
         short_token_claimable_funding_amount_per_size: 6,
         increased_at_block: 15000,
         decreased_at_block: 15001,
-        is_long: false
+        is_long: false,
     }
 }
 
@@ -502,7 +503,7 @@ fn create_dummy_dec_pos_collateral_values() -> DecreasePositionCollateralValues 
         size_delta_in_tokens: 10,
         price_impact_usd: i256_new(10, false),
         price_impact_diff_usd: 10,
-        output: dummy_values_output
+        output: dummy_values_output,
     }
 }
 
@@ -575,6 +576,6 @@ fn create_dummy_position_fees() -> PositionFees {
         position_fee_amount_for_pool: 10,
         position_fee_amount: 10,
         total_cost_amount_excluding_funding: 10,
-        total_cost_amount: 10
+        total_cost_amount: 10,
     }
 }

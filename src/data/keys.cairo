@@ -725,7 +725,7 @@ fn claimable_ui_fee_amount_key(market: ContractAddress, token: ContractAddress) 
 /// # Returns
 /// * The key for the claimable ui fee amount.
 fn claimable_ui_fee_amount_for_account_key(
-    market: ContractAddress, token: ContractAddress, account: ContractAddress
+    market: ContractAddress, token: ContractAddress, account: ContractAddress,
 ) -> felt252 {
     let mut data = array![];
     data.append(claimable_ui_fee_amount());
@@ -1355,7 +1355,7 @@ fn funding_exponent_factor_key(market: ContractAddress) -> felt252 {
 /// * `collateral_token` - The collateral token address.
 /// * `is_long` - Whether the key is for the long or short side.
 fn funding_fee_amount_per_size_key(
-    market: ContractAddress, collateral_token: ContractAddress, is_long: bool
+    market: ContractAddress, collateral_token: ContractAddress, is_long: bool,
 ) -> felt252 {
     let mut data = array![];
     data.append(funding_fee_amount_per_size());
@@ -1371,7 +1371,7 @@ fn funding_fee_amount_per_size_key(
 /// * `collateral_token` - The collateral token address.
 /// * `is_long` - Whether the key is for the long or short side.
 fn claimable_funding_amount_per_size_key(
-    market: ContractAddress, collateral_token: ContractAddress, is_long: bool
+    market: ContractAddress, collateral_token: ContractAddress, is_long: bool,
 ) -> felt252 {
     let mut data = array![];
     data.append(claimable_funding_amount_per_size());
@@ -1409,7 +1409,7 @@ fn claimable_funding_amount_key(market: ContractAddress, token: ContractAddress)
 /// * `token` - The token address.
 /// * `account` - The account address.
 fn claimable_funding_amount_by_account_key(
-    market: ContractAddress, token: ContractAddress, account: ContractAddress
+    market: ContractAddress, token: ContractAddress, account: ContractAddress,
 ) -> felt252 {
     let mut data = array![];
     data.append(claimable_funding_amount());
@@ -1438,7 +1438,7 @@ fn claimable_collateral_amount_key(market: ContractAddress, token: ContractAddre
 /// * `time_key` - The time key for the claimable amount.
 /// * `account` - The account address.
 fn claimable_collateral_amount_for_account_key(
-    market: ContractAddress, token: ContractAddress, time_key: u256, account: ContractAddress
+    market: ContractAddress, token: ContractAddress, time_key: u256, account: ContractAddress,
 ) -> felt252 {
     let mut data = array![];
     data.append(claimable_collateral_amount());
@@ -1470,7 +1470,7 @@ fn claimable_collateral_factor_key(market: ContractAddress, token: ContractAddre
 /// * `time_key` - The time key for the claimable amount.
 /// * `account` - The account address.
 fn claimable_collateral_factor_for_account_key(
-    market: ContractAddress, token: ContractAddress, time_key: u256, account: ContractAddress
+    market: ContractAddress, token: ContractAddress, time_key: u256, account: ContractAddress,
 ) -> felt252 {
     let mut data = array![];
     data.append(claimable_collateral_factor());
@@ -1488,7 +1488,7 @@ fn claimable_collateral_factor_for_account_key(
 /// * `time_key` - The time key for the claimable amount.
 /// * `account` - The account address.
 fn claimed_collateral_amount_key(
-    market: ContractAddress, token: ContractAddress, time_key: u256, account: ContractAddress
+    market: ContractAddress, token: ContractAddress, time_key: u256, account: ContractAddress,
 ) -> felt252 {
     let mut data = array![];
     data.append(claimed_collateral_amount());
@@ -1577,7 +1577,7 @@ fn affiliate_reward_key(market: ContractAddress, token: ContractAddress) -> felt
 /// * `token` - The token address.
 /// * `account` - The account address.
 fn affiliate_reward_for_account_key(
-    market: ContractAddress, token: ContractAddress, account: ContractAddress
+    market: ContractAddress, token: ContractAddress, account: ContractAddress,
 ) -> felt252 {
     let mut data = array![];
     data.append(affiliate_reward());

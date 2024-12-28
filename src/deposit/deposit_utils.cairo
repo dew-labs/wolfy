@@ -5,22 +5,22 @@
 //                                  IMPORTS
 // *************************************************************************
 // Core lib imports.
-use freyr::callback::callback_utils::{validate_callback_gas_limit, after_deposit_cancellation};
+use freyr::callback::callback_utils::{after_deposit_cancellation, validate_callback_gas_limit};
 use freyr::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
 use freyr::deposit::deposit_vault::{IDepositVaultDispatcher, IDepositVaultDispatcherTrait};
 use freyr::deposit::{deposit::Deposit, error::DepositError};
 use freyr::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
 use freyr::event::event_utils::LogData;
 use freyr::gas::{error::GasError, gas_utils};
-use freyr::market::market_utils::{IMarketUtilsLibraryDispatcher, IMarketUtilsDispatcherTrait};
+use freyr::market::market_utils::{IMarketUtilsDispatcherTrait, IMarketUtilsLibraryDispatcher};
 use freyr::nonce::nonce_utils;
 use freyr::token::token_utils;
 use freyr::utils::traits::ContractAddressDefault;
 
 // Local imports.
 use freyr::utils::{
-    starknet_utils, store_arrays::StoreContractAddressArray, account_utils::validate_account,
-    account_utils::validate_receiver, span32::Span32
+    account_utils::validate_account, account_utils::validate_receiver, span32::Span32, starknet_utils,
+    store_arrays::StoreContractAddressArray,
 };
 use result::ResultTrait;
 use starknet::ContractAddress;
@@ -148,7 +148,7 @@ fn cancel_deposit(
     keeper: ContractAddress,
     mut starting_gas: u256,
     reason: felt252,
-    reason_key: felt252
+    reason_key: felt252,
 ) {
     starting_gas -= (starknet_utils::sn_gasleft(array![]) / 63);
 
@@ -158,7 +158,7 @@ fn cancel_deposit(
     assert(ContractAddressZeroable::is_non_zero(deposit.account), DepositError::EMPTY_DEPOSIT);
     assert(
         deposit.initial_long_token_amount > 0 || deposit.initial_short_token_amount > 0,
-        DepositError::EMPTY_DEPOSIT_AMOUNTS
+        DepositError::EMPTY_DEPOSIT_AMOUNTS,
     );
 
     // remove key,account from data_store
@@ -170,7 +170,7 @@ fn cancel_deposit(
                 deposit_vault.contract_address,
                 deposit.initial_long_token,
                 deposit.account,
-                deposit.initial_long_token_amount
+                deposit.initial_long_token_amount,
             );
     }
 
@@ -180,7 +180,7 @@ fn cancel_deposit(
                 deposit_vault.contract_address,
                 deposit.initial_short_token,
                 deposit.account,
-                deposit.initial_short_token_amount
+                deposit.initial_short_token_amount,
             );
     }
 
@@ -190,7 +190,7 @@ fn cancel_deposit(
     after_deposit_cancellation(key, deposit, log_data);
 
     gas_utils::pay_execution_fee_deposit(
-        data_store, event_emitter, deposit_vault, deposit.execution_fee, starting_gas, keeper, deposit.account
+        data_store, event_emitter, deposit_vault, deposit.execution_fee, starting_gas, keeper, deposit.account,
     );
 }
 

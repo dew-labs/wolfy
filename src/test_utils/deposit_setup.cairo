@@ -5,7 +5,7 @@
 // Core lib imports.
 
 use debug::PrintTrait;
-use freyr::bank::bank::{IBankDispatcherTrait, IBankDispatcher};
+use freyr::bank::bank::{IBankDispatcher, IBankDispatcherTrait};
 use freyr::bank::strict_bank::{IStrictBankDispatcher, IStrictBankDispatcherTrait};
 
 
@@ -13,26 +13,26 @@ use freyr::bank::strict_bank::{IStrictBankDispatcher, IStrictBankDispatcherTrait
 use freyr::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
 use freyr::data::keys;
 use freyr::deposit::deposit::Deposit;
-use freyr::deposit::deposit_utils::CreateDepositParams;
 use freyr::deposit::deposit_utils;
+use freyr::deposit::deposit_utils::CreateDepositParams;
 use freyr::deposit::deposit_vault::{IDepositVaultDispatcher, IDepositVaultDispatcherTrait};
 use freyr::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
 use freyr::exchange::deposit_handler::{IDepositHandlerDispatcher, IDepositHandlerDispatcherTrait};
 
 use freyr::exchange::liquidation_handler::{ILiquidationHandlerDispatcher, ILiquidationHandlerDispatcherTrait};
-use freyr::exchange::order_handler::{OrderHandler, IOrderHandlerDispatcher, IOrderHandlerDispatcherTrait};
+use freyr::exchange::order_handler::{IOrderHandlerDispatcher, IOrderHandlerDispatcherTrait, OrderHandler};
 
 use freyr::exchange::withdrawal_handler::{IWithdrawalHandlerDispatcher, IWithdrawalHandlerDispatcherTrait};
 use freyr::market::market::{Market, UniqueIdMarket};
 use freyr::market::market_factory::{IMarketFactoryDispatcher, IMarketFactoryDispatcherTrait};
 use freyr::market::market_token::{IMarketTokenDispatcher, IMarketTokenDispatcherTrait};
-use freyr::market::market_utils::{IMarketUtilsLibraryDispatcher, IMarketUtilsDispatcherTrait};
-use freyr::market::{market::{UniqueIdMarketImpl},};
+use freyr::market::market_utils::{IMarketUtilsDispatcherTrait, IMarketUtilsLibraryDispatcher};
+use freyr::market::{market::{UniqueIdMarketImpl}};
 use freyr::mock::referral_storage::{IReferralStorageDispatcher, IReferralStorageDispatcherTrait};
 use freyr::oracle::oracle::{IOracleDispatcher, IOracleDispatcherTrait};
 use freyr::oracle::oracle_utils::SetPricesParams;
 use freyr::order::base_order_utils::{CreateOrderParams};
-use freyr::order::order::{Order, OrderType, SecondaryOrderType, DecreasePositionSwapType};
+use freyr::order::order::{DecreasePositionSwapType, Order, OrderType, SecondaryOrderType};
 use freyr::order::order_utils::{IOrderUtilsDispatcher, IOrderUtilsDispatcherTrait};
 use freyr::order::order_vault::{IOrderVaultDispatcher, IOrderVaultDispatcherTrait};
 use freyr::position::position_utils;
@@ -44,20 +44,20 @@ use freyr::router::exchange_router::{IExchangeRouterDispatcher, IExchangeRouterD
 use freyr::swap::swap_handler::{ISwapHandlerDispatcher, ISwapHandlerDispatcherTrait};
 use freyr::test_utils::tests_lib;
 use freyr::token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
-use freyr::utils::span32::{Span32, DefaultSpan32, Array32Trait};
+use freyr::utils::span32::{Array32Trait, DefaultSpan32, Span32};
 use freyr::withdrawal::withdrawal::Withdrawal;
 use freyr::withdrawal::withdrawal_utils;
 use freyr::withdrawal::withdrawal_vault::{IWithdrawalVaultDispatcher, IWithdrawalVaultDispatcherTrait};
 use result::ResultTrait;
 use snforge_std::{
-    declare, start_cheat_caller_address, stop_cheat_caller_address, start_cheat_block_number, ContractClassTrait,
-    ContractClass
+    ContractClass, ContractClassTrait, declare, start_cheat_block_number, start_cheat_caller_address,
+    stop_cheat_caller_address,
 };
-use starknet::{ContractAddress, get_caller_address, Felt252TryIntoContractAddress, contract_address_const, ClassHash,};
-use traits::{TryInto, Into};
+use starknet::{ClassHash, ContractAddress, Felt252TryIntoContractAddress, contract_address_const, get_caller_address};
+use traits::{Into, TryInto};
 
 fn deposit_setup(
-    long_token_amount: u256, short_token_amount: u256
+    long_token_amount: u256, short_token_amount: u256,
 ) -> (
     ContractAddress,
     ContractClass,
@@ -147,12 +147,12 @@ fn deposit_setup(
     data_store
         .set_u256(
             keys::max_pnl_factor_key(factor_for_deposits, market.market_token, true),
-            50000000000000000000000000000000000000000000000
+            50000000000000000000000000000000000000000000000,
         );
     data_store
         .set_u256(
             keys::max_pnl_factor_key(factor_for_withdrawal, market.market_token, true),
-            50000000000000000000000000000000000000000000000
+            50000000000000000000000000000000000000000000000,
         );
     data_store.set_u256(keys::reserve_factor_key(market.market_token, true), 10000000000000000000000000);
     data_store.set_u256(keys::open_interest_reserve_factor_key(market.market_token, true), 1000000000000000000000000);
@@ -161,12 +161,12 @@ fn deposit_setup(
     data_store
         .set_u256(
             keys::max_pnl_factor_key(factor_for_deposits, market.market_token, false),
-            50000000000000000000000000000000000000000000000
+            50000000000000000000000000000000000000000000000,
         );
     data_store
         .set_u256(
             keys::max_pnl_factor_key(factor_for_withdrawal, market.market_token, false),
-            50000000000000000000000000000000000000000000000
+            50000000000000000000000000000000000000000000000,
         );
     data_store.set_u256(keys::reserve_factor_key(market.market_token, false), 1000000000000000000000000);
     data_store.set_u256(keys::open_interest_reserve_factor_key(market.market_token, false), 1000000000000000000000000);
@@ -206,7 +206,7 @@ fn deposit_setup(
 
     role_store
         .grant_role(
-            order_handler.contract_address, role::CONTROLLER
+            order_handler.contract_address, role::CONTROLLER,
         ); // for tests::integration::swap_test::test_swap_market
 
     exchange_router.send_tokens(market.long_token, deposit_vault.contract_address, long_token_amount);
@@ -260,7 +260,7 @@ fn deposit_setup(
         compacted_max_prices: array![4000, 1], // 500000, 10000 compacted
         compacted_max_prices_indexes: array![0],
         signatures: array![array!['signatures1', 'signatures2'].span(), array!['signatures1', 'signatures2'].span()],
-        price_feed_tokens: array![]
+        price_feed_tokens: array![],
     };
 
     start_cheat_caller_address(role_store.contract_address, caller_address);
@@ -319,7 +319,7 @@ fn deposit_setup(
         withdrawal_vault,
         liquidation_handler,
         market,
-        market_utils
+        market_utils,
     )
 }
 
@@ -330,7 +330,7 @@ fn exec_order(
     long_token_price: u256,
     short_token_price: u256,
     min_oracle_block_number: u64,
-    max_oracle_block_number: u64
+    max_oracle_block_number: u64,
 ) -> () {
     let _signatures: Span<felt252> = array![0].span();
     let set_price_params = SetPricesParams {
@@ -345,7 +345,7 @@ fn exec_order(
         compacted_max_prices: array![long_token_price, short_token_price], // 500000, 10000 compacted
         compacted_max_prices_indexes: array![0],
         signatures: array![array!['signatures1', 'signatures2'].span(), array!['signatures1', 'signatures2'].span()],
-        price_feed_tokens: array![]
+        price_feed_tokens: array![],
     };
 
     let keeper_address = contract_address_const::<'keeper'>();

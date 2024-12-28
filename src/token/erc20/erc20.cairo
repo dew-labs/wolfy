@@ -32,7 +32,7 @@ mod ERC20 {
         from: ContractAddress,
         #[key]
         to: ContractAddress,
-        value: u256
+        value: u256,
     }
 
     #[derive(Drop, PartialEq, starknet::Event)]
@@ -41,7 +41,7 @@ mod ERC20 {
         owner: ContractAddress,
         #[key]
         spender: ContractAddress,
-        value: u256
+        value: u256,
     }
 
     mod Errors {
@@ -62,7 +62,7 @@ mod ERC20 {
         symbol: felt252,
         decimals: u8,
         initial_supply: u256,
-        recipient: ContractAddress
+        recipient: ContractAddress,
     ) {
         self.initializer(name, symbol, decimals);
         self._mint(recipient, initial_supply);
@@ -105,7 +105,7 @@ mod ERC20 {
         }
 
         fn transfer_from(
-            ref self: ContractState, sender: ContractAddress, recipient: ContractAddress, amount: u256
+            ref self: ContractState, sender: ContractAddress, recipient: ContractAddress, amount: u256,
         ) -> bool {
             let caller = get_caller_address();
             // TODO: this cause error in bank

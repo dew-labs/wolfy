@@ -5,11 +5,11 @@ use freyr::test_utils::tests_lib;
 use freyr::token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
 use result::ResultTrait;
 use snforge_std::{
-    declare, start_cheat_caller_address, stop_cheat_caller_address, ContractClassTrait, DeclareResultTrait,
-    ContractClass
+    ContractClass, ContractClassTrait, DeclareResultTrait, declare, start_cheat_caller_address,
+    stop_cheat_caller_address,
 };
-use starknet::{ContractAddress, get_caller_address, contract_address_const};
-use traits::{TryInto, Into};
+use starknet::{ContractAddress, contract_address_const, get_caller_address};
+use traits::{Into, TryInto};
 
 #[test]
 fn given_normal_conditions_when_transfer_then_expected_results() {
@@ -40,7 +40,7 @@ fn given_normal_conditions_when_transfer_then_expected_results() {
     assert(test_token.balance_of(receiver_address) == transfer_amount.into(), 'unexp. receiver final balance');
     assert(
         sender_initial_balance - transfer_amount.into() == test_token.balance_of(sender_address),
-        'unexp. sender final balance'
+        'unexp. sender final balance',
     );
 
     // *********************************************************************************************
@@ -87,7 +87,7 @@ fn given_bad_caller_when_transfer_then_fail() {
 ///
 /// * `mint_amount` - The amount of test token to be minted during deployment.
 fn setup(
-    mint_amount: u256
+    mint_amount: u256,
 ) -> (
     ContractAddress, // Minter address.
     ContractAddress, // Caller address.

@@ -1,14 +1,15 @@
 use freyr::event::event_emitter::EventEmitter::{
-    SignalAddOracleSigner, AddOracleSigner, SignalSetFeeReceiver, SignalRemoveOracleSigner, RemoveOracleSigner,
-    SetFeeReceiver, SignalGrantRole, GrantRole, SignalRevokeRole, RevokeRole, SignalSetPriceFeed, SetPriceFeed,
-    SignalPendingAction, ClearPendingAction
+    AddOracleSigner, ClearPendingAction, GrantRole, RemoveOracleSigner, RevokeRole, SetFeeReceiver, SetPriceFeed,
+    SignalAddOracleSigner, SignalGrantRole, SignalPendingAction, SignalRemoveOracleSigner, SignalRevokeRole,
+    SignalSetFeeReceiver, SignalSetPriceFeed,
 };
 
 use freyr::event::event_emitter::{EventEmitter, IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
 
 use freyr::test_utils::tests_lib::deploy_event_emitter;
 use snforge_std::{
-    declare, ContractClassTrait, DeclareResultTrait, spy_events, EventSpy, EventSpyTrait, Event, EventSpyAssertionsTrait
+    ContractClassTrait, DeclareResultTrait, Event, EventSpy, EventSpyAssertionsTrait, EventSpyTrait, declare,
+    spy_events,
 };
 use starknet::{ContractAddress, contract_address_const};
 
@@ -39,10 +40,10 @@ fn given_normal_conditions_when_emit_signal_add_oracle_signer_then_works() {
                 (
                     contract_address,
                     EventEmitter::Event::SignalAddOracleSigner(
-                        SignalAddOracleSigner { action_key: action_key, account: account }
-                    )
-                )
-            ]
+                        SignalAddOracleSigner { action_key: action_key, account: account },
+                    ),
+                ),
+            ],
         );
     // Assert there are no more events.
     assert(spy.get_events().events.len() == 1, 'There should be no events');
@@ -74,9 +75,9 @@ fn given_normal_conditions_when_emit_add_oracle_signer_then_works() {
             @array![
                 (
                     contract_address,
-                    EventEmitter::Event::AddOracleSigner(AddOracleSigner { action_key: action_key, account: account })
-                )
-            ]
+                    EventEmitter::Event::AddOracleSigner(AddOracleSigner { action_key: action_key, account: account }),
+                ),
+            ],
         );
     // Assert there are no more events.
     assert(spy.get_events().events.len() == 1, 'There should be no events');
@@ -108,10 +109,10 @@ fn given_normal_conditions_when_emit_signal_remove_oracle_signer_then_works() {
                 (
                     contract_address,
                     EventEmitter::Event::SignalRemoveOracleSigner(
-                        SignalRemoveOracleSigner { action_key: action_key, account: account }
-                    )
-                )
-            ]
+                        SignalRemoveOracleSigner { action_key: action_key, account: account },
+                    ),
+                ),
+            ],
         );
     // Assert there are no more events.
     assert(spy.get_events().events.len() == 1, 'There should be no events');
@@ -144,10 +145,10 @@ fn given_normal_conditions_when_emit_remove_oracle_signer_then_works() {
                 (
                     contract_address,
                     EventEmitter::Event::RemoveOracleSigner(
-                        RemoveOracleSigner { action_key: action_key, account: account }
-                    )
-                )
-            ]
+                        RemoveOracleSigner { action_key: action_key, account: account },
+                    ),
+                ),
+            ],
         );
     // Assert there are no more events.
     assert(spy.get_events().events.len() == 1, 'There should be no events');
@@ -180,10 +181,10 @@ fn given_normal_conditions_when_emit_signal_set_fee_receiver_then_works() {
                 (
                     contract_address,
                     EventEmitter::Event::SignalSetFeeReceiver(
-                        SignalSetFeeReceiver { action_key: action_key, account: account }
-                    )
-                )
-            ]
+                        SignalSetFeeReceiver { action_key: action_key, account: account },
+                    ),
+                ),
+            ],
         );
     // Assert there are no more events.
     assert(spy.get_events().events.len() == 1, 'There should be no events');
@@ -215,9 +216,9 @@ fn given_normal_conditions_when_emit_set_fee_receiver_then_works() {
             @array![
                 (
                     contract_address,
-                    EventEmitter::Event::SetFeeReceiver(SetFeeReceiver { action_key: action_key, account: account })
-                )
-            ]
+                    EventEmitter::Event::SetFeeReceiver(SetFeeReceiver { action_key: action_key, account: account }),
+                ),
+            ],
         );
     // Assert there are no more events.
     assert(spy.get_events().events.len() == 1, 'There should be no events');
@@ -251,10 +252,10 @@ fn given_normal_conditions_when_emit_signal_grant_role_then_works() {
                 (
                     contract_address,
                     EventEmitter::Event::SignalGrantRole(
-                        SignalGrantRole { action_key: action_key, account: account, role_key: role_key }
-                    )
-                )
-            ]
+                        SignalGrantRole { action_key: action_key, account: account, role_key: role_key },
+                    ),
+                ),
+            ],
         );
     // Assert there are no more events.
     assert(spy.get_events().events.len() == 1, 'There should be no events');
@@ -288,10 +289,10 @@ fn given_normal_conditions_when_emit_grant_role_then_works() {
                 (
                     contract_address,
                     EventEmitter::Event::GrantRole(
-                        GrantRole { action_key: action_key, account: account, role_key: role_key }
-                    )
-                )
-            ]
+                        GrantRole { action_key: action_key, account: account, role_key: role_key },
+                    ),
+                ),
+            ],
         );
     // Assert there are no more events.
     assert(spy.get_events().events.len() == 1, 'There should be no events');
@@ -325,10 +326,10 @@ fn given_normal_conditions_when_emit_signal_revoke_role_then_works() {
                 (
                     contract_address,
                     EventEmitter::Event::SignalRevokeRole(
-                        SignalRevokeRole { action_key: action_key, account: account, role_key: role_key }
-                    )
-                )
-            ]
+                        SignalRevokeRole { action_key: action_key, account: account, role_key: role_key },
+                    ),
+                ),
+            ],
         );
     // Assert there are no more events.
     assert(spy.get_events().events.len() == 1, 'There should be no events');
@@ -362,10 +363,10 @@ fn given_normal_conditions_when_emit_revoke_role_then_works() {
                 (
                     contract_address,
                     EventEmitter::Event::RevokeRole(
-                        RevokeRole { action_key: action_key, account: account, role_key: role_key }
-                    )
-                )
-            ]
+                        RevokeRole { action_key: action_key, account: account, role_key: role_key },
+                    ),
+                ),
+            ],
         );
     // Assert there are no more events.
     assert(spy.get_events().events.len() == 1, 'There should be no events');
@@ -395,7 +396,7 @@ fn given_normal_conditions_when_emit_signal_set_price_feed_then_works() {
     // Emit the event.
     event_emitter
         .emit_signal_set_price_feed(
-            action_key, token, price_feed, price_feed_multiplier, price_feed_heartbeat_duration, stable_price
+            action_key, token, price_feed, price_feed_multiplier, price_feed_heartbeat_duration, stable_price,
         );
 
     // Assert the event was emitted.
@@ -411,11 +412,11 @@ fn given_normal_conditions_when_emit_signal_set_price_feed_then_works() {
                             price_feed: price_feed,
                             price_feed_multiplier: price_feed_multiplier,
                             price_feed_heartbeat_duration: price_feed_heartbeat_duration,
-                            stable_price: stable_price
-                        }
-                    )
-                )
-            ]
+                            stable_price: stable_price,
+                        },
+                    ),
+                ),
+            ],
         );
     // Assert there are no more events.
     assert(spy.get_events().events.len() == 1, 'There should be no events');
@@ -446,7 +447,7 @@ fn given_normal_conditions_when_emit_set_price_feed_then_works() {
     // Emit the event.
     event_emitter
         .emit_set_price_feed(
-            action_key, token, price_feed, price_feed_multiplier, price_feed_heartbeat_duration, stable_price
+            action_key, token, price_feed, price_feed_multiplier, price_feed_heartbeat_duration, stable_price,
         );
 
     // Assert the event was emitted.
@@ -462,11 +463,11 @@ fn given_normal_conditions_when_emit_set_price_feed_then_works() {
                             price_feed: price_feed,
                             price_feed_multiplier: price_feed_multiplier,
                             price_feed_heartbeat_duration: price_feed_heartbeat_duration,
-                            stable_price: stable_price
-                        }
-                    )
-                )
-            ]
+                            stable_price: stable_price,
+                        },
+                    ),
+                ),
+            ],
         );
     // Assert there are no more events.
     assert(spy.get_events().events.len() == 1, 'There should be no events');
@@ -499,10 +500,10 @@ fn given_normal_conditions_when_emit_signal_pending_action_then_works() {
                 (
                     contract_address,
                     EventEmitter::Event::SignalPendingAction(
-                        SignalPendingAction { action_key: action_key, action_label: action_label }
-                    )
-                )
-            ]
+                        SignalPendingAction { action_key: action_key, action_label: action_label },
+                    ),
+                ),
+            ],
         );
     // Assert there are no more events.
     assert(spy.get_events().events.len() == 1, 'There should be no events');
@@ -535,10 +536,10 @@ fn given_normal_conditions_when_emit_clear_pending_action_then_works() {
                 (
                     contract_address,
                     EventEmitter::Event::ClearPendingAction(
-                        ClearPendingAction { action_key: action_key, action_label: action_label }
-                    )
-                )
-            ]
+                        ClearPendingAction { action_key: action_key, action_label: action_label },
+                    ),
+                ),
+            ],
         );
     // Assert there are no more events.
     assert(spy.get_events().events.len() == 1, 'There should be no events');

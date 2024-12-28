@@ -1,4 +1,4 @@
-use snforge_std::{declare, ContractClassTrait, DeclareResultTrait};
+use snforge_std::{ContractClassTrait, DeclareResultTrait, declare};
 use starknet::ContractAddress;
 
 #[starknet::interface]
@@ -32,7 +32,7 @@ mod CallbackMock {
 
     #[abi(embed_v0)]
     impl IDepositCallbackReceiverImpl of IDepositCallbackReceiver<ContractState> {
-        fn after_deposit_execution(ref self: ContractState, key: felt252, deposit: Deposit, log_data: Array<felt252>,) {
+        fn after_deposit_execution(ref self: ContractState, key: felt252, deposit: Deposit, log_data: Array<felt252>) {
             self.counter.write(self.get_counter() + 1);
         }
 

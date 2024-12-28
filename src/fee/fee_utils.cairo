@@ -8,7 +8,7 @@ use freyr::bank::bank::{IBankDispatcher, IBankDispatcherTrait};
 use freyr::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
 use freyr::data::keys;
 use freyr::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
-use freyr::market::market_utils::{IMarketUtilsLibraryDispatcher, IMarketUtilsDispatcherTrait};
+use freyr::market::market_utils::{IMarketUtilsDispatcherTrait, IMarketUtilsLibraryDispatcher};
 use freyr::market::{market};
 use freyr::utils::account_utils::validate_receiver;
 use starknet::ContractAddress;
@@ -68,7 +68,7 @@ fn increment_claimable_ui_fee_amount(
     let next_pool_value = data_store.increment_u256(keys::claimable_ui_fee_amount_key(market, token), delta);
     event_emitter
         .emit_claimable_ui_fee_amount_updated(
-            ui_fee_receiver, market, token, delta, next_value, next_pool_value, fee_type
+            ui_fee_receiver, market, token, delta, next_value, next_pool_value, fee_type,
         );
 }
 

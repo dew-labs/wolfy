@@ -8,12 +8,12 @@ use freyr::role::role;
 use freyr::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
 use freyr::test_utils::tests_lib;
 use snforge_std::{
-    declare, start_cheat_caller_address, stop_cheat_caller_address, ContractClass, ContractClassTrait,
-    DeclareResultTrait
+    ContractClass, ContractClassTrait, DeclareResultTrait, declare, start_cheat_caller_address,
+    stop_cheat_caller_address,
 };
 use starknet::{
-    ContractAddress, get_caller_address, Felt252TryIntoContractAddress, contract_address_const, ClassHash,
-    ClassHashIntoFelt252
+    ClassHash, ClassHashIntoFelt252, ContractAddress, Felt252TryIntoContractAddress, contract_address_const,
+    get_caller_address,
 };
 
 #[test]
@@ -22,10 +22,10 @@ fn given_normal_conditions_when_fee_handler_then_works() {
 
     // TODO: deploy real market token instead of using dummy one
     let markets: Array<ContractAddress> = array![
-        0x777.try_into().unwrap(), 0x888.try_into().unwrap(), 0x999.try_into().unwrap()
+        0x777.try_into().unwrap(), 0x888.try_into().unwrap(), 0x999.try_into().unwrap(),
     ];
     let tokens: Array<ContractAddress> = array![
-        0x123.try_into().unwrap(), 0x234.try_into().unwrap(), 0x345.try_into().unwrap()
+        0x123.try_into().unwrap(), 0x234.try_into().unwrap(), 0x345.try_into().unwrap(),
     ];
 
     fee_handler.claim_fees(markets, tokens);
@@ -38,7 +38,7 @@ fn given_wrong_inputs_when_fee_handler_then_fails() {
 
     // TODO: deploy real market token instead of using dummy one
     let markets: Array<ContractAddress> = array![
-        0x777.try_into().unwrap(), 0x888.try_into().unwrap(), 0x999.try_into().unwrap()
+        0x777.try_into().unwrap(), 0x888.try_into().unwrap(), 0x999.try_into().unwrap(),
     ];
     let tokens: Array<ContractAddress> = array![0x123.try_into().unwrap(), 0x234.try_into().unwrap()];
 

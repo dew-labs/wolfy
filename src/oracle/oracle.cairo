@@ -13,10 +13,7 @@
 // Local imports
 use freyr::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
 use freyr::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
-use freyr::oracle::{
-    oracle_utils::{SetPricesParams, ReportInfo},
-    error::OracleError,
-};
+use freyr::oracle::{error::OracleError, oracle_utils::{ReportInfo, SetPricesParams}};
 use freyr::price::price::Price;
 use pragma_lib::types::{DataType, PragmaPricesResponse};
 use starknet::ContractAddress;
@@ -182,19 +179,17 @@ mod Oracle {
     // Core lib imports.
 
     use alexandria_math::BitShift;
-    use alexandria_storage::list::{ListTrait, List};
+    use alexandria_storage::list::{List, ListTrait};
     use core::traits::Into;
     use core::traits::TryInto;
     use core::zeroable::Zeroable;
     // Local imports.
     use freyr::data::{data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait}, keys};
     use freyr::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
-    use freyr::oracle::{oracle_utils,
-        oracle_utils::{SetPricesParams, ReportInfo}, error::OracleError,
-    };
+    use freyr::oracle::{error::OracleError, oracle_utils, oracle_utils::{ReportInfo, SetPricesParams}};
     use freyr::price::price::Price;
     use freyr::role::role_module::{IRoleModule, RoleModule};
-    use freyr::role::role_module::{IRoleModuleLibraryDispatcher, IRoleModuleDispatcherTrait};
+    use freyr::role::role_module::{IRoleModuleDispatcherTrait, IRoleModuleLibraryDispatcher};
     use freyr::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
     use freyr::utils::u256_mask::{Mask, MaskTrait, validate_unique_and_set_index};
     use freyr::utils::{arrays, arrays::pow, bits, calc, precision};
@@ -204,11 +199,11 @@ mod Oracle {
     use pragma_lib::types::{DataType, PragmaPricesResponse};
     use starknet::SyscallResultTrait;
     use starknet::contract_address_const;
-    use starknet::info::{get_block_timestamp, get_block_number};
+    use starknet::info::{get_block_number, get_block_timestamp};
     use starknet::storage::Map;
     use starknet::storage_access::storage_base_address_from_felt252;
     use starknet::syscalls::get_block_hash_syscall;
-    use starknet::{ContractAddress, ClassHash};
+    use starknet::{ClassHash, ContractAddress};
 
     use super::{IOracle, SetPricesCache, SetPricesInnerCache, ValidatedPrice};
 
@@ -297,7 +292,7 @@ mod Oracle {
         // Arguments
         // * `token` - The token to set the price for.
         // * `price` - The price value to set to.
-        fn set_primary_price(ref self: ContractState, token: ContractAddress, price: Price,) {
+        fn set_primary_price(ref self: ContractState, token: ContractAddress, price: Price) {
             self.role_module.read().only_controller();
             self.set_primary_price_(token, price);
         }
@@ -410,9 +405,9 @@ mod Oracle {
                     // to grow indefinitely.
                     match index_of_zero {
                         Option::Some(i) => { tokens_with_prices.set(i, token).unwrap(); },
-                        Option::None => { tokens_with_prices.append(token).unwrap(); }
+                        Option::None => { tokens_with_prices.append(token).unwrap(); },
                     }
-                }
+                },
             }
         }
 
@@ -457,7 +452,7 @@ mod Oracle {
 
             let precision_ = self.get_price_feed_multiplier(data_store, token);
             let adjusted_price = precision::mul_div( // TODO check precision file
-                response.price.into(), precision_, precision::FLOAT_PRECISION
+                response.price.into(), precision_, precision::FLOAT_PRECISION,
             );
 
             (true, adjusted_price)
@@ -512,7 +507,7 @@ mod Oracle {
                                 stable_price
                             } else {
                                 price
-                            }
+                            },
                         }
                 } else {
                     price_props = Price { min: price, max: price }

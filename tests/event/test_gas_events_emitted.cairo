@@ -4,7 +4,8 @@ use freyr::event::event_emitter::{EventEmitter, IEventEmitterDispatcher, IEventE
 
 use freyr::test_utils::tests_lib::deploy_event_emitter;
 use snforge_std::{
-    declare, ContractClassTrait, DeclareResultTrait, spy_events, EventSpy, EventSpyTrait, Event, EventSpyAssertionsTrait
+    ContractClassTrait, DeclareResultTrait, Event, EventSpy, EventSpyAssertionsTrait, EventSpyTrait, declare,
+    spy_events,
 };
 use starknet::{ContractAddress, contract_address_const};
 
@@ -34,10 +35,10 @@ fn given_normal_conditions_when_emit_execution_fee_refund_then_works() {
                 (
                     contract_address,
                     EventEmitter::Event::ExecutionFeeRefund(
-                        ExecutionFeeRefund { receiver: receiver, refund_fee_amount: refund_fee_amount }
-                    )
-                )
-            ]
+                        ExecutionFeeRefund { receiver: receiver, refund_fee_amount: refund_fee_amount },
+                    ),
+                ),
+            ],
         );
     // Assert there are no more events.
     assert(spy.get_events().events.len() == 1, 'There should be no events');
@@ -69,10 +70,10 @@ fn given_normal_conditions_when_emit_keeper_execution_fee_then_works() {
                 (
                     contract_address,
                     EventEmitter::Event::KeeperExecutionFee(
-                        KeeperExecutionFee { keeper: keeper, execution_fee_amount: execution_fee_amount }
-                    )
-                )
-            ]
+                        KeeperExecutionFee { keeper: keeper, execution_fee_amount: execution_fee_amount },
+                    ),
+                ),
+            ],
         );
     // Assert there are no more events.
     assert(spy.get_events().events.len() == 1, 'There should be no events');

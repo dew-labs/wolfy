@@ -53,7 +53,7 @@ mod DepositVault {
     // Core lib imports.
     use core::zeroable::Zeroable;
     use freyr::bank::bank::{IBankLibraryDispatcher};
-    use freyr::bank::strict_bank::{IStrictBankLibraryDispatcher, IStrictBankDispatcherTrait};
+    use freyr::bank::strict_bank::{IStrictBankDispatcherTrait, IStrictBankLibraryDispatcher};
     use freyr::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
     use freyr::role::role_module::{IRoleModuleLibraryDispatcher};
 
@@ -61,7 +61,7 @@ mod DepositVault {
     // Local imports.
     use freyr::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
     use starknet::storage::Map;
-    use starknet::{get_caller_address, ContractAddress, contract_address_const, ClassHash};
+    use starknet::{ClassHash, ContractAddress, contract_address_const, get_caller_address};
 
 
     // *************************************************************************
@@ -93,7 +93,7 @@ mod DepositVault {
         role_store_address: ContractAddress,
         strict_bank_class_hash: ClassHash,
         bank_class_hash: ClassHash,
-        role_module_class_hash: ClassHash
+        role_module_class_hash: ClassHash,
     ) {
         self.strict_bank.write(IStrictBankLibraryDispatcher { class_hash: strict_bank_class_hash });
         self

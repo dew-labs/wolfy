@@ -4,7 +4,7 @@
 
 // Core lib imports.
 use array::ArrayTrait;
-use freyr::utils::span32::{Span32, Array32Trait};
+use freyr::utils::span32::{Array32Trait, Span32};
 
 // Local imports.
 use freyr::utils::store_arrays::StoreContractAddressArray;

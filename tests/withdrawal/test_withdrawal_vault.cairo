@@ -8,7 +8,7 @@
 // Local imports.
 use freyr::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
 use freyr::market::market_factory::{IMarketFactoryDispatcher, IMarketFactoryDispatcherTrait};
-use freyr::market::market_utils::{IMarketUtilsLibraryDispatcher, IMarketUtilsDispatcherTrait};
+use freyr::market::market_utils::{IMarketUtilsDispatcherTrait, IMarketUtilsLibraryDispatcher};
 use freyr::role::role;
 use freyr::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
 use freyr::test_utils::tests_lib;
@@ -17,11 +17,11 @@ use freyr::withdrawal::withdrawal_vault::{IWithdrawalVaultDispatcher, IWithdrawa
 use integer::{u256_from_felt252};
 use result::ResultTrait;
 use snforge_std::{
-    declare, start_cheat_caller_address, stop_cheat_caller_address, start_mock_call, ContractClassTrait,
-    DeclareResultTrait
+    ContractClassTrait, DeclareResultTrait, declare, start_cheat_caller_address, start_mock_call,
+    stop_cheat_caller_address,
 };
-use starknet::{ContractAddress, get_caller_address, Felt252TryIntoContractAddress, contract_address_const, ClassHash,};
-use traits::{TryInto, Into};
+use starknet::{ClassHash, ContractAddress, Felt252TryIntoContractAddress, contract_address_const, get_caller_address};
+use traits::{Into, TryInto};
 
 // *********************************************************************************************
 // *                                     TEST CONSTANTS                                        *
@@ -45,7 +45,7 @@ fn given_normal_conditions_when_transfer_out_then_works() {
     // check that the contract balance reduces
     let contract_balance = erc20.balance_of(withdrawal_vault.contract_address);
     let expected_balance: u256 = u256_from_felt252(
-        INITIAL_TOKENS_MINTED - amount_to_transfer.try_into().expect('u256 into felt failed')
+        INITIAL_TOKENS_MINTED - amount_to_transfer.try_into().expect('u256 into felt failed'),
     );
     assert(contract_balance == expected_balance, 'transfer_out failed');
 
@@ -88,7 +88,7 @@ fn given_receiver_is_contract_when_transfer_out_then_fails() {
 
     withdrawal_vault
         .transfer_out(
-            withdrawal_vault.contract_address, erc20.contract_address, withdrawal_vault.contract_address, 100_u256
+            withdrawal_vault.contract_address, erc20.contract_address, withdrawal_vault.contract_address, 100_u256,
         );
 
     teardown(data_store, withdrawal_vault, market_factory);
@@ -219,7 +219,7 @@ fn setup() -> (
     IDataStoreDispatcher,
     IWithdrawalVaultDispatcher,
     IERC20Dispatcher,
-    IMarketFactoryDispatcher
+    IMarketFactoryDispatcher,
 ) {
     // get caller_address, role store and data_store from tests_lib::setup()
     let (
@@ -271,7 +271,7 @@ fn setup() -> (
 fn teardown(
     data_store: IDataStoreDispatcher,
     withdrawal_vault: IWithdrawalVaultDispatcher,
-    market_factory: IMarketFactoryDispatcher
+    market_factory: IMarketFactoryDispatcher,
 ) {
     tests_lib::teardown();
     stop_cheat_caller_address(withdrawal_vault.contract_address);

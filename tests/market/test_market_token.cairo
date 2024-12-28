@@ -4,14 +4,14 @@ use freyr::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
 use freyr::test_utils::tests_lib;
 use result::ResultTrait;
 use snforge_std::{
-    declare, start_cheat_caller_address, stop_cheat_caller_address, ContractClass, ContractClassTrait,
-    DeclareResultTrait
+    ContractClass, ContractClassTrait, DeclareResultTrait, declare, start_cheat_caller_address,
+    stop_cheat_caller_address,
 };
 use starknet::{
-    ContractAddress, get_caller_address, Felt252TryIntoContractAddress, contract_address_const, ClassHash,
-    ClassHashIntoFelt252
+    ClassHash, ClassHashIntoFelt252, ContractAddress, Felt252TryIntoContractAddress, contract_address_const,
+    get_caller_address,
 };
-use traits::{TryInto, Into};
+use traits::{Into, TryInto};
 
 #[test]
 fn given_normal_conditions_when_mint_then_expected_results() {
@@ -86,7 +86,7 @@ fn setup() -> (
         role_store.contract_address,
         11111.try_into().unwrap(),
         bank_class.class_hash,
-        role_module_class.class_hash
+        role_module_class.class_hash,
     );
     // Create a safe dispatcher to interact with the contract.
     let market_token = IMarketTokenDispatcher { contract_address: market_token_address };
@@ -111,10 +111,10 @@ fn deploy_only_market_token(
     role_store_address: ContractAddress,
     data_store_address: ContractAddress,
     bank_class_hash: ClassHash,
-    role_module_class_hash: ClassHash
+    role_module_class_hash: ClassHash,
 ) -> ContractAddress {
     let mut constructor_calldata: Array<felt252> = array![
-        role_store_address.into(), data_store_address.into(), bank_class_hash.into(), role_module_class_hash.into()
+        role_store_address.into(), data_store_address.into(), bank_class_hash.into(), role_module_class_hash.into(),
     ];
 
     let (contract_address, _) = contract.deploy(@constructor_calldata).unwrap();

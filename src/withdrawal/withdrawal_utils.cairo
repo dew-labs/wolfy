@@ -4,27 +4,27 @@
 // Core lib imports.
 
 // Local imports.
-use freyr::bank::{bank::{IBankDispatcher, IBankDispatcherTrait},};
+use freyr::bank::{bank::{IBankDispatcher, IBankDispatcherTrait}};
 use freyr::callback::callback_utils;
 use freyr::data::{data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait}, keys};
 use freyr::event::{event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait}};
 use freyr::fee::fee_utils;
 use freyr::gas::gas_utils;
-use freyr::market::market_utils::{IMarketUtilsLibraryDispatcher, IMarketUtilsDispatcherTrait, MarketPrices};
+use freyr::market::market_utils::{IMarketUtilsDispatcherTrait, IMarketUtilsLibraryDispatcher, MarketPrices};
 use freyr::market::{market::Market, market_token::{IMarketTokenDispatcher, IMarketTokenDispatcherTrait}};
 use freyr::nonce::nonce_utils;
 use freyr::oracle::{oracle::{IOracleDispatcher, IOracleDispatcherTrait}, oracle_utils};
 use freyr::pricing::{swap_pricing_utils, swap_pricing_utils::SwapFees};
 use freyr::swap::{swap_utils, swap_utils::SwapParams};
 use freyr::utils::{
-    calc, account_utils, error_utils, precision, starknet_utils, span32::Span32,
-    store_arrays::{StoreContractAddressArray, StoreU256Array}
+    account_utils, calc, error_utils, precision, span32::Span32, starknet_utils,
+    store_arrays::{StoreContractAddressArray, StoreU256Array},
 };
 use freyr::withdrawal::{
     error::WithdrawalError, withdrawal::Withdrawal,
-    withdrawal_vault::{IWithdrawalVaultDispatcher, IWithdrawalVaultDispatcherTrait}
+    withdrawal_vault::{IWithdrawalVaultDispatcher, IWithdrawalVaultDispatcherTrait},
 };
-use starknet::{ContractAddress, get_block_timestamp, contract_address_const};
+use starknet::{ContractAddress, contract_address_const, get_block_timestamp};
 
 #[derive(Drop, starknet::Store, Serde)]
 struct CreateWithdrawalParams {
@@ -113,7 +113,7 @@ fn create_withdrawal(
     withdrawal_vault: IWithdrawalVaultDispatcher,
     account: ContractAddress,
     mut params: CreateWithdrawalParams,
-    market_utils: IMarketUtilsLibraryDispatcher
+    market_utils: IMarketUtilsLibraryDispatcher,
 ) -> felt252 {
     account_utils::validate_account(account);
 
@@ -172,7 +172,7 @@ fn create_withdrawal(
 /// # Arguments
 /// * `params` - The parameters for executing the withdrawal.
 fn execute_withdrawal(
-    mut params: ExecuteWithdrawalParams, market_utils: IMarketUtilsLibraryDispatcher
+    mut params: ExecuteWithdrawalParams, market_utils: IMarketUtilsLibraryDispatcher,
 ) { // 63/64 gas is forwarded to external calls, reduce the startingGas to account for this
     // TODO: change the following line once once equivalent function is available in starknet.
     params.starting_gas -= (starknet_utils::sn_gasleft(array![]) / 63).into();
@@ -185,9 +185,7 @@ fn execute_withdrawal(
     assert(withdrawal.market_token_amount.is_non_zero(), WithdrawalError::EMPTY_WITHDRAWAL_AMOUNT);
 
     oracle_utils::validate_block_number_within_range(
-        params.min_oracle_block_numbers.span(),
-        params.max_oracle_block_numbers.span(),
-        withdrawal.updated_at_block
+        params.min_oracle_block_numbers.span(), params.max_oracle_block_numbers.span(), withdrawal.updated_at_block,
     );
 
     let market_token_balance = IMarketTokenDispatcher { contract_address: withdrawal.market }
@@ -206,7 +204,7 @@ fn execute_withdrawal(
             result.output_token,
             result.output_amount,
             result.secondary_output_token,
-            result.secondary_output_amount
+            result.secondary_output_amount,
         );
     // TODO fix pay execution fees
 // gas_utils::pay_execution_fee_withdrawal(
@@ -252,13 +250,13 @@ fn cancel_withdrawal(
 
     withdrawal_vault
         .transfer_out(
-            withdrawal_vault.contract_address, withdrawal.market, withdrawal.account, withdrawal.market_token_amount
+            withdrawal_vault.contract_address, withdrawal.market, withdrawal.account, withdrawal.market_token_amount,
         );
 
     event_emitter.emit_withdrawal_cancelled(key, reason, reason_key);
 
     gas_utils::pay_execution_fee_withdrawal(
-        data_store, event_emitter, withdrawal_vault, withdrawal.execution_fee, starting_gas, keeper, withdrawal.account
+        data_store, event_emitter, withdrawal_vault, withdrawal.execution_fee, starting_gas, keeper, withdrawal.account,
     )
 }
 
@@ -269,7 +267,7 @@ fn cancel_withdrawal(
 /// # Returns
 /// The unique identifier of the created withdrawal.
 fn execute_withdrawal_(
-    params: @ExecuteWithdrawalParams, withdrawal: Withdrawal, market_utils: IMarketUtilsLibraryDispatcher
+    params: @ExecuteWithdrawalParams, withdrawal: Withdrawal, market_utils: IMarketUtilsLibraryDispatcher,
 ) -> ExecuteWithdrawalResult {
     let market = market_utils.get_enabled_market(*params.data_store, withdrawal.market);
 
@@ -278,7 +276,7 @@ fn execute_withdrawal_(
     let mut cache: ExecuteWithdrawalCache = Default::default();
 
     let (long_token_output_amount, short_token_output_amount) = get_output_amounts(
-        params, market, @prices, withdrawal.market_token_amount, market_utils
+        params, market, @prices, withdrawal.market_token_amount, market_utils,
     );
     cache.long_token_output_amount = long_token_output_amount;
     cache.short_token_output_amount = short_token_output_amount;
@@ -291,7 +289,7 @@ fn execute_withdrawal_(
                 cache.long_token_output_amount,
                 false,
                 withdrawal.ui_fee_receiver,
-                market_utils
+                market_utils,
             );
 
     fee_utils::increment_claimable_fee_amount(
@@ -300,7 +298,7 @@ fn execute_withdrawal_(
         market.market_token,
         market.long_token,
         cache.long_token_fees.fee_receiver_amount,
-        keys::withdrawal_fee_type()
+        keys::withdrawal_fee_type(),
     );
 
     fee_utils::increment_claimable_ui_fee_amount(
@@ -310,7 +308,7 @@ fn execute_withdrawal_(
         market.market_token,
         market.long_token,
         cache.long_token_fees.ui_fee_amount,
-        keys::withdrawal_fee_type()
+        keys::withdrawal_fee_type(),
     );
 
     cache
@@ -321,7 +319,7 @@ fn execute_withdrawal_(
                 cache.short_token_output_amount,
                 false,
                 withdrawal.ui_fee_receiver,
-                market_utils
+                market_utils,
             );
 
     fee_utils::increment_claimable_fee_amount(
@@ -330,7 +328,7 @@ fn execute_withdrawal_(
         market.market_token,
         market.short_token,
         cache.short_token_fees.fee_receiver_amount,
-        keys::withdrawal_fee_type()
+        keys::withdrawal_fee_type(),
     );
 
     fee_utils::increment_claimable_ui_fee_amount(
@@ -340,7 +338,7 @@ fn execute_withdrawal_(
         market.market_token,
         market.short_token,
         cache.short_token_fees.ui_fee_amount,
-        keys::withdrawal_fee_type()
+        keys::withdrawal_fee_type(),
     );
 
     cache.long_token_pool_amount_delta = cache.long_token_output_amount - cache.long_token_fees.fee_amount_for_pool;
@@ -359,7 +357,7 @@ fn execute_withdrawal_(
             *params.event_emitter,
             market,
             market.long_token,
-            calc::to_signed(cache.long_token_pool_amount_delta, false)
+            calc::to_signed(cache.long_token_pool_amount_delta, false),
         );
 
     market_utils
@@ -368,7 +366,7 @@ fn execute_withdrawal_(
             *params.event_emitter,
             market,
             market.short_token,
-            calc::to_signed(cache.short_token_pool_amount_delta, false)
+            calc::to_signed(cache.short_token_pool_amount_delta, false),
         );
 
     market_utils.validate_reserve(*params.data_store, market, prices, true);
@@ -381,7 +379,7 @@ fn execute_withdrawal_(
             market,
             prices,
             keys::max_pnl_factor_for_withdrawals(),
-            keys::max_pnl_factor_for_withdrawals()
+            keys::max_pnl_factor_for_withdrawals(),
         );
     IMarketTokenDispatcher { contract_address: market.market_token }
         .burn(*params.withdrawal_vault.contract_address, withdrawal.market_token_amount);
@@ -392,7 +390,7 @@ fn execute_withdrawal_(
         output_token: Zeroable::zero(),
         output_amount: 0,
         secondary_output_token: Zeroable::zero(),
-        secondary_output_amount: 0
+        secondary_output_amount: 0,
     };
 
     let (output_token, output_amount) = swap(
@@ -404,7 +402,7 @@ fn execute_withdrawal_(
         withdrawal.min_long_token_amount,
         withdrawal.receiver,
         withdrawal.ui_fee_receiver,
-        market_utils
+        market_utils,
     );
     result.output_token = output_token;
     result.output_amount = output_amount;
@@ -418,7 +416,7 @@ fn execute_withdrawal_(
         withdrawal.min_short_token_amount,
         withdrawal.receiver,
         withdrawal.ui_fee_receiver,
-        market_utils
+        market_utils,
     );
 
     result.secondary_output_token = secondary_output_token;
@@ -426,12 +424,12 @@ fn execute_withdrawal_(
 
     (*params.event_emitter)
         .emit_swap_fees_collected(
-            market.market_token, market.long_token, prices.long_token_price.min, 'withdrawal', cache.long_token_fees
+            market.market_token, market.long_token, prices.long_token_price.min, 'withdrawal', cache.long_token_fees,
         );
 
     (*params.event_emitter)
         .emit_swap_fees_collected(
-            market.market_token, market.short_token, prices.short_token_price.min, 'withdrawal', cache.short_token_fees
+            market.market_token, market.short_token, prices.short_token_price.min, 'withdrawal', cache.short_token_fees,
         );
 
     // if the native token was transferred to the receiver in a swap
@@ -461,7 +459,7 @@ fn swap(
     min_output_amount: u256,
     receiver: ContractAddress,
     ui_fee_receiver: ContractAddress,
-    market_utils: IMarketUtilsLibraryDispatcher
+    market_utils: IMarketUtilsLibraryDispatcher,
 ) -> (ContractAddress, u256) {
     let mut cache = SwapCache {
         swap_path_markets: Default::default(),
@@ -508,7 +506,7 @@ fn get_output_amounts(
     market: Market,
     prices: @MarketPrices,
     market_token_amount: u256,
-    market_utils: IMarketUtilsLibraryDispatcher
+    market_utils: IMarketUtilsLibraryDispatcher,
 ) -> (u256, u256) {
     // the max pnl factor for withdrawals should be the lower of the max pnl factor values
     // which means that pnl would be capped to a smaller amount and the pool
@@ -523,7 +521,7 @@ fn get_output_amounts(
             *prices.long_token_price,
             *prices.short_token_price,
             keys::max_pnl_factor_for_withdrawals(),
-            false
+            false,
         );
 
     if pool_value_info.pool_value <= Zeroable::zero() {

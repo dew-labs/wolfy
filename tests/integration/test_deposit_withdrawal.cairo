@@ -5,7 +5,7 @@
 // Core lib imports.
 
 use debug::PrintTrait;
-use freyr::bank::bank::{IBankDispatcherTrait, IBankDispatcher};
+use freyr::bank::bank::{IBankDispatcher, IBankDispatcherTrait};
 use freyr::bank::strict_bank::{IStrictBankDispatcher, IStrictBankDispatcherTrait};
 
 
@@ -13,24 +13,24 @@ use freyr::bank::strict_bank::{IStrictBankDispatcher, IStrictBankDispatcherTrait
 use freyr::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
 use freyr::data::keys;
 use freyr::deposit::deposit::Deposit;
-use freyr::deposit::deposit_utils::CreateDepositParams;
 use freyr::deposit::deposit_utils;
+use freyr::deposit::deposit_utils::CreateDepositParams;
 use freyr::deposit::deposit_vault::{IDepositVaultDispatcher, IDepositVaultDispatcherTrait};
 use freyr::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
 use freyr::exchange::deposit_handler::{IDepositHandlerDispatcher, IDepositHandlerDispatcherTrait};
-use freyr::exchange::order_handler::{OrderHandler, IOrderHandlerDispatcher, IOrderHandlerDispatcherTrait};
+use freyr::exchange::order_handler::{IOrderHandlerDispatcher, IOrderHandlerDispatcherTrait, OrderHandler};
 
 use freyr::exchange::withdrawal_handler::{IWithdrawalHandlerDispatcher, IWithdrawalHandlerDispatcherTrait};
 use freyr::market::market::{Market, UniqueIdMarket};
 use freyr::market::market_factory::{IMarketFactoryDispatcher, IMarketFactoryDispatcherTrait};
 use freyr::market::market_token::{IMarketTokenDispatcher, IMarketTokenDispatcherTrait};
-use freyr::market::{market::{UniqueIdMarketImpl},};
+use freyr::market::{market::{UniqueIdMarketImpl}};
 use freyr::mock::referral_storage::{IReferralStorageDispatcher, IReferralStorageDispatcherTrait};
 use freyr::oracle::oracle::{IOracleDispatcher, IOracleDispatcherTrait};
 use freyr::oracle::oracle_utils::SetPricesParams;
 use freyr::order::base_order_utils::{CreateOrderParams};
 
-use freyr::order::order::{Order, OrderType, SecondaryOrderType, DecreasePositionSwapType};
+use freyr::order::order::{DecreasePositionSwapType, Order, OrderType, SecondaryOrderType};
 use freyr::order::order_utils::{IOrderUtilsDispatcher, IOrderUtilsDispatcherTrait};
 use freyr::order::order_vault::{IOrderVaultDispatcher, IOrderVaultDispatcherTrait};
 use freyr::position::position_utils;
@@ -42,17 +42,17 @@ use freyr::router::exchange_router::{IExchangeRouterDispatcher, IExchangeRouterD
 use freyr::swap::swap_handler::{ISwapHandlerDispatcher, ISwapHandlerDispatcherTrait};
 use freyr::test_utils::tests_lib;
 use freyr::token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
-use freyr::utils::span32::{Span32, DefaultSpan32, Array32Trait};
+use freyr::utils::span32::{Array32Trait, DefaultSpan32, Span32};
 use freyr::withdrawal::withdrawal::Withdrawal;
 use freyr::withdrawal::withdrawal_utils;
 use freyr::withdrawal::withdrawal_vault::{IWithdrawalVaultDispatcher, IWithdrawalVaultDispatcherTrait};
 use result::ResultTrait;
 use snforge_std::{
-    declare, start_cheat_caller_address, stop_cheat_caller_address, start_cheat_block_number, ContractClassTrait,
-    DeclareResultTrait, ContractClass
+    ContractClass, ContractClassTrait, DeclareResultTrait, declare, start_cheat_block_number,
+    start_cheat_caller_address, stop_cheat_caller_address,
 };
-use starknet::{ContractAddress, get_caller_address, Felt252TryIntoContractAddress, contract_address_const, ClassHash,};
-use traits::{TryInto, Into};
+use starknet::{ClassHash, ContractAddress, Felt252TryIntoContractAddress, contract_address_const, get_caller_address};
+use traits::{Into, TryInto};
 const INITIAL_TOKENS_MINTED: felt252 = 1000;
 
 
@@ -73,7 +73,7 @@ fn given_normal_conditions_when_create_market_and_add_liquidity_then_market_is_c
         withdrawal_vault,
         order_handler,
         order_vault,
-        market_factory
+        market_factory,
     ) =
         setup();
 
@@ -128,7 +128,7 @@ fn given_normal_conditions_when_create_market_and_add_liquidity_then_market_is_c
         compacted_max_prices: array![4294967346000000], // 50000000, 1000000 compacted
         compacted_max_prices_indexes: array![0],
         signatures: array![array!['signatures1', 'signatures2'].span(), array!['signatures1', 'signatures2'].span()],
-        price_feed_tokens: array![]
+        price_feed_tokens: array![],
     };
 
     start_cheat_block_number(deposit_handler.contract_address, 1915);
@@ -156,7 +156,7 @@ fn test_swap_market_integration() {
         withdrawal_vault,
         order_handler,
         order_vault,
-        market_factory
+        market_factory,
     ) =
         setup();
 
@@ -236,7 +236,7 @@ fn test_swap_market_integration() {
         compacted_max_prices: array![4294967346000000], // 50000000, 1000000 compacted
         compacted_max_prices_indexes: array![0],
         signatures: array![array!['signatures1', 'signatures2'].span(), array!['signatures1', 'signatures2'].span()],
-        price_feed_tokens: array![]
+        price_feed_tokens: array![],
     };
 
     start_cheat_caller_address(role_store.contract_address, caller_address);
@@ -275,9 +275,9 @@ fn test_swap_market_integration() {
     let pool_value_info = market_utils::get_pool_value_info(
         data_store,
         market,
-        Price { min: 5000, max: 5000, },
-        Price { min: 5000, max: 5000, },
-        Price { min: 1, max: 1, },
+        Price { min: 5000, max: 5000 },
+        Price { min: 5000, max: 5000 },
+        Price { min: 1, max: 1 },
         keys::max_pnl_factor_for_deposits(),
         true,
     );
@@ -330,7 +330,7 @@ fn test_swap_market_integration() {
         order_type: OrderType::MarketSwap(()),
         decrease_position_swap_type: DecreasePositionSwapType::NoSwap(()),
         is_long: false,
-        referral_code: 0
+        referral_code: 0,
     };
     // Create the swap order.
     start_cheat_block_number(order_handler.contract_address, 1920);
@@ -353,7 +353,7 @@ fn test_swap_market_integration() {
         compacted_max_prices: array![2147483648010000], // 500000, 10000 compacted
         compacted_max_prices_indexes: array![0],
         signatures: array![array!['signatures1', 'signatures2'].span(), array!['signatures1', 'signatures2'].span()],
-        price_feed_tokens: array![]
+        price_feed_tokens: array![],
     };
 
     let balance_ETH_before_execute = IERC20Dispatcher { contract_address: contract_address_const::<'ETH'>() }
@@ -391,9 +391,9 @@ fn test_swap_market_integration() {
     let first_swap_pool_value_info = market_utils::get_pool_value_info(
         data_store,
         market,
-        Price { min: 5000, max: 5000, },
-        Price { min: 5000, max: 5000, },
-        Price { min: 1, max: 1, },
+        Price { min: 5000, max: 5000 },
+        Price { min: 5000, max: 5000 },
+        Price { min: 1, max: 1 },
         keys::max_pnl_factor_for_deposits(),
         true,
     );
@@ -419,7 +419,7 @@ fn test_deposit_market_integration() {
         withdrawal_vault,
         order_handler,
         order_vault,
-        market_factory
+        market_factory,
     ) =
         setup();
 
@@ -500,7 +500,7 @@ fn test_deposit_market_integration() {
         compacted_max_prices: array![4294967346000000], // 50000000, 1000000 compacted
         compacted_max_prices_indexes: array![0],
         signatures: array![array!['signatures1', 'signatures2'].span(), array!['signatures1', 'signatures2'].span()],
-        price_feed_tokens: array![]
+        price_feed_tokens: array![],
     };
 
     start_cheat_caller_address(role_store.contract_address, caller_address);
@@ -539,9 +539,9 @@ fn test_deposit_market_integration() {
     let pool_value_info = market_utils::get_pool_value_info(
         data_store,
         market,
-        Price { min: 5000, max: 5000, },
-        Price { min: 5000, max: 5000, },
-        Price { min: 1, max: 1, },
+        Price { min: 5000, max: 5000 },
+        Price { min: 5000, max: 5000 },
+        Price { min: 1, max: 1 },
         keys::max_pnl_factor_for_deposits(),
         true,
     );
@@ -572,7 +572,7 @@ fn test_deposit_withdraw_integration() {
         withdrawal_vault,
         order_handler,
         order_vault,
-        market_factory
+        market_factory,
     ) =
         setup();
 
@@ -653,7 +653,7 @@ fn test_deposit_withdraw_integration() {
         compacted_max_prices: array![4294967346000000], // 50000000, 1000000 compacted
         compacted_max_prices_indexes: array![0],
         signatures: array![array!['signatures1', 'signatures2'].span(), array!['signatures1', 'signatures2'].span()],
-        price_feed_tokens: array![]
+        price_feed_tokens: array![],
     };
 
     start_cheat_caller_address(role_store.contract_address, caller_address);
@@ -692,9 +692,9 @@ fn test_deposit_withdraw_integration() {
     let pool_value_info = market_utils::get_pool_value_info(
         data_store,
         market,
-        Price { min: 5000, max: 5000, },
-        Price { min: 5000, max: 5000, },
-        Price { min: 1, max: 1, },
+        Price { min: 5000, max: 5000 },
+        Price { min: 5000, max: 5000 },
+        Price { min: 1, max: 1 },
         keys::max_pnl_factor_for_deposits(),
         true,
     );
@@ -767,7 +767,7 @@ fn test_deposit_withdraw_integration() {
         compacted_max_prices: array![4294967346000000], // 50000000, 1000000 compacted
         compacted_max_prices_indexes: array![0],
         signatures: array![array!['signatures1', 'signatures2'].span(), array!['signatures1', 'signatures2'].span()],
-        price_feed_tokens: array![]
+        price_feed_tokens: array![],
     };
 
     start_cheat_caller_address(role_store.contract_address, caller_address);
@@ -790,9 +790,9 @@ fn test_deposit_withdraw_integration() {
     let pool_value_info = market_utils::get_pool_value_info(
         data_store,
         market,
-        Price { min: 1999, max: 2000, },
-        Price { min: 1999, max: 2000, },
-        Price { min: 1, max: 1, },
+        Price { min: 1999, max: 2000 },
+        Price { min: 1999, max: 2000 },
+        Price { min: 1, max: 1 },
         keys::max_pnl_factor_for_deposits(),
         true,
     );
@@ -822,7 +822,7 @@ fn setup() -> (
     IWithdrawalVaultDispatcher,
     IOrderHandlerDispatcher,
     IOrderVaultDispatcher,
-    IMarketFactoryDispatcher
+    IMarketFactoryDispatcher,
 ) {
     let (
         caller_address,
@@ -864,6 +864,6 @@ fn setup() -> (
         withdrawal_vault,
         order_handler,
         order_vault,
-        market_factory
+        market_factory,
     )
 }

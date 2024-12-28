@@ -8,19 +8,19 @@ use alexandria_data_structures::array_ext::ArrayTraitExt;
 use array::ArrayTrait;
 use array::SpanTrait;
 use freyr::event::event_utils::{
-    Felt252IntoBool, Felt252IntoContractAddress, I256252DictValue, ContractAddressDictValue, U256252DictValue,
-    U256IntoFelt252
+    ContractAddressDictValue, Felt252IntoBool, Felt252IntoContractAddress, I256252DictValue, U256252DictValue,
+    U256IntoFelt252,
 };
 use freyr::utils::serializable_dict::{
-    Item, ItemTrait, SerializableFelt252Dict, SerializableFelt252DictTrait, SerializableFelt252DictTraitImpl
+    Item, ItemTrait, SerializableFelt252Dict, SerializableFelt252DictTrait, SerializableFelt252DictTraitImpl,
 };
 
 // Local imports.
 use freyr::utils::traits::ContractAddressDefault;
 use serde::Serde;
 use starknet::{
-    get_caller_address, ContractAddress, Felt252TryIntoContractAddress, ContractAddressIntoFelt252,
-    contract_address_const
+    ContractAddress, ContractAddressIntoFelt252, Felt252TryIntoContractAddress, contract_address_const,
+    get_caller_address,
 };
 use traits::Default;
 
@@ -89,18 +89,18 @@ fn test_item_comparison_spans() {
     assert(item_a != item_b, 'felt252 shouldnt be equals');
 
     let item_a: Item<ContractAddress> = Item::Span(
-        array![contract_address_const::<'satoshi'>(), contract_address_const::<'nakamoto'>()].span()
+        array![contract_address_const::<'satoshi'>(), contract_address_const::<'nakamoto'>()].span(),
     );
     let item_b: Item<ContractAddress> = Item::Span(
-        array![contract_address_const::<'satoshi'>(), contract_address_const::<'nakamoto'>()].span()
+        array![contract_address_const::<'satoshi'>(), contract_address_const::<'nakamoto'>()].span(),
     );
     assert(item_a == item_b, 'contract should be equals');
 
     let item_a: Item<ContractAddress> = Item::Span(
-        array![contract_address_const::<'satoshi'>(), contract_address_const::<'nakamoto'>()].span()
+        array![contract_address_const::<'satoshi'>(), contract_address_const::<'nakamoto'>()].span(),
     );
     let item_b: Item<ContractAddress> = Item::Span(
-        array![contract_address_const::<'nakamoto'>(), contract_address_const::<'satoshi'>()].span()
+        array![contract_address_const::<'nakamoto'>(), contract_address_const::<'satoshi'>()].span(),
     );
     assert(item_a != item_b, 'contract shouldnt be equals');
 }
@@ -176,7 +176,7 @@ fn test_serializable_dict_serialize() {
     let mut deserialized_dict: SerializableFelt252Dict<u256> =
         match SerializableFelt252DictTrait::<u256>::deserialize(ref span_serialized) {
         Option::Some(d) => d,
-        Option::None => panic_with_felt252('err while recreating d')
+        Option::None => panic_with_felt252('err while recreating d'),
     };
 
     assert(dict.contains('test'), 'key should be in dict');
@@ -202,7 +202,7 @@ fn test_error_deserialize_value() {
 
     match SerializableFelt252DictTrait::<u256>::deserialize(ref span_serialized) {
         Option::Some(_d) => panic_with_felt252('should have panicked'),
-        Option::None => ()
+        Option::None => (),
     };
 }
 
@@ -214,6 +214,6 @@ fn test_error_deserialize_size() {
 
     match SerializableFelt252DictTrait::<u256>::deserialize(ref span_serialized) {
         Option::Some(_d) => panic_with_felt252('should have panicked'),
-        Option::None => ()
+        Option::None => (),
     };
 }

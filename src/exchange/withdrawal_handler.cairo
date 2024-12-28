@@ -50,7 +50,7 @@ trait IWithdrawalHandler<TContractState> {
     /// * `reason` - The reason of the error.
     /// * `reason_key` - The reason key of the error.
     fn handle_withdrawal_error(
-        ref self: TContractState, key: felt252, starting_gas: u256, reason: felt252, reason_key: felt252
+        ref self: TContractState, key: felt252, starting_gas: u256, reason: felt252, reason_key: felt252,
     );
 }
 
@@ -69,25 +69,25 @@ mod WithdrawalHandler {
     use freyr::feature::feature_utils;
     use freyr::gas::gas_utils;
     use freyr::market::market::Market;
-    use freyr::market::market_utils::{IMarketUtilsLibraryDispatcher, IMarketUtilsDispatcherTrait};
+    use freyr::market::market_utils::{IMarketUtilsDispatcherTrait, IMarketUtilsLibraryDispatcher};
     use freyr::oracle::{
         oracle::{IOracleDispatcher, IOracleDispatcherTrait},
-        oracle_modules::{with_oracle_prices_before, with_oracle_prices_after},
-        oracle_utils::{SetPricesParams, SimulatePricesParams}
+        oracle_modules::{with_oracle_prices_after, with_oracle_prices_before},
+        oracle_utils::{SetPricesParams, SimulatePricesParams},
     };
     use freyr::oracle::{oracle_modules, oracle_utils};
     use freyr::order::base_order_utils::{ExecuteOrderParams};
     use freyr::role::role;
-    use freyr::role::role_module::{IRoleModuleLibraryDispatcher, IRoleModuleDispatcherTrait};
+    use freyr::role::role_module::{IRoleModuleDispatcherTrait, IRoleModuleLibraryDispatcher};
     use freyr::role::role_store::{IRoleStoreDispatcher};
     use freyr::swap::swap_handler::{ISwapHandlerDispatcher, ISwapHandlerDispatcherTrait};
     use freyr::utils::global_reentrancy_guard;
     use freyr::utils::starknet_utils;
     use freyr::withdrawal::{
-        withdrawal_utils, withdrawal_utils::{CreateWithdrawalParams, create_withdrawal, cancel_withdrawal},
-        withdrawal_vault::{IWithdrawalVaultDispatcher, IWithdrawalVaultDispatcherTrait}
+        withdrawal_utils, withdrawal_utils::{CreateWithdrawalParams, cancel_withdrawal, create_withdrawal},
+        withdrawal_vault::{IWithdrawalVaultDispatcher, IWithdrawalVaultDispatcherTrait},
     };
-    use starknet::{ContractAddress, get_contract_address, get_caller_address, ClassHash};
+    use starknet::{ClassHash, ContractAddress, get_caller_address, get_contract_address};
     // Local imports.
     use super::IWithdrawalHandler;
     use traits::Default;
@@ -129,7 +129,7 @@ mod WithdrawalHandler {
         withdrawal_vault_address: ContractAddress,
         oracle_address: ContractAddress,
         role_module_class_hash: ClassHash,
-        market_utils_class_hash: ClassHash
+        market_utils_class_hash: ClassHash,
     ) {
         self.data_store.write(IDataStoreDispatcher { contract_address: data_store_address });
         self.event_emitter.write(IEventEmitterDispatcher { contract_address: event_emitter_address });
@@ -146,7 +146,7 @@ mod WithdrawalHandler {
     #[abi(embed_v0)]
     impl WithdrawalHandlerImpl of super::IWithdrawalHandler<ContractState> {
         fn create_withdrawal(
-            ref self: ContractState, account: ContractAddress, params: CreateWithdrawalParams
+            ref self: ContractState, account: ContractAddress, params: CreateWithdrawalParams,
         ) -> felt252 {
             self.role_module.read().only_controller();
 
@@ -155,7 +155,7 @@ mod WithdrawalHandler {
             global_reentrancy_guard::non_reentrant_before(data_store); // Initiates re-entrancy
 
             feature_utils::validate_feature(
-                data_store, keys::create_withdrawal_feature_disabled_key(get_contract_address())
+                data_store, keys::create_withdrawal_feature_disabled_key(get_contract_address()),
             );
 
             let result = withdrawal_utils::create_withdrawal(
@@ -183,7 +183,7 @@ mod WithdrawalHandler {
             let withdrawal = data_store.get_withdrawal(key);
 
             feature_utils::validate_feature(
-                data_store, keys::cancel_withdrawal_feature_disabled_key(get_contract_address())
+                data_store, keys::cancel_withdrawal_feature_disabled_key(get_contract_address()),
             );
 
             exchange_utils::validate_request_cancellation(data_store, starknet::get_block_timestamp(), 'Withdrawal');
@@ -196,7 +196,7 @@ mod WithdrawalHandler {
                 withdrawal.account,
                 starting_gas,
                 keys::user_initiated_cancel(),
-                ''
+                '',
             );
 
             global_reentrancy_guard::non_reentrant_after(data_store); // Finalizes re-entrancy
@@ -224,7 +224,7 @@ mod WithdrawalHandler {
             };
 
             oracle_modules::with_oracle_prices_before(
-                self.oracle.read(), self.data_store.read(), self.event_emitter.read(), @oracle_params
+                self.oracle.read(), self.data_store.read(), self.event_emitter.read(), @oracle_params,
             );
 
             let starting_gas = starknet_utils::sn_gasleft(array![100]);
@@ -275,7 +275,7 @@ mod WithdrawalHandler {
         /// * `reason` - The reason of the error.
         /// * `reason_key` - The reason key of the error.
         fn handle_withdrawal_error(
-            ref self: ContractState, key: felt252, starting_gas: u256, reason: felt252, reason_key: felt252
+            ref self: ContractState, key: felt252, starting_gas: u256, reason: felt252, reason_key: felt252,
         ) {
             // Just cancels withdrawal. There is no way to handle revert and revert reason right now.
 
@@ -289,7 +289,7 @@ mod WithdrawalHandler {
                 get_caller_address(),
                 starting_gas,
                 '', // TODO: There is no way to get revert message currently.
-                reason_key
+                reason_key,
             );
         }
     }
@@ -304,20 +304,20 @@ mod WithdrawalHandler {
         /// * `oracle_params` - The oracle params to set prices before execution.
         /// * `keeper` - The keeper executing the withdrawal.
         fn _execute_withdrawal(
-            ref self: ContractState, key: felt252, oracle_params: SetPricesParams, keeper: ContractAddress
+            ref self: ContractState, key: felt252, oracle_params: SetPricesParams, keeper: ContractAddress,
         ) {
             let starting_gas = starknet_utils::sn_gasleft(array![100]);
             let data_store = self.data_store.read();
 
             feature_utils::validate_feature(
-                data_store, keys::execute_withdrawal_feature_disabled_key(get_contract_address())
+                data_store, keys::execute_withdrawal_feature_disabled_key(get_contract_address()),
             );
 
             let min_oracle_block_numbers = oracle_utils::get_uncompacted_oracle_block_numbers(
-                oracle_params.compacted_min_oracle_block_numbers.span(), oracle_params.tokens.len()
+                oracle_params.compacted_min_oracle_block_numbers.span(), oracle_params.tokens.len(),
             );
             let max_oracle_block_numbers = oracle_utils::get_uncompacted_oracle_block_numbers(
-                oracle_params.compacted_max_oracle_block_numbers.span(), oracle_params.tokens.len()
+                oracle_params.compacted_max_oracle_block_numbers.span(), oracle_params.tokens.len(),
             );
 
             let params: withdrawal_utils::ExecuteWithdrawalParams = withdrawal_utils::ExecuteWithdrawalParams {
@@ -329,7 +329,7 @@ mod WithdrawalHandler {
                 min_oracle_block_numbers,
                 max_oracle_block_numbers,
                 keeper,
-                starting_gas
+                starting_gas,
             };
 
             withdrawal_utils::execute_withdrawal(params, self.market_utils.read());

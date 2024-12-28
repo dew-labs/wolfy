@@ -1,6 +1,6 @@
 use freyr::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
 
-use freyr::order::order::{Order, OrderType, OrderTrait};
+use freyr::order::order::{Order, OrderTrait, OrderType};
 use freyr::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
 use freyr::test_utils::tests_lib;
 use freyr::utils::i256::{i256, i256_new};

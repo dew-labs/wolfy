@@ -19,17 +19,17 @@ use freyr::callback::callback_utils::get_saved_callback_contract;
 // Local imports.
 use freyr::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
 use freyr::data::keys;
-use freyr::event::{event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait},};
-use freyr::market::market_utils::{MarketPrices, IMarketUtilsLibraryDispatcher, IMarketUtilsDispatcherTrait};
+use freyr::event::{event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait}};
+use freyr::market::market_utils::{IMarketUtilsDispatcherTrait, IMarketUtilsLibraryDispatcher, MarketPrices};
 use freyr::nonce::nonce_utils;
 use freyr::oracle::oracle::{IOracleDispatcher, IOracleDispatcherTrait};
-use freyr::order::order::{Order, OrderType, DecreasePositionSwapType};
+use freyr::order::order::{DecreasePositionSwapType, Order, OrderType};
 use freyr::position::position::Position;
 use freyr::position::position_utils;
 use freyr::utils::arrays::are_gte_u64;
 use freyr::utils::i256::i256;
-use freyr::utils::span32::{Span32, Array32Trait};
-use starknet::{get_caller_address, ContractAddress, contract_address_const};
+use freyr::utils::span32::{Array32Trait, Span32};
+use starknet::{ContractAddress, contract_address_const, get_caller_address};
 
 /// CreateAdlOrderParams struct used in createAdlOrder to avoid stack
 #[derive(Drop, Copy, starknet::Store, Serde)]
@@ -87,12 +87,12 @@ fn update_adl_state(
     market: ContractAddress,
     is_long: bool,
     max_oracle_block_numbers: Span<u64>,
-    market_utils: IMarketUtilsLibraryDispatcher
+    market_utils: IMarketUtilsLibraryDispatcher,
 ) {
     let latest_adl_block = get_latest_adl_block(data_store, market, is_long);
     assert(
         are_gte_u64(max_oracle_block_numbers, latest_adl_block),
-        AdlError::ORACLE_BLOCK_NUMBERS_ARE_SMALLER_THAN_REQUIRED
+        AdlError::ORACLE_BLOCK_NUMBERS_ARE_SMALLER_THAN_REQUIRED,
     );
     let enabled_market = market_utils.get_enabled_market(data_store, market);
     let prices: MarketPrices = market_utils.get_market_prices(oracle, enabled_market);
@@ -122,7 +122,7 @@ fn update_adl_state(
 /// Return the key of the created order.
 fn create_adl_order(params: CreateAdlOrderParams) -> felt252 {
     let positon_key = position_utils::get_position_key(
-        params.account, params.market, params.collateral_token, params.is_long
+        params.account, params.market, params.collateral_token, params.is_long,
     );
     let position = params.data_store.get_position(positon_key);
 
@@ -186,13 +186,13 @@ fn create_adl_order(params: CreateAdlOrderParams) -> felt252 {
 /// * `is_long` - Indicates whether to check the long or short side of the market.
 /// * `max_oracle_block_numbers` - The oracle block numbers for the prices stored in the oracle.
 fn validate_adl(
-    data_store: IDataStoreDispatcher, market: ContractAddress, is_long: bool, max_oracle_block_numbers: Span<u64>
+    data_store: IDataStoreDispatcher, market: ContractAddress, is_long: bool, max_oracle_block_numbers: Span<u64>,
 ) {
     let is_adl_enabled = get_is_adl_enabled(data_store, market, is_long);
     assert(is_adl_enabled, AdlError::ADL_NOT_ENABLED);
     let latest_block = get_latest_adl_block(data_store, market, is_long);
     assert(
-        are_gte_u64(max_oracle_block_numbers, latest_block), AdlError::ORACLE_BLOCK_NUMBERS_ARE_SMALLER_THAN_REQUIRED
+        are_gte_u64(max_oracle_block_numbers, latest_block), AdlError::ORACLE_BLOCK_NUMBERS_ARE_SMALLER_THAN_REQUIRED,
     );
 }
 
@@ -258,8 +258,7 @@ fn emit_adl_state_updated(
     is_long: bool,
     pnl_to_pool_factor: i256,
     max_pnl_factor: u256,
-    should_enable_adl: bool
+    should_enable_adl: bool,
 ) {
-    event_emitter
-        .emit_adl_state_updated(market, is_long, pnl_to_pool_factor.into(), max_pnl_factor, should_enable_adl,);
+    event_emitter.emit_adl_state_updated(market, is_long, pnl_to_pool_factor.into(), max_pnl_factor, should_enable_adl);
 }

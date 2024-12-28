@@ -1,4 +1,4 @@
-use freyr::event::event_emitter::EventEmitter::{SwapInfo, SwapFeesCollected};
+use freyr::event::event_emitter::EventEmitter::{SwapFeesCollected, SwapInfo};
 
 use freyr::event::event_emitter::{EventEmitter, IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
 
@@ -7,7 +7,8 @@ use freyr::pricing::swap_pricing_utils::SwapFees;
 use freyr::test_utils::tests_lib::deploy_event_emitter;
 use freyr::utils::i256::{i256, i256_new};
 use snforge_std::{
-    declare, ContractClassTrait, DeclareResultTrait, spy_events, EventSpy, EventSpyTrait, Event, EventSpyAssertionsTrait
+    ContractClassTrait, DeclareResultTrait, Event, EventSpy, EventSpyAssertionsTrait, EventSpyTrait, declare,
+    spy_events,
 };
 use starknet::{ContractAddress, contract_address_const};
 
@@ -52,7 +53,7 @@ fn given_normal_conditions_when_emit_swap_info_then_works() {
             amount_in_after_fees,
             amount_out,
             price_impact_usd,
-            price_impact_amount
+            price_impact_amount,
         );
 
     // Assert the event was emitted.
@@ -74,11 +75,11 @@ fn given_normal_conditions_when_emit_swap_info_then_works() {
                             amount_in_after_fees: amount_in_after_fees,
                             amount_out: amount_out,
                             price_impact_usd: price_impact_usd,
-                            price_impact_amount: price_impact_amount
-                        }
-                    )
-                )
-            ]
+                            price_impact_amount: price_impact_amount,
+                        },
+                    ),
+                ),
+            ],
         );
     // Assert there are no more events.
     assert(spy.get_events().events.len() == 1, 'There should be no events');
@@ -123,10 +124,10 @@ fn given_normal_conditions_when_emit_swap_fees_collected_then_works() {
                     EventEmitter::Event::SwapFeesCollected(
                         SwapFeesCollected {
                             market: market, token: token, token_price: token_price, action: action, fees: fees,
-                        }
-                    )
-                )
-            ]
+                        },
+                    ),
+                ),
+            ],
         );
     // Assert there are no more events.
     assert(spy.get_events().events.len() == 1, 'There should be no events');

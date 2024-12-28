@@ -7,9 +7,9 @@ use freyr::referral::referral_utils;
 use freyr::role::role;
 use freyr::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
 use freyr::test_utils::tests_lib;
-use freyr::utils::span32::{Span32, Array32Trait};
+use freyr::utils::span32::{Array32Trait, Span32};
 
-use snforge_std::{declare, start_cheat_caller_address, ContractClassTrait, ContractClass};
+use snforge_std::{ContractClass, ContractClassTrait, declare, start_cheat_caller_address};
 use starknet::{ContractAddress, contract_address_const};
 
 fn deploy_governable(contract: ContractClass, event_emitter_address: ContractAddress) -> ContractAddress {
@@ -22,7 +22,7 @@ fn deploy_governable(contract: ContractClass, event_emitter_address: ContractAdd
     contract_address
 }
 
-fn setup() -> (IEventEmitterDispatcher, IGovernableDispatcher,) {
+fn setup() -> (IEventEmitterDispatcher, IGovernableDispatcher) {
     let (
         _caller_address,
         _market_token_class,
@@ -61,7 +61,7 @@ fn setup() -> (IEventEmitterDispatcher, IGovernableDispatcher,) {
     (event_emitter, governable)
 }
 
-fn setup_with_other_address() -> (IEventEmitterDispatcher, IGovernableDispatcher,) {
+fn setup_with_other_address() -> (IEventEmitterDispatcher, IGovernableDispatcher) {
     let (
         _caller_address,
         _market_token_class,

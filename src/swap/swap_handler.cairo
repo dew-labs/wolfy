@@ -29,18 +29,18 @@ mod SwapHandler {
     // *************************************************************************
     // Core lib imports
 
-    use freyr::market::market_utils::{IMarketUtilsLibraryDispatcher, IMarketUtilsDispatcherTrait};
+    use freyr::market::market_utils::{IMarketUtilsDispatcherTrait, IMarketUtilsLibraryDispatcher};
     use freyr::role::role;
-    use freyr::role::role_module::{IRoleModuleLibraryDispatcher, IRoleModuleDispatcherTrait};
-    use freyr::role::role_module::{RoleModule, IRoleModule};
+    use freyr::role::role_module::{IRoleModule, RoleModule};
+    use freyr::role::role_module::{IRoleModuleDispatcherTrait, IRoleModuleLibraryDispatcher};
     use freyr::role::role_store::{IRoleStoreDispatcher};
+    use freyr::swap::swap_utils;
 
     // Local imports.
     use freyr::swap::swap_utils::SwapParams;
-    use freyr::swap::swap_utils;
     use freyr::utils::i256::i256;
     use openzeppelin::security::ReentrancyGuardComponent;
-    use starknet::{ContractAddress, ClassHash};
+    use starknet::{ClassHash, ContractAddress};
 
 
     component!(path: ReentrancyGuardComponent, storage: reentrancy_guard, event: ReentrancyGuardEvent);
@@ -67,7 +67,7 @@ mod SwapHandler {
     #[derive(Drop, starknet::Event)]
     enum Event {
         #[flat]
-        ReentrancyGuardEvent: ReentrancyGuardComponent::Event
+        ReentrancyGuardEvent: ReentrancyGuardComponent::Event,
     }
 
     // *************************************************************************

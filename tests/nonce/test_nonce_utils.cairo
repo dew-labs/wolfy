@@ -1,5 +1,5 @@
 use freyr::data::data_store::IDataStoreDispatcherTrait;
-use freyr::nonce::nonce_utils::{get_current_nonce, increment_nonce, compute_key};
+use freyr::nonce::nonce_utils::{compute_key, get_current_nonce, increment_nonce};
 use freyr::test_utils::tests_lib;
 
 #[test]

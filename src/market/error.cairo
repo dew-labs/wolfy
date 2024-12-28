@@ -36,8 +36,8 @@ mod MarketError {
             array![
                 'max_swap_path_length_exceeded',
                 token_swap_path_length.into(),
-                max_swap_path_length.try_into().expect('u256 into felt failed')
-            ]
+                max_swap_path_length.try_into().expect('u256 into felt failed'),
+            ],
         )
     }
 
@@ -54,8 +54,8 @@ mod MarketError {
             array![
                 'ui_fee_factor_exceeded',
                 ui_fee_factor.try_into().expect('u256 into felt failed'),
-                max_ui_fee_factor.try_into().expect('u256 into felt failed')
-            ]
+                max_ui_fee_factor.try_into().expect('u256 into felt failed'),
+            ],
         )
     }
 
@@ -64,8 +64,8 @@ mod MarketError {
             array![
                 'invalid_mrkt_tkn_balance_col',
                 balance.try_into().expect('u256 into felt failed'),
-                collateral_amount.try_into().expect('u256 into felt failed')
-            ]
+                collateral_amount.try_into().expect('u256 into felt failed'),
+            ],
         )
     }
 
@@ -74,8 +74,8 @@ mod MarketError {
             array![
                 'invalid_mrkt_tkn_balance_clm',
                 balance.try_into().expect('u256 into felt failed'),
-                claimable_funding_fee_amount.try_into().expect('u256 into felt failed')
-            ]
+                claimable_funding_fee_amount.try_into().expect('u256 into felt failed'),
+            ],
         )
     }
 
@@ -88,8 +88,8 @@ mod MarketError {
             array![
                 'max_open_interest_exceeded',
                 open_interest.try_into().expect('u256 into felt failed'),
-                max_open_interest.try_into().expect('u256 into felt failed')
-            ]
+                max_open_interest.try_into().expect('u256 into felt failed'),
+            ],
         )
     }
 
@@ -102,8 +102,8 @@ mod MarketError {
             array![
                 'max_pool_amount_exceeded',
                 pool_amount.try_into().expect('u256 into felt failed'),
-                max_pool_amount.try_into().expect('u256 into felt failed')
-            ]
+                max_pool_amount.try_into().expect('u256 into felt failed'),
+            ],
         )
     }
 
@@ -112,8 +112,8 @@ mod MarketError {
             array![
                 'insufficient_reserve',
                 reserve.try_into().expect('u256 into felt failed'),
-                amount.try_into().expect('u256 into felt failed')
-            ]
+                amount.try_into().expect('u256 into felt failed'),
+            ],
         )
     }
 
@@ -122,8 +122,8 @@ mod MarketError {
             array![
                 'unexpected_borrowing_factor',
                 borrowing_factor.try_into().expect('u256 into felt failed'),
-                next.try_into().expect('u256 into felt failed')
-            ]
+                next.try_into().expect('u256 into felt failed'),
+            ],
         )
     }
 

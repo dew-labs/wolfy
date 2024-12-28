@@ -55,7 +55,7 @@ mod OracleError {
             }
             data
                 .append(
-                    (*data_1.pop_front().expect('array pop_front failed')).try_into().expect('u256 into felt failed')
+                    (*data_1.pop_front().expect('array pop_front failed')).try_into().expect('u256 into felt failed'),
                 );
         };
         data.append(data_2.try_into().expect('u256 into felt failed'));
@@ -68,8 +68,8 @@ mod OracleError {
             array![
                 'invalid med min-max price',
                 data_1.try_into().expect('u256 into felt failed'),
-                data_2.try_into().expect('u256 into felt failed')
-            ]
+                data_2.try_into().expect('u256 into felt failed'),
+            ],
         )
     }
 
@@ -78,8 +78,8 @@ mod OracleError {
             array![
                 'invalid med min-max price',
                 data_1.try_into().expect('u256 into felt failed'),
-                data_2.try_into().expect('u256 into felt failed')
-            ]
+                data_2.try_into().expect('u256 into felt failed'),
+            ],
         )
     }
 
@@ -99,8 +99,8 @@ mod OracleError {
             array![
                 'max oracle signers',
                 data_1.try_into().expect('u256 into felt failed'),
-                data_2.try_into().expect('u256 into felt failed')
-            ]
+                data_2.try_into().expect('u256 into felt failed'),
+            ],
         )
     }
 
@@ -109,8 +109,8 @@ mod OracleError {
             array![
                 'max signers index',
                 data_1.try_into().expect('u256 into felt failed'),
-                data_2.try_into().expect('u256 into felt failed')
-            ]
+                data_2.try_into().expect('u256 into felt failed'),
+            ],
         )
     }
 
@@ -125,8 +125,8 @@ mod OracleError {
                 data_1.into(),
                 data_2.try_into().expect('u256 into felt failed'),
                 data_3.try_into().expect('u256 into felt failed'),
-                data_4.try_into().expect('u256 into felt failed')
-            ]
+                data_4.try_into().expect('u256 into felt failed'),
+            ],
         )
     }
 
@@ -144,8 +144,8 @@ mod OracleError {
                 'price feed not updated',
                 data_1.into(),
                 data_2.into(),
-                data_3.try_into().expect('u256 into felt failed')
-            ]
+                data_3.try_into().expect('u256 into felt failed'),
+            ],
         )
     }
 
@@ -155,8 +155,8 @@ mod OracleError {
                 'price already set',
                 data_1.into(),
                 data_2.try_into().expect('u256 into felt failed'),
-                data_3.try_into().expect('u256 into felt failed')
-            ]
+                data_3.try_into().expect('u256 into felt failed'),
+            ],
         )
     }
 
@@ -169,7 +169,7 @@ mod OracleError {
     }
 
     fn ORACLE_BLOCK_NUMBERS_NOT_WITHIN_RANGE(
-        min_oracle_block_numbers: Span<u64>, max_oracle_block_numbers: Span<u64>, block_number: u64
+        min_oracle_block_numbers: Span<u64>, max_oracle_block_numbers: Span<u64>, block_number: u64,
     ) {
         let mut data: Array<felt252> = array![];
         data.append('block number not in range');

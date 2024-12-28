@@ -33,12 +33,12 @@ mod FeeHandler {
     use freyr::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
     use freyr::fee::error::FeeError;
     use freyr::fee::fee_utils;
-    use freyr::market::market_utils::{IMarketUtilsLibraryDispatcher, IMarketUtilsDispatcherTrait};
+    use freyr::market::market_utils::{IMarketUtilsDispatcherTrait, IMarketUtilsLibraryDispatcher};
 
 
     // Local imports.
-    use freyr::role::role_module::{IRoleModuleLibraryDispatcher, IRoleModuleDispatcherTrait};
-    use starknet::{get_caller_address, ContractAddress, contract_address_const, ClassHash};
+    use freyr::role::role_module::{IRoleModuleDispatcherTrait, IRoleModuleLibraryDispatcher};
+    use starknet::{ClassHash, ContractAddress, contract_address_const, get_caller_address};
     use super::IFeeHandler;
 
     // *************************************************************************
@@ -112,7 +112,7 @@ mod FeeHandler {
                     *market.at(i),
                     *tokens.at(i),
                     receiver,
-                    self.market_utils.read()
+                    self.market_utils.read(),
                 );
 
                 i += 1;

@@ -1,14 +1,14 @@
 use freyr::role::{
+    role::{
+        ADL_KEEPER, CONFIG_KEEPER, CONTROLLER, FEE_KEEPER, FROZEN_ORDER_KEEPER, LIQUIDATION_KEEPER, MARKET_KEEPER,
+        ORDER_KEEPER, ROLE_ADMIN, ROUTER_PLUGIN, TIMELOCK_ADMIN, TIMELOCK_MULTISIG,
+    },
     role_module::{IRoleModuleDispatcher, IRoleModuleDispatcherTrait},
     role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait},
-    role::{
-        ROLE_ADMIN, TIMELOCK_ADMIN, TIMELOCK_MULTISIG, CONFIG_KEEPER, CONTROLLER, ROUTER_PLUGIN, MARKET_KEEPER,
-        FEE_KEEPER, ORDER_KEEPER, FROZEN_ORDER_KEEPER, LIQUIDATION_KEEPER, ADL_KEEPER
-    }
 };
 use freyr::test_utils::tests_lib;
 use result::ResultTrait;
-use snforge_std::{declare, start_cheat_caller_address, ContractClassTrait, DeclareResultTrait};
+use snforge_std::{ContractClassTrait, DeclareResultTrait, declare, start_cheat_caller_address};
 use starknet::Felt252TryIntoContractAddress;
 use starknet::{ContractAddress, contract_address_const};
 use traits::TryInto;
@@ -453,7 +453,7 @@ fn given_not_adl_keeper_when_only_adl_keeper_then_works() {
 
 fn setup() -> ( // This caller address will be used with `start_cheat_caller_address` cheatcode to mock the caller address.,
     IRoleStoreDispatcher, // Interface to interact with the `MarketToken` contract.
-     IRoleModuleDispatcher,
+    IRoleModuleDispatcher,
 ) {
     let role_store = IRoleStoreDispatcher { contract_address: tests_lib::deploy_role_store() };
     let role_module = IRoleModuleDispatcher { contract_address: deploy_role_module(role_store.contract_address) };

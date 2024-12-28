@@ -2,9 +2,9 @@
 //                                  IMPORTS
 // *************************************************************************
 // Core lib imports.
-use freyr::utils::{error_utils, calc};
+use freyr::utils::{calc, error_utils};
 
-use starknet::{ContractAddress, StorageBaseAddress, SyscallResult, Store};
+use starknet::{ContractAddress, StorageBaseAddress, Store, SyscallResult};
 
 /// Gets the value of the element at the specified index in the given array. If the index is out of bounds, returns 0.
 /// # Arguments
@@ -173,7 +173,7 @@ fn get_median(arr: Span<u256>) -> u256 {
 /// # Returns
 /// The uncompacted value at the specified index in the array of compacted values.
 fn get_uncompacted_value(
-    compacted_values: Span<u256>, index: usize, compacted_value_bit_length: usize, bit_mask: u256, label: felt252
+    compacted_values: Span<u256>, index: usize, compacted_value_bit_length: usize, bit_mask: u256, label: felt252,
 ) -> u256 {
     error_utils::check_division_by_zero(compacted_value_bit_length.into(), 'compacted_value_bit_length');
     let compacted_values_per_slot = 256 / compacted_value_bit_length; // 256 / 32 = 8
@@ -219,7 +219,7 @@ impl StoreContractAddressSpan of Store<Span<ContractAddress>> {
     }
 
     fn read_at_offset(
-        address_domain: u32, base: StorageBaseAddress, mut offset: u8
+        address_domain: u32, base: StorageBaseAddress, mut offset: u8,
     ) -> SyscallResult<Span<ContractAddress>> {
         let mut arr: Array<ContractAddress> = ArrayTrait::new();
 
@@ -245,7 +245,7 @@ impl StoreContractAddressSpan of Store<Span<ContractAddress>> {
     }
 
     fn write_at_offset(
-        address_domain: u32, base: StorageBaseAddress, mut offset: u8, mut value: Span<ContractAddress>
+        address_domain: u32, base: StorageBaseAddress, mut offset: u8, mut value: Span<ContractAddress>,
     ) -> SyscallResult<()> {
         // Store the length of the array in the first storage slot.
         let len: u8 = value.len().try_into().expect('Storage - Span too large');
@@ -259,7 +259,7 @@ impl StoreContractAddressSpan of Store<Span<ContractAddress>> {
                     Store::<ContractAddress>::write_at_offset(address_domain, base, offset, *element).unwrap();
                     offset += Store::<felt252>::size();
                 },
-                Option::None(_) => { break Result::Ok(()); }
+                Option::None(_) => { break Result::Ok(()); },
             };
         }
     }
@@ -279,7 +279,7 @@ impl StoreContractAddressSpan of Store<Span<ContractAddress>> {
 /// # Returns
 /// The uncompacted value at the specified index in the array of compacted values.
 fn get_uncompacted_value_u64(
-    compacted_values: Span<u64>, index: usize, compacted_value_bit_length: usize, bit_mask: u64, label: felt252
+    compacted_values: Span<u64>, index: usize, compacted_value_bit_length: usize, bit_mask: u64, label: felt252,
 ) -> u64 {
     let compacted_values_per_slot = 64 / compacted_value_bit_length;
 

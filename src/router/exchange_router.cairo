@@ -15,8 +15,8 @@ use freyr::deposit::deposit_utils::CreateDepositParams;
 use freyr::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
 use freyr::exchange::{
     deposit_handler::{IDepositHandlerDispatcher, IDepositHandlerDispatcherTrait},
-    withdrawal_handler::{IWithdrawalHandlerDispatcher, IWithdrawalHandlerDispatcherTrait},
     order_handler::{IOrderHandlerDispatcher, IOrderHandlerDispatcherTrait},
+    withdrawal_handler::{IWithdrawalHandlerDispatcher, IWithdrawalHandlerDispatcherTrait},
 };
 use freyr::oracle::oracle_utils::SimulatePricesParams;
 use freyr::order::base_order_utils::CreateOrderParams;
@@ -72,7 +72,7 @@ trait IExchangeRouter<TContractState> {
     /// * `callback_contract` - The address of the callback contract to be associated with the specified market and user
     /// account.
     fn set_saved_callback_contract(
-        ref self: TContractState, market: ContractAddress, callback_contract: ContractAddress
+        ref self: TContractState, market: ContractAddress, callback_contract: ContractAddress,
     );
 
     /// Simulate the execution of a deposit operation.
@@ -86,7 +86,7 @@ trait IExchangeRouter<TContractState> {
     /// * `key` - Unique identifier for the deposit operation.
     /// * `simulated_oracle_params` - A struct containing parameters needed for simulating the withdrawal.
     fn simulate_execute_withdrawal(
-        ref self: TContractState, key: felt252, simulated_oracle_params: SimulatePricesParams
+        ref self: TContractState, key: felt252, simulated_oracle_params: SimulatePricesParams,
     );
 
     /// Simulate the execution of an order.
@@ -108,7 +108,7 @@ trait IExchangeRouter<TContractState> {
         size_delta_usd: u256,
         acceptable_price: u256,
         trigger_price: u256,
-        min_output_amout: u256
+        min_output_amout: u256,
     );
 
     /// Cancels the given order.
@@ -128,7 +128,7 @@ trait IExchangeRouter<TContractState> {
         ref self: TContractState,
         markets: Array<ContractAddress>,
         tokens: Array<ContractAddress>,
-        receiver: ContractAddress
+        receiver: ContractAddress,
     ) -> Array<u256>;
 
     fn claim_collateral(
@@ -136,7 +136,7 @@ trait IExchangeRouter<TContractState> {
         markets: Array<ContractAddress>,
         tokens: Array<ContractAddress>,
         time_keys: Array<u256>,
-        receiver: ContractAddress
+        receiver: ContractAddress,
     ) -> Array<u256>;
 
     /// Claims affiliate rewards for the given markets and tokens on behalf of the caller, and sends the rewards to the
@@ -149,7 +149,7 @@ trait IExchangeRouter<TContractState> {
         ref self: TContractState,
         markets: Array<ContractAddress>,
         tokens: Array<ContractAddress>,
-        receiver: ContractAddress
+        receiver: ContractAddress,
     ) -> Array<u256>;
 
     fn set_ui_fee_factor(ref self: TContractState, ui_fee_factor: u256);
@@ -158,7 +158,7 @@ trait IExchangeRouter<TContractState> {
         ref self: TContractState,
         markets: Array<ContractAddress>,
         tokens: Array<ContractAddress>,
-        receiver: ContractAddress
+        receiver: ContractAddress,
     ) -> Array<u256>;
 }
 
@@ -182,12 +182,12 @@ mod ExchangeRouter {
     use freyr::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
     use freyr::exchange::{
         deposit_handler::{IDepositHandlerDispatcher, IDepositHandlerDispatcherTrait},
-        withdrawal_handler::{IWithdrawalHandlerDispatcher, IWithdrawalHandlerDispatcherTrait},
         order_handler::{IOrderHandlerDispatcher, IOrderHandlerDispatcherTrait},
+        withdrawal_handler::{IWithdrawalHandlerDispatcher, IWithdrawalHandlerDispatcherTrait},
     };
     use freyr::feature::feature_utils;
     use freyr::fee::fee_utils;
-    use freyr::market::market_utils::{IMarketUtilsLibraryDispatcher, IMarketUtilsDispatcherTrait};
+    use freyr::market::market_utils::{IMarketUtilsDispatcherTrait, IMarketUtilsLibraryDispatcher};
     use freyr::oracle::oracle_utils::SimulatePricesParams;
     use freyr::order::base_order_utils::CreateOrderParams;
     use freyr::order::order::Order;
@@ -198,7 +198,7 @@ mod ExchangeRouter {
     use freyr::withdrawal::{withdrawal::Withdrawal, withdrawal_utils::CreateWithdrawalParams};
 
     use openzeppelin::security::ReentrancyGuardComponent;
-    use starknet::{get_caller_address, ContractAddress, contract_address_const, get_contract_address, ClassHash};
+    use starknet::{ClassHash, ContractAddress, contract_address_const, get_caller_address, get_contract_address};
 
     use super::IExchangeRouter;
 
@@ -229,7 +229,7 @@ mod ExchangeRouter {
     #[derive(Drop, starknet::Event)]
     enum Event {
         #[flat]
-        ReentrancyGuardEvent: ReentrancyGuardComponent::Event
+        ReentrancyGuardEvent: ReentrancyGuardComponent::Event,
     }
 
     // *************************************************************************
@@ -348,7 +348,7 @@ mod ExchangeRouter {
         }
 
         fn set_saved_callback_contract(
-            ref self: ContractState, market: ContractAddress, callback_contract: ContractAddress
+            ref self: ContractState, market: ContractAddress, callback_contract: ContractAddress,
         ) {
             self.reentrancy_guard.start();
 
@@ -360,7 +360,7 @@ mod ExchangeRouter {
         }
 
         fn simulate_execute_deposit(
-            ref self: ContractState, key: felt252, simulated_oracle_params: SimulatePricesParams
+            ref self: ContractState, key: felt252, simulated_oracle_params: SimulatePricesParams,
         ) {
             self.reentrancy_guard.start();
 
@@ -370,7 +370,7 @@ mod ExchangeRouter {
         }
 
         fn simulate_execute_withdrawal(
-            ref self: ContractState, key: felt252, simulated_oracle_params: SimulatePricesParams
+            ref self: ContractState, key: felt252, simulated_oracle_params: SimulatePricesParams,
         ) {
             self.reentrancy_guard.start();
 
@@ -380,7 +380,7 @@ mod ExchangeRouter {
         }
 
         fn simulate_execute_order(
-            ref self: ContractState, key: felt252, simulated_oracle_params: SimulatePricesParams
+            ref self: ContractState, key: felt252, simulated_oracle_params: SimulatePricesParams,
         ) {
             self.reentrancy_guard.start();
 
@@ -395,7 +395,7 @@ mod ExchangeRouter {
             size_delta_usd: u256,
             acceptable_price: u256,
             trigger_price: u256,
-            min_output_amout: u256
+            min_output_amout: u256,
         ) {
             self.reentrancy_guard.start();
 
@@ -433,7 +433,7 @@ mod ExchangeRouter {
             ref self: ContractState,
             markets: Array<ContractAddress>,
             tokens: Array<ContractAddress>,
-            receiver: ContractAddress
+            receiver: ContractAddress,
         ) -> Array<u256> {
             self.reentrancy_guard.start();
 
@@ -444,7 +444,7 @@ mod ExchangeRouter {
             }
 
             feature_utils::validate_feature(
-                data_store, keys::claim_funding_fees_feature_disabled_key(get_contract_address())
+                data_store, keys::claim_funding_fees_feature_disabled_key(get_contract_address()),
             );
 
             account_utils::validate_receiver(receiver);
@@ -463,8 +463,8 @@ mod ExchangeRouter {
                     .append(
                         market_utils
                             .claim_funding_fees(
-                                data_store, self.event_emitter.read(), *markets[i], *tokens[i], account, receiver
-                            )
+                                data_store, self.event_emitter.read(), *markets[i], *tokens[i], account, receiver,
+                            ),
                     );
                 i += 1;
             };
@@ -479,7 +479,7 @@ mod ExchangeRouter {
             markets: Array<ContractAddress>,
             tokens: Array<ContractAddress>,
             time_keys: Array<u256>,
-            receiver: ContractAddress
+            receiver: ContractAddress,
         ) -> Array<u256> {
             self.reentrancy_guard.start();
 
@@ -490,7 +490,7 @@ mod ExchangeRouter {
             }
 
             feature_utils::validate_feature(
-                data_store, keys::claim_collateral_feature_disabled_key(get_contract_address())
+                data_store, keys::claim_collateral_feature_disabled_key(get_contract_address()),
             );
 
             account_utils::validate_receiver(receiver);
@@ -516,8 +516,8 @@ mod ExchangeRouter {
                                 *tokens[i],
                                 *time_keys[i],
                                 account,
-                                receiver
-                            )
+                                receiver,
+                            ),
                     );
                 i += 1;
             };
@@ -531,7 +531,7 @@ mod ExchangeRouter {
             ref self: ContractState,
             markets: Array<ContractAddress>,
             tokens: Array<ContractAddress>,
-            receiver: ContractAddress
+            receiver: ContractAddress,
         ) -> Array<u256> {
             self.reentrancy_guard.start();
 
@@ -542,7 +542,7 @@ mod ExchangeRouter {
             }
 
             feature_utils::validate_feature(
-                data_store, keys::claim_affiliate_rewards_feature_disabled_key(get_contract_address())
+                data_store, keys::claim_affiliate_rewards_feature_disabled_key(get_contract_address()),
             );
 
             let account = get_caller_address();
@@ -563,8 +563,8 @@ mod ExchangeRouter {
                             *tokens[i],
                             account,
                             receiver,
-                            self.market_utils.read()
-                        )
+                            self.market_utils.read(),
+                        ),
                     );
                 i = i + 1;
             };
@@ -590,7 +590,7 @@ mod ExchangeRouter {
             ref self: ContractState,
             markets: Array<ContractAddress>,
             tokens: Array<ContractAddress>,
-            receiver: ContractAddress
+            receiver: ContractAddress,
         ) -> Array<u256> {
             self.reentrancy_guard.start();
 
@@ -601,7 +601,7 @@ mod ExchangeRouter {
             }
 
             feature_utils::validate_feature(
-                data_store, keys::claim_ui_fees_feature_disabled_key(get_contract_address())
+                data_store, keys::claim_ui_fees_feature_disabled_key(get_contract_address()),
             );
 
             let ui_fee_receiver = get_caller_address();
@@ -622,8 +622,8 @@ mod ExchangeRouter {
                             *markets[i],
                             *tokens[i],
                             receiver,
-                            self.market_utils.read()
-                        )
+                            self.market_utils.read(),
+                        ),
                     );
                 i += 1;
             };

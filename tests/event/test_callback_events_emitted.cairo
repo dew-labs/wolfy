@@ -1,17 +1,17 @@
 use freyr::deposit::deposit::Deposit;
 
 use freyr::event::event_emitter::EventEmitter::{
-    AfterDepositExecutionError, AfterDepositCancellationError, AfterWithdrawalExecutionError,
-    AfterWithdrawalCancellationError, AfterOrderExecutionError, AfterOrderCancellationError, AfterOrderFrozenError
+    AfterDepositCancellationError, AfterDepositExecutionError, AfterOrderCancellationError, AfterOrderExecutionError,
+    AfterOrderFrozenError, AfterWithdrawalCancellationError, AfterWithdrawalExecutionError,
 };
 
 use freyr::event::event_emitter::{EventEmitter, IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
-use freyr::order::order::{Order, OrderType, SecondaryOrderType, DecreasePositionSwapType};
+use freyr::order::order::{DecreasePositionSwapType, Order, OrderType, SecondaryOrderType};
 use freyr::test_utils::tests_lib::deploy_event_emitter;
-use freyr::utils::span32::{Span32, Array32Trait};
+use freyr::utils::span32::{Array32Trait, Span32};
 use freyr::withdrawal::withdrawal::Withdrawal;
 use option::OptionTrait;
-use snforge_std::{declare, ContractClassTrait, spy_events, EventSpy, EventSpyTrait, Event, EventSpyAssertionsTrait};
+use snforge_std::{ContractClassTrait, Event, EventSpy, EventSpyAssertionsTrait, EventSpyTrait, declare, spy_events};
 use starknet::{ContractAddress, contract_address_const};
 
 #[test]
@@ -40,10 +40,10 @@ fn given_normal_conditions_when_emit_after_deposit_execution_error_then_works() 
                 (
                     contract_address,
                     EventEmitter::Event::AfterDepositExecutionError(
-                        AfterDepositExecutionError { key: key, deposit: deposit_data }
-                    )
-                )
-            ]
+                        AfterDepositExecutionError { key: key, deposit: deposit_data },
+                    ),
+                ),
+            ],
         );
     // Assert there are no more events.
     assert(spy.get_events().events.len() == 1, 'There should be no events');
@@ -75,10 +75,10 @@ fn given_normal_conditions_when_emit_after_deposit_cancellation_error_then_works
                 (
                     contract_address,
                     EventEmitter::Event::AfterDepositCancellationError(
-                        AfterDepositCancellationError { key: key, deposit: deposit_data }
-                    )
-                )
-            ]
+                        AfterDepositCancellationError { key: key, deposit: deposit_data },
+                    ),
+                ),
+            ],
         );
     // Assert there are no more events.
     assert(spy.get_events().events.len() == 1, 'There should be no events');
@@ -110,10 +110,10 @@ fn given_normal_conditions_when_emit_after_withdrawal_execution_error_then_works
                 (
                     contract_address,
                     EventEmitter::Event::AfterWithdrawalExecutionError(
-                        AfterWithdrawalExecutionError { key: key, withdrawal: withdrawal_data }
-                    )
-                )
-            ]
+                        AfterWithdrawalExecutionError { key: key, withdrawal: withdrawal_data },
+                    ),
+                ),
+            ],
         );
     // Assert there are no more events.
     assert(spy.get_events().events.len() == 1, 'There should be no events');
@@ -145,10 +145,10 @@ fn given_normal_conditions_when_emit_after_withdrawal_cancellation_error_then_wo
                 (
                     contract_address,
                     EventEmitter::Event::AfterWithdrawalCancellationError(
-                        AfterWithdrawalCancellationError { key: key, withdrawal: withdrawal_data }
-                    )
-                )
-            ]
+                        AfterWithdrawalCancellationError { key: key, withdrawal: withdrawal_data },
+                    ),
+                ),
+            ],
         );
     // Assert there are no more events.
     assert(spy.get_events().events.len() == 1, 'There should be no events');
@@ -184,10 +184,10 @@ fn given_normal_conditions_when_emit_after_order_execution_error_then_works() {
                 (
                     contract_address,
                     EventEmitter::Event::AfterOrderExecutionError(
-                        AfterOrderExecutionError { key: key, order: order_data }
-                    )
-                )
-            ]
+                        AfterOrderExecutionError { key: key, order: order_data },
+                    ),
+                ),
+            ],
         );
     // Assert there are no more events.
     assert(spy.get_events().events.len() == 1, 'There should be no events');
@@ -219,10 +219,10 @@ fn given_normal_conditions_when_emit_after_order_cancellation_error_then_works()
                 (
                     contract_address,
                     EventEmitter::Event::AfterOrderCancellationError(
-                        AfterOrderCancellationError { key: key, order: order_data }
-                    )
-                )
-            ]
+                        AfterOrderCancellationError { key: key, order: order_data },
+                    ),
+                ),
+            ],
         );
     // Assert there are no more events.
     assert(spy.get_events().events.len() == 1, 'There should be no events');
@@ -253,9 +253,9 @@ fn given_normal_conditions_when_emit_after_order_frozen_error_then_works() {
             @array![
                 (
                     contract_address,
-                    EventEmitter::Event::AfterOrderFrozenError(AfterOrderFrozenError { key: key, order: order_data })
-                )
-            ]
+                    EventEmitter::Event::AfterOrderFrozenError(AfterOrderFrozenError { key: key, order: order_data }),
+                ),
+            ],
         );
     // Assert there are no more events.
     assert(spy.get_events().events.len() == 1, 'There should be no events');
@@ -304,7 +304,7 @@ fn create_dummy_withdrawal() -> Withdrawal {
 
 fn create_dummy_order(key: felt252) -> Order {
     let swap_path: Span32<ContractAddress> = array![
-        contract_address_const::<'swap_path_0'>(), contract_address_const::<'swap_path_1'>()
+        contract_address_const::<'swap_path_0'>(), contract_address_const::<'swap_path_1'>(),
     ]
         .span32();
     Order {

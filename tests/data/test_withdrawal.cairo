@@ -2,12 +2,12 @@ use freyr::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
 use freyr::role::role;
 use freyr::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
 use freyr::test_utils::tests_lib;
-use freyr::utils::span32::{Span32, Array32Trait};
+use freyr::utils::span32::{Array32Trait, Span32};
 use freyr::withdrawal::withdrawal::Withdrawal;
 use snforge_std::{
-    declare, start_cheat_caller_address, stop_cheat_caller_address, ContractClassTrait, DeclareResultTrait
+    ContractClassTrait, DeclareResultTrait, declare, start_cheat_caller_address, stop_cheat_caller_address,
 };
-use starknet::{ContractAddress, get_caller_address, Felt252TryIntoContractAddress, contract_address_const};
+use starknet::{ContractAddress, Felt252TryIntoContractAddress, contract_address_const, get_caller_address};
 
 /// Utility function to setup the test environment.
 ///
@@ -57,11 +57,11 @@ fn given_normal_conditions_when_set_withdrawal_new_and_override_then_works() {
     let (_caller_address, _role_store, data_store) = setup();
     let account = 'account'.try_into().unwrap();
     let long_token_swap_path: Span32<ContractAddress> = array![
-        1.try_into().unwrap(), 2.try_into().unwrap(), 3.try_into().unwrap()
+        1.try_into().unwrap(), 2.try_into().unwrap(), 3.try_into().unwrap(),
     ]
         .span32();
     let short_token_swap_path: Span32<ContractAddress> = array![
-        4.try_into().unwrap(), 5.try_into().unwrap(), 6.try_into().unwrap()
+        4.try_into().unwrap(), 5.try_into().unwrap(), 6.try_into().unwrap(),
     ]
         .span32();
 
@@ -123,11 +123,11 @@ fn given_withdrawal_account_0_when_set_withdrawal_then_fails() {
     let (_caller_address, _role_store, data_store) = setup();
     let account = contract_address_const::<0>();
     let long_token_swap_path: Span32<ContractAddress> = array![
-        1.try_into().unwrap(), 2.try_into().unwrap(), 3.try_into().unwrap()
+        1.try_into().unwrap(), 2.try_into().unwrap(), 3.try_into().unwrap(),
     ]
         .span32();
     let short_token_swap_path: Span32<ContractAddress> = array![
-        4.try_into().unwrap(), 5.try_into().unwrap(), 6.try_into().unwrap()
+        4.try_into().unwrap(), 5.try_into().unwrap(), 6.try_into().unwrap(),
     ]
         .span32();
 
@@ -166,11 +166,11 @@ fn given_caller_not_controller_when_set_withdrawal_then_fails() {
     role_store.revoke_role(caller_address, role::CONTROLLER);
     let account = 'account'.try_into().unwrap();
     let long_token_swap_path: Span32<ContractAddress> = array![
-        1.try_into().unwrap(), 2.try_into().unwrap(), 3.try_into().unwrap()
+        1.try_into().unwrap(), 2.try_into().unwrap(), 3.try_into().unwrap(),
     ]
         .span32();
     let short_token_swap_path: Span32<ContractAddress> = array![
-        4.try_into().unwrap(), 5.try_into().unwrap(), 6.try_into().unwrap()
+        4.try_into().unwrap(), 5.try_into().unwrap(), 6.try_into().unwrap(),
     ]
         .span32();
 
@@ -208,11 +208,11 @@ fn given_caller_not_controller_when_get_withdrawal_keys_then_fails() {
     let account = 'account'.try_into().unwrap();
     role_store.revoke_role(caller_address, role::CONTROLLER);
     let long_token_swap_path: Span32<ContractAddress> = array![
-        1.try_into().unwrap(), 2.try_into().unwrap(), 3.try_into().unwrap()
+        1.try_into().unwrap(), 2.try_into().unwrap(), 3.try_into().unwrap(),
     ]
         .span32();
     let short_token_swap_path: Span32<ContractAddress> = array![
-        4.try_into().unwrap(), 5.try_into().unwrap(), 6.try_into().unwrap()
+        4.try_into().unwrap(), 5.try_into().unwrap(), 6.try_into().unwrap(),
     ]
         .span32();
 
@@ -255,11 +255,11 @@ fn given_normal_conditions_when_remove_only_withdrawal_then_works() {
     let (_caller_address, _role_store, data_store) = setup();
     let account = 'account'.try_into().unwrap();
     let long_token_swap_path: Span32<ContractAddress> = array![
-        1.try_into().unwrap(), 2.try_into().unwrap(), 3.try_into().unwrap()
+        1.try_into().unwrap(), 2.try_into().unwrap(), 3.try_into().unwrap(),
     ]
         .span32();
     let short_token_swap_path: Span32<ContractAddress> = array![
-        4.try_into().unwrap(), 5.try_into().unwrap(), 6.try_into().unwrap()
+        4.try_into().unwrap(), 5.try_into().unwrap(), 6.try_into().unwrap(),
     ]
         .span32();
 
@@ -305,11 +305,11 @@ fn given_normal_conditions_when_remove_1_of_n_withdrawal_then_works() {
     let (_caller_address, _role_store, data_store) = setup();
     let account = 'account'.try_into().unwrap();
     let long_token_swap_path: Span32<ContractAddress> = array![
-        1.try_into().unwrap(), 2.try_into().unwrap(), 3.try_into().unwrap()
+        1.try_into().unwrap(), 2.try_into().unwrap(), 3.try_into().unwrap(),
     ]
         .span32();
     let short_token_swap_path: Span32<ContractAddress> = array![
-        4.try_into().unwrap(), 5.try_into().unwrap(), 6.try_into().unwrap()
+        4.try_into().unwrap(), 5.try_into().unwrap(), 6.try_into().unwrap(),
     ]
         .span32();
 
@@ -377,11 +377,11 @@ fn given_normal_conditions_when_remove_last_withdrawal_then_works() {
     let (_caller_address, _role_store, data_store) = setup();
     let account = 'account'.try_into().unwrap();
     let long_token_swap_path: Span32<ContractAddress> = array![
-        1.try_into().unwrap(), 2.try_into().unwrap(), 3.try_into().unwrap()
+        1.try_into().unwrap(), 2.try_into().unwrap(), 3.try_into().unwrap(),
     ]
         .span32();
     let short_token_swap_path: Span32<ContractAddress> = array![
-        4.try_into().unwrap(), 5.try_into().unwrap(), 6.try_into().unwrap()
+        4.try_into().unwrap(), 5.try_into().unwrap(), 6.try_into().unwrap(),
     ]
         .span32();
 
@@ -452,11 +452,11 @@ fn given_caller_not_controller_when_remove_withdrawal_then_fails() {
     let account = 'account'.try_into().unwrap();
     role_store.revoke_role(caller_address, role::CONTROLLER);
     let long_token_swap_path: Span32<ContractAddress> = array![
-        1.try_into().unwrap(), 2.try_into().unwrap(), 3.try_into().unwrap()
+        1.try_into().unwrap(), 2.try_into().unwrap(), 3.try_into().unwrap(),
     ]
         .span32();
     let short_token_swap_path: Span32<ContractAddress> = array![
-        4.try_into().unwrap(), 5.try_into().unwrap(), 6.try_into().unwrap()
+        4.try_into().unwrap(), 5.try_into().unwrap(), 6.try_into().unwrap(),
     ]
         .span32();
 

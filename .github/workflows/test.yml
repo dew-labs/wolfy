@@ -8,7 +8,7 @@
 #     branches: ["*"]
 
 # env:
-#   SCARB_VERSION: 2.8.5
+#   SCARB_VERSION: 2.9.2
 #   SN_FOUNDRY_VERSION: 0.27.0
 
 # jobs:

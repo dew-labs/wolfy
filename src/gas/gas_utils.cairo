@@ -13,14 +13,14 @@ use freyr::deposit::deposit_vault::{IDepositVaultDispatcher, IDepositVaultDispat
 use freyr::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
 use freyr::gas::error::GasError;
 use freyr::order::{
-    order_vault::{IOrderVaultDispatcher, IOrderVaultDispatcherTrait}, order::{Order, DecreasePositionSwapType},
-    base_order_utils::{is_increase_order, is_decrease_order, is_swap_order, OrderError}
+    base_order_utils::{OrderError, is_decrease_order, is_increase_order, is_swap_order},
+    order::{DecreasePositionSwapType, Order}, order_vault::{IOrderVaultDispatcher, IOrderVaultDispatcherTrait},
 };
 use freyr::token::token_utils;
 use freyr::utils::span32::{Span32, Span32Trait};
 use freyr::utils::{precision, starknet_utils::{sn_gasleft, sn_gasprice}};
 use freyr::withdrawal::{
-    withdrawal::Withdrawal, withdrawal_vault::{IWithdrawalVaultDispatcher, IWithdrawalVaultDispatcherTrait}
+    withdrawal::Withdrawal, withdrawal_vault::{IWithdrawalVaultDispatcher, IWithdrawalVaultDispatcherTrait},
 };
 use starknet::ContractAddress;
 
@@ -61,7 +61,7 @@ fn pay_execution_fee(
     execution_fee: u256,
     starting_gas: u256,
     keeper: ContractAddress,
-    refund_receiver: ContractAddress
+    refund_receiver: ContractAddress,
 ) {
     let fee_token: ContractAddress = token_utils::fee_token(data_store);
 
@@ -99,7 +99,7 @@ fn pay_execution_fee_deposit(
     execution_fee: u256,
     starting_gas: u256,
     keeper: ContractAddress,
-    refund_receiver: ContractAddress
+    refund_receiver: ContractAddress,
 ) {
     let fee_token: ContractAddress = token_utils::fee_token(data_store);
 
@@ -138,7 +138,7 @@ fn pay_execution_fee_order(
     execution_fee: u256,
     starting_gas: u256,
     keeper: ContractAddress,
-    refund_receiver: ContractAddress
+    refund_receiver: ContractAddress,
 ) {
     let fee_token: ContractAddress = token_utils::fee_token(data_store);
 
@@ -176,7 +176,7 @@ fn pay_execution_fee_withdrawal(
     execution_fee: u256,
     starting_gas: u256,
     keeper: ContractAddress,
-    refund_receiver: ContractAddress
+    refund_receiver: ContractAddress,
 ) {
     let fee_token: ContractAddress = token_utils::fee_token(data_store);
 

@@ -22,7 +22,7 @@ mod Timelock {
 
     // Core lib imports.
     use core::zeroable::Zeroable;
-    use starknet::{get_caller_address, ContractAddress, contract_address_const};
+    use starknet::{ContractAddress, contract_address_const, get_caller_address};
 
 
     // Local imports.

@@ -10,27 +10,27 @@
 use freyr::bank::bank::{IBankDispatcher, IBankDispatcherTrait};
 use freyr::callback::callback_utils::after_deposit_execution;
 use freyr::data::{
-    keys::{deposit_fee_type, ui_deposit_fee_type, max_pnl_factor_for_deposits},
-    data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait}
+    data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait},
+    keys::{deposit_fee_type, max_pnl_factor_for_deposits, ui_deposit_fee_type},
 };
 use freyr::deposit::{deposit_vault::{IDepositVaultDispatcher, IDepositVaultDispatcherTrait}, error::DepositError};
 use freyr::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
-use freyr::event::event_utils::{LogData, LogDataTrait, ContractAddressDictValue, I256252DictValue};
+use freyr::event::event_utils::{ContractAddressDictValue, I256252DictValue, LogData, LogDataTrait};
 use freyr::fee::fee_utils;
 use freyr::gas::gas_utils::pay_execution_fee_deposit;
-use freyr::market::market_utils::{IMarketUtilsLibraryDispatcher, IMarketUtilsDispatcherTrait};
+use freyr::market::market_utils::{IMarketUtilsDispatcherTrait, IMarketUtilsLibraryDispatcher};
 use freyr::market::{market::Market, market_token::{IMarketTokenDispatcher, IMarketTokenDispatcherTrait}, market_utils};
 use freyr::mock::referral_storage::{IReferralStorageDispatcher, IReferralStorageDispatcherTrait};
 use freyr::oracle::{oracle::{IOracleDispatcher, IOracleDispatcherTrait}, oracle_utils};
 use freyr::price::price::{Price, PriceTrait};
-use freyr::pricing::swap_pricing_utils::{get_swap_fees, get_price_impact_usd, GetPriceImpactUsdParams};
+use freyr::pricing::swap_pricing_utils::{GetPriceImpactUsdParams, get_price_impact_usd, get_swap_fees};
 use freyr::swap::error::SwapError;
 use freyr::swap::swap_utils;
 use freyr::token::erc20::interface::{IERC20, IERC20Dispatcher, IERC20DispatcherTrait};
 use freyr::utils::serializable_dict::{SerializableFelt252Dict, SerializableFelt252DictTrait};
 use freyr::utils::{
-    calc::{to_unsigned, to_signed}, i256::{i256, i256_new, i256_neg}, precision, span32::Span32,
-    starknet_utils::{sn_gasleft, sn_gasprice}
+    calc::{to_signed, to_unsigned}, i256::{i256, i256_neg, i256_new}, precision, span32::Span32,
+    starknet_utils::{sn_gasleft, sn_gasprice},
 };
 use result::ResultTrait;
 use starknet::ContractAddress;
@@ -55,7 +55,7 @@ struct ExecuteDepositParams {
     /// `keeper` the address of the keeper executing the deposit.
     keeper: ContractAddress,
     /// `starting_gas` the starting amount of gas.
-    starting_gas: u256
+    starting_gas: u256,
 }
 
 /// Struct used in executeDeposit to avoid stack too deep errors
@@ -80,7 +80,7 @@ struct _ExecuteDepositParams {
     /// `amount` Amount of token_in.
     amount: u256,
     /// `price_impact_usd` Price impact in USD.
-    price_impact_usd: i256
+    price_impact_usd: i256,
 }
 
 #[derive(Drop, Default)]
@@ -90,7 +90,7 @@ struct ExecuteDepositCache {
     long_token_usd: u256,
     short_token_usd: u256,
     received_market_tokens: u256,
-    price_impact_usd: i256
+    price_impact_usd: i256,
 }
 
 /// Executes a deposit.
@@ -186,8 +186,8 @@ fn execute_deposit(params: ExecuteDepositParams, market_utils: IMarketUtilsLibra
             token_out_price: prices.short_token_price,
             amount: cache.long_token_amount,
             price_impact_usd: precision::mul_div_ival(
-                cache.price_impact_usd, cache.long_token_usd, cache.long_token_usd + cache.short_token_usd
-            )
+                cache.price_impact_usd, cache.long_token_usd, cache.long_token_usd + cache.short_token_usd,
+            ),
         };
 
         cache.received_market_tokens += execute_deposit_helper(@params, ref _params, market_utils);
@@ -205,8 +205,8 @@ fn execute_deposit(params: ExecuteDepositParams, market_utils: IMarketUtilsLibra
             token_out_price: prices.long_token_price,
             amount: cache.short_token_amount,
             price_impact_usd: precision::mul_div_ival(
-                cache.price_impact_usd, cache.short_token_usd, cache.long_token_usd + cache.short_token_usd
-            )
+                cache.price_impact_usd, cache.short_token_usd, cache.long_token_usd + cache.short_token_usd,
+            ),
         };
 
         cache.received_market_tokens += execute_deposit_helper(@params, ref _params, market_utils);
@@ -265,7 +265,7 @@ fn execute_deposit(params: ExecuteDepositParams, market_utils: IMarketUtilsLibra
 /// * `params` - @ExecuteDepositParams.
 /// * `_params` - @_ExecuteDepositParams.
 fn execute_deposit_helper(
-    params: @ExecuteDepositParams, ref _params: _ExecuteDepositParams, market_utils: IMarketUtilsLibraryDispatcher
+    params: @ExecuteDepositParams, ref _params: _ExecuteDepositParams, market_utils: IMarketUtilsLibraryDispatcher,
 ) -> u256 {
     // for markets where longToken == shortToken, the price impact factor should be set to zero
     // in which case, the priceImpactUsd would always equal zero
@@ -335,7 +335,7 @@ fn execute_deposit_helper(
     }
 
     (*params.event_emitter)
-        .emit_market_pool_value_info(_params.market.market_token, pool_value_info, market_tokens_supply,);
+        .emit_market_pool_value_info(_params.market.market_token, pool_value_info, market_tokens_supply);
 
     // the pool_value and market_tokens_supply is cached for the mint_amount calculation below
     // so the effect of any positive price impact on the pool_value and market_tokens_supply
@@ -406,7 +406,7 @@ fn execute_deposit_helper(
 
         market_utils
             .apply_delta_to_pool_amount(
-                *params.data_store, *params.event_emitter, _params.market, _params.token_out, positive_impact_amount
+                *params.data_store, *params.event_emitter, _params.market, _params.token_out, positive_impact_amount,
             );
 
         market_utils.validate_pool_amount(*params.data_store, _params.market, _params.token_out);

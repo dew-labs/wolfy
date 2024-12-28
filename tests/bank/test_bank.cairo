@@ -3,16 +3,16 @@
 
 // Core lib imports.
 // Local imports.
-use freyr::bank::bank::{IBankDispatcherTrait, IBankDispatcher};
-use freyr::data::data_store::{IDataStoreDispatcherTrait, IDataStoreDispatcher};
+use freyr::bank::bank::{IBankDispatcher, IBankDispatcherTrait};
+use freyr::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
 use freyr::role::role;
-use freyr::role::role_store::{IRoleStoreDispatcherTrait, IRoleStoreDispatcher};
+use freyr::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
 use freyr::test_utils::tests_lib;
 use freyr::token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
 use integer::u256_from_felt252;
 use snforge_std::{
-    declare, start_cheat_caller_address, stop_cheat_caller_address, ContractClassTrait, DeclareResultTrait,
-    ContractClass
+    ContractClass, ContractClassTrait, DeclareResultTrait, declare, start_cheat_caller_address,
+    stop_cheat_caller_address,
 };
 use starknet::{ContractAddress, contract_address_const};
 
@@ -70,7 +70,7 @@ fn setup() -> (
         data_store,
         bank,
         IERC20Dispatcher { contract_address: erc20 },
-        role_module_class
+        role_module_class,
     );
 }
 

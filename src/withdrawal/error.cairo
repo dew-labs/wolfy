@@ -12,8 +12,8 @@ mod WithdrawalError {
             array![
                 'insufficient fee token amout',
                 data_1.try_into().expect('u256 into felt failed'),
-                data_2.try_into().expect('u256 into felt failed')
-            ]
+                data_2.try_into().expect('u256 into felt failed'),
+            ],
         )
     }
 
@@ -22,8 +22,8 @@ mod WithdrawalError {
             array![
                 'insufficient market token',
                 data_1.try_into().expect('u256 into felt failed'),
-                data_2.try_into().expect('u256 into felt failed')
-            ]
+                data_2.try_into().expect('u256 into felt failed'),
+            ],
         )
     }
 

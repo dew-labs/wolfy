@@ -5,7 +5,7 @@
 // Core lib imports.
 use freyr::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
 use freyr::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
-use freyr::event::event_utils::{Felt252IntoContractAddress, ContractAddressDictValue, I256252DictValue};
+use freyr::event::event_utils::{ContractAddressDictValue, Felt252IntoContractAddress, I256252DictValue};
 use freyr::mock::referral_storage::{IReferralStorageDispatcher, IReferralStorageDispatcherTrait};
 // Local imports.
 use freyr::oracle::oracle_utils::{SetPricesParams, SimulatePricesParams};
@@ -34,7 +34,7 @@ trait IOrderUtils<TContractState> {
         order_vault: IOrderVaultDispatcher,
         referral_storage: IReferralStorageDispatcher,
         account: ContractAddress,
-        params: CreateOrderParams
+        params: CreateOrderParams,
     ) -> felt252;
 
     fn execute_order_utils(ref self: TContractState, params: ExecuteOrderParams);
@@ -64,7 +64,7 @@ trait IOrderUtils<TContractState> {
         keeper: ContractAddress,
         starting_gas: u256,
         reason: felt252,
-        reason_key: felt252
+        reason_key: felt252,
     );
 
     /// Freezes an order.
@@ -87,7 +87,7 @@ trait IOrderUtils<TContractState> {
         keeper: ContractAddress,
         starting_gas: u256,
         reason: felt252,
-        reason_key: felt252
+        reason_key: felt252,
     );
 }
 
@@ -99,21 +99,21 @@ mod OrderUtils {
     use freyr::callback::callback_utils;
     use freyr::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
     use freyr::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
-    use freyr::event::event_utils::{Felt252IntoContractAddress, ContractAddressDictValue, I256252DictValue};
+    use freyr::event::event_utils::{ContractAddressDictValue, Felt252IntoContractAddress, I256252DictValue};
     use freyr::gas::gas_utils;
-    use freyr::market::market_utils::{IMarketUtilsLibraryDispatcher, IMarketUtilsDispatcherTrait};
+    use freyr::market::market_utils::{IMarketUtilsDispatcherTrait, IMarketUtilsLibraryDispatcher};
     use freyr::mock::referral_storage::{IReferralStorageDispatcher, IReferralStorageDispatcherTrait};
     use freyr::nonce::nonce_utils;
-    // Local imports.
-    use freyr::order::base_order_utils::{ExecuteOrderParams, CreateOrderParams};
     use freyr::order::base_order_utils;
+    // Local imports.
+    use freyr::order::base_order_utils::{CreateOrderParams, ExecuteOrderParams};
     use freyr::order::decrease_order_utils::IDecreaseOrderUtilsDispatcherTrait;
     use freyr::order::decrease_order_utils::IDecreaseOrderUtilsLibraryDispatcher;
     use freyr::order::error::OrderError;
     use freyr::order::increase_order_utils::IIncreaseOrderUtilsDispatcherTrait;
 
     use freyr::order::increase_order_utils::IIncreaseOrderUtilsLibraryDispatcher;
-    use freyr::order::order::{Order, OrderType, OrderTrait};
+    use freyr::order::order::{Order, OrderTrait, OrderType};
     use freyr::order::order_vault::{IOrderVaultDispatcher, IOrderVaultDispatcherTrait};
     use freyr::order::swap_order_utils::ISwapOrderUtilsDispatcherTrait;
     use freyr::order::swap_order_utils::ISwapOrderUtilsLibraryDispatcher;
@@ -123,7 +123,7 @@ mod OrderUtils {
     use freyr::token::token_utils;
     use freyr::utils::account_utils;
     use freyr::utils::serializable_dict::{SerializableFelt252Dict, SerializableFelt252DictTrait};
-    use starknet::{ContractAddress, contract_address_const, ClassHash};
+    use starknet::{ClassHash, ContractAddress, contract_address_const};
 
     #[storage]
     struct Storage {
@@ -155,7 +155,7 @@ mod OrderUtils {
             order_vault: IOrderVaultDispatcher,
             referral_storage: IReferralStorageDispatcher,
             account: ContractAddress,
-            mut params: CreateOrderParams
+            mut params: CreateOrderParams,
         ) -> felt252 {
             account_utils::validate_account(account);
             referral_utils::set_trader_referral_code(referral_storage, account, params.referral_code);
@@ -176,7 +176,7 @@ mod OrderUtils {
                 if (params.initial_collateral_token == fee_token) {
                     if (initial_collateral_delta_amount < params.execution_fee) {
                         OrderError::INSUFFICIENT_WNT_AMOUNT_FOR_EXECUTION_FEE(
-                            initial_collateral_delta_amount, params.execution_fee
+                            initial_collateral_delta_amount, params.execution_fee,
                         );
                     }
                     initial_collateral_delta_amount -= params.execution_fee;
@@ -266,7 +266,7 @@ mod OrderUtils {
                 params.market.index_token,
                 params.order.order_type,
                 params.order.trigger_price,
-                params.order.is_long
+                params.order.is_long,
             );
             let params_process = ExecuteOrderParams {
                 contracts: params.contracts,
@@ -278,7 +278,7 @@ mod OrderUtils {
                 market: params.market,
                 keeper: params.keeper,
                 starting_gas: params.starting_gas,
-                secondary_order_type: params.secondary_order_type
+                secondary_order_type: params.secondary_order_type,
             };
 
             // let mut event_data: LogData = self.process_order(params_process); //TODO LogData return value
@@ -348,7 +348,7 @@ mod OrderUtils {
             keeper: ContractAddress,
             starting_gas: u256,
             reason: felt252,
-            reason_key: felt252
+            reason_key: felt252,
         ) {
             // 63/64 gas is forwarded to external calls, reduce the startingGas to account for this
             // starting_gas -= gas_left() / 63;
@@ -400,7 +400,7 @@ mod OrderUtils {
             keeper: ContractAddress,
             starting_gas: u256,
             reason: felt252,
-            reason_key: felt252
+            reason_key: felt252,
         ) {
             // 63/64 gas is forwarded to external calls, reduce the startingGas to account for this
             // startingGas -= gas_left() / 63;

@@ -19,14 +19,14 @@
 // *************************************************************************
 // Core lib imports.
 use freyr::callback::deposit_callback_receiver::interface::{
-    IDepositCallbackReceiverDispatcher, IDepositCallbackReceiverDispatcherTrait
+    IDepositCallbackReceiverDispatcher, IDepositCallbackReceiverDispatcherTrait,
 };
 use freyr::callback::error::CallbackError;
 use freyr::callback::order_callback_receiver::interface::{
-    IOrderCallbackReceiverDispatcher, IOrderCallbackReceiverDispatcherTrait
+    IOrderCallbackReceiverDispatcher, IOrderCallbackReceiverDispatcherTrait,
 };
 use freyr::callback::withdrawal_callback_receiver::interface::{
-    IWithdrawalCallbackReceiverDispatcher, IWithdrawalCallbackReceiverDispatcherTrait
+    IWithdrawalCallbackReceiverDispatcher, IWithdrawalCallbackReceiverDispatcherTrait,
 };
 
 // Local imports.
@@ -53,8 +53,8 @@ fn validate_callback_gas_limit(data_store: IDataStoreDispatcher, callback_gas_li
             array![
                 CallbackError::MAX_CALLBACK_GAS_LIMIT_EXCEEDED,
                 callback_gas_limit.try_into().expect('u256 into felt failed'),
-                max_callback_gas_limit.try_into().expect('u256 into felt failed')
-            ]
+                max_callback_gas_limit.try_into().expect('u256 into felt failed'),
+            ],
         );
     }
 }
@@ -71,7 +71,7 @@ fn set_saved_callback_contract(
     data_store: IDataStoreDispatcher,
     account: ContractAddress,
     market: ContractAddress,
-    callback_contract: ContractAddress
+    callback_contract: ContractAddress,
 ) {
     data_store.set_address(keys::saved_callback_contract_key(account, market), callback_contract);
 }
@@ -83,7 +83,7 @@ fn set_saved_callback_contract(
 /// * `account` - The account to set callback contract for.
 /// * `market` - The market to set callback contract for.
 fn get_saved_callback_contract(
-    data_store: IDataStoreDispatcher, account: ContractAddress, market: ContractAddress
+    data_store: IDataStoreDispatcher, account: ContractAddress, market: ContractAddress,
 ) -> ContractAddress {
     data_store.get_address(keys::saved_callback_contract_key(account, market))
 }

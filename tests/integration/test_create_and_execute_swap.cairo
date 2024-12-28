@@ -8,15 +8,15 @@ use debug::PrintTrait;
 use freyr::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
 use freyr::data::keys;
 use freyr::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
-use freyr::exchange::order_handler::{OrderHandler, IOrderHandlerDispatcher, IOrderHandlerDispatcherTrait};
+use freyr::exchange::order_handler::{IOrderHandlerDispatcher, IOrderHandlerDispatcherTrait, OrderHandler};
 use freyr::market::{
-    market::{Market, UniqueIdMarketImpl}, market_factory::{IMarketFactoryDispatcher, IMarketFactoryDispatcherTrait}
+    market::{Market, UniqueIdMarketImpl}, market_factory::{IMarketFactoryDispatcher, IMarketFactoryDispatcherTrait},
 };
 use freyr::mock::referral_storage::{IReferralStorageDispatcher, IReferralStorageDispatcherTrait};
 use freyr::oracle::oracle::{IOracleDispatcher, IOracleDispatcherTrait};
 use freyr::oracle::oracle_utils::SetPricesParams;
 use freyr::order::base_order_utils::{CreateOrderParams};
-use freyr::order::order::{Order, OrderType, SecondaryOrderType, DecreasePositionSwapType};
+use freyr::order::order::{DecreasePositionSwapType, Order, OrderType, SecondaryOrderType};
 use freyr::order::order_vault::{IOrderVaultDispatcher, IOrderVaultDispatcherTrait};
 // Local imports.
 use freyr::role::role;
@@ -25,13 +25,13 @@ use freyr::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
 use freyr::swap::swap_handler::{ISwapHandlerDispatcher, ISwapHandlerDispatcherTrait};
 use freyr::test_utils::tests_lib;
 use freyr::token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
-use freyr::utils::span32::{Span32, Array32Trait};
+use freyr::utils::span32::{Array32Trait, Span32};
 use poseidon::poseidon_hash_span;
 use snforge_std::{
-    declare, start_cheat_caller_address, stop_cheat_caller_address, start_mock_call, test_address, ContractClassTrait,
-    DeclareResultTrait, ContractClass, start_cheat_block_number
+    ContractClass, ContractClassTrait, DeclareResultTrait, declare, start_cheat_block_number,
+    start_cheat_caller_address, start_mock_call, stop_cheat_caller_address, test_address,
 };
-use starknet::{ContractAddress, get_caller_address, Felt252TryIntoContractAddress, contract_address_const};
+use starknet::{ContractAddress, Felt252TryIntoContractAddress, contract_address_const, get_caller_address};
 use traits::Default;
 
 // *********************************************************************************************
@@ -49,7 +49,7 @@ fn given_right_swap_order_params_when_execute_order_then_success() {
         _oracle,
         _referral_storage,
         order_handler,
-        market_factory
+        market_factory,
     ) =
         setup_contracts();
     let contract_address = contract_address_const::<0>();
@@ -81,12 +81,12 @@ fn given_right_swap_order_params_when_execute_order_then_success() {
     data_store
         .set_u256(
             keys::max_pool_amount_key(market.market_token, contract_address_const::<'USDC'>()),
-            5000000000000000000000000000000000000
+            5000000000000000000000000000000000000,
         );
     data_store
         .set_u256(
             keys::max_pool_amount_key(market.market_token, contract_address_const::<'ETH'>()),
-            5000000000000000000000000000000000000
+            5000000000000000000000000000000000000,
         );
     // Set params in data_store.
     data_store.set_address(keys::fee_token(), market.index_token);
@@ -110,7 +110,7 @@ fn given_right_swap_order_params_when_execute_order_then_success() {
         order_type: OrderType::MarketSwap(()),
         decrease_position_swap_type: DecreasePositionSwapType::NoSwap(()),
         is_long: false,
-        referral_code: 0
+        referral_code: 0,
     };
     // Create the swap order.
     start_cheat_block_number(order_handler.contract_address, 1910);
@@ -132,7 +132,7 @@ fn given_right_swap_order_params_when_execute_order_then_success() {
         compacted_max_prices: array![2147483648010000], // 500000, 10000 compacted
         compacted_max_prices_indexes: array![0],
         signatures: array![array!['signatures1', 'signatures2'].span(), array!['signatures1', 'signatures2'].span()],
-        price_feed_tokens: array![]
+        price_feed_tokens: array![],
     };
     start_cheat_caller_address(order_handler.contract_address, caller_address);
     start_cheat_block_number(order_handler.contract_address, 1915);
@@ -157,7 +157,7 @@ fn setup_contracts() -> (
     IOracleDispatcher,
     IReferralStorageDispatcher,
     IOrderHandlerDispatcher,
-    IMarketFactoryDispatcher
+    IMarketFactoryDispatcher,
 ) {
     let (
         caller_address,
@@ -200,6 +200,6 @@ fn setup_contracts() -> (
         oracle,
         referral_storage,
         order_handler,
-        market_factory
+        market_factory,
     );
 }
