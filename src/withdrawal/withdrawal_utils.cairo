@@ -24,7 +24,7 @@ use freyr::withdrawal::{
     error::WithdrawalError, withdrawal::Withdrawal,
     withdrawal_vault::{IWithdrawalVaultDispatcher, IWithdrawalVaultDispatcherTrait},
 };
-use starknet::{ContractAddress, contract_address_const, get_block_timestamp};
+use starknet::{ContractAddress, contract_address_const, get_block_number};
 
 #[derive(Drop, starknet::Store, Serde)]
 struct CreateWithdrawalParams {
@@ -150,7 +150,7 @@ fn create_withdrawal(
         market_token_amount: market_token_amount,
         min_long_token_amount: params.min_long_token_amount,
         min_short_token_amount: params.min_short_token_amount,
-        updated_at_block: get_block_timestamp(),
+        updated_at_block: get_block_number(),
         execution_fee: params.execution_fee,
         callback_gas_limit: params.callback_gas_limit,
     };

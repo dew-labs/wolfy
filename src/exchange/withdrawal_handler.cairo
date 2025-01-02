@@ -186,7 +186,7 @@ mod WithdrawalHandler {
                 data_store, keys::cancel_withdrawal_feature_disabled_key(get_contract_address()),
             );
 
-            exchange_utils::validate_request_cancellation(data_store, starknet::get_block_timestamp(), 'Withdrawal');
+            exchange_utils::validate_request_cancellation(data_store, starknet::get_block_number(), 'Withdrawal');
 
             withdrawal_utils::cancel_withdrawal(
                 data_store,
