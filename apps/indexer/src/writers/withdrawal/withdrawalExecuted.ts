@@ -1,6 +1,6 @@
 import { Withdrawal } from "apps/indexer/.checkpoint/models";
 import { createLogger } from "@freyr/shared/utils";
-import { OrderType, toStarknetHexString } from "wolfy-sdk";
+import { cairoIntToBigInt, OrderType, toStarknetHexString } from "wolfy-sdk";
 
 import { type WolfyEventWriter } from "../type";
 
@@ -31,6 +31,8 @@ export const handleWithdrawalExecuted: WolfyEventWriter<WolfyEvent.WithdrawalExe
             TradeHistoryEvent.WithdrawalExecuted,
             OrderType.MarketDecrease
         ),
+        long_token_amount: cairoIntToBigInt(event.output_amount),
+        short_token_amount: cairoIntToBigInt(event.secondary_output_amount),
         tx_hash: tx.transaction_hash,
         created_at: block.timestamp,
         created_at_block: block.block_number,

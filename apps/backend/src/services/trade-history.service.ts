@@ -107,6 +107,7 @@ const buildSelectClause = (table: TradeHistoryTable) => ({
         "executionFee" in table
             ? sql<string>`${table.executionFee}`.as("fee")
             : sql<null>`null`.as("fee"),
+    txHash: table.txHash,
     createdAt: table.createdAt,
 });
 

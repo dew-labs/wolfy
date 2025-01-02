@@ -99,6 +99,7 @@ const buildSelectClause = (table: DepositWithdrawalHistoryTable) => ({
         "minMarketTokens" in table
             ? sql<string>`${table.minMarketTokens}`.as("minMarketTokenAmount")
             : sql<null>`null`.as("minMarketTokenAmount"),
+    txHash: table.txHash,
     createdAt: table.createdAt,
 });
 
