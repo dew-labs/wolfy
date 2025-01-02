@@ -1,6 +1,7 @@
 import { getTokens, settingUp } from "@freyr/shared/utils";
 import configMarket from "../utils/configMarket";
 import createMarket from "../utils/createMarket";
+import invariant from "tiny-invariant";
 
 const tokens = getTokens();
 
@@ -76,16 +77,29 @@ export const MARKETS_TO_DEPLOY = [
     },
 ];
 
+// Use this if some operations fail
+const DEPLOYED_MARKETS: string[] = [];
+
 async function createMarketWithReusedTokens() {
     const { chainId, account } = await settingUp();
 
+    let count = 0;
+
     for (const market of MARKETS_TO_DEPLOY) {
-        const marketToken = await createMarket(
-            account,
-            market.indexTokenAddress,
-            market.longTokenAddress,
-            market.shortTokenAddress
-        );
+        let marketToken;
+        try {
+            marketToken = await createMarket(
+                account,
+                market.indexTokenAddress,
+                market.longTokenAddress,
+                market.shortTokenAddress
+            );
+            count++;
+        } catch {
+            marketToken = DEPLOYED_MARKETS[count];
+        }
+
+        invariant(marketToken, "Market token not found");
 
         await configMarket(
             chainId,
