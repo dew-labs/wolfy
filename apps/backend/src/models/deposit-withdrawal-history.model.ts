@@ -22,6 +22,7 @@ const depositWithdrawalHistoryEntry = t.Object({
     shortTokenAmount: t.String(),
     marketTokenAmount: t.Nullable(t.String()),
     minMarketTokenAmount: t.Nullable(t.String()),
+    txHash: t.String(),
     createdAt: t.Integer(),
 });
 

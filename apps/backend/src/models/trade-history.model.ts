@@ -27,6 +27,7 @@ const tradeHistoryEntry = t.Object({
     size: t.String(),
     rpnl: t.Nullable(t.String()),
     fee: t.Nullable(t.String()),
+    txHash: t.String(),
     createdAt: t.Integer(),
 });
 
