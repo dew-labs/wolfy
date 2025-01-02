@@ -9,6 +9,7 @@ import type {
     DepositWithdrawalHistoryResponse,
 } from "@backend/src/models/deposit-withdrawal-history.model";
 import type { Orm } from "@backend/src/orm";
+import { TradeHistoryAction } from "packages/shared/src/interfaces";
 
 export const depositWithdrawalHistoryTables = [deposits, withdrawals] as const;
 export type DepositWithdrawalHistoryTable = (typeof depositWithdrawalHistoryTables)[number];
@@ -54,7 +55,7 @@ export const getDepositWithdrawalHistory = async (
         .limit(sql.placeholder("limit"))
         .prepare("depositWithdrawalHistories.getDepositWithdrawalHistory");
 
-    const [countData, deposit] = await Promise.all([
+    const [countData, data] = await Promise.all([
         countQuery.execute({
             ...buildQueryPlaceholder({ actions, markets, from, to }),
             account: address,
@@ -69,8 +70,47 @@ export const getDepositWithdrawalHistory = async (
 
     const count = countData[0] && countData[0].count ? parseInt(countData[0].count) : 0;
 
+    const result = data.map((d) => {
+        switch (d.action) {
+            case TradeHistoryAction.RequestDeposit:
+            case TradeHistoryAction.CancelDeposit:
+                d.longTokenAmount = d.longTokenAmount;
+                d.shortTokenAmount = d.shortTokenAmount;
+                d.marketTokenAmount = d.minMarketTokenAmount;
+                break;
+            case TradeHistoryAction.Deposit:
+                d.longTokenAmount = d.longTokenAmount;
+                d.shortTokenAmount = d.shortTokenAmount;
+                d.marketTokenAmount = d.receivedMarketTokenAmount;
+                break;
+            case TradeHistoryAction.RequestWithdraw:
+            case TradeHistoryAction.CancelWithdraw:
+                d.longTokenAmount = d.minLongTokenAmount;
+                d.shortTokenAmount = d.minShortTokenAmount;
+                d.marketTokenAmount = d.marketTokenAmount;
+                break;
+            case TradeHistoryAction.Withdraw:
+                d.longTokenAmount = d.receivedLongTokenAmount;
+                d.shortTokenAmount = d.receivedShortTokenAmount;
+                d.marketTokenAmount = d.marketTokenAmount;
+                break;
+        }
+
+        return {
+            id: d.id,
+            market: d.market,
+            action: d.action,
+            executionFee: d.executionFee,
+            longTokenAmount: d.longTokenAmount,
+            shortTokenAmount: d.shortTokenAmount,
+            marketTokenAmount: d.marketTokenAmount,
+            txHash: d.txHash,
+            createdAt: d.createdAt,
+        };
+    });
+
     return {
-        data: deposit,
+        data: result,
         count,
         page,
         limit,
@@ -86,19 +126,39 @@ const buildSelectClause = (table: DepositWithdrawalHistoryTable) => ({
     longTokenAmount:
         "longTokenAmount" in table
             ? sql<string>`${table.longTokenAmount}`.as("longTokenAmount")
-            : sql<string>`${table.minLongTokenAmount}`.as("longTokenAmount"),
+            : sql<null>`null`.as("longTokenAmount"),
     shortTokenAmount:
         "shortTokenAmount" in table
             ? sql<string>`${table.shortTokenAmount}`.as("shortTokenAmount")
-            : sql<string>`${table.minShortTokenAmount}`.as("shortTokenAmount"),
+            : sql<null>`null`.as("shortTokenAmount"),
+    minLongTokenAmount:
+        "minLongTokenAmount" in table
+            ? sql<string>`${table.minLongTokenAmount}`.as("minLongTokenAmount")
+            : sql<null>`null`.as("minLongTokenAmount"),
+    minShortTokenAmount:
+        "minShortTokenAmount" in table
+            ? sql<string>`${table.minShortTokenAmount}`.as("minShortTokenAmount")
+            : sql<null>`null`.as("minShortTokenAmount"),
+    receivedLongTokenAmount:
+        "receivedLongTokenAmount" in table
+            ? sql<string>`${table.receivedLongTokenAmount}`.as("receivedLongTokenAmount")
+            : sql<null>`null`.as("receivedLongTokenAmount"),
+    receivedShortTokenAmount:
+        "receivedShortTokenAmount" in table
+            ? sql<string>`${table.receivedShortTokenAmount}`.as("receivedShortTokenAmount")
+            : sql<null>`null`.as("receivedShortTokenAmount"),
     marketTokenAmount:
-        "receivedMarketTokens" in table
-            ? sql<string>`${table.receivedMarketTokens}`.as("marketTokenAmount")
-            : sql<string>`${table.marketTokenAmount}`.as("marketTokenAmount"),
+        "marketTokenAmount" in table
+            ? sql<string>`${table.marketTokenAmount}`.as("marketTokenAmount")
+            : sql<null>`null`.as("marketTokenAmount"),
     minMarketTokenAmount:
-        "minMarketTokens" in table
-            ? sql<string>`${table.minMarketTokens}`.as("minMarketTokenAmount")
+        "minMarketTokenAmount" in table
+            ? sql<string>`${table.minMarketTokenAmount}`.as("minMarketTokenAmount")
             : sql<null>`null`.as("minMarketTokenAmount"),
+    receivedMarketTokenAmount:
+        "receivedMarketTokenAmount" in table
+            ? sql<string>`${table.receivedMarketTokenAmount}`.as("receivedMarketTokenAmount")
+            : sql<null>`null`.as("receivedMarketTokenAmount"),
     txHash: table.txHash,
     createdAt: table.createdAt,
 });

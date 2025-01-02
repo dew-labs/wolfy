@@ -255,11 +255,17 @@ export const deposits = pgTable(
         shortToken: varchar("short_token", { length: 256 }).notNull(),
         longTokenAmount: numeric("long_token_amount", { precision: 78, scale: 0 }).notNull(),
         shortTokenAmount: numeric("short_token_amount", { precision: 78, scale: 0 }).notNull(),
+        minMarketTokenAmount: numeric("min_market_token_amount", {
+            precision: 78,
+            scale: 0,
+        }).notNull(),
+        receivedMarketTokenAmount: numeric("received_market_token_amount", {
+            precision: 78,
+            scale: 0,
+        }),
+        executionFee: numeric("execution_fee", { precision: 78, scale: 0 }).notNull(),
         longTokenSwapPath: jsonb("long_token_swap_path").notNull(),
         shortTokenSwapPath: jsonb("short_token_swap_path").notNull(),
-        minMarketTokens: numeric("min_market_tokens", { precision: 78, scale: 0 }).notNull(),
-        receivedMarketTokens: numeric("received_market_tokens", { precision: 78, scale: 0 }),
-        executionFee: numeric("execution_fee", { precision: 78, scale: 0 }).notNull(),
         callbackContract: varchar("callback_contract", { length: 256 }).notNull(),
         callbackGasLimit: numeric("callback_gas_limit", { precision: 78, scale: 0 }).notNull(),
         cancelledReason: varchar("cancelled_reason", { length: 256 }),
@@ -288,10 +294,13 @@ export const deposits = pgTable(
             longTokenIdx: index().using("btree", table.longToken.asc().nullsLast()),
             longTokenSwapPathIdx: index().using("btree", table.longTokenSwapPath.asc().nullsLast()),
             marketIdx: index().using("btree", table.market.asc().nullsLast()),
-            minMarketTokensIdx: index().using("btree", table.minMarketTokens.asc().nullsLast()),
-            receivedMarketTokensIdx: index().using(
+            minMarketTokenAmountIdx: index().using(
                 "btree",
-                table.receivedMarketTokens.asc().nullsLast()
+                table.minMarketTokenAmount.asc().nullsLast()
+            ),
+            receivedMarketTokenAmountIdx: index().using(
+                "btree",
+                table.receivedMarketTokenAmount.asc().nullsLast()
             ),
             receiverIdx: index().using("btree", table.receiver.asc().nullsLast()),
             shortTokenAmountIdx: index().using("btree", table.shortTokenAmount.asc().nullsLast()),
@@ -322,10 +331,15 @@ export const withdrawals = pgTable(
             precision: 78,
             scale: 0,
         }).notNull(),
+        receivedLongTokenAmount: numeric("received_long_token_amount", { precision: 78, scale: 0 }),
+        receivedShortTokenAmount: numeric("received_short_token_amount", {
+            precision: 78,
+            scale: 0,
+        }),
+        marketTokenAmount: numeric("market_token_amount", { precision: 78, scale: 0 }).notNull(),
+        executionFee: numeric("execution_fee", { precision: 78, scale: 0 }).notNull(),
         longTokenSwapPath: jsonb("long_token_swap_path").notNull(),
         shortTokenSwapPath: jsonb("short_token_swap_path").notNull(),
-        marketTokenAmount: numeric("market_token_amount", { precision: 78, scale: 0 }).notNull(),
-        executionFee: varchar("execution_fee", { length: 256 }).notNull(),
         callbackContract: varchar("callback_contract", { length: 256 }).notNull(),
         callbackGasLimit: varchar("callback_gas_limit", { length: 256 }).notNull(),
         cancelledReason: varchar("cancelled_reason", { length: 256 }),
@@ -360,6 +374,14 @@ export const withdrawals = pgTable(
             minShortTokenAmountIdx: index().using(
                 "btree",
                 table.minShortTokenAmount.asc().nullsLast()
+            ),
+            receivedLongTokenAmountIdx: index().using(
+                "btree",
+                table.receivedLongTokenAmount.asc().nullsLast()
+            ),
+            receivedShortTokenAmountIdx: index().using(
+                "btree",
+                table.receivedShortTokenAmount.asc().nullsLast()
             ),
             receiverIdx: index().using("btree", table.receiver.asc().nullsLast()),
             shortTokenSwapPathIdx: index().using(
