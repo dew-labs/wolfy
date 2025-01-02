@@ -31,8 +31,8 @@ export const handleWithdrawalExecuted: WolfyEventWriter<WolfyEvent.WithdrawalExe
             TradeHistoryEvent.WithdrawalExecuted,
             OrderType.MarketDecrease
         ),
-        long_token_amount: cairoIntToBigInt(event.output_amount),
-        short_token_amount: cairoIntToBigInt(event.secondary_output_amount),
+        received_long_token_amount: cairoIntToBigInt(event.output_amount),
+        received_short_token_amount: cairoIntToBigInt(event.secondary_output_amount),
         tx_hash: tx.transaction_hash,
         created_at: block.timestamp,
         created_at_block: block.block_number,

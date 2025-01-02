@@ -661,11 +661,11 @@ export class Deposit extends Model {
     this.initialSet('short_token', "");
     this.initialSet('long_token_amount', "0");
     this.initialSet('short_token_amount', "0");
+    this.initialSet('min_market_token_amount', "0");
+    this.initialSet('received_market_token_amount', null);
+    this.initialSet('execution_fee', "0");
     this.initialSet('long_token_swap_path', "[]");
     this.initialSet('short_token_swap_path', "[]");
-    this.initialSet('min_market_tokens', "0");
-    this.initialSet('received_market_tokens', null);
-    this.initialSet('execution_fee', "0");
     this.initialSet('callback_contract', "");
     this.initialSet('callback_gas_limit', "0");
     this.initialSet('cancelled_reason', null);
@@ -772,6 +772,30 @@ export class Deposit extends Model {
     this.set('short_token_amount', value);
   }
 
+  get min_market_token_amount(): string {
+    return this.get('min_market_token_amount');
+  }
+
+  set min_market_token_amount(value: string) {
+    this.set('min_market_token_amount', value);
+  }
+
+  get received_market_token_amount(): string | null {
+    return this.get('received_market_token_amount');
+  }
+
+  set received_market_token_amount(value: string | null) {
+    this.set('received_market_token_amount', value);
+  }
+
+  get execution_fee(): string {
+    return this.get('execution_fee');
+  }
+
+  set execution_fee(value: string) {
+    this.set('execution_fee', value);
+  }
+
   get long_token_swap_path(): string[] {
     return JSON.parse(this.get('long_token_swap_path'));
   }
@@ -786,30 +810,6 @@ export class Deposit extends Model {
 
   set short_token_swap_path(value: string[]) {
     this.set('short_token_swap_path', JSON.stringify(value));
-  }
-
-  get min_market_tokens(): string {
-    return this.get('min_market_tokens');
-  }
-
-  set min_market_tokens(value: string) {
-    this.set('min_market_tokens', value);
-  }
-
-  get received_market_tokens(): string | null {
-    return this.get('received_market_tokens');
-  }
-
-  set received_market_tokens(value: string | null) {
-    this.set('received_market_tokens', value);
-  }
-
-  get execution_fee(): string {
-    return this.get('execution_fee');
-  }
-
-  set execution_fee(value: string) {
-    this.set('execution_fee', value);
   }
 
   get callback_contract(): string {
@@ -883,10 +883,12 @@ export class Withdrawal extends Model {
     this.initialSet('action', 0);
     this.initialSet('min_long_token_amount', "0");
     this.initialSet('min_short_token_amount', "0");
-    this.initialSet('long_token_swap_path', "[]");
-    this.initialSet('short_token_swap_path', "[]");
+    this.initialSet('received_long_token_amount', null);
+    this.initialSet('received_short_token_amount', null);
     this.initialSet('market_token_amount', "0");
     this.initialSet('execution_fee', "0");
+    this.initialSet('long_token_swap_path', "[]");
+    this.initialSet('short_token_swap_path', "[]");
     this.initialSet('callback_contract', "");
     this.initialSet('callback_gas_limit', "");
     this.initialSet('cancelled_reason', null);
@@ -977,20 +979,20 @@ export class Withdrawal extends Model {
     this.set('min_short_token_amount', value);
   }
 
-  get long_token_swap_path(): string[] {
-    return JSON.parse(this.get('long_token_swap_path'));
+  get received_long_token_amount(): string | null {
+    return this.get('received_long_token_amount');
   }
 
-  set long_token_swap_path(value: string[]) {
-    this.set('long_token_swap_path', JSON.stringify(value));
+  set received_long_token_amount(value: string | null) {
+    this.set('received_long_token_amount', value);
   }
 
-  get short_token_swap_path(): string[] {
-    return JSON.parse(this.get('short_token_swap_path'));
+  get received_short_token_amount(): string | null {
+    return this.get('received_short_token_amount');
   }
 
-  set short_token_swap_path(value: string[]) {
-    this.set('short_token_swap_path', JSON.stringify(value));
+  set received_short_token_amount(value: string | null) {
+    this.set('received_short_token_amount', value);
   }
 
   get market_token_amount(): string {
@@ -1007,6 +1009,22 @@ export class Withdrawal extends Model {
 
   set execution_fee(value: string) {
     this.set('execution_fee', value);
+  }
+
+  get long_token_swap_path(): string[] {
+    return JSON.parse(this.get('long_token_swap_path'));
+  }
+
+  set long_token_swap_path(value: string[]) {
+    this.set('long_token_swap_path', JSON.stringify(value));
+  }
+
+  get short_token_swap_path(): string[] {
+    return JSON.parse(this.get('short_token_swap_path'));
+  }
+
+  set short_token_swap_path(value: string[]) {
+    this.set('short_token_swap_path', JSON.stringify(value));
   }
 
   get callback_contract(): string {

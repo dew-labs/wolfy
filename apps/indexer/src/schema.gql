@@ -83,11 +83,11 @@ type Deposit {
     short_token: String!
     long_token_amount: Int256!
     short_token_amount: Int256!
+    min_market_token_amount: Int256!
+    received_market_token_amount: Int256
+    execution_fee: Int256!
     long_token_swap_path: [String]!
     short_token_swap_path: [String]!
-    min_market_tokens: Int256!
-    received_market_tokens: Int256
-    execution_fee: Int256!
     callback_contract: String!
     callback_gas_limit: Int256!
     cancelled_reason: String
@@ -106,10 +106,12 @@ type Withdrawal {
     action: Int!
     min_long_token_amount: Int256!
     min_short_token_amount: Int256!
-    long_token_swap_path: [String]!
-    short_token_swap_path: [String]!
+    received_long_token_amount: Int256
+    received_short_token_amount: Int256
     market_token_amount: Int256!
     execution_fee: Int256!
+    long_token_swap_path: [String]!
+    short_token_swap_path: [String]!
     callback_contract: String!
     callback_gas_limit: String!
     cancelled_reason: String

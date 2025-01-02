@@ -30,7 +30,7 @@ export const handleDepositExecuted: WolfyEventWriter<WolfyEvent.DepositExecuted>
         action: getTradeHistoryAction(TradeHistoryEvent.DepositExecuted, OrderType.MarketIncrease),
         long_token_amount: cairoIntToBigInt(event.long_token_amount),
         short_token_amount: cairoIntToBigInt(event.short_token_amount),
-        received_market_tokens: cairoIntToBigInt(event.received_market_tokens),
+        received_market_token_amount: cairoIntToBigInt(event.received_market_tokens),
         tx_hash: tx.transaction_hash,
         created_at: block.timestamp,
         created_at_block: block.block_number,

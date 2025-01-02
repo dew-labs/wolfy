@@ -32,7 +32,7 @@ export const handleDepositCreated: WolfyEventWriter<WolfyEvent.DepositCreated> =
         short_token_amount: cairoIntToBigInt(event.initial_short_token_amount),
         long_token_swap_path: event.long_token_swap_path.snapshot.map(toStarknetHexString),
         short_token_swap_path: event.short_token_swap_path.snapshot.map(toStarknetHexString),
-        min_market_tokens: cairoIntToBigInt(event.min_market_tokens),
+        min_market_token_amount: cairoIntToBigInt(event.min_market_tokens),
         execution_fee: cairoIntToBigInt(event.execution_fee),
         callback_contract: toStarknetHexString(event.callback_contract),
         callback_gas_limit: cairoIntToBigInt(event.callback_gas_limit),
