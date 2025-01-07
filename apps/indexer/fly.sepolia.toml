@@ -1,4 +1,4 @@
-app = 'wolfy-indexer-sepolia'
+app = 'freyr-indexer-sepolia'
 primary_region = 'iad'
 
 [build]

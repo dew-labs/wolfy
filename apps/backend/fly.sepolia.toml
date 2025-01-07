@@ -1,4 +1,4 @@
-app = 'wolfy-backend-sepolia'
+app = 'freyr-backend-sepolia'
 primary_region = 'iad'
 
 [build]

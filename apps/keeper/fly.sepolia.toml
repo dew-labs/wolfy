@@ -1,18 +1,17 @@
-app = 'wolfy-keeper-sepolia'
+app = 'freyr-keeper-sepolia'
 primary_region = 'iad'
 
 [build]
-  dockerfile = "./Dockerfile"
+  dockerfile = './Dockerfile'
 
-[build.args]
-  NET="sepolia"
-
+  [build.args]
+    NET = 'sepolia'
 
 [http_service]
+  internal_port = 3001
+  force_https = true
   auto_start_machines = true
   min_machines_running = 1
-  max_machines_running = 1
-  processes = ['app']
 
 [[vm]]
   memory = '1gb'
