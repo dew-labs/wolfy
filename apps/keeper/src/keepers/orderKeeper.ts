@@ -1,3 +1,4 @@
+import * as Sentry from "@sentry/bun";
 import type { Emitter } from "nanoevents";
 import pRetry from "p-retry";
 import {
@@ -256,6 +257,10 @@ export function createOrderKeeper(emitter: Emitter) {
                     }
                 );
             } catch (error) {
+                Sentry.withScope((scope) => {
+                    scope.setTag("order_key", order.key);
+                    Sentry.captureException(error);
+                });
                 logger.error(error, `Order ${order.key}: Failed to execute`);
             }
         }, `${order.orderType} Order ${order.key}: Executed`);
@@ -283,6 +288,10 @@ export function createOrderKeeper(emitter: Emitter) {
                         );
                         removeCreatedTriggerOrder(order.key, indexTokenAddress);
                     } catch (error) {
+                        Sentry.withScope((scope) => {
+                            scope.setTag("order_key", order.key);
+                            Sentry.captureException(error);
+                        });
                         logger.error(error, `Order ${order.key}: Failed to execute`);
                     }
                 }

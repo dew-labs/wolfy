@@ -1,3 +1,4 @@
+import * as Sentry from "@sentry/bun";
 import { createLogger } from "@freyr/shared/utils";
 import type { Order } from "@freyr/shared/interfaces";
 
@@ -34,6 +35,7 @@ export const fetchCreatedTriggerOrders = async () => {
 
         return orders;
     } catch (error) {
+        Sentry.captureException(error);
         logger.error(error, "Error fetching created trigger orders:");
         return [];
     }

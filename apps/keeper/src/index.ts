@@ -1,3 +1,6 @@
+import * as Sentry from "@sentry/bun";
+import { initSentry } from "@freyr/shared/sentry";
+
 import { createNanoEvents, type Emitter } from "nanoevents";
 
 import type { Events } from "@freyr/shared/interfaces";
@@ -9,6 +12,12 @@ import { createOrderKeeper } from "./keepers/orderKeeper";
 import { createPositionKeeper } from "./keepers/positionKeeper";
 import { createPriceKeeper } from "./keepers/priceKeeper";
 import { createWithdrawalKeeper } from "./keepers/withdrawalKeeper";
+
+initSentry({
+    dsn: process.env.KEEPER_SENTRY_DNS || "",
+    environment: process.env.ENV || "dev",
+    tracesSampleRate: 1.0,
+});
 
 const logger = createLogger("Keeper");
 const emitter = createNanoEvents<Events>();
@@ -34,7 +43,12 @@ const runKeepers = async (emitter: Emitter<Events>) => {
 };
 
 const index = async () => {
-    await runKeepers(emitter);
+    try {
+        await runKeepers(emitter);
+    } catch (error) {
+        Sentry.captureException(error);
+        throw error;
+    }
 };
 
 index();

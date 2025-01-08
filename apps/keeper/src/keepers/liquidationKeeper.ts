@@ -1,3 +1,4 @@
+import * as Sentry from "@sentry/bun";
 import pRetry from "p-retry";
 import { toStarknetHexString } from "wolfy-sdk";
 
@@ -135,6 +136,10 @@ const processPosition = async (positionKey: string) => {
                 }
             );
         } catch (error) {
+            Sentry.withScope((scope) => {
+                scope.setTag("position_key", positionKey);
+                Sentry.captureException(error);
+            });
             logger.error(error, `Position ${positionKey}: Failed to liquidate`);
         }
     } else {
