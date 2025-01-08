@@ -14,8 +14,13 @@ initSentry({
 });
 
 const app = new Elysia()
-    .onError(({ error }) => {
-        Sentry.captureException(error);
+    .onError(({ error, request }) => {
+        Sentry.captureException(error, {
+            extra: {
+                url: request.url,
+                method: request.method,
+            },
+        });
     })
     .use(
         swagger({
