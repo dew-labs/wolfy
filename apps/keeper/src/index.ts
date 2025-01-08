@@ -47,7 +47,7 @@ const index = async () => {
         await runKeepers(emitter);
     } catch (error) {
         Sentry.captureException(error);
-        throw error;
+        process.exit(1);
     }
 };
 
