@@ -1,21 +1,25 @@
 {
-  "name": "backend",
-  "scripts": {
-    "dev": "bun run --watch src/index.ts",
-    "sepolia:db:pull": "MISE_ENV=sepolia mise x -- bun run drizzle-kit pull",
-    "sepolia:dev": "MISE_ENV=sepolia mise x -- bun run dev"
-  },
-  "dependencies": {
-    "@elysiajs/cors": "^1.1.1",
-    "@elysiajs/swagger": "^1.1.5",
-    "drizzle-orm": "0.34.1",
-    "elysia": "latest",
-    "pg": "^8.10.0",
-    "postgres-range": "^1.0.0"
-  },
-  "devDependencies": {
-    "drizzle-kit": "0.25.0",
-    "@types/pg": "8.11.10"
-  },
-  "module": "src/index.js"
+    "name": "backend",
+    "scripts": {
+        "dev": "bun run --watch src/index.ts",
+        "dev-sepolia:db:pull": "mise -P dev-sepolia x -- bun run drizzle-kit pull",
+        "dev-sepolia:dev": "mise -P dev-sepolia x -- bun run dev",
+        "stag-sepolia:db:pull": "mise -P stag-sepolia x -- bun run drizzle-kit pull",
+        "stag-sepolia:dev": "mise -P stag-sepolia x -- bun run dev",
+        "prod-sepolia:db:pull": "mise -P prod-sepolia x -- bun run drizzle-kit pull",
+        "prod-sepolia:dev": "mise -P prod-sepolia x -- bun run dev"
+    },
+    "dependencies": {
+        "@elysiajs/cors": "^1.1.1",
+        "@elysiajs/swagger": "^1.1.5",
+        "drizzle-orm": "0.34.1",
+        "elysia": "latest",
+        "pg": "^8.10.0",
+        "postgres-range": "^1.0.0"
+    },
+    "devDependencies": {
+        "drizzle-kit": "0.25.0",
+        "@types/pg": "8.11.10"
+    },
+    "module": "src/index.js"
 }

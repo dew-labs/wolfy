@@ -4,8 +4,16 @@ import { Pool } from "pg";
 import * as schema from "../drizzle/schema";
 import { config } from "./config";
 
+const sslConfig = config.CA_CERT
+    ? { ca: Buffer.from(config.CA_CERT, "base64").toString("utf-8"), rejectUnauthorized: true }
+    : { rejectUnauthorized: false };
 const pool = new Pool({
-    connectionString: config.DATABASE_URL,
+    host: "wolfy-indexer-sepolia-wolfy-trade.l.aivencloud.com",
+    port: 10635,
+    user: "avnadmin",
+    password: "AVNS_O-tcp_Le39gOIU35iwn",
+    database: "sepolia_checkpoint",
+    ssl: sslConfig,
 });
 
 const orm = drizzle(pool, { schema, logger: true });
