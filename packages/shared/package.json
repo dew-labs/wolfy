@@ -9,6 +9,7 @@
     },
     "exports": {
         ".": "./src/index.ts",
+        "./sentry": "./sentry.ts",
         "./interfaces": "./src/interfaces/index.ts",
         "./utils": "./src/utils/index.ts",
         "./contracts": "./src/utils/contracts/index.ts"

@@ -1,3 +1,6 @@
+import * as Sentry from "@sentry/bun";
+import { initSentry } from "@freyr/shared/sentry";
+
 import fs from "node:fs";
 import { ApolloServer } from "@apollo/server";
 import { startStandaloneServer } from "@apollo/server/standalone";
@@ -9,6 +12,12 @@ import {
     StarknetIndexer,
     type Writer,
 } from "@snapshot-labs/checkpoint/dist/src/providers/starknet";
+
+initSentry({
+    dsn: process.env.INDEXER_SENTRY_DNS || "",
+    environment: process.env.ENV || "dev",
+    tracesSampleRate: 1.0,
+});
 
 const logger = createLogger("Indexer");
 
@@ -62,6 +71,7 @@ const main = async () => {
         const server = createApolloServer(checkpoint);
         await startServer(server, checkpoint);
     } catch (error) {
+        Sentry.captureException(error);
         logger.error(error, "Error running indexer");
     }
 };

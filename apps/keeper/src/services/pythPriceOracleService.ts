@@ -1,3 +1,4 @@
+import * as Sentry from "@sentry/bun";
 import { HermesClient } from "@pythnetwork/hermes-client";
 import { json } from "starknet";
 
@@ -85,6 +86,7 @@ const getPriceFromOracleStream = async (
 const getOraclePrice = (tokenAddress: string): bigint => {
     const price = oraclePrices[tokenAddress];
     if (!price) {
+        Sentry.captureMessage(`Cannot find ${tokenAddress} token`);
         throw new Error(`Cannot find ${tokenAddress} token`);
     }
     return price;

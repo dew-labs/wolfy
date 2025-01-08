@@ -1,3 +1,4 @@
+import * as Sentry from "@sentry/bun";
 import { createLogger } from "@freyr/shared/utils";
 
 import { client } from "../client";
@@ -20,6 +21,7 @@ export const fetchOpenPositionKeys = async () => {
         const positionKeys = response.positions.map((position) => position.key);
         return positionKeys;
     } catch (error) {
+        Sentry.captureException(error);
         logger.error(error, "Error fetching open positions:");
         return [];
     }
