@@ -8,11 +8,11 @@ const sslConfig = config.CA_CERT
     ? { ca: Buffer.from(config.CA_CERT, "base64").toString("utf-8"), rejectUnauthorized: true }
     : { rejectUnauthorized: false };
 const pool = new Pool({
-    host: "wolfy-indexer-sepolia-wolfy-trade.l.aivencloud.com",
-    port: 10635,
-    user: "avnadmin",
-    password: "AVNS_O-tcp_Le39gOIU35iwn",
-    database: "sepolia_checkpoint",
+    host: config.DATABASE_HOST,
+    port: parseInt(config.DATABASE_PORT),
+    user: config.DATABASE_USER,
+    password: config.DATABASE_PASS,
+    database: config.DATABASE_NAME,
     ssl: sslConfig,
 });
 
