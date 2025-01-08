@@ -1,10 +1,27 @@
+import * as Sentry from "@sentry/bun";
+import { initSentry } from "@freyr/shared/sentry";
+
 import { swagger } from "@elysiajs/swagger";
 import { Elysia } from "elysia";
 import { config } from "./config";
 import { cors } from "@elysiajs/cors";
 import { accountRoute } from "./routes";
 
+initSentry({
+    dsn: config.BACKEND_SENTRY_DNS || "",
+    environment: config.ENV || "dev",
+    tracesSampleRate: 1.0,
+});
+
 const app = new Elysia()
+    .onError(({ error, request }) => {
+        Sentry.captureException(error, {
+            extra: {
+                url: request.url,
+                method: request.method,
+            },
+        });
+    })
     .use(
         swagger({
             documentation: {

@@ -4,8 +4,12 @@
     "scripts": {
         "start": "bun src/index.ts",
         "dev": "bun --watch src/index.ts",
-        "sepolia:start": "MISE_ENV=sepolia mise x -- bun run start",
-        "sepolia:dev": "MISE_ENV=sepolia mise x -- bun run dev"
+        "dev-sepolia:start": "mise -P dev-sepolia x -- bun run start",
+        "dev-sepolia:dev": "mise -P dev-sepolia x -- bun run dev",
+        "stag-sepolia:start": "mise -P stag-sepolia x -- bun run start",
+        "stag-sepolia:dev": "mise -P stag-sepolia x -- bun run dev",
+        "prod-sepolia:start": "mise -P prod-sepolia x -- bun run start",
+        "prod-sepolia:dev": "mise -P prod-sepolia x -- bun run dev"
     },
     "devDependencies": {
         "@types/bun": "latest"
