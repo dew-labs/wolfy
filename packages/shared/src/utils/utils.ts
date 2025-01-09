@@ -437,7 +437,7 @@ export function decimalToFloat(value: BigNumberish, decimals = 0) {
 export async function getSetPriceParams(account: Account, tokensWithPrices: [string, bigint][]) {
     const currentBlockNum = await account.getBlockNumber();
     const currentBlock = await account.getBlock();
-    const block0 = 0; // BigInt(currentBlockNum - 1);
+    const block0 = BigInt(currentBlockNum);
     const block1 = BigInt(currentBlockNum + 1);
 
     const blocks0 = tokensWithPrices.map(() => block0);

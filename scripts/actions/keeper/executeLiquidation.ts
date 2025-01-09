@@ -1,9 +1,11 @@
 import {
     createAsker,
+    expandDecimals,
     getContracts,
     getDataStoreContract,
     getSetPriceParams,
     settingUp,
+    USD_DECIMALS,
 } from "@freyr/shared/utils";
 import {
     createWolfyContract,
@@ -11,6 +13,7 @@ import {
     ReaderABI,
     WolfyContract,
     toStarknetHexString,
+    createTokenContract,
 } from "wolfy-sdk";
 import { shortString } from "starknet";
 
@@ -36,11 +39,36 @@ async function executeLiquidation() {
 
     const market = await dataStoreContract.get_market(toStarknetHexString(position.market));
 
+    const longToken = toStarknetHexString(market.long_token);
+    const shortToken = toStarknetHexString(market.short_token);
+
+    const longTokenContract = createTokenContract(chainId, longToken);
+    const longTokenDecimals = await longTokenContract.decimals();
+
+    const shortTokenContract = createTokenContract(chainId, shortToken);
+    const shortTokenDecimals = await shortTokenContract.decimals();
+
+    const longTokenSymbol = shortString.decodeShortString(String(await longTokenContract.symbol()));
+    const shortTokenSymbol = shortString.decodeShortString(
+        String(await shortTokenContract.symbol())
+    );
+
+    console.log(`Market: ${longTokenSymbol}/${shortTokenSymbol}`);
+
     const readerContract = createWolfyContract(chainId, WolfyContract.Reader, ReaderABI);
 
-    const indexTokenPrice = 2000_000000000000n; // 30 (USD_DECIMALS) - 18 decimals (indexToken decimals)
-    const longTokenPrice = indexTokenPrice;
-    const shortTokenPrice = 1_000000000000n;
+    const longTokenPriceReadable = (await ask("Long token price (usd) (default to 3500)")) || 3500;
+
+    const shortTokenPriceReadable = (await ask("Short token price (usd) (default to 1)")) || 1;
+
+    const longTokenPrice =
+        expandDecimals(longTokenPriceReadable, USD_DECIMALS) / expandDecimals(1, longTokenDecimals);
+
+    const shortTokenPrice =
+        expandDecimals(shortTokenPriceReadable, USD_DECIMALS) /
+        expandDecimals(1, shortTokenDecimals);
+
+    const indexTokenPrice = longTokenPrice;
 
     const { 0: shouldBeLiquidated, 1: rawReason } = await readerContract.is_position_liquidable(
         {
