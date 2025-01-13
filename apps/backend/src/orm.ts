@@ -6,7 +6,7 @@ import { config } from "./config";
 
 const sslConfig = config.CA_CERT
     ? { ca: Buffer.from(config.CA_CERT, "base64").toString("utf-8"), rejectUnauthorized: true }
-    : { rejectUnauthorized: false };
+    : false;
 const pool = new Pool({
     host: config.DATABASE_HOST,
     port: parseInt(config.DATABASE_PORT),
