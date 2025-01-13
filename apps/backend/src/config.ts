@@ -5,8 +5,15 @@ import { TypeCompiler } from "elysia/type-system";
 const logger = createLogger("BackendConfig");
 
 const envSchema = t.Object({
+    ENV: t.String(),
     BACKEND_PORT: t.Optional(t.String()),
-    DATABASE_URL: t.String(),
+    DATABASE_HOST: t.String(),
+    DATABASE_PORT: t.String(),
+    DATABASE_USER: t.String(),
+    DATABASE_PASS: t.String(),
+    DATABASE_NAME: t.String(),
+    CA_CERT: t.Optional(t.String()),
+    BACKEND_SENTRY_DNS: t.String(),
 });
 
 const compiler = TypeCompiler.Compile(envSchema);

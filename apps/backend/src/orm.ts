@@ -4,8 +4,16 @@ import { Pool } from "pg";
 import * as schema from "../drizzle/schema";
 import { config } from "./config";
 
+const sslConfig = config.CA_CERT
+    ? { ca: Buffer.from(config.CA_CERT, "base64").toString("utf-8"), rejectUnauthorized: true }
+    : { rejectUnauthorized: false };
 const pool = new Pool({
-    connectionString: config.DATABASE_URL,
+    host: config.DATABASE_HOST,
+    port: parseInt(config.DATABASE_PORT),
+    user: config.DATABASE_USER,
+    password: config.DATABASE_PASS,
+    database: config.DATABASE_NAME,
+    ssl: sslConfig,
 });
 
 const orm = drizzle(pool, { schema, logger: true });
