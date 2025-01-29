@@ -15,5 +15,9 @@
         "snforge",
         "usize"
     ],
-    "svg.preview.background": "dark-transparent"
+    "svg.preview.background": "dark-transparent",
+    "debug.javascript.defaultRuntimeExecutable": {
+        "pwa-node": "/Users/huynhducduy/.local/share/mise/shims/node"
+    },
+    "bun.runtime": "/Users/huynhducduy/.local/share/mise/shims/bun"
 }

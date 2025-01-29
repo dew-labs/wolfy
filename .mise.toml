@@ -3,3 +3,6 @@ scarb = '2.9.2'
 starknet-foundry = '0.35.1'
 bun = '1.2.1'
 dojo = "1.0.0-alpha.19"
+
+[hooks]
+enter = "mise i -q"
