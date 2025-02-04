@@ -15,7 +15,7 @@
         "@types/bun": "latest"
     },
     "dependencies": {
-        "@apollo/server": "^4.11.0",
+        "@apollo/server": "^4.11.3",
         "@freyr/shared": "workspace:*",
         "@snapshot-labs/checkpoint": "^0.1.0-beta.44"
     }
