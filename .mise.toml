@@ -1,8 +1,8 @@
 [tools]
-scarb = '2.9.2'
-starknet-foundry = '0.37.0' # Remmember to update `snforge_std` in `Scarb.toml`
-bun = '1.2.2'
-dojo = "1.0.0-alpha.19"
+scarb = '2.10.1'
+starknet-foundry = '0.38.2' # Remmember to update `snforge_std` in `Scarb.toml`
+bun = '1.2.4'
+dojo = '1.2.2'
 
 [hooks]
 enter = "mise i -q"

@@ -8,8 +8,8 @@
 #     branches: ["*"]
 
 # env:
-#   SCARB_VERSION: 2.9.2
-#   SN_FOUNDRY_VERSION: 0.27.0
+#   SCARB_VERSION: 2.10.0
+#   SN_FOUNDRY_VERSION: 0.38.2
 
 # jobs:
 #   check:

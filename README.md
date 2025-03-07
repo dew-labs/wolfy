@@ -7,27 +7,24 @@ Requirement:
 - mise `brew install mise`, remember to follow brew instructions to add `mise` to PATH
 - rustup `brew install rustup`, remember to follow brew instructions to add `rustup` to PATH
 
-
 IDE Integration:
 
-- VSCocde: [Cairo 1.0](https://marketplace.visualstudio.com/items?itemName=starkware.cairo1)
-
+- VSCode: [Cairo 1.0](https://marketplace.visualstudio.com/items?itemName=starkware.cairo1)
 
 ```sh
 mise trust
 mise plugins install https://github.com/dojoengine/asdf-dojo
-mise install # to install rust, scarb, starknet-foundry, bun, dojo
+mise install # to install scarb, starknet-foundry, bun, dojo
 bun install
 rustup install stable
 rustup default stable # to set rust to stable version, required to run scarb
-rustup install nightly
-cargo +nightly install scarb-cairo-lint --git https://github.com/keep-starknet-strange/cairo-lint
+cargo install universal-sierra-compiler --git https://github.com/software-mansion/universal-sierra-compiler
 ```
 
 ## Test contracts
 
 ```sh
-scarb-cairo-lint --fix --test
+scarb lint --fix --test
 scarb --dev test
 scarb --dev test -e <full-test-name> # run a specific test without compile anyother tests
 scarb --dev test --rerun-failed # rerun only failed tests
@@ -56,8 +53,8 @@ katana --db-dir ./katana-db
 mitmdump -s cors_interceptor.py --mode reverse:http://127.0.0.1:5050
 ```
 
-Origial katana server will run on http://127.0.0.1:5050
-MITM server will run on https://127.0.0.1:8080 to support cors and https/ssl/tls connection
+Original katana server will run on <http://127.0.0.1:5050>
+MITM server will run on <https://127.0.0.1:8080> to support cors and https/ssl/tls connection
 
 Bootstraping:
 
@@ -75,7 +72,6 @@ To use dev-local with browser wallets like `Argent X`, remember to config the wa
 - `Fee Token Address`
 - `Multicall Address`
 
-
 ## Build
 
 ```sh
@@ -91,6 +87,14 @@ Prepare `.env.<PROFILE>` based on `.env.example`
 
 ```sh
 bun run <PROFILE>:deploy
+```
+
+## Prove
+
+```sh
+scarb execute
+scarb prove --execution_id=1
+scarb verify <path_to_proof_json>
 ```
 
 ## Troubleshooting
