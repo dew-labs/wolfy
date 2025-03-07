@@ -11,15 +11,15 @@
     },
     "dependencies": {
         "@elysiajs/cors": "^1.2.0",
-        "@elysiajs/swagger": "^1.2.0",
-        "drizzle-orm": "0.39.1",
-        "elysia": "^1.2.11",
-        "pg": "^8.13.1",
+        "@elysiajs/swagger": "^1.2.2",
+        "drizzle-orm": "^0.40.0",
+        "elysia": "^1.2.25",
+        "pg": "^8.13.3",
         "postgres-range": "^1.1.4"
     },
     "devDependencies": {
-        "drizzle-kit": "0.30.4",
-        "@types/pg": "8.11.11"
+        "drizzle-kit": "^0.30.5",
+        "@types/pg": "^8.11.11"
     },
     "module": "src/index.js"
 }
