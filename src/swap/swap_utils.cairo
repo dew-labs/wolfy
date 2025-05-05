@@ -193,11 +193,7 @@ fn _swap(
     cache.token_in_price = (*params.oracle).get_primary_price(*_params.token_in);
     cache.token_out_price = (*params.oracle).get_primary_price(cache.token_out);
 
-    let _usd_delta_for_token_felt252: felt252 = (*_params.amount_in * cache.token_out_price.mid_price())
-        .try_into()
-        .expect('u256 into felt failed');
-
-    let usd_delta = *_params.amount_in * cache.token_out_price.mid_price();
+    let usd_delta = *_params.amount_in * cache.token_in_price.mid_price();
     let price_impact_usd = swap_pricing_utils::get_price_impact_usd(
         swap_pricing_utils::GetPriceImpactUsdParams {
             data_store: *params.data_store,
