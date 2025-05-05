@@ -126,12 +126,12 @@ fn test_swap_market_integration() {
     let user1: ContractAddress = contract_address_const::<'user1'>();
     let user2: ContractAddress = contract_address_const::<'user2'>();
 
-    let addresss_zero: ContractAddress = 0.try_into().unwrap();
+    let address_zero: ContractAddress = 0.try_into().unwrap();
 
     let params = CreateDepositParams {
         receiver: user1,
         callback_contract: user2,
-        ui_fee_receiver: addresss_zero,
+        ui_fee_receiver: address_zero,
         market: market.market_token,
         initial_long_token: market.long_token,
         initial_short_token: market.short_token,

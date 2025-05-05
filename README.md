@@ -26,7 +26,7 @@ cargo install universal-sierra-compiler --git https://github.com/software-mansio
 ```sh
 scarb lint --fix --test
 scarb --dev test
-scarb --dev test -e <full-test-name> # run a specific test without compile anyother tests
+scarb --dev test -e <full-test-name> # run a specific test without compile another tests
 scarb --dev test --rerun-failed # rerun only failed tests
 scarb --dev test --ignored # run only ignored
 scarb --dev test --include-ignored # run all tests including ignored
@@ -56,7 +56,7 @@ mitmdump -s cors_interceptor.py --mode reverse:http://127.0.0.1:5050
 Original katana server will run on <http://127.0.0.1:5050>
 MITM server will run on <https://127.0.0.1:8080> to support cors and https/ssl/tls connection
 
-Bootstraping:
+Bootstrapping:
 
 ```sh
 bun run dev-local:misc:deploy:multicall # Deploy multicall contract

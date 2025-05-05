@@ -89,12 +89,12 @@ fn given_normal_conditions_when_create_market_and_add_liquidity_then_market_is_c
     let user1: ContractAddress = contract_address_const::<'user1'>();
     let user2: ContractAddress = contract_address_const::<'user2'>();
 
-    let addresss_zero: ContractAddress = 0.try_into().unwrap();
+    let address_zero: ContractAddress = 0.try_into().unwrap();
 
     let params = CreateDepositParams {
         receiver: user1,
         callback_contract: user2,
-        ui_fee_receiver: addresss_zero,
+        ui_fee_receiver: address_zero,
         market: market.market_token,
         initial_long_token: market.long_token,
         initial_short_token: market.short_token,
@@ -198,12 +198,12 @@ fn test_swap_market_integration() {
     let user1: ContractAddress = contract_address_const::<'user1'>();
     let user2: ContractAddress = contract_address_const::<'user2'>();
 
-    let addresss_zero: ContractAddress = 0.try_into().unwrap();
+    let address_zero: ContractAddress = 0.try_into().unwrap();
 
     let params = CreateDepositParams {
         receiver: user1,
         callback_contract: user2,
-        ui_fee_receiver: addresss_zero,
+        ui_fee_receiver: address_zero,
         market: market.market_token,
         initial_long_token: market.long_token,
         initial_short_token: market.short_token,
@@ -462,12 +462,12 @@ fn test_deposit_market_integration() {
     let user1: ContractAddress = contract_address_const::<'user1'>();
     let user2: ContractAddress = contract_address_const::<'user2'>();
 
-    let addresss_zero: ContractAddress = 0.try_into().unwrap();
+    let address_zero: ContractAddress = 0.try_into().unwrap();
 
     let params = CreateDepositParams {
         receiver: user1,
         callback_contract: user2,
-        ui_fee_receiver: addresss_zero,
+        ui_fee_receiver: address_zero,
         market: market.market_token,
         initial_long_token: market.long_token,
         initial_short_token: market.short_token,
@@ -615,12 +615,12 @@ fn test_deposit_withdraw_integration() {
     let user1: ContractAddress = contract_address_const::<'user1'>();
     let user2: ContractAddress = contract_address_const::<'user2'>();
 
-    let addresss_zero: ContractAddress = 0.try_into().unwrap();
+    let address_zero: ContractAddress = 0.try_into().unwrap();
 
     let params = CreateDepositParams {
         receiver: caller_address,
-        callback_contract: addresss_zero,
-        ui_fee_receiver: addresss_zero,
+        callback_contract: address_zero,
+        ui_fee_receiver: address_zero,
         market: market.market_token,
         initial_long_token: market.long_token,
         initial_short_token: market.short_token,
@@ -716,9 +716,9 @@ fn test_deposit_withdraw_integration() {
         /// The address that will receive the withdrawal tokens.
         receiver: caller_address,
         /// The contract that will be called back.
-        callback_contract: addresss_zero,
+        callback_contract: address_zero,
         /// The ui fee receiver.
-        ui_fee_receiver: addresss_zero,
+        ui_fee_receiver: address_zero,
         /// The market on which the withdrawal will be executed.
         market: market.market_token,
         /// The swap path for the long token

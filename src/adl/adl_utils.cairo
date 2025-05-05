@@ -105,7 +105,7 @@ fn update_adl_state(
     set_adl_enabled(data_store, market, is_long, should_enable_adl);
     // the latest ADL block is always updated, an ADL keeper could continually
     // cause the latest ADL block to be updated and prevent ADL orders
-    // from being executed, however, this may be preferrable over a case
+    // from being executed, however, this may be preferable over a case
     // where stale prices could be used by ADL keepers to execute orders
     // as such updating of the ADL block is allowed and it is expected
     // that ADL keepers will keep this block updated so that latest prices
@@ -121,14 +121,14 @@ fn update_adl_state(
 /// # Returns
 /// Return the key of the created order.
 fn create_adl_order(params: CreateAdlOrderParams) -> felt252 {
-    let positon_key = position_utils::get_position_key(
+    let position_key = position_utils::get_position_key(
         params.account, params.market, params.collateral_token, params.is_long,
     );
-    let position = params.data_store.get_position(positon_key);
+    let position = params.data_store.get_position(position_key);
 
     assert(params.size_delta_usd <= position.size_in_usd, AdlError::INVALID_SIZE_DELTA_FOR_ADL);
 
-    // no slippage is set for this order, it may be preferrable for ADL orders
+    // no slippage is set for this order, it may be preferable for ADL orders
     // to be executed, in case of large price impact, the user could be refunded
     // through a protocol fund if required, this amount could later be claimed
     // from the price impact pool, this claiming process should be added if

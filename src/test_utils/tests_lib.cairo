@@ -380,7 +380,7 @@ fn setup_contracts() -> (
     );
     let withdrawal_handler = IWithdrawalHandlerDispatcher { contract_address: withdrawal_handler_address };
 
-    // Deply the order vault
+    // Deploy the order vault
     let order_vault_address = deploy_order_vault(
         data_store.contract_address,
         role_store.contract_address,

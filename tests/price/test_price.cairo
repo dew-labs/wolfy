@@ -142,7 +142,6 @@ fn pick_price_for_pnl_test_fail() {
 #[test]
 fn zero_test_pass() {
     let zero_struct = Zeroable::<Price>::zero();
-    let price_struct = Price { min: 0, max: 0 };
 
     assert((zero_struct.min, zero_struct.max) == (0, 0), 'Expected (0,0)');
 }

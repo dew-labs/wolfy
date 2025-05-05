@@ -153,7 +153,7 @@ fn given_minimum_position_size_when_validate_position_then_fails() {
     position.size_in_usd = 100;
     position.size_in_tokens = 10;
 
-    // Set valid market colleteral tokens  (positon.collateral_token == market.long_token || token ==
+    // Set valid market collateral tokens  (position.collateral_token == market.long_token || token ==
     // market.short_token;)
     position.collateral_token = token;
     market.long_token = token;

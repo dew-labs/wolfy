@@ -231,6 +231,6 @@ fn deploy_config(
     constructor_calldata.append(data_store_address.into());
     constructor_calldata.append(event_emitter_address.into());
     constructor_calldata.append(role_module_class_hash.into());
-    let (contract_addresss, _) = contract.deploy_at(@constructor_calldata, config_address).unwrap();
-    contract_addresss
+    let (contract_address, _) = contract.deploy_at(@constructor_calldata, config_address).unwrap();
+    contract_address
 }

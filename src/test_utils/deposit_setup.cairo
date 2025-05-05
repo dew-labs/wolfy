@@ -217,12 +217,12 @@ fn deposit_setup(
 
     // Create Deposit
 
-    let addresss_zero: ContractAddress = 0.try_into().unwrap();
+    let address_zero: ContractAddress = 0.try_into().unwrap();
 
     let params = CreateDepositParams {
         receiver: caller_address,
-        callback_contract: addresss_zero,
-        ui_fee_receiver: addresss_zero,
+        callback_contract: address_zero,
+        ui_fee_receiver: address_zero,
         market: market.market_token,
         initial_long_token: market.long_token,
         initial_short_token: market.short_token,
