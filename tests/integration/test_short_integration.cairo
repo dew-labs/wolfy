@@ -77,7 +77,7 @@ fn test_short_increase_decrease_close() {
         order_handler,
         order_vault,
         reader,
-        referal_storage,
+        referral_storage,
         _withdrawal_handler,
         _withdrawal_vault,
         _liquidation_handler,
@@ -192,7 +192,7 @@ fn test_short_increase_decrease_close() {
     };
 
     let position_info = reader
-        .get_position_info(data_store, referal_storage, position_key_1, market_prices, 0, contract_address, true);
+        .get_position_info(data_store, referral_storage, position_key_1, market_prices, 0, contract_address, true);
 
     // The sign field is true for negative integers, and false for non-negative integers.
     assert(position_info.base_pnl_usd.sign == true, 'should be negative');
@@ -220,7 +220,7 @@ fn test_short_increase_decrease_close() {
     };
 
     let position_info = reader
-        .get_position_info(data_store, referal_storage, position_key_1, market_prices, 0, contract_address, true);
+        .get_position_info(data_store, referral_storage, position_key_1, market_prices, 0, contract_address, true);
     assert(position_info.base_pnl_usd.mag == 1000000000000000000000, 'PnL should be 1000$');
     assert(position_info.base_pnl_usd.sign == false, 'should be positive');
 

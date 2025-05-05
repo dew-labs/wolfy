@@ -75,7 +75,7 @@ fn test_long_increase_decrease_close() {
         order_handler,
         order_vault,
         reader,
-        referal_storage,
+        referral_storage,
         _withdrawal_handler,
         _withdrawal_vault,
         _liquidation_handler,
@@ -181,7 +181,7 @@ fn test_long_increase_decrease_close() {
     };
 
     let position_info = reader
-        .get_position_info(data_store, referal_storage, position_key_1, market_prices, 0, contract_address, true);
+        .get_position_info(data_store, referral_storage, position_key_1, market_prices, 0, contract_address, true);
     assert(position_info.base_pnl_usd.mag == 350000000000000000000, 'PnL should be 350$');
 
     //////////////////////////////// INCREASE POSITION //////////////////////////////////
@@ -242,7 +242,7 @@ fn test_long_increase_decrease_close() {
     };
 
     let position_info = reader
-        .get_position_info(data_store, referal_storage, position_key_1, market_prices, 0, contract_address, true);
+        .get_position_info(data_store, referral_storage, position_key_1, market_prices, 0, contract_address, true);
     'pnl'.print();
     assert(position_info.base_pnl_usd.mag == 350000000000000000000, 'PnL should be 350$');
 
@@ -310,7 +310,7 @@ fn test_long_increase_decrease_close() {
     };
 
     let position_info = reader
-        .get_position_info(data_store, referal_storage, position_key_1, market_prices, 0, contract_address, true);
+        .get_position_info(data_store, referral_storage, position_key_1, market_prices, 0, contract_address, true);
     assert(position_info.base_pnl_usd.mag == 262500000000000000000, 'PnL should be 262,5');
 
     let balance_USDC_after = IERC20Dispatcher { contract_address: contract_address_const::<'USDC'>() }
@@ -341,7 +341,7 @@ fn test_long_increase_decrease_close() {
     };
 
     let position_info = reader
-        .get_position_info(data_store, referal_storage, position_key_1, market_prices, 0, contract_address, true);
+        .get_position_info(data_store, referral_storage, position_key_1, market_prices, 0, contract_address, true);
     assert(position_info.base_pnl_usd.mag == 600000000000000000000, 'PnL should be 600$');
 
     start_cheat_caller_address(market.market_token, caller_address);
@@ -422,7 +422,7 @@ fn test_takeprofit_long() {
         order_handler,
         order_vault,
         reader,
-        referal_storage,
+        referral_storage,
         _withdrawal_handler,
         _withdrawal_vault,
         _liquidation_handler,
@@ -521,7 +521,7 @@ fn test_takeprofit_long() {
     };
 
     let position_info = reader
-        .get_position_info(data_store, referal_storage, position_key_1, market_prices, 0, contract_address, true);
+        .get_position_info(data_store, referral_storage, position_key_1, market_prices, 0, contract_address, true);
     assert(position_info.base_pnl_usd.mag == 350000000000000000000, 'PnL should be 350$');
 
     //////////////////////////////// TRIGGER INCREASE POSITION //////////////////////////////////
@@ -585,7 +585,7 @@ fn test_takeprofit_long() {
     };
 
     let position_info = reader
-        .get_position_info(data_store, referal_storage, position_key_1, market_prices, 0, contract_address, true);
+        .get_position_info(data_store, referral_storage, position_key_1, market_prices, 0, contract_address, true);
     'pnl'.print();
     assert(position_info.base_pnl_usd.mag == 350000000000000000000, 'PnL should be 350$');
 
@@ -653,7 +653,7 @@ fn test_takeprofit_long() {
     };
 
     let position_info = reader
-        .get_position_info(data_store, referal_storage, position_key_1, market_prices, 0, contract_address, true);
+        .get_position_info(data_store, referral_storage, position_key_1, market_prices, 0, contract_address, true);
     assert(position_info.base_pnl_usd.mag == 487500000000000000000, 'PnL should be 487,5');
 
     let balance_USDC_after = IERC20Dispatcher { contract_address: contract_address_const::<'USDC'>() }
@@ -684,7 +684,7 @@ fn test_takeprofit_long() {
     };
 
     let position_info = reader
-        .get_position_info(data_store, referal_storage, position_key_1, market_prices, 0, contract_address, true);
+        .get_position_info(data_store, referral_storage, position_key_1, market_prices, 0, contract_address, true);
     assert(position_info.base_pnl_usd.mag == 600000000000000000000, 'PnL should be 600$');
 
     start_cheat_caller_address(market.market_token, caller_address);
@@ -766,7 +766,7 @@ fn test_takeprofit_long_increase_fails() {
         order_handler,
         order_vault,
         reader,
-        referal_storage,
+        referral_storage,
         _withdrawal_handler,
         _withdrawal_vault,
         _liquidation_handler,
@@ -865,7 +865,7 @@ fn test_takeprofit_long_increase_fails() {
     };
 
     let position_info = reader
-        .get_position_info(data_store, referal_storage, position_key_1, market_prices, 0, contract_address, true);
+        .get_position_info(data_store, referral_storage, position_key_1, market_prices, 0, contract_address, true);
     assert(position_info.base_pnl_usd.mag == 350000000000000000000, 'PnL should be 350$');
 
     //////////////////////////////// TRIGGER INCREASE POSITION //////////////////////////////////
@@ -928,7 +928,7 @@ fn test_takeprofit_long_increase_fails() {
     };
 
     let position_info = reader
-        .get_position_info(data_store, referal_storage, position_key_1, market_prices, 0, contract_address, true);
+        .get_position_info(data_store, referral_storage, position_key_1, market_prices, 0, contract_address, true);
     'pnl'.print();
     assert(position_info.base_pnl_usd.mag == 350000000000000000000, 'PnL should be 350$');
 
@@ -995,7 +995,7 @@ fn test_takeprofit_long_increase_fails() {
     };
 
     let position_info = reader
-        .get_position_info(data_store, referal_storage, position_key_1, market_prices, 0, contract_address, true);
+        .get_position_info(data_store, referral_storage, position_key_1, market_prices, 0, contract_address, true);
     assert(position_info.base_pnl_usd.mag == 487500000000000000000, 'PnL should be 487,5');
 
     let balance_USDC_after = IERC20Dispatcher { contract_address: contract_address_const::<'USDC'>() }
@@ -1026,7 +1026,7 @@ fn test_takeprofit_long_increase_fails() {
     };
 
     let position_info = reader
-        .get_position_info(data_store, referal_storage, position_key_1, market_prices, 0, contract_address, true);
+        .get_position_info(data_store, referral_storage, position_key_1, market_prices, 0, contract_address, true);
     assert(position_info.base_pnl_usd.mag == 600000000000000000000, 'PnL should be 600$');
 
     start_cheat_caller_address(market.market_token, caller_address);
@@ -1108,7 +1108,7 @@ fn test_takeprofit_long_decrease_fails() {
         order_handler,
         order_vault,
         reader,
-        referal_storage,
+        referral_storage,
         _withdrawal_handler,
         _withdrawal_vault,
         _liquidation_handler,
@@ -1207,7 +1207,7 @@ fn test_takeprofit_long_decrease_fails() {
     };
 
     let position_info = reader
-        .get_position_info(data_store, referal_storage, position_key_1, market_prices, 0, contract_address, true);
+        .get_position_info(data_store, referral_storage, position_key_1, market_prices, 0, contract_address, true);
     assert(position_info.base_pnl_usd.mag == 350000000000000000000, 'PnL should be 350$');
 
     //////////////////////////////// TRIGGER INCREASE POSITION //////////////////////////////////
@@ -1270,7 +1270,7 @@ fn test_takeprofit_long_decrease_fails() {
     };
 
     let position_info = reader
-        .get_position_info(data_store, referal_storage, position_key_1, market_prices, 0, contract_address, true);
+        .get_position_info(data_store, referral_storage, position_key_1, market_prices, 0, contract_address, true);
     'pnl'.print();
     assert(position_info.base_pnl_usd.mag == 350000000000000000000, 'PnL should be 350$');
 
@@ -1337,7 +1337,7 @@ fn test_takeprofit_long_decrease_fails() {
     };
 
     let position_info = reader
-        .get_position_info(data_store, referal_storage, position_key_1, market_prices, 0, contract_address, true);
+        .get_position_info(data_store, referral_storage, position_key_1, market_prices, 0, contract_address, true);
     assert(position_info.base_pnl_usd.mag == 487500000000000000000, 'PnL should be 487,5');
 
     let balance_USDC_after = IERC20Dispatcher { contract_address: contract_address_const::<'USDC'>() }
@@ -1368,7 +1368,7 @@ fn test_takeprofit_long_decrease_fails() {
     };
 
     let position_info = reader
-        .get_position_info(data_store, referal_storage, position_key_1, market_prices, 0, contract_address, true);
+        .get_position_info(data_store, referral_storage, position_key_1, market_prices, 0, contract_address, true);
     assert(position_info.base_pnl_usd.mag == 600000000000000000000, 'PnL should be 600$');
 
     start_cheat_caller_address(market.market_token, caller_address);
@@ -1449,7 +1449,7 @@ fn test_takeprofit_long_close_fails() {
         order_handler,
         order_vault,
         reader,
-        referal_storage,
+        referral_storage,
         _withdrawal_handler,
         _withdrawal_vault,
         _liquidation_handler,
@@ -1548,7 +1548,7 @@ fn test_takeprofit_long_close_fails() {
     };
 
     let position_info = reader
-        .get_position_info(data_store, referal_storage, position_key_1, market_prices, 0, contract_address, true);
+        .get_position_info(data_store, referral_storage, position_key_1, market_prices, 0, contract_address, true);
     assert(position_info.base_pnl_usd.mag == 350000000000000000000, 'PnL should be 350$');
 
     //////////////////////////////// TRIGGER INCREASE POSITION //////////////////////////////////
@@ -1611,7 +1611,7 @@ fn test_takeprofit_long_close_fails() {
     };
 
     let position_info = reader
-        .get_position_info(data_store, referal_storage, position_key_1, market_prices, 0, contract_address, true);
+        .get_position_info(data_store, referral_storage, position_key_1, market_prices, 0, contract_address, true);
     'pnl'.print();
     assert(position_info.base_pnl_usd.mag == 350000000000000000000, 'PnL should be 350$');
 
@@ -1678,7 +1678,7 @@ fn test_takeprofit_long_close_fails() {
     };
 
     let position_info = reader
-        .get_position_info(data_store, referal_storage, position_key_1, market_prices, 0, contract_address, true);
+        .get_position_info(data_store, referral_storage, position_key_1, market_prices, 0, contract_address, true);
     assert(position_info.base_pnl_usd.mag == 487500000000000000000, 'PnL should be 487,5');
 
     let balance_USDC_after = IERC20Dispatcher { contract_address: contract_address_const::<'USDC'>() }
@@ -1709,7 +1709,7 @@ fn test_takeprofit_long_close_fails() {
     };
 
     let position_info = reader
-        .get_position_info(data_store, referal_storage, position_key_1, market_prices, 0, contract_address, true);
+        .get_position_info(data_store, referral_storage, position_key_1, market_prices, 0, contract_address, true);
     assert(position_info.base_pnl_usd.mag == 600000000000000000000, 'PnL should be 600$');
 
     start_cheat_caller_address(market.market_token, caller_address);
@@ -1789,7 +1789,7 @@ fn test_long_liquidation() {
         order_handler,
         order_vault,
         reader,
-        referal_storage,
+        referral_storage,
         _withdrawal_handler,
         _withdrawal_vault,
         liquidation_handler,
@@ -1893,7 +1893,7 @@ fn test_long_liquidation() {
     };
 
     let position_info = reader
-        .get_position_info(data_store, referal_storage, position_key_1, market_prices, 0, contract_address, true);
+        .get_position_info(data_store, referral_storage, position_key_1, market_prices, 0, contract_address, true);
     assert(position_info.base_pnl_usd.mag == 350000000000000000000, 'PnL should be 350$');
 
     let balance_USDC = IERC20Dispatcher { contract_address: contract_address_const::<'USDC'>() }
@@ -1932,7 +1932,7 @@ fn test_long_liquidation() {
     };
 
     let (is_liquiditable, _reason) = reader
-        .is_position_liquidable(data_store, referal_storage, first_position, market, market_prices, true);
+        .is_position_liquidable(data_store, referral_storage, first_position, market, market_prices, true);
 
     assert(is_liquiditable == true, 'Position is liquidable');
 
@@ -1945,7 +1945,7 @@ fn test_long_liquidation() {
     };
 
     let (is_liquiditable, _reason) = reader
-        .is_position_liquidable(data_store, referal_storage, first_position, market, market_prices, true);
+        .is_position_liquidable(data_store, referral_storage, first_position, market, market_prices, true);
 
     assert(is_liquiditable == false, 'Position is not liquidable');
 
@@ -2035,7 +2035,7 @@ fn test_long_leverage_positif_close() {
         order_handler,
         order_vault,
         reader,
-        referal_storage,
+        referral_storage,
         _withdrawal_handler,
         _withdrawal_vault,
         _liquidation_handler,
@@ -2134,7 +2134,7 @@ fn test_long_leverage_positif_close() {
     };
 
     let position_info = reader
-        .get_position_info(data_store, referal_storage, position_key_1, market_prices, 0, contract_address, true);
+        .get_position_info(data_store, referral_storage, position_key_1, market_prices, 0, contract_address, true);
     assert(position_info.base_pnl_usd.mag == 3500000000000000000000, 'PnL should be 3500$');
 
     //////////////////////////////////// CLOSE POSITION //////////////////////////////////////
@@ -2153,7 +2153,7 @@ fn test_long_leverage_positif_close() {
     };
 
     let position_info = reader
-        .get_position_info(data_store, referal_storage, position_key_1, market_prices, 0, contract_address, true);
+        .get_position_info(data_store, referral_storage, position_key_1, market_prices, 0, contract_address, true);
     assert(position_info.base_pnl_usd.mag == 5000000000000000000000, 'PnL should be 5000$');
 
     start_cheat_caller_address(market.market_token, caller_address);
@@ -2234,7 +2234,7 @@ fn test_long_leverage_liquidation() {
         order_handler,
         order_vault,
         reader,
-        referal_storage,
+        referral_storage,
         _withdrawal_handler,
         _withdrawal_vault,
         liquidation_handler,
@@ -2334,7 +2334,7 @@ fn test_long_leverage_liquidation() {
     };
 
     let position_info = reader
-        .get_position_info(data_store, referal_storage, position_key_1, market_prices, 0, contract_address, true);
+        .get_position_info(data_store, referral_storage, position_key_1, market_prices, 0, contract_address, true);
     assert(position_info.base_pnl_usd.mag == 3500000000000000000000, 'PnL should be 3500$');
 
     let balance_USDC = IERC20Dispatcher { contract_address: contract_address_const::<'USDC'>() }
@@ -2372,7 +2372,7 @@ fn test_long_leverage_liquidation() {
     };
 
     let (is_liquiditable, _reason) = reader
-        .is_position_liquidable(data_store, referal_storage, first_position, market, market_prices, true);
+        .is_position_liquidable(data_store, referral_storage, first_position, market, market_prices, true);
     // position x10 leverage is liquidable at 3000$, position x1 leverage is not liquidable at 3000$
     assert(is_liquiditable == true, 'Position is liquidable');
 
@@ -2462,7 +2462,7 @@ fn test_long_increase_then_cancel() {
         order_handler,
         order_vault,
         _reader,
-        _referal_storage,
+        _referral_storage,
         _withdrawal_handler,
         _withdrawal_vault,
         _liquidation_handler,

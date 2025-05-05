@@ -1242,7 +1242,7 @@ fn setup() -> (
         _order_handler,
         _order_vault,
         reader,
-        referal_storage,
+        referral_storage,
         _withdrawal_handler,
         _withdrawal_vault,
         _liquidation_handler,
@@ -1252,5 +1252,14 @@ fn setup() -> (
     ) =
         tests_lib::setup();
 
-    (caller_address, role_store, data_store, market_token_class, reader, referal_storage, role_module_class, bank_class)
+    (
+        caller_address,
+        role_store,
+        data_store,
+        market_token_class,
+        reader,
+        referral_storage,
+        role_module_class,
+        bank_class,
+    )
 }

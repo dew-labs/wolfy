@@ -39,7 +39,7 @@ use traits::Default;
 // *********************************************************************************************
 #[test]
 #[should_panic(expected: ('already_initialized',))]
-fn given_already_intialized_state_when_initialize_then_fails() {
+fn given_already_initialized_state_when_initialize_then_fails() {
     let (
         _caller_address,
         _role_store,

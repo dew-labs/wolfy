@@ -79,7 +79,7 @@ fn setup() -> (
 // *********************************************************************************************
 #[test]
 #[should_panic(expected: ('already_initialized',))]
-fn given_already_intialized_when_initialize_then_fails() {
+fn given_already_initialized_when_initialize_then_fails() {
     let (_caller_address, _, role_store, data_store, bank, _, role_module_class) = setup();
     // try initializing after previously initializing in setup
     bank.initialize(data_store.contract_address, role_store.contract_address, role_module_class.class_hash);

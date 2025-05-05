@@ -78,7 +78,7 @@ fn test_swap_market_integration() {
         order_handler,
         order_vault,
         reader,
-        referal_storage,
+        referral_storage,
         withdrawal_handler,
         withdrawal_vault,
         liquidation_handler,

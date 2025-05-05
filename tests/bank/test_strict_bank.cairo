@@ -57,7 +57,7 @@ fn setup_contracts() -> (
         _order_handler,
         _order_vault,
         _reader,
-        _referal_storage,
+        _referral_storage,
         _withdrawal_handler,
         _withdrawal_vault,
         _liquidation_handler,
@@ -251,4 +251,3 @@ fn given_caller_has_no_controller_role_when_sync_token_balance_then_fails() {
     // teardown
     teardown(data_store, strict_bank);
 }
-

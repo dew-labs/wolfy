@@ -244,7 +244,7 @@ fn setup() -> (
         _order_handler,
         _order_vault,
         _reader,
-        _referal_storage,
+        _referral_storage,
         _withdrawal_handler,
         withdrawal_vault,
         _liquidation_handler,

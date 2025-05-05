@@ -29,7 +29,7 @@ fn given_normal_conditions_when_nonce_utils_functions_then_works() {
         _order_handler,
         _order_vault,
         _reader,
-        _referal_storage,
+        _referral_storage,
         _withdrawal_handler,
         _withdrawal_vault,
         _liquidation_handler,
